@@ -1,0 +1,8 @@
+package com.wci.umls.server.model.content;
+
+/**
+ * Represents a relationship between two {@link Atom}s.
+ */
+public interface AtomRelationship extends Relationship<Atom, Atom> {
+  // nothing extra, connects two atoms
+}
