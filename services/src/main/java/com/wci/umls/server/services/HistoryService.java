@@ -2,6 +2,7 @@ package com.wci.umls.server.services;
 
 import java.util.Date;
 
+import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.helpers.AtomList;
 import com.wci.umls.server.helpers.ConceptList;
 import com.wci.umls.server.helpers.PfsParameter;
@@ -11,7 +12,6 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
-import com.wci.umls.server.model.meta.ReleaseInfo;
 
 /**
  * Generically represents a service for asking questions about content history.

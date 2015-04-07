@@ -12,13 +12,23 @@ public class KeyValuePair {
   private String key;
 
   /** The value. */
-  private String value = "";
+  private String value;
 
   /**
    * Instantiates an empty {@link KeyValuePair}.
    */
   public KeyValuePair() {
     // do nothing
+  }
+
+  /**
+   * Instantiates a {@link KeyValuePair} from the specified parameters.
+   *
+   * @param pair the pair
+   */
+  public KeyValuePair(KeyValuePair pair) {
+    this.key = pair.getKey();
+    this.value = pair.getValue();
   }
 
   /**
@@ -31,7 +41,6 @@ public class KeyValuePair {
     this.key = key;
     this.value = value;
   }
-
   /**
    * Returns the key.
    * 

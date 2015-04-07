@@ -9,31 +9,36 @@ import com.wci.umls.server.model.content.Concept;
 public interface PfsParameter {
 
   /**
-   * Returns the maximum number of results
+   * Returns the maximum number of results.
+   *
    * @return the maximum number of results
    */
   public int getMaxResults();
 
   /**
-   * Sets the maximum number of results
+   * Sets the maximum number of results.
+   *
    * @param maxResults the maximum number of results
    */
   public void setMaxResults(int maxResults);
 
   /**
-   * Returns the starting index of a query result subset
+   * Returns the starting index of a query result subset.
+   *
    * @return the start index
    */
   public int getStartIndex();
 
   /**
-   * Sets the starting index of a query result subset
+   * Sets the starting index of a query result subset.
+   *
    * @param startIndex the start index
    */
   public void setStartIndex(int startIndex);
 
   /**
-   * Returns the filter string
+   * Returns the filter string.
+   *
    * @return the filter string
    */
   public String getQueryRestriction();
@@ -55,7 +60,8 @@ public interface PfsParameter {
   public String getSortField();
 
   /**
-   * Sets the sort field name
+   * Sets the sort field name.
+   *
    * @param sortField the sort field name
    */
   public void setSortField(String sortField);
@@ -67,4 +73,18 @@ public interface PfsParameter {
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   public boolean isIndexInRange(int i);
+
+  /**
+   * Indicates whether or not ascending is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isAscending();
+
+  /**
+   * Sets the ascending flag
+   *
+   * @param ascending the ascending
+   */
+  public void setAscending(boolean ascending);
 }

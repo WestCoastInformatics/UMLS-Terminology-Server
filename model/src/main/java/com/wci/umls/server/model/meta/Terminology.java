@@ -8,7 +8,6 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 
-// TODO: Auto-generated Javadoc
 /**
  * Represents a source of data with version information.
  */
@@ -132,28 +131,6 @@ public interface Terminology extends Abbreviation {
    * @param synonymousNames the synonymous names
    */
   public void setSynonymousNames(List<String> synonymousNames);
-
-  /**
-   * Adds the synonymous name.
-   * 
-   * @param synonymousName the synonymous name
-   */
-  public void addSynonymousName(String synonymousName);
-
-  /**
-   * Returns the atom count. This is a computable shorthand for knowing number
-   * of atoms for the source.
-   * 
-   * @return the child count
-   */
-  public int getAtomCount();
-
-  /**
-   * Sets the atom count. This is a computable shorthand for knowing number of
-   * atoms for the source.
-   * @param ct the count
-   */
-  public void setAtomCount(int ct);
 
   /**
    * Returns the organizing class type, which is an indicator

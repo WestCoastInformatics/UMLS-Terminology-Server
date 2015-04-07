@@ -24,7 +24,7 @@ public class KeyValuePairList {
   public KeyValuePairList() {
     // do nothing
   }
-
+  
   /**
    * Instantiates a {@link KeyValuePairList} from the specified parameters.
    *
@@ -34,7 +34,7 @@ public class KeyValuePairList {
     name = list.getName();
     keyValuePairList = list.getKeyValuePairList();
   }
-
+  
   /**
    * Returns the key value pair list.
    * 
@@ -79,6 +79,26 @@ public class KeyValuePairList {
    */
   public String getName() {
     return name;
+  }
+  
+  /**
+   * Indicates whether not it contains the specified key pair.
+   *
+   * @param pair the pair
+   * @return true, if successful
+   */
+  public boolean contains(KeyValuePair pair) {
+    return this.getKeyValuePairList().contains(pair);
+  }
+  
+  /**
+   * Indicates whether not it contains the specified key pair list.
+   *
+   * @param pairList the pair list
+   * @return true, if successful
+   */
+  public boolean contains(KeyValuePairList pairList) {
+    return this.getKeyValuePairList().contains(pairList.getKeyValuePairList());
   }
 
   /* (non-Javadoc)

@@ -1,6 +1,6 @@
 package com.wci.umls.server.helpers;
 
-import com.wci.umls.server.model.meta.ReleaseInfo;
+import com.wci.umls.server.ReleaseInfo;
 
 /**
  * Represents a sortable list of {@link ReleaseInfo}

@@ -26,6 +26,7 @@
     <properties.maven.plugin>1.0-alpha-2</properties.maven.plugin>
     <build.helper.maven.version>1.9.1</build.helper.maven.version>
     <truezip.maven.version>1.2</truezip.maven.version>
+    <maven.invoker.version>2.2</maven.invoker.version>
 
     <!-- Set third-party dependency versions -->
     <hibernate.version>4.3.8.Final</hibernate.version>
@@ -64,6 +65,12 @@
       <dependency>
         <groupId>com.wci.umls.server</groupId>
         <artifactId>term-server-services</artifactId>
+        <version>${releaseVersion}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.wci.umls.server</groupId>
+        <artifactId>term-server-model-jpa</artifactId>
         <version>${releaseVersion}</version>
       </dependency>
 
@@ -133,6 +140,12 @@
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <version>${maven.resources.plugin.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven.shared</groupId>
+        <artifactId>maven-invoker</artifactId>
+        <version>${maven.invoker.version}</version>
       </dependency>
 
       <!-- Required for Jersey and JSON -->

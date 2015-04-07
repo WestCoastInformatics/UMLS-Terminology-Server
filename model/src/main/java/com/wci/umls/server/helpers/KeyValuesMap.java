@@ -3,18 +3,19 @@ package com.wci.umls.server.helpers;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
- * Container for key value pairs.
+ * Container for key value-list pairs.
  */
-@XmlRootElement(name = "keyValuePair")
+@XmlRootElement(name = "keyValuesMap")
 public class KeyValuesMap {
 
   /** The map. */
-  private Map<String, HashSet<String>> map;
+  private Map<String, Values> map;
 
   /**
    * Instantiates an empty {@link KeyValuesMap}.
@@ -37,8 +38,8 @@ public class KeyValuesMap {
    *
    * @return the map
    */
-  @XmlTransient
-  public Map<String, HashSet<String>> getMap() {
+  @XmlElement(name = "map")
+  public Map<String, Values> getMap() {
     return map;
   }
 
@@ -47,7 +48,7 @@ public class KeyValuesMap {
    *
    * @param map the map
    */
-  public void setMap(Map<String, HashSet<String>> map) {
+  public void setMap(Map<String, Values> map) {
     this.map = map;
   }
 
@@ -59,10 +60,10 @@ public class KeyValuesMap {
    */
   public void put(String key, String value) {
     if (!map.containsKey(key)) {
-      HashSet<String> values = new HashSet<>();
+      Values values = new Values();
       map.put(key, values);
     }
-    map.get(key).add(value);
+    map.get(key).getSet().add(value);
   }
 
   /*
@@ -99,4 +100,82 @@ public class KeyValuesMap {
       return false;
     return true;
   }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return map.toString();
+  }
+
+  /**
+   * The values class, for JAXB serialization.
+   */
+  @XmlRootElement(name = "values")
+  public static class Values {
+
+    /** The set. */
+    protected Set<String> set;
+
+    /**
+     * Instantiates an empty {@link Values}.
+     */
+    public Values() {
+      set = new HashSet<String>();
+    }
+
+    /**
+     * Returns the sets the.
+     *
+     * @return the sets the
+     */
+    @XmlElement(name="item")
+    public Set<String> getSet() {
+      return set;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+      return set.toString();
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((set == null) ? 0 : set.hashCode());
+      return result;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      Values other = (Values) obj;
+      if (set == null) {
+        if (other.set != null)
+          return false;
+      } else if (!set.equals(other.set))
+        return false;
+      return true;
+    }
+
+  }
+
 }

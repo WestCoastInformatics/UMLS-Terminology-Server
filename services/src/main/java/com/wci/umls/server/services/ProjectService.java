@@ -6,39 +6,24 @@ package com.wci.umls.server.services;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConceptList;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
 
 /**
- * Generically represents a service for accessing project info.
+ * Generically represents a service for accessing {@link Project} information.
  */
 public interface ProjectService extends RootService {
-
-  /**
-   * Returns the projects.
-   *
-   * @return the projects
-   */
-  public ProjectList getProjects();
-
-  /**
-   * Returns the user role for project.
-   *
-   * @param username the username
-   * @param projectId the project id
-   * @return the user role for project
-   * @throws Exception the exception
-   */
-  public UserRole getUserRoleForProject(String username, Long projectId)
-    throws Exception;
 
   /**
    * Returns the concepts in scope.
    *
    * @param project the project
+   * @param pfs the pfs
    * @return the concepts in scope
    * @throws Exception the exception
    */
-  public ConceptList getConceptsInScope(Project project) throws Exception;
+  public ConceptList findConceptsInScope(Project project, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Returns the project.
@@ -69,4 +54,22 @@ public interface ProjectService extends RootService {
    * @param projectId the project id
    */
   public void removeProject(Long projectId);
+
+  /**
+   * Returns the projects.
+   *
+   * @return the projects
+   */
+  public ProjectList getProjects();
+
+  /**
+   * Returns the user role for project.
+   *
+   * @param username the username
+   * @param projectId the project id
+   * @return the user role for project
+   * @throws Exception the exception
+   */
+  public UserRole getUserRoleForProject(String username, Long projectId)
+    throws Exception;
 }

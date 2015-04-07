@@ -40,9 +40,9 @@ public class PushBackReader extends BufferedReader {
 
   /**
    * Returns the next line from the reader.
-   * 
+   *
    * @return the next line from the reader
-   * @throws IOException
+   * @throws IOException Signals that an I/O exception has occurred.
    */
   @Override
   public String readLine() throws IOException {
@@ -59,10 +59,14 @@ public class PushBackReader extends BufferedReader {
 
   /**
    * Pushes a line of input back onto the reader.
-   * 
+   *
    * @param line input line to be pushed back on reader
+   * @throws Exception the exception
    */
-  public void push(String line) {
+  public void push(String line) throws Exception {
+    if (pushedBackLine != null) {
+      throw new Exception("Line already pushed, must readLine before push again");
+    }
     this.pushedBackLine = line;
   }
 

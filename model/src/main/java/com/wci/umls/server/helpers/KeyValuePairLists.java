@@ -23,6 +23,16 @@ public class KeyValuePairLists {
   }
 
   /**
+   * Instantiates an empty {@link KeyValuePairLists}.
+   *
+   * @param lists the lists
+   */
+  public KeyValuePairLists(KeyValuePairLists lists) {
+    keyValuePairLists = lists.getKeyValuePairLists();
+  }
+  
+  
+  /**
    * Returns the key value pair lists.
    * 
    * @return the key value pair lists
@@ -66,7 +76,7 @@ public class KeyValuePairLists {
    * 
    * @param keyValuePairList the key value pair list
    */
-  public void removeIdNameMap(KeyValuePairList keyValuePairList) {
+  public void removeKeyValuePairList(KeyValuePairList keyValuePairList) {
     keyValuePairLists.remove(keyValuePairList);
 
   }

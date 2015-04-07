@@ -6,6 +6,20 @@ package com.wci.umls.server.model.meta;
 public interface Abbreviation {
 
   /**
+   * Returns the id.
+   *
+   * @return the id
+   */
+  public Long getId();
+
+  /**
+   * Sets the id.
+   *
+   * @param id the id
+   */
+  public void setId(Long id);
+
+  /**
    * Returns the abbreviation.
    * 
    * @return the abbreviation
