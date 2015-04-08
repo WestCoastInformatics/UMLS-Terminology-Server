@@ -1,0 +1,91 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Module Metadata -->
+  <parent>
+    <groupId>com.wci.umls.server</groupId>
+    <artifactId>term-server-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../../parent</relativePath>
+  </parent>
+
+  <artifactId>term-server-admin-remover</artifactId>
+  <name>UMLS terminology server admin remover tool.</name>
+  <description>Used to remove loaded terminologies from the database.</description>
+  <packaging>pom</packaging>
+
+  <!-- Mojo properties -->
+  <properties>
+    <!-- The terminology -->
+    <terminology></terminology>
+    <!-- The terminology version, default "latest" -->
+    <version>latest</version>
+    <!-- the release info names to remove -->
+    <release.info.names></release.info.names>
+    <!-- whether the server is expected to be up (Default: false) -->
+  	<server>false</server>
+  </properties>
+
+  <profiles>
+
+    <!-- Remove terminology, specify -Drun.config.umls=... -Dterminology=... -->
+    <profile>
+      <id>Terminology</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wci.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>remove-terminology</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>remove-terminology</goal>
+                </goals>
+                <configuration>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Remove release info, specify -Drun.config.umls=... -Dterminology=... -->
+    <profile>
+      <id>ReleaseInfo</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wci.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>remove-release-info</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>remove-release-info</goal>
+                </goals>
+                <configuration>
+                  <!-- the terminology -->
+                  <terminology>${terminology}</terminology>
+                  <!-- Leave blank to remove all -->
+                  <releaseInfoNames>${release.info.names}</releaseInfoNames>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+</project>

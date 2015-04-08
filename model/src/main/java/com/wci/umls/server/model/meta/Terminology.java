@@ -9,7 +9,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 
 /**
- * Represents a source of data with version information.
+ * Represents a terminology of data with version information.
  */
 public interface Terminology extends Abbreviation {
 
@@ -28,7 +28,7 @@ public interface Terminology extends Abbreviation {
   public void setTerminologyVersion(String terminologyVersion);
 
   /**
-   * Indicates whether or not this source asserts the direction of its
+   * Indicates whether or not this terminology asserts the direction of its
    * relations.
    * 
    * @return <code>true</code> if so, <code>false</code> otherwise
@@ -74,35 +74,35 @@ public interface Terminology extends Abbreviation {
    * 
    * @return the citation
    */
-  public SourceCitation getCitation();
+  public Citation getCitation();
 
   /**
    * Sets the citation.
    * 
    * @param citation the citation
    */
-  public void setCitation(SourceCitation citation);
+  public void setCitation(Citation citation);
 
   /**
-   * Indicates whether or not the source is the current version.
+   * Indicates whether or not the terminology is the current version.
    * 
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   public boolean isCurrent();
 
   /**
-   * Returns the root source.
+   * Returns the root terminology.
    * 
-   * @return the root source
+   * @return the root terminology
    */
-  public RootTerminology getRootSource();
+  public RootTerminology getRootTerminology();
 
   /**
-   * Sets the root source.
+   * Sets the root terminology.
    * 
-   * @param rootSource the root source
+   * @param rootTerminology the root terminology
    */
-  public void setRootSource(RootTerminology rootSource);
+  public void setRootTerminology(RootTerminology rootTerminology);
 
   /**
    * Returns the preferred name.

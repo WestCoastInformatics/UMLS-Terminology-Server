@@ -6,17 +6,19 @@ package com.wci.umls.server.jpa.meta;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
-import org.hibernate.search.annotations.IndexedEmbedded;
 
 import com.wci.umls.server.model.meta.ContactInfo;
 import com.wci.umls.server.model.meta.Language;
@@ -36,11 +38,11 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
     RootTerminology {
 
   /** The acquisition contact. */
-  @ManyToOne(targetEntity = ContactInfoJpa.class, fetch = FetchType.EAGER, optional = false)
+  @ManyToOne(targetEntity = ContactInfoJpa.class, fetch = FetchType.EAGER, optional = true)
   private ContactInfo acquisitionContact;
 
   /** The content contact. */
-  @ManyToOne(targetEntity = ContactInfoJpa.class, fetch = FetchType.EAGER, optional = false)
+  @ManyToOne(targetEntity = ContactInfoJpa.class, fetch = FetchType.EAGER, optional = true)
   private ContactInfo contentContact;
 
   /** The polyhierarchy flag. */
@@ -48,7 +50,7 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
   private boolean polyhierarchy;
 
   /** The current version. */
-  @OneToOne(targetEntity = TerminologyJpa.class, fetch = FetchType.EAGER, optional = false)
+  @OneToOne(targetEntity = TerminologyJpa.class, fetch = FetchType.EAGER, optional = true)
   private Terminology currentVersion;
 
   /** The family. */
@@ -56,15 +58,16 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
   private String family;
 
   /** The hierarchical name. */
-  @Column(nullable = false, length = 3000)
+  @Column(nullable = true, length = 3000)
   private String hierarchicalName;
 
   /** The language. */
   @ManyToOne(targetEntity = LanguageJpa.class, fetch = FetchType.EAGER, optional = false)
+  @JoinColumn(nullable = false)
   private Language language;
 
   /** The license contact. */
-  @ManyToOne(targetEntity = ContactInfoJpa.class, fetch = FetchType.EAGER, optional = false)
+  @ManyToOne(targetEntity = ContactInfoJpa.class, fetch = FetchType.EAGER, optional = true)
   private ContactInfo licenseContact;
 
   /** The preferred name. */
@@ -72,7 +75,7 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
   private String preferredName;
 
   /** The previous version. */
-  @OneToOne(targetEntity = TerminologyJpa.class, fetch = FetchType.EAGER, optional = false)
+  @OneToOne(targetEntity = TerminologyJpa.class, fetch = FetchType.EAGER, optional = true)
   private Terminology previousVersion;
 
   /** The restriction level. */
@@ -80,22 +83,22 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
   private int restrictionLevel;
 
   /** The short name. */
-  @Column(nullable = false, length = 3000)
+  @Column(nullable = true, length = 3000)
   private String shortName;
 
   /** The short name. */
-  @Column
+  @ElementCollection
+  @Column(nullable = true)
   private List<String> synonymousNames;
 
   /** The descriptions. */
   @OneToMany(mappedBy = "rootTerminology", fetch = FetchType.EAGER, orphanRemoval = true, targetEntity = TerminologyJpa.class)
-  @IndexedEmbedded(targetElement = TerminologyJpa.class)
   private List<Terminology> terminologies = null;
 
   /**
    * Instantiates an empty {@link RootTerminologyJpa}.
    */
-  protected RootTerminologyJpa() {
+  public RootTerminologyJpa() {
     // do nothing
   }
 
@@ -104,7 +107,7 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
    *
    * @param t the terminology
    */
-  protected RootTerminologyJpa(RootTerminology t) {
+  public RootTerminologyJpa(RootTerminology t) {
     super(t);
     acquisitionContact = t.getAcquisitionContact();
     contentContact = t.getContentContact();
@@ -118,7 +121,6 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
     restrictionLevel = t.getRestrictionLevel();
     shortName = t.getShortName();
     synonymousNames = t.getSynonymousNames();
-    terminologies = t.getTerminologies();
     polyhierarchy = t.isPolyhierachy();
   }
 
@@ -128,6 +130,7 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
    * @see com.wci.umls.server.model.meta.RootTerminology#getAcquisitionContact()
    */
   @Override
+  @XmlElement(type = ContactInfoJpa.class, name = "acquisitionContact")
   public ContactInfo getAcquisitionContact() {
     return acquisitionContact;
   }
@@ -150,6 +153,7 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
    * @see com.wci.umls.server.model.meta.RootTerminology#getContentContact()
    */
   @Override
+  @XmlElement(type = ContactInfoJpa.class, name = "contentContact")
   public ContactInfo getContentContact() {
     return contentContact;
   }
@@ -192,6 +196,7 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
    * @see com.wci.umls.server.model.meta.RootTerminology#getCurrentVersion()
    */
   @Override
+  @XmlElement(type = TerminologyJpa.class, name = "currentVersion")
   public Terminology getCurrentVersion() {
     return currentVersion;
   }
@@ -254,6 +259,7 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
    * @see com.wci.umls.server.helpers.HasLanguage#getLanguage()
    */
   @Override
+  @XmlElement(type = LanguageJpa.class, name = "language")
   public Language getLanguage() {
     return language;
   }
@@ -276,6 +282,7 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
    * @see com.wci.umls.server.model.meta.RootTerminology#getLicenseContact()
    */
   @Override
+  @XmlElement(type = ContactInfoJpa.class, name = "licenseContact")
   public ContactInfo getLicenseContact() {
     return licenseContact;
   }
@@ -320,6 +327,7 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
    * @see com.wci.umls.server.model.meta.RootTerminology#getPreviousVersion()
    */
   @Override
+  @XmlElement(type = TerminologyJpa.class, name = "previousVersion")
   public Terminology getPreviousVersion() {
     return previousVersion;
   }
@@ -396,28 +404,6 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
   @Override
   public void setSynonymousNames(List<String> synonymousNames) {
     this.synonymousNames = synonymousNames;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#getTerminologies()
-   */
-  @Override
-  public List<Terminology> getTerminologies() {
-    return terminologies;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.RootTerminology#setTerminologies(java.util
-   * .List)
-   */
-  @Override
-  public void setTerminologies(List<Terminology> terminologies) {
-    this.terminologies = terminologies;
   }
 
   /*

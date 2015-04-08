@@ -61,16 +61,30 @@
         <artifactId>term-server-model</artifactId>
         <version>${releaseVersion}</version>
       </dependency>
-
       <dependency>
         <groupId>com.wci.umls.server</groupId>
         <artifactId>term-server-services</artifactId>
         <version>${releaseVersion}</version>
       </dependency>
-
       <dependency>
         <groupId>com.wci.umls.server</groupId>
-        <artifactId>term-server-model-jpa</artifactId>
+        <artifactId>term-server-jpa-model</artifactId>
+        <version>${releaseVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.wci.umls.server</groupId>
+        <artifactId>term-server-jpa-services</artifactId>
+        <version>${releaseVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.wci.umls.server</groupId>
+        <artifactId>term-server-rest</artifactId>
+        <version>${releaseVersion}</version>
+        <classifier>classes</classifier>
+      </dependency>
+      <dependency>
+        <groupId>com.wci.umls.server</groupId>
+        <artifactId>term-server-rest-client</artifactId>
         <version>${releaseVersion}</version>
       </dependency>
 

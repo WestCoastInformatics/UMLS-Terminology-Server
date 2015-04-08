@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
+import javax.persistence.JoinColumn;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.log4j.Logger;
@@ -37,15 +38,17 @@ public class NullableFieldTester extends ProxyTester {
         "Test null field equals - " + clazz.getName());
 
     Set<String> notNullFields = getNotNullFields(clazz);
-    for (String field : includes) {
-      if (!notNullFields.contains(field)) {
-        Logger.getLogger(getClass()).info(
-            "  " + field + " is not defined as nullable");
-        return false;
+    if (includes != null) {
+      for (String field : includes) {
+        if (!notNullFields.contains(field)) {
+          Logger.getLogger(getClass()).info(
+              "  " + field + " is not defined as nullable");
+          return false;
+        }
       }
     }
     for (String field : notNullFields) {
-      if (!includes.contains(field)) {
+      if (includes == null || !includes.contains(field)) {
         Logger.getLogger(getClass()).info(
             "  " + field + " should be in the include list as nullable");
         return false;
@@ -75,6 +78,13 @@ public class NullableFieldTester extends ProxyTester {
         }
       }
 
+      if (field.isAnnotationPresent(JoinColumn.class)) {
+        JoinColumn annotation = field.getAnnotation(JoinColumn.class);
+        if (!annotation.nullable()) {
+          results.add(field.getName().toLowerCase());
+        }
+      }
+      
     }
 
     return results;

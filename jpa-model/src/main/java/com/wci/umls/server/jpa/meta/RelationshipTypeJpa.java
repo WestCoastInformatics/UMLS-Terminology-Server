@@ -4,7 +4,9 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
@@ -19,8 +21,8 @@ import com.wci.umls.server.model.meta.RelationshipType;
 }))
 @Audited
 @XmlRootElement(name = "relationshipType")
-public class RelationshipTypeJpa extends AbstractAbbreviation
-    implements RelationshipType {
+public class RelationshipTypeJpa extends AbstractAbbreviation implements
+    RelationshipType {
 
   /** The concept. */
   @OneToOne(targetEntity = RelationshipTypeJpa.class, optional = false)
@@ -29,17 +31,16 @@ public class RelationshipTypeJpa extends AbstractAbbreviation
   /**
    * Instantiates an empty {@link RelationshipTypeJpa}.
    */
-  protected RelationshipTypeJpa() {
+  public RelationshipTypeJpa() {
     // do nothing
   }
 
   /**
-   * Instantiates a {@link RelationshipTypeJpa} from the specified
-   * parameters.
+   * Instantiates a {@link RelationshipTypeJpa} from the specified parameters.
    *
    * @param rela the rela
    */
-  protected RelationshipTypeJpa(RelationshipType rela) {
+  public RelationshipTypeJpa(RelationshipType rela) {
     super(rela);
     inverse = rela.getInverse();
   }
@@ -50,6 +51,7 @@ public class RelationshipTypeJpa extends AbstractAbbreviation
    * @see com.wci.umls.server.model.meta.RelationshipType#getInverse()
    */
   @Override
+  @XmlTransient
   public RelationshipType getInverse() {
     return inverse;
   }
@@ -57,13 +59,56 @@ public class RelationshipTypeJpa extends AbstractAbbreviation
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.model.meta.RelationshipType#setInverse(com
+   * @see com.wci.umls.server.model.meta.RelationshipType#setInverse(com
    * .wci.umls.server.model.meta.RelationshipType)
    */
   @Override
   public void setInverse(RelationshipType inverse) {
     this.inverse = inverse;
+  }
+
+  /**
+   * Returns the inverse abbreviation. For JAXB.
+   *
+   * @return the inverse abbreviation
+   */
+  @XmlElement
+  public String getInverseAbbreviation() {
+    return inverse == null ? null : inverse.getAbbreviation();
+  }
+
+  /**
+   * Returns the inverse id. For JAXB.
+   *
+   * @return the inverse id
+   */
+  @XmlElement
+  public Long getInverseId() {
+    return inverse == null ? null : inverse.getId();
+  }
+
+  /**
+   * Sets the inverse abbreviation. For JAXB.
+   *
+   * @param inverseAbbreviation the inverse abbreviation
+   */
+  public void setInverseAbbreviation(String inverseAbbreviation) {
+    if (inverse == null) {
+      inverse = new RelationshipTypeJpa();
+    }
+    inverse.setAbbreviation(inverseAbbreviation);
+  }
+
+  /**
+   * Sets the inverse id. For JAXB.
+   *
+   * @param inverseId the inverse id
+   */
+  public void setInverseId(Long inverseId) {
+    if (inverse == null) {
+      inverse = new RelationshipTypeJpa();
+    }
+    inverse.setId(inverseId);
   }
 
   /*

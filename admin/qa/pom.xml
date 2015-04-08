@@ -1,0 +1,111 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Module Metadata -->
+  <parent>
+    <groupId>com.wci.umls.server</groupId>
+    <artifactId>term-server-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../../parent</relativePath>
+  </parent>
+
+  <artifactId>term-server-admin-qa</artifactId>
+  <name>UMLS terminology server admin QA tool.</name>
+  <description>Used for performing system wide QA checks</description>
+  <packaging>pom</packaging>
+
+  <profiles>
+
+
+    <!-- Database QA, specify -Drun.config.umls=... -->
+    <profile>
+      <id>Database</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wci.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <executions>
+              <execution>
+                <id>qa-database</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>qa-database</goal>
+                </goals>
+                <configuration>
+                  <!-- Queries should select >1 fields to avoid issues -->
+                  <queries>
+
+                    <property>
+                      <name>Validate active concept default preferred names -
+                        SNOMEDCT</name>
+                      <value>
+                        SELECT terminologyId, defaultPreferredName
+                        FROM
+                        concepts a
+                        WHERE a.active = 1 AND terminology =
+                        'SNOMEDCT' AND NOT EXISTS
+                        (SELECT * FROM descriptions b,
+                        language_refset_members c
+                        WHERE a.id =
+                        b.concept_id
+                        AND
+                        b.active = 1 AND c.active =
+                        1
+                        AND b.id = c.description_id
+                        AND
+                        b.typeId='900000000000003001'
+                        AND c.refSetId =
+                        '900000000000509007'
+                        AND c.acceptabilityId =
+                        '900000000000548007'
+                        AND a.defaultPreferredName =
+                        b.term);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Validate concept default preferred names - not
+                        SNOMEDCT</name>
+                      <value>
+                        SELECT terminologyId, defaultPreferredName
+                        FROM
+                        concepts a
+                        WHERE terminology != 'SNOMEDCT' AND NOT EXISTS
+                        (SELECT * FROM descriptions b
+                        WHERE a.id = b.concept_id
+                        AND a.defaultPreferredName = b.term);
+                      </value>
+                    </property>
+                    
+                    <property>
+                      <name>Duplicate relationships from
+                        source/destination/group/type</name>
+                      <value>
+                        SELECT a.terminologyId, b.terminologyId, a.relationshipGroup, a.typeId,
+                        a.terminology
+                        FROM
+                        relationships a, concepts b, concepts c
+                        WHERE a.sourceConcept_id = b.id and a.destinationConcept_id = c.id
+                        GROUP BY a.terminologyId, b.terminologyId, a.relationshipGroup,
+                        a.typeId, a.terminology
+                        HAVING count(*)>1;
+                      </value>
+                    </property>
+
+                    <!-- Validate projects -->
+                    <!-- Validate release info -->
+
+                  </queries>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+
+  </profiles>
+</project>

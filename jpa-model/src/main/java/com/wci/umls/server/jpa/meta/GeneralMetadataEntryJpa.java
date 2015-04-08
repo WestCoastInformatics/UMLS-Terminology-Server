@@ -33,7 +33,7 @@ public class GeneralMetadataEntryJpa extends AbstractAbbreviation implements
   /**
    * Instantiates an empty {@link GeneralMetadataEntryJpa}.
    */
-  protected GeneralMetadataEntryJpa() {
+  public GeneralMetadataEntryJpa() {
     // do nothing
   }
 
@@ -43,7 +43,7 @@ public class GeneralMetadataEntryJpa extends AbstractAbbreviation implements
    *
    * @param entry the entry
    */
-  protected GeneralMetadataEntryJpa(GeneralMetadataEntry entry) {
+  public GeneralMetadataEntryJpa(GeneralMetadataEntry entry) {
     super(entry);
     key = entry.getKey();
     type = entry.getType();

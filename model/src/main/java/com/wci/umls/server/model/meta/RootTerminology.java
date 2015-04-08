@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.wci.umls.server.helpers.HasLanguage;
 
-// TODO: Auto-generated Javadoc
 /**
  * Represents a {@link Terminology} of data independent of version information.
  */
@@ -93,20 +92,6 @@ public interface RootTerminology extends Abbreviation, HasLanguage {
    * @param licenseContact the license contact
    */
   public void setLicenseContact(ContactInfo licenseContact);
-
-  /**
-   * Returns the terminologies.
-   * 
-   * @return the terminologies
-   */
-  public List<Terminology> getTerminologies();
-
-  /**
-   * Sets the terminologies.
-   *
-   * @param terminologies the terminologies
-   */
-  public void setTerminologies(List<Terminology> terminologies);
 
   /**
    * Returns the preferred name.

@@ -174,7 +174,7 @@ public class GetterSetterTester extends ProxyTester {
     if (getResult == proxy || proxy.equals(getResult))
       return;
     throw new RuntimeException("Getter " + get.getName()
-        + " did not return value from setter");
+        + " did not return value from setter: " + proxy + ", " + getResult);
   }
 
 }

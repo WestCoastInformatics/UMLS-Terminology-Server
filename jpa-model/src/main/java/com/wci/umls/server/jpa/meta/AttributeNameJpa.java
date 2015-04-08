@@ -24,7 +24,7 @@ public class AttributeNameJpa extends AbstractAbbreviation implements
   /**
    * Instantiates an empty {@link AttributeNameJpa}.
    */
-  protected AttributeNameJpa() {
+  public AttributeNameJpa() {
     // do nothing
   }
 
@@ -33,7 +33,7 @@ public class AttributeNameJpa extends AbstractAbbreviation implements
    *
    * @param atn the atn
    */
-  protected AttributeNameJpa(AttributeName atn) {
+  public AttributeNameJpa(AttributeName atn) {
     super(atn);
   }
   

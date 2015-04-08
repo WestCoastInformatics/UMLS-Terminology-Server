@@ -32,7 +32,7 @@ public class LanguageJpa extends AbstractAbbreviation implements Language {
   /**
    * Instantiates an empty {@link LanguageJpa}.
    */
-  protected LanguageJpa() {
+  public LanguageJpa() {
     // do nothing
   }
 
@@ -41,7 +41,7 @@ public class LanguageJpa extends AbstractAbbreviation implements Language {
    *
    * @param language the language
    */
-  protected LanguageJpa(Language language) {
+  public LanguageJpa(Language language) {
     super(language);
     isoCode = language.getISOCode();
     iso3Code = language.getISO3Code();

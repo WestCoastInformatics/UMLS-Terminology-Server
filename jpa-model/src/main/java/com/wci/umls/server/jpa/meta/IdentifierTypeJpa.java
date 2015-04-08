@@ -24,7 +24,7 @@ public class IdentifierTypeJpa extends AbstractAbbreviation implements
   /**
    * Instantiates an empty {@link IdentifierTypeJpa}.
    */
-  protected IdentifierTypeJpa() {
+  public IdentifierTypeJpa() {
     // do nothing
   }
 
@@ -33,7 +33,7 @@ public class IdentifierTypeJpa extends AbstractAbbreviation implements
    *
    * @param idType the id type
    */
-  protected IdentifierTypeJpa(IdentifierType idType) {
+  public IdentifierTypeJpa(IdentifierType idType) {
     super(idType);
   }
 

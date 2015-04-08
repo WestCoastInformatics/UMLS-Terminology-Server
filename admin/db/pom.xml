@@ -1,0 +1,77 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Module Metadata -->
+  <parent>
+    <groupId>com.wci.umls.server</groupId>
+    <artifactId>term-server-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../../parent</relativePath>
+  </parent>
+
+  <artifactId>term-server-admin-db</artifactId>
+  <name>umls Terminology server admin db creator and updater tool.</name>
+  <description>Used to create the umls DB schema and update it when new code is deployed.</description>
+  <packaging>pom</packaging>
+
+  <profiles>
+
+    <!-- Create DB, specify -Drun.config.umls=... -->
+    <profile>
+      <id>Createdb</id>
+      <build>
+        <plugins>
+
+          <!-- Create the database schema (or create it) -->
+          <plugin>
+            <groupId>com.wci.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>createdb</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>updatedb</goal>
+                </goals>
+                <configuration>
+                  <mode>create</mode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Update DB, specify -Drun.config.umls=... -->
+    <profile>
+      <id>Updatedb</id>
+      <build>
+        <plugins>
+
+          <!-- Update the database schema (or create it) -->
+          <plugin>
+            <groupId>com.wci.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>updatedb</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>updatedb</goal>
+                </goals>
+                <configuration>
+                  <mode>update</mode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+</project>

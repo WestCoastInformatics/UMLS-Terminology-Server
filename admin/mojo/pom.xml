@@ -1,0 +1,102 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Module Metadata -->
+  <parent>
+    <groupId>com.wci.umls.server</groupId>
+    <artifactId>term-server-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../../parent</relativePath>
+  </parent>
+
+  <artifactId>term-server-admin-mojo</artifactId>
+  <name>UMLS terminology server admin mojos.</name>
+  <description>Implementations for the admin tool configurations.</description>
+  <packaging>maven-plugin</packaging>
+
+  <!-- Dependencies -->
+  <dependencies>
+
+    <!-- Model interfaces. -->
+    <dependency>
+      <groupId>com.wci.umls.server</groupId>
+      <artifactId>term-server-model</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.wci.umls.server</groupId>
+      <artifactId>term-server-jpa-model</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.wci.umls.server</groupId>
+      <artifactId>term-server-services</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.wci.umls.server</groupId>
+      <artifactId>term-server-jpa-services</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.wci.umls.server</groupId>
+      <artifactId>term-server-rest-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.wci.umls.server</groupId>
+      <artifactId>term-server-rest</artifactId>
+      <classifier>classes</classifier>
+    </dependency>
+
+    <!-- JPA dependencies -->
+    <dependency>
+      <groupId>javax.transaction</groupId>
+      <artifactId>jta</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-c3p0</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-search-orm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-envers</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+    </dependency>
+
+    <!-- Logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+    </dependency>
+
+    <!-- Maven Plugin API -->
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+    </dependency>
+
+    <!-- Apache commons -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+
+  </dependencies>
+
+</project>

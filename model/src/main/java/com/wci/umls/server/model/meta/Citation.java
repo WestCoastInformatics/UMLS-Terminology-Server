@@ -1,10 +1,26 @@
 package com.wci.umls.server.model.meta;
 
+import java.util.Date;
+
 /**
  * Represents a structured citation.
  */
-public interface SourceCitation {
+public interface Citation {
 
+  /**
+   * Returns the id.
+   *
+   * @return the id
+   */
+  public Long getId();
+
+  /**
+   * Sets the id.
+   *
+   * @param id the id
+   */
+  public void setId(Long id);
+  
   /**
    * Returns the address.
    * 
@@ -52,28 +68,28 @@ public interface SourceCitation {
    * 
    * @return the date of publication
    */
-  public String getDateOfPublication();
+  public Date getDateOfPublication();
 
   /**
    * Sets the date of publication.
    * 
    * @param dateOfPublication the date of publication
    */
-  public void setDateOfPublication(String dateOfPublication);
+  public void setDateOfPublication(Date dateOfPublication);
 
   /**
    * Returns the date of revision.
    * 
    * @return the date of revision
    */
-  public String getDateOfRevision();
+  public Date getDateOfRevision();
 
   /**
    * Sets the date of revision.
    * 
    * @param dateOfRevision the date of revision
    */
-  public void setDateOfRevision(String dateOfRevision);
+  public void setDateOfRevision(Date dateOfRevision);
 
   /**
    * Returns the edition.
@@ -187,19 +203,6 @@ public interface SourceCitation {
    */
   public void setTitle(String title);
 
-  /**
-   * Returns the source.
-   * 
-   * @return the source
-   */
-  public Terminology getSource();
-
-  /**
-   * Sets the source.
-   * 
-   * @param source the source
-   */
-  public void setSource(Terminology source);
 
   /**
    * Returns the extent.

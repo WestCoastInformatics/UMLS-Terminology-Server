@@ -59,7 +59,7 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
   /**
    * Instantiates an empty {@link TermTypeJpa}.
    */
-  protected TermTypeJpa() {
+  public TermTypeJpa() {
     // do nothing
   }
 
@@ -68,7 +68,7 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
    *
    * @param tty the tty
    */
-  protected TermTypeJpa(TermType tty) {
+  public TermTypeJpa(TermType tty) {
     super(tty);
     codeVariantType = tty.getCodeVariantType();
     hierarchicalType = tty.getHierarchicalType();

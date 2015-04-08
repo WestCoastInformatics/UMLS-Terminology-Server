@@ -1,0 +1,58 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Module Metadata -->
+  <parent>
+    <groupId>com.wci.umls.server</groupId>
+    <artifactId>term-server-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../../parent</relativePath>
+  </parent>
+
+  <artifactId>term-server-admin-lucene</artifactId>
+  <name>UMLS terminology server admin reindexing tool.</name>
+  <description>Rebuilds Lucene indexes.</description>
+  <packaging>pom</packaging>
+
+  <properties>
+    <!-- Indicate objects to index, leave blank for all objects -->
+    <!-- Override this property setting on the command line -->
+    <indexed.objects></indexed.objects>
+    <server></server>
+    <!-- Indicates whether to run against a server (true/false) -->
+    <server>false</server>
+  </properties>
+
+  <profiles>
+    <!-- Rebuild indexes, specify -Drun.config.umls=... and -Dindexed.objects=... -->
+    <profile>
+      <id>Reindex</id>
+      <build>
+        <plugins>
+          <!-- Reindex -->
+          <plugin>
+            <groupId>com.wci.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>reindex</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>reindex</goal>
+                </goals>
+                <configuration>
+                  <!-- Specify -DindexedObjects=... and -Dserver=[true/false] -->
+                  <indexedObjects>${indexed.objects}</indexedObjects>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+  </profiles>  
+</project>

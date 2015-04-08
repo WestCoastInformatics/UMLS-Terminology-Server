@@ -4,9 +4,6 @@
   <modelVersion>4.0.0</modelVersion>
 
   <!-- Module Metadata -->
-  <!-- Parent is TBD <parent> <groupId>org.ihtsdo.otf</groupId> <artifactId>otf-parent</artifactId> 
-    <version>1.0.0-SNAPSHOT</version> <relativePath/> </parent> -->
-
   <groupId>com.wci.umls.server</groupId>
   <artifactId>term-server-aggregator</artifactId>
   <version>1.0.0-SNAPSHOT</version>
@@ -21,6 +18,10 @@
     <module>model</module>
     <module>services</module>
     <module>jpa-model</module>
+    <module>jpa-services</module>
+    <module>admin</module>
+    <module>rest</module>
+    <module>rest-client</module>
   </modules>
 
 

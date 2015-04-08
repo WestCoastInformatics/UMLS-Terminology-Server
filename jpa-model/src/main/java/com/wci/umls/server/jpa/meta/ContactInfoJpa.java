@@ -88,7 +88,7 @@ public class ContactInfoJpa implements ContactInfo {
   /**
    * Instantiates an empty {@link ContactInfoJpa}.
    */
-  protected ContactInfoJpa() {
+  public ContactInfoJpa() {
     // do nothing
   }
 
@@ -97,7 +97,7 @@ public class ContactInfoJpa implements ContactInfo {
    *
    * @param contactInfo the i
    */
-  protected ContactInfoJpa(ContactInfo contactInfo) {
+  public ContactInfoJpa(ContactInfo contactInfo) {
     address1 = contactInfo.getAddress1();
     address2 = contactInfo.getAddress2();
     city = contactInfo.getCity();

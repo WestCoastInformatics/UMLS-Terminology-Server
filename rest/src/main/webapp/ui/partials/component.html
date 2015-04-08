@@ -1,0 +1,21 @@
+<div ng-show="object != null">
+	<table class="table table-compact">
+		<tbody>
+			<!--  boolean flags -->
+			<tr>
+				<td style="width: 15%">Flags</td>
+				<td><label style="margin-right: 5px;"
+					ng-repeat="(key, value) in object" ng-if="isTrueFalse(value) && key != 'viewed'"
+					ng-class="{'label label-success' : value, 'label label-default' : !value}">
+						{{getLabelString(key, value)}} </label></td>
+			</tr>
+			
+			<!--  Fields (non-component-arrays) -->
+			<tr ng-repeat="(key, value) in object"
+				ng-if="!isTrueFalse(value) && !isComponentArray(value)">
+				<td>{{key}}</td>
+				<td>{{value}}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

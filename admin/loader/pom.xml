@@ -1,0 +1,165 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Module Metadata -->
+  <parent>
+    <groupId>com.wci.umls.server</groupId>
+    <artifactId>term-server-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../../parent</relativePath>
+  </parent>
+
+  <artifactId>term-server-admin-loader</artifactId>
+  <name>UMLS terminology server admin loader tool.</name>
+  <description>Used for loading terminologies and creating other useful data structures.</description>
+  <packaging>pom</packaging>
+
+  <properties>
+    <!-- The name -->
+    <name>Sample Project</name>
+    <!-- The description -->
+    <description></description>
+    <!-- The admin uer -->
+    <admin.user>admin</admin.user>
+    <!-- Scope flags -->
+    <scope.concepts>138875005</scope.concepts>
+    <scope.descendants.flag>true</scope.descendants.flag>
+    <scope.excludes.concepts></scope.excludes.concepts>
+    <scope.excludes.descendants.flag>true</scope.excludes.descendants.flag>
+    <!-- The terminology -->
+    <terminology></terminology>
+    <!-- The terminology version -->
+    <version>latest</version>
+    <!-- The input directory for RF2 loads -->
+    <input.dir></input.dir>
+    <!-- The input file for ClaML loads -->
+    <input.file></input.file>
+    <!-- Whether to run against server (default false) -->
+    <server>false</server>
+  </properties>
+
+  <profiles>
+
+    <!-- Load RRF single terminology, specify -Drun.config.umls=... -Dterminology=... -->
+    <profile>
+      <id>RRF-single</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wci.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>load-rf2-full</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>load-rf2-full</goal>
+                </goals>
+                <configuration>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                  <inputDir>${input.dir}</inputDir>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Load RRF UMLS, specify -Drun.config.umls=... -Dterminology=... -->
+    <profile>
+      <id>RRF-umls</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wci.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>load-rf2-full</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>load-rf2-full</goal>
+                </goals>
+                <configuration>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                  <inputDir>${input.dir}</inputDir>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+   
+    <!-- Compute transitive closure, specify -Drun.config=... -Dterminology=... -->
+    <profile>
+      <id>TransitiveClosure</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wci.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>compute-transitive-closure</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>compute-transitive-closure</goal>
+                </goals>
+                <configuration>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Add a project, specify -Drun.config=... -Dterminology=... -->
+    <profile>
+      <id>Project</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wci.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>add-project</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>add-project</goal>
+                </goals>
+                <configuration>
+                  <name>${name}</name>
+                  <description>${description}</description>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                  <adminUser>${admin.user}</adminUser>
+                  <scopeConcepts>${scope.concepts}</scopeConcepts>
+                  <scopeDescendantsFlag>${scope.descendants.flag}</scopeDescendantsFlag>
+                  <scopeExcludesConcepts>${scope.excludes.concepts}</scopeExcludesConcepts>
+                  <scopeExcludesDescendantsFlag>${scope.excludes.descendants.flag}</scopeExcludesDescendantsFlag>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
