@@ -8,10 +8,12 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
@@ -254,6 +256,37 @@ public class ModelUnit039Test {
     tester.include("current");
 
     assertTrue(tester.testNotNullFields());
+  }
+
+  /**
+   * Test for root terminology reference in XML serialization.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testModelXmlTransient039() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient039");
+    ProxyTester tester = new ProxyTester(new TerminologyJpa());
+    tester.proxy(RootTerminology.class, 1, rootTerminologyProxy);
+    tester.proxy(RootTerminology.class, 2, rootTerminologyProxy2);
+    tester.proxy(ContactInfo.class, 1, contactInfoProxy);
+    tester.proxy(ContactInfo.class, 2, contactInfoProxy2);
+    tester.proxy(Language.class, 1, languageProxy);
+    tester.proxy(Language.class, 2, languageProxy2);
+    tester.proxy(Citation.class, 1, citationProxy);
+    tester.proxy(Citation.class, 2, citationProxy2);
+    tester.proxy(IdentifierType.class, 1, idTypeProxy);
+    tester.proxy(IdentifierType.class, 2, idTypeProxy2);
+    tester.proxy(List.class, 1, listProxy);
+    tester.proxy(List.class, 2, listProxy2);
+    TerminologyJpa terminology = (TerminologyJpa) tester.createObject(1);
+
+    String xml = ConfigUtility.getStringForGraph(terminology);
+    System.out.println(xml);
+    assertTrue(xml.contains("<rootTerminologyId>"));
+    assertTrue(xml.contains("<rootTerminologyAbbreviation>"));
+    Assert.assertFalse(xml.contains("<rootTerminology>"));
+
   }
 
   /**
