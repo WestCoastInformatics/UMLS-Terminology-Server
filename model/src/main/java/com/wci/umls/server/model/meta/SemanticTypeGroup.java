@@ -21,10 +21,4 @@ public interface SemanticTypeGroup extends Abbreviation {
    */
   public void setSemanticTypes(List<SemanticType> semanticTypes);
 
-  /**
-   * Adds the semantic types.
-   * 
-   * @param semanticType the semantic type
-   */
-  public void addSemanticType(SemanticType semanticType);
 }

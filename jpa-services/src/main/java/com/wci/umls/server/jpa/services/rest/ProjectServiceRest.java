@@ -1,7 +1,7 @@
 /*
  * 
  */
-package org.ihtsdo.otf.ts.rest;
+package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ConceptList;

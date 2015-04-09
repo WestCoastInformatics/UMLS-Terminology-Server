@@ -15,7 +15,7 @@ import com.wci.umls.server.model.meta.GeneralMetadataEntry;
  */
 @Entity
 @Table(name = "general_metadata_entries", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "key", "type", "abbreviation"
+    "metadataKey", "keyType", "abbreviation"
 }))
 @Audited
 @XmlRootElement(name = "generalMetadataEntry")
@@ -23,11 +23,11 @@ public class GeneralMetadataEntryJpa extends AbstractAbbreviation implements
     GeneralMetadataEntry {
 
   /** The key. */
-  @Column(nullable = false)
+  @Column(name = "metadataKey", nullable = false)
   private String key;
 
   /** The type. */
-  @Column(nullable = false)
+  @Column(name = "keyType", nullable = false)
   private String type;
 
   /**

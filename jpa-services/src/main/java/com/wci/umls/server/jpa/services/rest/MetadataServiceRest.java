@@ -1,4 +1,4 @@
-package org.ihtsdo.otf.ts.rest;
+package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;

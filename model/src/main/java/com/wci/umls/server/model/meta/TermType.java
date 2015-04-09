@@ -38,56 +38,56 @@ public interface TermType extends Abbreviation {
    * 
    * @param nameVariantType the name variant type
    */
-  public void setNameVariantType(String nameVariantType);
+  public void setNameVariantType(NameVariantType nameVariantType);
 
   /**
    * Returns the name variant type.
    *
    * @return the name variant type
    */
-  public String getNameVariantType();
+  public NameVariantType getNameVariantType();
 
   /**
    * Sets the code variant type.
    * 
    * @param codeVariantType the code variant type
    */
-  public void setCodeVariantType(String codeVariantType);
+  public void setCodeVariantType(CodeVariantType codeVariantType);
 
   /**
    * Returns the code variant type.
    *
    * @return the code variant type
    */
-  public String getCodeVariantType();
+  public CodeVariantType getCodeVariantType();
 
   /**
-   * Sets the hierarchical type.
+   * Sets the hierarchical type flag.
    * 
-   * @param hierarchicalType the hierarchical type
+   * @param hierarchicalType the hierarchical type flag
    */
-  public void setHierarchicalType(String hierarchicalType);
+  public void setHierarchicalType(boolean hierarchicalType);
 
   /**
-   * Returns the hierarchical type.
+   * Indicates whether or not hierarchical type is the case.
    *
-   * @return the hierarchical type
+   * @return <code>true</code> if so, <code>false</code> otherwise
    */
-  public String getHierarchicalType();
+  public boolean isHierarchicalType();
 
   /**
-   * Sets the usage.
+   * Sets the usage type.
    * 
-   * @param usage the usage
+   * @param usageType the usage type
    */
-  public void setUsage(String usage);
+  public void setUsageType(UsageType usageType);
   
   /**
-   * Returns the usage.
+   * Returns the usageType.
    *
-   * @return the usage
+   * @return the usageType
    */
-  public String getUsage();
+  public UsageType getUsageType();
 
   /**
    * Sets the style.

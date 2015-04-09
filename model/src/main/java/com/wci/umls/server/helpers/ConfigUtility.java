@@ -123,9 +123,9 @@ public class ConfigUtility {
    */
   public static Properties getConfigProperties() throws Exception {
     if (config == null) {
-      String configFileName = System.getProperty("run.config.ts");
+      String configFileName = System.getProperty("run.config.umls");
       Logger.getLogger(ConfigUtility.class.getName()).info(
-          "  run.config.ts = " + configFileName);
+          "  run.config.umls = " + configFileName);
       config = new Properties();
       FileReader in = new FileReader(new File(configFileName));
       config.load(in);

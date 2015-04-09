@@ -13,8 +13,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
 
+import com.wci.umls.server.model.meta.CodeVariantType;
+import com.wci.umls.server.model.meta.NameVariantType;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.TermTypeStyle;
+import com.wci.umls.server.model.meta.UsageType;
 
 /**
  * JPA-enabled implementation of {@link TermType}.
@@ -28,16 +31,19 @@ import com.wci.umls.server.model.meta.TermTypeStyle;
 public class TermTypeJpa extends AbstractAbbreviation implements TermType {
 
   /** The code variant type. */
-  @Column(nullable = false)
-  private String codeVariantType;
+  @Column(nullable = true)
+  @Enumerated(EnumType.STRING)
+  private CodeVariantType codeVariantType;
 
   /** The hierarchical type. */
   @Column(nullable = false)
-  private String hierarchicalType;
+  private boolean hierarchicalType;
 
   /** The name variant type. */
-  @Column(nullable = false)
-  private String nameVariantType;
+  @Column(nullable = true)
+  @Enumerated(EnumType.STRING)
+  private NameVariantType nameVariantType;
+
 
   /** The obsolete. */
   @Column(nullable = false)
@@ -48,13 +54,14 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
   private boolean suppressible = false;
 
   /** The style. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   @Enumerated(EnumType.STRING)
   private TermTypeStyle style;
 
-  /** The usage. */
-  @Column(nullable = false)
-  private String usage;
+  /** The usage type. */
+  @Column(nullable = true)
+  @Enumerated(EnumType.STRING)
+  private UsageType usageType;
 
   /**
    * Instantiates an empty {@link TermTypeJpa}.
@@ -71,12 +78,12 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
   public TermTypeJpa(TermType tty) {
     super(tty);
     codeVariantType = tty.getCodeVariantType();
-    hierarchicalType = tty.getHierarchicalType();
+    hierarchicalType = tty.isHierarchicalType();
     nameVariantType = tty.getNameVariantType();
     obsolete = tty.isObsolete();
     suppressible = tty.isSuppressible();
     style = tty.getStyle();
-    usage = tty.getUsage();
+    usageType = tty.getUsageType();
   }
 
   /*
@@ -123,11 +130,11 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.model.meta.TermType#setNameVariantType(java.lang.String
-   * )
+   * com.wci.umls.server.model.meta.TermType#setNameVariantType(com.wci.umls
+   * .server.model.meta.NameVariantType)
    */
   @Override
-  public void setNameVariantType(String nameVariantType) {
+  public void setNameVariantType(NameVariantType nameVariantType) {
     this.nameVariantType = nameVariantType;
   }
 
@@ -137,7 +144,7 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
    * @see com.wci.umls.server.model.meta.TermType#getNameVariantType()
    */
   @Override
-  public String getNameVariantType() {
+  public NameVariantType getNameVariantType() {
     return nameVariantType;
   }
 
@@ -145,11 +152,11 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.model.meta.TermType#setCodeVariantType(java.lang.String
-   * )
+   * com.wci.umls.server.model.meta.TermType#setCodeVariantType(com.wci.umls
+   * .server.model.meta.CodeVariantType)
    */
   @Override
-  public void setCodeVariantType(String codeVariantType) {
+  public void setCodeVariantType(CodeVariantType codeVariantType) {
     this.codeVariantType = codeVariantType;
   }
 
@@ -159,50 +166,50 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
    * @see com.wci.umls.server.model.meta.TermType#getCodeVariantType()
    */
   @Override
-  public String getCodeVariantType() {
+  public CodeVariantType getCodeVariantType() {
     return codeVariantType;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.model.meta.TermType#setHierarchicalType(java.lang.String
-   * )
+   * @see com.wci.umls.server.model.meta.TermType#setHierarchicalType(boolean)
    */
   @Override
-  public void setHierarchicalType(String hierarchicalType) {
+  public void setHierarchicalType(boolean hierarchicalType) {
     this.hierarchicalType = hierarchicalType;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.model.meta.TermType#getHierarchicalType()
+   * @see com.wci.umls.server.model.meta.TermType#isHierarchicalType()
    */
   @Override
-  public String getHierarchicalType() {
+  public boolean isHierarchicalType() {
     return hierarchicalType;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.model.meta.TermType#setUsage(java.lang.String)
+   * @see
+   * com.wci.umls.server.model.meta.TermType#setUsageType(com.wci.umls.server
+   * .model.meta.UsageType)
    */
   @Override
-  public void setUsage(String usage) {
-    this.usage = usage;
+  public void setUsageType(UsageType usageType) {
+    this.usageType = usageType;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.model.meta.TermType#getUsage()
+   * @see com.wci.umls.server.model.meta.TermType#getUsageType()
    */
   @Override
-  public String getUsage() {
-    return usage;
+  public UsageType getUsageType() {
+    return usageType;
   }
 
   /*
@@ -226,5 +233,56 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
   public TermTypeStyle getStyle() {
     return style;
   }
+  
+  
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result =
+        prime * result
+            + ((codeVariantType == null) ? 0 : codeVariantType.hashCode());
+    result = prime * result + (hierarchicalType ? 1231 : 1237);
+    result =
+        prime * result
+            + ((nameVariantType == null) ? 0 : nameVariantType.hashCode());
+    result = prime * result + (obsolete ? 1231 : 1237);
+    result = prime * result + ((style == null) ? 0 : style.hashCode());
+    result = prime * result + (suppressible ? 1231 : 1237);
+    result = prime * result + ((usageType == null) ? 0 : usageType.hashCode());
+    return result;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    TermTypeJpa other = (TermTypeJpa) obj;
+    if (codeVariantType != other.codeVariantType)
+      return false;
+    if (hierarchicalType != other.hierarchicalType)
+      return false;
+    if (nameVariantType != other.nameVariantType)
+      return false;
+    if (obsolete != other.obsolete)
+      return false;
+    if (style != other.style)
+      return false;
+    if (suppressible != other.suppressible)
+      return false;
+    if (usageType != other.usageType)
+      return false;
+    return true;
+  }
 }

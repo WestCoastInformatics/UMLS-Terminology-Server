@@ -2,6 +2,9 @@ package com.wci.umls.server.jpa.helpers.meta;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -12,18 +15,26 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
+import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.jpa.meta.TermTypeJpa;
-import com.wci.umls.server.model.meta.TermType;
+import com.wci.umls.server.jpa.meta.SemanticTypeGroupJpa;
+import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
+import com.wci.umls.server.model.meta.SemanticTypeGroup;
 
 /**
- * Unit testing for {@link TermTypeJpa}.
+ * Unit testing for {@link SemanticTypeGroupJpa}.
  */
-public class ModelUnit039Test {
+public class ModelUnit037Test {
 
   /** The model object to test. */
-  private TermTypeJpa object;
+  private SemanticTypeGroupJpa object;
+
+  /** list proxy */
+  private List<SemanticTypeJpa> listProxy;
+
+  /** list proxy2 */
+  private List<SemanticTypeJpa> listProxy2;
 
   /**
    * Setup class.
@@ -41,7 +52,15 @@ public class ModelUnit039Test {
   @Before
   public void setup() throws Exception {
     // set up text fixtures
-    object = new TermTypeJpa();
+    object = new SemanticTypeGroupJpa();
+
+    ProxyTester tester = new ProxyTester(new SemanticTypeJpa());
+    SemanticTypeJpa sty1 = (SemanticTypeJpa) tester.createObject(1);
+    SemanticTypeJpa sty2 = (SemanticTypeJpa) tester.createObject(2);
+    listProxy = new ArrayList<>();
+    listProxy.add(sty1);
+    listProxy2 = new ArrayList<>();
+    listProxy2.add(sty2);
   }
 
   /**
@@ -50,9 +69,11 @@ public class ModelUnit039Test {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet039() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet039");
+  public void testModelGetSet036() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelGetSet036");
     GetterSetterTester tester = new GetterSetterTester(object);
+    tester.proxy(List.class, 1, listProxy);
+    tester.proxy(List.class, 2, listProxy2);
     tester.test();
   }
 
@@ -62,18 +83,14 @@ public class ModelUnit039Test {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode039() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode039");
+  public void testModelEqualsHashcode036() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode036");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
-    tester.include("codeVariantType");
-    tester.include("hierarchicalVariantType");
-    tester.include("nameVariantType");
-    tester.include("obsolete");
-    tester.include("style");
-    tester.include("suppressible");
-    tester.include("usageType");
+
+    tester.proxy(List.class, 1, listProxy);
+    tester.proxy(List.class, 2, listProxy2);
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
@@ -89,11 +106,14 @@ public class ModelUnit039Test {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy039() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy039");
+  public void testModelCopy036() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelCopy036");
     CopyConstructorTester tester = new CopyConstructorTester(object);
 
-    assertTrue(tester.testCopyConstructor(TermType.class));
+    tester.proxy(List.class, 1, listProxy);
+    tester.proxy(List.class, 2, listProxy2);
+
+    assertTrue(tester.testCopyConstructor(SemanticTypeGroup.class));
   }
 
   /**
@@ -102,9 +122,12 @@ public class ModelUnit039Test {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization039() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization039");
+  public void testModelXmlSerialization036() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization036");
     XmlSerializationTester tester = new XmlSerializationTester(object);
+    // serialization only recovers id and abbreviation
+    tester.proxy(List.class, 1, listProxy);
+    tester.proxy(List.class, 2, listProxy2);
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -114,14 +137,11 @@ public class ModelUnit039Test {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField039() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelNotNullField039");
+  public void testModelNotNullField036() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelNotNullField036");
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
-    tester.include("hierarchicalType");
-    tester.include("obsolete");
-    tester.include("suppressible");
 
     assertTrue(tester.testNotNullFields());
   }
