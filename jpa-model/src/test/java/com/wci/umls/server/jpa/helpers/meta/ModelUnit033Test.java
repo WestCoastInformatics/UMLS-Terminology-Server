@@ -155,13 +155,10 @@ public class ModelUnit033Test {
   public void testModelEqualsHashcode033() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode033");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("abbreviation");
-    tester.include("expandedForm");
     tester.include("acquisitionContact");
     tester.include("contentContact");
     tester.include("family");
     tester.include("hierarchicalName");
-    tester.include("family");
     tester.include("language");
     tester.include("licenseContact");
     tester.include("polyhierarchy");
@@ -169,7 +166,8 @@ public class ModelUnit033Test {
     tester.include("restrictionLevel");
     tester.include("shortName");
     tester.include("synonymousNames");
-
+    tester.include("terminology");
+    
     tester.proxy(ContactInfo.class, 1, contactInfoProxy);
     tester.proxy(ContactInfo.class, 2, contactInfoProxy2);
     tester.proxy(Terminology.class, 1, terminologyProxy);
@@ -254,8 +252,7 @@ public class ModelUnit033Test {
   public void testModelNotNullField033() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelNotNullField033");
     NullableFieldTester tester = new NullableFieldTester(object);
-    tester.include("abbreviation");
-    tester.include("expandedForm");
+    tester.include("terminology");
     tester.include("polyhierarchy");
     tester.include("family");
     tester.include("language");

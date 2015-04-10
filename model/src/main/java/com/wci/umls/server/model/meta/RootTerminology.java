@@ -2,12 +2,27 @@ package com.wci.umls.server.model.meta;
 
 import java.util.List;
 
+import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasLanguage;
 
 /**
  * Represents a {@link Terminology} of data independent of version information.
  */
-public interface RootTerminology extends Abbreviation, HasLanguage {
+public interface RootTerminology extends HasLanguage, HasId {
+
+  /**
+   * Returns the terminology.
+   * 
+   * @return the terminology
+   */
+  public String getTerminology();
+
+  /**
+   * Sets the terminology.
+   * 
+   * @param terminology the terminology
+   */
+  public void setTerminology(String terminology);
 
   /**
    * Returns the family.

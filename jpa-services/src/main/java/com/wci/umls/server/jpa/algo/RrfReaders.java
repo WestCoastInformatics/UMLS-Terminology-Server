@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.wci.umls.server.services.helpers.PushBackReader;
 
+// TODO: Auto-generated Javadoc
 /**
  * Container for RF2 readers.
  */
@@ -24,44 +25,32 @@ public class RrfReaders {
    */
   public enum Keys {
 
-    /** The concept. */
-    CONCEPT,
-
-    /** The description. */
-    DESCRIPTION,
-
-    /** The relationship. */
-    RELATIONSHIP,
-
-    /** The association reference. */
-    ASSOCIATION_REFERENCE,
-
-    /** The attribute value. */
-    ATTRIBUTE_VALUE,
-
-    /** The complex map. */
-    COMPLEX_MAP,
-
-    /** The description type. */
-    DESCRIPTION_TYPE,
-
-    /** The extended map. */
-    EXTENDED_MAP,
-
-    /** The language. */
-    LANGUAGE,
-
-    /** The module dependency. */
-    MODULE_DEPENDENCY,
-
-    /** The refset descriptor. */
-    REFSET_DESCRIPTOR,
-
-    /** The simple. */
-    SIMPLE,
-
-    /** The simple map. */
-    SIMPLE_MAP;
+    /**  The mrconso. */
+    MRCONSO,
+    
+    /**  The mrdef. */
+    MRDEF,
+    
+    /**  The mrdoc. */
+    MRDOC,
+    
+    /**  The mrmap. */
+    MRMAP,
+    
+    /**  The mrrank. */
+    MRRANK,
+    
+    /**  The mrrel. */
+    MRREL,
+    
+    /**  The mrsab. */
+    MRSAB,
+    
+    /**  The mrsat. */
+    MRSAT,
+    
+    /**  The mrsty. */
+    MRSTY;
 
   }
 
@@ -82,27 +71,15 @@ public class RrfReaders {
    */
   public void openReaders() throws Exception {
 
-    readers.put(Keys.CONCEPT, getReader("conceptsByConcept.sort"));
-    readers.put(Keys.DESCRIPTION,
-        getReader("descriptionsAllByConcept.sort"));
-    readers.put(Keys.RELATIONSHIP,
-        getReader("relationshipsAllBySourceConcept.sort"));
-    readers.put(Keys.ASSOCIATION_REFERENCE,
-        getReader("associationReferenceRefsetsByRefCompId.sort"));
-    readers.put(Keys.ATTRIBUTE_VALUE,
-        getReader("attributeValueRefsetsByRefCompId.sort"));
-    readers.put(Keys.COMPLEX_MAP, getReader("complexMapRefsetsByConcept.sort"));
-    readers.put(Keys.DESCRIPTION_TYPE,
-        getReader("descriptionTypeByRefset.sort"));
-    readers.put(Keys.EXTENDED_MAP,
-        getReader("extendedMapRefsetsByConcept.sort"));
-    readers.put(Keys.LANGUAGE, getReader("languageRefsetsByDescription.sort"));
-    readers.put(Keys.MODULE_DEPENDENCY,
-        getReader("moduleDependencyByRefset.sort"));
-    readers.put(Keys.REFSET_DESCRIPTOR,
-        getReader("refsetDescriptorByRefset.sort"));
-    readers.put(Keys.SIMPLE, getReader("simpleRefsetsByConcept.sort"));
-    readers.put(Keys.SIMPLE_MAP, getReader("simpleMapRefsetsByConcept.sort"));
+    readers.put(Keys.MRCONSO, getReader("consoByConcept.sort"));
+    readers.put(Keys.MRDEF, getReader("defByConcept.sort"));
+    readers.put(Keys.MRDOC, getReader("docByKey.sort"));
+    readers.put(Keys.MRMAP, getReader("mapByConcept.sort"));
+    readers.put(Keys.MRRANK, getReader("rankByRank.sort"));
+    readers.put(Keys.MRREL, getReader("relByConcept.sort"));
+    readers.put(Keys.MRSAB, getReader("sabBySab.sort"));
+    readers.put(Keys.MRSAT, getReader("satByConcept.sort"));
+    readers.put(Keys.MRSTY, getReader("styByConcept.sort"));
 
   }
 

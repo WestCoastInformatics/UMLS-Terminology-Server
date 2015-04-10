@@ -44,7 +44,6 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
   @Enumerated(EnumType.STRING)
   private NameVariantType nameVariantType;
 
-
   /** The obsolete. */
   @Column(nullable = false)
   private boolean obsolete = false;
@@ -233,12 +232,7 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
   public TermTypeStyle getStyle() {
     return style;
   }
-  
-  
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -257,9 +251,6 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
     return result;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

@@ -1,23 +1,12 @@
 package com.wci.umls.server.model.meta;
 
+import com.wci.umls.server.helpers.HasId;
+import com.wci.umls.server.helpers.HasTerminology;
+
 /**
  * Represents a piece of data with an abbreviation and an expanded form.
  */
-public interface Abbreviation {
-
-  /**
-   * Returns the id.
-   *
-   * @return the id
-   */
-  public Long getId();
-
-  /**
-   * Sets the id.
-   *
-   * @param id the id
-   */
-  public void setId(Long id);
+public interface Abbreviation extends HasTerminology, HasId {
 
   /**
    * Returns the abbreviation.

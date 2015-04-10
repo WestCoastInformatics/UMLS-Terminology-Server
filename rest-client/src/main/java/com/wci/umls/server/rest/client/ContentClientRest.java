@@ -52,12 +52,8 @@ public class ContentClientRest implements ContentServiceRest {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ContentServiceRest#computeTransitiveClosure(java
-   * .lang.String, java.lang.String, java.lang.String)
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#computeTransitiveClosure(java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
   public void computeTransitiveClosure(String terminology, String version,
@@ -102,6 +98,31 @@ public class ContentClientRest implements ContentServiceRest {
     } else {
       if (response.getStatus() != 204)
         throw new Exception("Unexpected status " + response.getStatus());
+    }
+
+  }
+
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#removeTerminology(java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public void removeTerminology(String terminology, String version,
+    String authToken) throws Exception {
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/terminology/remove/"
+            + terminology + "/" + version);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .delete(ClientResponse.class);
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing
+    } else {
+      throw new Exception("Unexpected status " + response.getStatus());
     }
 
   }

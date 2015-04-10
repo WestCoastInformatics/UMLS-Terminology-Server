@@ -64,6 +64,8 @@ public class ModelUnit026Test {
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
+    tester.include("terminology");
+    tester.include("terminologyVersion");
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
@@ -108,6 +110,9 @@ public class ModelUnit026Test {
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
+    tester.include("terminology");
+    tester.include("terminologyVersion");
+
     assertTrue(tester.testNotNullFields());
   }
 

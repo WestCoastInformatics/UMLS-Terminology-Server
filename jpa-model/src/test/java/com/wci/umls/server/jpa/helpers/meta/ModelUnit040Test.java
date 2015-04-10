@@ -33,7 +33,6 @@ import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 
-// TODO: Auto-generated Javadoc
 /**
  * Unit testing for {@link TerminologyJpa}.
  */
@@ -151,19 +150,18 @@ public class ModelUnit040Test {
   public void testModelEqualsHashcode040() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode040");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("abbreviation");
-    tester.include("expandedForm");
     tester.include("assertsRelDirection");
-    tester.include("current");
     tester.include("citation");
+    tester.include("current");
     tester.include("endDate");
     tester.include("organizingClassType");
     tester.include("preferredName");
-    tester.include("rootTerminology");
     tester.include("startDate");
     tester.include("synonymousNames");
+    tester.include("terminology");
     tester.include("terminologyVersion");
 
+    
     tester.proxy(RootTerminology.class, 1, rootTerminologyProxy);
     tester.proxy(RootTerminology.class, 2, rootTerminologyProxy2);
     tester.proxy(ContactInfo.class, 1, contactInfoProxy);
@@ -246,12 +244,11 @@ public class ModelUnit040Test {
   public void testModelNotNullField040() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelNotNullField040");
     NullableFieldTester tester = new NullableFieldTester(object);
-    tester.include("abbreviation");
-    tester.include("expandedForm");
+    tester.include("terminology");
+    tester.include("terminologyVersion");
     tester.include("organizingClassType");
     tester.include("preferredName");
     tester.include("rootTerminology");
-    tester.include("terminologyVersion");
     tester.include("assertsRelDirection");
     tester.include("current");
 

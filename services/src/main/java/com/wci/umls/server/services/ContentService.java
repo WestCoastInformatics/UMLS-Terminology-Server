@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.services;
 
+import java.util.Map;
+
 import com.wci.umls.server.helpers.ConceptList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteriaList;
@@ -417,5 +419,16 @@ public interface ContentService extends RootService {
    * @param assignIdentifiersFlag the assign identifiers flag
    */
   public void setAssignIdentifiersFlag(boolean assignIdentifiersFlag);
+
+  /**
+   * Returns the component stats.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @return the component stats
+   * @throws Exception the exception
+   */
+  public Map<String, Integer> getComponentStats(String terminology,
+    String version) throws Exception;
 
 }

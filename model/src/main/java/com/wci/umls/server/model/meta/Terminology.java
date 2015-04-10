@@ -3,6 +3,7 @@ package com.wci.umls.server.model.meta;
 import java.util.Date;
 import java.util.List;
 
+import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
@@ -11,12 +12,26 @@ import com.wci.umls.server.model.content.Descriptor;
 /**
  * Represents a terminology of data with version information.
  */
-public interface Terminology extends Abbreviation {
+public interface Terminology extends HasId {
+
+  /**
+   * Returns the terminology.
+   * 
+   * @return the terminology
+   */
+  public String getTerminology();
+
+  /**
+   * Sets the terminology.
+   * 
+   * @param terminology the terminology
+   */
+  public void setTerminology(String terminology);
 
   /**
    * Returns the terminology version.
    * 
-   * @return the terminology  version
+   * @return the terminology version
    */
   public String getTerminologyVersion();
 
@@ -43,7 +58,8 @@ public interface Terminology extends Abbreviation {
   public void setAssertsRelDirection(boolean assertsRelDirection);
 
   /**
-   * Returns the start date at which this terminology is valid and the current version.
+   * Returns the start date at which this terminology is valid and the current
+   * version.
    * 
    * @return the start date
    */
@@ -57,7 +73,8 @@ public interface Terminology extends Abbreviation {
   public void setStartDate(Date startDate);
 
   /**
-   * Returns the end date at which this terminology is no longer valid or current.
+   * Returns the end date at which this terminology is no longer valid or
+   * current.
    * 
    * @return the end date
    */
@@ -69,6 +86,7 @@ public interface Terminology extends Abbreviation {
    * @param endDate the end date
    */
   public void setEndDate(Date endDate);
+
   /**
    * Returns the citation.
    * 
@@ -133,23 +151,22 @@ public interface Terminology extends Abbreviation {
   public void setSynonymousNames(List<String> synonymousNames);
 
   /**
-   * Returns the organizing class type, which is an indicator
-   * of the {@link AtomClass} subtype which is the primary organizing
-   * principle of the terminology.  This includes the level at which
-   * the hierarchy exists as well as attributes and relationships. 
-   * Another way to think about it is whether the terminology code field
-   * is a {@link Concept}, a {@link Descriptor}, or simply a {@link Code}
-   * without any further specification.
+   * Returns the organizing class type, which is an indicator of the
+   * {@link AtomClass} subtype which is the primary organizing principle of the
+   * terminology. This includes the level at which the hierarchy exists as well
+   * as attributes and relationships. Another way to think about it is whether
+   * the terminology code field is a {@link Concept}, a {@link Descriptor}, or
+   * simply a {@link Code} without any further specification.
    *
    * @return the organizing class type
    */
   public IdentifierType getOrganizingClassType();
-  
+
   /**
    * Sets the organizing class type.
    *
    * @param organizingClassType the organizing class type
    */
   public void setOrganizingClassType(IdentifierType organizingClassType);
-  
+
 }

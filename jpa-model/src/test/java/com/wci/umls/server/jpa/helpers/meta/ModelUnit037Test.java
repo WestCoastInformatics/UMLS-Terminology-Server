@@ -88,6 +88,8 @@ public class ModelUnit037Test {
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
+    tester.include("terminology");
+    tester.include("terminologyVersion");
 
     tester.proxy(List.class, 1, listProxy);
     tester.proxy(List.class, 2, listProxy2);
@@ -142,6 +144,8 @@ public class ModelUnit037Test {
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
+    tester.include("terminology");
+    tester.include("terminologyVersion");
 
     assertTrue(tester.testNotNullFields());
   }

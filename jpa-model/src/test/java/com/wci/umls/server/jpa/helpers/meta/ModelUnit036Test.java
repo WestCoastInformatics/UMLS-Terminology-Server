@@ -83,6 +83,8 @@ public class ModelUnit036Test {
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
+    tester.include("terminology");
+    tester.include("terminologyVersion");
     tester.include("definition");
     tester.include("example");
     tester.include("group");
@@ -147,6 +149,8 @@ public class ModelUnit036Test {
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("abbreviation");
     tester.include("expandedForm");
+    tester.include("terminology");
+    tester.include("terminologyVersion");
     tester.include("value");
     tester.include("definition");
     tester.include("typeId");

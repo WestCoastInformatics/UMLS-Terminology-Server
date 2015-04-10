@@ -3,10 +3,13 @@ package com.wci.umls.server.jpa.meta;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -30,14 +33,23 @@ import com.wci.umls.server.model.meta.Terminology;
  */
 @Entity
 @Table(name = "terminologies", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "abbreviation"
+    "terminology", "terminologyVersion"
 }))
 @Audited
 @XmlRootElement(name = "terminology")
-public class TerminologyJpa extends AbstractAbbreviation implements Terminology {
+public class TerminologyJpa implements Terminology {
+
+  /** The id. */
+  @Id
+  @GeneratedValue
+  private Long id;
+
+  /** The terminology. */
+  @Column(nullable = false)
+  private String terminology;
 
   /** The citation. */
-  @OneToOne(targetEntity = CitationJpa.class, fetch = FetchType.EAGER, optional = true)
+  @OneToOne(targetEntity = CitationJpa.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = true)
   private Citation citation;
 
   /** The end date. */
@@ -94,7 +106,8 @@ public class TerminologyJpa extends AbstractAbbreviation implements Terminology 
    * @param terminology the terminology
    */
   public TerminologyJpa(Terminology terminology) {
-    super(terminology);
+    id = terminology.getId();
+    this.terminology = terminology.getTerminology();
     citation = terminology.getCitation();
     endDate = terminology.getEndDate();
     organizingClassType = terminology.getOrganizingClassType();
@@ -105,6 +118,17 @@ public class TerminologyJpa extends AbstractAbbreviation implements Terminology 
     terminologyVersion = terminology.getTerminologyVersion();
     assertsRelDirection = terminology.isAssertsRelDirection();
     current = terminology.isCurrent();
+  }
+
+  @Override
+  @XmlTransient
+  public Long getId() {
+    return this.id;
+  }
+
+  @Override
+  public void setId(Long id) {
+    this.id = id;
   }
 
   /*
@@ -245,7 +269,7 @@ public class TerminologyJpa extends AbstractAbbreviation implements Terminology 
    * @return the root terminology abbreviation
    */
   public String getRootTerminologyAbbreviation() {
-    return rootTerminology == null ? null : rootTerminology.getAbbreviation();
+    return rootTerminology == null ? null : rootTerminology.getTerminology();
   }
 
   /**
@@ -257,7 +281,7 @@ public class TerminologyJpa extends AbstractAbbreviation implements Terminology 
     if (rootTerminology == null) {
       rootTerminology = new RootTerminologyJpa();
     }
-    rootTerminology.setAbbreviation(abbreviation);
+    rootTerminology.setTerminology(abbreviation);
   }
 
   /*
@@ -301,6 +325,16 @@ public class TerminologyJpa extends AbstractAbbreviation implements Terminology 
   @Override
   public void setSynonymousNames(List<String> synonymousNames) {
     this.synonymousNames = synonymousNames;
+  }
+
+  @Override
+  public String getTerminology() {
+    return terminology;
+  }
+
+  @Override
+  public void setTerminology(String terminology) {
+    this.terminology = terminology;
   }
 
   /*
@@ -365,13 +399,10 @@ public class TerminologyJpa extends AbstractAbbreviation implements Terminology 
     this.current = isCurrent;
   }
 
-  /**
-   * Customized to use root terminology abbreviation only for comparison.
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = super.hashCode();
+    int result = 1;
     result = prime * result + (assertsRelDirection ? 1231 : 1237);
     result = prime * result + ((citation == null) ? 0 : citation.hashCode());
     result = prime * result + (current ? 1231 : 1237);
@@ -384,15 +415,12 @@ public class TerminologyJpa extends AbstractAbbreviation implements Terminology 
     result =
         prime * result
             + ((preferredName == null) ? 0 : preferredName.hashCode());
-    result =
-        prime
-            * result
-            + ((rootTerminology == null || rootTerminology.getAbbreviation() == null)
-                ? 0 : rootTerminology.getAbbreviation().hashCode());
     result = prime * result + ((startDate == null) ? 0 : startDate.hashCode());
     result =
         prime * result
             + ((synonymousNames == null) ? 0 : synonymousNames.hashCode());
+    result =
+        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result =
         prime
             * result
@@ -400,14 +428,11 @@ public class TerminologyJpa extends AbstractAbbreviation implements Terminology 
     return result;
   }
 
-  /**
-   * Customized to use root terminology abbreviation only for comparison.
-   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (!super.equals(obj))
+    if (obj == null)
       return false;
     if (getClass() != obj.getClass())
       return false;
@@ -436,20 +461,6 @@ public class TerminologyJpa extends AbstractAbbreviation implements Terminology 
         return false;
     } else if (!preferredName.equals(other.preferredName))
       return false;
-    if (rootTerminology == null) {
-      if (other.rootTerminology != null
-          && other.rootTerminology.getAbbreviation() != null)
-        return false;
-    } else if (rootTerminology.getAbbreviation() == null) {
-      if (other.rootTerminology != null
-          && other.rootTerminology.getAbbreviation() != null)
-        return false;
-    } else if (other.rootTerminology == null
-        || other.rootTerminology.getAbbreviation() == null) {
-      return false;
-    } else if (!rootTerminology.getAbbreviation().equals(
-        other.rootTerminology.getAbbreviation()))
-      return false;
     if (startDate == null) {
       if (other.startDate != null)
         return false;
@@ -459,6 +470,11 @@ public class TerminologyJpa extends AbstractAbbreviation implements Terminology 
       if (other.synonymousNames != null)
         return false;
     } else if (!synonymousNames.equals(other.synonymousNames))
+      return false;
+    if (terminology == null) {
+      if (other.terminology != null)
+        return false;
+    } else if (!terminology.equals(other.terminology))
       return false;
     if (terminologyVersion == null) {
       if (other.terminologyVersion != null)

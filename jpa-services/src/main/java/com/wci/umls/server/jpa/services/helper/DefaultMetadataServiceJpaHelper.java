@@ -4,176 +4,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.management.relation.RelationType;
+
+import com.wci.umls.server.jpa.services.RootServiceJpa;
+import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
+import com.wci.umls.server.model.meta.IdentifierType;
+import com.wci.umls.server.model.meta.RelationshipType;
+import com.wci.umls.server.model.meta.RootTerminology;
+import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.TermType;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService;
 
 /**
- * Implementation of {@link MetadataService} for SNOMEDCT.
+ * Default implementation of {@link MetadataService}.
  */
-public class DefaultMetadataServiceJpaHelper implements
+public class DefaultMetadataServiceJpaHelper extends RootServiceJpa implements
     MetadataService {
 
-  @Override
-  public void openFactory() throws Exception {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void closeFactory() throws Exception {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public boolean getTransactionPerOperation() throws Exception {
-    // TODO Auto-generated method stub
-    return false;
-  }
-
-  @Override
-  public void setTransactionPerOperation(boolean transactionPerOperation)
-    throws Exception {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void commit() throws Exception {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void rollback() throws Exception {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void beginTransaction() throws Exception {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void close() throws Exception {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void clear() throws Exception {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void setProperties(Properties p) throws Exception {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public List<String> getTerminologies() throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public List<String> getVersions(String terminology) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public String getLatestVersion(String terminology) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Map<String, String> getTerminologyLatestVersions() throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Map<String, Map<String, String>> getAllMetadata(String terminology,
-    String version) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Map<String, String> getRelationTypes(String terminology, String version)
-    throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Map<String, String> getAdditionalRelationTypes(String terminology,
-    String version) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Map<String, String> getAttributeNames(String terminology,
-    String version) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Map<String, String> getIdentifierTypes(String terminology,
-    String version) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Map<String, String> getSemanticTypes(String terminology, String version)
-    throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Map<String, String> getTermTypes(String terminology, String version)
-    throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Map<String, String> getMapSets(String terminology, String version)
-    throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Map<String, String> Subsets(String terminology, String version)
-    throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Map<String, String> getHierarchicalRelationshipTypes(
-    String terminology, String version) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Map<String, String> getNonGroupingRelationshipTypes(
-    String terminology, String version) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+  /**
+   * Instantiates an empty {@link DefaultMetadataServiceJpaHelper}.
+   *
+   * @throws Exception the exception
+   */
+  public DefaultMetadataServiceJpaHelper() throws Exception {
+    super();
   }
 
   @Override
@@ -190,5 +47,116 @@ public class DefaultMetadataServiceJpaHelper implements
     return null;
   }
 
+  @Override
+  public List<RootTerminology> getTerminologies() throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<Terminology> getVersions(String terminology) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Terminology getLatestVersion(String terminology) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Map<RootTerminology, Terminology> getTerminologyLatestVersions()
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<RelationType> getRelationTypes(String terminology, String version)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<AdditionalRelationshipType> getAdditionalRelationTypes(
+    String terminology, String version) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<AttributeName> getAttributeNames(String terminology,
+    String version) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<IdentifierType> getIdentifierTypes(String terminology,
+    String version) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<SemanticType> getSemanticTypes(String terminology, String version)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<TermType> getTermTypes(String terminology, String version)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<RelationshipType> getHierarchicalRelationshipTypes(
+    String terminology, String version) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.MetadataService#getNonGroupingRelationshipTypes(java.lang.String, java.lang.String)
+   */
+  @Override
+  public List<RelationshipType> getNonGroupingRelationshipTypes(
+    String terminology, String version) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  //
+  // NOt needed for sub-handler
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
+   * )
+   */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // n/a
+  }
+
+  @Override
+  public Map<String, Map<String, String>> getAllMetadata(String terminology,
+    String version) throws Exception {
+    // n/a handled by superclass
+    return null;
+  }
+
+  @Override
+  public void clearMetadata(String terminology, String version)
+    throws Exception {
+    // n/a
+  }
 
 }

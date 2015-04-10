@@ -9,6 +9,10 @@ public enum TermTypeStyle {
   STRUCTURAL,
 
   /** The semantic style. */
-  SEMANTIC;
+  SEMANTIC,
+  
+  /**  The undefined. */
+  UNDEFINED;
+  
 
 }

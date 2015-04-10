@@ -30,6 +30,14 @@ public abstract class AbstractAbbreviation implements Abbreviation {
   @Column(nullable = false)
   private String expandedForm;
 
+  /** The terminology. */
+  @Column(nullable = false)
+  private String terminology;
+
+  /** The expandedForm. */
+  @Column(nullable = false)
+  private String terminologyVersion;
+
   /**
    * Instantiates an empty {@link AbstractAbbreviation}.
    */
@@ -46,6 +54,8 @@ public abstract class AbstractAbbreviation implements Abbreviation {
     id = abbreviation.getId();
     this.abbreviation = abbreviation.getAbbreviation();
     expandedForm = abbreviation.getExpandedForm();
+    terminology = abbreviation.getTerminology();
+    terminologyVersion = abbreviation.getTerminologyVersion();
   }
 
   /*
@@ -116,6 +126,49 @@ public abstract class AbstractAbbreviation implements Abbreviation {
   /*
    * (non-Javadoc)
    * 
+   * @see com.wci.umls.server.helpers.HasTerminology#getTerminology()
+   */
+  @Override
+  public String getTerminology() {
+    return terminology;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasTerminology#setTerminology(java.lang.String)
+   */
+  @Override
+  public void setTerminology(String terminology) {
+    this.terminology = terminology;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasTerminology#getTerminologyVersion()
+   */
+  @Override
+  public String getTerminologyVersion() {
+    return terminologyVersion;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasTerminology#setTerminologyVersion(java.lang
+   * .String)
+   */
+  @Override
+  public void setTerminologyVersion(String terminologyVersion) {
+    this.terminologyVersion = terminologyVersion;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#hashCode()
    */
   @Override
@@ -126,6 +179,12 @@ public abstract class AbstractAbbreviation implements Abbreviation {
         prime * result + ((abbreviation == null) ? 0 : abbreviation.hashCode());
     result =
         prime * result + ((expandedForm == null) ? 0 : expandedForm.hashCode());
+    result =
+        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
+    result =
+        prime
+            * result
+            + ((terminologyVersion == null) ? 0 : terminologyVersion.hashCode());
     return result;
   }
 
@@ -152,6 +211,16 @@ public abstract class AbstractAbbreviation implements Abbreviation {
       if (other.expandedForm != null)
         return false;
     } else if (!expandedForm.equals(other.expandedForm))
+      return false;
+    if (terminology == null) {
+      if (other.terminology != null)
+        return false;
+    } else if (!terminology.equals(other.terminology))
+      return false;
+    if (terminologyVersion == null) {
+      if (other.terminologyVersion != null)
+        return false;
+    } else if (!terminologyVersion.equals(other.terminologyVersion))
       return false;
     return true;
   }

@@ -5,10 +5,13 @@ package com.wci.umls.server.jpa.meta;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -17,6 +20,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
@@ -30,19 +34,27 @@ import com.wci.umls.server.model.meta.Terminology;
  */
 @Entity
 @Table(name = "root_terminologies", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "abbreviation"
+  "terminology"
 }))
 @Audited
 @XmlRootElement(name = "rootTerminology")
-public class RootTerminologyJpa extends AbstractAbbreviation implements
-    RootTerminology {
+public class RootTerminologyJpa implements RootTerminology {
+
+  /** The id. */
+  @Id
+  @GeneratedValue
+  private Long id;
+
+  /** The terminology. */
+  @Column(nullable = false)
+  private String terminology;
 
   /** The acquisition contact. */
-  @ManyToOne(targetEntity = ContactInfoJpa.class, fetch = FetchType.EAGER, optional = true)
+  @OneToOne(targetEntity = ContactInfoJpa.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = true)
   private ContactInfo acquisitionContact;
 
   /** The content contact. */
-  @ManyToOne(targetEntity = ContactInfoJpa.class, fetch = FetchType.EAGER, optional = true)
+  @OneToOne(targetEntity = ContactInfoJpa.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = true)
   private ContactInfo contentContact;
 
   /** The polyhierarchy flag. */
@@ -67,7 +79,7 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
   private Language language;
 
   /** The license contact. */
-  @ManyToOne(targetEntity = ContactInfoJpa.class, fetch = FetchType.EAGER, optional = true)
+  @OneToOne(targetEntity = ContactInfoJpa.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = true)
   private ContactInfo licenseContact;
 
   /** The preferred name. */
@@ -105,23 +117,57 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
   /**
    * Instantiates a {@link RootTerminologyJpa} from the specified parameters.
    *
-   * @param t the terminology
+   * @param rootTerminology the terminology
    */
-  public RootTerminologyJpa(RootTerminology t) {
-    super(t);
-    acquisitionContact = t.getAcquisitionContact();
-    contentContact = t.getContentContact();
-    currentVersion = t.getCurrentVersion();
-    family = t.getFamily();
-    hierarchicalName = t.getHierarchicalName();
-    language = t.getLanguage();
-    licenseContact = t.getLicenseContact();
-    preferredName = t.getPreferredName();
-    previousVersion = t.getPreviousVersion();
-    restrictionLevel = t.getRestrictionLevel();
-    shortName = t.getShortName();
-    synonymousNames = t.getSynonymousNames();
-    polyhierarchy = t.isPolyhierachy();
+  public RootTerminologyJpa(RootTerminology rootTerminology) {
+    id = rootTerminology.getId();
+    terminology = rootTerminology.getTerminology();
+    acquisitionContact = rootTerminology.getAcquisitionContact();
+    contentContact = rootTerminology.getContentContact();
+    currentVersion = rootTerminology.getCurrentVersion();
+    family = rootTerminology.getFamily();
+    hierarchicalName = rootTerminology.getHierarchicalName();
+    language = rootTerminology.getLanguage();
+    licenseContact = rootTerminology.getLicenseContact();
+    preferredName = rootTerminology.getPreferredName();
+    previousVersion = rootTerminology.getPreviousVersion();
+    restrictionLevel = rootTerminology.getRestrictionLevel();
+    shortName = rootTerminology.getShortName();
+    synonymousNames = rootTerminology.getSynonymousNames();
+    polyhierarchy = rootTerminology.isPolyhierachy();
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.HasId#getId()
+   */
+  @Override
+  @XmlTransient
+  public Long getId() {
+    return this.id;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.HasId#setId(java.lang.Long)
+   */
+  @Override
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.meta.RootTerminology#getTerminology()
+   */
+  @Override
+  public String getTerminology() {
+    return terminology;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.meta.RootTerminology#setTerminology(java.lang.String)
+   */
+  @Override
+  public void setTerminology(String terminology) {
+    this.terminology = terminology;
   }
 
   /*
@@ -416,15 +462,10 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
     return polyhierarchy;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = super.hashCode();
+    int result = 1;
     result =
         prime
             * result
@@ -449,20 +490,16 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
     result =
         prime * result
             + ((synonymousNames == null) ? 0 : synonymousNames.hashCode());
+    result =
+        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.meta.AbstractAbbreviation#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (!super.equals(obj))
+    if (obj == null)
       return false;
     if (getClass() != obj.getClass())
       return false;
@@ -515,6 +552,11 @@ public class RootTerminologyJpa extends AbstractAbbreviation implements
       if (other.synonymousNames != null)
         return false;
     } else if (!synonymousNames.equals(other.synonymousNames))
+      return false;
+    if (terminology == null) {
+      if (other.terminology != null)
+        return false;
+    } else if (!terminology.equals(other.terminology))
       return false;
     return true;
   }

@@ -1,6 +1,5 @@
 package com.wci.umls.server.jpa.algo;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,15 +10,14 @@ import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class RrfLoaderAlgorithm extends ContentServiceJpa implements
-    Algorithm {
+public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -44,7 +42,6 @@ public class RrfLoaderAlgorithm extends ContentServiceJpa implements
 
   /** The readers. */
   private RrfReaders readers;
-
 
   /**
    * Instantiates an empty {@link RrfLoaderAlgorithm}.
@@ -103,13 +100,11 @@ public class RrfLoaderAlgorithm extends ContentServiceJpa implements
   @Override
   public void compute() throws Exception {
     try {
-      Logger.getLogger(getClass()).info("Start loading snapshot");
+      Logger.getLogger(getClass()).info("Start loading RRF");
       Logger.getLogger(getClass()).info("  terminology = " + terminology);
       Logger.getLogger(getClass()).info("  version = " + terminologyVersion);
       Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
-      releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
-
-      SimpleDateFormat ft = new SimpleDateFormat("hh:mm:ss a"); // format for
+      releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion.substring(0,3)+"0101");
 
       // Track system level information
       long startTimeOrig = System.nanoTime();
@@ -123,35 +118,36 @@ public class RrfLoaderAlgorithm extends ContentServiceJpa implements
 
       // faster performance.
       beginTransaction();
-//
-//      //
-//      // Create ReleaseInfo for this release if it does not already exist
-//      //
-//      ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
-//      if (info == null) {
-//        info = new ReleaseInfoJpa();
-//        info.setName(releaseVersion);
-//        info.setEffectiveTime(releaseVersionDate);
-//        info.setDescription(terminology + " " + releaseVersion + " release");
-//        info.setPlanned(false);
-//        info.setPublished(true);
-//        info.setReleaseBeginDate(info.getEffectiveTime());
-//        info.setReleaseFinishDate(info.getEffectiveTime());
-//        info.setTerminology(terminology);
-//        info.setTerminologyVersion(terminologyVersion);
-//        info.setLastModified(releaseVersionDate);
-//        info.setLastModifiedBy(loader);
-//        addReleaseInfo(info);
-//      }
+
+      // Load the metadata
+      loadMetadata();
+
+      //
+      // Create ReleaseInfo for this release if it does not already exist
+      //
+      ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
+      if (info == null) {
+        info = new ReleaseInfoJpa();
+        info.setName(releaseVersion);
+        info.setDescription(terminology + " " + releaseVersion + " release");
+        info.setPlanned(false);
+        info.setPublished(true);
+        info.setReleaseBeginDate(null);
+        info.setReleaseFinishDate(releaseVersionDate);
+        info.setTerminology(terminology);
+        info.setTerminologyVersion(terminologyVersion);
+        info.setLastModified(releaseVersionDate);
+        info.setLastModifiedBy("loader");
+        addReleaseInfo(info);
+      }
 
       // Clear concept cache
       // clear and commit
-//      commit();
-//      clear();
-//      conceptCache.clear();
+      commit();
+      clear();
 
-//      Logger.getLogger(getClass()).info(
-//          getComponentStats(terminology, terminologyVersion));
+      Logger.getLogger(getClass()).info(
+          getComponentStats(terminology, terminologyVersion));
 
       // Final logging messages
       Logger.getLogger(getClass()).info(
@@ -161,6 +157,13 @@ public class RrfLoaderAlgorithm extends ContentServiceJpa implements
     } catch (Exception e) {
       throw e;
     }
+  }
+
+  /**
+   * Loads the metadata.
+   */
+  private void loadMetadata() {
+
   }
 
   /*

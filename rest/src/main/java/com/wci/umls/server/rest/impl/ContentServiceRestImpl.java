@@ -3,6 +3,7 @@ package com.wci.umls.server.rest.impl;
 import java.io.File;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -20,8 +21,12 @@ import com.wci.umls.server.jpa.algo.RrfFileSorter;
 import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
+import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -53,13 +58,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     securityService = new SecurityServiceJpa();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ContentServiceRest#luceneReindex(java.lang.String,
-   * java.lang.String)
-   */
   @Override
   @POST
   @Path("/reindex")
@@ -104,13 +102,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ContentServiceRest#computeTransitiveClosure(java
-   * .lang.String, java.lang.String, java.lang.String)
-   */
   @Override
   @POST
   @Path("/terminology/closure/compute/{terminology}/{version}")
@@ -155,30 +146,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ContentServiceRest#loadTerminologyRf2Snapshot(java
-   * .lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
   @Override
   @PUT
-  @Path("/terminology/load/rf2/snapshot/{terminology}/{version}")
+  @Path("/terminology/load/rrf/{terminology}/{version}")
   @Consumes({
     MediaType.TEXT_PLAIN
   })
-  @ApiOperation(value = "Loads terminology RF2 snapshot from directory", notes = "Loads terminology RF2 snapshot from directory for specified terminology and version")
+  @ApiOperation(value = "Loads terminology RRF from directory", notes = "Loads terminology RRF from directory for specified terminology and version")
   public void loadTerminologyRrf(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. 20140731", required = true) @PathParam("version") String version,
-    @ApiParam(value = "RF2 input directory", required = true) String inputDir,
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014AB", required = true) @PathParam("version") String version,
+    @ApiParam(value = "RRF input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass())
         .info(
-            "RESTful POST call (ContentChange): /terminology/load/rf2/snapshot"
+            "RESTful POST call (ContentChange): /terminology/load/rrf/"
                 + terminology + "/" + version + " from input directory "
                 + inputDir);
 
@@ -196,11 +180,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       }
 
       // Sort files
-      Logger.getLogger(getClass()).info("  Sort RF2 Files");
+      Logger.getLogger(getClass()).info("  Sort RRF Files");
       RrfFileSorter sorter = new RrfFileSorter();
-      sorter.setSortByEffectiveTime(false);
       sorter.setRequireAllFiles(true);
-      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
+      File outputDir = new File(inputDirFile, "/RRF-sorted-temp/");
       sorter.sortFiles(inputDirFile, outputDir);
       String releaseVersion = sorter.getFileVersion();
       Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
@@ -220,18 +203,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algorithm = null;
 
       // Compute transitive closure
-      Logger.getLogger(getClass()).info(
-          "  Compute transitive closure from  " + terminology + "/" + version);
-      TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-      algo.setTerminology(terminology);
-      algo.setTerminologyVersion(version);
-      algo.reset();
-      algo.compute();
+      // TODO
+      // Logger.getLogger(getClass()).info(
+      // "  Compute transitive closure from  " + terminology + "/" + version);
+      // TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+      // algo.setTerminology(terminology);
+      // algo.setTerminologyVersion(version);
+      // algo.reset();
+      // algo.compute();
 
       // Clean-up
-      readers.closeReaders();
+      // readers.closeReaders();
       ConfigUtility
-          .deleteDirectory(new File(inputDirFile, "/RF2-sorted-temp/"));
+          .deleteDirectory(new File(inputDirFile, "/RRF-sorted-temp/"));
 
       // Final logging messages
       Logger.getLogger(getClass()).info(
@@ -239,11 +223,49 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Logger.getLogger(getClass()).info("done ...");
 
     } catch (Exception e) {
-      handleException(e,
-          "trying to load terminology snapshot from RF2 directory");
+      handleException(e, "trying to load terminology from RRF directory");
     } finally {
       securityService.close();
     }
   }
 
+  @Override
+  @DELETE
+  @Path("/terminology/remove/{terminology}/{version}")
+  @ApiOperation(value = "Removes a terminology", notes = "Removes all elements for a specified terminology and version")
+  public void removeTerminology(
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 20140731", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (ContentChange): /terminology/remove/" + terminology
+            + "/" + version);
+
+    // Track system level information
+    long startTimeOrig = System.nanoTime();
+
+    try {
+      authenticate(securityService, authToken, "start editing cycle",
+          UserRole.ADMINISTRATOR);
+
+      MetadataService metadataService = new MetadataServiceJpa();
+      metadataService.clearMetadata(terminology, version);
+      metadataService.close();
+      ContentService contentService = new ContentServiceJpa();
+      contentService.clearConcepts(terminology, version);
+      contentService.close();
+
+      // Final logging messages
+      Logger.getLogger(getClass()).info(
+          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+      Logger.getLogger(getClass()).info("done ...");
+
+    } catch (Exception e) {
+      handleException(e, "trying to load terminology from ClaML file");
+    } finally {
+      securityService.close();
+    }
+  }
 }

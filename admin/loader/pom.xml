@@ -31,7 +31,7 @@
     <terminology></terminology>
     <!-- The terminology version -->
     <version>latest</version>
-    <!-- The input directory for RF2 loads -->
+    <!-- The input directory for RRF loads -->
     <input.dir></input.dir>
     <!-- The input file for ClaML loads -->
     <input.file></input.file>
@@ -52,10 +52,10 @@
             <version>${project.version}</version>
             <executions>
               <execution>
-                <id>load-rf2-full</id>
+                <id>load-rrf-single</id>
                 <phase>package</phase>
                 <goals>
-                  <goal>load-rf2-full</goal>
+                  <goal>load-rrf-single</goal>
                 </goals>
                 <configuration>
                   <terminology>${terminology}</terminology>
@@ -81,10 +81,10 @@
             <version>${project.version}</version>
             <executions>
               <execution>
-                <id>load-rf2-full</id>
+                <id>load-rrf-umls</id>
                 <phase>package</phase>
                 <goals>
-                  <goal>load-rf2-full</goal>
+                  <goal>load-rrf-umls</goal>
                 </goals>
                 <configuration>
                   <terminology>${terminology}</terminology>

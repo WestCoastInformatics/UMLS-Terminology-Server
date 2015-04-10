@@ -21,6 +21,8 @@ import com.wci.umls.server.helpers.KeyValuePairLists;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
+import com.wci.umls.server.model.meta.RootTerminology;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
@@ -180,12 +182,14 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
                     "User does not have permissions to retrieve the latest versions of all terminologies.")
                 .build());
 
-      Map<String, String> versionMap =
+      Map<RootTerminology, Terminology> versionMap =
           metadataService.getTerminologyLatestVersions();
       KeyValuePairList keyValuePairList = new KeyValuePairList();
-      for (Map.Entry<String, String> termVersionPair : versionMap.entrySet()) {
+      for (Map.Entry<RootTerminology, Terminology> termVersionPair : versionMap
+          .entrySet()) {
         keyValuePairList.addKeyValuePair(new KeyValuePair(termVersionPair
-            .getKey(), termVersionPair.getValue()));
+            .getKey().getTerminology(), termVersionPair.getValue()
+            .getTerminologyVersion()));
       }
       metadataService.close();
       return keyValuePairList;
@@ -233,15 +237,16 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
                 .build());
 
       KeyValuePairLists keyValuePairLists = new KeyValuePairLists();
-      List<String> terminologies = metadataService.getTerminologies();
-      for (String terminology : terminologies) {
-        List<String> versions = metadataService.getVersions(terminology);
+      List<RootTerminology> terminologies = metadataService.getTerminologies();
+      for (RootTerminology terminology : terminologies) {
+        List<Terminology> versions =
+            metadataService.getVersions(terminology.getTerminology());
         KeyValuePairList keyValuePairList = new KeyValuePairList();
-        for (String version : versions) {
-          keyValuePairList.addKeyValuePair(new KeyValuePair(terminology,
-              version));
+        for (Terminology version : versions) {
+          keyValuePairList.addKeyValuePair(new KeyValuePair(terminology
+              .getTerminology(), version.getTerminologyVersion()));
         }
-        keyValuePairList.setName(terminology);
+        keyValuePairList.setName(terminology.getTerminology());
         keyValuePairLists.addKeyValuePairList(keyValuePairList);
       }
       metadataService.close();

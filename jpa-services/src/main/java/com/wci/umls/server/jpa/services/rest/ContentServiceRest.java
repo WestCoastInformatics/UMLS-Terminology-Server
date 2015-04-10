@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-
 /**
  * Represents a content available via a REST service.
  */
@@ -19,7 +18,6 @@ public interface ContentServiceRest {
    */
   public void luceneReindex(String indexedObjects, String authToken)
     throws Exception;
-  
 
   /**
    * Compute transitive closure for latest version of a terminology.
@@ -31,9 +29,9 @@ public interface ContentServiceRest {
    */
   public void computeTransitiveClosure(String terminology, String version,
     String authToken) throws Exception;
-  
+
   /**
-   * Load terminology  from RRF directory.
+   * Load terminology from RRF directory.
    *
    * @param terminology the terminology
    * @param version the terminology version
@@ -43,5 +41,16 @@ public interface ContentServiceRest {
    */
   public void loadTerminologyRrf(String terminology, String version,
     String inputDir, String authToken) throws Exception;
+
+  /**
+   * Removes the terminology.
+   *
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeTerminology(String terminology, String version,
+    String authToken) throws Exception;
 
 }
