@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.algo;
 
 import java.io.File;
@@ -82,6 +85,7 @@ public class RrfFileSorter {
     dirMap.put("MRSAB.RRF", "/");
     dirMap.put("MRSAT.RRF", "/");
     dirMap.put("MRSTY.RRF", "/");
+    dirMap.put("SRDEF", "/");
 
     Map<String, Integer> sortByMap = new HashMap<>();
     sortByMap.put("MRCONSO.RRF", 0);
@@ -93,6 +97,7 @@ public class RrfFileSorter {
     sortByMap.put("MRSAB.RRF", 0);
     sortByMap.put("MRSAT.RRF", 0);
     sortByMap.put("MRSTY.RRF", 0);
+    sortByMap.put("SRDEF", 0);
 
     Map<String, String> fileMap = new HashMap<>();
     fileMap.put("MRCONSO.RRF", "consoByConcept.sort");
@@ -104,6 +109,7 @@ public class RrfFileSorter {
     fileMap.put("MRSAB.RRF", "sabBySab.sort");
     fileMap.put("MRSAT.RRF", "satByConcept.sort");
     fileMap.put("MRSTY.RRF", "styByConcept.sort");
+    fileMap.put("SRDEF", "srdef.sort");
 
     // Sort files
     int[] fields = null;

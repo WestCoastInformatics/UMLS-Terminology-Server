@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.rest.impl;
 
 import javax.ws.rs.WebApplicationException;
@@ -33,8 +36,6 @@ public class RootServiceRestImpl {
     } catch (Exception e1) {
       // do nothing
     }
-
-    e.printStackTrace();
 
     // throw the local exception as a web application exception
     if (e instanceof LocalException) {

@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.model.content;
 
 import java.util.Date;
@@ -41,9 +44,9 @@ public interface Component extends HasTerminologyId {
   /**
    * Sets the timestamp.
    *
-   * @param Timestamp the timestamp
+   * @param timestamp the timestamp
    */
-  public void setTimestamp(Date Timestamp);
+  public void setTimestamp(Date timestamp);
 
   /**
    * Returns the last modified.

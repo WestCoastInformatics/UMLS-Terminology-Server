@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.services;
 
 import java.util.List;
@@ -10,6 +13,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.IdentifierType;
+import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.SemanticType;
@@ -45,6 +49,16 @@ public interface MetadataService extends RootService, Configurable {
     /** Inferred relationship types. */
     Inferred_Characteristic_Types;
   }
+
+  /**
+   * Enable listeners.
+   */
+  public void enableListeners();
+
+  /**
+   * Disable listeners.
+   */
+  public void disableListeners();
 
   /**
    * Returns the terminologies.
@@ -210,6 +224,21 @@ public interface MetadataService extends RootService, Configurable {
     String version);
 
   /**
+   * Indicates whether or not to assign last modified when changing terminology
+   * components. Supports a loader that wants to disable this feature.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isLastModifiedFlag();
+
+  /**
+   * Sets the last modified flag.
+   *
+   * @param lastModifiedFlag the last modified flag
+   */
+  public void setLastModifiedFlag(boolean lastModifiedFlag);
+
+  /**
    * Clear metadata.
    *
    * @param terminology the terminology
@@ -218,4 +247,111 @@ public interface MetadataService extends RootService, Configurable {
    */
   public void clearMetadata(String terminology, String version)
     throws Exception;
+
+  /**
+   * Adds the semantic type.
+   *
+   * @param semanticType the semantic type
+   * @return the semantic type
+   * @throws Exception the exception
+   */
+  public SemanticType addSemanticType(SemanticType semanticType)
+    throws Exception;
+
+  /**
+   * Update semantic type.
+   *
+   * @param semanticType the semantic type
+   * @throws Exception the exception
+   */
+  public void updateSemanticType(SemanticType semanticType) throws Exception;
+
+  /**
+   * Removes the semantic type.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeSemanticType(Long id) throws Exception;
+
+  /**
+   * Adds the attribute name.
+   *
+   * @param AttributeName the attribute name
+   * @return the attribute name
+   * @throws Exception the exception
+   */
+  public AttributeName addAttributeName(AttributeName AttributeName)
+    throws Exception;
+
+  /**
+   * Update attribute name.
+   *
+   * @param AttributeName the attribute name
+   * @throws Exception the exception
+   */
+  public void updateAttributeName(AttributeName AttributeName) throws Exception;
+
+  /**
+   * Removes the attribute name.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeAttributeName(Long id) throws Exception;
+
+  /**
+   * Adds the identifier type.
+   *
+   * @param IdentifierType the identifier type
+   * @return the identifier type
+   * @throws Exception the exception
+   */
+  public IdentifierType addIdentifierType(IdentifierType IdentifierType)
+    throws Exception;
+
+  /**
+   * Update identifier type.
+   *
+   * @param IdentifierType the identifier type
+   * @throws Exception the exception
+   */
+  public void updateIdentifierType(IdentifierType IdentifierType)
+    throws Exception;
+
+  /**
+   * Removes the identifier type.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeIdentifierType(Long id) throws Exception;
+
+  /**
+   * Adds the language.
+   *
+   * @param Language the language
+   * @return the language
+   * @throws Exception the exception
+   */
+  public Language addLanguage(Language Language)
+    throws Exception;
+
+  /**
+   * Update language.
+   *
+   * @param Language the identifier type
+   * @throws Exception the exception
+   */
+  public void updateLanguage(Language Language)
+    throws Exception;
+
+  /**
+   * Removes the langauge.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeLanguage(Long id) throws Exception;
+
 }

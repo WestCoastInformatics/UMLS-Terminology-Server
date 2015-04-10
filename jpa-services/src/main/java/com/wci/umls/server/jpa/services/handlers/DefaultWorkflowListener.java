@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.Properties;
@@ -153,6 +156,12 @@ public class DefaultWorkflowListener implements WorkflowListener {
 
   @Override
   public void cancel() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void metadataChanged() {
     // TODO Auto-generated method stub
     
   }

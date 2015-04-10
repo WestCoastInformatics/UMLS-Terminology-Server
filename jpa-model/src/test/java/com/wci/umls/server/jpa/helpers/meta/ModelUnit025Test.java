@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.helpers.meta;
 
 import static org.junit.Assert.assertTrue;
@@ -86,6 +89,9 @@ public class ModelUnit025Test {
     tester.include("expandedForm");
     tester.include("terminology");
     tester.include("terminologyVersion");
+    tester.include("terminologyVersion");
+    tester.include("publishable");
+    tester.include("published");
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
@@ -136,6 +142,11 @@ public class ModelUnit025Test {
     tester.include("expandedForm");
     tester.include("terminology");
     tester.include("terminologyVersion");
+    tester.include("publishable");
+    tester.include("published");
+    tester.include("timestamp");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
 
     assertTrue(tester.testNotNullFields());
   }

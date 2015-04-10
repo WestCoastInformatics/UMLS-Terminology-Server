@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 /*
  * 
  */
@@ -5,17 +8,13 @@ package com.wci.umls.server.jpa.meta;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
 import com.wci.umls.server.model.meta.SemanticType;
-import com.wci.umls.server.model.meta.SemanticTypeGroup;
 
 /**
  * JPA-enabled implementation of {@link SemanticType}.
@@ -57,10 +56,6 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
   @Column(nullable = true, length = 4000)
   private String usageNote;
 
-  /** The semantic type group. */
-  @ManyToOne(targetEntity = SemanticTypeGroupJpa.class, optional = true)
-  private SemanticTypeGroup group;
-
   /**
    * Instantiates an empty {@link SemanticTypeJpa}.
    */
@@ -78,7 +73,6 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
     super(sty);
     definition = sty.getDefinition();
     example = sty.getExample();
-    group = sty.getGroup();
     treeNumber = sty.getTreeNumber();
     typeId = sty.getTypeId();
     usageNote = sty.getUsageNote();
@@ -234,73 +228,6 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.model.meta.SemanticType#getGroup()
-   */
-  @Override
-  @XmlTransient
-  public SemanticTypeGroup getGroup() {
-    return group;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.SemanticType#setGroup(com.wci.umls.server
-   * .model.meta.SemanticTypeGroup)
-   */
-  @Override
-  public void setGroup(SemanticTypeGroup group) {
-    this.group = group;
-  }
-
-  /**
-   * Returns the group id.
-   *
-   * @return the group id
-   */
-  @XmlElement
-  public Long getGroupId() {
-    return group == null ? null : group.getId();
-  }
-
-  /**
-   * Sets the group id.
-   *
-   * @param id the group id
-   */
-  public void setGroupId(Long id) {
-    if (group == null) {
-      group = new SemanticTypeGroupJpa();
-    }
-    group.setId(id);
-  }
-
-  /**
-   * Returns the group abbreviation.
-   *
-   * @return the group abbreviation
-   */
-  @XmlElement
-  public String getGroupAbbreviation() {
-    return group == null ? null : group.getAbbreviation();
-  }
-
-  /**
-   * Sets the group abbreviation.
-   *
-   * @param abbreviation the group abbreviation
-   */
-  public void setGroupAbbreviation(String abbreviation) {
-    if (group == null) {
-      group = new SemanticTypeGroupJpa();
-    }
-    group.setAbbreviation(abbreviation);
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
    * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#hashCode()
    */
   @Override
@@ -310,7 +237,6 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
     result =
         prime * result + ((definition == null) ? 0 : definition.hashCode());
     result = prime * result + ((example == null) ? 0 : example.hashCode());
-    result = prime * result + ((group == null) ? 0 : group.hashCode());
     result = prime * result + (nonHuman ? 1231 : 1237);
     result =
         prime * result + ((treeNumber == null) ? 0 : treeNumber.hashCode());
@@ -345,11 +271,6 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
         return false;
     } else if (!example.equals(other.example))
       return false;
-    if (group == null) {
-      if (other.group != null)
-        return false;
-    } else if (!group.equals(other.group))
-      return false;
     if (nonHuman != other.nonHuman)
       return false;
     if (treeNumber == null) {
@@ -375,4 +296,14 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
     return true;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return "SemanticTypeJpa [value=" + value + ", definition=" + definition
+        + ", example=" + example + ", typeId=" + typeId + ", nonHuman="
+        + nonHuman + ", treeNumber=" + treeNumber + ", usageNote=" + usageNote
+        + "]";
+  }
 }

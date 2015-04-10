@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.model.meta;
 
 /**
@@ -102,19 +105,5 @@ public interface SemanticType extends Abbreviation {
    * @param usageNote the usage note
    */
   public void setUsageNote(String usageNote);
-
-  /**
-   * Returns the semantic type group.
-   * 
-   * @return the semantic type group
-   */
-  public SemanticTypeGroup getGroup();
-
-  /**
-   * Sets the semantic type group.
-   * 
-   * @param group the semantic type group
-   */
-  public void setGroup(SemanticTypeGroup group);
 
 }

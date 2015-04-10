@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.content;
 
 import java.util.Date;
@@ -18,6 +21,7 @@ import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.Component;
 
+// TODO: Auto-generated Javadoc
 /**
  * Abstract implementation of {@link Component} for use with JPA.
  */
@@ -30,6 +34,11 @@ public abstract class AbstractComponent implements Component {
   @GeneratedValue
   private Long id;
 
+  /**  the timestamp. */
+  @Column(nullable = false)
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date timestamp = new Date();
+
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
@@ -38,7 +47,6 @@ public abstract class AbstractComponent implements Component {
   /** The last modified. */
   @Column(nullable = false)
   private String lastModifiedBy;
-
 
   /** The published flag. */
   @Column(nullable = false)
@@ -115,7 +123,15 @@ public abstract class AbstractComponent implements Component {
     return (id == null ? "" : id.toString());
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.Component#timestamp()
+   */
+  public Date timestamp() {return timestamp;}
 
+  public void setTimestamp(Date timestamp) {
+    this.timestamp = timestamp;
+  }
+  
   /*
    * (non-Javadoc)
    * 

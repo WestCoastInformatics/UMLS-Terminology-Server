@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 /*
  * 
  */
@@ -398,20 +401,6 @@ public interface ContentService extends RootService {
    */
   public String getComputedPreferredName(Concept concept) throws Exception;
 
-  /**
-   * Indicates whether or not to assign last modified when changing terminology
-   * components. Supports a loader that wants to disable this feature.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isLastModifiedFlag();
-
-  /**
-   * Sets the last modified flag.
-   *
-   * @param lastModifiedFlag the last modified flag
-   */
-  public void setLastModifiedFlag(boolean lastModifiedFlag);
 
   /**
    * Sets the assign identifiers flag.
@@ -431,4 +420,19 @@ public interface ContentService extends RootService {
   public Map<String, Integer> getComponentStats(String terminology,
     String version) throws Exception;
 
+  /**
+   * Indicates whether or not to assign last modified when changing terminology
+   * components. Supports a loader that wants to disable this feature.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isLastModifiedFlag();
+
+  /**
+   * Sets the last modified flag.
+   *
+   * @param lastModifiedFlag the last modified flag
+   */
+  public void setLastModifiedFlag(boolean lastModifiedFlag);
+  
 }

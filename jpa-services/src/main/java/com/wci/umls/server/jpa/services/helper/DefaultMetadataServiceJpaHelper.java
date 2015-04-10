@@ -1,12 +1,13 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.services.helper;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.management.relation.RelationType;
 
-import com.wci.umls.server.jpa.services.RootServiceJpa;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
@@ -21,8 +22,8 @@ import com.wci.umls.server.services.MetadataService;
 /**
  * Default implementation of {@link MetadataService}.
  */
-public class DefaultMetadataServiceJpaHelper extends RootServiceJpa implements
-    MetadataService {
+public class DefaultMetadataServiceJpaHelper extends
+    AbstractMetadataServiceJpaHelper {
 
   /**
    * Instantiates an empty {@link DefaultMetadataServiceJpaHelper}.
@@ -31,20 +32,6 @@ public class DefaultMetadataServiceJpaHelper extends RootServiceJpa implements
    */
   public DefaultMetadataServiceJpaHelper() throws Exception {
     super();
-  }
-
-  @Override
-  public List<GeneralMetadataEntry> getGeneralMetadataEntries(
-    String terminology, String version) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public List<TermType> getTermTypePrecedenceList(String terminology,
-    String version) {
-    // TODO Auto-generated method stub
-    return null;
   }
 
   @Override
@@ -121,9 +108,6 @@ public class DefaultMetadataServiceJpaHelper extends RootServiceJpa implements
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.MetadataService#getNonGroupingRelationshipTypes(java.lang.String, java.lang.String)
-   */
   @Override
   public List<RelationshipType> getNonGroupingRelationshipTypes(
     String terminology, String version) throws Exception {
@@ -131,32 +115,20 @@ public class DefaultMetadataServiceJpaHelper extends RootServiceJpa implements
     return null;
   }
 
-  //
-  // NOt needed for sub-handler
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
-   * )
-   */
   @Override
-  public void setProperties(Properties p) throws Exception {
-    // n/a
-  }
-
-  @Override
-  public Map<String, Map<String, String>> getAllMetadata(String terminology,
-    String version) throws Exception {
-    // n/a handled by superclass
+  public List<GeneralMetadataEntry> getGeneralMetadataEntries(
+    String terminology, String version) {
+    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public void clearMetadata(String terminology, String version)
-    throws Exception {
-    // n/a
+  public List<TermType> getTermTypePrecedenceList(String terminology,
+    String version) {
+    // TODO Auto-generated method stub
+    return null;
   }
+
+
 
 }

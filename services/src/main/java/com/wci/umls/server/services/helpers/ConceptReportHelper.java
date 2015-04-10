@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.services.helpers;
 
 import com.wci.umls.server.model.content.Atom;

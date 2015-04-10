@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.algo;
 
 import java.io.BufferedReader;
@@ -25,32 +28,35 @@ public class RrfReaders {
    */
   public enum Keys {
 
-    /**  The mrconso. */
+    /** The mrconso. */
     MRCONSO,
-    
-    /**  The mrdef. */
+
+    /** The mrdef. */
     MRDEF,
-    
-    /**  The mrdoc. */
+
+    /** The mrdoc. */
     MRDOC,
-    
-    /**  The mrmap. */
+
+    /** The mrmap. */
     MRMAP,
-    
-    /**  The mrrank. */
+
+    /** The mrrank. */
     MRRANK,
-    
-    /**  The mrrel. */
+
+    /** The mrrel. */
     MRREL,
-    
-    /**  The mrsab. */
+
+    /** The mrsab. */
     MRSAB,
-    
-    /**  The mrsat. */
+
+    /** The mrsat. */
     MRSAT,
-    
-    /**  The mrsty. */
-    MRSTY;
+
+    /** The mrsty. */
+    MRSTY,
+
+    /** The srdef. */
+    SRDEF;
 
   }
 
@@ -80,6 +86,7 @@ public class RrfReaders {
     readers.put(Keys.MRSAB, getReader("sabBySab.sort"));
     readers.put(Keys.MRSAT, getReader("satByConcept.sort"));
     readers.put(Keys.MRSTY, getReader("styByConcept.sort"));
+    readers.put(Keys.SRDEF, getReader("srdef.sort"));
 
   }
 

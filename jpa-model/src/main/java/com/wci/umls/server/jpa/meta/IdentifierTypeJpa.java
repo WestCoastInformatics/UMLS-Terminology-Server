@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.meta;
 
 import javax.persistence.Entity;
@@ -13,7 +16,7 @@ import com.wci.umls.server.model.meta.IdentifierType;
  * JPA-enabled implementation of {@link IdentifierType}.
  */
 @Entity
-@Table(name = "identifierTypes", uniqueConstraints = @UniqueConstraint(columnNames = {
+@Table(name = "identifier_types", uniqueConstraints = @UniqueConstraint(columnNames = {
   "abbreviation"
 }))
 @Audited

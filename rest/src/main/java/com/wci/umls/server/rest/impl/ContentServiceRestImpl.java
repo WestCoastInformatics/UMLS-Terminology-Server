@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.rest.impl;
 
 import java.io.File;
@@ -94,8 +97,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     } catch (Exception e) {
       Logger.getLogger(getClass()).info("ERROR:");
-      e.printStackTrace();
-      // handleException(e, "trying to reindex");
+      handleException(e, "trying to reindex");
     } finally {
       securityService.close();
     }
@@ -170,7 +172,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     long startTimeOrig = System.nanoTime();
 
     try {
-      authenticate(securityService, authToken, "start editing cycle",
+      authenticate(securityService, authToken, "load RRF",
           UserRole.ADMINISTRATOR);
 
       // Check the input directory

@@ -1,6 +1,9 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.helpers.meta;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -12,13 +15,10 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
-import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.jpa.meta.SemanticTypeGroupJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.model.meta.SemanticType;
-import com.wci.umls.server.model.meta.SemanticTypeGroup;
 
 /**
  * Unit testing for {@link SemanticTypeJpa}.
@@ -27,12 +27,6 @@ public class ModelUnit036Test {
 
   /** The model object to test. */
   private SemanticTypeJpa object;
-
-  /** The group proxy. */
-  private SemanticTypeGroupJpa groupProxy;
-
-  /** The group proxy2. */
-  private SemanticTypeGroupJpa groupProxy2;
 
   /**
    * Setup class.
@@ -51,11 +45,6 @@ public class ModelUnit036Test {
   public void setup() throws Exception {
     // set up text fixtures
     object = new SemanticTypeJpa();
-
-    ProxyTester tester = new ProxyTester(new SemanticTypeGroupJpa());
-    groupProxy = (SemanticTypeGroupJpa) tester.createObject(1);
-    groupProxy2 = (SemanticTypeGroupJpa) tester.createObject(2);
-
   }
 
   /**
@@ -67,8 +56,6 @@ public class ModelUnit036Test {
   public void testModelGetSet036() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet036");
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.proxy(SemanticTypeGroup.class, 1, groupProxy);
-    tester.proxy(SemanticTypeGroup.class, 2, groupProxy2);
     tester.test();
   }
 
@@ -85,17 +72,16 @@ public class ModelUnit036Test {
     tester.include("expandedForm");
     tester.include("terminology");
     tester.include("terminologyVersion");
+    tester.include("publishable");
+    tester.include("published");
     tester.include("definition");
     tester.include("example");
-    tester.include("group");
     tester.include("nonHuman");
     tester.include("treeNumber");
     tester.include("typeId");
     tester.include("usageNote");
     tester.include("value");
 
-    tester.proxy(SemanticTypeGroup.class, 1, groupProxy);
-    tester.proxy(SemanticTypeGroup.class, 2, groupProxy2);
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
@@ -114,10 +100,6 @@ public class ModelUnit036Test {
   public void testModelCopy036() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelCopy036");
     CopyConstructorTester tester = new CopyConstructorTester(object);
-
-    tester.proxy(SemanticTypeGroup.class, 1, groupProxy);
-    tester.proxy(SemanticTypeGroup.class, 2, groupProxy2);
-
     assertTrue(tester.testCopyConstructor(SemanticType.class));
   }
 
@@ -130,11 +112,6 @@ public class ModelUnit036Test {
   public void testModelXmlSerialization036() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization036");
     XmlSerializationTester tester = new XmlSerializationTester(object);
-    // serialization only recovers id and abbreviation
-    SemanticTypeGroupJpa g1 = new SemanticTypeGroupJpa();
-    g1.setId(1L);
-    g1.setAbbreviation("1");
-    tester.proxy(SemanticTypeGroup.class, 1, g1);
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -151,6 +128,11 @@ public class ModelUnit036Test {
     tester.include("expandedForm");
     tester.include("terminology");
     tester.include("terminologyVersion");
+    tester.include("publishable");
+    tester.include("published");
+    tester.include("timestamp");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
     tester.include("value");
     tester.include("definition");
     tester.include("typeId");

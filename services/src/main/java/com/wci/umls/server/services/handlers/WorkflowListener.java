@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.services.handlers;
 
 import com.wci.umls.server.helpers.Configurable;
@@ -195,6 +198,11 @@ public interface WorkflowListener extends Configurable {
    * @param action the action
    */
   public void subsetMemberChanged(SubsetMember subsetMember, Action action);
+
+  /**
+   * Metadata changed.
+   */
+  public void metadataChanged();
 
   /**
    * Notification of a cancelled operation.

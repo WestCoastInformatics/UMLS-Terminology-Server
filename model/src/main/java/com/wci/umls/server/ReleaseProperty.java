@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 /*************************************************************
  * ReleaseProperty: ReleaseProperty.java
  * Last Updated: Feb 27, 2009

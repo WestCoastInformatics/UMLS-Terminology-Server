@@ -1,3 +1,6 @@
+/**
+ * Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.algo;
 
 import com.wci.umls.server.services.helpers.ProgressReporter;
