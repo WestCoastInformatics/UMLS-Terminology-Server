@@ -12,7 +12,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.RelationshipList;
 import com.wci.umls.server.helpers.ReleaseInfoList;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
 

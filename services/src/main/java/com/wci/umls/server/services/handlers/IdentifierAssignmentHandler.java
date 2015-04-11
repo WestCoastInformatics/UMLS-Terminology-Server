@@ -7,7 +7,7 @@ import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -103,7 +103,7 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @throws Exception the exception
    */
   public String getTerminologyId(
-    Relationship<? extends Component, ? extends Component> relationship)
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
     throws Exception;
 
   /**
@@ -114,7 +114,7 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @throws Exception the exception
    */
   public String getTerminologyId(
-    TransitiveRelationship<? extends Component> relationship) throws Exception;
+    TransitiveRelationship<? extends ComponentHasAttributes> relationship) throws Exception;
 
   // editing of maps is not currently supported
 

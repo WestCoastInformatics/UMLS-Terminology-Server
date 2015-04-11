@@ -5,14 +5,12 @@ package com.wci.umls.server.model.content;
 
 import java.util.List;
 
-import com.wci.umls.server.helpers.HasAttributes;
-
 /**
  * Represents a classification of atoms within a terminology, ontology, or
  * coding scheme. For example Metathesaurus CUIs, SNOMED CT source concepts, or
  * RXCUIs within RXNORM.
  */
-public interface AtomClass extends Component, HasAttributes {
+public interface AtomClass extends ComponentHasAttributes {
 
   /**
    * Returns the atoms.
@@ -47,5 +45,12 @@ public interface AtomClass extends Component, HasAttributes {
    * @return the preferred atom name
    */
   public String getDefaultPreferredName();
+
+  /**
+   * Sets the default preferred name.
+   *
+   * @param defaultPreferredName the default preferred name
+   */
+  public void setDefaultPreferredName(String defaultPreferredName);
 
 }

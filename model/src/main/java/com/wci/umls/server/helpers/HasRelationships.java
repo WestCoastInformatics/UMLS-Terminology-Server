@@ -5,14 +5,14 @@ package com.wci.umls.server.helpers;
 
 import java.util.List;
 
-import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Relationship;
 
 /**
  * Represents a thing that has relationships.
  * @param <T> the type of relationship
  */
-public interface HasRelationships<T extends Relationship<? extends Component, ? extends Component>> {
+public interface HasRelationships<T extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> {
 
   /**
    * Returns the relationships.

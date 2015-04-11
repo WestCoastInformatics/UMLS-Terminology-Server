@@ -15,10 +15,10 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteriaList;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
-import com.wci.umls.server.jpa.content.AbstractComponent;
+import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.TransitiveRelationship;
@@ -190,7 +190,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
    * @see com.wci.umls.server.services.ContentService#getRelationship(java.lang.Long)
    */
   @Override
-  public Relationship<? extends Component, ? extends Component> getRelationship(
+  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
     Long id) throws Exception {
     // TODO Auto-generated method stub
     return null;
@@ -200,7 +200,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
    * @see com.wci.umls.server.services.ContentService#getRelationship(java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public Relationship<? extends Component, ? extends Component> getRelationship(
+  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
     String terminologyId, String terminology, String version) throws Exception {
     // TODO Auto-generated method stub
     return null;
@@ -210,8 +210,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
    * @see com.wci.umls.server.services.ContentService#addRelationship(com.wci.umls.server.model.content.Relationship)
    */
   @Override
-  public Relationship<? extends Component, ? extends Component> addRelationship(
-    Relationship<? extends Component, ? extends Component> relationship)
+  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> addRelationship(
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
     throws Exception {
     // TODO Auto-generated method stub
     return null;
@@ -222,7 +222,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
    */
   @Override
   public void updateRelationship(
-    Relationship<? extends Component, ? extends Component> relationship)
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
     throws Exception {
     // TODO Auto-generated method stub
 
@@ -241,8 +241,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
    * @see com.wci.umls.server.services.ContentService#addTransitiveRelationship(com.wci.umls.server.model.content.TransitiveRelationship)
    */
   @Override
-  public TransitiveRelationship<? extends Component> addTransitiveRelationship(
-    TransitiveRelationship<? extends Component> transitiveRelationship)
+  public TransitiveRelationship<? extends ComponentHasAttributes> addTransitiveRelationship(
+    TransitiveRelationship<? extends ComponentHasAttributes> transitiveRelationship)
     throws Exception {
     // TODO Auto-generated method stub
     return null;
@@ -253,7 +253,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
    */
   @Override
   public void updateTransitiveRelationship(
-    TransitiveRelationship<? extends Component> transitiveRelationship)
+    TransitiveRelationship<? extends ComponentHasAttributes> transitiveRelationship)
     throws Exception {
     // TODO Auto-generated method stub
 
@@ -445,7 +445,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
       }
       if (!AbstractAbbreviation.class.isAssignableFrom(type
           .getBindableJavaType())
-          && !AbstractComponent.class.isAssignableFrom(type
+          && !AbstractComponentHasAttributes.class.isAssignableFrom(type
               .getBindableJavaType())) {
         continue;
       }
@@ -461,7 +461,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements ContentServ
       stats.put("Total " + jpaTable, ct);
       
       // Only compute active counts for components
-      if (AbstractComponent.class.isAssignableFrom(type.getBindableJavaType())) {
+      if (AbstractComponentHasAttributes.class.isAssignableFrom(type.getBindableJavaType())) {
         query =
             manager
                 .createQuery("select count(*) from "

@@ -7,13 +7,12 @@
  *************************************************************/
 package com.wci.umls.server.model.content;
 
-import com.wci.umls.server.helpers.HasAttributes;
 
 
 /**
  * Represents membership of something in a {@link Subset}.
  */
-public interface SubsetMember extends Component, HasAttributes {
+public interface SubsetMember extends ComponentHasAttributes {
 
 	/**
 	 * Returns the subset.

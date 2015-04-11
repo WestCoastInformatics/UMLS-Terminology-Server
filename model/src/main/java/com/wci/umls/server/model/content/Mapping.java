@@ -3,42 +3,39 @@
  */
 package com.wci.umls.server.model.content;
 
-import com.wci.umls.server.helpers.HasAttributes;
-import com.wci.umls.server.model.meta.AdditionalRelationshipType;
-import com.wci.umls.server.model.meta.RelationshipType;
 
 /**
  * Represents a mapping between two {@link MapObject}s.
  */
-public interface Mapping extends Component, HasAttributes {
+public interface Mapping extends ComponentHasAttributes {
 
   /**
    * Returns the label.
    * 
    * @return the label
    */
-  public RelationshipType getLabel();
+  public String getLabel();
 
   /**
    * Sets the label.
    * 
    * @param label the label
    */
-  public void setLabel(RelationshipType label);
+  public void setLabel(String label);
 
   /**
    * Returns the additional label.
    * 
    * @return the additional label
    */
-  public AdditionalRelationshipType getAdditionalLabel();
+  public String getAdditionalLabel();
 
   /**
    * Sets the additional label.
    * 
    * @param additionalLabel the additional label
    */
-  public void setAdditionalLabel(AdditionalRelationshipType additionalLabel);
+  public void setAdditionalLabel(String additionalLabel);
 
   /**
    * Returns the rank.

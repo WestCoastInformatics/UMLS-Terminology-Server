@@ -3,12 +3,11 @@
  */
 package com.wci.umls.server.model.content;
 
-
 /**
  * Represents a transitive relationship between two {@link AtomClass}es.
  * @param <T> the type of hierarchy
  */
-public interface TransitiveRelationship<T extends AtomClass> extends Component {
+public interface TransitiveRelationship<T extends AtomClass> extends ComponentHasAttributes {
 
   /**
    * Returns the super type.

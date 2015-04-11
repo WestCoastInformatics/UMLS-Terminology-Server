@@ -3,18 +3,14 @@
  */
 package com.wci.umls.server.model.content;
 
-import com.wci.umls.server.model.meta.AdditionalRelationshipType;
-import com.wci.umls.server.model.meta.RelationshipType;
-
-// TODO: Auto-generated Javadoc
 /**
- * Represents a relationship between two {@link Component}s.
+ * Represents a relationship between two {@link ComponentHasAttributes}s.
  *
  * @param <S> the "from" object type
  * @param <T> the "to" object type
  */
-public interface Relationship<S extends Component, T extends Component> extends
-    Component {
+public interface Relationship<S extends ComponentHasAttributes, T extends ComponentHasAttributes> extends
+    ComponentHasAttributes {
 
   /**
    * Returns the from.
@@ -49,29 +45,29 @@ public interface Relationship<S extends Component, T extends Component> extends
    *
    * @return the relationship label
    */
-  public RelationshipType getRelationshipLabel();
+  public String getRelationshipType();
 
   /**
    * Sets the relationship label.
    *
-   * @param relationshipLabel the relationship label
+   * @param relationshipType the relationship label
    */
-  public void setRelationshipLabel(RelationshipType relationshipLabel);
+  public void setRelationshipType(String relationshipType);
 
   /**
    * Returns the additional relationship label.
    *
    * @return the additional relationship label
    */
-  public AdditionalRelationshipType getAdditionalRelationshipLabel();
+  public String getAdditionalRelationshipType();
 
   /**
    * Sets the additional relationship label.
    *
-   * @param additionalRelationshipLabel the additional relationship label
+   * @param additionalrelationshipType the additional relationship label
    */
-  public void setAdditionalRelationshipLabel(
-    AdditionalRelationshipType additionalRelationshipLabel);
+  public void setAdditionalRelationshipType(
+    String additionalrelationshipType);
 
   /**
    * Returns the relationship group. This is a mechanism for binding sets of

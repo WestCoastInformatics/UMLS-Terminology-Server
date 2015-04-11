@@ -20,10 +20,10 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 
-// TODO: Auto-generated Javadoc
 /**
- * Abstract implementation of {@link Component} for use with JPA.
+ * Abstract implementation of {@link ComponentHasAttributes} for use with JPA.
  */
 @Audited
 @MappedSuperclass
@@ -34,7 +34,7 @@ public abstract class AbstractComponent implements Component {
   @GeneratedValue
   private Long id;
 
-  /**  the timestamp. */
+  /** the timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = new Date();
@@ -47,6 +47,14 @@ public abstract class AbstractComponent implements Component {
   /** The last modified. */
   @Column(nullable = false)
   private String lastModifiedBy;
+
+  /** The suppressible flag. */
+  @Column(nullable = false)
+  private boolean suppressible = false;
+
+  /** The obsolete flag. */
+  @Column(nullable = false)
+  private boolean obsolete = false;
 
   /** The published flag. */
   @Column(nullable = false)
@@ -81,16 +89,17 @@ public abstract class AbstractComponent implements Component {
    * @param component the component
    */
   protected AbstractComponent(Component component) {
-// TODO:
+    id = component.getId();
+    lastModified = component.getLastModified();
+    lastModifiedBy = component.getLastModifiedBy();
+    terminology = component.getTerminology();
+    terminologyId = component.getTerminologyId();
+    terminologyVersion = component.getTerminologyVersion();
+    publishable = component.isPublishable();
+    published = component.isPublished();
+    obsolete = component.isObsolete();
+    suppressible = component.isSuppressible();
   }
-
-
-  /**
-   * Generalized field for any additional value that needs to be attached to a
-   * component.
-   */
-  @Column(nullable = true, length = 4000)
-  private String label;
 
   /*
    * (non-Javadoc)
@@ -123,15 +132,27 @@ public abstract class AbstractComponent implements Component {
     return (id == null ? "" : id.toString());
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.content.Component#timestamp()
    */
-  public Date timestamp() {return timestamp;}
+  @Override
+  public Date getTimestamp() {
+    return timestamp;
+  }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.Component#setTimestamp(java.util.Date)
+   */
+  @Override
   public void setTimestamp(Date timestamp) {
     this.timestamp = timestamp;
   }
-  
+
   /*
    * (non-Javadoc)
    * 
@@ -177,9 +198,52 @@ public abstract class AbstractComponent implements Component {
   /*
    * (non-Javadoc)
    * 
+   * @see com.wci.umls.server.model.content.Component#isSuppressible()
+   */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public boolean isSuppressible() {
+    return suppressible;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.content.Component#setSuppressible(boolean)
+   */
+  @Override
+  public void setSuppressible(boolean suppressible) {
+    this.suppressible = suppressible;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.content.Component#isObsolete()
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Override
+  public boolean isObsolete() {
+    return obsolete;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.content.Component#setObsolete(boolean)
+   */
+  @Override
+  public void setObsolete(boolean obsolete) {
+    this.obsolete = obsolete;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.rf2.Component#isPublished()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isPublished() {
     return published;
   }
@@ -200,6 +264,7 @@ public abstract class AbstractComponent implements Component {
    * @see org.ihtsdo.otf.ts.rf2.Component#isPublishable()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isPublishable() {
     return publishable;
   }
@@ -213,7 +278,6 @@ public abstract class AbstractComponent implements Component {
   public void setPublishable(boolean publishable) {
     this.publishable = publishable;
   }
-
 
   /*
    * (non-Javadoc)
@@ -283,14 +347,74 @@ public abstract class AbstractComponent implements Component {
   /*
    * (non-Javadoc)
    * 
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + (publishable ? 1231 : 1237);
+    result = prime * result + (published ? 1231 : 1237);
+    result =
+        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
+    result =
+        prime * result
+            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result =
+        prime
+            * result
+            + ((terminologyVersion == null) ? 0 : terminologyVersion.hashCode());
+    return result;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    AbstractComponent other = (AbstractComponent) obj;
+    if (publishable != other.publishable)
+      return false;
+    if (published != other.published)
+      return false;
+    if (terminology == null) {
+      if (other.terminology != null)
+        return false;
+    } else if (!terminology.equals(other.terminology))
+      return false;
+    if (terminologyId == null) {
+      if (other.terminologyId != null)
+        return false;
+    } else if (!terminologyId.equals(other.terminologyId))
+      return false;
+    if (terminologyVersion == null) {
+      if (other.terminologyVersion != null)
+        return false;
+    } else if (!terminologyVersion.equals(other.terminologyVersion))
+      return false;
+    return true;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#toString()
    */
   @Override
   public String toString() {
-// TODO:
-    return id + "," + terminology + "," + terminologyId + ","
-        + terminologyVersion + "," +  lastModifiedBy + ", " + lastModified + " ";
+    return "AbstractComponent [id=" + id + ", timestamp=" + timestamp
+        + ", lastModified=" + lastModified + ", lastModifiedBy="
+        + lastModifiedBy + ", published=" + published + ", publishable="
+        + publishable + ", terminology=" + terminology + ", terminologyId="
+        + terminologyId + ", terminologyVersion=" + terminologyVersion + "]";
   }
-
 
 }

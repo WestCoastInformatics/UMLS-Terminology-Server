@@ -14,7 +14,7 @@ import com.wci.umls.server.helpers.SearchCriteriaList;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.TransitiveRelationship;
@@ -196,7 +196,7 @@ public interface ContentService extends RootService {
    * @return the relationship
    * @throws Exception if anything goes wrong
    */
-  public Relationship<? extends Component, ? extends Component> getRelationship(
+  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
     Long id) throws Exception;
 
   /**
@@ -208,7 +208,7 @@ public interface ContentService extends RootService {
    * @return the relationship
    * @throws Exception if anything goes wrong
    */
-  public Relationship<? extends Component, ? extends Component> getRelationship(
+  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
     String terminologyId, String terminology, String version) throws Exception;
 
   /**
@@ -218,8 +218,8 @@ public interface ContentService extends RootService {
    * @return the relationship
    * @throws Exception the exception
    */
-  public Relationship<? extends Component, ? extends Component> addRelationship(
-    Relationship<? extends Component, ? extends Component> relationship)
+  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> addRelationship(
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
     throws Exception;
 
   /**
@@ -229,7 +229,7 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public void updateRelationship(
-    Relationship<? extends Component, ? extends Component> relationship)
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
     throws Exception;
 
   /**
@@ -247,8 +247,8 @@ public interface ContentService extends RootService {
    * @return the transitive relationship
    * @throws Exception the exception
    */
-  public TransitiveRelationship<? extends Component> addTransitiveRelationship(
-    TransitiveRelationship<? extends Component> transitiveRelationship)
+  public TransitiveRelationship<? extends ComponentHasAttributes> addTransitiveRelationship(
+    TransitiveRelationship<? extends ComponentHasAttributes> transitiveRelationship)
     throws Exception;
 
   /**
@@ -258,7 +258,7 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public void updateTransitiveRelationship(
-    TransitiveRelationship<? extends Component> transitiveRelationship)
+    TransitiveRelationship<? extends ComponentHasAttributes> transitiveRelationship)
     throws Exception;
 
   /**

@@ -3,11 +3,10 @@
  */
 package com.wci.umls.server.model.content;
 
-
 /**
  * Represents a definition.
  */
-public interface Definition extends Component {
+public interface Definition extends ComponentHasAttributes {
 
   /**
    * Returns the value.

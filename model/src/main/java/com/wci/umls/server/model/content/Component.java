@@ -4,7 +4,6 @@
 package com.wci.umls.server.model.content;
 
 import java.util.Date;
-import java.util.List;
 
 import com.wci.umls.server.helpers.HasTerminologyId;
 
@@ -35,11 +34,11 @@ public interface Component extends HasTerminologyId {
   public String getObjectId();
 
   /**
-   * Timestamp.
+   * Returns the timestamp.
    *
-   * @return the date
+   * @return the timestamp
    */
-  public Date timestamp();
+  public Date getTimestamp();
 
   /**
    * Sets the timestamp.
@@ -133,43 +132,5 @@ public interface Component extends HasTerminologyId {
    * @param publishable the new publishable
    */
   public void setPublishable(boolean publishable);
-
-  // Attributes methods
-  
-  /**
-   * Returns the attributes.
-   *
-   * @return the attributes
-   */
-  public List<Attribute> getAttributes();
-  
-  /**
-   * Sets the attributes.
-   *
-   * @param attributes the attributes
-   */
-  public void setAttributes(List<Attribute> attributes);
-  
-  /**
-   * Adds the attribute.
-   *
-   * @param attribute the attribute
-   */
-  public void addAttribute(Attribute attribute);
-  
-  /**
-   * Removes the attribute.
-   *
-   * @param attribute the attribute
-   */
-  public void removeAttribute(Attribute attribute);
-  
-  /**
-   * Returns a string of comma-separated fields of this object.
-   * 
-   * @return a string of comma-separated fields
-   */
-  @Override
-  public String toString();
 
 }

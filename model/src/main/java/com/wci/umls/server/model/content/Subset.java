@@ -9,12 +9,10 @@ package com.wci.umls.server.model.content;
 
 import java.util.List;
 
-import com.wci.umls.server.helpers.HasAttributes;
-
 /**
  * Represents a subset of content asserted by a terminology.
  */
-public interface Subset extends Component, HasAttributes {
+public interface Subset extends ComponentHasAttributes {
 
   /**
    * Returns the name.

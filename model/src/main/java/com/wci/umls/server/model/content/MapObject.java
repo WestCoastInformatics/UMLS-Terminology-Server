@@ -5,12 +5,10 @@ package com.wci.umls.server.model.content;
 
 import java.util.List;
 
-import com.wci.umls.server.model.meta.IdentifierType;
-
 /**
  * Represents one end of a {@link Mapping}.
  */
-public interface MapObject extends Component {
+public interface MapObject extends ComponentHasAttributes {
 
   /**
    * Returns the expression.
@@ -31,14 +29,14 @@ public interface MapObject extends Component {
    * 
    * @return the type
    */
-  public IdentifierType getType();
+  public String getType();
 
   /**
    * Sets the type.
    * 
    * @param type the type
    */
-  public void setType(IdentifierType type);
+  public void setType(String type);
 
   /**
    * Returns the rule.

@@ -7,7 +7,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.SemanticType;
@@ -39,7 +39,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
   @Override
   public void resolve(
-    Relationship<? extends Component, ? extends Component> relationship) {
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship) {
     // TODO Auto-generated method stub
     
   }

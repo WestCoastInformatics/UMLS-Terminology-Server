@@ -24,7 +24,9 @@ public interface Concept extends AtomClass, HasDefinitions,
 
   /**
    * Sets the fully defined flag.
+   *
+   * @param fullyDefined the fully defined
    */
-  public void setFullyDefined();
+  public void setFullyDefined(boolean fullyDefined);
 
 }

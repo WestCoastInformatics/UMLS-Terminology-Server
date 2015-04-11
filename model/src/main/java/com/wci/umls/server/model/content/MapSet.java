@@ -11,15 +11,13 @@ import java.util.List;
 
 import javax.xml.transform.Source;
 
-import com.wci.umls.server.helpers.HasAttributes;
-import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 
 /**
  * Represents a group of {@link Mapping}s between one {@link Terminology} and
  * another.
  */
-public interface MapSet extends Component, HasAttributes {
+public interface MapSet extends ComponentHasAttributes {
 
   /**
    * Returns the name.
@@ -69,14 +67,14 @@ public interface MapSet extends Component, HasAttributes {
    * 
    * @return the "to" root source
    */
-  public RootTerminology getToRootSource();
+  public String getToRootSource();
 
   /**
    * Sets the "to" root source.
    * 
    * @param toRootSource the "to" root source
    */
-  public void setToRootSource(RootTerminology toRootSource);
+  public void setToRootSource(String toRootSource);
 
   /**
    * Returns the "from" source.
@@ -98,14 +96,14 @@ public interface MapSet extends Component, HasAttributes {
    * 
    * @return the "from" root source
    */
-  public RootTerminology getFromRootSource();
+  public String getFromRootSource();
 
   /**
    * Sets the "from" root source.
    * 
    * @param fromRootSource the "from" root source
    */
-  public void setFromRootSource(RootTerminology fromRootSource);
+  public void setFromRootSource(String fromRootSource);
 
   /**
    * Returns the complexity.

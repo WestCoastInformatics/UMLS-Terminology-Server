@@ -12,7 +12,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.helpers.KeyValuesMap;
-import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Relationship;
 
 /**
@@ -32,14 +32,14 @@ public interface Classifier extends Algorithm, Configurable {
    *
    * @return the new inferred relationships
    */
-  public List<Relationship<? extends Component, ? extends Component>> getNewInferredRelationships();
+  public List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> getNewInferredRelationships();
 
   /**
    * Returns the old inferred relationships.
    *
    * @return the old inferred relationships
    */
-  public List<Relationship<? extends Component, ? extends Component>> getOldInferredRelationships();
+  public List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> getOldInferredRelationships();
 
   /**
    * Sets the root id.

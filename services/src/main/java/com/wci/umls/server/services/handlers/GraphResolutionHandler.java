@@ -7,7 +7,7 @@ import java.util.Set;
 
 import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.SemanticType;
@@ -41,7 +41,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @param relationship the relationship
    */
   public void resolve(
-    Relationship<? extends Component, ? extends Component> relationship);
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship);
 
   /**
    * Resolve.
