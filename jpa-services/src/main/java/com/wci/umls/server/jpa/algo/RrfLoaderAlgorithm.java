@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.algo;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,11 +17,23 @@ import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
+import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.LexicalClassJpa;
+import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.IdentifierTypeJpa;
 import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.IdentifierType;
 import com.wci.umls.server.model.meta.Language;
@@ -57,6 +70,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /** The readers. */
   private RrfReaders readers;
+
+  /** The all metadata. */
+  private Map<String, Map<String, String>> allMetadata;
 
   /**
    * Instantiates an empty {@link RrfLoaderAlgorithm}.
@@ -145,6 +161,18 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // Load MRDOC data
       loadAbbreviations();
+
+      commit();
+      clear();
+      beginTransaction();
+
+      // read for later use
+      allMetadata = getAllMetadata(terminology, terminologyVersion);
+
+      //
+      // Load the content
+      //
+      loadMrconso();
 
       commit();
       clear();
@@ -257,7 +285,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Load MRDOC abbreviation types");
     String line = null;
     Set<String> idTypeSeen = new HashSet<>();
-    int objectCt = 0;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDOC);
     while ((line = reader.readLine()) != null) {
 
@@ -290,8 +317,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (fields[2].equals("expanded_form")
           && (fields[0].equals("FROMTYPE") || fields[0].equals("TOTYPE")
               || fields[0].equals("STYPE") || fields[0].equals("STYPE1") || fields[0]
-                .equals("STYPE2"))
-                && !idTypeSeen.contains(fields[1])) {
+                .equals("STYPE2")) && !idTypeSeen.contains(fields[1])) {
         final IdentifierType idType = new IdentifierTypeJpa();
         idType.setAbbreviation(fields[1]);
         idType.setExpandedForm(fields[3]);
@@ -304,7 +330,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         addIdentifierType(idType);
         idTypeSeen.add(fields[1]);
       }
-      
+
       // Handle Languages
       if (fields[0].equals("LAT") && fields[2].equals("expanded_form")) {
         final Language lat = new LanguageJpa();
@@ -315,14 +341,191 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         lat.setTerminologyVersion(terminologyVersion);
         lat.setPublished(true);
         lat.setISO3Code(fields[1]);
-        lat.setISOCode(fields[1].toLowerCase().substring(0,2));
-        Logger.getLogger(getClass()).debug(
-            "    add language - " + lat);
+        lat.setISOCode(fields[1].toLowerCase().substring(0, 2));
+        Logger.getLogger(getClass()).debug("    add language - " + lat);
         addLanguage(lat);
       }
 
     }
 
+  }
+
+  /**
+   * Load MRCONSO.RRF. This is responsible for loading atoms and atom classes.
+   *
+   * @throws Exception the exception
+   */
+  private void loadMrconso() throws Exception {
+    Logger.getLogger(getClass()).info("  Load MRCONSO");
+    String line = null;
+    Map<String, Code> codeMap = new HashMap<>();
+    Map<String, Concept> conceptMap = new HashMap<>();
+    Map<String, Descriptor> descriptorMap = new HashMap<>();
+    Map<String, LexicalClass> lexicalClassMap = new HashMap<>();
+    Map<String, StringClass> stringClassMap = new HashMap<>();
+    int objectCt = 0;
+    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDOC);
+    while ((line = reader.readLine()) != null) {
+
+      line = line.replace("\r", "");
+      final String fields[] = line.split("\\|");
+
+      // Field Description
+      // 0 CUI
+      // 1 LAT
+      // 2 TS
+      // 3 LUI
+      // 4 STT
+      // 5 SUI
+      // 6 ISPREF
+      // 7 AUI
+      // 8 SAUI
+      // 9 SDUI
+      // 10 SCUI
+      // 11 SAB
+      // 12 TTY
+      // 13 CODE
+      // 14 STR
+      // 15 SRL
+      // 16 SUPPRESS
+      // 17 CVF
+      //
+      // e.g.
+      // C0000005|ENG|P|L0000005|PF|S0007492|Y|A7755565||M0019694|D012711|MSH|PEN|D012711|(131)I-Macroaggregated
+      // Albumin|0|N|256|
+
+      Atom atom = new AtomJpa();
+      atom.setLanguage(fields[3]);
+      atom.setLastModifiedBy("loader");
+      atom.setObsolete(fields[16].equals("O"));
+      atom.setSuppressible(!fields[16].equals("N"));
+      atom.setPublished(true);
+      atom.setTerm(fields[14]);
+      atom.setTerminology(fields[11]);
+      // TODO: get root terminology and get current version and set it.
+      atom.setTerminologyVersion("TODO");
+      atom.setTerminologyId(fields[7]);
+      atom.setTermType(fields[12]);
+      objectCt++;
+
+      // CUI
+      Concept cui = null;
+      if (conceptMap.containsKey(fields[0])) {
+        cui = conceptMap.get(fields[0]);
+      } else if (!fields[0].equals("")) {
+        cui = new ConceptJpa();
+        cui.setLastModifiedBy("loader");
+        cui.setPublished(true);
+        cui.setTerminology(terminology);
+        cui.setTerminologyId(fields[0]);
+        cui.setTerminologyVersion(terminologyVersion);
+        conceptMap.put(cui.getTerminologyId(), cui);
+      }
+      if (cui != null) {
+        cui.addAtom(atom);
+        atom.addConcept(cui);
+      }
+
+      // SCUI
+      Concept scui = null;
+      if (conceptMap.containsKey(fields[10])) {
+        scui = conceptMap.get(fields[10]);
+      } else if (!fields[10].equals("")) {
+        scui = new ConceptJpa();
+        scui.setLastModifiedBy("loader");
+        scui.setPublished(true);
+        scui.setTerminology(fields[11]);
+        scui.setTerminologyId(fields[10]);
+        // TODO: get root terminology and get current version and set it.
+        scui.setTerminologyVersion("TODO");
+        conceptMap.put(scui.getTerminologyId(), scui);
+      }
+      if (scui != null) {
+        scui.addAtom(atom);
+        atom.addConcept(scui);
+      }
+
+      // SDUI
+      Descriptor sdui = null;
+      if (descriptorMap.containsKey(fields[9])) {
+        sdui = descriptorMap.get(fields[9]);
+      } else if (!fields[9].equals("")) {
+        sdui = new DescriptorJpa();
+        sdui.setLastModifiedBy("loader");
+        sdui.setPublished(true);
+        sdui.setTerminology(fields[11]);
+        sdui.setTerminologyId(fields[9]);
+        // TODO: get root terminology and get current version and set it.
+        sdui.setTerminologyVersion("TODO");
+        descriptorMap.put(sdui.getTerminologyId(), sdui);
+      }
+      if (sdui != null) {
+        sdui.addAtom(atom);
+        atom.setDescriptorId(sdui.getTerminologyId());
+      }
+
+      // CODE
+      Code code = null;
+      if (codeMap.containsKey(fields[13])) {
+        code = codeMap.get(fields[13]);
+      } else if (!fields[13].equals("")) {
+        code = new CodeJpa();
+        code.setLastModifiedBy("loader");
+        code.setPublished(true);
+        code.setTerminology(fields[11]);
+        code.setTerminologyId(fields[13]);
+        // TODO: get root terminology and get current version and set it.
+        code.setTerminologyVersion("TODO");
+        codeMap.put(code.getTerminologyId(), code);
+      }
+      if (code != null) {
+        code.addAtom(atom);
+        atom.setCodeId(code.getTerminologyId());
+      }
+
+      LexicalClass lui = null;
+      if (lexicalClassMap.containsKey(fields[3])) {
+        lui = lexicalClassMap.get(fields[3]);
+      } else if (!fields[3].equals("")) {
+        lui = new LexicalClassJpa();
+        lui.setLastModifiedBy("loader");
+        lui.setPublished(true);
+        lui.setTerminology(terminology);
+        lui.setTerminologyId(fields[3]);
+        lui.setTerminologyVersion(terminologyVersion);
+        lexicalClassMap.put(lui.getTerminologyId(), lui);
+        lui.setNormalizedString("TBD");
+      }
+      if (lui != null) {
+        lui.addAtom(atom);
+        atom.setLexicalClassId(lui.getTerminologyId());
+      }
+
+      StringClass sui = null;
+      if (stringClassMap.containsKey(fields[5])) {
+        sui = stringClassMap.get(fields[5]);
+      } else if (!fields[5].equals("")) {
+        sui = new StringClassJpa();
+        sui.setLastModifiedBy("loader");
+        sui.setPublished(true);
+        sui.setTerminology(terminology);
+        sui.setTerminologyId(fields[5]);
+        sui.setTerminologyVersion(terminologyVersion);
+        stringClassMap.put(sui.getTerminologyId(), sui);
+        sui.setString(fields[14]);
+      }
+      if (sui != null) {
+        sui.addAtom(atom);
+        atom.setStringClassId(sui.getTerminologyId());
+      }
+
+    }
+
+    // TODO: Set default preferred names
+    
+    
+    // TODO: then iterate through and add atoms, then atom class data structure
+    // commiting every so often.
   }
 
   /*

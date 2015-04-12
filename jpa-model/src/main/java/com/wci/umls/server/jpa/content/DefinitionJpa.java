@@ -31,7 +31,7 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements Def
   /**
    * Instantiates an empty {@link DefinitionJpa}.
    */
-  protected DefinitionJpa() {
+  public DefinitionJpa() {
     // do nothing
   }
 
@@ -41,7 +41,7 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements Def
    * @param definition the definition
    * @param deepCopy the deep copy
    */
-  protected DefinitionJpa(Definition definition, boolean deepCopy) {
+  public DefinitionJpa(Definition definition, boolean deepCopy) {
     super(definition, deepCopy);
     value = definition.getValue();
   }

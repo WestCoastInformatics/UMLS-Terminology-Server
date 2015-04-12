@@ -35,7 +35,7 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
   /**
    * Instantiates an empty {@link AttributeJpa}.
    */
-  protected AttributeJpa() {
+  public AttributeJpa() {
     // do nothing
   }
 
@@ -44,7 +44,7 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
    *
    * @param attribute the attribute
    */
-  protected AttributeJpa(Attribute attribute) {
+  public AttributeJpa(Attribute attribute) {
     super(attribute);
     name = attribute.getName();
     value = attribute.getValue();

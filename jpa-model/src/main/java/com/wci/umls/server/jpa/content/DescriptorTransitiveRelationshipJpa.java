@@ -40,7 +40,7 @@ public class DescriptorTransitiveRelationshipJpa extends AbstractComponentHasAtt
   /**
    * Instantiates an empty {@link DescriptorTransitiveRelationshipJpa}.
    */
-  protected DescriptorTransitiveRelationshipJpa() {
+  public DescriptorTransitiveRelationshipJpa() {
     // do nothing
   }
 
@@ -51,7 +51,7 @@ public class DescriptorTransitiveRelationshipJpa extends AbstractComponentHasAtt
    * @param relationship the relationship
    * @param deepCopy the deep copy
    */
-  protected DescriptorTransitiveRelationshipJpa(
+  public DescriptorTransitiveRelationshipJpa(
       DescriptorTransitiveRelationship relationship, boolean deepCopy) {
     super(relationship, deepCopy);
     superType = relationship.getSuperType();

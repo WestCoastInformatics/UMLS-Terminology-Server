@@ -40,7 +40,7 @@ public class ConceptRelationshipJpa extends
   /**
    * Instantiates an empty {@link ConceptRelationshipJpa}.
    */
-  protected ConceptRelationshipJpa() {
+  public ConceptRelationshipJpa() {
     // do nothing
   }
 
@@ -51,7 +51,7 @@ public class ConceptRelationshipJpa extends
    * @param relationship the relationship
    * @param deepCopy the deep copy
    */
-  protected ConceptRelationshipJpa(ConceptRelationship relationship,
+  public ConceptRelationshipJpa(ConceptRelationship relationship,
       boolean deepCopy) {
     super(relationship, deepCopy);
     to = relationship.getTo();

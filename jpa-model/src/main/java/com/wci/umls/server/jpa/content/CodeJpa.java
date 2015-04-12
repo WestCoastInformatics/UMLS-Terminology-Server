@@ -28,7 +28,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   /**
    * Instantiates an empty {@link CodeJpa}.
    */
-  protected CodeJpa() {
+  public CodeJpa() {
     // do nothing
   }
 
@@ -38,7 +38,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
    * @param code the code
    * @param deepCopy the deep copy
    */
-  protected CodeJpa(Code code, boolean deepCopy) {
+  public CodeJpa(Code code, boolean deepCopy) {
     super(code, deepCopy);
   }
 }

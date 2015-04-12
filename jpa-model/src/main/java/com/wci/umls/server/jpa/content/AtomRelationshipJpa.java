@@ -40,7 +40,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   /**
    * Instantiates an empty {@link AtomRelationshipJpa}.
    */
-  protected AtomRelationshipJpa() {
+  public AtomRelationshipJpa() {
     // do nothing
   }
 
@@ -50,7 +50,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    * @param relationship the concept relationship
    * @param deepCopy the deep copy
    */
-  protected AtomRelationshipJpa(AtomRelationship relationship, boolean deepCopy) {
+  public AtomRelationshipJpa(AtomRelationship relationship, boolean deepCopy) {
     super(relationship, deepCopy);
     to = relationship.getTo();
     from = relationship.getFrom();

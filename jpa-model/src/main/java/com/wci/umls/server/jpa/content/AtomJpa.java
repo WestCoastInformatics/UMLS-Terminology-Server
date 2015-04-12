@@ -86,7 +86,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /**
    * Instantiates an empty {@link AtomJpa}.
    */
-  protected AtomJpa() {
+  public AtomJpa() {
     // do nothing
   }
 
@@ -96,7 +96,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @param atom the atom
    * @param deepCopy the deep copy
    */
-  protected AtomJpa(Atom atom, boolean deepCopy) {
+  public AtomJpa(Atom atom, boolean deepCopy) {
     super(atom, deepCopy);
     codeId = atom.getCodeId();
     conceptTerminologyIdMap = atom.getConceptTerminologyIdMap();

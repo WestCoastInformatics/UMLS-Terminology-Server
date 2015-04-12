@@ -47,7 +47,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   /**
    * Instantiates an empty {@link ConceptJpa}.
    */
-  protected ConceptJpa() {
+  public ConceptJpa() {
     // do nothing
   }
 
@@ -57,7 +57,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    * @param concept the concept
    * @param deepCopy the deep copy
    */
-  protected ConceptJpa(Concept concept, boolean deepCopy) {
+  public ConceptJpa(Concept concept, boolean deepCopy) {
     super(concept, deepCopy);
     fullyDefined = concept.isFullyDefined();
 

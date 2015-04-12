@@ -39,7 +39,7 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
   /**
    * Instantiates an empty {@link LexicalClassJpa}.
    */
-  protected LexicalClassJpa() {
+  public LexicalClassJpa() {
     // do nothing
   }
 
@@ -49,7 +49,7 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
    * @param code the code
    * @param deepCopy the deep copy
    */
-  protected LexicalClassJpa(LexicalClass code, boolean deepCopy) {
+  public LexicalClassJpa(LexicalClass code, boolean deepCopy) {
     super(code, deepCopy);
   }
 

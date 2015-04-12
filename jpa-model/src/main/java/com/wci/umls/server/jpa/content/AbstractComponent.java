@@ -79,7 +79,7 @@ public abstract class AbstractComponent implements Component {
   /**
    * Instantiates an empty {@link AbstractComponent}.
    */
-  protected AbstractComponent() {
+  public AbstractComponent() {
     // do nothing
   }
 
@@ -88,7 +88,7 @@ public abstract class AbstractComponent implements Component {
    *
    * @param component the component
    */
-  protected AbstractComponent(Component component) {
+  public AbstractComponent(Component component) {
     id = component.getId();
     lastModified = component.getLastModified();
     lastModifiedBy = component.getLastModifiedBy();

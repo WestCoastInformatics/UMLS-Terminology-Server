@@ -41,7 +41,7 @@ public class DescriptorRelationshipJpa extends
   /**
    * Instantiates an empty {@link DescriptorRelationshipJpa}.
    */
-  protected DescriptorRelationshipJpa() {
+  public DescriptorRelationshipJpa() {
     // do nothing
   }
 
@@ -52,7 +52,7 @@ public class DescriptorRelationshipJpa extends
    * @param relationship the concept relationship
    * @param deepCopy the deep copy
    */
-  protected DescriptorRelationshipJpa(DescriptorRelationship relationship,
+  public DescriptorRelationshipJpa(DescriptorRelationship relationship,
       boolean deepCopy) {
     super(relationship, deepCopy);
     to = relationship.getTo();

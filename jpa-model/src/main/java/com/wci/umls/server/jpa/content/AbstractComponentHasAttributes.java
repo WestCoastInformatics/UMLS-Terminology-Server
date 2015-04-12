@@ -30,7 +30,7 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
   /**
    * Instantiates an empty {@link AbstractComponentHasAttributes}.
    */
-  protected AbstractComponentHasAttributes() {
+  public AbstractComponentHasAttributes() {
     // do nothing
   }
 
@@ -41,7 +41,7 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
    * @param component the component
    * @param deepCopy the deep copy
    */
-  protected AbstractComponentHasAttributes(ComponentHasAttributes component,
+  public AbstractComponentHasAttributes(ComponentHasAttributes component,
       boolean deepCopy) {
     super(component);
 

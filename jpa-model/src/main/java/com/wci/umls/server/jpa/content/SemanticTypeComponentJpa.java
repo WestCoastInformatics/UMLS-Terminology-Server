@@ -32,7 +32,7 @@ public class SemanticTypeComponentJpa extends AbstractComponentHasAttributes imp
   /**
    * Instantiates an empty {@link SemanticTypeComponentJpa}.
    */
-  protected SemanticTypeComponentJpa() {
+  public SemanticTypeComponentJpa() {
     // do nothing
   }
 
@@ -43,7 +43,7 @@ public class SemanticTypeComponentJpa extends AbstractComponentHasAttributes imp
    * @param semanticType the semantic type
    * @param deepCopy the deep copy
    */
-  protected SemanticTypeComponentJpa(SemanticTypeComponent semanticType,
+  public SemanticTypeComponentJpa(SemanticTypeComponent semanticType,
       boolean deepCopy) {
     super(semanticType, deepCopy);
     this.semanticType = semanticType.getSemanticType();

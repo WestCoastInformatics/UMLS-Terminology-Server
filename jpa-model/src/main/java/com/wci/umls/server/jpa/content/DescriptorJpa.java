@@ -42,7 +42,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   /**
    * Instantiates an empty {@link DescriptorJpa}.
    */
-  protected DescriptorJpa() {
+  public DescriptorJpa() {
     // do nothing
   }
 
@@ -52,7 +52,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
    * @param descriptor the Descriptor
    * @param deepCopy the deep copy
    */
-  protected DescriptorJpa(Descriptor descriptor, boolean deepCopy) {
+  public DescriptorJpa(Descriptor descriptor, boolean deepCopy) {
     super(descriptor, deepCopy);
 
     if (deepCopy) {

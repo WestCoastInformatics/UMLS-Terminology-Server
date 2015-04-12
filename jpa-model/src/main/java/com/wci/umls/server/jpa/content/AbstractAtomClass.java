@@ -51,7 +51,7 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
   /**
    * Instantiates an empty {@link AbstractAtomClass}.
    */
-  protected AbstractAtomClass() {
+  public AbstractAtomClass() {
     // do nothing
   }
 
@@ -61,7 +61,7 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
    * @param atomClass the atom
    * @param deepCopy the deep copy
    */
-  protected AbstractAtomClass(AtomClass atomClass, boolean deepCopy) {
+  public AbstractAtomClass(AtomClass atomClass, boolean deepCopy) {
     super(atomClass, deepCopy);
     defaultPreferredName = atomClass.getDefaultPreferredName();
     if (deepCopy) {

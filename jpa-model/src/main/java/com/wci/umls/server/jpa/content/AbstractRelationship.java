@@ -49,7 +49,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
   /**
    * Instantiates an empty {@link AbstractRelationship}.
    */
-  protected AbstractRelationship() {
+  public AbstractRelationship() {
     // do nothing
   }
 
@@ -59,7 +59,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
    * @param relationship the relationship
    * @param deepCopy the deep copy
    */
-  protected AbstractRelationship(Relationship<S, T> relationship,
+  public AbstractRelationship(Relationship<S, T> relationship,
       boolean deepCopy) {
     super(relationship, deepCopy);
     relationshipType = relationship.getRelationshipType();

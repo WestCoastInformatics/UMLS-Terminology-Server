@@ -40,7 +40,7 @@ public class ConceptTransitiveRelationshipJpa extends AbstractComponentHasAttrib
   /**
    * Instantiates an empty {@link ConceptTransitiveRelationshipJpa}.
    */
-  protected ConceptTransitiveRelationshipJpa() {
+  public ConceptTransitiveRelationshipJpa() {
     // do nothing
   }
 
@@ -51,7 +51,7 @@ public class ConceptTransitiveRelationshipJpa extends AbstractComponentHasAttrib
    * @param relationship the relationship
    * @param deepCopy the deep copy
    */
-  protected ConceptTransitiveRelationshipJpa(
+  public ConceptTransitiveRelationshipJpa(
       ConceptTransitiveRelationship relationship, boolean deepCopy) {
     super(relationship, deepCopy);
     superType = relationship.getSuperType();

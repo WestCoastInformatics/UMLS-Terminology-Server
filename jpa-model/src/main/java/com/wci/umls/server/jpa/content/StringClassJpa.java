@@ -39,7 +39,7 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
   /**
    * Instantiates an empty {@link StringClassJpa}.
    */
-  protected StringClassJpa() {
+  public StringClassJpa() {
     // do nothing
   }
 
@@ -49,7 +49,7 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
    * @param code the code
    * @param deepCopy the deep copy
    */
-  protected StringClassJpa(StringClass code, boolean deepCopy) {
+  public StringClassJpa(StringClass code, boolean deepCopy) {
     super(code, deepCopy);
   }
 

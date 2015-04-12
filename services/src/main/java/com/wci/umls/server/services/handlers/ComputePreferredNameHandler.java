@@ -32,13 +32,4 @@ public interface ComputePreferredNameHandler extends Configurable {
    */
   public String computePreferredName(Set<Atom> atoms) throws Exception;
 
-  /**
-   * Indicates whether or not the atom is the preferred name.
-   *
-   * @param atom the atom
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   * @throws Exception the exception
-   */
-  public boolean isPreferredName(Atom atom) throws Exception;
-
 }
