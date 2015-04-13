@@ -19,6 +19,7 @@ import org.hibernate.search.annotations.Indexed;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 
 /**
  * JPA-enabled implementation of {@link Concept}.
@@ -39,6 +40,10 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   /** The relationships. */
   @OneToMany(orphanRemoval = true, targetEntity = ConceptRelationshipJpa.class)
   private List<ConceptRelationship> relationships = null;
+
+  /** The semantic type components. */
+  @OneToMany(orphanRemoval = true, targetEntity = SemanticTypeComponentJpa.class)
+  private List<SemanticTypeComponent> semanticTypes = null;
 
   /** The fully defined. */
   @Column(nullable = false)
@@ -190,6 +195,30 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public void setFullyDefined(boolean fullyDefined) {
     this.fullyDefined = fullyDefined;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.content.Concept#getSemanticTypes()
+   */
+  @Override
+  public List<SemanticTypeComponent> getSemanticTypes() {
+    if (semanticTypes == null) {
+      semanticTypes = new ArrayList<>();
+    }
+    return semanticTypes;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.Concept#setSemanticTypes(java.util.List)
+   */
+  @Override
+  public void setSemanticTypes(List<SemanticTypeComponent> semanticTypes) {
+    this.semanticTypes = semanticTypes;
   }
 
   /*

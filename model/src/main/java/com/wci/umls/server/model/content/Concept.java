@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.model.content;
 
+import java.util.List;
+
 import com.wci.umls.server.helpers.HasDefinitions;
 import com.wci.umls.server.helpers.HasRelationships;
 
@@ -29,4 +31,17 @@ public interface Concept extends AtomClass, HasDefinitions,
    */
   public void setFullyDefined(boolean fullyDefined);
 
+  /**
+   * Returns the semantic types.
+   *
+   * @return the semantic types
+   */
+  public List<SemanticTypeComponent> getSemanticTypes();
+  
+  /**
+   * Sets the semantic types.
+   *
+   * @param semanticTypes the semantic types
+   */
+  public void setSemanticTypes(List<SemanticTypeComponent> semanticTypes);
 }

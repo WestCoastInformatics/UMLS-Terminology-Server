@@ -17,7 +17,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
  * JPA-enabled implementation of {@link SemanticTypeComponent}.
  */
 @Entity
-@Table(name = "semantic_types", uniqueConstraints = @UniqueConstraint(columnNames = {
+@Table(name = "semantic_type_components", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "terminologyVersion", "id"
 }))
 @Audited
