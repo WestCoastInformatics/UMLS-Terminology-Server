@@ -37,7 +37,8 @@ import com.wci.umls.server.model.content.AtomClass;
 })
 @Audited
 @MappedSuperclass
-public class AbstractAtomClass extends AbstractComponentHasAttributes implements AtomClass {
+public class AbstractAtomClass extends AbstractComponentHasAttributes implements
+    AtomClass {
 
   /** The descriptions. */
   @ManyToMany(targetEntity = AtomJpa.class)
@@ -47,6 +48,10 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
   /** The default preferred name. */
   @Column(nullable = false, length = 4000)
   private String defaultPreferredName;
+
+  /** The workflow status. */
+  @Column(nullable = true)
+  private String workflowStatus;
 
   /**
    * Instantiates an empty {@link AbstractAtomClass}.
@@ -149,6 +154,23 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
   @Override
   public void setDefaultPreferredName(String defaultPreferredName) {
     this.defaultPreferredName = defaultPreferredName;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.AtomClass#getWorkflowStatus()
+   */
+  @Override
+  public String getWorkflowStatus() {
+    return workflowStatus;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.AtomClass#setWorkflowStatus(java.lang.String)
+   */
+  @Override
+  public void setWorkflowStatus(String workflowStatus) {
+    this.workflowStatus = workflowStatus;
+
   }
 
   /*

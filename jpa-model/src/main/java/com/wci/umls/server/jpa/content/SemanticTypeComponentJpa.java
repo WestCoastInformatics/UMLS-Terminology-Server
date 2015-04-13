@@ -28,6 +28,10 @@ public class SemanticTypeComponentJpa extends AbstractComponentHasAttributes imp
   /** The semantic type. */
   @Column(nullable = false, length = 4000)
   private String semanticType;
+  
+  /**  The workflow status. */
+  @Column(nullable = true)
+  private String workflowStatus;
 
   /**
    * Instantiates an empty {@link SemanticTypeComponentJpa}.
@@ -117,6 +121,23 @@ public class SemanticTypeComponentJpa extends AbstractComponentHasAttributes imp
   @Override
   public void setSemanticType(String semanticType) {
     this.semanticType = semanticType;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.SemanticTypeComponent#getWorkflowStatus()
+   */
+  @Override
+  public String getWorkflowStatus() {
+    return workflowStatus;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.SemanticTypeComponent#setWorkflowStatus(java.lang.String)
+   */
+  @Override
+  public void setWorkflowStatus(String workflowStatus) {
+    this.workflowStatus = workflowStatus;
+    
   }
 
 }

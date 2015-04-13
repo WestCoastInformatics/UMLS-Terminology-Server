@@ -95,7 +95,7 @@ public interface WorkflowListener extends Configurable {
   public void conceptChanged(Concept concept, Action action) throws Exception;
 
   /**
-   * Descriptor changed.
+   * Descriptor of atom changed.
    *
    * @param descriptor the descriptor
    * @param action the action

@@ -67,6 +67,10 @@ public abstract class AbstractAbbreviation implements Abbreviation {
   @Column(nullable = false)
   private String terminologyVersion;
 
+  /**  The branch. */
+  @Column(nullable = true)
+  private String branch;
+  
   /**
    * Instantiates an empty {@link AbstractAbbreviation}.
    */
@@ -272,6 +276,22 @@ public abstract class AbstractAbbreviation implements Abbreviation {
   @Override
   public void setPublishable(boolean publishable) {
     this.publishable = publishable;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.meta.Abbreviation#getBranch()
+   */
+  @Override
+  public String getBranch() {
+    return branch;
+  }
+  
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.meta.Abbreviation#setBranch(java.lang.String)
+   */
+  @Override
+  public void setBranch(String branch) {
+    this.branch = branch;    
   }
 
   /*

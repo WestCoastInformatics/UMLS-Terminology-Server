@@ -44,4 +44,5 @@ public interface Concept extends AtomClass, HasDefinitions,
    * @param semanticTypes the semantic types
    */
   public void setSemanticTypes(List<SemanticTypeComponent> semanticTypes);
+    
 }

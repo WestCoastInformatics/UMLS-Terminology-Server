@@ -53,4 +53,18 @@ public interface AtomClass extends ComponentHasAttributes {
    */
   public void setDefaultPreferredName(String defaultPreferredName);
 
+  /**
+   * Returns the workflow status.
+   *
+   * @return the workflow status
+   */
+  public String getWorkflowStatus();
+  
+  /**
+   * Sets the workflow status.
+   *
+   * @param workflowStatus the workflow status
+   */
+  public void setWorkflowStatus(String workflowStatus);
+
 }

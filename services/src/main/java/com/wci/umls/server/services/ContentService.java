@@ -8,15 +8,23 @@ package com.wci.umls.server.services;
 
 import java.util.Map;
 
+import com.wci.umls.server.helpers.CodeList;
 import com.wci.umls.server.helpers.ConceptList;
+import com.wci.umls.server.helpers.DescriptorList;
+import com.wci.umls.server.helpers.LexicalClassList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteriaList;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.StringClassList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
@@ -36,18 +44,6 @@ public interface ContentService extends RootService {
    * Disable listeners.
    */
   public void disableListeners();
-
-  /**
-   * Gets all concepts.
-   * @param terminology the terminology
-   * @param version the terminology version
-   * @param pfs the paging, filtering, sorting parameter
-   *
-   * @return the concepts
-   * @throws Exception the exception
-   */
-  public ConceptList getConcepts(String terminology, String version,
-    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the concept.
@@ -79,12 +75,164 @@ public interface ContentService extends RootService {
    * @param terminologyId the id
    * @param terminology the terminology
    * @param version the terminology version
+   * @param branch the branch to lookup
    * @return the single concept
    * @throws Exception if there are more than one matching concepts.
    */
-  public Concept getSingleConcept(String terminologyId, String terminology,
+  public Concept getConcept(String terminologyId, String terminology,
+    String version, String branch) throws Exception;
+
+
+  /**
+   * Returns the descriptor.
+   * 
+   * @param id the id
+   * @return the descriptor
+   * @throws Exception if anything goes wrong
+   */
+  public Descriptor getDescriptor(Long id) throws Exception;
+
+  /**
+   * Returns the descriptor matching the specified parameters. May return more than
+   * one descriptor if there are multiple entries with the same id, terminology,
+   * and version. NOTE: this only applies to descriptor, not to other data types.
+   * 
+   * @param terminologyId the id
+   * @param terminology the terminology
+   * @param version the version
+   * @return the descriptor
+   * @throws Exception if anything goes wrong
+   */
+  public DescriptorList getDescriptors(String terminologyId, String terminology,
     String version) throws Exception;
 
+  /**
+   * Returns the single descriptor for the specified parameters. If there are more
+   * than one it throws an exception.
+   *
+   * @param terminologyId the id
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param branch the branch to lookup
+   * @return the single descriptor
+   * @throws Exception if there are more than one matching descriptors.
+   */
+  public Descriptor getDescriptor(String terminologyId, String terminology,
+    String version, String branch) throws Exception;
+
+  /**
+   * Returns the code.
+   * 
+   * @param id the id
+   * @return the code
+   * @throws Exception if anything goes wrong
+   */
+  public Code getCode(Long id) throws Exception;
+
+  /**
+   * Returns the code matching the specified parameters. May return more than
+   * one code if there are multiple entries with the same id, terminology,
+   * and version. NOTE: this only applies to code, not to other data types.
+   * 
+   * @param terminologyId the id
+   * @param terminology the terminology
+   * @param version the version
+   * @return the code
+   * @throws Exception if anything goes wrong
+   */
+  public CodeList getCodes(String terminologyId, String terminology,
+    String version) throws Exception;
+
+  /**
+   * Returns the single code for the specified parameters. If there are more
+   * than one it throws an exception.
+   *
+   * @param terminologyId the id
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param branch the branch to lookup
+   * @return the single code
+   * @throws Exception if there are more than one matching codes.
+   */
+  public Code getCode(String terminologyId, String terminology,
+    String version, String branch) throws Exception;
+
+
+  /**
+   * Returns the lexical class.
+   * 
+   * @param id the id
+   * @return the lexical class
+   * @throws Exception if anything goes wrong
+   */
+  public LexicalClass getLexicalClass(Long id) throws Exception;
+
+  /**
+   * Returns the lexical class matching the specified parameters. May return more than
+   * one lexical class if there are multiple entries with the same id, terminology,
+   * and version. NOTE: this only applies to lexical class, not to other data types.
+   * 
+   * @param terminologyId the id
+   * @param terminology the terminology
+   * @param version the version
+   * @return the lexical class
+   * @throws Exception if anything goes wrong
+   */
+  public LexicalClassList getLexicalClasss(String terminologyId, String terminology,
+    String version) throws Exception;
+
+  /**
+   * Returns the single lexical class for the specified parameters. If there are more
+   * than one it throws an exception.
+   *
+   * @param terminologyId the id
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param branch the branch to lookup
+   * @return the lexical class
+   * @throws Exception if there are more than one matching lexicalClasss.
+   */
+  public LexicalClass getLexicalClass(String terminologyId, String terminology,
+    String version, String branch) throws Exception;
+  
+
+  /**
+   * Returns the string class.
+   * 
+   * @param id the id
+   * @return the string class
+   * @throws Exception if anything goes wrong
+   */
+  public StringClass getStringClass(Long id) throws Exception;
+
+  /**
+   * Returns the string class matching the specified parameters. May return more than
+   * one string class if there are multiple entries with the same id, terminology,
+   * and version. NOTE: this only applies to string class, not to other data types.
+   * 
+   * @param terminologyId the id
+   * @param terminology the terminology
+   * @param version the version
+   * @return the string class
+   * @throws Exception if anything goes wrong
+   */
+  public StringClassList getStringClasss(String terminologyId, String terminology,
+    String version) throws Exception;
+
+  /**
+   * Returns the single string class for the specified parameters. If there are more
+   * than one it throws an exception.
+   *
+   * @param terminologyId the id
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param branch the branch to lookup
+   * @return the string class
+   * @throws Exception if there are more than one matching stringClasss.
+   */
+  public StringClass getStringClass(String terminologyId, String terminology,
+    String version, String branch) throws Exception;
+  
   /**
    * Adds the concept.
    * 
@@ -110,6 +258,107 @@ public interface ContentService extends RootService {
    */
   public void removeConcept(Long id) throws Exception;
 
+  /**
+   * Adds the descriptor.
+   * 
+   * @param descriptor the descriptor
+   * @return the descriptor
+   * @throws Exception the exception
+   */
+  public Descriptor addDescriptor(Descriptor descriptor) throws Exception;
+
+  /**
+   * Update descriptor.
+   * 
+   * @param descriptor the descriptor
+   * @throws Exception the exception
+   */
+  public void updateDescriptor(Descriptor descriptor) throws Exception;
+
+  /**
+   * Removes the descriptor.
+   * 
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeDescriptor(Long id) throws Exception;
+  
+  /**
+   * Adds the code.
+   * 
+   * @param code the code
+   * @return the code
+   * @throws Exception the exception
+   */
+  public Code addCode(Code code) throws Exception;
+
+  /**
+   * Update code.
+   * 
+   * @param code the code
+   * @throws Exception the exception
+   */
+  public void updateCode(Code code) throws Exception;
+
+  /**
+   * Removes the code.
+   * 
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeCode(Long id) throws Exception;
+  
+  /**
+   * Adds the lexical class.
+   * 
+   * @param lexicalClass the lexicalClass
+   * @return the lexicalClass
+   * @throws Exception the exception
+   */
+  public LexicalClass addLexicalClass(LexicalClass lexicalClass) throws Exception;
+
+  /**
+   * Update lexical class.
+   * 
+   * @param lexicalClass the lexicalClass
+   * @throws Exception the exception
+   */
+  public void updateLexicalClass(LexicalClass lexicalClass) throws Exception;
+
+  /**
+   * Removes the lexical class.
+   * 
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeLexicalClass(Long id) throws Exception;
+
+  /**
+   * Adds the string class.
+   * 
+   * @param stringClass the stringClass
+   * @return the stringClass
+   * @throws Exception the exception
+   */
+  public StringClass addStringClass(StringClass stringClass) throws Exception;
+
+  /**
+   * Update string class.
+   * 
+   * @param stringClass the stringClass
+   * @throws Exception the exception
+   */
+  public void updateStringClass(StringClass stringClass) throws Exception;
+
+  /**
+   * Removes the string class.
+   * 
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeStringClass(Long id) throws Exception;
+
+  
   /**
    * Get descendant concepts.
    *
@@ -324,26 +573,6 @@ public interface ContentService extends RootService {
    * @return the all atom ids
    */
   public StringList getAllAtomTerminologyIds(String terminology, String version);
-
-  /**
-   * Gets the all language ref set member ids.
-   *
-   * @param terminology the terminology
-   * @param version the terminology version
-   * @return the all language ref set member ids
-   */
-  public StringList getAllLanguageRefSetMemberTerminologyIds(
-    String terminology, String version);
-
-  /**
-   * Returns the all simple ref set member terminology ids.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @return the all simple ref set member terminology ids
-   */
-  public StringList getAllSimpleRefSetMemberTerminologyIds(String terminology,
-    String version);
 
   /**
    * Clear transitive closure.

@@ -133,4 +133,17 @@ public interface Component extends HasTerminologyId {
    */
   public void setPublishable(boolean publishable);
 
+  /**
+   * Returns the branch.
+   *
+   * @return the branch
+   */
+  public String getBranch();
+  
+  /**
+   * Sets the branch.
+   *
+   * @param branch the branch
+   */
+  public void setBranch(String branch);
 }

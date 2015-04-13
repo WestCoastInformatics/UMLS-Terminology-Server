@@ -52,7 +52,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   protected boolean lastModifiedFlag = false;
 
   /** The listener. */
-  private static List<WorkflowListener> listeners = null;
+  protected static List<WorkflowListener> listeners = null;
   static {
     listeners = new ArrayList<>();
     try {

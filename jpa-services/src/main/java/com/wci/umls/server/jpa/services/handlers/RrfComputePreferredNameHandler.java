@@ -14,7 +14,7 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 /**
  * Default implementation of {@link ComputePreferredNameHandler}.
  */
-public class DefaultPreferredNameHandler implements ComputePreferredNameHandler {
+public class RrfComputePreferredNameHandler implements ComputePreferredNameHandler {
 
   /*
    * (non-Javadoc)

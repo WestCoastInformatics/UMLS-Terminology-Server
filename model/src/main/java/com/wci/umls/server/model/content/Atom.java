@@ -142,4 +142,18 @@ public interface Atom extends ComponentHasAttributes, HasDefinitions,
    */
   public void setTermType(String termType);
 
+  /**
+   * Returns the workflow status.
+   *
+   * @return the workflow status
+   */
+  public String getWorkflowStatus();
+
+  /**
+   * Sets the workflow status.
+   *
+   * @param workflowStatus the workflow status
+   */
+  public void setWorkflowStatus(String workflowStatus);
+
 }

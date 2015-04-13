@@ -79,12 +79,17 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private String stringClassId;
 
   /** The term. */
-  @Column(nullable = false)
+  @Column(nullable = false, length = 4000)
   private String term;
 
   /** The term type. */
   @Column(nullable = false)
   private String termType;
+
+  
+  /**  The workflow status. */
+  @Column(nullable = true)
+  private String workflowStatus;
 
   /**
    * Instantiates an empty {@link AtomJpa}.
@@ -334,6 +339,23 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     this.termType = termType;
   }
 
+ 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.Atom#getWorkflowStatus()
+   */
+  @Override
+  public String getWorkflowStatus() {
+    return workflowStatus;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.Atom#setWorkflowStatus(java.lang.String)
+   */
+  @Override
+  public void setWorkflowStatus(String workflowStatus) {
+    this.workflowStatus = workflowStatus;
+    
+  }
   /*
    * (non-Javadoc)
    * 

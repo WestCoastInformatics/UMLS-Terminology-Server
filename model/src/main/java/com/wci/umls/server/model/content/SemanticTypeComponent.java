@@ -22,5 +22,19 @@ public interface SemanticTypeComponent extends ComponentHasAttributes {
    * @param semanticType the semantic type
    */
   public void setSemanticType(String semanticType);
+  
+  /**
+   * Returns the workflow status.
+   *
+   * @return the workflow status
+   */
+  public String getWorkflowStatus();
+  
+  /**
+   * Sets the workflow status.
+   *
+   * @param workflowStatus the workflow status
+   */
+  public void setWorkflowStatus(String workflowStatus);
 
 }
