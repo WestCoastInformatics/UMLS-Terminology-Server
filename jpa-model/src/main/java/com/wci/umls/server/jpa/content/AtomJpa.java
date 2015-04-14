@@ -16,7 +16,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -26,6 +28,8 @@ import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
@@ -54,7 +58,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /** The concept terminology id map. */
   @ElementCollection
-  @CollectionTable(name = "atom_concept_map", joinColumns=@JoinColumn(name="atom_id"))
+  @CollectionTable(name = "atom_concept_map", joinColumns = @JoinColumn(name = "atom_id"))
   @Column(nullable = false)
   Map<String, String> conceptTerminologyIdMap;
 
@@ -63,7 +67,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private String codeId;
 
   /** The descriptor id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String descriptorId;
 
   /** The language. */
@@ -86,8 +90,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Column(nullable = false)
   private String termType;
 
-  
-  /**  The workflow status. */
+  /** The workflow status. */
   @Column(nullable = true)
   private String workflowStatus;
 
@@ -96,6 +99,15 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    */
   public AtomJpa() {
     // do nothing
+  }
+
+  /**
+   * Instantiates a {@link AtomJpa} from the specified parameters.
+   *
+   * @param atom the atom
+   */
+  public AtomJpa(Atom atom) {
+    this(atom, false);
   }
 
   /**
@@ -114,6 +126,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     stringClassId = atom.getStringClassId();
     term = atom.getTerm();
     termType = atom.getTermType();
+    workflowStatus = atom.getWorkflowStatus();
 
     if (deepCopy) {
       for (Definition definition : atom.getDefinitions()) {
@@ -131,7 +144,11 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @see com.wci.umls.server.helpers.HasDefinitions#getDefinitions()
    */
   @Override
+  @XmlElement(type = DefinitionJpa.class, name = "definition")
   public List<Definition> getDefinitions() {
+    if (definitions == null) {
+      definitions = new ArrayList<>();
+    }
     return definitions;
   }
 
@@ -151,8 +168,12 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * 
    * @see com.wci.umls.server.helpers.HasRelationships#getRelationships()
    */
+  @XmlElement(type = AtomRelationshipJpa.class, name = "relationship")
   @Override
   public List<AtomRelationship> getRelationships() {
+    if (relationships  == null) {
+      relationships = new ArrayList<>();
+    }
     return relationships;
   }
 
@@ -174,6 +195,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @see com.wci.umls.server.model.content.Atom#getConceptTerminologyIdMap()
    */
   @Override
+  @XmlTransient
   public Map<String, String> getConceptTerminologyIdMap() {
     return conceptTerminologyIdMap;
   }
@@ -189,6 +211,39 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   public void setConceptTerminologyIdMap(
     Map<String, String> conceptTerminologyIdMap) {
     this.conceptTerminologyIdMap = conceptTerminologyIdMap;
+  }
+
+  /**
+   * Returns the concepts list. For JAXB
+   *
+   * @return the concepts list
+   */
+  @XmlElement
+  public KeyValuePairList getConceptsList() {
+    KeyValuePairList kvpl = new KeyValuePairList();
+    if (conceptTerminologyIdMap != null) {
+      for (String key : conceptTerminologyIdMap.keySet()) {
+        KeyValuePair kvp = new KeyValuePair();
+        kvp.setKey(key);
+        kvp.setValue(conceptTerminologyIdMap.get(key));
+        kvpl.addKeyValuePair(kvp);
+      }
+    }
+    return kvpl;
+  }
+
+  /**
+   * Sets the concepts list.
+   *
+   * @param list the concepts list
+   */
+  public void setConceptsList(KeyValuePairList list) {
+    if (list != null) {
+      conceptTerminologyIdMap = new HashMap<>();
+      for (KeyValuePair pair : list.getKeyValuePairList()) {
+        conceptTerminologyIdMap.put(pair.getKey(), pair.getValue());
+      }
+    }
   }
 
   /*
@@ -339,8 +394,9 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     this.termType = termType;
   }
 
- 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.content.Atom#getWorkflowStatus()
    */
   @Override
@@ -348,14 +404,18 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     return workflowStatus;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.content.Atom#setWorkflowStatus(java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.Atom#setWorkflowStatus(java.lang.String)
    */
   @Override
   public void setWorkflowStatus(String workflowStatus) {
     this.workflowStatus = workflowStatus;
-    
+
   }
+
   /*
    * (non-Javadoc)
    * 

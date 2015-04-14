@@ -6,7 +6,7 @@ package com.wci.umls.server.model.meta;
 import java.util.Date;
 import java.util.List;
 
-import com.wci.umls.server.helpers.HasId;
+import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
@@ -15,7 +15,7 @@ import com.wci.umls.server.model.content.Descriptor;
 /**
  * Represents a terminology of data with version information.
  */
-public interface Terminology extends HasId {
+public interface Terminology extends HasLastModified {
 
   /**
    * Returns the terminology.

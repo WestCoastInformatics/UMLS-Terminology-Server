@@ -1,7 +1,7 @@
 /*
  * Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.helpers;
+package com.wci.umls.server.jpa.helpers.content;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.AbstractResultList;
-import com.wci.umls.server.helpers.CodeList;
+import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.model.content.Code;
 

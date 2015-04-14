@@ -3,19 +3,16 @@
  */
 package com.wci.umls.server.jpa.meta;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
 
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.model.meta.Citation;
 
 /**
@@ -50,13 +47,11 @@ public class CitationJpa implements Citation {
 
   /** The date of publication. */
   @Column(nullable = true)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date dateOfPublication = null;
+  private String dateOfPublication = null;
 
   /** The date of revision. */
   @Column(nullable = true)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date dateOfRevision = null;
+  private String dateOfRevision = null;
 
   /** The edition. */
   @Column(nullable = true)
@@ -138,6 +133,50 @@ public class CitationJpa implements Citation {
     series = citation.getSeries();
     title = citation.getTitle();
     value = citation.getValue();
+  }
+
+  /**
+   * Instantiates a {@link CitationJpa} from the specified parameters.
+   *
+   * @param mrsabLine the mrsab line
+   */
+  public CitationJpa(String mrsabLine) {
+    // 0 Author name(s),
+    // 1 Personal author address,
+    // 2 Organization author(s),
+    // 3 Title,
+    // 4 Content Designator,
+    // 5 Medium Designator,
+    // 6 Edition,
+    // 7 Place of Pub.,
+    // 8 Publisher,
+    // 9 Date of pub. or copyright,
+    // 10 Date of revision,
+    // 11 Location,
+    // 12 Extent,
+    // 13 Series,
+    // 14 Avail. Statement (URL),
+    // 15 Language,
+    // 16 Notes.
+    String[] fields = FieldedStringTokenizer.split(mrsabLine, ";", 17);
+    author = fields[0];
+    address = fields[1];
+    this.organization = fields[2];
+    this.title = fields[3];
+    this.contentDesignator = fields[4];
+    this.mediumDesignator = fields[5];
+    this.edition = fields[6];
+    this.placeOfPublication = fields[7];
+    this.publisher = fields[8];
+    this.dateOfPublication = fields[9];
+    this.dateOfRevision = fields[10];
+    this.location = fields[11];
+    this.extent = fields[12];
+    this.series = fields[13];
+    this.availabilityStatement = fields[14];
+    // no language
+    this.notes = fields[16];
+
   }
 
   /*
@@ -250,7 +289,7 @@ public class CitationJpa implements Citation {
    * @see com.wci.umls.server.model.meta.Citation#getDateOfPublication()
    */
   @Override
-  public Date getDateOfPublication() {
+  public String getDateOfPublication() {
     return dateOfPublication;
   }
 
@@ -258,11 +297,11 @@ public class CitationJpa implements Citation {
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.model.meta.Citation#setDateOfPublication(java.util.
-   * Date)
+   * com.wci.umls.server.model.meta.Citation#setDateOfPublication(java.lang.
+   * String)
    */
   @Override
-  public void setDateOfPublication(Date dateOfPublication) {
+  public void setDateOfPublication(String dateOfPublication) {
     this.dateOfPublication = dateOfPublication;
   }
 
@@ -272,7 +311,7 @@ public class CitationJpa implements Citation {
    * @see com.wci.umls.server.model.meta.Citation#getDateOfRevision()
    */
   @Override
-  public Date getDateOfRevision() {
+  public String getDateOfRevision() {
     return dateOfRevision;
   }
 
@@ -280,10 +319,10 @@ public class CitationJpa implements Citation {
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.model.meta.Citation#setDateOfRevision(java.util.Date)
+   * com.wci.umls.server.model.meta.Citation#setDateOfRevision(java.lang.String)
    */
   @Override
-  public void setDateOfRevision(Date dateOfRevision) {
+  public void setDateOfRevision(String dateOfRevision) {
     this.dateOfRevision = dateOfRevision;
   }
 

@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
+import javax.xml.bind.annotation.XmlElement;
 
 import org.hibernate.envers.Audited;
 
@@ -58,6 +59,7 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
    * @see com.wci.umls.server.model.content.Component#getAttributes()
    */
   @Override
+  @XmlElement(type = AttributeJpa.class, name = "attribute")
   public List<Attribute> getAttributes() {
     if (attributes == null) {
       attributes = new ArrayList<>();

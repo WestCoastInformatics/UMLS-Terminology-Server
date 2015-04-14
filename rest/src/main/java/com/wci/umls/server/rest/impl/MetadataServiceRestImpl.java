@@ -185,14 +185,12 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
                     "User does not have permissions to retrieve the latest versions of all terminologies.")
                 .build());
 
-      Map<RootTerminology, Terminology> versionMap =
+      Map<String, String> versionMap =
           metadataService.getTerminologyLatestVersions();
       KeyValuePairList keyValuePairList = new KeyValuePairList();
-      for (Map.Entry<RootTerminology, Terminology> termVersionPair : versionMap
-          .entrySet()) {
+      for (Map.Entry<String, String> termVersionPair : versionMap.entrySet()) {
         keyValuePairList.addKeyValuePair(new KeyValuePair(termVersionPair
-            .getKey().getTerminology(), termVersionPair.getValue()
-            .getTerminologyVersion()));
+            .getKey(), termVersionPair.getValue()));
       }
       metadataService.close();
       return keyValuePairList;

@@ -69,6 +69,7 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
   public AbstractAtomClass(AtomClass atomClass, boolean deepCopy) {
     super(atomClass, deepCopy);
     defaultPreferredName = atomClass.getDefaultPreferredName();
+    workflowStatus = atomClass.getWorkflowStatus();
     if (deepCopy) {
       for (Atom atom : atomClass.getAtoms()) {
         addAtom(new AtomJpa(atom, deepCopy));

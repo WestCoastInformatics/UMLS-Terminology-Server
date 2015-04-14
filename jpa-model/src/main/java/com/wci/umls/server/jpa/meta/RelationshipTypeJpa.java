@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.meta;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -26,7 +27,11 @@ import com.wci.umls.server.model.meta.RelationshipType;
 @XmlRootElement(name = "relationshipType")
 public class RelationshipTypeJpa extends AbstractAbbreviation implements
     RelationshipType {
-
+  
+  /**  The grouping type. */
+  @Column(nullable = false)
+  private boolean groupingType = true;
+  
   /** The concept. */
   @OneToOne(targetEntity = RelationshipTypeJpa.class, optional = false)
   private RelationshipType inverse;
@@ -46,6 +51,7 @@ public class RelationshipTypeJpa extends AbstractAbbreviation implements
   public RelationshipTypeJpa(RelationshipType rela) {
     super(rela);
     inverse = rela.getInverse();
+    groupingType = rela.isGroupingType();
   }
 
   /*
@@ -114,27 +120,57 @@ public class RelationshipTypeJpa extends AbstractAbbreviation implements
     inverse.setId(inverseId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.meta.RelationshipType#isGroupingType()
+   */
+  @Override
+  public boolean isGroupingType() { return groupingType; }
+  
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.meta.RelationshipType#setGroupingType(boolean)
+   */
+  @Override
+  public void setGroupingType(boolean groupingType) {
+    this.groupingType = groupingType;
+  }
+
+  /* (non-Javadoc)
    * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#hashCode()
    */
   @Override
   public int hashCode() {
-    return super.hashCode();
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + (groupingType ? 1231 : 1237);
+    return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.meta.AbstractAbbreviation#equals(java.lang.Object)
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#equals(java.lang.Object)
    */
   @Override
   public boolean equals(Object obj) {
-    return super.equals(obj);
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    RelationshipTypeJpa other = (RelationshipTypeJpa) obj;
+    if (groupingType != other.groupingType)
+      return false;
+    return true;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#toString()
+   */
+  @Override
+  public String toString() {
+    return "RelationshipTypeJpa [groupingType=" + groupingType + "]";
+  }
+
+  
   // TODO
   // isreflexive, is transitive, is functional, etc.
   // domain/range

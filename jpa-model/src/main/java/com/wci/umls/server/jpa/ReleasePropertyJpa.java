@@ -15,7 +15,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.ContainedIn;
 
-import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ReleaseProperty;
 
 /**
@@ -39,11 +38,6 @@ public class ReleasePropertyJpa implements ReleaseProperty {
   /** The value. */
   @Column(nullable = false, length = 4000)
   private String value;
-
-  /** The release info. */
-  @ManyToOne(targetEntity = ReleaseInfoJpa.class, optional = false)
-  @ContainedIn
-  private ReleaseInfo releaseInfo;
 
   /**
    * Instantiates an empty {@link ReleasePropertyJpa}.
@@ -74,11 +68,6 @@ public class ReleasePropertyJpa implements ReleaseProperty {
     return (id == null ? "" : id.toString());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#getId()
-   */
   @Override
   public Long getId() {
     return id;
@@ -87,7 +76,6 @@ public class ReleasePropertyJpa implements ReleaseProperty {
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#setId(java.lang.Long)
    */
   @Override
   public void setId(Long id) {
@@ -97,7 +85,6 @@ public class ReleasePropertyJpa implements ReleaseProperty {
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#getName()
    */
   @Override
   public String getName() {
@@ -107,7 +94,6 @@ public class ReleasePropertyJpa implements ReleaseProperty {
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#setName(java.lang.String)
    */
   @Override
   public void setName(String name) {
@@ -125,24 +111,10 @@ public class ReleasePropertyJpa implements ReleaseProperty {
   }
 
   @Override
-  public ReleaseInfo getReleaseInfo() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public void setReleaseInfo(ReleaseInfo releaseInfo) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result =
-        prime * result + ((releaseInfo == null) ? 0 : releaseInfo.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
     return result;
   }
@@ -161,11 +133,6 @@ public class ReleasePropertyJpa implements ReleaseProperty {
         return false;
     } else if (!name.equals(other.name))
       return false;
-    if (releaseInfo == null) {
-      if (other.releaseInfo != null)
-        return false;
-    } else if (!releaseInfo.equals(other.releaseInfo))
-      return false;
     if (value == null) {
       if (other.value != null)
         return false;
@@ -181,7 +148,7 @@ public class ReleasePropertyJpa implements ReleaseProperty {
    */
   @Override
   public String toString() {
-    return name + ", " + value + ", " + releaseInfo.getName();
+    return name + ", " + value ;
   }
 
 }

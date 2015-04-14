@@ -39,6 +39,10 @@ public class PrecedenceListJpa implements PrecedenceList {
   @Column(nullable = false)
   private String name;
 
+  /** The default list. */
+  @Column(nullable = false)
+  private boolean defaultList = false;
+
   /** The descriptions. */
   @ManyToMany(targetEntity = TermTypeJpa.class)
   private List<TermType> termTypes = null;
@@ -61,32 +65,83 @@ public class PrecedenceListJpa implements PrecedenceList {
     termTypes = precedenceList.getTermTypes();
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PrecedenceList#getId()
+   */
   @Override
   @XmlTransient
   public Long getId() {
     return this.id;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PrecedenceList#setId(java.lang.Long)
+   */
   @Override
   public void setId(Long id) {
     this.id = id;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PrecedenceList#isDefaultList()
+   */
+  @Override
+  public boolean isDefaultList() {
+    return defaultList;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PrecedenceList#setDefaultList(boolean)
+   */
+  @Override
+  public void setDefaultList(boolean defaultList) {
+    this.defaultList = defaultList;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PrecedenceList#getName()
+   */
   @Override
   public String getName() {
     return name;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PrecedenceList#setName(java.lang.String)
+   */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.PrecedenceList#setTermTypes(java.util.List)
+   */
   @Override
   public void setTermTypes(List<TermType> termTypes) {
     this.termTypes = termTypes;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PrecedenceList#getTermTypes()
+   */
   @Override
   public List<TermType> getTermTypes() {
     return termTypes;

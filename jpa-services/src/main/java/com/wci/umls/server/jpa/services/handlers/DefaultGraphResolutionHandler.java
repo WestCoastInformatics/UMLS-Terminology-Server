@@ -7,9 +7,13 @@ import java.util.Properties;
 import java.util.Set;
 
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
@@ -46,6 +50,30 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
   @Override
   public void resolve(SemanticType sty) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void resolve(Descriptor descriptor, Set<String> isaRelTypeIds) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void resolve(Code descriptor, Set<String> isaRelTypeIds) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void resolve(LexicalClass lexicalClass) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void resolve(StringClass stringClass) {
     // TODO Auto-generated method stub
     
   }

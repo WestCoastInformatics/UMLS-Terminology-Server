@@ -3,8 +3,6 @@
  */
 package com.wci.umls.server.model.meta;
 
-import java.util.Date;
-
 /**
  * Represents a structured citation.
  */
@@ -23,7 +21,7 @@ public interface Citation {
    * @param id the id
    */
   public void setId(Long id);
-  
+
   /**
    * Returns the address.
    * 
@@ -67,32 +65,34 @@ public interface Citation {
   public void setContentDesignator(String contentDesignator);
 
   /**
-   * Returns the date of publication.
+   * Returns the date of publication. Use String because we canont guarantee the
+   * format.
    * 
    * @return the date of publication
    */
-  public Date getDateOfPublication();
+  public String getDateOfPublication();
 
   /**
    * Sets the date of publication.
    * 
    * @param dateOfPublication the date of publication
    */
-  public void setDateOfPublication(Date dateOfPublication);
+  public void setDateOfPublication(String dateOfPublication);
 
   /**
-   * Returns the date of revision.
+   * Returns the date of revision. Use String because we canont guarantee the
+   * format.
    * 
    * @return the date of revision
    */
-  public Date getDateOfRevision();
+  public String getDateOfRevision();
 
   /**
    * Sets the date of revision.
    * 
    * @param dateOfRevision the date of revision
    */
-  public void setDateOfRevision(Date dateOfRevision);
+  public void setDateOfRevision(String dateOfRevision);
 
   /**
    * Returns the edition.
@@ -205,7 +205,6 @@ public interface Citation {
    * @param title the title
    */
   public void setTitle(String title);
-
 
   /**
    * Returns the extent.

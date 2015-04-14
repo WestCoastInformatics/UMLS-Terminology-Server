@@ -255,6 +255,9 @@ public class ModelUnit033Test {
   public void testModelNotNullField033() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelNotNullField033");
     NullableFieldTester tester = new NullableFieldTester(object);
+    tester.include("timestamp");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
     tester.include("terminology");
     tester.include("polyhierarchy");
     tester.include("family");

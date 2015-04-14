@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.model.meta.ContactInfo;
 
 /**
@@ -117,6 +118,35 @@ public class ContactInfoJpa implements ContactInfo {
     zipCode = contactInfo.getZipCode();
   }
 
+  /**
+   * Instantiates a {@link ContactInfoJpa} from the specified parameters.
+   *
+   * @param mrsabField the mrsab field
+   */
+  public ContactInfoJpa(String mrsabField) {
+    // 0 John Kilbourne, M.D. ;
+    // 1 Head, MeSH Section;
+    // 2 National Library of Medicine;
+    // 3 6701 Democracy Blvd.;
+    // 4 Suite 202 MSC 4879;
+    // 5 Bethesda;
+    // 6 Maryland;
+    // 7 United States;
+    // 8 20892-4879;
+    // 9 kilbourj@mail.nlm.nih.gov
+    String[] fields = FieldedStringTokenizer.split(mrsabField, ";");
+    name = fields[0];
+    title = fields[1];
+    organization = fields[2];
+    address1 = fields[3];
+    address2 = fields[4];
+    city = fields[5];
+    stateOrProvince = fields[6];
+    country = fields[7];
+    zipCode = fields[8];
+    email = fields[9];
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -127,7 +157,6 @@ public class ContactInfoJpa implements ContactInfo {
   public Long getId() {
     return this.id;
   }
-
 
   /*
    * (non-Javadoc)
@@ -427,9 +456,10 @@ public class ContactInfoJpa implements ContactInfo {
   public void setZipCode(String zipCode) {
     this.zipCode = zipCode;
   }
-  
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#hashCode()
    */
   @Override
@@ -456,7 +486,9 @@ public class ContactInfoJpa implements ContactInfo {
     return result;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override

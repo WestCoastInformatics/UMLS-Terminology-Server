@@ -6,6 +6,7 @@
  */
 package com.wci.umls.server.jpa.meta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -13,24 +14,19 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
 import com.wci.umls.server.model.meta.ContactInfo;
 import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.RootTerminology;
-import com.wci.umls.server.model.meta.Terminology;
 
 /**
  * JPA-enabled implementation of {@link RootTerminology}.
@@ -41,12 +37,8 @@ import com.wci.umls.server.model.meta.Terminology;
 }))
 @Audited
 @XmlRootElement(name = "rootTerminology")
-public class RootTerminologyJpa implements RootTerminology {
-
-  /** The id. */
-  @Id
-  @GeneratedValue
-  private Long id;
+public class RootTerminologyJpa extends AbstractHasLastModified implements
+    RootTerminology {
 
   /** The terminology. */
   @Column(nullable = false)
@@ -63,10 +55,6 @@ public class RootTerminologyJpa implements RootTerminology {
   /** The polyhierarchy flag. */
   @Column(nullable = false)
   private boolean polyhierarchy;
-
-  /** The current version. */
-  @OneToOne(targetEntity = TerminologyJpa.class, fetch = FetchType.EAGER, optional = true)
-  private Terminology currentVersion;
 
   /** The family. */
   @Column(nullable = false)
@@ -89,10 +77,6 @@ public class RootTerminologyJpa implements RootTerminology {
   @Column(nullable = false, length = 3000)
   private String preferredName;
 
-  /** The previous version. */
-  @OneToOne(targetEntity = TerminologyJpa.class, fetch = FetchType.EAGER, optional = true)
-  private Terminology previousVersion;
-
   /** The restriction level. */
   @Column(nullable = false)
   private int restrictionLevel;
@@ -104,11 +88,7 @@ public class RootTerminologyJpa implements RootTerminology {
   /** The short name. */
   @ElementCollection
   @Column(nullable = true)
-  private List<String> synonymousNames;
-
-  /** The descriptions. */
-  @OneToMany(mappedBy = "rootTerminology", fetch = FetchType.EAGER, orphanRemoval = true, targetEntity = TerminologyJpa.class)
-  private List<Terminology> terminologies = null;
+  private List<String> synonymousNames = new ArrayList<>();
 
   /**
    * Instantiates an empty {@link RootTerminologyJpa}.
@@ -123,41 +103,24 @@ public class RootTerminologyJpa implements RootTerminology {
    * @param rootTerminology the terminology
    */
   public RootTerminologyJpa(RootTerminology rootTerminology) {
-    id = rootTerminology.getId();
+    super(rootTerminology);
     terminology = rootTerminology.getTerminology();
     acquisitionContact = rootTerminology.getAcquisitionContact();
     contentContact = rootTerminology.getContentContact();
-    currentVersion = rootTerminology.getCurrentVersion();
     family = rootTerminology.getFamily();
     hierarchicalName = rootTerminology.getHierarchicalName();
     language = rootTerminology.getLanguage();
     licenseContact = rootTerminology.getLicenseContact();
     preferredName = rootTerminology.getPreferredName();
-    previousVersion = rootTerminology.getPreviousVersion();
     restrictionLevel = rootTerminology.getRestrictionLevel();
     shortName = rootTerminology.getShortName();
     synonymousNames = rootTerminology.getSynonymousNames();
     polyhierarchy = rootTerminology.isPolyhierachy();
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.helpers.HasId#getId()
-   */
-  @Override
-  @XmlTransient
-  public Long getId() {
-    return this.id;
-  }
-
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.helpers.HasId#setId(java.lang.Long)
-   */
-  @Override
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.meta.RootTerminology#getTerminology()
    */
   @Override
@@ -165,8 +128,12 @@ public class RootTerminologyJpa implements RootTerminology {
     return terminology;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.meta.RootTerminology#setTerminology(java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.meta.RootTerminology#setTerminology(java.lang
+   * .String)
    */
   @Override
   public void setTerminology(String terminology) {
@@ -237,26 +204,6 @@ public class RootTerminologyJpa implements RootTerminology {
   @Override
   public void setPolyhierarchy(boolean polyhierarchy) {
     this.polyhierarchy = polyhierarchy;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#getCurrentVersion()
-   */
-  @Override
-  @XmlElement(type = TerminologyJpa.class, name = "currentVersion")
-  public Terminology getCurrentVersion() {
-    return currentVersion;
-  }
-
-  /**
-   * Sets the current version.
-   *
-   * @param currentVersion the current version
-   */
-  public void setCurrentVersion(Terminology currentVersion) {
-    this.currentVersion = currentVersion;
   }
 
   /*
@@ -373,26 +320,6 @@ public class RootTerminologyJpa implements RootTerminology {
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#getPreviousVersion()
-   */
-  @Override
-  @XmlElement(type = TerminologyJpa.class, name = "previousVersion")
-  public Terminology getPreviousVersion() {
-    return previousVersion;
-  }
-
-  /**
-   * Sets the previous version.
-   *
-   * @param previousVersion the previous version
-   */
-  public void setPreviousVersion(Terminology previousVersion) {
-    this.previousVersion = previousVersion;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
    * @see com.wci.umls.server.model.meta.RootTerminology#getRestrictionLevel()
    */
   @Override
@@ -439,6 +366,7 @@ public class RootTerminologyJpa implements RootTerminology {
    * @see com.wci.umls.server.model.meta.RootTerminology#getSynonymousNames()
    */
   @Override
+  @XmlElement(type = String.class, name = "syName")
   public List<String> getSynonymousNames() {
     return synonymousNames;
   }
@@ -465,6 +393,11 @@ public class RootTerminologyJpa implements RootTerminology {
     return polyhierarchy;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#hashCode()
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -498,6 +431,11 @@ public class RootTerminologyJpa implements RootTerminology {
     return result;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -562,6 +500,21 @@ public class RootTerminologyJpa implements RootTerminology {
     } else if (!terminology.equals(other.terminology))
       return false;
     return true;
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return "RootTerminologyJpa [terminology=" + terminology
+        + ", acquisitionContact=" + acquisitionContact + ", contentContact="
+        + contentContact + ", polyhierarchy=" + polyhierarchy + ", family="
+        + family + ", hierarchicalName=" + hierarchicalName + ", language="
+        + language + ", licenseContact=" + licenseContact + ", preferredName="
+        + preferredName + ", restrictionLevel=" + restrictionLevel
+        + ", shortName=" + shortName + ", synonymousNames=" + synonymousNames
+        + "]";
   }
 
 }

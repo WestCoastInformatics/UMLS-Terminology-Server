@@ -18,8 +18,8 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
-import com.wci.umls.server.helpers.ConceptList;
 import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;

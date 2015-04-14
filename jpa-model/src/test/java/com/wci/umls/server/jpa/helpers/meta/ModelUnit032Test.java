@@ -91,6 +91,7 @@ public class ModelUnit032Test {
     tester.include("terminologyVersion");
     tester.include("publishable");
     tester.include("published");
+    tester.include("groupingType");
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
@@ -146,6 +147,7 @@ public class ModelUnit032Test {
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
+    tester.include("groupingType");
 
     assertTrue(tester.testNotNullFields());
   }

@@ -3,15 +3,8 @@
  */
 package com.wci.umls.server.jpa.meta;
 
-import java.util.Date;
-
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
@@ -22,26 +15,8 @@ import com.wci.umls.server.model.meta.Abbreviation;
  */
 @Audited
 @MappedSuperclass
-public abstract class AbstractAbbreviation implements Abbreviation {
-
-  /** The id. */
-  @Id
-  @GeneratedValue
-  private Long id;
-
-  /** the timestamp. */
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp = new Date();
-
-  /** The last modified. */
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date lastModified = new Date();
-
-  /** The last modified. */
-  @Column(nullable = false)
-  private String lastModifiedBy;
+public abstract class AbstractAbbreviation extends AbstractHasLastModified
+    implements Abbreviation {
 
   /** The published flag. */
   @Column(nullable = false)
@@ -67,10 +42,10 @@ public abstract class AbstractAbbreviation implements Abbreviation {
   @Column(nullable = false)
   private String terminologyVersion;
 
-  /**  The branch. */
+  /** The branch. */
   @Column(nullable = true)
   private String branch;
-  
+
   /**
    * Instantiates an empty {@link AbstractAbbreviation}.
    */
@@ -84,138 +59,13 @@ public abstract class AbstractAbbreviation implements Abbreviation {
    * @param abbreviation the abbreviation
    */
   protected AbstractAbbreviation(Abbreviation abbreviation) {
-    id = abbreviation.getId();
+    super(abbreviation);
     this.abbreviation = abbreviation.getAbbreviation();
     expandedForm = abbreviation.getExpandedForm();
     terminology = abbreviation.getTerminology();
     terminologyVersion = abbreviation.getTerminologyVersion();
-    timestamp = abbreviation.getTimestamp();
-    lastModified = abbreviation.getLastModified();
-    lastModifiedBy = abbreviation.getLastModifiedBy();
     publishable = abbreviation.isPublishable();
     published = abbreviation.isPublished();
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#getId()
-   */
-  /**
-   * Returns the id.
-   *
-   * @return the id
-   */
-  @Override
-  @XmlTransient
-  public Long getId() {
-    return this.id;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#setId(java.lang.Long)
-   */
-  /**
-   * Sets the id.
-   *
-   * @param id the id
-   */
-  @Override
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Component#timestamp()
-   */
-  /**
-   * Returns the timestamp.
-   *
-   * @return the timestamp
-   */
-  @Override
-  public Date getTimestamp() {
-    return timestamp;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Abbreviation#setTimestamp(java.util.Date)
-   */
-  /**
-   * Sets the timestamp.
-   *
-   * @param timestamp the timestamp
-   */
-  @Override
-  public void setTimestamp(Date timestamp) {
-    this.timestamp = timestamp;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#getLastModified()
-   */
-  /**
-   * Returns the last modified.
-   *
-   * @return the last modified
-   */
-  @Override
-  public Date getLastModified() {
-    return lastModified;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#setLastModified(java.util.Date)
-   */
-  /**
-   * Sets the last modified.
-   *
-   * @param lastModified the last modified
-   */
-  @Override
-  public void setLastModified(Date lastModified) {
-    this.lastModified = lastModified;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#getLastModifiedBy()
-   */
-  /**
-   * Returns the last modified by.
-   *
-   * @return the last modified by
-   */
-  @Override
-  public String getLastModifiedBy() {
-    return lastModifiedBy;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#setLastModifiedBy(java.lang.String)
-   */
-  /**
-   * Sets the last modified by.
-   *
-   * @param lastModifiedBy the last modified by
-   */
-  @Override
-  public void setLastModifiedBy(String lastModifiedBy) {
-    this.lastModifiedBy = lastModifiedBy;
   }
 
   /*
@@ -278,20 +128,25 @@ public abstract class AbstractAbbreviation implements Abbreviation {
     this.publishable = publishable;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.meta.Abbreviation#getBranch()
    */
   @Override
   public String getBranch() {
     return branch;
   }
-  
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.meta.Abbreviation#setBranch(java.lang.String)
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.meta.Abbreviation#setBranch(java.lang.String)
    */
   @Override
   public void setBranch(String branch) {
-    this.branch = branch;    
+    this.branch = branch;
   }
 
   /*
@@ -486,18 +341,20 @@ public abstract class AbstractAbbreviation implements Abbreviation {
       return false;
     return true;
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#toString()
    */
   @Override
   public String toString() {
-    return "AbstractAbbreviation [id=" + id + ", timestamp=" + timestamp
-        + ", lastModified=" + lastModified + ", lastModifiedBy="
-        + lastModifiedBy + ", published=" + published + ", publishable="
-        + publishable + ", abbreviation=" + abbreviation + ", expandedForm="
-        + expandedForm + ", terminology=" + terminology
-        + ", terminologyVersion=" + terminologyVersion + "]";
+    return "AbstractAbbreviation [id=" + getId() + ", timestamp="
+        + getTimestamp() + ", lastModified=" + getLastModified()
+        + ", lastModifiedBy=" + getLastModifiedBy() + ", published="
+        + published + ", publishable=" + publishable + ", abbreviation="
+        + abbreviation + ", expandedForm=" + expandedForm + ", terminology="
+        + terminology + ", terminologyVersion=" + terminologyVersion + "]";
   }
 
 }

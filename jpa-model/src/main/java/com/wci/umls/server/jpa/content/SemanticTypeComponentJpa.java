@@ -51,6 +51,7 @@ public class SemanticTypeComponentJpa extends AbstractComponentHasAttributes imp
       boolean deepCopy) {
     super(semanticType, deepCopy);
     this.semanticType = semanticType.getSemanticType();
+    workflowStatus = semanticType.getWorkflowStatus();
   }
 
   /*

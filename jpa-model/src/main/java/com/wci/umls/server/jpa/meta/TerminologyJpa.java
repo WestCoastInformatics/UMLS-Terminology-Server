@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.meta;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -11,8 +12,6 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -40,12 +39,8 @@ import com.wci.umls.server.model.meta.Terminology;
 }))
 @Audited
 @XmlRootElement(name = "terminology")
-public class TerminologyJpa implements Terminology {
-
-  /** The id. */
-  @Id
-  @GeneratedValue
-  private Long id;
+public class TerminologyJpa extends AbstractHasLastModified implements
+    Terminology {
 
   /** The terminology. */
   @Column(nullable = false)
@@ -82,7 +77,7 @@ public class TerminologyJpa implements Terminology {
   /** The synonymous names. */
   @ElementCollection
   @Column(nullable = true)
-  private List<String> synonymousNames;
+  private List<String> synonymousNames = new ArrayList<>();
 
   /** The terminology version. */
   @Column(nullable = false)
@@ -109,7 +104,7 @@ public class TerminologyJpa implements Terminology {
    * @param terminology the terminology
    */
   public TerminologyJpa(Terminology terminology) {
-    id = terminology.getId();
+    super(terminology);
     this.terminology = terminology.getTerminology();
     citation = terminology.getCitation();
     endDate = terminology.getEndDate();
@@ -121,17 +116,6 @@ public class TerminologyJpa implements Terminology {
     terminologyVersion = terminology.getTerminologyVersion();
     assertsRelDirection = terminology.isAssertsRelDirection();
     current = terminology.isCurrent();
-  }
-
-  @Override
-  @XmlTransient
-  public Long getId() {
-    return this.id;
-  }
-
-  @Override
-  public void setId(Long id) {
-    this.id = id;
   }
 
   /*
@@ -485,5 +469,19 @@ public class TerminologyJpa implements Terminology {
     } else if (!terminologyVersion.equals(other.terminologyVersion))
       return false;
     return true;
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return "TerminologyJpa [terminology=" + terminology + ", citation="
+        + citation + ", endDate=" + endDate + ", organizingClassType="
+        + organizingClassType + ", preferredName=" + preferredName
+        + ", rootTerminology=" + rootTerminology + ", startDate=" + startDate
+        + ", synonymousNames=" + synonymousNames + ", terminologyVersion="
+        + terminologyVersion + ", assertsRelDirection=" + assertsRelDirection
+        + ", current=" + current + "]";
   }
 }

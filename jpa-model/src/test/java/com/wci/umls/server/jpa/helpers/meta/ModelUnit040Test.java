@@ -247,6 +247,9 @@ public class ModelUnit040Test {
   public void testModelNotNullField040() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelNotNullField040");
     NullableFieldTester tester = new NullableFieldTester(object);
+    tester.include("timestamp");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
     tester.include("terminology");
     tester.include("terminologyVersion");
     tester.include("organizingClassType");
@@ -282,7 +285,6 @@ public class ModelUnit040Test {
     TerminologyJpa terminology = (TerminologyJpa) tester.createObject(1);
 
     String xml = ConfigUtility.getStringForGraph(terminology);
-    System.out.println(xml);
     assertTrue(xml.contains("<rootTerminologyId>"));
     assertTrue(xml.contains("<rootTerminologyAbbreviation>"));
     Assert.assertFalse(xml.contains("<rootTerminology>"));

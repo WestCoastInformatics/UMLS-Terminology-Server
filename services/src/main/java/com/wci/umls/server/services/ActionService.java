@@ -5,7 +5,7 @@ package com.wci.umls.server.services;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.KeyValuesMap;
-import com.wci.umls.server.helpers.RelationshipList;
+import com.wci.umls.server.helpers.content.RelationshipList;
 
 /**
  * Generically represents a service for performing maintenance actions.

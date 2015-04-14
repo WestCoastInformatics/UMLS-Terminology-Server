@@ -23,7 +23,7 @@ public class ReleaseInfoListJpa extends AbstractResultList<ReleaseInfo>
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.AbstractResultList#getObjects()
+   * @see org.ihtsdo.otf.ts.helpers.AbstrazctResultList#getObjects()
    */
   @Override
   @XmlElement(type = ReleaseInfoJpa.class, name = "releaseInfo")

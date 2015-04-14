@@ -8,9 +8,9 @@ package com.wci.umls.server.services;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
-import com.wci.umls.server.helpers.ConceptList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.helpers.content.ConceptList;
 
 /**
  * Generically represents a service for accessing {@link Project} information.

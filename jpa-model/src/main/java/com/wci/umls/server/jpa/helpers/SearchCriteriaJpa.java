@@ -410,4 +410,41 @@ public class SearchCriteriaJpa implements SearchCriteria {
     return true;
   }
 
+  /**
+   * Sets the find by destination id.
+   *
+   * @param findByDestinationId the find by destination id
+   */
+  public void setFindByDestinationId(String findByDestinationId) {
+    this.findByDestinationId = findByDestinationId;
+  }
+
+  /**
+   * Sets the find by relationship descendants.
+   *
+   * @param findByRelationshipDescendants the find by relationship descendants
+   */
+  public void setFindByRelationshipDescendants(
+    boolean findByRelationshipDescendants) {
+    this.findByRelationshipDescendants = findByRelationshipDescendants;
+  }
+
+  /**
+   * Sets the find by relationship type id.
+   *
+   * @param findByRelationshipTypeId the find by relationship type id
+   */
+  public void setFindByRelationshipTypeId(String findByRelationshipTypeId) {
+    this.findByRelationshipTypeId = findByRelationshipTypeId;
+  }
+
+  /**
+   * Sets the find by source id.
+   *
+   * @param findBySourceId the find by source id
+   */
+  public void setFindBySourceId(String findBySourceId) {
+    this.findBySourceId = findBySourceId;
+  }
+
 }

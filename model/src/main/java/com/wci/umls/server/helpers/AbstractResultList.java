@@ -130,4 +130,18 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     return true;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuilder sb=  new StringBuilder();
+    sb.append("AbstractResultList [totalCount=" + totalCount + ", objects=[");
+    for (Object o: objects) {
+      sb.append(o.toString()).append(",");
+    }
+    sb.append("]");
+    return sb.toString();
+  }
+
 }

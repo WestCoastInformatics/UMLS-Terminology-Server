@@ -5,13 +5,13 @@ package com.wci.umls.server.model.meta;
 
 import java.util.List;
 
-import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasLanguage;
+import com.wci.umls.server.helpers.HasLastModified;
 
 /**
  * Represents a {@link Terminology} of data independent of version information.
  */
-public interface RootTerminology extends HasLanguage, HasId {
+public interface RootTerminology extends HasLanguage, HasLastModified {
 
   /**
    * Returns the terminology.
@@ -166,19 +166,5 @@ public interface RootTerminology extends HasLanguage, HasId {
    * @param hierarchicalName the hierarchical name
    */
   public void setHierarchicalName(String hierarchicalName);
-
-  /**
-   * Returns the current version.
-   * 
-   * @return the current version
-   */
-  public Terminology getCurrentVersion();
-
-  /**
-   * Returns the previous version.
-   * 
-   * @return the previous version
-   */
-  public Terminology getPreviousVersion();
 
 }

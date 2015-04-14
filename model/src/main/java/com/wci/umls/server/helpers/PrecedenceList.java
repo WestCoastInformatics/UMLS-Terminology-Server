@@ -28,6 +28,20 @@ public interface PrecedenceList {
   public void setId(Long id);
 
   /**
+   * Indicates whether or not default is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isDefaultList();
+
+  /**
+   * Sets the default.
+   *
+   * @param defaultList the default list
+   */
+  public void setDefaultList(boolean defaultList);
+
+  /**
    * Returns the name.
    * 
    * @return the name

@@ -48,7 +48,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   /** The fully defined. */
   @Column(nullable = false)
   private boolean fullyDefined = false;
-
+    
   /**
    * Instantiates an empty {@link ConceptJpa}.
    */

@@ -16,6 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -86,10 +87,10 @@ public class ReleaseInfoJpa implements ReleaseInfo {
   @Column(nullable = false)
   private Date lastModified = new Date();
 
-  /**  The release properties. */
+  /** The release properties. */
   @OneToMany(mappedBy = "releaseInfo", cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = ReleasePropertyJpa.class)
   private List<ReleaseProperty> properties;
-  
+
   /**
    * Instantiates an empty {@link ReleaseInfoJpa}.
    */
@@ -367,19 +368,22 @@ public class ReleaseInfoJpa implements ReleaseInfo {
     return result;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.meta.ReleaseInfo#getProperties()
    */
   @Override
+  @XmlElement(type = ReleasePropertyJpa.class, name = "property")
   public List<ReleaseProperty> getProperties() {
     return properties;
   }
 
   @Override
   public void setProperties(List<ReleaseProperty> properties) {
-    this.properties = properties;    
+    this.properties = properties;
   }
-  
+
   /*
    * (non-Javadoc)
    * 
@@ -431,6 +435,5 @@ public class ReleaseInfoJpa implements ReleaseInfo {
     return name + ", " + description + ", " + effectiveTime + ", " + planned
         + ", " + published + ", " + terminology + ", " + terminologyVersion;
   }
-
 
 }

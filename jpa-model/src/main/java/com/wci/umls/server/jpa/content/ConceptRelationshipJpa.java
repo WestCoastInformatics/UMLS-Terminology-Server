@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
@@ -64,6 +65,7 @@ public class ConceptRelationshipJpa extends
    * @see com.wci.umls.server.model.content.Relationship#getFrom()
    */
   @Override
+  @XmlTransient
   public Concept getFrom() {
     return from;
   }
@@ -80,12 +82,55 @@ public class ConceptRelationshipJpa extends
     this.from = component;
   }
 
+  /**
+   * Returns the from id. For JAXB.
+   *
+   * @return the from id
+   */
+  public Long getFromId() {
+    return from == null ? null : from.getId();
+  }
+
+  /**
+   * Sets the from id.
+   *
+   * @param id the from id
+   */
+  public void setFromId(Long id) {
+    if (from == null) {
+      from = new ConceptJpa();
+    }
+    from.setId(id);
+  }
+
+  /**
+   * Returns the from term. For JAXB.
+   *
+   * @return the from term
+   */
+  public String getFromDefaultPreferredName() {
+    return from == null ? null : from.getDefaultPreferredName();
+  }
+
+  /**
+   * Sets the from term.
+   *
+   * @param term the from term
+   */
+  public void setFromDefaultPreferredName(String term) {
+    if (from == null) {
+      from = new ConceptJpa();
+    }
+    from.setDefaultPreferredName(term);
+  }
+
   /*
    * (non-Javadoc)
    * 
    * @see com.wci.umls.server.model.content.Relationship#getTo()
    */
   @Override
+  @XmlTransient
   public Concept getTo() {
     return to;
   }
@@ -101,6 +146,50 @@ public class ConceptRelationshipJpa extends
   public void setTo(Concept component) {
     this.to = component;
   }
+  
+
+  /**
+   * Returns the to id. For JAXB.
+   *
+   * @return the to id
+   */
+  public Long getToId() {
+    return to == null ? null : to.getId();
+  }
+
+  /**
+   * Sets the to id.
+   *
+   * @param id the to id
+   */
+  public void setToId(Long id) {
+    if (to == null) {
+      to = new ConceptJpa();
+    }
+    to.setId(id);
+  }
+
+  /**
+   * Returns the to term. For JAXB.
+   *
+   * @return the to term
+   */
+  public String getToDefaultPreferredName() {
+    return to == null ? null : to.getDefaultPreferredName();
+  }
+
+  /**
+   * Sets the to term.
+   *
+   * @param term the to term
+   */
+  public void setToDefaultPreferredName(String term) {
+    if (to == null) {
+      to = new ConceptJpa();
+    }
+    to.setDefaultPreferredName(term);
+  }
+
 
   /*
    * (non-Javadoc)

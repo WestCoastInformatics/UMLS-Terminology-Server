@@ -6,9 +6,8 @@ package com.wci.umls.server.services;
 import java.util.List;
 import java.util.Map;
 
-import javax.management.relation.RelationType;
-
 import com.wci.umls.server.helpers.Configurable;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
@@ -36,6 +35,8 @@ public interface MetadataService extends RootService, Configurable {
     Additional_Relationship_Types,
     /** The Attribute names. */
     Attribute_Names,
+    /** The General_ metadata_ entries. */
+    General_Metadata_Entries,
     /** The Identifier types. */
     Identifier_Types,
     /** The Semantic_ types. */
@@ -84,7 +85,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the latest version
    * @throws Exception if anything goes wrong
    */
-  public Terminology getLatestVersion(String terminology) throws Exception;
+  public String getLatestVersion(String terminology) throws Exception;
 
   /**
    * Returns the terminology latest versions.
@@ -92,8 +93,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the terminology latest versions
    * @throws Exception if anything goes wrong
    */
-  public Map<RootTerminology, Terminology> getTerminologyLatestVersions()
-    throws Exception;
+  public Map<String, String> getTerminologyLatestVersions() throws Exception;
 
   /**
    * Returns the all metadata.
@@ -118,8 +118,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the relation types
    * @throws Exception the exception
    */
-  public List<RelationType> getRelationTypes(String terminology, String version)
-    throws Exception;
+  public List<RelationshipType> getRelationshipTypes(String terminology,
+    String version) throws Exception;
 
   /**
    * Returns the additional relation types.
@@ -129,7 +129,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the additional relation types
    * @throws Exception the exception
    */
-  public List<AdditionalRelationshipType> getAdditionalRelationTypes(
+  public List<AdditionalRelationshipType> getAdditionalRelationshipTypes(
     String terminology, String version) throws Exception;
 
   /**
@@ -191,6 +191,30 @@ public interface MetadataService extends RootService, Configurable {
    */
   public List<RelationshipType> getHierarchicalRelationshipTypes(
     String terminology, String version) throws Exception;
+
+  /**
+   * Indicates whether or not hierarchcial relationship is the case.
+   *
+   * @param relationship the r
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isHierarchcialRelationship(Relationship<?, ?> relationship);
+
+  /**
+   * Indicates whether or not stated relationship is the case.
+   *
+   * @param relationship the r
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isStatedRelationship(Relationship<?, ?> relationship);
+
+  /**
+   * Indicates whether or not inferred relationship is the case.
+   *
+   * @param relationship the r
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isInferredRelationship(Relationship<?, ?> relationship);
 
   /**
    * Returns the non grouping relationship types.
@@ -330,28 +354,130 @@ public interface MetadataService extends RootService, Configurable {
   /**
    * Adds the language.
    *
-   * @param Language the language
+   * @param language the language
    * @return the language
    * @throws Exception the exception
    */
-  public Language addLanguage(Language Language)
-    throws Exception;
+  public Language addLanguage(Language language) throws Exception;
 
   /**
    * Update language.
    *
-   * @param Language the identifier type
+   * @param language the language
    * @throws Exception the exception
    */
-  public void updateLanguage(Language Language)
-    throws Exception;
+  public void updateLanguage(Language language) throws Exception;
 
   /**
-   * Removes the langauge.
+   * Removes the language.
    *
    * @param id the id
    * @throws Exception the exception
    */
   public void removeLanguage(Long id) throws Exception;
 
+
+  /**
+   * Adds the additional relationship type.
+   *
+   * @param additionalRelationshipType the additional relationship type
+   * @return the additionalRelationshipType the additional relationship type
+   * @throws Exception the exception
+   */
+  public AdditionalRelationshipType addAdditionalRelationshipType(AdditionalRelationshipType additionalRelationshipType) throws Exception;
+
+  /**
+   * Update additional relationship type.
+   *
+   * @param additionalRelationshipType the additional relationship type
+   * @throws Exception the exception
+   */
+  public void updateAdditionalRelationshipType(AdditionalRelationshipType additionalRelationshipType) throws Exception;
+
+  /**
+   * Removes the additional relationship type.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeAdditionalRelationshipType(Long id) throws Exception;
+  
+  /**
+   * Adds the relationship type.
+   *
+   * @param relationshipType the relationship type
+   * @return the relationshipType the relationship type
+   * @throws Exception the exception
+   */
+  public RelationshipType addRelationshipType(RelationshipType relationshipType) throws Exception;
+
+  /**
+   * Update relationship type.
+   *
+   * @param relationshipType the relationship type
+   * @throws Exception the exception
+   */
+  public void updateRelationshipType(RelationshipType relationshipType) throws Exception;
+
+  /**
+   * Removes the relationship type.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeRelationshipType(Long id) throws Exception;  
+  
+  
+
+  /**
+   * Adds the terminology.
+   *
+   * @param terminology the terminology
+   * @return the terminology
+   * @throws Exception the exception
+   */
+  public Terminology addTerminology(Terminology terminology) throws Exception;
+
+  /**
+   * Update terminology.
+   *
+   * @param terminology the terminology
+   * @throws Exception the exception
+   */
+  public void updateTerminology(Terminology terminology) throws Exception;
+
+  /**
+   * Removes the terminology.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeTerminology(Long id) throws Exception;
+
+  
+  /**
+   * Adds the root terminology.
+   *
+   * @param rootTerminology the root terminology
+   * @return the root terminology
+   * @throws Exception the exception
+   */
+  public RootTerminology addRootTerminology(RootTerminology rootTerminology) throws Exception;
+
+  /**
+   * Update root terminology.
+   *
+   * @param rootTerminology the root terminology
+   * @throws Exception the exception
+   */
+  public void updateRootTerminology(RootTerminology rootTerminology) throws Exception;
+
+  /**
+   * Removes the root terminology.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeRootTerminology(Long id) throws Exception;
+  
 }

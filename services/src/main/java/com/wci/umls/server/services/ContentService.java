@@ -8,15 +8,15 @@ package com.wci.umls.server.services;
 
 import java.util.Map;
 
-import com.wci.umls.server.helpers.CodeList;
-import com.wci.umls.server.helpers.ConceptList;
-import com.wci.umls.server.helpers.DescriptorList;
-import com.wci.umls.server.helpers.LexicalClassList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteriaList;
 import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.helpers.StringClassList;
 import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.content.CodeList;
+import com.wci.umls.server.helpers.content.ConceptList;
+import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.LexicalClassList;
+import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;

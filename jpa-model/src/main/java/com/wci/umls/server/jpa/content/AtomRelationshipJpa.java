@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
@@ -62,6 +63,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    * @see com.wci.umls.server.model.content.Relationship#getFrom()
    */
   @Override
+  @XmlTransient
   public Atom getFrom() {
     return from;
   }
@@ -78,16 +80,101 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     this.from = component;
   }
 
+  /**
+   * Returns the from id. For JAXB.
+   *
+   * @return the from id
+   */
+  public Long getFromId() {
+    return from == null ? null : from.getId();
+  }
+  
+  /**
+   * Sets the from id.
+   *
+   * @param id the from id
+   */
+  public void setFromId(Long id) {
+    if (from == null) {
+      from = new AtomJpa();
+    }
+    from.setId(id);
+  }
+
+  /**
+   * Returns the from term. For JAXB.
+   *
+   * @return the from term
+   */
+  public String getFromTerm() {
+    return from == null ? null : from.getTerm();
+  }
+
+  /**
+   * Sets the from term.
+   *
+   * @param term the from term
+   */
+  public void setFromTerm(String term) {
+    if (from == null) {
+      from = new AtomJpa();
+    }
+    from.setTerm(term);
+  }
+
+  
   /*
    * (non-Javadoc)
    * 
    * @see com.wci.umls.server.model.content.Relationship#getTo()
    */
   @Override
+  @XmlTransient
   public Atom getTo() {
     return to;
   }
 
+  /**
+   * Returns the to id.
+   *
+   * @return the to id
+   */
+  public Long getToId() {
+    return to == null ? null : to.getId();
+  }
+  
+  /**
+   * Returns the to term.
+   *
+   * @return the to term
+   */
+  public String getToTerm() {
+    return to == null ? null : to.getTerm();
+  }
+  
+  /**
+   * Sets the to id.
+   *
+   * @param id the to id
+   */
+  public void setToId(Long id) {
+    if (to == null) {
+      to = new AtomJpa();
+    }
+    to.setId(id);
+  }
+  
+  /**
+   * Sets the to term.
+   *
+   * @param term the to term
+   */
+  public void setToTerm(String term) {
+    if (to == null) {
+      to = new AtomJpa();
+    }
+    to.setTerm(term);
+  }
   /*
    * (non-Javadoc)
    * 
