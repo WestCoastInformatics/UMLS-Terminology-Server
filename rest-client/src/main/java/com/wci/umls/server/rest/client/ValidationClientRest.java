@@ -5,17 +5,6 @@ package com.wci.umls.server.rest.client;
 
 import java.util.Properties;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response.Status.Family;
-
-import org.apache.log4j.Logger;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.services.rest.ValidationServiceRest;
 
 /**
@@ -24,6 +13,7 @@ import com.wci.umls.server.jpa.services.rest.ValidationServiceRest;
 public class ValidationClientRest implements ValidationServiceRest {
 
   /** The config. */
+  @SuppressWarnings("unused")
   private Properties config = null;
 
   /**

@@ -244,16 +244,19 @@
                       <value>
                         SELECT semanticType FROM semantic_type_components
                         WHERE semanticType not in
-                        (select value from semantic_types);
+                        (select value from
+                        semantic_types);
                       </value>
                     </property>
 
                     <property>
-                      <name>Semantic type referential integrity - relationshipType</name>
+                      <name>Semantic type referential integrity -
+                        relationshipType</name>
                       <value>
                         SELECT semanticType FROM semantic_type_components
                         WHERE semanticType not in
-                        (select value from semantic_types);
+                        (select value from
+                        semantic_types);
                       </value>
                     </property>
 
@@ -261,49 +264,71 @@
                       <name>Concept referential integrity - defaultPreferredName</name>
                       <value>
                         SELECT defaultPreferredName FROM concepts a
-                        WHERE NOT EXISTS
-                          (SELECT * FROM atoms b, atom_concept_map c
-                           WHERE b.id = c.atom_id
-                             AND c.conceptTerminologyIdMap = a.terminologyId);
+                        WHERE
+                        NOT EXISTS
+                        (SELECT * FROM atoms b, atom_concept_map c
+                        WHERE b.id = c.atom_id
+                        AND c.conceptTerminologyIdMap = a.terminologyId);
                       </value>
                     </property>
-                    
+
                     <property>
                       <name>Code referential integrity - defaultPreferredName</name>
                       <value>
                         SELECT defaultPreferredName FROM codes a
-                        WHERE NOT EXISTS
-                          (SELECT * FROM atoms b
-                           WHERE b.codeId = a.terminologyId);
+                        WHERE NOT
+                        EXISTS
+                        (SELECT * FROM atoms b
+                        WHERE b.codeId = a.terminologyId);
                       </value>
-                    </property>                    
+                    </property>
                     <property>
-                      <name>Descriptor referential integrity - defaultPreferredName</name>
+                      <name>Descriptor referential integrity -
+                        defaultPreferredName</name>
                       <value>
                         SELECT defaultPreferredName FROM descriptors a
                         WHERE NOT EXISTS
-                          (SELECT * FROM atoms b
-                           WHERE b.descriptorId = a.terminologyId);
+                        (SELECT * FROM atoms b
+                        WHERE b.descriptorId = a.terminologyId);
                       </value>
-                    </property>                    
+                    </property>
                     <property>
-                      <name>Lexical class referential integrity - defaultPreferredName</name>
+                      <name>Lexical class referential integrity -
+                        defaultPreferredName</name>
                       <value>
                         SELECT defaultPreferredName FROM lexical_classes a
                         WHERE NOT EXISTS
-                          (SELECT * FROM atoms b
-                           WHERE b.lexicalClassId = a.terminologyId);
+                        (SELECT * FROM atoms b
+                        WHERE b.lexicalClassId = a.terminologyId);
                       </value>
-                    </property>                    
+                    </property>
                     <property>
-                      <name>String class referential integrity - defaultPreferredName</name>
+                      <name>String class referential integrity -
+                        defaultPreferredName</name>
                       <value>
                         SELECT defaultPreferredName FROM string_classes a
                         WHERE NOT EXISTS
-                          (SELECT * FROM atoms b
-                           WHERE b.stringClassId = a.terminologyId);
+                        (SELECT * FROM atoms b
+                        WHERE b.stringClassId = a.terminologyId);
                       </value>
-                    </property>                    
+                    </property>
+
+                    <property>
+                      <name>Relationship type without inverse</name>
+                      <value>
+                        SELECT abbreviation, expandedForm from
+                        relationship_types
+                        WHERE inverse IS NULL;
+                      </value>
+                    </property>
+                    <property>
+                      <name>Additional relationship type without inverse</name>
+                      <value>
+                        SELECT abbreviation, expandedForm from
+                        additional_relationship_types
+                        WHERE inverse IS NULL;
+                      </value>
+                    </property>
 
                     <!-- Validate projects -->
                     <!-- Validate release info -->

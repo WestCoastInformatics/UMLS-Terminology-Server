@@ -58,7 +58,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   @Override
   public void resolveEmpty(Concept concept) {
     // TODO
-  };
+  }
 
   /*
    * (non-Javadoc)

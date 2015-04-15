@@ -30,6 +30,8 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.rest.client.ProjectClientRest;
+import com.wci.umls.server.rest.impl.ProjectServiceRestImpl;
 import com.wci.umls.server.services.SecurityService;
 
 /**
@@ -43,32 +45,32 @@ import com.wci.umls.server.services.SecurityService;
 public class ProjectLoaderMojo extends AbstractMojo {
 
   /**
-   * The name
-   * 
+   * The name.
+   *
    * @parameter
    * @required
    */
   private String name = null;
 
   /**
-   * The description
-   * 
+   * The description.
+   *
    * @parameter
    * @required
    */
   private String description = null;
 
   /**
-   * The terminology
-   * 
+   * The terminology.
+   *
    * @parameter
    * @required
    */
   private String terminology = null;
 
   /**
-   * The terminology version
-   * 
+   * The terminology version.
+   *
    * @parameter
    * @required
    */
@@ -91,8 +93,8 @@ public class ProjectLoaderMojo extends AbstractMojo {
   private String scopeConcepts = "";
 
   /**
-   * The scope descendants flag
-   * 
+   * The scope descendants flag.
+   *
    * @parameter
    */
   private boolean scopeDescendantsFlag = true;
@@ -105,14 +107,15 @@ public class ProjectLoaderMojo extends AbstractMojo {
   private String scopeExcludesConcepts = "";
 
   /**
-   * The scope excludes descendants flag
-   * 
+   * The scope excludes descendants flag.
+   *
    * @parameter
    */
   private boolean scopeExcludesDescendantsFlag = true;
 
   /**
-   * Whether to run this mojo against an active server
+   * Whether to run this mojo against an active server.
+   *
    * @parameter
    */
   private boolean server = false;
@@ -180,15 +183,15 @@ public class ProjectLoaderMojo extends AbstractMojo {
       if (!serverRunning) {
         getLog().info("Running directly");
 
-//        ProjectServiceRestImpl projectService = new ProjectServiceRestImpl();
-//        projectService.addProject(project, authToken);
+        ProjectServiceRestImpl projectService = new ProjectServiceRestImpl();
+        projectService.addProject(project, authToken);
 
       } else {
         getLog().info("Running against server");
 
         // invoke the client
-//        ProjectClientRest projectService = new ProjectClientRest(properties);
-//        projectService.addProject(project, authToken);
+        ProjectClientRest projectService = new ProjectClientRest(properties);
+        projectService.addProject(project, authToken);
       }
       service.close();
       getLog().info("done ...");

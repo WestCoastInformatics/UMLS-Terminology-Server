@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -33,6 +34,7 @@ import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
+import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.content.Atom;
@@ -43,12 +45,17 @@ import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
+import com.wci.umls.server.model.meta.CodeVariantType;
 import com.wci.umls.server.model.meta.IdentifierType;
 import com.wci.umls.server.model.meta.Language;
+import com.wci.umls.server.model.meta.NameVariantType;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.SemanticType;
+import com.wci.umls.server.model.meta.TermType;
+import com.wci.umls.server.model.meta.TermTypeStyle;
 import com.wci.umls.server.model.meta.Terminology;
+import com.wci.umls.server.model.meta.UsageType;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
@@ -59,12 +66,14 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /** Listeners. */
+  @SuppressWarnings("hiding")
   private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The logging object ct threshold. */
   private final static int logCt = 2000;
 
   /** The commit count. */
+  @SuppressWarnings("unused")
   private final static int commitCt = 5000;
 
   /** The terminology. */
@@ -83,6 +92,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private RrfReaders readers;
 
   /** The all metadata. */
+  @SuppressWarnings("unused")
   private Map<String, Map<String, String>> allMetadata;
 
   /** The loader. */
@@ -312,15 +322,17 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Load MRDOC abbreviation types");
     String line = null;
     Set<String> idTypeSeen = new HashSet<>();
+    Set<String> atnSeen = new HashSet<>();
     Map<String, RelationshipType> relMap = new HashMap<>();
     Map<String, String> inverseRelMap = new HashMap<>();
     Map<String, AdditionalRelationshipType> relaMap = new HashMap<>();
     Map<String, String> inverseRelaMap = new HashMap<>();
+    Map<String, TermType> ttyMap = new HashMap<>();
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDOC);
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\\|");
+      final String fields[] = FieldedStringTokenizer.split(line,"|");
 
       // Field Description DOCKEY,VALUE,TYPE,EXPL
       // 0 DOCKEY
@@ -333,7 +345,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // Handle AttributeNames
       if ((fields[0].equals("ATN") || fields[0].equals("MAPATN"))
-          && fields[2].equals("expanded_form")) {
+          && fields[2].equals("expanded_form") && !atnSeen.contains(fields[1])) {
         final AttributeName atn = new AttributeNameJpa();
         atn.setAbbreviation(fields[1]);
         atn.setExpandedForm(fields[3]);
@@ -344,6 +356,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         atn.setPublished(true);
         Logger.getLogger(getClass()).debug("    add attribute name - " + atn);
         addAttributeName(atn);
+        atnSeen.add(fields[1]);
       }
 
       // Handle IdentifierTypes
@@ -438,13 +451,74 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         }
       }
 
+      if (fields[0].equals("TTY") && fields[2].equals("expanded_form")) {
+        final TermType tty = new TermTypeJpa();
+        tty.setAbbreviation(fields[1]);
+        tty.setExpandedForm(fields[3]);
+        tty.setLastModified(releaseVersionDate);
+        tty.setLastModifiedBy(loader);
+        tty.setTerminology(terminology);
+        tty.setTerminologyVersion(terminologyVersion);
+        tty.setPublished(true);
+        tty.setCodeVariantType(CodeVariantType.UNDEFINED);
+        // based on TTY class
+        tty.setHierarchicalType(false);
+        tty.setNameVariantType(NameVariantType.UNDEFINED);
+        // based on tty_class
+        // tty.setObsolete("TODO");
+        tty.setStyle(TermTypeStyle.UNDEFINED);
+        tty.setUsageType(UsageType.UNDEFINED);
+        ttyMap.put(fields[1], tty);
+      }
+      if (fields[0].equals("TTY") && fields[2].equals("tty_class")) {
+        if (fields[3].equals("attribute")) {
+          ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.ATTRIBUTE);
+        }
+        if (fields[3].equals("abbreviation")) {
+          ttyMap.get(fields[1]).setNameVariantType(NameVariantType.AB);
+          ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.SY);
+        }
+        if (fields[3].equals("synonym")) {
+          ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.SY);
+        }
+        if (fields[3].equals("preferred")) {
+          if (ttyMap.get(fields[1]).getCodeVariantType() == CodeVariantType.ET) {
+            ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.PET);
+          } else {
+            ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.PN);
+          }
+        }
+        if (fields[3].equals("entry_term")) {
+          if (ttyMap.get(fields[1]).getCodeVariantType() == CodeVariantType.PN) {
+            ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.PET);
+          } else {
+            ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.ET);
+          }
+        }
+        if (fields[3].equals("hierarchical")) {
+          ttyMap.get(fields[1]).setHierarchicalType(true);
+        }
+        if (fields[3].equals("obsolete")) {
+          ttyMap.get(fields[1]).setObsolete(true);
+        }
+        if (fields[3].equals("expanded")) {
+          ttyMap.get(fields[1]).setNameVariantType(NameVariantType.EXPANDED);
+        }
+
+      }
+
+    }
+
+    // Add TTYs when done
+    for (TermType tty : ttyMap.values()) {
+      addTermType(tty);
     }
 
   }
 
   /**
    * Load terminologies.
-   * @throws Exception 
+   * @throws Exception
    */
   private void loadTerminologies() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRSAB data");
@@ -455,7 +529,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\\|");
+      final String fields[] = FieldedStringTokenizer.split(line,"|");
 
       // Field Description
       // 0 VCUI
@@ -503,7 +577,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         term.setEndDate(ConfigUtility.DATE_FORMAT2.parse(fields[8]));
       }
 
-      term.setOrganizingClassType(null); // TODO; handle with config file (later)
+      term.setOrganizingClassType(null); // TODO; handle with config file
+                                         // (later)
       term.setPreferredName(fields[4]);
       if (!fields[7].equals("")) {
         term.setStartDate(ConfigUtility.DATE_FORMAT2.parse(fields[7]));
@@ -511,7 +586,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       term.setTerminology(fields[2]);
       term.setTerminologyVersion(fields[6]);
       terminologies.put(fields[2], term);
-      
+
       if (!rootTerminologies.containsKey(fields[3])) {
         RootTerminology root = new RootTerminologyJpa();
         root.setAcquisitionContact(null); // no data for this in MRSAB
@@ -528,11 +603,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         addRootTerminology(root);
         rootTerminologies.put(fields[3], root);
       }
-      
-      RootTerminology root = rootTerminologies.get(fields[3]);      
+
+      RootTerminology root = rootTerminologies.get(fields[3]);
       term.setRootTerminology(root);
       addTerminology(term);
-      
+
     }
 
   }
@@ -551,12 +626,13 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Map<String, Descriptor> descriptorMap = new HashMap<>();
     Map<String, LexicalClass> lexicalClassMap = new HashMap<>();
     Map<String, StringClass> stringClassMap = new HashMap<>();
+    @SuppressWarnings("unused")
     int objectCt = 0;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRCONSO);
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\\|");
+      final String fields[] = FieldedStringTokenizer.split(line,"|");
 
       // Field Description
       // 0 CUI
@@ -819,7 +895,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @param time the time
    * @return the elapsed time
    */
-  @SuppressWarnings("boxing")
+  @SuppressWarnings({
+      "boxing", "unused"
+  })
   private static Long getElapsedTime(long time) {
     return (System.nanoTime() - time) / 1000000000;
   }

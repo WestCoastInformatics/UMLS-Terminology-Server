@@ -23,7 +23,10 @@ public enum UsageType {
   QUALIFIER("Qualifier (modifier, attribute)"),
 
   /** The obsolete. */
-  OBSOLETE("Obsolete");
+  OBSOLETE("Obsolete"),
+
+  /** The undefined. */
+  UNDEFINED("Undefined");
 
   /** The description. */
   private String description;

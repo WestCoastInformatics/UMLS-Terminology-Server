@@ -3,14 +3,13 @@
  */
 package com.wci.umls.server.model.meta;
 
-import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasTerminology;
 
 /**
  * Represents a piece of data with an abbreviation and an expanded form.
  */
-public interface Abbreviation extends HasTerminology, HasId, HasLastModified {
+public interface Abbreviation extends HasTerminology, HasLastModified {
 
   /**
    * Indicates whether or not the component is published.

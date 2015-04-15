@@ -11,5 +11,5 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  */
 public class UmlsReleaseIdentifierAssignmentHandler extends
     UuidHashIdentifierAssignmentHandler {
-
+  // n/a
 }

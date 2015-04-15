@@ -229,4 +229,6 @@ public class UmlsMetadataServiceJpaHelper extends
     return list.getTermTypes();
   }
 
+
+
 }

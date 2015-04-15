@@ -10,6 +10,8 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.rest.client.ContentClientRest;
+import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
 import com.wci.umls.server.services.SecurityService;
 
 /**
@@ -24,13 +26,15 @@ import com.wci.umls.server.services.SecurityService;
 public class LuceneReindexMojo extends AbstractMojo {
 
   /**
-   * The specified objects to index
+   * The specified objects to index.
+   *
    * @parameter
    */
   private String indexedObjects;
 
   /**
-   * Whether to run this mojo against an active server
+   * Whether to run this mojo against an active server.
+   *
    * @parameter
    */
   private boolean server = false;
@@ -56,17 +60,20 @@ public class LuceneReindexMojo extends AbstractMojo {
       Properties properties = ConfigUtility.getConfigProperties();
 
       boolean serverRunning = ConfigUtility.isServerActive();
-      
-      getLog().info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+
+      getLog().info(
+          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
-        throw new MojoFailureException("Mojo expects server to be down, but server is running");
+        throw new MojoFailureException(
+            "Mojo expects server to be down, but server is running");
       }
-      
-      if (!serverRunning&& server) {
-        throw new MojoFailureException("Mojo expects server to be running, but server is down");
+
+      if (!serverRunning && server) {
+        throw new MojoFailureException(
+            "Mojo expects server to be running, but server is down");
       }
-      
+
       // authenticate
       SecurityService service = new SecurityServiceJpa();
       String authToken =
@@ -76,16 +83,16 @@ public class LuceneReindexMojo extends AbstractMojo {
 
       if (!serverRunning) {
         getLog().info("Running directly");
-//        
-//        ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-//        contentService.luceneReindex(indexedObjects, authToken);
+
+        ContentServiceRestImpl contentService = new ContentServiceRestImpl();
+        contentService.luceneReindex(indexedObjects, authToken);
 
       } else {
         getLog().info("Running against server");
 
         // invoke the client
-//        ContentClientRest client = new ContentClientRest(properties);
-//        client.luceneReindex(indexedObjects, authToken);
+        ContentClientRest client = new ContentClientRest(properties);
+        client.luceneReindex(indexedObjects, authToken);
       }
 
     } catch (Exception e) {

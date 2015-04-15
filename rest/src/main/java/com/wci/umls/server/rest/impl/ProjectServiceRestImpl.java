@@ -198,6 +198,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       ProjectService projectService = new ProjectServiceJpa();
+      @SuppressWarnings("unused")
       ConceptList list =
           projectService
               .findConceptsInScope(projectService.getProject(id), pfs);

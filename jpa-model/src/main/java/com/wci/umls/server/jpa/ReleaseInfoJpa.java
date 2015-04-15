@@ -9,6 +9,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -88,7 +89,7 @@ public class ReleaseInfoJpa implements ReleaseInfo {
   private Date lastModified = new Date();
 
   /** The release properties. */
-  @OneToMany(mappedBy = "releaseInfo", cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = ReleasePropertyJpa.class)
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, targetEntity = ReleasePropertyJpa.class)
   private List<ReleaseProperty> properties;
 
   /**

@@ -15,6 +15,7 @@ import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.SemanticType;
+import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService;
 
@@ -420,5 +421,21 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
   public void removeRootTerminology(Long id) throws Exception {
     // n/a
     
+  }
+  
+  @Override
+  public TermType addTermType(TermType termType) throws Exception {
+    // n/a
+    return null;
+  }
+
+  @Override
+  public void updateTermType(TermType termType) throws Exception {
+    // n/a TODO Auto-generated method stub
+  }
+
+  @Override
+  public void removeTermType(Long id) throws Exception {
+    // n/a
   }
 }

@@ -427,7 +427,31 @@ public interface MetadataService extends RootService, Configurable {
    */
   public void removeRelationshipType(Long id) throws Exception;  
   
-  
+  /**
+   * Adds the term type.
+   *
+   * @param termType the term type
+   * @return the term type
+   * @throws Exception the exception
+   */
+  public TermType addTermType(TermType termType) throws Exception;
+
+  /**
+   * Update term type.
+   *
+   * @param termType the term type
+   * @throws Exception the exception
+   */
+  public void updateTermType(TermType termType) throws Exception;
+
+  /**
+   * Removes the term type.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeTermType(Long id) throws Exception;  
+    
 
   /**
    * Adds the terminology.

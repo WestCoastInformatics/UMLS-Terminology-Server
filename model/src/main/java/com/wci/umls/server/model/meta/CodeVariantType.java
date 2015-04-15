@@ -8,6 +8,9 @@ package com.wci.umls.server.model.meta;
  */
 public enum CodeVariantType {
 
+  /** The Attribute. */
+  ATTRIBUTE("Attribute"),
+
   /** The pn. */
   PN("Preferred name"),
 
@@ -23,7 +26,10 @@ public enum CodeVariantType {
 
   /** The syet. */
   SYET(
-      "Synonym entry trm (Entry term of descriptor, synonym of preferred name of its concept");
+      "Synonym entry trm (Entry term of descriptor, synonym of preferred name of its concept"),
+
+  /** The undefined. */
+  UNDEFINED("Undefined");
 
   /** The description. */
   private String description;

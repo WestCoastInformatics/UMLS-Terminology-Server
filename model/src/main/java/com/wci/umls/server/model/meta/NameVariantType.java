@@ -27,7 +27,10 @@ public enum NameVariantType {
   LANGAUGE_VARIANT("Language variant (synonym)"),
 
   /** The common. */
-  COMMON("Common, or colloquial form (synonym)");
+  COMMON("Common, or colloquial form (synonym)"),
+
+  /** The undefined. */
+  UNDEFINED("Undefined");
 
   /** The description. */
   private String description;

@@ -33,7 +33,7 @@ public class RelationshipTypeJpa extends AbstractAbbreviation implements
   private boolean groupingType = true;
   
   /** The concept. */
-  @OneToOne(targetEntity = RelationshipTypeJpa.class, optional = false)
+  @OneToOne(targetEntity = RelationshipTypeJpa.class, optional = true)
   private RelationshipType inverse;
 
   /**

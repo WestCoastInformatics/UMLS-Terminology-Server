@@ -24,6 +24,7 @@ import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
+import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.Abbreviation;
@@ -511,7 +512,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * (com.wci.umls.server.model.content.Relationship)
    */
   @Override
-  public boolean isHierarchcialRelationship(Relationship<?,?> relationship) {
+  public boolean isHierarchcialRelationship(Relationship<?, ?> relationship) {
     if (helperMap.containsKey(relationship.getTerminology())) {
       return helperMap.get(relationship.getTerminology())
           .isHierarchcialRelationship(relationship);
@@ -530,7 +531,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * .umls.server.model.content.Relationship)
    */
   @Override
-  public boolean isStatedRelationship(Relationship<?,?> relationship) {
+  public boolean isStatedRelationship(Relationship<?, ?> relationship) {
     if (helperMap.containsKey(relationship.getTerminology())) {
       return helperMap.get(relationship.getTerminology()).isStatedRelationship(
           relationship);
@@ -549,7 +550,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * .wci.umls.server.model.content.Relationship)
    */
   @Override
-  public boolean isInferredRelationship(Relationship<?,?> relationship) {
+  public boolean isInferredRelationship(Relationship<?, ?> relationship) {
     if (helperMap.containsKey(relationship.getTerminology())) {
       return helperMap.get(relationship.getTerminology())
           .isInferredRelationship(relationship);
@@ -917,13 +918,23 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#addAdditionalRelationshipType
+   * (com.wci.umls.server.model.meta.AdditionalRelationshipType)
+   */
   @Override
-  public AdditionalRelationshipType addAdditionalRelationshipType(AdditionalRelationshipType additionalRelationshipType) throws Exception {
+  public AdditionalRelationshipType addAdditionalRelationshipType(
+    AdditionalRelationshipType additionalRelationshipType) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Metadata Service - add additional relationship type " + additionalRelationshipType.getAbbreviation());
+        "Metadata Service - add additional relationship type "
+            + additionalRelationshipType.getAbbreviation());
 
     // Add component
-    AdditionalRelationshipType newAdditionalRelationshipType = addMetadata(additionalRelationshipType);
+    AdditionalRelationshipType newAdditionalRelationshipType =
+        addMetadata(additionalRelationshipType);
 
     // Inform listeners
     if (listenersEnabled) {
@@ -934,11 +945,19 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     return newAdditionalRelationshipType;
   }
 
-
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#updateAdditionalRelationshipType
+   * (com.wci.umls.server.model.meta.AdditionalRelationshipType)
+   */
   @Override
-  public void updateAdditionalRelationshipType(AdditionalRelationshipType additionalRelationshipType) throws Exception {
+  public void updateAdditionalRelationshipType(
+    AdditionalRelationshipType additionalRelationshipType) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Metadata Service - update additional relationship type " + additionalRelationshipType.getAbbreviation());
+        "Metadata Service - update additional relationship type "
+            + additionalRelationshipType.getAbbreviation());
     updateMetadata(additionalRelationshipType);
 
     // Inform listeners
@@ -949,6 +968,13 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removeAdditionalRelationshipType
+   * (java.lang.Long)
+   */
   @Override
   public void removeAdditionalRelationshipType(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -960,13 +986,21 @@ public class MetadataServiceJpa extends RootServiceJpa implements
         listener.metadataChanged();
       }
     }
-  }  
-  
+  }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#addRelationshipType(com.wci
+   * .umls.server.model.meta.RelationshipType)
+   */
   @Override
-  public RelationshipType addRelationshipType(RelationshipType relationshipType) throws Exception {
+  public RelationshipType addRelationshipType(RelationshipType relationshipType)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Metadata Service - add relationship type " + relationshipType.getAbbreviation());
+        "Metadata Service - add relationship type "
+            + relationshipType.getAbbreviation());
 
     // Add component
     RelationshipType newRelationshipType = addMetadata(relationshipType);
@@ -980,11 +1014,19 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     return newRelationshipType;
   }
 
-
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#updateRelationshipType(com
+   * .wci.umls.server.model.meta.RelationshipType)
+   */
   @Override
-  public void updateRelationshipType(RelationshipType relationshipType) throws Exception {
+  public void updateRelationshipType(RelationshipType relationshipType)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Metadata Service - update relationship type " + relationshipType.getAbbreviation());
+        "Metadata Service - update relationship type "
+            + relationshipType.getAbbreviation());
     updateMetadata(relationshipType);
 
     // Inform listeners
@@ -995,6 +1037,13 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removeRelationshipType(java
+   * .lang.Long)
+   */
   @Override
   public void removeRelationshipType(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1006,16 +1055,78 @@ public class MetadataServiceJpa extends RootServiceJpa implements
         listener.metadataChanged();
       }
     }
-  }    
-
-  
+  }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.MetadataService#addTerminology(com.wci.umls.server
-   * .model.meta.Terminology)
+   * com.wci.umls.server.services.MetadataService#addTermType(com.wci.umls.server
+   * .model.meta.TermType)
+   */
+  @Override
+  public TermType addTermType(TermType termType) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - add term type " + termType.getAbbreviation());
+
+    // Add component
+    TermType newTermType = addMetadata(termType);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+    return newTermType;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#updateTermType(com.wci.umls
+   * .server.model.meta.TermType)
+   */
+  @Override
+  public void updateTermType(TermType termType) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - update term type " + termType.getAbbreviation());
+    updateMetadata(termType);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removeTermType(java.lang.Long)
+   */
+  @Override
+  public void removeTermType(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - remove term type" + id);
+    // Remove the component
+    removeMetadata(id, TermTypeJpa.class);
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#addTerminology(com.wci.umls
+   * .server .model.meta.Terminology)
    */
   @Override
   public Terminology addTerminology(Terminology terminology) throws Exception {
@@ -1043,8 +1154,10 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    */
   @Override
   public void updateTerminology(Terminology terminology) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - update terminology " + terminology.getTerminology());
+    Logger.getLogger(getClass())
+        .debug(
+            "Metadata Service - update terminology "
+                + terminology.getTerminology());
     updateMetadata(terminology);
 
     // Inform listeners
@@ -1059,7 +1172,8 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.MetadataService#removeTerminology(java.lang.Long)
+   * com.wci.umls.server.services.MetadataService#removeTerminology(java.lang
+   * .Long)
    */
   @Override
   public void removeTerminology(Long id) throws Exception {
@@ -1074,18 +1188,19 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
   }
 
-
   /*
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.MetadataService#addRootTerminology(com.wci.umls.server
-   * .model.meta.RootTerminology)
+   * com.wci.umls.server.services.MetadataService#addRootTerminology(com.wci
+   * .umls.server .model.meta.RootTerminology)
    */
   @Override
-  public RootTerminology addRootTerminology(RootTerminology rootTerminology) throws Exception {
+  public RootTerminology addRootTerminology(RootTerminology rootTerminology)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Metadata Service - add rootTerminology " + rootTerminology.getTerminology());
+        "Metadata Service - add rootTerminology "
+            + rootTerminology.getTerminology());
 
     // Add component
     RootTerminology newRootTerminology = addMetadata(rootTerminology);
@@ -1103,13 +1218,15 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.MetadataService#updateRootTerminology(com.wci.umls
-   * .server.model.meta.RootTerminology)
+   * com.wci.umls.server.services.MetadataService#updateRootTerminology(com.
+   * wci.umls .server.model.meta.RootTerminology)
    */
   @Override
-  public void updateRootTerminology(RootTerminology rootTerminology) throws Exception {
+  public void updateRootTerminology(RootTerminology rootTerminology)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Metadata Service - update rootTerminology " + rootTerminology.getTerminology());
+        "Metadata Service - update rootTerminology "
+            + rootTerminology.getTerminology());
     updateMetadata(rootTerminology);
 
     // Inform listeners
@@ -1124,7 +1241,8 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.MetadataService#removeRootTerminology(java.lang.Long)
+   * com.wci.umls.server.services.MetadataService#removeRootTerminology(java
+   * .lang.Long)
    */
   @Override
   public void removeRootTerminology(Long id) throws Exception {
@@ -1138,7 +1256,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       }
     }
   }
-  
+
   /**
    * Adds the abbreviation.
    *
@@ -1273,6 +1391,5 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   public void setLastModifiedFlag(boolean lastModifiedFlag) {
     this.lastModifiedFlag = lastModifiedFlag;
   }
-
 
 }

@@ -32,6 +32,9 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
     // do nothing
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.handlers.SecurityServiceHandler#authenticate(java.lang.String, java.lang.String)
+   */
   @Override
   public User authenticate(String username, String password) throws Exception {
 
@@ -95,18 +98,16 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
 
   }
 
-  /**
-   * Always timeout user.
-   * @see org.ihtsdo.otf.ts.services.handlers.SecurityServiceHandler#timeoutUser(java.lang.String)
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.handlers.SecurityServiceHandler#timeoutUser(java.lang.String)
    */
   @Override
   public boolean timeoutUser(String user) {
     return true;
   }
 
-  /**
-   * Compute token as a random UUID.
-   * @see org.ihtsdo.otf.ts.services.handlers.SecurityServiceHandler#computeTokenForUser(java.lang.String)
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.handlers.SecurityServiceHandler#computeTokenForUser(java.lang.String)
    */
   @Override
   public String computeTokenForUser(String user) {
@@ -114,11 +115,9 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
     return token;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.helpers.Configurable#setProperties(java.util.Properties)
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties)
    */
   @Override
   public void setProperties(Properties properties) {
