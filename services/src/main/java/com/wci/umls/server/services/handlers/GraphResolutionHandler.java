@@ -33,6 +33,14 @@ public interface GraphResolutionHandler extends Configurable {
   public void resolve(Concept concept, Set<String> isaRelTypeIds);
 
   /**
+   * Resolve a concept to simply the concept element and none of the graph,
+   * ready for JAXB serialization.
+   *
+   * @param concept the concept
+   */
+  public void resolveEmpty(Concept concept);
+
+  /**
    * Resolve.
    *
    * @param descriptor the descriptor

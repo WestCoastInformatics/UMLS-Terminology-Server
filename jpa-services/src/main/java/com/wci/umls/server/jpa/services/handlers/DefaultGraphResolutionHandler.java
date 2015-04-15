@@ -23,59 +23,133 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
  */
 public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
+   * )
+   */
   @Override
   public void setProperties(Properties p) throws Exception {
     // TODO Auto-generated method stub
-    
+
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.content.Concept, java.util.Set)
+   */
   @Override
   public void resolve(Concept concept, Set<String> isaRelTypeIds) {
     // TODO Auto-generated method stub
-    
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolveEmpty
+   * (com.wci.umls.server.model.content.Concept)
+   */
+  @Override
+  public void resolveEmpty(Concept concept) {
+    // TODO
+  };
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.content.Atom)
+   */
   @Override
   public void resolve(Atom atom) {
     // TODO Auto-generated method stub
-    
+
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.content.Relationship)
+   */
   @Override
   public void resolve(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship) {
     // TODO Auto-generated method stub
-    
+
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.meta.SemanticType)
+   */
   @Override
   public void resolve(SemanticType sty) {
     // TODO Auto-generated method stub
-    
+
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.content.Descriptor, java.util.Set)
+   */
   @Override
   public void resolve(Descriptor descriptor, Set<String> isaRelTypeIds) {
     // TODO Auto-generated method stub
-    
+
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.content.Code, java.util.Set)
+   */
   @Override
   public void resolve(Code descriptor, Set<String> isaRelTypeIds) {
     // TODO Auto-generated method stub
-    
+
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.content.LexicalClass)
+   */
   @Override
   public void resolve(LexicalClass lexicalClass) {
     // TODO Auto-generated method stub
-    
+
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.content.StringClass)
+   */
   @Override
   public void resolve(StringClass stringClass) {
     // TODO Auto-generated method stub
-    
+
   }
 
 }
