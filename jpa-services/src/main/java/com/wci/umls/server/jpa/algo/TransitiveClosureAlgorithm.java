@@ -28,6 +28,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     Algorithm {
 
   /** Listeners */
+  @SuppressWarnings("hiding")
   private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The request cancel flag. */
@@ -43,6 +44,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
   private Map<Long, Set<Long>> descendantsMap = new HashMap<>();
 
   /** The Constant commitCt. */
+  @SuppressWarnings("unused")
   private final static int commitCt = 2000;
 
   /**
@@ -106,7 +108,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Start computing transitive closure ... " + new Date());
     fireProgressEvent(0, "Starting...");
-// TODO:
+    // TODO:
     // // Disable transaction per operation
     // boolean currentTransactionStrategy = getTransactionPerOperation();
     // if (getTransactionPerOperation()) {
@@ -254,6 +256,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
    * @return the descendants
    * @throws Exception the exception
    */
+  @SuppressWarnings("unused")
   private Set<Long> getDescendants(Long par, Map<Long, Set<Long>> parChd,
     List<Long> ancPath) throws Exception {
     Logger.getLogger(getClass()).debug(

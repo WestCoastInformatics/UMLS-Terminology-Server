@@ -134,7 +134,10 @@ public class ContactInfoJpa implements ContactInfo {
     // 7 United States;
     // 8 20892-4879;
     // 9 kilbourj@mail.nlm.nih.gov
-    String[] fields = FieldedStringTokenizer.split(mrsabField, ";");
+    String[] fields = FieldedStringTokenizer.split(mrsabField, ";", 10);
+    if (fields.length == 0) {
+      return;
+    }
     name = fields[0];
     title = fields[1];
     organization = fields[2];

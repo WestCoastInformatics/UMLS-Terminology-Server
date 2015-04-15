@@ -112,6 +112,13 @@ public interface Terminology extends HasLastModified {
   public boolean isCurrent();
 
   /**
+   * Sets the current.
+   *
+   * @param current the current
+   */
+  public void setCurrent(boolean current);
+
+  /**
    * Returns the root terminology.
    * 
    * @return the root terminology
@@ -171,5 +178,19 @@ public interface Terminology extends HasLastModified {
    * @param organizingClassType the organizing class type
    */
   public void setOrganizingClassType(IdentifierType organizingClassType);
+  
+  /**
+   * Indicates whether or not description logic terminology is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isDescriptionLogicTerminology();
+  
+  /**
+   * Sets the description logic terminology.
+   *
+   * @param flag the description logic terminology
+   */
+  public void setDescriptionLogicTerminology(boolean flag);
 
 }

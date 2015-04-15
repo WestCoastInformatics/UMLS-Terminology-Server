@@ -163,6 +163,7 @@ public class ModelUnit040Test {
     tester.include("synonymousNames");
     tester.include("terminology");
     tester.include("terminologyVersion");
+    tester.include("descriptionLogicTerminology");
 
     
     tester.proxy(RootTerminology.class, 1, rootTerminologyProxy);
@@ -257,6 +258,7 @@ public class ModelUnit040Test {
     tester.include("rootTerminology");
     tester.include("assertsRelDirection");
     tester.include("current");
+    tester.include("descriptionLogicTerminology");
 
     assertTrue(tester.testNotNullFields());
   }

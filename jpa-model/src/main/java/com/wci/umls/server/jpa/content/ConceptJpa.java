@@ -48,7 +48,15 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   /** The fully defined. */
   @Column(nullable = false)
   private boolean fullyDefined = false;
-    
+
+  /** The uses relationships intersection flag. */
+  @Column(nullable = false)
+  private boolean usesRelationshipIntersection = true;
+
+  /** The uses relationships union flag. */
+  @Column(nullable = false)
+  private boolean usesRelationshipUnion = false;
+
   /**
    * Instantiates an empty {@link ConceptJpa}.
    */
@@ -262,6 +270,38 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public String toString() {
     return "ConceptJpa [definitions=" + definitions + "]";
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.Concept#getUsesRelationshipIntersection()
+   */
+  @Override
+  public boolean getUsesRelationshipIntersection() {
+    return usesRelationshipIntersection;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.Concept#setUsesRelationshipIntersection(boolean)
+   */
+  @Override
+  public void setUsesRelationshipIntersection(boolean usesRelationshipIntersection) {
+    this.usesRelationshipIntersection = usesRelationshipIntersection;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.Concept#getUsesRelationshipUnion()
+   */
+  @Override
+  public boolean getUsesRelationshipUnion() {
+    return usesRelationshipUnion;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.Concept#setUsesRelationshipUnion(boolean)
+   */
+  @Override
+  public void setUsesRelationshipUnion(boolean usesRelationshipUnion) {
+    this.usesRelationshipUnion = usesRelationshipUnion;
   }
 
 }

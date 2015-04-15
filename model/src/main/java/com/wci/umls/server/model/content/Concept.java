@@ -37,12 +37,40 @@ public interface Concept extends AtomClass, HasDefinitions,
    * @return the semantic types
    */
   public List<SemanticTypeComponent> getSemanticTypes();
-  
+
   /**
    * Sets the semantic types.
    *
    * @param semanticTypes the semantic types
    */
   public void setSemanticTypes(List<SemanticTypeComponent> semanticTypes);
-    
+
+  /**
+   * Returns the uses relationship intersection.
+   *
+   * @return the uses relationship intersection
+   */
+  public boolean getUsesRelationshipIntersection();
+
+  /**
+   * Sets the uses relationship intersection.
+   *
+   * @param flag the flag
+   */
+  public void setUsesRelationshipIntersection(boolean flag);
+
+  /**
+   * Returns the uses relationship union.
+   *
+   * @return the uses relationship union
+   */
+  public boolean getUsesRelationshipUnion();
+
+  /**
+   * Sets the uses relationship union.
+   *
+   * @param flag the flag
+   */
+  public void setUsesRelationshipUnion(boolean flag);
+
 }

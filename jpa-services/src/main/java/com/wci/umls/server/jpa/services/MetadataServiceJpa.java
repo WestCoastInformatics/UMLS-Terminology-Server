@@ -293,6 +293,28 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     return terminologies;
   }
 
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.MetadataService#getTerminology(java.lang.String, java.lang.String)
+   */
+  @Override
+  public Terminology getTerminology(String terminology, String version)
+    throws Exception {
+    try {
+      javax.persistence.Query query =
+          manager
+              .createQuery("SELECT t FROM TerminologyJpa t "
+                  + "WHERE terminology = :terminology AND terminologyVersion = :version");
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      return (Terminology) query.getSingleResult();
+    } catch (Exception e) {
+      // not found, or too many found
+      return null;
+    }
+
+  }
+
   /*
    * (non-Javadoc)
    * 

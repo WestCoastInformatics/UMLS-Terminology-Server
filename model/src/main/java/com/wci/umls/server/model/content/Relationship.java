@@ -127,5 +127,5 @@ public interface Relationship<S extends ComponentHasAttributes, T extends Compon
    * @param stated the stated flag
    */
   public void setStated(boolean stated);
-
+    
 }

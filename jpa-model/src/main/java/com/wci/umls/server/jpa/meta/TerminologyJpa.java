@@ -91,6 +91,10 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   @Column(nullable = false)
   private boolean current = false;
 
+  /** The flag indicating whether this is a DL terminology. */
+  @Column(nullable = false)
+  private boolean descriptionLogicTerminology = false;
+
   /**
    * Instantiates an empty {@link TerminologyJpa}.
    */
@@ -314,11 +318,17 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     this.synonymousNames = synonymousNames;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.meta.Terminology#getTerminology()
+   */
   @Override
   public String getTerminology() {
     return terminology;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.meta.Terminology#setTerminology(java.lang.String)
+   */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
@@ -377,15 +387,30 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     return current;
   }
 
-  /**
-   * Sets the current.
-   *
-   * @param isCurrent the current
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.meta.Terminology#setCurrent(boolean)
    */
+  @Override
   public void setCurrent(boolean isCurrent) {
     this.current = isCurrent;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.meta.Terminology#isDescriptionLogicTerminology()
+   */
+  @Override
+  public boolean isDescriptionLogicTerminology() {
+    return descriptionLogicTerminology;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.meta.Terminology#setDescriptionLogicTerminology(boolean)
+   */
+  @Override
+  public void setDescriptionLogicTerminology(boolean flag) {
+    descriptionLogicTerminology = flag;    
+  }
+  
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -393,6 +418,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     result = prime * result + (assertsRelDirection ? 1231 : 1237);
     result = prime * result + ((citation == null) ? 0 : citation.hashCode());
     result = prime * result + (current ? 1231 : 1237);
+    result = prime * result + (descriptionLogicTerminology ? 1231 : 1237);
     result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
     result =
         prime
@@ -433,6 +459,8 @@ public class TerminologyJpa extends AbstractHasLastModified implements
       return false;
     if (current != other.current)
       return false;
+    if (descriptionLogicTerminology != other.descriptionLogicTerminology)
+      return false;
     if (endDate == null) {
       if (other.endDate != null)
         return false;
@@ -471,17 +499,16 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     return true;
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
   @Override
   public String toString() {
     return "TerminologyJpa [terminology=" + terminology + ", citation="
         + citation + ", endDate=" + endDate + ", organizingClassType="
         + organizingClassType + ", preferredName=" + preferredName
-        + ", rootTerminology=" + rootTerminology + ", startDate=" + startDate
-        + ", synonymousNames=" + synonymousNames + ", terminologyVersion="
-        + terminologyVersion + ", assertsRelDirection=" + assertsRelDirection
-        + ", current=" + current + "]";
+        + ", startDate=" + startDate + ", synonymousNames=" + synonymousNames
+        + ", terminologyVersion=" + terminologyVersion
+        + ", assertsRelDirection=" + assertsRelDirection + ", current="
+        + current + ", descriptionLogicTerminology="
+        + descriptionLogicTerminology + "]";
   }
+
 }

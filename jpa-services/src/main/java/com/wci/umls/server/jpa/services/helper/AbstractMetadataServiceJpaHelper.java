@@ -47,6 +47,18 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     // n/a
     return null;
   }
+  
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.MetadataService#getTerminology(java.lang.String, java.lang.String)
+   */
+  @Override
+  public Terminology getTerminology(String terminology, String version)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 
   /*
    * (non-Javadoc)

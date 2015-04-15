@@ -159,6 +159,9 @@ public class CitationJpa implements Citation {
     // 15 Language,
     // 16 Notes.
     String[] fields = FieldedStringTokenizer.split(mrsabLine, ";", 17);
+    if (fields.length == 0) {
+      return;
+    }
     author = fields[0];
     address = fields[1];
     this.organization = fields[2];

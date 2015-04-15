@@ -68,6 +68,16 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception if anything goes wrong
    */
   public List<RootTerminology> getTerminologies() throws Exception;
+  
+  /**
+   * Returns the terminology.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @return the terminology
+   * @throws Exception the exception
+   */
+  public Terminology getTerminology(String terminology, String version) throws Exception;
 
   /**
    * Returns the versions.
