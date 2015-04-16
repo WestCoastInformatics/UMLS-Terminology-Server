@@ -11,7 +11,6 @@ import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
-import com.wci.umls.server.model.meta.IdentifierType;
 import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -37,8 +36,6 @@ public interface MetadataService extends RootService, Configurable {
     Attribute_Names,
     /** The General_ metadata_ entries. */
     General_Metadata_Entries,
-    /** The Identifier types. */
-    Identifier_Types,
     /** The Semantic_ types. */
     Semantic_Types,
     /** The Term_ types. */
@@ -151,17 +148,6 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception the exception
    */
   public List<AttributeName> getAttributeNames(String terminology,
-    String version) throws Exception;
-
-  /**
-   * Returns the identifier types.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @return the identifier types
-   * @throws Exception the exception
-   */
-  public List<IdentifierType> getIdentifierTypes(String terminology,
     String version) throws Exception;
 
   /**
@@ -333,33 +319,6 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception the exception
    */
   public void removeAttributeName(Long id) throws Exception;
-
-  /**
-   * Adds the identifier type.
-   *
-   * @param IdentifierType the identifier type
-   * @return the identifier type
-   * @throws Exception the exception
-   */
-  public IdentifierType addIdentifierType(IdentifierType IdentifierType)
-    throws Exception;
-
-  /**
-   * Update identifier type.
-   *
-   * @param IdentifierType the identifier type
-   * @throws Exception the exception
-   */
-  public void updateIdentifierType(IdentifierType IdentifierType)
-    throws Exception;
-
-  /**
-   * Removes the identifier type.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
-  public void removeIdentifierType(Long id) throws Exception;
 
   /**
    * Adds the language.

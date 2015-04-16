@@ -128,17 +128,6 @@ public abstract class AbstractComponent implements Component {
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#getObjectId()
-   */
-  @Override
-  @XmlID
-  public String getObjectId() {
-    return (id == null ? "" : id.toString());
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
    * @see com.wci.umls.server.model.content.Component#timestamp()
    */
   @Override

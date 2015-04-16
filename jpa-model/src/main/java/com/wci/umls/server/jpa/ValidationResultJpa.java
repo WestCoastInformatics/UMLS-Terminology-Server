@@ -54,6 +54,15 @@ public class ValidationResultJpa implements ValidationResult {
     return errors.size() == 0;
   }
 
+  /**
+   * For JAXB.
+   *
+   * @param b the valid
+   */
+  public void setValid(boolean b) {
+    // do nothing
+  }
+  
   /*
    * (non-Javadoc)
    * 

@@ -8,7 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -21,9 +20,7 @@ import com.wci.umls.server.model.meta.ContactInfo;
  * JPA-enabled implementation of {@link ContactInfo}.
  */
 @Entity
-@Table(name = "contact_info", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "name", "email"
-}))
+@Table(name = "contact_info")
 @Audited
 @XmlRootElement(name = "contactInfo")
 public class ContactInfoJpa implements ContactInfo {
@@ -134,8 +131,9 @@ public class ContactInfoJpa implements ContactInfo {
     // 7 United States;
     // 8 20892-4879;
     // 9 kilbourj@mail.nlm.nih.gov
-    String[] fields = FieldedStringTokenizer.split(mrsabField, ";", 10);
-    if (fields.length == 0) {
+    String[] fields = FieldedStringTokenizer.split(mrsabField, ";");
+    if (fields.length < 10) {
+      // does not meet requirements, bail
       return;
     }
     name = fields[0];

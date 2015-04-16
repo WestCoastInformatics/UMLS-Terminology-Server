@@ -55,6 +55,7 @@
 
   <dependencyManagement>
     <dependencies>
+    
       <!-- Term server dependencies. -->
       <dependency>
         <groupId>com.wci.umls.server</groupId>

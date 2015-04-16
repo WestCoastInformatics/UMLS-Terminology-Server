@@ -18,7 +18,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -114,16 +113,6 @@ public class ReleaseInfoJpa implements ReleaseInfo {
     published = releaseInfo.isPublished();
     terminology = releaseInfo.getTerminology();
     terminologyVersion = releaseInfo.getTerminologyVersion();
-  }
-
-  /**
-   * ID for XML serialization.
-   *
-   * @return the object id
-   */
-  @XmlID
-  public String getObjectId() {
-    return (id == null ? "" : id.toString());
   }
 
   /*

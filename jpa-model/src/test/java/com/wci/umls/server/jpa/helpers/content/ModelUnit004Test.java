@@ -65,7 +65,7 @@ public class ModelUnit004Test {
   public void testModelGetSet004() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet004");
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("objectId");
+    tester.exclude("valid");
     tester.test();
   }
 
@@ -124,7 +124,7 @@ public class ModelUnit004Test {
     tester.proxy(Set.class, 1, s1);
     assertTrue(tester.testXmlSerialization());
   }
-  
+
   /**
    * Test not null fields.
    *

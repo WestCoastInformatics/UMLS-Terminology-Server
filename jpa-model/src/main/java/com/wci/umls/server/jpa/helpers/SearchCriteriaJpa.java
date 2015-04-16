@@ -5,7 +5,6 @@ package com.wci.umls.server.jpa.helpers;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.SearchCriteria;
@@ -79,16 +78,6 @@ public class SearchCriteriaJpa implements SearchCriteria {
     findInactiveOnly = searchCriteria.getFindInactiveOnly();
     findPrimitiveOnly = searchCriteria.getFindPrimitiveOnly();
     findSelf = searchCriteria.getFindSelf();
-  }
-
-  /**
-   * ID for XML serialization.
-   *
-   * @return the object id
-   */
-  @XmlID
-  public String getObjectId() {
-    return (id == null ? "" : id.toString());
   }
 
   /*

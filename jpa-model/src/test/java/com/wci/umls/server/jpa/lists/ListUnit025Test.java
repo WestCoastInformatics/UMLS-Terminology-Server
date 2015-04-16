@@ -14,13 +14,11 @@ import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.helpers.meta.TerminologyListJpa;
 import com.wci.umls.server.jpa.meta.CitationJpa;
 import com.wci.umls.server.jpa.meta.ContactInfoJpa;
-import com.wci.umls.server.jpa.meta.IdentifierTypeJpa;
 import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.model.meta.Citation;
 import com.wci.umls.server.model.meta.ContactInfo;
-import com.wci.umls.server.model.meta.IdentifierType;
 import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
@@ -69,12 +67,6 @@ public class ListUnit025Test extends AbstractListUnit<Terminology> {
     Citation cit2 = (Citation) tester2.createObject(2);
     o1.setCitation(cit);
     o2.setCitation(cit2);
-
-    ProxyTester tester2b = new ProxyTester(new IdentifierTypeJpa());
-    IdentifierType idtype = (IdentifierType) tester2b.createObject(1);
-    IdentifierType idtype2 = (IdentifierType) tester2b.createObject(2);
-    o1.setOrganizingClassType(idtype);
-    o2.setOrganizingClassType(idtype2);
 
     ProxyTester tester3 = new ProxyTester(new RootTerminologyJpa());
     RootTerminology rsab = (RootTerminology) tester3.createObject(1);

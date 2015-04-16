@@ -11,7 +11,6 @@ import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
-import com.wci.umls.server.model.meta.IdentifierType;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.TermType;
@@ -96,28 +95,6 @@ public class DefaultMetadataServiceJpaHelper extends
     @SuppressWarnings("unchecked")
     List<AttributeName> names = query.getResultList();
     return names;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getIdentifierTypes(java.lang
-   * .String, java.lang.String)
-   */
-  @Override
-  public List<IdentifierType> getIdentifierTypes(String terminology,
-    String version) throws Exception {
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT i from IdentifierTypeJpa i where terminology = :terminology"
-                + " and terminologyVersion = :version");
-
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
-    @SuppressWarnings("unchecked")
-    List<IdentifierType> types = query.getResultList();
-    return types;
   }
 
   /*

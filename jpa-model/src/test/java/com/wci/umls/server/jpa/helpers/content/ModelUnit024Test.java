@@ -52,7 +52,6 @@ public class ModelUnit024Test {
   public void testModelGetSet024() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet024");
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("objectId");
     tester.test();
   }
 

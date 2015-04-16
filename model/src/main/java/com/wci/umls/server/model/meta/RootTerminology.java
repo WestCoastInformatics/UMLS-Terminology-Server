@@ -60,7 +60,7 @@ public interface RootTerminology extends HasLanguage, HasLastModified {
    *
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
-  public boolean isPolyhierachy();
+  public boolean isPolyhierarchy();
 
   /**
    * Sets the polyhierarchy flag.

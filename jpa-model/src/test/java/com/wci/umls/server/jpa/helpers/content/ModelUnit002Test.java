@@ -53,7 +53,6 @@ public class ModelUnit002Test {
   public void testModelGetSet002() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet002");
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("objectId");
     tester.test();
   }
 

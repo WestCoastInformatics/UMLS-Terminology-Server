@@ -11,6 +11,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -26,7 +28,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.envers.Audited;
 
 import com.wci.umls.server.model.meta.Citation;
-import com.wci.umls.server.model.meta.IdentifierType;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 
@@ -56,9 +58,9 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   private Date endDate;
 
   /** The organizing class type. */
-  @ManyToOne(targetEntity = IdentifierTypeJpa.class, fetch = FetchType.EAGER, optional = false)
-  @JoinColumn(nullable = false)
-  private IdentifierType organizingClassType;
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private IdType organizingClassType;
 
   /** The preferred name. */
   @Column(nullable = false, length = 3000)
@@ -171,8 +173,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
    * @see com.wci.umls.server.model.meta.Terminology#getOrganizingClassType()
    */
   @Override
-  @XmlElement(type = IdentifierTypeJpa.class, name = "organizingClassType")
-  public IdentifierType getOrganizingClassType() {
+  public IdType getOrganizingClassType() {
     return organizingClassType;
   }
 
@@ -181,10 +182,10 @@ public class TerminologyJpa extends AbstractHasLastModified implements
    * 
    * @see
    * com.wci.umls.server.model.meta.Terminology#setOrganizingClassType(com.wci
-   * .umls.server.model.meta.IdentifierType)
+   * .umls.server.model.meta.IdType)
    */
   @Override
-  public void setOrganizingClassType(IdentifierType organizingClassType) {
+  public void setOrganizingClassType(IdType organizingClassType) {
     this.organizingClassType = organizingClassType;
   }
 

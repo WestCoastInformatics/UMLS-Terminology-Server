@@ -10,8 +10,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlID;
-import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -20,7 +18,6 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 
@@ -31,7 +28,6 @@ import com.wci.umls.server.UserRole;
 @Table(name = "users")
 @Audited
 @XmlRootElement(name = "user")
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserJpa implements User {
 
   /** The id. */
@@ -103,23 +99,6 @@ public class UserJpa implements User {
   @Override
   public Long getId() {
     return id;
-  }
-
-  /**
-   * Returns the id in string form.
-   *
-   * @return the id in string form
-   */
-  @XmlID
-  @Override
-  public String getObjectId() {
-    return (id == null ? "" : id.toString());
-  }
-
-  @XmlIDREF
-  @Override
-  public void setObjectId(String objectId) {
-    this.id = Long.parseLong(objectId);
   }
 
   /*

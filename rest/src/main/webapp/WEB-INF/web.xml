@@ -11,7 +11,7 @@
     <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
     <init-param>
       <param-name>com.sun.jersey.config.property.packages</param-name>
-      <param-value>com.fasterxml.jackson.jaxrs.json;org.ihtsdo.otf.ts.services.helpers;org.ihtsdo.otf.ts.rest.impl;org.ihtsdo.otf.ts.model;org.ihtsdo.otf.ts.rf2;org.ihtsdo.otf.ts.rf2.jpa;com.wordnik.swagger.jersey.listing</param-value>
+      <param-value>com.fasterxml.jackson.jaxrs.json;com.wci.umls.server;com.wci.umls.server.services.helpers;com.wci.umls.server.jpa.services.rest;com.wci.umls.server.rest.impl;com.wci.umls.server.model.meta;com.wci.umls.server.model.content;com.wci.umls.server.jpa;com.wci.umls.server.jpa.meta;com.wci.umls.server.jpa.content;com.wordnik.swagger.jersey.listing</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
@@ -22,7 +22,7 @@
     <servlet-class>com.wordnik.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
     <init-param>
       <param-name>api.version</param-name>
-      <param-value>1.0.0</param-value>
+      <param-value>${project.version}</param-value>
     </init-param>
     <init-param>
       <!-- This URL is the path to the REST web service itself. In the index.html 
@@ -94,7 +94,7 @@
 
   <filter>
     <filter-name>ApiOriginFilter</filter-name>
-    <filter-class>org.ihtsdo.otf.ts.rest.impl.ApiOriginFilter</filter-class>
+    <filter-class>com.wci.umls.server.rest.impl.ApiOriginFilter</filter-class>
   </filter>
   <filter-mapping>
     <filter-name>ApiOriginFilter</filter-name>

@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.jpa.helpers.content;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
@@ -48,14 +50,17 @@ public class ModelUnit001Test {
 
   /**
    * Setup.
+   * @throws Exception 
    */
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     object = new ProjectJpa();
+    
+    // This one is tricky because there are two kinds of sets
+    // <String> and <User> and we can't effectively proxy both
+    // Create empty sets and ignore in equals comparison.
     s1 = new HashSet<>();
-    s1.add("1");
     s2 = new HashSet<>();
-    s2.add("2");
   }
 
   /**
@@ -67,7 +72,6 @@ public class ModelUnit001Test {
   public void testModelGetSet001() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet001");
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("objectId");
     tester.test();
   }
 
@@ -82,9 +86,9 @@ public class ModelUnit001Test {
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("moduleId");
     tester.include("name");
-    tester.include("scopeConcepts");
+    //tester.include("scopeConcepts");
     tester.include("scopeDescendantsFlag");
-    tester.include("scopeExcludesConcepts");
+    //tester.include("scopeExcludesConcepts");
     tester.include("scopeExcludesDescendantsFlag");
     tester.include("terminology");
     tester.include("terminologyVersion");
@@ -99,6 +103,34 @@ public class ModelUnit001Test {
     assertTrue(tester.testIdentitiyFieldHashcode());
     assertTrue(tester.testNonIdentitiyFieldHashcode());
     assertTrue(tester.testIdentityFieldDifferentHashcode());
+    
+    // Explicitly test scopeConcepts
+    Project p1 = new ProjectJpa();
+    Project p2 = new ProjectJpa();
+    assertEquals(p1,p2);
+
+    Set<String> s1 = new HashSet<>();
+    s1.add("abc");
+    Set<String> s2 = new HashSet<>();
+    s2.add("def");
+    
+    p1.setScopeConcepts(s1);
+    p2.setScopeConcepts(s1);
+    assertEquals(p1,p2);
+
+    p2.setScopeConcepts(s2);
+    assertNotEquals(p1,p2);
+
+    // Explicitly test scopeExcludesConcepts
+    p2.setScopeConcepts(s1);
+
+    p1.setScopeExcludesConcepts(s1);
+    p2.setScopeExcludesConcepts(s1);
+    assertEquals(p1,p2);
+
+    p2.setScopeExcludesConcepts(s2);
+    assertNotEquals(p1,p2);
+  
   }
 
   /**

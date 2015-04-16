@@ -44,13 +44,6 @@ public interface User {
   public String getUserName();
 
   /**
-   * Returns the object id.
-   *
-   * @return the object id
-   */
-  public String getObjectId();
-
-  /**
    * Sets the user name.
    *
    * @param userName the user name
@@ -77,12 +70,5 @@ public interface User {
    * @param role the application role
    */
   public void setApplicationRole(UserRole role);
-
-  /**
-   * Sets the object id.
-   *
-   * @param objectId the object id
-   */
-  public void setObjectId(String objectId);
 
 }

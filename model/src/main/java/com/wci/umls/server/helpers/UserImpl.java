@@ -113,19 +113,6 @@ public class UserImpl implements User {
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.ihtsdo.otf.ts.User#getObjectId()
-   */
-  @Override
-  public String getObjectId() {
-    return "";
-  }
-
-  @Override
-  public void setObjectId(String objectId) {
-    // do nothing
-  }
-
   /*
    * (non-Javadoc)
    * 

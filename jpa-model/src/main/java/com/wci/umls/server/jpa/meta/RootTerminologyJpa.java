@@ -14,7 +14,6 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -65,8 +64,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
   private String hierarchicalName;
 
   /** The language. */
-  @ManyToOne(targetEntity = LanguageJpa.class, fetch = FetchType.EAGER, optional = false)
-  @JoinColumn(nullable = false)
+  @ManyToOne(targetEntity = LanguageJpa.class, fetch = FetchType.EAGER, optional = true)
   private Language language;
 
   /** The license contact. */
@@ -115,7 +113,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
     restrictionLevel = rootTerminology.getRestrictionLevel();
     shortName = rootTerminology.getShortName();
     synonymousNames = rootTerminology.getSynonymousNames();
-    polyhierarchy = rootTerminology.isPolyhierachy();
+    polyhierarchy = rootTerminology.isPolyhierarchy();
   }
 
   /*
@@ -184,15 +182,6 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
   @Override
   public void setContentContact(ContactInfo contentContact) {
     this.contentContact = contentContact;
-  }
-
-  /**
-   * Indicates whether or not polyhierarchy is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isPolyhierarchy() {
-    return polyhierarchy;
   }
 
   /*
@@ -389,7 +378,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
    * @see com.wci.umls.server.model.meta.RootTerminology#isPolyhierachy()
    */
   @Override
-  public boolean isPolyhierachy() {
+  public boolean isPolyhierarchy() {
     return polyhierarchy;
   }
 

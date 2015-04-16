@@ -170,14 +170,14 @@ public interface Terminology extends HasLastModified {
    *
    * @return the organizing class type
    */
-  public IdentifierType getOrganizingClassType();
+  public IdType getOrganizingClassType();
 
   /**
    * Sets the organizing class type.
    *
    * @param organizingClassType the organizing class type
    */
-  public void setOrganizingClassType(IdentifierType organizingClassType);
+  public void setOrganizingClassType(IdType organizingClassType);
   
   /**
    * Indicates whether or not description logic terminology is the case.

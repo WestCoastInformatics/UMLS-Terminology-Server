@@ -26,13 +26,11 @@ import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.jpa.meta.CitationJpa;
 import com.wci.umls.server.jpa.meta.ContactInfoJpa;
-import com.wci.umls.server.jpa.meta.IdentifierTypeJpa;
 import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.model.meta.Citation;
 import com.wci.umls.server.model.meta.ContactInfo;
-import com.wci.umls.server.model.meta.IdentifierType;
 import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
@@ -69,12 +67,6 @@ public class ModelUnit033Test {
   /** The citation proxy2. */
   private Citation citationProxy2;
 
-  /** The identifer type proxy. */
-  private IdentifierType idTypeProxy;
-
-  /** The identifer type proxy2. */
-  private IdentifierType idTypeProxy2;
-
   /** The list proxy. */
   private List<String> listProxy;
 
@@ -106,9 +98,6 @@ public class ModelUnit033Test {
     tester = new ProxyTester(new CitationJpa());
     citationProxy = (CitationJpa) tester.createObject(1);
     citationProxy2 = (CitationJpa) tester.createObject(2);
-    tester = new ProxyTester(new IdentifierTypeJpa());
-    idTypeProxy = (IdentifierTypeJpa) tester.createObject(1);
-    idTypeProxy2 = (IdentifierTypeJpa) tester.createObject(2);
     listProxy = new ArrayList<>();
     listProxy.add("1");
     listProxy2 = new ArrayList<>();
@@ -117,8 +106,6 @@ public class ModelUnit033Test {
 
     tester.proxy(Citation.class, 1, citationProxy);
     tester.proxy(Citation.class, 2, citationProxy2);
-    tester.proxy(IdentifierType.class, 1, idTypeProxy);
-    tester.proxy(IdentifierType.class, 2, idTypeProxy2);
     tester.proxy(List.class, 1, listProxy);
     tester.proxy(List.class, 2, listProxy2);
     terminologyProxy = (TerminologyJpa) tester.createObject(1);
@@ -142,8 +129,6 @@ public class ModelUnit033Test {
     tester.proxy(Language.class, 2, languageProxy2);
     tester.proxy(Citation.class, 1, citationProxy);
     tester.proxy(Citation.class, 2, citationProxy2);
-    tester.proxy(IdentifierType.class, 1, idTypeProxy);
-    tester.proxy(IdentifierType.class, 2, idTypeProxy2);
     tester.proxy(List.class, 1, listProxy);
     tester.proxy(List.class, 2, listProxy2);
     tester.test();
@@ -179,8 +164,6 @@ public class ModelUnit033Test {
     tester.proxy(Language.class, 2, languageProxy2);
     tester.proxy(Citation.class, 1, citationProxy);
     tester.proxy(Citation.class, 2, citationProxy2);
-    tester.proxy(IdentifierType.class, 1, idTypeProxy);
-    tester.proxy(IdentifierType.class, 2, idTypeProxy2);
     tester.proxy(List.class, 1, listProxy);
     tester.proxy(List.class, 2, listProxy2);
 
@@ -210,8 +193,6 @@ public class ModelUnit033Test {
     tester.proxy(Language.class, 2, languageProxy2);
     tester.proxy(Citation.class, 1, citationProxy);
     tester.proxy(Citation.class, 2, citationProxy2);
-    tester.proxy(IdentifierType.class, 1, idTypeProxy);
-    tester.proxy(IdentifierType.class, 2, idTypeProxy2);
     tester.proxy(List.class, 1, listProxy);
     tester.proxy(List.class, 2, listProxy2);
 
@@ -238,8 +219,6 @@ public class ModelUnit033Test {
     tester.proxy(Language.class, 2, languageProxy2);
     tester.proxy(Citation.class, 1, citationProxy);
     tester.proxy(Citation.class, 2, citationProxy2);
-    tester.proxy(IdentifierType.class, 1, idTypeProxy);
-    tester.proxy(IdentifierType.class, 2, idTypeProxy2);
     tester.proxy(List.class, 1, listProxy);
     tester.proxy(List.class, 2, listProxy2);
 
@@ -261,7 +240,6 @@ public class ModelUnit033Test {
     tester.include("terminology");
     tester.include("polyhierarchy");
     tester.include("family");
-    tester.include("language");
     tester.include("preferredName");
     tester.include("restrictionLevel");
 

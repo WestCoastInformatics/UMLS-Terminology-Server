@@ -19,7 +19,6 @@ import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
-import com.wci.umls.server.jpa.meta.IdentifierTypeJpa;
 import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
@@ -31,7 +30,6 @@ import com.wci.umls.server.model.meta.Abbreviation;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
-import com.wci.umls.server.model.meta.IdentifierType;
 import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -186,12 +184,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
     // Skip general metadata entries
 
-    Map<String, String> idTypeMap =
-        getAbbreviationMap(getIdentifierTypes(terminology, version));
-    if (idTypeMap != null) {
-      abbrMapList.put(MetadataKeys.Identifier_Types.toString(), idTypeMap);
-    }
-
     Map<String, String> semanticTypeMap =
         getAbbreviationMap(getSemanticTypes(terminology, version));
     if (semanticTypeMap != null) {
@@ -201,7 +193,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     Map<String, String> termTypeMap =
         getAbbreviationMap(getTermTypes(terminology, version));
     if (termTypeMap != null) {
-      abbrMapList.put(MetadataKeys.Term_Types.toString(), idTypeMap);
+      abbrMapList.put(MetadataKeys.Term_Types.toString(), termTypeMap);
     }
 
     Map<String, String> hierRelTypeMap =
@@ -437,27 +429,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       return helperMap.get(terminology).getAttributeNames(terminology, version);
     } else if (helperMap.containsKey("DEFAULT")) {
       return helperMap.get("DEFAULT").getAttributeNames(terminology, version);
-    } else {
-      // return an empty map
-      return new ArrayList<>();
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getIdentifierTypes(java.lang
-   * .String, java.lang.String)
-   */
-  @Override
-  public List<IdentifierType> getIdentifierTypes(String terminology,
-    String version) throws Exception {
-    if (helperMap.containsKey(terminology)) {
-      return helperMap.get(terminology)
-          .getIdentifierTypes(terminology, version);
-    } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT").getIdentifierTypes(terminology, version);
     } else {
       // return an empty map
       return new ArrayList<>();
@@ -800,75 +771,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
         "Metadata Service - remove attributeName " + id);
     // Remove the component
     removeMetadata(id, AttributeNameJpa.class);
-    if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
-        listener.metadataChanged();
-      }
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#addIdentifierType(com.wci.
-   * umls.server.model.meta.IdentifierType)
-   */
-  @Override
-  public IdentifierType addIdentifierType(IdentifierType identifierType)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - add identifierType "
-            + identifierType.getAbbreviation());
-
-    // Add component
-    IdentifierType newIdentifierType = addMetadata(identifierType);
-
-    // Inform listeners
-    if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
-        listener.metadataChanged();
-      }
-    }
-    return newIdentifierType;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#updateIdentifierType(com.wci
-   * .umls.server.model.meta.IdentifierType)
-   */
-  @Override
-  public void updateIdentifierType(IdentifierType identifierType)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - update identifierType "
-            + identifierType.getAbbreviation());
-    updateMetadata(identifierType);
-
-    // Inform listeners
-    if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
-        listener.metadataChanged();
-      }
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#removeIdentifierType(java.
-   * lang.Long)
-   */
-  @Override
-  public void removeIdentifierType(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove identifierType" + id);
-    // Remove the component
-    removeMetadata(id, IdentifierTypeJpa.class);
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
         listener.metadataChanged();

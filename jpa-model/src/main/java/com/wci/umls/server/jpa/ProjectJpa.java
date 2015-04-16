@@ -22,7 +22,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -33,7 +32,6 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 
@@ -47,7 +45,6 @@ import com.wci.umls.server.User;
 @Audited
 @Indexed
 @XmlRootElement(name = "project")
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectJpa implements Project {
 
   /** The id. */
@@ -183,26 +180,6 @@ public class ProjectJpa implements Project {
   @Override
   public void setId(Long id) {
     this.id = id;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getObjectId()
-   */
-  @XmlID
-  @Override
-  public String getObjectId() {
-    return (id == null ? "" : id.toString());
-  }
-
-  /**
-   * Sets the object id.
-   *
-   * @param objectId the object id
-   */
-  public void setObjectId(String objectId) {
-    // do nothing
   }
 
   /*

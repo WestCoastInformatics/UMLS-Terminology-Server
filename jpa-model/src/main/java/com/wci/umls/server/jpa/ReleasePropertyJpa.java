@@ -8,7 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -54,16 +53,6 @@ public class ReleasePropertyJpa implements ReleaseProperty {
     name = property.getName();
     value = property.getValue();
 
-  }
-
-  /**
-   * ID for XML serialization.
-   *
-   * @return the object id
-   */
-  @XmlID
-  public String getObjectId() {
-    return (id == null ? "" : id.toString());
   }
 
   @Override

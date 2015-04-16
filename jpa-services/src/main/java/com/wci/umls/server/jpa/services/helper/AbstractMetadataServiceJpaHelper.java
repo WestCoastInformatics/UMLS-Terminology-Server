@@ -10,7 +10,6 @@ import java.util.Properties;
 import com.wci.umls.server.jpa.services.RootServiceJpa;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
-import com.wci.umls.server.model.meta.IdentifierType;
 import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -257,47 +256,6 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
    */
   @Override
   public void removeAttributeName(Long id) throws Exception {
-    // n/a
-
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#addIdentifierType(com.wci.
-   * umls.server.model.meta.IdentifierType)
-   */
-  @Override
-  public IdentifierType addIdentifierType(IdentifierType IdentifierType)
-    throws Exception {
-    // n/a
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#updateIdentifierType(com.wci
-   * .umls.server.model.meta.IdentifierType)
-   */
-  @Override
-  public void updateIdentifierType(IdentifierType IdentifierType)
-    throws Exception {
-    // n/a
-
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#removeIdentifierType(java.
-   * lang.Long)
-   */
-  @Override
-  public void removeIdentifierType(Long id) throws Exception {
     // n/a
 
   }
