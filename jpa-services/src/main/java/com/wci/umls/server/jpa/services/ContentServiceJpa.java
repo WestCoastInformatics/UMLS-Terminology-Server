@@ -38,6 +38,7 @@ import com.wci.umls.server.jpa.helpers.content.LexicalClassListJpa;
 import com.wci.umls.server.jpa.helpers.content.StringClassListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
@@ -1525,12 +1526,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * .wci.umls.server.model.content.Concept)
    */
   @Override
-  public String getComputedPreferredName(Concept concept) throws Exception {
+  public String getComputedPreferredName(AtomClass atomClass) throws Exception {
     try {
-      graphResolver.resolve(concept, this.getHierarchicalRelationshipTypes(
-          concept.getTerminology(), concept.getTerminologyVersion()));
       ComputePreferredNameHandler handler =
-          pnHandlerMap.get(concept.getTerminology());
+          pnHandlerMap.get(atomClass.getTerminology());
       // look for default if null
       if (handler == null) {
         handler = pnHandlerMap.get("DEFAULT");
@@ -1538,9 +1537,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       if (handler == null) {
         throw new Exception(
             "Compute preferred name handler is not configured for DEFAULT or for "
-                + concept.getTerminology());
+                + atomClass.getTerminology());
       }
-      final String pn = handler.computePreferredName(concept);
+      final String pn = handler.computePreferredName(atomClass.getAtoms());
       return pn;
     } catch (Exception e) {
       if (tx.isActive()) {

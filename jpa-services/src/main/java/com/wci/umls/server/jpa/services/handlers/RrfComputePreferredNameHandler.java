@@ -3,18 +3,16 @@
  */
 package com.wci.umls.server.jpa.services.handlers;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
@@ -51,25 +49,12 @@ public class RrfComputePreferredNameHandler implements
     // n/a
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#
-   * computePreferredName(com.wci.umls.server.model.content.Concept)
-   */
-  @Override
-  public String computePreferredName(Concept concept) throws Exception {
-    return computePreferredName(new HashSet<Atom>(concept.getAtoms()));
-  }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#
-   * computePreferredName(java.util.Set)
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#computePreferredName(java.util.Collection)
    */
   @Override
-  public String computePreferredName(Set<Atom> atoms) throws Exception {
+  public String computePreferredName(Collection<Atom> atoms) throws Exception {
     if (list == null) {
       cacheList();
     }

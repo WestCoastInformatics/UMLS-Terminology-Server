@@ -9,18 +9,6 @@ package com.wci.umls.server.model.content;
  */
 public interface StringClass extends AtomClass {
 
-  /**
-   * Returns the string.
-   *
-   * @return the string
-   */
-  public String getString();
-  
-  /**
-   * Sets the string.
-   *
-   * @param string the string
-   */
-  public void setString(String string);
+  // nothing extra, the "default preferred name" is the string
   
 }

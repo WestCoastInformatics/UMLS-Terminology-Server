@@ -85,7 +85,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
 
   /** The short name. */
   @ElementCollection
-  @Column(nullable = true)
+  @Column(nullable = true, name = "root_terminology_sy_names")
   private List<String> synonymousNames = new ArrayList<>();
 
   /**

@@ -103,8 +103,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** The published. */
   private final String published = "PUBLISHED";
 
-  /** The terminologyes. */
+  /** The loaded terminologies. */
   private Map<String, Terminology> loadedTerminologies = new HashMap<>();
+
+  /** The loaded term types */
+  private Map<String, TermType> loadedTermTypes = new HashMap<>();
 
   /**
    * Instantiates an empty {@link RrfLoaderAlgorithm}.
@@ -199,24 +202,32 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // Load precedence info
       loadMrrank();
+
+      // Commit
       commit();
       clear();
       beginTransaction();
 
-      // read for later use
+      // read for later use (perhaps)
       allMetadata = getAllMetadata(terminology, terminologyVersion);
 
       //
-      // Load the content
+      // Load the content (TODO: subsets)
       //
       loadMrconso();
 
+      // Commit
       commit();
       clear();
       beginTransaction();
 
-      // TODO: cache any/all objects to which data can be attached.
-      // if attachign to @IndexEmbedded stuff, need to read it all in.
+      // Definitions
+
+      // Semantic Types
+
+      // Attributes
+
+      // Relationships
 
       // Add release info for individual terminology
       for (Map.Entry<String, String> entry : getTerminologyLatestVersions()
@@ -336,7 +347,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         sty.setPublishable(true);
         Logger.getLogger(getClass()).debug("    add semantic type - " + sty);
         addSemanticType(sty);
-        // regularly commit at intervals
+        // log at regular intervals
         if (++objectCt % logCt == 0) {
           Logger.getLogger(getClass()).info("    count = " + objectCt);
         }
@@ -358,6 +369,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Map<String, String> inverseRelaMap = new HashMap<>();
     Map<String, TermType> ttyMap = new HashMap<>();
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDOC);
+    int objectCt = 0;
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
@@ -525,11 +537,16 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       }
 
+      // log at regular intervals
+      if (++objectCt % logCt == 0) {
+        Logger.getLogger(getClass()).info("    count = " + objectCt);
+      }
     }
 
     // Add TTYs when done
     for (TermType tty : ttyMap.values()) {
       addTermType(tty);
+      loadedTermTypes.put(tty.getAbbreviation(), tty);
     }
 
   }
@@ -670,6 +687,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       pair.setKey(fields[1]);
       pair.setValue(fields[2]);
       lkvp.add(pair);
+
+      // Set term-type suppress
+      loadedTermTypes.get(fields[2]).setSuppressible(fields[3].equals("Y"));
     }
 
     KeyValuePairList kvpl = new KeyValuePairList();
@@ -776,7 +796,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         cui.setWorkflowStatus(published);
         cui.setDefaultPreferredName("TBD");
         conceptMap.put(cui.getTerminologyId(), cui);
-        addConcept(cui);
       }
       if (cui != null) {
         cui.addAtom(atom);
@@ -800,7 +819,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         scui.setWorkflowStatus(published);
         scui.setDefaultPreferredName("TBD");
         conceptMap.put(scui.getTerminologyId(), scui);
-        addConcept(scui);
       }
       if (scui != null) {
         scui.addAtom(atom);
@@ -824,7 +842,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         sdui.setWorkflowStatus(published);
         sdui.setDefaultPreferredName("TBD");
         descriptorMap.put(sdui.getTerminologyId(), sdui);
-        addDescriptor(sdui);
       }
       if (sdui != null) {
         sdui.addAtom(atom);
@@ -848,7 +865,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         code.setWorkflowStatus(published);
         code.setDefaultPreferredName("TBD");
         codeMap.put(code.getTerminologyId(), code);
-        addCode(code);
       }
       if (code != null) {
         code.addAtom(atom);
@@ -871,7 +887,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         lui.setNormalizedString("TBD");
         lui.setWorkflowStatus(published);
         lui.setDefaultPreferredName("TBD");
-        addLexicalClass(lui);
       }
       if (lui != null) {
         lui.addAtom(atom);
@@ -891,9 +906,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         sui.setTerminologyId(fields[5]);
         sui.setTerminologyVersion(terminologyVersion);
         stringClassMap.put(sui.getTerminologyId(), sui);
-        sui.setString(fields[14]);
         sui.setWorkflowStatus(published);
-        sui.setDefaultPreferredName("TBD");
+        // prefered name is just the string
+        sui.setDefaultPreferredName(atom.getTerm());
         addStringClass(sui);
       }
       if (sui != null) {
@@ -901,13 +916,18 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         atom.setStringClassId(sui.getTerminologyId());
       }
 
+      // Add atoms and commit periodically
       addAtom(atom);
-
+      // log at regular intervals
+      if (objectCt % logCt == 0) {
+        Logger.getLogger(getClass()).info("    count = " + objectCt);
+      }
       if (++objectCt % commitCt == 0) {
         commit();
         clear();
         beginTransaction();
       }
+
     }
 
     // Set the terminology organizing class types
@@ -919,10 +939,53 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
     }
 
-    // TODO: Set default preferred names
+    objectCt = 0;
+    // Set default preferred names
+    for (Concept concept : conceptMap.values()) {
+      concept.setDefaultPreferredName(getComputedPreferredName(concept));
+      if (objectCt % logCt == 0) {
+        Logger.getLogger(getClass()).info("    count = " + objectCt);
+      }
+      if (++objectCt % commitCt == 0) {
+        commit();
+        clear();
+        beginTransaction();
+      }
+    }
+    for (Descriptor descriptor : descriptorMap.values()) {
+      descriptor.setDefaultPreferredName(getComputedPreferredName(descriptor));
+      if (objectCt % logCt == 0) {
+        Logger.getLogger(getClass()).info("    count = " + objectCt);
+      }
+      if (++objectCt % commitCt == 0) {
+        commit();
+        clear();
+        beginTransaction();
+      }
+    }
+    for (Code code : codeMap.values()) {
+      code.setDefaultPreferredName(getComputedPreferredName(code));
+      if (objectCt % logCt == 0) {
+        Logger.getLogger(getClass()).info("    count = " + objectCt);
+      }
+      if (++objectCt % commitCt == 0) {
+        commit();
+        clear();
+        beginTransaction();
+      }
+    }
+    for (LexicalClass lui : lexicalClassMap.values()) {
+      lui.setDefaultPreferredName(getComputedPreferredName(lui));
+      if (objectCt % logCt == 0) {
+        Logger.getLogger(getClass()).info("    count = " + objectCt);
+      }
+      if (++objectCt % commitCt == 0) {
+        commit();
+        clear();
+        beginTransaction();
+      }
+    }
 
-    // TODO: then iterate through and add atoms, then atom class data structure
-    // commiting every so often.
   }
 
   /*

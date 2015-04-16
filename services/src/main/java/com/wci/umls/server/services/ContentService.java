@@ -18,6 +18,7 @@ import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.LexicalClassList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
@@ -624,11 +625,11 @@ public interface ContentService extends RootService {
   /**
    * Returns the computed preferred name.
    *
-   * @param concept the concept
+   * @param atomClass the atom class
    * @return the computed preferred name
    * @throws Exception the exception
    */
-  public String getComputedPreferredName(Concept concept) throws Exception;
+  public String getComputedPreferredName(AtomClass atomClass) throws Exception;
 
 
   /**

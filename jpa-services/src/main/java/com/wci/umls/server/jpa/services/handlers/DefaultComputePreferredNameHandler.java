@@ -3,18 +3,17 @@
  */
 package com.wci.umls.server.jpa.services.handlers;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Properties;
-import java.util.Set;
 
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
  * Default implementation of {@link ComputePreferredNameHandler}.
  */
-public class DefaultComputePreferredNameHandler implements ComputePreferredNameHandler {
+public class DefaultComputePreferredNameHandler implements
+    ComputePreferredNameHandler {
 
   /*
    * (non-Javadoc)
@@ -32,21 +31,10 @@ public class DefaultComputePreferredNameHandler implements ComputePreferredNameH
    * (non-Javadoc)
    * 
    * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#
-   * computePreferredName(com.wci.umls.server.model.content.Concept)
-   */
-  @Override
-  public String computePreferredName(Concept concept) throws Exception {
-    return computePreferredName(new HashSet<Atom>(concept.getAtoms()));
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#
    * computePreferredName(java.util.Set)
    */
   @Override
-  public String computePreferredName(Set<Atom> atoms) throws Exception {
+  public String computePreferredName(Collection<Atom> atoms) throws Exception {
     // Use ranking algorithm from MetamorphoSys
     // [termgroupRank][lrr][inverse SUI][inverse AUI]
     // LRR isn't available here so just don't worry about it.
