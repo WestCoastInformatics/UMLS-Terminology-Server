@@ -285,9 +285,12 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     return terminologies;
   }
 
-
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.MetadataService#getTerminology(java.lang.String, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#getTerminology(java.lang.String
+   * , java.lang.String)
    */
   @Override
   public Terminology getTerminology(String terminology, String version)
@@ -1055,7 +1058,8 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   @Override
   public Terminology addTerminology(Terminology terminology) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Metadata Service - add terminology " + terminology.getTerminology());
+        "Metadata Service - add terminology " + terminology.getTerminology()
+            + " " + terminology.getTerminologyVersion());
 
     // Add component
     Terminology newTerminology = addMetadata(terminology);

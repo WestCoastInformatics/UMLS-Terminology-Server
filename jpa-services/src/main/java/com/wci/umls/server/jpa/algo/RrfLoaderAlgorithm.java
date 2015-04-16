@@ -600,7 +600,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       term.setLastModified(releaseVersionDate);
       term.setLastModifiedBy(loader);
-      term.setTerminology(fields[2]);
+      term.setTerminology(fields[3]);
       term.setTerminologyVersion(fields[6]);
       term.setDescriptionLogicTerminology(false);
       terminologies.put(fields[2], term);
@@ -688,8 +688,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setPublishable(true);
       atom.setTerm(fields[14]);
       atom.setTerminology(fields[11]);
-      atom.setTerminologyVersion(loadedTerminologies.get(fields[11])
-          .getTerminologyVersion());
+      if (loadedTerminologies.get(fields[11]) == null) {
+        Logger.getLogger(getClass()).info("MISSING TERMINONLOGY " + fields[11]);
+      } else {
+        atom.setTerminologyVersion(loadedTerminologies.get(fields[11])
+            .getTerminologyVersion());
+      }
       atom.setTerminologyId(fields[7]);
       atom.setTermType(fields[12]);
       atom.setWorkflowStatus(published);
