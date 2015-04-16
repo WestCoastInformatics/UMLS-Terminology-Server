@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.services.RootServiceJpa;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
@@ -406,6 +407,24 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
 
   @Override
   public void removeTermType(Long id) throws Exception {
+    // n/a
+  }
+  
+
+  @Override
+  public PrecedenceList addPrecedenceList(PrecedenceList list)
+    throws Exception {
+    // n/a
+    return null;
+  }
+
+  @Override
+  public void updatePrecedenceList(PrecedenceList list) throws Exception {
+    // n/a
+  }
+
+  @Override
+  public void removePrecedenceList(Long id) throws Exception {
     // n/a
   }
 }

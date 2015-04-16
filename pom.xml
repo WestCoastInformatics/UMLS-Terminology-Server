@@ -22,6 +22,7 @@
     <module>admin</module>
     <module>rest</module>
     <module>rest-client</module>
+    <module>integration-test</module>
   </modules>
 
 

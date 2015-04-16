@@ -86,6 +86,28 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /** The helper map. */
+  private static Map<String, ComputePreferredNameHandler> pnHandlerMap = null;
+  static {
+    pnHandlerMap = new HashMap<>();
+
+    try {
+      config = ConfigUtility.getConfigProperties();
+      String key = "compute.preferred.name.handler";
+      for (String handlerName : config.getProperty(key).split(",")) {
+
+        // Add handlers to map
+        ComputePreferredNameHandler handlerService =
+            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
+                handlerName, ComputePreferredNameHandler.class);
+        pnHandlerMap.put(handlerName, handlerService);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      pnHandlerMap = null;
+    }
+  }
+
   /** The graph resolver. */
   public static GraphResolutionHandler graphResolver = null;
   static {
@@ -145,6 +167,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (idHandlerMap == null) {
       throw new Exception(
           "Identifier assignment handler did not properly initialize, serious error.");
+    }
+
+    if (pnHandlerMap == null) {
+      throw new Exception(
+          "Preferred name handler did not properly initialize, serious error.");
     }
 
     if (conceptFieldNames == null) {
@@ -1483,8 +1510,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public ComputePreferredNameHandler getComputePreferredNameHandler(
     String terminology) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    if (pnHandlerMap.containsKey(terminology)) {
+      return pnHandlerMap.get(terminology);
+    } else {
+      return pnHandlerMap.get("DEFAULT");
+    }
   }
 
   /*
@@ -1496,8 +1526,28 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public String getComputedPreferredName(Concept concept) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    try {
+      graphResolver.resolve(concept, this.getHierarchicalRelationshipTypes(
+          concept.getTerminology(), concept.getTerminologyVersion()));
+      ComputePreferredNameHandler handler =
+          pnHandlerMap.get(concept.getTerminology());
+      // look for default if null
+      if (handler == null) {
+        handler = pnHandlerMap.get("DEFAULT");
+      }
+      if (handler == null) {
+        throw new Exception(
+            "Compute preferred name handler is not configured for DEFAULT or for "
+                + concept.getTerminology());
+      }
+      final String pn = handler.computePreferredName(concept);
+      return pn;
+    } catch (Exception e) {
+      if (tx.isActive()) {
+        tx.rollback();
+      }
+      throw e;
+    }
   }
 
   /*

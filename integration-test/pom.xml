@@ -1,0 +1,113 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Module Metadata -->
+  <parent>
+    <groupId>com.wci.umls.server</groupId>
+    <artifactId>term-server-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../parent</relativePath>
+  </parent>
+
+  <artifactId>term-server-integration-test</artifactId>
+  <name>UMLS terminology server integration test module.</name>
+  <description>Performs integration tests given a test configuration and a running service.</description>
+
+  <!-- Avoid running integration tests by default -->
+  <properties>
+    <skipTests>true</skipTests>
+  </properties>
+
+  <!-- Declare Project Dependency Versions -->
+  <dependencies>
+
+    <!-- Term server dependencies -->
+    <dependency>
+      <groupId>com.wci.umls.server</groupId>
+      <artifactId>term-server-rest-client</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.wci.umls.server</groupId>
+      <artifactId>term-server-model</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
+      <artifactId>maven-invoker</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Add src/main/resources to the classpath -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <additionalClasspathElements>
+            <additionalClasspathElement>src/main/resources</additionalClasspathElement>
+          </additionalClasspathElements>
+          <skipTests>${skipTests}</skipTests>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+
+  <profiles>
+    <!-- REST integration tests -->
+    <profile>
+      <id>rest</id>
+      <build>
+        <plugins>
+          <!-- Add src/main/resources to the classpath -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/com/wci/umls/server/test/rest/*Test.java</include>
+              </includes>
+              <additionalClasspathElements>
+                <additionalClasspathElement>src/main/resources</additionalClasspathElement>
+              </additionalClasspathElements>
+              <skipTests>${skipTests}</skipTests>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- REST integration tests -->
+    <profile>
+      <id>mojo</id>
+      <build>
+        <plugins>
+          <!-- Add src/main/resources to the classpath -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/com/wci/umls/server/test/mojo/*Test.java</include>
+              </includes>
+              <additionalClasspathElements>
+                <additionalClasspathElement>src/main/resources</additionalClasspathElement>
+              </additionalClasspathElements>
+              <skipTests>${skipTests}</skipTests>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>

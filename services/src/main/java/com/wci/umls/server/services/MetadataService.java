@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.Configurable;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
@@ -65,7 +66,7 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception if anything goes wrong
    */
   public List<RootTerminology> getTerminologies() throws Exception;
-  
+
   /**
    * Returns the terminology.
    *
@@ -74,7 +75,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the terminology
    * @throws Exception the exception
    */
-  public Terminology getTerminology(String terminology, String version) throws Exception;
+  public Terminology getTerminology(String terminology, String version)
+    throws Exception;
 
   /**
    * Returns the versions.
@@ -240,7 +242,7 @@ public interface MetadataService extends RootService, Configurable {
    * @param version the version
    * @return the precedence list
    */
-  public List<TermType> getTermTypePrecedenceList(String terminology,
+  public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version);
 
   /**
@@ -345,7 +347,6 @@ public interface MetadataService extends RootService, Configurable {
    */
   public void removeLanguage(Long id) throws Exception;
 
-
   /**
    * Adds the additional relationship type.
    *
@@ -353,7 +354,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the additionalRelationshipType the additional relationship type
    * @throws Exception the exception
    */
-  public AdditionalRelationshipType addAdditionalRelationshipType(AdditionalRelationshipType additionalRelationshipType) throws Exception;
+  public AdditionalRelationshipType addAdditionalRelationshipType(
+    AdditionalRelationshipType additionalRelationshipType) throws Exception;
 
   /**
    * Update additional relationship type.
@@ -361,7 +363,8 @@ public interface MetadataService extends RootService, Configurable {
    * @param additionalRelationshipType the additional relationship type
    * @throws Exception the exception
    */
-  public void updateAdditionalRelationshipType(AdditionalRelationshipType additionalRelationshipType) throws Exception;
+  public void updateAdditionalRelationshipType(
+    AdditionalRelationshipType additionalRelationshipType) throws Exception;
 
   /**
    * Removes the additional relationship type.
@@ -370,7 +373,7 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception the exception
    */
   public void removeAdditionalRelationshipType(Long id) throws Exception;
-  
+
   /**
    * Adds the relationship type.
    *
@@ -378,7 +381,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the relationshipType the relationship type
    * @throws Exception the exception
    */
-  public RelationshipType addRelationshipType(RelationshipType relationshipType) throws Exception;
+  public RelationshipType addRelationshipType(RelationshipType relationshipType)
+    throws Exception;
 
   /**
    * Update relationship type.
@@ -386,7 +390,8 @@ public interface MetadataService extends RootService, Configurable {
    * @param relationshipType the relationship type
    * @throws Exception the exception
    */
-  public void updateRelationshipType(RelationshipType relationshipType) throws Exception;
+  public void updateRelationshipType(RelationshipType relationshipType)
+    throws Exception;
 
   /**
    * Removes the relationship type.
@@ -394,8 +399,8 @@ public interface MetadataService extends RootService, Configurable {
    * @param id the id
    * @throws Exception the exception
    */
-  public void removeRelationshipType(Long id) throws Exception;  
-  
+  public void removeRelationshipType(Long id) throws Exception;
+
   /**
    * Adds the term type.
    *
@@ -419,8 +424,7 @@ public interface MetadataService extends RootService, Configurable {
    * @param id the id
    * @throws Exception the exception
    */
-  public void removeTermType(Long id) throws Exception;  
-    
+  public void removeTermType(Long id) throws Exception;
 
   /**
    * Adds the terminology.
@@ -447,7 +451,6 @@ public interface MetadataService extends RootService, Configurable {
    */
   public void removeTerminology(Long id) throws Exception;
 
-  
   /**
    * Adds the root terminology.
    *
@@ -455,7 +458,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the root terminology
    * @throws Exception the exception
    */
-  public RootTerminology addRootTerminology(RootTerminology rootTerminology) throws Exception;
+  public RootTerminology addRootTerminology(RootTerminology rootTerminology)
+    throws Exception;
 
   /**
    * Update root terminology.
@@ -463,7 +467,8 @@ public interface MetadataService extends RootService, Configurable {
    * @param rootTerminology the root terminology
    * @throws Exception the exception
    */
-  public void updateRootTerminology(RootTerminology rootTerminology) throws Exception;
+  public void updateRootTerminology(RootTerminology rootTerminology)
+    throws Exception;
 
   /**
    * Removes the root terminology.
@@ -472,5 +477,31 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception the exception
    */
   public void removeRootTerminology(Long id) throws Exception;
-  
+
+  /**
+   * Adds the precedence list.
+   *
+   * @param list the list
+   * @return the root terminology
+   * @throws Exception the exception
+   */
+  public PrecedenceList addPrecedenceList(PrecedenceList list)
+    throws Exception;
+
+  /**
+   * Update precedence list.
+   *
+   * @param list the list
+   * @throws Exception the exception
+   */
+  public void updatePrecedenceList(PrecedenceList list) throws Exception;
+
+  /**
+   * Removes the precedence list.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removePrecedenceList(Long id) throws Exception;
+
 }

@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.services.helper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.wci.umls.server.helpers.PrecedenceList;
@@ -254,22 +253,15 @@ public class DefaultMetadataServiceJpaHelper extends
    * java.lang.String, java.lang.String)
    */
   @Override
-  public List<TermType> getTermTypePrecedenceList(String terminology,
+  public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version) {
     javax.persistence.Query query =
         manager
             .createQuery("SELECT p from PrecedenceListJpa p where defaultList = 1");
 
-    PrecedenceList list = (PrecedenceList) query.getSingleResult();
-    List<TermType> types = new ArrayList<>();
-    for (TermType tty : list.getTermTypes()) {
-      if (tty.getTerminology().equals("terminology")
-          && tty.getTerminologyVersion().equals(version)) {
-        types.add(tty);
-      }
-    }
-    return types;
+    return (PrecedenceList) query.getSingleResult();
   }
+
 
 
 }

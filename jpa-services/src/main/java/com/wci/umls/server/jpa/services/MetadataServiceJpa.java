@@ -16,6 +16,8 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasLastModified;
+import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
@@ -256,17 +258,16 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * java.lang.String, java.lang.String)
    */
   @Override
-  public List<TermType> getTermTypePrecedenceList(String terminology,
+  public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version) {
     if (helperMap.containsKey(terminology)) {
-      return helperMap.get(terminology).getTermTypePrecedenceList(terminology,
+      return helperMap.get(terminology).getDefaultPrecedenceList(terminology,
           version);
     } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT").getTermTypePrecedenceList(terminology,
+      return helperMap.get("DEFAULT").getDefaultPrecedenceList(terminology,
           version);
     } else {
-      // return an empty map
-      return new ArrayList<>();
+      return null;
     }
   }
 
@@ -1178,6 +1179,55 @@ public class MetadataServiceJpa extends RootServiceJpa implements
         "Metadata Service - remove rootTerminology" + id);
     // Remove the component
     removeMetadata(id, RootTerminologyJpa.class);
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+  }
+
+  @Override
+  public PrecedenceList addPrecedenceList(PrecedenceList precedenceList)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - add precedence list" + precedenceList.getName());
+
+    PrecedenceList newPrecedenceList = addMetadata(precedenceList);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+    return newPrecedenceList;
+  }
+
+  @Override
+  public void updatePrecedenceList(PrecedenceList precedenceList)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug(
+            "Metadata Service - update precedence list "
+                + precedenceList.getName());
+
+    updateMetadata(precedenceList);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+  }
+
+  @Override
+  public void removePrecedenceList(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - remove precedence list " + id);
+
+    removeMetadata(id, PrecedenceListJpa.class);
+
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
         listener.metadataChanged();

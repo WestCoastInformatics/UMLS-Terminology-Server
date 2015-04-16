@@ -214,13 +214,12 @@ public class UmlsMetadataServiceJpaHelper extends
    * java.lang.String, java.lang.String)
    */
   @Override
-  public List<TermType> getTermTypePrecedenceList(String terminology,
+  public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version) {
     javax.persistence.Query query =
         manager
             .createQuery("SELECT p from PrecedenceListJpa p where defaultList = 1");
-    PrecedenceList list = (PrecedenceList) query.getSingleResult();
-    return list.getTermTypes();
+    return (PrecedenceList) query.getSingleResult();
   }
 
 }

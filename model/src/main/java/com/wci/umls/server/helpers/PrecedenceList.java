@@ -3,29 +3,13 @@
  */
 package com.wci.umls.server.helpers;
 
-import java.util.List;
-
 import com.wci.umls.server.model.meta.TermType;
 
 /**
  * Represents an ordered list of {@link TermType}s for use in computing atom
  * ranks.
  */
-public interface PrecedenceList {
-
-  /**
-   * Returns the id.
-   *
-   * @return the id
-   */
-  public Long getId();
-
-  /**
-   * Sets the id.
-   *
-   * @param id the id
-   */
-  public void setId(Long id);
+public interface PrecedenceList extends HasLastModified {
 
   /**
    * Indicates whether or not default is the case.
@@ -60,12 +44,12 @@ public interface PrecedenceList {
    * 
    * @param precedence the source term types
    */
-  public void setTermTypes(List<TermType> precedence);
+  public void setPrecedence(KeyValuePairList precedence);
 
   /**
    * Returns the source term types.
    * 
    * @return the source term types
    */
-  public List<TermType> getTermTypes();
+  public KeyValuePairList getPrecedence();
 }

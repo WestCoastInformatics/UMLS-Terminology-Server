@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.services.handlers;
 
+import java.util.List;
 import java.util.Set;
 
 import com.wci.umls.server.helpers.Configurable;
@@ -14,6 +15,7 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.SemanticType;
 
 /**
@@ -30,7 +32,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @param concept the concept
    * @param isaRelTypeIds the isa rel type ids
    */
-  public void resolve(Concept concept, Set<String> isaRelTypeIds);
+  public void resolve(Concept concept, List<RelationshipType> isaRelTypeIds);
 
   /**
    * Resolve a concept to simply the concept element and none of the graph,
@@ -47,7 +49,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @param isaRelTypeIds the isa rel type ids
    */
   public void resolve(Descriptor descriptor, Set<String> isaRelTypeIds);
-  
+
   /**
    * Resolve.
    *
@@ -55,14 +57,14 @@ public interface GraphResolutionHandler extends Configurable {
    * @param isaRelTypeIds the isa rel type ids
    */
   public void resolve(Code descriptor, Set<String> isaRelTypeIds);
-  
+
   /**
    * Resolve.
    *
    * @param lexicalClass the lexical class
    */
   public void resolve(LexicalClass lexicalClass);
-  
+
   /**
    * Resolve.
    *

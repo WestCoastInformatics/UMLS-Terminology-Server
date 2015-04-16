@@ -18,6 +18,9 @@ import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.KeyValuePairList;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -25,6 +28,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
+import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.CitationJpa;
@@ -185,14 +189,16 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       //
 
       // Load semantic types
-      loadSemanticTypes();
+      loadSrdef();
 
       // Load MRDOC data
-      loadAbbreviations();
+      loadMrdoc();
 
       // Load MRSAB data
-      loadTerminologies();
+      loadMrsab();
 
+      // Load precedence info
+      loadMrrank();
       commit();
       clear();
       beginTransaction();
@@ -281,7 +287,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * Loads the semantic types.
    * @throws Exception
    */
-  private void loadSemanticTypes() throws Exception {
+  private void loadSrdef() throws Exception {
     Logger.getLogger(getClass()).info("  Load Semantic types");
     String line = null;
     int objectCt = 0;
@@ -342,7 +348,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * Loads the MRDOC data.
    * @throws Exception
    */
-  private void loadAbbreviations() throws Exception {
+  private void loadMrdoc() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRDOC abbreviation types");
     String line = null;
     Set<String> atnSeen = new HashSet<>();
@@ -532,7 +538,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * Load terminologies.
    * @throws Exception
    */
-  private void loadTerminologies() throws Exception {
+  private void loadMrsab() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRSAB data");
     String line = null;
     Map<String, RootTerminology> rootTerminologies = new HashMap<>();
@@ -630,6 +636,49 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       loadedTerminologies.put(term.getTerminology(), term);
     }
 
+  }
+
+  /**
+   * Load PrecedenceList.
+   *
+   * @throws Exception the exception
+   */
+  private void loadMrrank() throws Exception {
+
+    PrecedenceList list = new PrecedenceListJpa();
+    list.setDefaultList(true);
+
+    List<KeyValuePair> lkvp = new ArrayList<>();
+
+    Logger.getLogger(getClass()).info("  Load MRRANK data");
+    String line = null;
+    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRRANK);
+    while ((line = reader.readLine()) != null) {
+
+      line = line.replace("\r", "");
+      final String fields[] = FieldedStringTokenizer.split(line, "|", 4);
+
+      // FIELDS
+      // 0 RNK
+      // 1 SAB
+      // 2 TTY
+      // 3 SUPPRESS (ignore this)
+      // e.g.
+      // 0586|MTH|PN|N|
+
+      KeyValuePair pair = new KeyValuePair();
+      pair.setKey(fields[1]);
+      pair.setValue(fields[2]);
+      lkvp.add(pair);
+    }
+
+    KeyValuePairList kvpl = new KeyValuePairList();
+    kvpl.setKeyValuePairList(lkvp);
+    list.setPrecedence(kvpl);
+    list.setLastModified(releaseVersionDate);
+    list.setLastModifiedBy(loader);
+    list.setName("DEFAULT");
+    addPrecedenceList(list);
   }
 
   /**
@@ -746,8 +795,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         scui.setPublishable(true);
         scui.setTerminology(fields[11]);
         scui.setTerminologyId(fields[10]);
-        // TODO: get root terminology and get current version and set it.
-        scui.setTerminologyVersion("TODO");
+        scui.setTerminologyVersion(loadedTerminologies.get(fields[11])
+            .getTerminologyVersion());
         scui.setWorkflowStatus(published);
         scui.setDefaultPreferredName("TBD");
         conceptMap.put(scui.getTerminologyId(), scui);
@@ -770,8 +819,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         sdui.setPublishable(true);
         sdui.setTerminology(fields[11]);
         sdui.setTerminologyId(fields[9]);
-        // TODO: get root terminology and get current version and set it.
-        sdui.setTerminologyVersion("TODO");
+        sdui.setTerminologyVersion(loadedTerminologies.get(fields[11])
+            .getTerminologyVersion());
         sdui.setWorkflowStatus(published);
         sdui.setDefaultPreferredName("TBD");
         descriptorMap.put(sdui.getTerminologyId(), sdui);
@@ -794,8 +843,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         code.setPublishable(true);
         code.setTerminology(fields[11]);
         code.setTerminologyId(fields[13]);
-        // TODO: get root terminology and get current version and set it.
-        code.setTerminologyVersion("TODO");
+        code.setTerminologyVersion(loadedTerminologies.get(fields[11])
+            .getTerminologyVersion());
         code.setWorkflowStatus(published);
         code.setDefaultPreferredName("TBD");
         codeMap.put(code.getTerminologyId(), code);
