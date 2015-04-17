@@ -14,17 +14,21 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
+import com.wci.umls.server.helpers.content.DefinitionList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.LexicalClassList;
+import com.wci.umls.server.helpers.content.SemanticTypeComponentList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
@@ -664,5 +668,127 @@ public interface ContentService extends RootService {
    * @param lastModifiedFlag the last modified flag
    */
   public void setLastModifiedFlag(boolean lastModifiedFlag);
+
+  /**
+   * Removes the definition.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeDefinition(Long id) throws Exception;
+
+  /**
+   * Update definition.
+   *
+   * @param definition the definition
+   * @throws Exception the exception
+   */
+  public void updateDefinition(Definition definition) throws Exception;
+
+  /**
+   * Adds the definition.
+   *
+   * @param definition the definition
+   * @return the definition
+   * @throws Exception the exception
+   */
+  public Definition addDefinition(Definition definition) throws Exception;
+
+  /**
+   * Gets the definition.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the definition
+   * @throws Exception the exception
+   */
+  public Definition getDefinition(String terminologyId, String terminology,
+		String version, String branch) throws Exception;
+
+  /**
+   * Gets the definitions.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @return the definitions
+   * @throws Exception the exception
+   */
+  public DefinitionList getDefinitions(String terminologyId, String terminology,
+		String version) throws Exception;
+
+  /**
+   * Gets the definition.
+   *
+   * @param id the id
+   * @return the definition
+   * @throws Exception the exception
+   */
+  public Definition getDefinition(Long id) throws Exception;
   
+  /**
+   * Removes the semantic type component.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeSemanticTypeComponent(Long id) throws Exception;
+
+
+  /**
+   * Update semantic type component.
+   *
+   * @param sty the sty
+   * @throws Exception the exception
+   */
+  public void updateSemanticTypeComponent(SemanticTypeComponent sty) throws Exception;
+
+
+  /**
+   * Adds the semantic type component.
+   *
+   * @param sty the sty
+   * @return the semantic type component
+   * @throws Exception the exception
+   */
+  public SemanticTypeComponent addSemanticTypeComponent(SemanticTypeComponent sty) throws Exception;
+
+
+  /**
+   * Gets the semantic type component.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the semantic type component
+   * @throws Exception the exception
+   */
+  public SemanticTypeComponent getSemanticTypeComponent(String terminologyId, String terminology,
+		String version, String branch) throws Exception;
+
+
+  /**
+   * Gets the semantic type components.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @return the semantic type components
+   * @throws Exception the exception
+   */
+  public SemanticTypeComponentList getSemanticTypeComponents(String terminologyId, String terminology,
+		String version) throws Exception;
+
+
+  /**
+   * Gets the semantic type component.
+   *
+   * @param id the id
+   * @return the semantic type component
+   * @throws Exception the exception
+   */
+  public SemanticTypeComponent getSemanticTypeComponent(Long id) throws Exception;
 }

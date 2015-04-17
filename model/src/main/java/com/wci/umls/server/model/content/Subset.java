@@ -7,11 +7,12 @@
  *************************************************************/
 package com.wci.umls.server.model.content;
 
+import java.util.List;
+
 /**
  * Represents a subset of content asserted by a terminology.
  */
-public interface Subset extends
-    ComponentHasAttributes {
+public interface Subset extends ComponentHasAttributes {
 
   /**
    * Returns the name.
@@ -42,17 +43,31 @@ public interface Subset extends
   public void setDescription(String description);
 
   /**
-   * Indicates whether or not this subset exists to express disjointness between
-   * the members.
-   *
-   * @return true, if is disjoint subset
+   * Returns the members.
+   * 
+   * @return the members
    */
-  public boolean isDisjointSubset();
+  public List<SubsetMember> getMembers();
 
   /**
-   * Sets the disjoint subset.
-   *
-   * @param disjointSubset the new disjoint subset
+   * Sets the members.
+   * 
+   * @param members the members
    */
-  public void setDisjointSubset(boolean disjointSubset);
+  public void setMembers(List<SubsetMember> members);
+
+  /**
+   * Adds a member.
+   * 
+   * @param member the member
+   */
+  public void addMember(SubsetMember member);
+
+  /**
+   * Removes the member.
+   *
+   * @param member the member
+   */
+  public void removeMember(SubsetMember member);
+
 }
