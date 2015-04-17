@@ -25,6 +25,7 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
+import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -81,6 +82,8 @@ public class ModelUnit007Test {
   public void testModelEqualsHashcode007() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode007");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
+    tester.include("suppressible");
+    tester.include("obsolete");
     tester.include("publishable");
     tester.include("published");
     tester.include("terminology");
@@ -131,13 +134,16 @@ public class ModelUnit007Test {
     ProxyTester tester = new ProxyTester(atom);
     tester.proxy(KeyValuePairList.class, 1, new KeyValuePairList());
     atom = (Atom) tester.createObject(1);
+    Atom toAtom = (Atom) tester.createObject(2);
 
     ProxyTester tester2 = new ProxyTester(new AttributeJpa());
     Attribute att = (Attribute) tester2.createObject(1);
 
     ProxyTester tester3 = new ProxyTester(new AtomRelationshipJpa());
     AtomRelationship rel = (AtomRelationship) tester3.createObject(1);
-
+    rel.setFrom(atom);
+    rel.setTo(toAtom);
+    
     ProxyTester tester4 = new ProxyTester(new DefinitionJpa());
     Definition def = (Definition) tester4.createObject(1);
 
@@ -216,6 +222,46 @@ public class ModelUnit007Test {
     tester.include("termType");
 
     assertTrue(tester.testNotNullFields());
+  }
+  
+  /**
+   * Test field indexing.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testModelIndexedFields007() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields007");
+
+    // Test analyzed fields
+    IndexedFieldTester tester = new IndexedFieldTester(object);
+    tester.include("term");
+    tester.include("conceptTerminologyIdMap");
+    assertTrue(tester.testAnalyzedIndexedFields());
+
+    // Test non analyzed fields
+    assertTrue(tester.testAnalyzedIndexedFields());
+    tester = new IndexedFieldTester(object);
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
+    tester.include("suppressible");
+    tester.include("obsolete");
+    tester.include("published");
+    tester.include("publishable");
+    tester.include("terminologyId");
+    tester.include("terminology");
+    tester.include("terminologyVersion");
+    tester.include("termSort");
+    tester.include("codeId");
+    tester.include("descriptorId");
+    tester.include("lexicalClassId");
+    tester.include("stringClassId");
+    tester.include("termType");
+    tester.include("language");
+    tester.include("workflowStatus");
+    
+    assertTrue(tester.testNotAnalyzedIndexedFields());
+
   }
 
   /**

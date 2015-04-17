@@ -30,12 +30,12 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
 
   /** The from concept. */
   @ManyToOne(targetEntity = AtomJpa.class, optional = false)
-  @JoinColumn(nullable = true)
+  @JoinColumn(nullable = false)
   private Atom from;
 
   /** the to concept. */
   @ManyToOne(targetEntity = AtomJpa.class, optional = false)
-  @JoinColumn(nullable = true)
+  @JoinColumn(nullable = false)
   private Atom to;
 
   /**

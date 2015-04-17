@@ -44,7 +44,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
 
   /** The asserted direction flag. */
   @Column(nullable = false)
-  private boolean isAssertedDirection;
+  private boolean assertedDirection;
 
   /**
    * Instantiates an empty {@link AbstractRelationship}.
@@ -67,7 +67,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
     group = relationship.getGroup();
     inferred = relationship.isInferred();
     stated = relationship.isStated();
-    isAssertedDirection = relationship.isAssertedDirection();
+    assertedDirection = relationship.isAssertedDirection();
   }
 
   /**
@@ -180,7 +180,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
    */
   @Override
   public boolean isAssertedDirection() {
-    return isAssertedDirection;
+    return assertedDirection;
   }
 
   /*
@@ -192,7 +192,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
    */
   @Override
   public void setAssertedDirection(boolean assertedDirection) {
-    this.isAssertedDirection = assertedDirection;
+    this.assertedDirection = assertedDirection;
   }
 
   /*
@@ -211,7 +211,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
                 : additionalRelationshipType.hashCode());
     result = prime * result + ((group == null) ? 0 : group.hashCode());
     result = prime * result + (inferred ? 1231 : 1237);
-    result = prime * result + (isAssertedDirection ? 1231 : 1237);
+    result = prime * result + (assertedDirection ? 1231 : 1237);
     result =
         prime * result
             + ((relationshipType == null) ? 0 : relationshipType.hashCode());
@@ -247,7 +247,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
       return false;
     if (inferred != other.inferred)
       return false;
-    if (isAssertedDirection != other.isAssertedDirection)
+    if (assertedDirection != other.assertedDirection)
       return false;
     if (relationshipType == null) {
       if (other.relationshipType != null)
@@ -269,7 +269,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
     return "AbstractRelationship [relationshipType=" + relationshipType
         + ", additionalRelationshipType=" + additionalRelationshipType
         + ", group=" + group + ", inferred=" + inferred + ", stated=" + stated
-        + ", isAssertedDirection=" + isAssertedDirection + "]";
+        + ", assertedDirection=" + assertedDirection + "]";
   }
 
 }

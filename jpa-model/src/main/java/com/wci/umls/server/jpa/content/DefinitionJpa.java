@@ -10,6 +10,10 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.Definition;
 
@@ -52,6 +56,7 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements Def
    * @see com.wci.umls.server.model.content.Definition#getValue()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getValue() {
     return value;
   }

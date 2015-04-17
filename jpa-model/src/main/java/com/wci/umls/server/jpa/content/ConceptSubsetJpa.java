@@ -48,9 +48,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     super(subset, deepCopy);
     if (deepCopy) {
       for (ConceptSubsetMember member : members) {
-        final ConceptSubsetMember member2 =
-            new ConceptSubsetMemberJpa(member, deepCopy);
-        addMember(member2);
+        addMember(new ConceptSubsetMemberJpa(member, deepCopy));
       }
     }
 

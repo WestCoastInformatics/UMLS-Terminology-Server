@@ -76,10 +76,10 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
 
     if (deepCopy) {
       for (Definition definition : concept.getDefinitions()) {
-        addDefinition(definition);
+        addDefinition(new DefinitionJpa(definition, deepCopy));
       }
       for (ConceptRelationship relationship : concept.getRelationships()) {
-        addRelationship(relationship);
+        addRelationship(new ConceptRelationshipJpa(relationship, deepCopy));
       }
     }
   }
@@ -272,23 +272,33 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     return "ConceptJpa [definitions=" + definitions + "]";
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.content.Concept#getUsesRelationshipIntersection()
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.Concept#getUsesRelationshipIntersection()
    */
   @Override
   public boolean getUsesRelationshipIntersection() {
     return usesRelationshipIntersection;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.content.Concept#setUsesRelationshipIntersection(boolean)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.Concept#setUsesRelationshipIntersection
+   * (boolean)
    */
   @Override
-  public void setUsesRelationshipIntersection(boolean usesRelationshipIntersection) {
+  public void setUsesRelationshipIntersection(
+    boolean usesRelationshipIntersection) {
     this.usesRelationshipIntersection = usesRelationshipIntersection;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.content.Concept#getUsesRelationshipUnion()
    */
   @Override
@@ -296,8 +306,11 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     return usesRelationshipUnion;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.content.Concept#setUsesRelationshipUnion(boolean)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.Concept#setUsesRelationshipUnion(boolean)
    */
   @Override
   public void setUsesRelationshipUnion(boolean usesRelationshipUnion) {

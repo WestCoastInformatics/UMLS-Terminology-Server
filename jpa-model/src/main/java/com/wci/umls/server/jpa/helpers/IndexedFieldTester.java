@@ -116,6 +116,10 @@ public class IndexedFieldTester extends ProxyTester {
         fieldName = m.getName().substring(3);
         fieldName =
             fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1);
+      } else if (m.getName().startsWith("is")) {
+        fieldName = m.getName().substring(2);
+        fieldName =
+            fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1);
       } else {
         continue;
       }

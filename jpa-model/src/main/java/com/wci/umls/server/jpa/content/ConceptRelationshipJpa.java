@@ -30,12 +30,12 @@ public class ConceptRelationshipJpa extends
 
   /** The from concept. */
   @ManyToOne(targetEntity = ConceptJpa.class, optional = false)
-  @JoinColumn(nullable = true)
+  @JoinColumn(nullable = false)
   private Concept from;
 
   /** the to concept. */
   @ManyToOne(targetEntity = ConceptJpa.class, optional = false)
-  @JoinColumn(nullable = true)
+  @JoinColumn(nullable = false)
   private Concept to;
 
   /**
