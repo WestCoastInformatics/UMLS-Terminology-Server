@@ -74,6 +74,10 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Column(nullable = true)
   private String descriptorId;
 
+  /** The concept id. */
+  @Column(nullable = true)
+  private String conceptId;
+
   /** The language. */
   @Column(nullable = false)
   private String language;
@@ -125,6 +129,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     codeId = atom.getCodeId();
     conceptTerminologyIdMap = atom.getConceptTerminologyIdMap();
     descriptorId = atom.getDescriptorId();
+    conceptId = atom.getDescriptorId();
     language = atom.getLanguage();
     lexicalClassId = atom.getLexicalClassId();
     stringClassId = atom.getStringClassId();
@@ -293,6 +298,17 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   public void setDescriptorId(String descriptorId) {
     this.descriptorId = descriptorId;
+  }
+
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getConceptId() {
+    return conceptId;
+  }
+
+  @Override
+  public void setConceptId(String conceptId) {
+    this.conceptId = conceptId;
   }
 
   /*
@@ -532,6 +548,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     result = prime * result + ((codeId == null) ? 0 : codeId.hashCode());
     result =
         prime * result + ((descriptorId == null) ? 0 : descriptorId.hashCode());
+    result = prime * result + ((conceptId == null) ? 0 : conceptId.hashCode());
     result = prime * result + ((language == null) ? 0 : language.hashCode());
     result =
         prime * result
@@ -568,6 +585,11 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
       if (other.descriptorId != null)
         return false;
     } else if (!descriptorId.equals(other.descriptorId))
+      return false;
+    if (conceptId == null) {
+      if (other.conceptId != null)
+        return false;
+    } else if (!conceptId.equals(other.conceptId))
       return false;
     if (language == null) {
       if (other.language != null)
@@ -606,9 +628,9 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   public String toString() {
     return "AtomJpa [conceptTerminologyIdMap=" + conceptTerminologyIdMap
         + ", codeId=" + codeId + ", descriptorId=" + descriptorId
-        + ", language=" + language + ", lexicalClassId=" + lexicalClassId
-        + ", stringClassId=" + stringClassId + ", term=" + term + ", termType="
-        + termType + "]";
+        + ", conceptId=" + conceptId + ", language=" + language
+        + ", lexicalClassId=" + lexicalClassId + ", stringClassId="
+        + stringClassId + ", term=" + term + ", termType=" + termType + "]";
   }
 
 }

@@ -91,6 +91,7 @@ public class ModelUnit007Test {
     tester.include("terminologyVersion");
     tester.include("codeId");
     tester.include("descriptorId");
+    tester.include("conceptId");
     tester.include("language");
     tester.include("lexicalClassId");
     tester.include("stringClassId");
@@ -254,6 +255,7 @@ public class ModelUnit007Test {
     tester.include("termSort");
     tester.include("codeId");
     tester.include("descriptorId");
+    tester.include("conceptId");
     tester.include("lexicalClassId");
     tester.include("stringClassId");
     tester.include("termType");

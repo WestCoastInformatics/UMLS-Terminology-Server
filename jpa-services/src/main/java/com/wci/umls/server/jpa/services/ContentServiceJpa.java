@@ -1594,8 +1594,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Map<String, Integer> stats = new HashMap<>();
     for (EntityType<?> type : manager.getMetamodel().getEntities()) {
       String jpaTable = type.getName();
+      //Logger.getLogger(getClass()).debug("  jpaTable = " + jpaTable);
       // Skip audit trail tables
-      if (jpaTable.endsWith("_AUD")) {
+      if (jpaTable.indexOf("_AUD") != -1) {
         continue;
       }
       if (!AbstractAbbreviation.class.isAssignableFrom(type

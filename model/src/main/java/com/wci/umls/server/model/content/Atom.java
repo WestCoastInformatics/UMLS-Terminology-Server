@@ -30,56 +30,70 @@ public interface Atom extends ComponentHasAttributes, HasDefinitions,
   public void setTerm(String term);
 
   /**
-   * Returns the string class.
+   * Returns the string class id.
    *
-   * @return the string class
+   * @return the string class id
    */
   public String getStringClassId();
 
   /**
-   * Sets the string class.
+   * Sets the string class id.
    *
    * @param id the string class id
    */
   public void setStringClassId(String id);
 
   /**
-   * Returns the lexical class.
+   * Returns the lexical class id.
    *
-   * @return the lexical class
+   * @return the lexical class id
    */
   public String getLexicalClassId();
 
   /**
-   * Sets the lexical class.
+   * Sets the lexical class id.
    *
    * @param id the lexical class id
    */
   public void setLexicalClassId(String id);
 
   /**
-   * Returns the code.
+   * Returns the code id for this atom in its own terminology.
    *
-   * @return the code
+   * @return the code id
    */
   public String getCodeId();
 
   /**
-   * Sets the code.
+   * Sets the code id for this atom in its own terminology.
    *
    * @param id the code id
    */
   public void setCodeId(String id);
 
   /**
-   * Returns the descriptor.
+   * Returns the concept id for this atom in its own terminology.
+   *
+   * @return the concept id 
+   */
+  public String getConceptId();
+
+  /**
+   * Sets the concept id for this atom in its own terminology.
+   *
+   * @param id the concept id
+   */
+  public void setConceptId(String id);
+  
+  /**
+   * Returns the descriptor id for this atom in its own terminology.
    *
    * @return the descriptor
    */
   public String getDescriptorId();
 
   /**
-   * Sets the descriptor.
+   * Sets the descriptor id for this atom in its own terminology.
    *
    * @param id the descriptor id
    */
