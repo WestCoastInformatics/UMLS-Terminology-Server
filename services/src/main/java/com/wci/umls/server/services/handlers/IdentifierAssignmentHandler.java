@@ -13,6 +13,7 @@ import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
@@ -136,6 +137,15 @@ public interface IdentifierAssignmentHandler extends Configurable {
    */
   public String getTerminologyId(SubsetMember subsetMember) throws Exception;
 
+  /**
+   * Gets the terminology id.
+   *
+   * @param semanticTypeComponent the semantic type component
+   * @return the terminology id
+   * @throws Exception the exception
+   */
+  public String getTerminologyId(SemanticTypeComponent semanticTypeComponent) throws Exception;
+  
   /**
    * Indicates whether this algorithm allows identifiers to change on an update.
    * That is a computation of the id before and after should produce the same

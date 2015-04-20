@@ -5,7 +5,7 @@
   </formats>
   <fileSets>
     <fileSet>
-      <directory>src/main/resources/nginx</directory>
+      <directory>src/main/resources/data</directory>
       <outputDirectory>/</outputDirectory>
       <useDefaultExcludes>true</useDefaultExcludes>
     </fileSet>

@@ -11,21 +11,21 @@ package com.wci.umls.server.model.content;
 
 /**
  * Represents membership of something in a {@link Subset}.
- * @param <T> the type
  */
-public interface SubsetMember<T> extends ComponentHasAttributes {
+public interface SubsetMember extends ComponentHasAttributes {
 
 	/**
-	 * Returns the member.
-	 *
-	 * @return the member
+	 * Returns the subset.
+	 * 
+	 * @return the subset
 	 */
-	public T getMember();
-	
+	public Subset getSubset();
+
 	/**
-	 * Sets the member.
-	 *
-	 * @param member the new member
+	 * Sets the subset.
+	 * 
+	 * @param Subset the subset
 	 */
-	public void setMember(T member);
+	public void setSubset(Subset Subset);
+
 }

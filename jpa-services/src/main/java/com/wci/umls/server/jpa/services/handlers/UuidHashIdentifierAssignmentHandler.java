@@ -14,6 +14,7 @@ import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
@@ -121,5 +122,12 @@ public class UuidHashIdentifierAssignmentHandler implements
     // TODO Auto-generated method stub
     return false;
   }
+
+@Override
+public String getTerminologyId(SemanticTypeComponent semanticTypeComponent)
+		throws Exception {
+	// TODO Auto-generated method stub
+	return null;
+}
 
 }

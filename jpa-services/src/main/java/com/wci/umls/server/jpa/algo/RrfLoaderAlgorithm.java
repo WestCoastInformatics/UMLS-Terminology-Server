@@ -23,10 +23,13 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
@@ -41,10 +44,14 @@ import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
@@ -108,6 +115,22 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /** The loaded term types */
   private Map<String, TermType> loadedTermTypes = new HashMap<>();
+
+  private Map<String, IdType> termIdTypeMap = new HashMap<>();
+
+  private Map<String, Code> codeMap = new HashMap<>();
+
+  private Map<String, Concept> conceptMap = new HashMap<>();
+
+  private Map<String, Descriptor> descriptorMap = new HashMap<>();
+
+  private Map<String, LexicalClass> lexicalClassMap = new HashMap<>();
+
+  private Map<String, StringClass> stringClassMap = new HashMap<>();
+
+  private Map<String, Atom> atomMap = new HashMap<>();
+
+  private Map<String, Relationship> relationshipMap = new HashMap<>();
 
   /**
    * Instantiates an empty {@link RrfLoaderAlgorithm}.
@@ -222,12 +245,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       beginTransaction();
 
       // Definitions
+      // loadMrdef();
 
       // Semantic Types
-
-      // Attributes
+      // loadMrsty();
 
       // Relationships
+
+      // Attributes
+      // loadMrsat
 
       // Add release info for individual terminology
       for (Map.Entry<String, String> entry : getTerminologyLatestVersions()
@@ -553,6 +579,231 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   }
 
   /**
+   * Load definitions.
+   * @throws Exception
+   */
+  private void loadMrdef() throws Exception {
+    Logger.getLogger(getClass()).info("  Load MRDEF data");
+    String line = null;
+    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDEF);
+    while ((line = reader.readLine()) != null) {
+
+      line = line.replace("\r", "");
+      final String fields[] = FieldedStringTokenizer.split(line, "|", 8);
+
+      // Field Description
+      // 0 CUI Unique identifier for concept
+      // 1 AUI Unique identifier for atom - variable length field, 8 or 9
+      // characters
+      // 2 ATUI Unique identifier for attribute
+      // 3 SATUI Source asserted attribute identifier [optional-present if it
+      // exists]
+      // 4 SAB Abbreviated source name (SAB) of the source of the definition
+      // 5 DEF Definition
+      // 6 SUPPRESS Suppressible flag. Values = O, E, Y, or N. Reflects the
+      // suppressible status of the attribute; not yet in use. See also SUPPRESS
+      // in MRCONSO.RRF, MRREL.RRF, and MRSAT.RRF.
+      // 7 CVF Content View Flag. Bit field used to flag rows included in
+      // Content View. This field is a varchar field to maximize the number of
+      // bits available for use.
+      //
+      // e.g.
+      // C0001175|A0019180|AT38139119||MSH|An acquired defect of cellular
+      // immunity associated with infection by the human immunodeficiency virus
+      // (HIV), a CD4-positive T-lymphocyte count under 200 cells/microliter or
+      // less than 14% of total lymphocytes, and increased susceptibility to
+      // opportunistic infections and malignant neoplasms. Clinical
+      // manifestations also include emaciation (wasting) and dementia. These
+      // elements reflect criteria for AIDS as defined by the CDC in 1993.|N||
+      // C0001175|A0021048|AT51221477||CSP|one or more indicator diseases,
+      // depending on laboratory evidence of HIV infection (CDC); late phase of
+      // HIV infection characterized by marked suppression of immune function
+      // resulting in opportunistic infections, neoplasms, and other systemic
+      // symptoms (NIAID).|N||
+
+      Definition def = new DefinitionJpa();
+
+      Atom atom = atomMap.get(fields[1]);
+      atom.addDefinition(def);
+
+      def.setTerminologyId(fields[2]);
+
+      def.setLastModified(releaseVersionDate);
+      def.setLastModifiedBy(loader);
+      def.setTerminology(fields[4]);
+      if (loadedTerminologies.get(fields[4]) == null) {
+        Logger.getLogger(getClass()).info("MISSING TERMINONLOGY " + fields[4]);
+      } else {
+        def.setTerminologyVersion(loadedTerminologies.get(fields[4])
+            .getTerminologyVersion());
+      }
+      def.setValue(fields[5]);
+      if (fields[6].equals("O")) {
+        def.setObsolete(true);
+      } else if (fields[6].equals("E") || fields[6].equals("Y")) {
+        def.setSuppressible(true);
+      }
+
+      addDefinition(def);
+    }
+
+  }
+
+  /**
+   * Load attributes.
+   * @throws Exception
+   */
+  private void loadMrsat() throws Exception {
+    Logger.getLogger(getClass()).info("  Load MRSAT data");
+    String line = null;
+    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAT);
+    while ((line = reader.readLine()) != null) {
+
+      line = line.replace("\r", "");
+      final String fields[] = FieldedStringTokenizer.split(line, "|", 12);
+
+      // Field Description
+      // 0 CUI Unique identifier for concept (if METAUI is a relationship
+      // identifier, this will be CUI1 for that relationship)
+      // 1 LUI Unique identifier for term (optional - present for atom
+      // attributes, but not for relationship attributes)
+      // 2 SUI Unique identifier for string (optional - present for atom
+      // attributes, but not for relationship attributes)
+      // 3 METAUI Metathesaurus atom identifier (will have a leading A) or
+      // Metathesaurus relationship identifier (will have a leading R) or blank
+      // if it is a concept attribute.
+      // 4 STYPE The name of the column in MRCONSO.RRF or MRREL.RRF that
+      // contains the identifier to which the attribute is attached, i.e. AUI,
+      // CODE, CUI, RUI, SCUI, SDUI.
+      // 5 CODE Most useful source asserted identifier (if the source vocabulary
+      // contains more than one) or a Metathesaurus-generated source entry
+      // identifier (if the source vocabulary has none). Optional - present if
+      // METAUI is an AUI.
+      // 6 ATUI Unique identifier for attribute
+      // 7 SATUI Source asserted attribute identifier (optional - present if it
+      // exists)
+      // 8 ATN Attribute name. Possible values appear in MRDOC.RRF and are
+      // described on the Attribute Names page.
+      // 9 SAB Abbreviated source name (SAB).
+      // 10 ATV Attribute value described under specific attribute name on the
+      // Attributes Names page. A few attribute values exceed 1,000 characters.
+      // Many of the abbreviations used in attribute values are explained in
+      // MRDOC.RRF and included on the Abbreviations Used in Data Elements page.
+      // 11 SUPPRESS Suppressible flag. Values = O, E, Y, or N. Reflects the
+      // suppressible status of the attribute. See also SUPPRESS in MRCONSO.RRF,
+      // MRDEF.RRF, and MRREL.RRF.
+      // 12 CVF Content View Flag. Bit field used to flag rows included in
+      // Content View. This field is a varchar field to maximize the number of
+      // bits available for use.
+      // e.g.
+      // C0001175|L0001175|S0010339|A0019180|SDUI|D000163|AT38209082||FX|MSH|D015492|N||
+      // C0001175|L0001175|S0354232|A2922342|AUI|62479008|AT24600515||DESCRIPTIONSTATUS|SNOMEDCT|0|N||
+      // C0001175|L0001842|S0011877|A15662389|CODE|T1|AT100434486||URL|MEDLINEPLUS|http://www.nlm.nih.gov/medlineplus/aids.html|N||
+      // C0001175|||R54775538|RUI||AT63713072||CHARACTERISTICTYPE|SNOMEDCT|0|N||
+      // C0001175|||R54775538|RUI||AT69142126||REFINABILITY|SNOMEDCT|1|N||
+
+      Attribute att = new AttributeJpa();
+
+      if (fields[4].equals("AUI")) {
+        Atom atom = atomMap.get(fields[3]);
+        atom.addAttribute(att);
+      } else if (fields[4].equals("RUI")) {
+        Relationship relationship = relationshipMap.get(fields[3]);
+        relationship.addAttribute(att);
+      } else if (fields[4].equals("CODE")) {
+        Code code = codeMap.get(atomMap.get(fields[3]).getCodeId() + fields[9]);
+        code.addAttribute(att);
+      } else if (fields[4].equals("CUI")) {
+        Concept concept = conceptMap.get(fields[0] + terminology);
+        concept.addAttribute(att);
+      } else if (fields[4].equals("SDUI")) {
+        Descriptor descriptor =
+            descriptorMap.get(atomMap.get(fields[3]).getDescriptorId());
+        descriptor.addAttribute(att);
+      } else if (fields[4].equals("SCUI")) {
+        // TODO: turn this back on
+        // Concept concept =
+        // conceptMap.get(atomMap.get(fields[3]).getConceptId());
+        // concept.addAttribute(att);
+      }
+      // fields[5] CODE not used - redundant
+
+      att.setTerminologyId(fields[6]);
+      // fields[7] SATUI not used
+      att.setLastModified(releaseVersionDate);
+      att.setLastModifiedBy(loader);
+      att.setName(fields[8]);
+      att.setTerminology(fields[9]);
+      if (loadedTerminologies.get(fields[9]) == null) {
+        Logger.getLogger(getClass()).info("MISSING TERMINONLOGY " + fields[9]);
+      } else {
+        att.setTerminologyVersion(loadedTerminologies.get(fields[9])
+            .getTerminologyVersion());
+      }
+      att.setValue(fields[10]);
+      if (fields[11].equals("O")) {
+        att.setObsolete(true);
+      } else if (fields[11].equals("E") || fields[11].equals("Y")) {
+        att.setSuppressible(true);
+      }
+
+      att.setSuppressible(fields[11].equals("Y") ? true : false);
+      att.setObsolete(fields[11].equals("O") ? true : false);
+
+      // addAttribute(att);
+
+      // make set of all atoms that got an additional attribute
+      // call updateAtom on all of them
+      // same for description, rel, etc.
+    }
+  }
+
+  /**
+   * Load semantic types.
+   * @throws Exception
+   */
+  private void loadMrsty() throws Exception {
+    Logger.getLogger(getClass()).info("  Load MRSTY data");
+    String line = null;
+    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSTY);
+    while ((line = reader.readLine()) != null) {
+
+      line = line.replace("\r", "");
+      final String fields[] = FieldedStringTokenizer.split(line, "|", 6);
+
+      // Field Description
+      // 0 CUI Unique identifier of concept
+      // 1 TUI Unique identifier of Semantic Type
+      // 2 STN Semantic Type tree number
+      // 3 STY Semantic Type. The valid values are defined in the Semantic
+      // Network.
+      // 4 ATUI Unique identifier for attribute
+      // 5 CVF Content View Flag. Bit field used to flag rows included in
+      // Content View. This field is a varchar field to maximize the number of
+      // bits available for use.
+
+      // Sample Record
+      // C0001175|T047|B2.2.1.2.1|Disease or Syndrome|AT17683839|3840|
+
+      SemanticTypeComponent sty = new SemanticTypeComponentJpa();
+      Concept concept = conceptMap.get(fields[0]);
+      List<SemanticTypeComponent> stys = concept.getSemanticTypes();
+      stys.add(sty);
+      concept.setSemanticTypes(stys);
+
+      sty.setSemanticType(fields[1]);
+      // fields 2 and 3 are already read from SRDEF
+      sty.setTerminologyId(fields[4]);
+
+      sty.setLastModified(releaseVersionDate);
+      sty.setLastModifiedBy(loader);
+
+      addSemanticTypeComponent(sty);
+    }
+
+  }
+
+  /**
    * Load terminologies.
    * @throws Exception
    */
@@ -711,12 +962,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Load MRCONSO");
 
     String line = null;
-    Map<String, IdType> termIdTypeMap = new HashMap<>();
-    Map<String, Code> codeMap = new HashMap<>();
-    Map<String, Concept> conceptMap = new HashMap<>();
-    Map<String, Descriptor> descriptorMap = new HashMap<>();
-    Map<String, LexicalClass> lexicalClassMap = new HashMap<>();
-    Map<String, StringClass> stringClassMap = new HashMap<>();
+
     int objectCt = 0;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRCONSO);
     while ((line = reader.readLine()) != null) {
@@ -780,6 +1026,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (!atom.getDescriptorId().equals("")) {
         termIdTypeMap.put(atom.getTerminology(), IdType.CONCEPT);
       } // OTHERWISE it remains "CODE"
+      atomMap.put(atom.getTerminologyId(), atom);
 
       // CUI
       Concept cui = null;
@@ -851,8 +1098,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // CODE
       Code code = null;
-      if (codeMap.containsKey(fields[13])) {
-        code = codeMap.get(fields[13]);
+      if (codeMap.containsKey(fields[13] + fields[11])) {
+        code = codeMap.get(fields[13] + fields[11]);
       } else if (!fields[13].equals("")) {
         code = new CodeJpa();
         code.setLastModified(releaseVersionDate);
@@ -865,7 +1112,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             .getTerminologyVersion());
         code.setWorkflowStatus(published);
         code.setDefaultPreferredName("TBD");
-        codeMap.put(code.getTerminologyId(), code);
+        codeMap.put(fields[13] + fields[11], code);
       }
       if (code != null) {
         code.addAtom(atom);

@@ -20,21 +20,27 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
+import com.wci.umls.server.helpers.content.DefinitionList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.LexicalClassList;
+import com.wci.umls.server.helpers.content.SemanticTypeComponentList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.IndexUtility;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
+import com.wci.umls.server.jpa.helpers.content.DefinitionListJpa;
 import com.wci.umls.server.jpa.helpers.content.DescriptorListJpa;
 import com.wci.umls.server.jpa.helpers.content.LexicalClassListJpa;
+import com.wci.umls.server.jpa.helpers.content.SemanticTypeComponentListJpa;
 import com.wci.umls.server.jpa.helpers.content.StringClassListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.model.content.Atom;
@@ -43,9 +49,11 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.services.ContentService;
@@ -363,6 +371,371 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.services.ContentService#getDefinition(java.lang.Long)
+   */
+  @Override
+  public Definition getDefinition(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get definition " + id);
+    Definition c = manager.find(DefinitionJpa.class, id);
+    return c;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getDefinitions(java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  public DefinitionList getDefinitions(String terminologyId, String terminology,
+    String version) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get definitions " + terminologyId + "/" + terminology
+            + "/" + version);
+    javax.persistence.Query query =
+        manager
+            .createQuery("select c from DefinitionJpa c where terminologyId = :terminologyId and terminologyVersion = :version and terminology = :terminology");
+    /*
+     * Try to retrieve the single expected result If zero or more than one
+     * result are returned, log error and set result to null
+     */
+    try {
+      query.setParameter("terminologyId", terminologyId);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      @SuppressWarnings("unchecked")
+      List<Definition> m = query.getResultList();
+      DefinitionListJpa definitionList = new DefinitionListJpa();
+      definitionList.setObjects(m);
+      definitionList.setTotalCount(m.size());
+      return definitionList;
+
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getDefinition(java.lang.String,
+   * java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public Definition getDefinition(String terminologyId, String terminology,
+    String version, String branch) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get definition " + terminologyId + "/" + terminology
+            + "/" + version + "/" + branch);
+    DefinitionList cl = getDefinitions(terminologyId, terminology, version);
+    if (cl == null || cl.getTotalCount() == 0) {
+      Logger.getLogger(getClass()).debug("  no definition ");
+      return null;
+    }
+    Definition nullBranch = null;
+    for (Definition c : cl.getObjects()) {
+      // handle null case
+      if (c.getBranch() == null) {
+        nullBranch = c;
+      }
+      if (c.getBranch() == null && branch == null) {
+        return c;
+      }
+      if (c.getBranch().equals(branch)) {
+        return c;
+      }
+    }
+    // if it falls out and branch isn't null but nullBranch is set, return it
+    // this is the "master" branch copy.
+    if (nullBranch != null) {
+      return nullBranch;
+    }
+    // If nothing found, return null;
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#addDefinition(com.wci.umls.server
+   * .model.content.Definition)
+   */
+  @Override
+  public Definition addDefinition(Definition definition) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - add definition " + definition.getTerminologyId());
+    // Assign id
+    IdentifierAssignmentHandler idHandler = null;
+    if (assignIdentifiersFlag) {
+      idHandler = idHandlerMap.get(definition.getTerminology());
+      if (idHandler == null) {
+        throw new Exception("Unable to find id handler for "
+            + definition.getTerminology());
+      }
+      String id = idHandler.getTerminologyId(definition);
+      definition.setTerminologyId(id);
+    }
+
+    // Add component
+    Definition newDefinition = addComponent(definition);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.definitionChanged(newDefinition, WorkflowListener.Action.ADD);
+      }
+    }
+    return newDefinition;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#updateDefinition(com.wci.umls.
+   * server.model.content.Definition)
+   */
+  @Override
+  public void updateDefinition(Definition definition) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - update definition " + definition.getTerminologyId());
+
+    // Id assignment should not change
+    final IdentifierAssignmentHandler idHandler =
+        idHandlerMap.get(definition.getTerminology());
+    if (assignIdentifiersFlag) {
+      if (!idHandler.allowIdChangeOnUpdate()) {
+        Definition definition2 = getDefinition(definition.getId());
+        if (!idHandler.getTerminologyId(definition).equals(
+            idHandler.getTerminologyId(definition2))) {
+          throw new Exception(
+              "Update cannot be used to change object identity.");
+        }
+      } else {
+        // set definition id on update
+        definition.setTerminologyId(idHandler.getTerminologyId(definition));
+      }
+    }
+    // update component
+    this.updateComponent(definition);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.definitionChanged(definition, WorkflowListener.Action.UPDATE);
+      }
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#removeDefinition(java.lang.Long)
+   */
+  @Override
+  public void removeDefinition(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - remove definition " + id);
+    // Remove the component
+    Definition definition = removeComponent(id, DefinitionJpa.class);
+
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.definitionChanged(definition, WorkflowListener.Action.REMOVE);
+      }
+    }
+  }
+  
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.services.ContentService#getSemanticTypeComponent(java.lang.Long)
+   */
+  @Override
+  public SemanticTypeComponent getSemanticTypeComponent(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get semanticTypeComponent " + id);
+    SemanticTypeComponent c = manager.find(SemanticTypeComponentJpa.class, id);
+    return c;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getSemanticTypeComponents(java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  public SemanticTypeComponentList getSemanticTypeComponents(String terminologyId, String terminology,
+    String version) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get semanticTypeComponents " + terminologyId + "/" + terminology
+            + "/" + version);
+    javax.persistence.Query query =
+        manager
+            .createQuery("select c from SemanticTypeComponentJpa c where terminologyId = :terminologyId and terminologyVersion = :version and terminology = :terminology");
+    /*
+     * Try to retrieve the single expected result If zero or more than one
+     * result are returned, log error and set result to null
+     */
+    try {
+      query.setParameter("terminologyId", terminologyId);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      @SuppressWarnings("unchecked")
+      List<SemanticTypeComponent> m = query.getResultList();
+      SemanticTypeComponentListJpa semanticTypeComponentList = new SemanticTypeComponentListJpa();
+      semanticTypeComponentList.setObjects(m);
+      semanticTypeComponentList.setTotalCount(m.size());
+      return semanticTypeComponentList;
+
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getSemanticTypeComponent(java.lang.String,
+   * java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public SemanticTypeComponent getSemanticTypeComponent(String terminologyId, String terminology,
+    String version, String branch) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get semanticTypeComponent " + terminologyId + "/" + terminology
+            + "/" + version + "/" + branch);
+    SemanticTypeComponentList cl = getSemanticTypeComponents(terminologyId, terminology, version);
+    if (cl == null || cl.getTotalCount() == 0) {
+      Logger.getLogger(getClass()).debug("  no semanticTypeComponent ");
+      return null;
+    }
+    SemanticTypeComponent nullBranch = null;
+    for (SemanticTypeComponent c : cl.getObjects()) {
+      // handle null case
+      if (c.getBranch() == null) {
+        nullBranch = c;
+      }
+      if (c.getBranch() == null && branch == null) {
+        return c;
+      }
+      if (c.getBranch().equals(branch)) {
+        return c;
+      }
+    }
+    // if it falls out and branch isn't null but nullBranch is set, return it
+    // this is the "master" branch copy.
+    if (nullBranch != null) {
+      return nullBranch;
+    }
+    // If nothing found, return null;
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#addSemanticTypeComponent(com.wci.umls.server
+   * .model.content.SemanticTypeComponent)
+   */
+  @Override
+  public SemanticTypeComponent addSemanticTypeComponent(SemanticTypeComponent semanticTypeComponent) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - add semanticTypeComponent " + semanticTypeComponent.getTerminologyId());
+    // Assign id
+    IdentifierAssignmentHandler idHandler = null;
+    if (assignIdentifiersFlag) {
+      idHandler = idHandlerMap.get(semanticTypeComponent.getTerminology());
+      if (idHandler == null) {
+        throw new Exception("Unable to find id handler for "
+            + semanticTypeComponent.getTerminology());
+      }
+      String id = idHandler.getTerminologyId(semanticTypeComponent);
+      semanticTypeComponent.setTerminologyId(id);
+    }
+
+    // Add component
+    SemanticTypeComponent newSemanticTypeComponent = addComponent(semanticTypeComponent);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.semanticTypeChanged(newSemanticTypeComponent, WorkflowListener.Action.ADD);
+      }
+    }
+    return newSemanticTypeComponent;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#updateSemanticTypeComponent(com.wci.umls.
+   * server.model.content.SemanticTypeComponent)
+   */
+  @Override
+  public void updateSemanticTypeComponent(SemanticTypeComponent semanticTypeComponent) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - update semanticTypeComponent " + semanticTypeComponent.getTerminologyId());
+
+    // Id assignment should not change
+    final IdentifierAssignmentHandler idHandler =
+        idHandlerMap.get(semanticTypeComponent.getTerminology());
+    if (assignIdentifiersFlag) {
+      if (!idHandler.allowIdChangeOnUpdate()) {
+        SemanticTypeComponent semanticTypeComponent2 = getSemanticTypeComponent(semanticTypeComponent.getId());
+        if (!idHandler.getTerminologyId(semanticTypeComponent).equals(
+            idHandler.getTerminologyId(semanticTypeComponent2))) {
+          throw new Exception(
+              "Update cannot be used to change object identity.");
+        }
+      } else {
+        // set semanticTypeComponent id on update
+        semanticTypeComponent.setTerminologyId(idHandler.getTerminologyId(semanticTypeComponent));
+      }
+    }
+    // update component
+    this.updateComponent(semanticTypeComponent);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.semanticTypeChanged(semanticTypeComponent, WorkflowListener.Action.UPDATE);
+      }
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#removeSemanticTypeComponent(java.lang.Long)
+   */
+  @Override
+  public void removeSemanticTypeComponent(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - remove semanticTypeComponent " + id);
+    // Remove the component
+    SemanticTypeComponent semanticTypeComponent = removeComponent(id, SemanticTypeComponentJpa.class);
+
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.semanticTypeChanged(semanticTypeComponent, WorkflowListener.Action.REMOVE);
+      }
+    }
+  }
+  
+  
   /*
    * (non-Javadoc)
    * 
@@ -1757,5 +2130,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       throw e;
     }
   }
+
+
 
 }
