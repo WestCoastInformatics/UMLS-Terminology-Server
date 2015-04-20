@@ -98,5 +98,16 @@ public interface HistoryServiceRest {
    */
   public void removeReleaseInfo(Long id, String authToken) throws Exception;
 
+  /**
+   * Start editing cycle for a release.
+   *
+   * @param releaseVersion the release version
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void startEditingCycle(String releaseVersion, String terminology,
+    String version, String authToken) throws Exception;
 
 }

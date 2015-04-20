@@ -20,6 +20,7 @@ import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ReleaseInfoList;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
+import com.wci.umls.server.jpa.algo.StartEditingCycleAlgorithm;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.HistoryServiceRest;
@@ -320,5 +321,32 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  @Override
+  @POST
+  @Path("/release/startEditingCycle/{releaseVersion}/{terminology}/{version}")
+  @ApiOperation(value = "Start the editing cycle", notes = "Marks the start of the editing cycle for the specified release for the specified terminology/version")
+  public void startEditingCycle(
+    @ApiParam(value = "Release version, e.g. 20150131 or 2015AA", required = true) @PathParam("releaseVersion") String releaseVersion,
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (History): /release/startEditingCycle/" + releaseVersion
+            + "/" + terminology + "/" + version);
+    try {
+      authenticate(securityService, authToken, "start editing cycle",
+          UserRole.ADMINISTRATOR);
+      // Perform operations
+      StartEditingCycleAlgorithm algorithm =
+          new StartEditingCycleAlgorithm(releaseVersion, terminology, version);
+      algorithm.setUser(securityService.getUsernameForToken(authToken));
+      algorithm.compute();
+    } catch (Exception e) {
+      handleException(e, "start editing cycle");
+    } finally {
+      securityService.close();
+    }
+  }
 
 }

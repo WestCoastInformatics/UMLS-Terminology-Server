@@ -30,12 +30,12 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
 
   /** The from Code. */
   @ManyToOne(targetEntity = CodeJpa.class, optional = false)
-  @JoinColumn(nullable = true)
+  @JoinColumn(nullable = false)
   private Code from;
 
   /** the to Code. */
   @ManyToOne(targetEntity = CodeJpa.class, optional = false)
-  @JoinColumn(nullable = true)
+  @JoinColumn(nullable = false)
   private Code to;
 
   /**

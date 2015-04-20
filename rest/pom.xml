@@ -44,10 +44,6 @@
       <groupId>com.wci.umls.server</groupId>
       <artifactId>term-server-services</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.wci.umls.server</groupId>
-      <artifactId>term-server-jpa-services</artifactId>
-    </dependency>
 
     <!-- JPA dependencies -->
     <dependency>
@@ -201,7 +197,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
-          <warName>term-server-rest</warName>
+          <warName>umls-server-rest</warName>
           <attachClasses>true</attachClasses>
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
           <webResources>

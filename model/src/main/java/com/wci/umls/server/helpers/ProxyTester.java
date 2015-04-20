@@ -276,6 +276,10 @@ public class ProxyTester {
       List list = new ArrayList();
       return list;
     }
+    if (type == Map.class) {
+      Map map = new HashMap<>();
+      return map;
+    }
     if (type == BigInteger.class)
       return new BigInteger("" + initializer);
     // JAVA5 - Comment out or remove the next two lines on older Java versions.

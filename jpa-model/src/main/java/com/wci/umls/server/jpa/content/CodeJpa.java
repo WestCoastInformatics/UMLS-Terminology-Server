@@ -51,7 +51,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
     super(code, deepCopy);
     if (deepCopy) {
       for (CodeRelationship relationship : code.getRelationships()) {
-        addRelationship(relationship);
+        addRelationship(new CodeRelationshipJpa(relationship, deepCopy));
       }
     }
   }

@@ -15,6 +15,9 @@ import org.hibernate.search.jpa.Search;
 
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.services.RootServiceJpa;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
@@ -129,18 +132,65 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
     FullTextEntityManager fullTextEntityManager =
         Search.getFullTextEntityManager(manager);
 
-//    // Concepts = TODO: reenable this
-//    if (objectsToReindex.contains("ConceptJpa")) {
-//      Logger.getLogger(getClass()).info("  Creating indexes for ConceptJpa");
-//      fullTextEntityManager.purgeAll(ConceptJpa.class);
-//      fullTextEntityManager.flushToIndexes();
-//      fullTextEntityManager.createIndexer(ConceptJpa.class)
-//          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
-//          .threadsToLoadObjects(4).startAndWait();
-//
-//      objectsToReindex.remove("ConceptJpa");
-//    }
+    // Concepts
+    if (objectsToReindex.contains("ConceptJpa")) {
+      Logger.getLogger(getClass()).info("  Creating indexes for ConceptJpa");
+      fullTextEntityManager.purgeAll(ConceptJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(ConceptJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
 
+      objectsToReindex.remove("ConceptJpa");
+    }
+
+    // Descriptor
+    if (objectsToReindex.contains("DescriptorJpa")) {
+      Logger.getLogger(getClass()).info("  Creating indexes for DescriptorJpa");
+      fullTextEntityManager.purgeAll(DescriptorJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(DescriptorJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("DescriptorJpa");
+    }
+
+    // Descriptor
+    if (objectsToReindex.contains("DescriptorJpa")) {
+      Logger.getLogger(getClass()).info("  Creating indexes for DescriptorJpa");
+      fullTextEntityManager.purgeAll(DescriptorJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(DescriptorJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("DescriptorJpa");
+    }
+
+    // Lexical Class
+    if (objectsToReindex.contains("LexicalClassJpa")) {
+      Logger.getLogger(getClass()).info("  Creating indexes for LexicalClassJpa");
+      fullTextEntityManager.purgeAll(DescriptorJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(DescriptorJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("DescriptorJpa");
+    }
+
+    // StringClass
+    if (objectsToReindex.contains("StringClassJpa")) {
+      Logger.getLogger(getClass()).info("  Creating indexes for StringClassJpa");
+      fullTextEntityManager.purgeAll(StringClassJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(StringClassJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("StringClassJpa");
+    }
     // Projects
     if (objectsToReindex.contains("ProjectJpa")) {
       Logger.getLogger(getClass()).info("  Creating indexes for ProjectJpa");

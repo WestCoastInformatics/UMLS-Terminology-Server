@@ -24,12 +24,15 @@ import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
+import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
@@ -50,6 +53,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /** The definitions. */
   @OneToMany(orphanRemoval = true, targetEntity = DefinitionJpa.class)
+  @IndexedEmbedded
   private List<Definition> definitions = null;
 
   /** The relationships. */
@@ -69,6 +73,10 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /** The descriptor id. */
   @Column(nullable = true)
   private String descriptorId;
+
+  /** The concept id. */
+  @Column(nullable = true)
+  private String conceptId;
 
   /** The language. */
   @Column(nullable = false)
@@ -121,6 +129,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     codeId = atom.getCodeId();
     conceptTerminologyIdMap = atom.getConceptTerminologyIdMap();
     descriptorId = atom.getDescriptorId();
+    conceptId = atom.getDescriptorId();
     language = atom.getLanguage();
     lexicalClassId = atom.getLexicalClassId();
     stringClassId = atom.getStringClassId();
@@ -130,10 +139,10 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
     if (deepCopy) {
       for (Definition definition : atom.getDefinitions()) {
-        addDefinition(definition);
+        addDefinition(new DefinitionJpa(definition, deepCopy));
       }
       for (AtomRelationship relationship : atom.getRelationships()) {
-        addRelationship(relationship);
+        addRelationship(new AtomRelationshipJpa(relationship, deepCopy));
       }
     }
   }
@@ -171,7 +180,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @XmlElement(type = AtomRelationshipJpa.class, name = "relationship")
   @Override
   public List<AtomRelationship> getRelationships() {
-    if (relationships  == null) {
+    if (relationships == null) {
       relationships = new ArrayList<>();
     }
     return relationships;
@@ -196,6 +205,8 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    */
   @Override
   @XmlTransient
+  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @Field(name = "conceptId", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public Map<String, String> getConceptTerminologyIdMap() {
     return conceptTerminologyIdMap;
   }
@@ -252,6 +263,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @see com.wci.umls.server.model.content.Atom#getCodeId()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getCodeId() {
     return codeId;
   }
@@ -272,6 +284,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @see com.wci.umls.server.model.content.Atom#getDescriptorId()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getDescriptorId() {
     return descriptorId;
   }
@@ -287,12 +300,24 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     this.descriptorId = descriptorId;
   }
 
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getConceptId() {
+    return conceptId;
+  }
+
+  @Override
+  public void setConceptId(String conceptId) {
+    this.conceptId = conceptId;
+  }
+
   /*
    * (non-Javadoc)
    * 
    * @see com.wci.umls.server.model.content.Atom#getLanguage()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getLanguage() {
     return language;
   }
@@ -313,6 +338,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @see com.wci.umls.server.model.content.Atom#getLexicalClassId()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getLexicalClassId() {
     return lexicalClassId;
   }
@@ -334,6 +360,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @see com.wci.umls.server.model.content.Atom#getStringClassId()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getStringClassId() {
     return stringClassId;
   }
@@ -380,6 +407,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @see com.wci.umls.server.model.content.Atom#getTermType()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTermType() {
     return termType;
   }
@@ -400,6 +428,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @see com.wci.umls.server.model.content.Atom#getWorkflowStatus()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getWorkflowStatus() {
     return workflowStatus;
   }
@@ -519,6 +548,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     result = prime * result + ((codeId == null) ? 0 : codeId.hashCode());
     result =
         prime * result + ((descriptorId == null) ? 0 : descriptorId.hashCode());
+    result = prime * result + ((conceptId == null) ? 0 : conceptId.hashCode());
     result = prime * result + ((language == null) ? 0 : language.hashCode());
     result =
         prime * result
@@ -555,6 +585,11 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
       if (other.descriptorId != null)
         return false;
     } else if (!descriptorId.equals(other.descriptorId))
+      return false;
+    if (conceptId == null) {
+      if (other.conceptId != null)
+        return false;
+    } else if (!conceptId.equals(other.conceptId))
       return false;
     if (language == null) {
       if (other.language != null)
@@ -593,9 +628,9 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   public String toString() {
     return "AtomJpa [conceptTerminologyIdMap=" + conceptTerminologyIdMap
         + ", codeId=" + codeId + ", descriptorId=" + descriptorId
-        + ", language=" + language + ", lexicalClassId=" + lexicalClassId
-        + ", stringClassId=" + stringClassId + ", term=" + term + ", termType="
-        + termType + "]";
+        + ", conceptId=" + conceptId + ", language=" + language
+        + ", lexicalClassId=" + lexicalClassId + ", stringClassId="
+        + stringClassId + ", term=" + term + ", termType=" + termType + "]";
   }
 
 }

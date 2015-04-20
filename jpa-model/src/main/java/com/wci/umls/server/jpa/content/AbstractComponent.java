@@ -353,17 +353,14 @@ public abstract class AbstractComponent implements Component {
     this.terminologyId = terminologyId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + (obsolete ? 1231 : 1237);
     result = prime * result + (publishable ? 1231 : 1237);
     result = prime * result + (published ? 1231 : 1237);
+    result = prime * result + (suppressible ? 1231 : 1237);
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result =
@@ -376,11 +373,6 @@ public abstract class AbstractComponent implements Component {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -390,9 +382,13 @@ public abstract class AbstractComponent implements Component {
     if (getClass() != obj.getClass())
       return false;
     AbstractComponent other = (AbstractComponent) obj;
+    if (obsolete != other.obsolete)
+      return false;
     if (publishable != other.publishable)
       return false;
     if (published != other.published)
+      return false;
+    if (suppressible != other.suppressible)
       return false;
     if (terminology == null) {
       if (other.terminology != null)

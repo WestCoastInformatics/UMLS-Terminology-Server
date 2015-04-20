@@ -266,7 +266,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         if (info == null) {
           info = new ReleaseInfoJpa();
           info.setName(version);
-          info.setDescription(terminology + " " + version + " release");
+          info.setDescription(terminology.getTerminology() + " " + version
+              + " release");
           info.setPlanned(false);
           info.setPublished(true);
           info.setReleaseBeginDate(null);
@@ -1190,6 +1191,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // Set default preferred names
     for (Concept concept : conceptMap.values()) {
       concept.setDefaultPreferredName(getComputedPreferredName(concept));
+      addConcept(concept);
       if (objectCt % logCt == 0) {
         Logger.getLogger(getClass()).info("    count = " + objectCt);
       }
@@ -1201,6 +1203,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
     for (Descriptor descriptor : descriptorMap.values()) {
       descriptor.setDefaultPreferredName(getComputedPreferredName(descriptor));
+      addDescriptor(descriptor);
       if (objectCt % logCt == 0) {
         Logger.getLogger(getClass()).info("    count = " + objectCt);
       }
@@ -1212,6 +1215,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
     for (Code code : codeMap.values()) {
       code.setDefaultPreferredName(getComputedPreferredName(code));
+      addCode(code);
       if (objectCt % logCt == 0) {
         Logger.getLogger(getClass()).info("    count = " + objectCt);
       }
@@ -1223,6 +1227,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
     for (LexicalClass lui : lexicalClassMap.values()) {
       lui.setDefaultPreferredName(getComputedPreferredName(lui));
+      addLexicalClass(lui);
       if (objectCt % logCt == 0) {
         Logger.getLogger(getClass()).info("    count = " + objectCt);
       }

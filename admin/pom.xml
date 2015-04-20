@@ -22,6 +22,7 @@
     <module>lucene</module>
     <module>loader</module>
     <module>remover</module>
+    <module>release</module>
     <module>qa</module>
   </modules>
 </project>

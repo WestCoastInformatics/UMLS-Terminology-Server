@@ -31,12 +31,12 @@ public class DescriptorRelationshipJpa extends
 
   /** The from concept. */
   @ManyToOne(targetEntity = DescriptorJpa.class, optional = false)
-  @JoinColumn(nullable = true)
+  @JoinColumn(nullable = false)
   private Descriptor from;
 
   /** the to concept. */
   @ManyToOne(targetEntity = DescriptorJpa.class, optional = false)
-  @JoinColumn(nullable = true)
+  @JoinColumn(nullable = false)
   private Descriptor to;
 
   /**
