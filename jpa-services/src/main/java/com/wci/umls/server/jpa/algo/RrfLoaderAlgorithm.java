@@ -113,23 +113,31 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** The loaded terminologies. */
   private Map<String, Terminology> loadedTerminologies = new HashMap<>();
 
-  /** The loaded term types */
+  /** The loaded term types. */
   private Map<String, TermType> loadedTermTypes = new HashMap<>();
 
+  /** The term id type map. */
   private Map<String, IdType> termIdTypeMap = new HashMap<>();
 
+  /** The code map. */
   private Map<String, Code> codeMap = new HashMap<>();
 
+  /** The concept map. */
   private Map<String, Concept> conceptMap = new HashMap<>();
 
+  /** The descriptor map. */
   private Map<String, Descriptor> descriptorMap = new HashMap<>();
 
+  /** The lexical class map. */
   private Map<String, LexicalClass> lexicalClassMap = new HashMap<>();
 
+  /** The string class map. */
   private Map<String, StringClass> stringClassMap = new HashMap<>();
 
+  /** The atom map. */
   private Map<String, Atom> atomMap = new HashMap<>();
 
+  /** The relationship map. */
   private Map<String, Relationship> relationshipMap = new HashMap<>();
 
   /**
@@ -323,7 +331,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /**
    * Loads the semantic types.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   private void loadSrdef() throws Exception {
     Logger.getLogger(getClass()).info("  Load Semantic types");
@@ -384,7 +393,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /**
    * Loads the MRDOC data.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   private void loadMrdoc() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRDOC abbreviation types");
@@ -580,7 +590,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /**
    * Load definitions.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   private void loadMrdef() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRDEF data");
@@ -651,7 +662,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /**
    * Load attributes.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   private void loadMrsat() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRSAT data");
@@ -760,7 +772,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /**
    * Load semantic types.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   private void loadMrsty() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRSTY data");
@@ -805,7 +818,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /**
    * Load terminologies.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   private void loadMrsab() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRSAB data");

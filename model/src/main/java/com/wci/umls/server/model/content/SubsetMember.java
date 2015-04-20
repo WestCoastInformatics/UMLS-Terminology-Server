@@ -1,31 +1,26 @@
 /**
  * Copyright 2015 West Coast Informatics, LLC
  */
-/*************************************************************
- * SubsetMember: SubsetMember.java
- * Last Updated: Feb 27, 2009
- *************************************************************/
 package com.wci.umls.server.model.content;
-
-
 
 /**
  * Represents membership of something in a {@link Subset}.
+ * @param <T> the type
  */
-public interface SubsetMember extends ComponentHasAttributes {
+public interface SubsetMember<T extends ComponentHasAttributes> extends
+    ComponentHasAttributes {
 
-	/**
-	 * Returns the subset.
-	 * 
-	 * @return the subset
-	 */
-	public Subset getSubset();
+  /**
+   * Returns the member.
+   *
+   * @return the member
+   */
+  public T getMember();
 
-	/**
-	 * Sets the subset.
-	 * 
-	 * @param Subset the subset
-	 */
-	public void setSubset(Subset Subset);
-
+  /**
+   * Sets the member.
+   *
+   * @param member the new member
+   */
+  public void setMember(T member);
 }

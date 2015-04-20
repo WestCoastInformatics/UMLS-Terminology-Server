@@ -197,7 +197,8 @@ public interface WorkflowListener extends Configurable {
    * @param subsetMember the subset member
    * @param action the action
    */
-  public void subsetMemberChanged(SubsetMember subsetMember, Action action);
+  public void subsetMemberChanged(
+    SubsetMember<? extends ComponentHasAttributes> subsetMember, Action action);
 
   /**
    * Metadata changed.

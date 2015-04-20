@@ -31,7 +31,7 @@ public class DefaultIdentifierAssignmentHandler implements
   @Override
   public void setProperties(Properties p) throws Exception {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
@@ -92,7 +92,8 @@ public class DefaultIdentifierAssignmentHandler implements
 
   @Override
   public String getTerminologyId(
-    TransitiveRelationship<? extends ComponentHasAttributes> relationship) throws Exception {
+    TransitiveRelationship<? extends ComponentHasAttributes> relationship)
+    throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
@@ -104,7 +105,9 @@ public class DefaultIdentifierAssignmentHandler implements
   }
 
   @Override
-  public String getTerminologyId(SubsetMember subsetMember) throws Exception {
+  public String getTerminologyId(
+    SubsetMember<? extends ComponentHasAttributes> subsetMember)
+    throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
@@ -121,11 +124,11 @@ public class DefaultIdentifierAssignmentHandler implements
     return false;
   }
 
-@Override
-public String getTerminologyId(SemanticTypeComponent semanticTypeComponent)
-		throws Exception {
-	// TODO Auto-generated method stub
-	return null;
-}
+  @Override
+  public String getTerminologyId(SemanticTypeComponent semanticTypeComponent)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }

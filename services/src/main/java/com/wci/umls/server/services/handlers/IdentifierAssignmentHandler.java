@@ -115,7 +115,8 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @throws Exception the exception
    */
   public String getTerminologyId(
-    TransitiveRelationship<? extends ComponentHasAttributes> relationship) throws Exception;
+    TransitiveRelationship<? extends ComponentHasAttributes> relationship)
+    throws Exception;
 
   // editing of maps is not currently supported
 
@@ -135,7 +136,9 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @return the string
    * @throws Exception the exception
    */
-  public String getTerminologyId(SubsetMember subsetMember) throws Exception;
+  public String getTerminologyId(
+    SubsetMember<? extends ComponentHasAttributes> subsetMember)
+    throws Exception;
 
   /**
    * Gets the terminology id.
@@ -144,8 +147,9 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @return the terminology id
    * @throws Exception the exception
    */
-  public String getTerminologyId(SemanticTypeComponent semanticTypeComponent) throws Exception;
-  
+  public String getTerminologyId(SemanticTypeComponent semanticTypeComponent)
+    throws Exception;
+
   /**
    * Indicates whether this algorithm allows identifiers to change on an update.
    * That is a computation of the id before and after should produce the same

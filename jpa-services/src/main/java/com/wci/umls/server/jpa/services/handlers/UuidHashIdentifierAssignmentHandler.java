@@ -94,7 +94,8 @@ public class UuidHashIdentifierAssignmentHandler implements
 
   @Override
   public String getTerminologyId(
-    TransitiveRelationship<? extends ComponentHasAttributes> relationship) throws Exception {
+    TransitiveRelationship<? extends ComponentHasAttributes> relationship)
+    throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
@@ -106,7 +107,8 @@ public class UuidHashIdentifierAssignmentHandler implements
   }
 
   @Override
-  public String getTerminologyId(SubsetMember subsetMember) throws Exception {
+  public String getTerminologyId(
+    SubsetMember<? extends ComponentHasAttributes> subsetMember) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
@@ -123,11 +125,11 @@ public class UuidHashIdentifierAssignmentHandler implements
     return false;
   }
 
-@Override
-public String getTerminologyId(SemanticTypeComponent semanticTypeComponent)
-		throws Exception {
-	// TODO Auto-generated method stub
-	return null;
-}
+  @Override
+  public String getTerminologyId(SemanticTypeComponent semanticTypeComponent)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }
