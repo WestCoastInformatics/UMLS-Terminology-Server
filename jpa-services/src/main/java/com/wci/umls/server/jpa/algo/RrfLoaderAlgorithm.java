@@ -1030,6 +1030,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       atom.setCodeId(fields[13]);
       atom.setDescriptorId(fields[9]);
+      atom.setConceptId(fields[10]);
       atom.setStringClassId(fields[5]);
       atom.setLexicalClassId(fields[3]);
       atom.setCodeId(fields[13]);
@@ -1084,7 +1085,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       if (scui != null) {
         scui.addAtom(atom);
-        atom.addConcept(scui);
       }
 
       // SDUI
@@ -1107,7 +1107,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       if (sdui != null) {
         sdui.addAtom(atom);
-        atom.setDescriptorId(sdui.getTerminologyId());
       }
 
       // CODE
@@ -1130,7 +1129,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       if (code != null) {
         code.addAtom(atom);
-        atom.setCodeId(code.getTerminologyId());
       }
 
       LexicalClass lui = null;
@@ -1152,7 +1150,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       if (lui != null) {
         lui.addAtom(atom);
-        atom.setLexicalClassId(lui.getTerminologyId());
       }
 
       StringClass sui = null;
@@ -1175,7 +1172,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       if (sui != null) {
         sui.addAtom(atom);
-        atom.setStringClassId(sui.getTerminologyId());
       }
 
       // Add atoms and commit periodically
