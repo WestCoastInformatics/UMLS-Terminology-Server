@@ -49,9 +49,11 @@ public class RrfComputePreferredNameHandler implements
     // n/a
   }
 
-
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#computePreferredName(java.util.Collection)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#
+   * computePreferredName(java.util.Collection)
    */
   @Override
   public String computePreferredName(Collection<Atom> atoms) throws Exception {
@@ -89,7 +91,8 @@ public class RrfComputePreferredNameHandler implements
   private String getRank(Atom atom) {
     return ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType())
         + (10000000000L - Long.parseLong(atom.getStringClassId().substring(1)))
-        + (10000000000L - Long.parseLong(atom.getTerminologyId().substring(1)));
+        + (10000000000L - Long.parseLong(atom.getAlternateTerminologyIds().get(
+            "UMLS")));
   }
 
   /**
