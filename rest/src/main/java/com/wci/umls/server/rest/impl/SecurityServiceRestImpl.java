@@ -36,10 +36,10 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Path("/security")
 @Api(value = "/security", description = "Operations supporting security.")
 @Consumes({
-  MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+    MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Produces({
-  MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+    MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     SecurityServiceRest {
@@ -60,7 +60,8 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Authenticate a user.", notes = "Performs authentication on specified username and password and returns a token upon successful authentication. Throws 401 error if not.", response = String.class)
   public String authenticate(
     @ApiParam(value = "Username, e.g. 'guest'", required = true) @PathParam("username") String username,
-    @ApiParam(value = "Password, as string post data, e.g. 'guest'", required = true) String password) throws Exception {
+    @ApiParam(value = "Password, as string post data, e.g. 'guest'", required = true) String password)
+    throws Exception {
 
     Logger.getLogger(getClass())
         .info(
@@ -70,7 +71,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     try {
       String authToken = securityService.authenticate(username, password);
       securityService.close();
-      
+
       if (authToken == null)
         throw new LocalException("Unable to authenticate user");
       return authToken;
@@ -94,16 +95,17 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/logout/{authToken}")
-  @ApiOperation(value = "Logs out an auth token.", notes = "Performs logout on specified auth token.", response = String.class)
+  @ApiOperation(value = "Logs out an auth token.", notes = "Performs logout on specified auth token.", response = Boolean.class)
   public boolean logout(
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @PathParam("authToken") String authToken) throws Exception {
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @PathParam("authToken") String authToken)
+    throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Authentication): /logout for authToken = " + authToken);
     SecurityService securityService = new SecurityServiceJpa();
     try {
-       securityService.logout(authToken);
-       securityService.close();
+      securityService.logout(authToken);
+      securityService.close();
       return true;
     } catch (LocalException e) {
       securityService.close();
@@ -129,9 +131,9 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Get user by id", notes = "Gets the user for the specified id.", response = User.class)
   public User getUser(
     @ApiParam(value = "User internal id, e.g. 2", required = true) @PathParam("id") Long id,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /user/id/" + id);
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Content): /user/id/" + id);
     SecurityService securityService = new SecurityServiceJpa();
     try {
       authenticate(securityService, authToken, "retrieve the user",
@@ -158,7 +160,8 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Get user by name", notes = "Gets the user for the specified name.", response = User.class)
   public User getUser(
     @ApiParam(value = "Username, e.g. \"guest\"", required = true) @PathParam("username") String username,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken) throws Exception {
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /user/name/" + username);
     SecurityService securityService = new SecurityServiceJpa();
@@ -185,9 +188,9 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Path("/user/users")
   @ApiOperation(value = "Get all users", notes = "Gets all users.", response = UserList.class)
   public UserList getUsers(
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /user/users");
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Content): /user/users");
     SecurityService securityService = new SecurityServiceJpa();
     try {
       authenticate(securityService, authToken, "retrieve all users",
@@ -222,7 +225,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
 
     SecurityService securityService = new SecurityServiceJpa();
     try {
-     
+
       authenticate(securityService, authToken, "add concept",
           UserRole.ADMINISTRATOR);
 
@@ -253,7 +256,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
     Logger.getLogger(getClass()).info(
         "RESTful DELETE call (ContentChange): /user/remove/id/" + id);
-    
+
     SecurityService securityService = new SecurityServiceJpa();
     try {
       authenticate(securityService, authToken, "remove user",
@@ -268,6 +271,13 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.SecurityServiceRest#updateUser(com
+   * .wci.umls.server.jpa.UserJpa, java.lang.String)
+   */
   @Override
   @POST
   @Path("/user/update")

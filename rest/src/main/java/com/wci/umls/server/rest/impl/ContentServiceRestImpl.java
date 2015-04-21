@@ -61,6 +61,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     securityService = new SecurityServiceJpa();
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#luceneReindex(
+   * java.lang.String, java.lang.String)
+   */
   @Override
   @POST
   @Path("/reindex")
@@ -104,6 +111,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * computeTransitiveClosure(java.lang.String, java.lang.String,
+   * java.lang.String)
+   */
   @Override
   @POST
   @Path("/terminology/closure/compute/{terminology}/{version}")
@@ -148,6 +162,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyRrf
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
   @Override
   @PUT
   @Path("/terminology/load/rrf/{terminology}/{version}")
@@ -231,6 +252,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#removeTerminology
+   * (java.lang.String, java.lang.String, java.lang.String)
+   */
   @Override
   @DELETE
   @Path("/terminology/remove/{terminology}/{version}")
