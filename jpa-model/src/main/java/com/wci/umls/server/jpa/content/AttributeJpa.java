@@ -3,8 +3,14 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -32,6 +38,12 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
   @Column(nullable = false, length = 4000)
   private String value;
 
+  /** The alternate terminology ids. */
+  @ElementCollection
+  @CollectionTable(name = "att_alt_terminology_ids", joinColumns = @JoinColumn(name = "attribute_id"))
+  @Column(nullable = true)
+  private Map<String, String> alternateTerminologyIds;
+
   /**
    * Instantiates an empty {@link AttributeJpa}.
    */
@@ -48,6 +60,7 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
     super(attribute);
     name = attribute.getName();
     value = attribute.getValue();
+    alternateTerminologyIds = attribute.getAlternateTerminologyIds();
   }
 
   /*
@@ -93,6 +106,62 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
   /*
    * (non-Javadoc)
    * 
+   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
+   * getAlternateTerminologyIds()
+   */
+  @Override
+  public Map<String, String> getAlternateTerminologyIds() {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>();
+    }
+    return alternateTerminologyIds;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
+   * setAlternateTerminologyIds(java.util.Map)
+   */
+  @Override
+  public void setAlternateTerminologyIds(
+    Map<String, String> alternateTerminologyIds) {
+    this.alternateTerminologyIds = alternateTerminologyIds;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
+   * putAlternateTerminologyId(java.lang.String, java.lang.String)
+   */
+  @Override
+  public void putAlternateTerminologyId(String terminology, String terminologyId) {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>();
+    }
+    alternateTerminologyIds.put(terminology, terminologyId);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
+   * removeAlternateTerminologyId(java.lang.String)
+   */
+  @Override
+  public void removeAlternateTerminologyId(String terminology) {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>();
+    }
+    alternateTerminologyIds.remove(terminology);
+
+  }
+
+  /**
+   * CUSTOM to support alternateTerminologyIds.
+   *
+   * @return the int
    * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
    */
   @Override
@@ -101,6 +170,11 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
     int result = super.hashCode();
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
+    result =
+        prime
+            * result
+            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
+                .toString().hashCode());
     return result;
   }
 
@@ -129,6 +203,11 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
         return false;
     } else if (!value.equals(other.value))
       return false;
+    if (alternateTerminologyIds == null) {
+      if (other.alternateTerminologyIds != null)
+        return false;
+    } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
+      return false;
     return true;
   }
 
@@ -139,7 +218,8 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
    */
   @Override
   public String toString() {
-    return "AttributeJpa [name=" + name + ", value=" + value + "]";
+    return "AttributeJpa [name=" + name + ", value=" + value
+        + ", alternateTerminologyIds=" + alternateTerminologyIds + "]";
   }
 
 }

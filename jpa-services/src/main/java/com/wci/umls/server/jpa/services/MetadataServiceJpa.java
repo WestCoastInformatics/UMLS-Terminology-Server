@@ -599,7 +599,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       for (EntityType<?> type : manager.getMetamodel().getEntities()) {
         String jpaTable = type.getName();
         // Skip audit trail tables
-        if (jpaTable.endsWith("_AUD")) {
+        if (jpaTable.toUpperCase().indexOf("_AUD") != -1) {
           continue;
         }
         // remove all abstract abbreviations

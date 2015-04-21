@@ -1,0 +1,150 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Module Metadata -->
+  <parent>
+    <groupId>com.wci.umls.server</groupId>
+    <artifactId>term-server-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../../parent</relativePath>
+  </parent>
+
+  <artifactId>term-server-admin-release</artifactId>
+  <name>Terminology server admin release processing tool.</name>
+  <description>Used for generating RF2 release file data</description>
+  <packaging>pom</packaging>
+
+  <!-- Properties -->
+  <properties>
+    <!-- Default release version, specify with -DreleaseVersion= -->
+    <release.version></release.version>
+    <!-- Default terminology, specify with -Dterminology= -->
+    <terminology></terminology>
+    <!-- Default terminology version, specify with -Dversion= -->
+    <version></version>
+    <!-- Indicates whether to run against a server (true/false) -->
+    <server>false</server>
+  </properties>
+
+  <!-- Build Profiles -->
+  <profiles>
+
+    <!-- Start editing cycle -->
+    <profile>
+      <id>StartEditingCycle</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.ihtsdo.otf.term-server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>start-editing-cycle</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>start-editing-cycle</goal>
+                </goals>
+                <configuration>
+                  <releaseVersion>${release.version}</releaseVersion>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+
+    <!-- Begin an RF2 release -->
+    <profile>
+      <id>ReleaseRf2Begin</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.ihtsdo.otf.term-server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>release-rf2-begin</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>release-rf2-begin</goal>
+                </goals>
+                <configuration>
+                  <releaseVersion>${release.version}</releaseVersion>
+                  <terminology>${terminology}</terminology>
+                  <validate>${validate}</validate>
+                  <workflowStatusValues>${workflow.status.values}</workflowStatusValues>
+                  <saveIdentifiers>${save.identifiers}</saveIdentifiers>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <!-- Begin an RF2 release -->
+    <profile>
+      <id>ReleaseRf2Perform</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.ihtsdo.otf.term-server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>release-rf2</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>release-rf2</goal>
+                </goals>
+                <configuration>
+                  <releaseVersion>${release.version}</releaseVersion>
+                  <terminology>${terminology}</terminology>
+                  <outputDir>${output.dir}</outputDir>
+                  <moduleId>${module.id}</moduleId>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+        <!-- Begin an RF2 release -->
+    <profile>
+      <id>ReleaseRf2Finish</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.ihtsdo.otf.term-server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>release-rf2-finish</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>release-rf2-finish</goal>
+                </goals>
+                <configuration>
+                  <releaseVersion>${release.version}</releaseVersion>
+                  <terminology>${terminology}</terminology>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+</project>

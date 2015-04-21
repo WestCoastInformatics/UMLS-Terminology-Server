@@ -3,10 +3,12 @@
  */
 package com.wci.umls.server.model.content;
 
+import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
+
 /**
  * Represents a definition.
  */
-public interface Definition extends ComponentHasAttributes {
+public interface Definition extends ComponentHasAttributes, HasAlternateTerminologyIds {
 
   /**
    * Returns the value.

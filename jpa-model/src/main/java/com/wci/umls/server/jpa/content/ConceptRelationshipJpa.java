@@ -3,6 +3,12 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -38,6 +44,12 @@ public class ConceptRelationshipJpa extends
   @JoinColumn(nullable = false)
   private Concept to;
 
+  /** The alternate terminology ids. */
+  @ElementCollection
+  @CollectionTable(name = "conrel_alt_terminology_ids", joinColumns = @JoinColumn(name = "relationship_id"))
+  @Column(nullable = true)
+  private Map<String, String> alternateTerminologyIds;
+
   /**
    * Instantiates an empty {@link ConceptRelationshipJpa}.
    */
@@ -57,6 +69,7 @@ public class ConceptRelationshipJpa extends
     super(relationship, deepCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
+    alternateTerminologyIds = relationship.getAlternateTerminologyIds();
   }
 
   /*
@@ -146,7 +159,6 @@ public class ConceptRelationshipJpa extends
   public void setTo(Concept component) {
     this.to = component;
   }
-  
 
   /**
    * Returns the to id. For JAXB.
@@ -190,10 +202,65 @@ public class ConceptRelationshipJpa extends
     to.setDefaultPreferredName(term);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
+   * getAlternateTerminologyIds()
+   */
+  @Override
+  public Map<String, String> getAlternateTerminologyIds() {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>();
+    }
+    return alternateTerminologyIds;
+  }
 
   /*
    * (non-Javadoc)
    * 
+   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
+   * setAlternateTerminologyIds(java.util.Map)
+   */
+  @Override
+  public void setAlternateTerminologyIds(
+    Map<String, String> alternateTerminologyIds) {
+    this.alternateTerminologyIds = alternateTerminologyIds;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
+   * putAlternateTerminologyId(java.lang.String, java.lang.String)
+   */
+  @Override
+  public void putAlternateTerminologyId(String terminology, String terminologyId) {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>();
+    }
+    alternateTerminologyIds.put(terminology, terminologyId);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
+   * removeAlternateTerminologyId(java.lang.String)
+   */
+  @Override
+  public void removeAlternateTerminologyId(String terminology) {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>();
+    }
+    alternateTerminologyIds.remove(terminology);
+
+  }
+
+  /**
+   * CUSTOM to support alternateTerminologyIds.
+   *
+   * @return the int
    * @see com.wci.umls.server.jpa.content.AbstractRelationship#hashCode()
    */
   @Override
@@ -202,6 +269,11 @@ public class ConceptRelationshipJpa extends
     int result = super.hashCode();
     result = prime * result + ((from == null) ? 0 : from.hashCode());
     result = prime * result + ((to == null) ? 0 : to.hashCode());
+    result =
+        prime
+            * result
+            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
+                .toString().hashCode());
     return result;
   }
 
@@ -231,6 +303,11 @@ public class ConceptRelationshipJpa extends
         return false;
     } else if (!to.equals(other.to))
       return false;
+    if (alternateTerminologyIds == null) {
+      if (other.alternateTerminologyIds != null)
+        return false;
+    } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
+      return false;
     return true;
   }
 
@@ -241,7 +318,8 @@ public class ConceptRelationshipJpa extends
    */
   @Override
   public String toString() {
-    return "ConceptRelationshipJpa [from=" + from + ", to=" + to + "]";
+    return "ConceptRelationshipJpa [from=" + from + ", to=" + to
+        + ", alternateTerminologyIds=" + alternateTerminologyIds + "]";
   }
 
 }

@@ -5,6 +5,7 @@ package com.wci.umls.server.model.content;
 
 import java.util.Map;
 
+import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
 import com.wci.umls.server.helpers.HasDefinitions;
 import com.wci.umls.server.helpers.HasRelationships;
 
@@ -13,7 +14,7 @@ import com.wci.umls.server.helpers.HasRelationships;
  * with associated identifiers.
  */
 public interface Atom extends ComponentHasAttributes, HasDefinitions,
-    HasRelationships<AtomRelationship> {
+    HasRelationships<AtomRelationship>, HasAlternateTerminologyIds {
 
   /**
    * Returns the term.
@@ -104,29 +105,29 @@ public interface Atom extends ComponentHasAttributes, HasDefinitions,
    *
    * @return the map of terminology values to concept terminology ids
    */
-  public Map<String, String> getConceptTerminologyIdMap();
+  public Map<String, String> getConceptTerminologyIds();
 
   /**
    * Sets the concepts.
    *
    * @param map the map
    */
-  public void setConceptTerminologyIdMap(Map<String, String> map);
+  public void setConceptTerminologyIds(Map<String, String> map);
 
   /**
-   * Adds the concept to the terminology values to concept terminology ids map.
+   * Put concept terminology id.
    *
-   * @param concept the concept
+   * @param terminology the terminology
+   * @param terminologyId the terminology id
    */
-  public void addConcept(Concept concept);
-
+  public void putConceptTerminologyId(String terminology, String terminologyId);
+  
   /**
-   * Removes the concept from the terminology values to concept terminology ids
-   * map.
+   * Removes the concept terminology id.
    *
-   * @param concept the concept
+   * @param terminology the terminology
    */
-  public void removeConcept(Concept concept);
+  public void removeConceptTerminologyId(String terminology);
 
   /**
    * Returns the language.

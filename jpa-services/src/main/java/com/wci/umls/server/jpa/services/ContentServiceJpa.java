@@ -1969,7 +1969,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       String jpaTable = type.getName();
       //Logger.getLogger(getClass()).debug("  jpaTable = " + jpaTable);
       // Skip audit trail tables
-      if (jpaTable.indexOf("_AUD") != -1) {
+      if (jpaTable.toUpperCase().indexOf("_AUD") != -1) {
         continue;
       }
       if (!AbstractAbbreviation.class.isAssignableFrom(type

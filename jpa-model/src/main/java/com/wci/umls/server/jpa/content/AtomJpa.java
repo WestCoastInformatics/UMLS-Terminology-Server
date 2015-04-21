@@ -18,7 +18,6 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -30,12 +29,9 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
-import com.wci.umls.server.helpers.KeyValuePair;
-import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 
 /**
@@ -62,9 +58,15 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /** The concept terminology id map. */
   @ElementCollection
-  @CollectionTable(name = "atom_concept_map", joinColumns = @JoinColumn(name = "atom_id"))
+  @CollectionTable(name = "concept_terminology_ids", joinColumns = @JoinColumn(name = "atom_id"))
   @Column(nullable = false)
-  Map<String, String> conceptTerminologyIdMap;
+  Map<String, String> conceptTerminologyIds;
+
+  /** The alternate terminology ids. */
+  @ElementCollection
+  @CollectionTable(name = "atom_alt_terminology_ids", joinColumns = @JoinColumn(name = "atom_id"))
+  @Column(nullable = true)
+  private Map<String, String> alternateTerminologyIds;
 
   /** The code id. */
   @Column(nullable = false)
@@ -127,7 +129,8 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   public AtomJpa(Atom atom, boolean deepCopy) {
     super(atom, deepCopy);
     codeId = atom.getCodeId();
-    conceptTerminologyIdMap = atom.getConceptTerminologyIdMap();
+    conceptTerminologyIds = atom.getConceptTerminologyIds();
+    alternateTerminologyIds = atom.getAlternateTerminologyIds();
     descriptorId = atom.getDescriptorId();
     conceptId = atom.getDescriptorId();
     language = atom.getLanguage();
@@ -201,60 +204,57 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.model.content.Atom#getConceptTerminologyIdMap()
+   * @see com.wci.umls.server.model.content.Atom#getConceptTerminologyIds()
    */
   @Override
-  @XmlTransient
   @FieldBridge(impl = MapValueToCsvBridge.class)
-  @Field(name = "conceptId", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-  public Map<String, String> getConceptTerminologyIdMap() {
-    return conceptTerminologyIdMap;
+  @Field(name = "conceptTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  public Map<String, String> getConceptTerminologyIds() {
+    if (conceptTerminologyIds == null) {
+      conceptTerminologyIds = new HashMap<>();
+    }
+    return conceptTerminologyIds;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.content.Atom#setConceptTerminologyIds(java.
+   * util.Map)
+   */
+  @Override
+  public void setConceptTerminologyIds(Map<String, String> conceptTerminologyIds) {
+    this.conceptTerminologyIds = conceptTerminologyIds;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.model.content.Atom#setConceptTerminologyIdMap(java.
-   * util.Map)
+   * com.wci.umls.server.model.content.Atom#putConceptTerminologyId(java.lang
+   * .String, java.lang.String)
    */
   @Override
-  public void setConceptTerminologyIdMap(
-    Map<String, String> conceptTerminologyIdMap) {
-    this.conceptTerminologyIdMap = conceptTerminologyIdMap;
+  public void putConceptTerminologyId(String terminology, String terminologyId) {
+    if (conceptTerminologyIds == null) {
+      conceptTerminologyIds = new HashMap<>();
+    }
+    conceptTerminologyIds.put(terminology, terminologyId);
   }
 
-  /**
-   * Returns the concepts list. For JAXB
-   *
-   * @return the concepts list
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.Atom#removeConceptTerminologyId(java.
+   * lang.String)
    */
-  @XmlElement
-  public KeyValuePairList getConceptsList() {
-    KeyValuePairList kvpl = new KeyValuePairList();
-    if (conceptTerminologyIdMap != null) {
-      for (String key : conceptTerminologyIdMap.keySet()) {
-        KeyValuePair kvp = new KeyValuePair();
-        kvp.setKey(key);
-        kvp.setValue(conceptTerminologyIdMap.get(key));
-        kvpl.addKeyValuePair(kvp);
-      }
+  @Override
+  public void removeConceptTerminologyId(String terminology) {
+    if (conceptTerminologyIds == null) {
+      conceptTerminologyIds = new HashMap<>();
     }
-    return kvpl;
-  }
-
-  /**
-   * Sets the concepts list.
-   *
-   * @param list the concepts list
-   */
-  public void setConceptsList(KeyValuePairList list) {
-    if (list != null) {
-      conceptTerminologyIdMap = new HashMap<>();
-      for (KeyValuePair pair : list.getKeyValuePairList()) {
-        conceptTerminologyIdMap.put(pair.getKey(), pair.getValue());
-      }
-    }
+    conceptTerminologyIds.remove(terminology);
   }
 
   /*
@@ -300,12 +300,22 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     this.descriptorId = descriptorId;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.content.Atom#getConceptId()
+   */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getConceptId() {
     return conceptId;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.content.Atom#setConceptId(java.lang.String)
+   */
   @Override
   public void setConceptId(String conceptId) {
     this.conceptId = conceptId;
@@ -509,36 +519,66 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.model.content.Atom#addConcept(com.wci.umls.server.model
-   * .content.Concept)
+   * com.wci.umls.server.model.content.Component#getAlternateTerminologyIds()
    */
   @Override
-  public void addConcept(Concept concept) {
-    if (conceptTerminologyIdMap == null) {
-      conceptTerminologyIdMap = new HashMap<>();
+  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  public Map<String, String> getAlternateTerminologyIds() {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>();
     }
-    conceptTerminologyIdMap.put(concept.getTerminology(),
-        concept.getTerminologyId());
+    return alternateTerminologyIds;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.model.content.Atom#removeConcept(com.wci.umls.server
-   * .model.content.Concept)
+   * com.wci.umls.server.model.content.Component#setAlternateTerminologyIds(
+   * java.util.Map)
    */
   @Override
-  public void removeConcept(Concept concept) {
-    if (conceptTerminologyIdMap == null) {
-      conceptTerminologyIdMap = new HashMap<>();
-    }
-    conceptTerminologyIdMap.remove(concept.getTerminology());
+  public void setAlternateTerminologyIds(
+    Map<String, String> alternateTerminologyIds) {
+    this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
   /*
    * (non-Javadoc)
    * 
+   * @see
+   * com.wci.umls.server.model.content.Component#putAlternateTerminologyId(java
+   * .lang.String, java.lang.String)
+   */
+  @Override
+  public void putAlternateTerminologyId(String terminology, String terminologyId) {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>();
+    }
+    alternateTerminologyIds.put(terminology, terminologyId);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.Component#removeAlternateTerminologyId
+   * (java.lang.String)
+   */
+  @Override
+  public void removeAlternateTerminologyId(String terminology) {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>();
+    }
+    alternateTerminologyIds.remove(terminology);
+
+  }
+
+  /**
+   * CUSTOM equals: uses .toString() on the concept terminology ids map.
+   *
+   * @return the int
    * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
    */
   @Override
@@ -546,9 +586,19 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + ((codeId == null) ? 0 : codeId.hashCode());
+    result = prime * result + ((conceptId == null) ? 0 : conceptId.hashCode());
+    result =
+        prime
+            * result
+            + ((conceptTerminologyIds == null) ? 0 : conceptTerminologyIds
+                .toString().hashCode());
+    result =
+        prime
+            * result
+            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
+                .toString().hashCode());
     result =
         prime * result + ((descriptorId == null) ? 0 : descriptorId.hashCode());
-    result = prime * result + ((conceptId == null) ? 0 : conceptId.hashCode());
     result = prime * result + ((language == null) ? 0 : language.hashCode());
     result =
         prime * result
@@ -581,15 +631,25 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
         return false;
     } else if (!codeId.equals(other.codeId))
       return false;
-    if (descriptorId == null) {
-      if (other.descriptorId != null)
-        return false;
-    } else if (!descriptorId.equals(other.descriptorId))
-      return false;
     if (conceptId == null) {
       if (other.conceptId != null)
         return false;
     } else if (!conceptId.equals(other.conceptId))
+      return false;
+    if (conceptTerminologyIds == null) {
+      if (other.conceptTerminologyIds != null)
+        return false;
+    } else if (!conceptTerminologyIds.equals(other.conceptTerminologyIds))
+      return false;
+    if (alternateTerminologyIds == null) {
+      if (other.alternateTerminologyIds != null)
+        return false;
+    } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
+      return false;
+    if (descriptorId == null) {
+      if (other.descriptorId != null)
+        return false;
+    } else if (!descriptorId.equals(other.descriptorId))
       return false;
     if (language == null) {
       if (other.language != null)
@@ -626,11 +686,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    */
   @Override
   public String toString() {
-    return "AtomJpa [conceptTerminologyIdMap=" + conceptTerminologyIdMap
-        + ", codeId=" + codeId + ", descriptorId=" + descriptorId
-        + ", conceptId=" + conceptId + ", language=" + language
-        + ", lexicalClassId=" + lexicalClassId + ", stringClassId="
-        + stringClassId + ", term=" + term + ", termType=" + termType + "]";
+    return "AtomJpa [conceptTerminologyIds=" + conceptTerminologyIds
+        + ", alternateTerminologyIds=" + alternateTerminologyIds + ", codeId="
+        + codeId + ", descriptorId=" + descriptorId + ", conceptId="
+        + conceptId + ", language=" + language + ", lexicalClassId="
+        + lexicalClassId + ", stringClassId=" + stringClassId + ", term="
+        + term + ", termType=" + termType + ", workflowStatus="
+        + workflowStatus + "] - " + super.toString();
   }
 
 }

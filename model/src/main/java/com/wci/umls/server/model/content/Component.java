@@ -139,4 +139,5 @@ public interface Component extends HasTerminologyId {
    * @param branch the branch
    */
   public void setBranch(String branch);
+  
 }

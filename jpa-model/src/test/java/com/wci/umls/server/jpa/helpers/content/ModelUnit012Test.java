@@ -7,6 +7,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -18,7 +21,6 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
-import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.content.AttributeJpa;
@@ -43,8 +45,11 @@ public class ModelUnit012Test {
   /** test fixture */
   private Concept concept2;
 
-  /** The list fixture. */
-  private KeyValuePairList list;
+  /** The map fixture 1. */
+  private Map<String, String> map1;
+
+  /** The map fixture 2. */
+  private Map<String, String> map2;
 
   /**
    * Setup class.
@@ -62,11 +67,14 @@ public class ModelUnit012Test {
   public void setup() throws Exception {
     object = new ConceptRelationshipJpa();
 
-    list = new KeyValuePairList();
+    map1 = new HashMap<>();
+    map1.put("1","1");
+    map2 = new HashMap<>();
+    map2.put("2","2");
 
     ProxyTester tester = new ProxyTester(new ConceptJpa());
-    tester.proxy(KeyValuePairList.class, 1, list);
-    tester.proxy(KeyValuePairList.class, 2, list);
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
     concept1 = (ConceptJpa) tester.createObject(1);
     concept2 = (ConceptJpa) tester.createObject(2);
 
@@ -106,6 +114,7 @@ public class ModelUnit012Test {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("terminologyVersion");
+    tester.include("alternateTerminologyIds");
     tester.include("assertedDirection");
     tester.include("additionalRelationshipType");
     tester.include("group");
@@ -117,8 +126,8 @@ public class ModelUnit012Test {
 
     tester.proxy(Concept.class, 1, concept1);
     tester.proxy(Concept.class, 2, concept2);
-    tester.proxy(KeyValuePairList.class, 1, list);
-    tester.proxy(KeyValuePairList.class, 2, list);
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -138,8 +147,8 @@ public class ModelUnit012Test {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Concept.class, 1, concept1);
     tester.proxy(Concept.class, 2, concept2);
-    tester.proxy(KeyValuePairList.class, 1, list);
-    tester.proxy(KeyValuePairList.class, 2, list);
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
     assertTrue(tester.testCopyConstructorDeep(ConceptRelationship.class));
   }
 
@@ -154,12 +163,12 @@ public class ModelUnit012Test {
 
     ConceptRelationship rel = new ConceptRelationshipJpa();
     ProxyTester tester = new ProxyTester(rel);
-    tester.proxy(KeyValuePairList.class, 1, new KeyValuePairList());
+    tester.proxy(Map.class, 1, map1);
     rel = (ConceptRelationship) tester.createObject(1);
 
     ProxyTester tester2 = new ProxyTester(new ConceptJpa());
-    tester2.proxy(KeyValuePairList.class, 1, new KeyValuePairList());
-    tester2.proxy(KeyValuePairList.class, 2, new KeyValuePairList());
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
     Concept fromConcept = (Concept) tester2.createObject(1);
     Concept toConcept = (Concept) tester2.createObject(2);
 
@@ -198,8 +207,8 @@ public class ModelUnit012Test {
 
     tester.proxy(Concept.class, 1, concept1);
     tester.proxy(Concept.class, 2, concept2);
-    tester.proxy(KeyValuePairList.class, 1, list);
-    tester.proxy(KeyValuePairList.class, 2, list);
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
     assertTrue(tester.testXmlSerialization());
   }
 

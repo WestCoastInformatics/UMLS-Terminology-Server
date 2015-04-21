@@ -7,6 +7,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -18,7 +21,6 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
-import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.content.AttributeJpa;
@@ -43,8 +45,11 @@ public class ModelUnit021Test {
   /** test fixture */
   private Code code2;
 
-  /** The list fixture. */
-  private KeyValuePairList list;
+  /** The map fixture 1. */
+  private Map<String, String> map1;
+
+  /** The map fixture 2. */
+  private Map<String, String> map2;
 
   /**
    * Setup class.
@@ -62,11 +67,14 @@ public class ModelUnit021Test {
   public void setup() throws Exception {
     object = new CodeRelationshipJpa();
 
-    list = new KeyValuePairList();
+    map1 = new HashMap<>();
+    map1.put("1","1");
+    map2 = new HashMap<>();
+    map2.put("2","2");
 
     ProxyTester tester = new ProxyTester(new CodeJpa());
-    tester.proxy(KeyValuePairList.class, 1, list);
-    tester.proxy(KeyValuePairList.class, 2, list);
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
     code1 = (CodeJpa) tester.createObject(1);
     code2 = (CodeJpa) tester.createObject(2);
 
@@ -106,6 +114,7 @@ public class ModelUnit021Test {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("terminologyVersion");
+    tester.include("alternateTerminologyIds");
     tester.include("assertedDirection");
     tester.include("additionalRelationshipType");
     tester.include("group");
@@ -117,8 +126,8 @@ public class ModelUnit021Test {
 
     tester.proxy(Code.class, 1, code1);
     tester.proxy(Code.class, 2, code2);
-    tester.proxy(KeyValuePairList.class, 1, list);
-    tester.proxy(KeyValuePairList.class, 2, list);
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -138,8 +147,8 @@ public class ModelUnit021Test {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Code.class, 1, code1);
     tester.proxy(Code.class, 2, code2);
-    tester.proxy(KeyValuePairList.class, 1, list);
-    tester.proxy(KeyValuePairList.class, 2, list);
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
     assertTrue(tester.testCopyConstructorDeep(CodeRelationship.class));
   }
 
@@ -154,12 +163,12 @@ public class ModelUnit021Test {
 
     CodeRelationship rel = new CodeRelationshipJpa();
     ProxyTester tester = new ProxyTester(rel);
-    tester.proxy(KeyValuePairList.class, 1, new KeyValuePairList());
+    tester.proxy(Map.class, 1, map1);
     rel = (CodeRelationship) tester.createObject(1);
 
     ProxyTester tester2 = new ProxyTester(new CodeJpa());
-    tester2.proxy(KeyValuePairList.class, 1, new KeyValuePairList());
-    tester2.proxy(KeyValuePairList.class, 2, new KeyValuePairList());
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
     Code fromCode = (Code) tester2.createObject(1);
     Code toCode = (Code) tester2.createObject(2);
 
@@ -198,8 +207,8 @@ public class ModelUnit021Test {
 
     tester.proxy(Code.class, 1, code1);
     tester.proxy(Code.class, 2, code2);
-    tester.proxy(KeyValuePairList.class, 1, list);
-    tester.proxy(KeyValuePairList.class, 2, list);
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
     assertTrue(tester.testXmlSerialization());
   }
 

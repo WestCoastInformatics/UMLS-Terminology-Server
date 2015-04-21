@@ -75,8 +75,8 @@ public abstract class AbstractComponent implements Component {
   /** The terminology version. */
   @Column(nullable = false)
   private String terminologyVersion;
-  
-  /**  The branch. */
+
+  /** The branch. */
   @Column(nullable = true)
   private String branch = null;
 
@@ -103,6 +103,7 @@ public abstract class AbstractComponent implements Component {
     published = component.isPublished();
     obsolete = component.isObsolete();
     suppressible = component.isSuppressible();
+    branch = component.getBranch();
   }
 
   /*
@@ -272,22 +273,27 @@ public abstract class AbstractComponent implements Component {
     this.publishable = publishable;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.content.Component#getBranch()
    */
   @Override
   public String getBranch() {
     return branch;
   }
-  
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.content.Component#setBranch(java.lang.String)
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.Component#setBranch(java.lang.String)
    */
   @Override
   public void setBranch(String branch) {
-    this.branch = branch;    
+    this.branch = branch;
   }
-  
+
   /*
    * (non-Javadoc)
    * 
@@ -353,6 +359,12 @@ public abstract class AbstractComponent implements Component {
     this.terminologyId = terminologyId;
   }
 
+  /**
+   * CUSTOM equals: uses .toString() on the concept terminology ids map.
+   *
+   * @return the int
+   * @see java.lang.Object#hashCode()
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -373,6 +385,11 @@ public abstract class AbstractComponent implements Component {
     return result;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -382,6 +399,7 @@ public abstract class AbstractComponent implements Component {
     if (getClass() != obj.getClass())
       return false;
     AbstractComponent other = (AbstractComponent) obj;
+
     if (obsolete != other.obsolete)
       return false;
     if (publishable != other.publishable)
@@ -415,11 +433,12 @@ public abstract class AbstractComponent implements Component {
    */
   @Override
   public String toString() {
-    return "AbstractComponent [id=" + id + ", timestamp=" + timestamp
-        + ", lastModified=" + lastModified + ", lastModifiedBy="
-        + lastModifiedBy + ", published=" + published + ", publishable="
-        + publishable + ", terminology=" + terminology + ", terminologyId="
-        + terminologyId + ", terminologyVersion=" + terminologyVersion + "]";
+    return "AbstractComponent [id=" + id + ", lastModified=" + lastModified
+        + ", lastModifiedBy=" + lastModifiedBy + ", suppressible="
+        + suppressible + ", obsolete=" + obsolete + ", published=" + published
+        + ", publishable=" + publishable + ", terminology=" + terminology
+        + ", terminologyId=" + terminologyId + ", terminologyVersion="
+        + terminologyVersion + ", branch=" + branch + "]";
   }
 
 }

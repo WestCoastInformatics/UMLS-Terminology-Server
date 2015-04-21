@@ -5,6 +5,9 @@ package com.wci.umls.server.jpa.helpers.content;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -28,6 +31,11 @@ public class ModelUnit009Test {
   /** The model object to test. */
   private AttributeJpa object;
 
+  /** The map fixture 1. */
+  private Map<String, String> map1;
+
+  /** The map fixture 2. */
+  private Map<String, String> map2;
   /**
    * Setup class.
    */
@@ -43,6 +51,10 @@ public class ModelUnit009Test {
   @Before
   public void setup() throws Exception {
     object = new AttributeJpa();
+    map1 = new HashMap<>();
+    map1.put("1","1");
+    map2 = new HashMap<>();
+    map2.put("2","2");
   }
 
   /**
@@ -73,8 +85,12 @@ public class ModelUnit009Test {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("terminologyVersion");
+    tester.include("alternateTerminologyIds");
     tester.include("name");
     tester.include("value");
+
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
@@ -93,6 +109,8 @@ public class ModelUnit009Test {
   public void testModelCopy009() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelCopy009");
     CopyConstructorTester tester = new CopyConstructorTester(object);
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
     assertTrue(tester.testCopyConstructor(Attribute.class));
   }
 
@@ -105,6 +123,8 @@ public class ModelUnit009Test {
   public void testModelXmlSerialization009() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization009");
     XmlSerializationTester tester = new XmlSerializationTester(object);
+    tester.proxy(Map.class, 1, map1);
+    tester.proxy(Map.class, 2, map2);
     assertTrue(tester.testXmlSerialization());
   }
 

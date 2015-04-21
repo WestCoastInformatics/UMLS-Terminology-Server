@@ -637,7 +637,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       Atom atom = atomMap.get(fields[1]);
       atom.addDefinition(def);
 
-      def.setTerminologyId(fields[2]);
+      def.putAlternateTerminologyId(terminology, fields[2]);
+      def.setTerminologyId(fields[3]);
 
       def.setLastModified(releaseVersionDate);
       def.setLastModifiedBy(loader);
@@ -740,7 +741,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       // fields[5] CODE not used - redundant
 
-      att.setTerminologyId(fields[6]);
+      att.putAlternateTerminologyId(terminology, fields[6]);
+      att.setTerminologyId(fields[7]);
       // fields[7] SATUI not used
       att.setLastModified(releaseVersionDate);
       att.setLastModifiedBy(loader);
@@ -807,7 +809,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       sty.setSemanticType(fields[1]);
       // fields 2 and 3 are already read from SRDEF
       sty.setTerminologyId(fields[4]);
-
       sty.setLastModified(releaseVersionDate);
       sty.setLastModifiedBy(loader);
 
@@ -1024,7 +1025,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         atom.setTerminologyVersion(loadedTerminologies.get(fields[11])
             .getTerminologyVersion());
       }
-      atom.setTerminologyId(fields[7]);
+      atom.putAlternateTerminologyId(terminology, fields[7]);
+      atom.setTerminologyId(fields[8]);
       atom.setTermType(fields[12]);
       atom.setWorkflowStatus(published);
 
@@ -1062,7 +1064,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       if (cui != null) {
         cui.addAtom(atom);
-        atom.addConcept(cui);
+        atom.putConceptTerminologyId(terminology, cui.getTerminologyId());
       }
 
       // SCUI
