@@ -92,7 +92,7 @@ public class RrfComputePreferredNameHandler implements
     return ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType())
         + (10000000000L - Long.parseLong(atom.getStringClassId().substring(1)))
         + (10000000000L - Long.parseLong(atom.getAlternateTerminologyIds().get(
-            "UMLS")));
+            "UMLS").substring(1)));
   }
 
   /**
