@@ -489,7 +489,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
       // Handle RelationshipLabel
-      if (fields[0].equals("REL") && fields[2].equals("expanded_form")) {
+      if (fields[0].equals("REL") && fields[2].equals("expanded_form")
+          && !fields[0].equals("SIB")) {
         final RelationshipType rel = new RelationshipTypeJpa();
         rel.setAbbreviation(fields[1]);
         rel.setExpandedForm(fields[3]);
@@ -504,7 +505,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         Logger.getLogger(getClass())
             .debug("    add relationship type - " + rel);
       }
-      if (fields[0].equals("REL") && fields[2].equals("rel_inverse")) {
+      if (fields[0].equals("REL") && fields[2].equals("rel_inverse")
+        && !fields[0].equals("SIB")) {
         inverseRelMap.put(fields[1], fields[3]);
         if (inverseRelMap.containsKey(fields[1])
             && inverseRelMap.containsKey(fields[3])) {

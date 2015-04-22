@@ -85,25 +85,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
-
+    LuceneReindexAlgorithm algo = new LuceneReindexAlgorithm();
     try {
-
       authenticate(securityService, authToken, "reindex",
           UserRole.ADMINISTRATOR);
-
-      LuceneReindexAlgorithm algo = new LuceneReindexAlgorithm();
-
       algo.setIndexedObjects(indexedObjects);
-
       algo.compute();
-
+      algo.close();
       // Final logging messages
       Logger.getLogger(getClass()).info(
           "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
       Logger.getLogger(getClass()).info("done ...");
 
     } catch (Exception e) {
-      Logger.getLogger(getClass()).info("ERROR:");
+      algo.close();
       handleException(e, "trying to reindex");
     } finally {
       securityService.close();
@@ -136,6 +131,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
+    TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
     try {
       authenticate(securityService, authToken, "compute transitive closure",
           UserRole.ADMINISTRATOR);
@@ -143,7 +139,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // Compute transitive closure
       Logger.getLogger(getClass()).info(
           "  Compute transitive closure from  " + terminology + "/" + version);
-      TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
       algo.setTerminology(terminology);
       algo.setTerminologyVersion(version);
       algo.reset();
@@ -156,6 +151,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Logger.getLogger(getClass()).info("done ...");
 
     } catch (Exception e) {
+      algo.close();
       handleException(e, "trying to compute transitive closure");
     } finally {
       securityService.close();
@@ -276,14 +272,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
+    MetadataService metadataService = new MetadataServiceJpa();
+    ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "start editing cycle",
           UserRole.ADMINISTRATOR);
 
-      MetadataService metadataService = new MetadataServiceJpa();
       metadataService.clearMetadata(terminology, version);
       metadataService.close();
-      ContentService contentService = new ContentServiceJpa();
       contentService.clearConcepts(terminology, version);
       contentService.close();
 
@@ -293,6 +289,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Logger.getLogger(getClass()).info("done ...");
 
     } catch (Exception e) {
+      metadataService.close();
+      contentService.close();
       handleException(e, "trying to load terminology from ClaML file");
     } finally {
       securityService.close();

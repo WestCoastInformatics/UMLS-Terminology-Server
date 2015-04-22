@@ -73,9 +73,6 @@ public class ProjectJpa implements Project {
   @Column(unique = false, nullable = false)
   private boolean isPublic = false;
 
-  /** The module id. */
-  private String moduleId;
-
   /** The terminology. */
   @Column(nullable = false)
   private String terminology;
@@ -130,6 +127,10 @@ public class ProjectJpa implements Project {
   @Column(nullable = true)
   private Set<String> actionWorkflowStatusValues = new HashSet<>();
 
+  /** The branch. */
+  @Column(nullable = true)
+  private String branch;
+
   /**
    * Instantiates an empty {@link ProjectJpa}.
    */
@@ -150,7 +151,6 @@ public class ProjectJpa implements Project {
     name = project.getName();
     description = project.getDescription();
     isPublic = project.isPublic();
-    moduleId = project.getModuleId();
     terminology = project.getTerminology();
     terminologyVersion = project.getTerminologyVersion();
     leads = new HashSet<>(project.getLeads());
@@ -160,6 +160,7 @@ public class ProjectJpa implements Project {
     scopeDescendantsFlag = project.getScopeDescendantsFlag();
     scopeExcludesConcepts = new HashSet<>(project.getScopeExcludesConcepts());
     scopeExcludesDescendantsFlag = project.getScopeExcludesDescendantsFlag();
+    branch = project.getBranch();
   }
 
   /*
@@ -180,6 +181,24 @@ public class ProjectJpa implements Project {
   @Override
   public void setId(Long id) {
     this.id = id;
+  }
+
+  /**
+   * Returns the object id. For JAXB.
+   *
+   * @return the object id
+   */
+  public String getObjectId() {
+    return id == null ? "" : id.toString();
+  }
+
+  /**
+   * Sets the object id. For JAXB.
+   *
+   * @param id the object id
+   */
+  public void setObjectId(String id) {
+    this.id = Long.parseLong(id);
   }
 
   /*
@@ -457,27 +476,6 @@ public class ProjectJpa implements Project {
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.Project#getModuleId()
-   */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getModuleId() {
-    return moduleId;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setModuleId(java.lang.String)
-   */
-  @Override
-  public void setModuleId(String moduleId) {
-    this.moduleId = moduleId;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
    * @see org.ihtsdo.otf.ts.Project#getScopeConcepts()
    */
   @Override
@@ -629,13 +627,32 @@ public class ProjectJpa implements Project {
   /*
    * (non-Javadoc)
    * 
+   * @see com.wci.umls.server.Project#getBranch()
+   */
+  @Override
+  public String getBranch() {
+    return branch;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.Project#setBranch(java.lang.String)
+   */
+  @Override
+  public void setBranch(String branch) {
+    this.branch = branch;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#hashCode()
    */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((moduleId == null) ? 0 : moduleId.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result
@@ -670,11 +687,6 @@ public class ProjectJpa implements Project {
     if (getClass() != obj.getClass())
       return false;
     ProjectJpa other = (ProjectJpa) obj;
-    if (moduleId == null) {
-      if (other.moduleId != null)
-        return false;
-    } else if (!moduleId.equals(other.moduleId))
-      return false;
     if (name == null) {
       if (other.name != null)
         return false;

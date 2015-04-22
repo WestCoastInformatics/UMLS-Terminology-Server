@@ -111,6 +111,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
   private KeyValuePairLists getMetadataHelper(String terminology, String version)
     throws Exception {
     MetadataService metadataService = new MetadataServiceJpa();
+    try {
     // verify terminology and version pair exist
     if (metadataService.getTerminologies().contains(terminology)) {
 
@@ -151,6 +152,10 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       keyValuePairLists.addKeyValuePairList(keyValuePairList);
     }
     return keyValuePairLists;
+    } catch (Exception e) {
+      metadataService.close();
+      throw e;
+    }
   }
 
   /*

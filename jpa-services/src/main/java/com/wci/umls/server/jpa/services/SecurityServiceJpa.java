@@ -99,6 +99,8 @@ public class SecurityServiceJpa extends RootServiceJpa implements
 
     // if user was found, update to match settings
     if (userFound != null) {
+      Logger.getLogger(getClass()).info(
+          "Update user = " + authUser.getUserName());
       userFound.setEmail(authUser.getEmail());
       userFound.setName(authUser.getName());
       userFound.setUserName(authUser.getUserName());
@@ -107,6 +109,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     }
     // if User not found, create one for our use
     else {
+      Logger.getLogger(getClass()).info("Add user = " + authUser.getUserName());
       User newUser = new UserJpa();
       newUser.setEmail(authUser.getEmail());
       newUser.setName(authUser.getName());
@@ -199,7 +202,9 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     User user = getUser(username.toLowerCase());
     if (user == null) {
       return UserRole.VIEWER;
-      //throw new LocalException("Unable to obtain user information for username = " + username);
+      // throw new
+      // LocalException("Unable to obtain user information for username = " +
+      // username);
     }
     return user.getApplicationRole();
   }
@@ -268,14 +273,23 @@ public class SecurityServiceJpa extends RootServiceJpa implements
    */
   @Override
   public User addUser(User user) {
-    if (getTransactionPerOperation()) {
-      tx = manager.getTransaction();
-      tx.begin();
-      manager.persist(user);
-      tx.commit();
-    } else {
-      manager.persist(user);
+    Logger.getLogger(getClass()).debug("Security Service - add user " + user);
+    try {
+      if (getTransactionPerOperation()) {
+        tx = manager.getTransaction();
+        tx.begin();
+        manager.persist(user);
+        tx.commit();
+      } else {
+        manager.persist(user);
+      }
+    } catch (Exception e) {
+      if (tx.isActive()) {
+        tx.rollback();
+      }
+      throw e;
     }
+
     return user;
   }
 
@@ -286,24 +300,32 @@ public class SecurityServiceJpa extends RootServiceJpa implements
    */
   @Override
   public void removeUser(Long id) {
+    Logger.getLogger(getClass()).debug("Security Service - remove user " + id);
     tx = manager.getTransaction();
     // retrieve this user
     User mu = manager.find(UserJpa.class, id);
-    if (getTransactionPerOperation()) {
-      tx.begin();
-      if (manager.contains(mu)) {
-        manager.remove(mu);
-      } else {
-        manager.remove(manager.merge(mu));
-      }
-      tx.commit();
+    try {
+      if (getTransactionPerOperation()) {
+        tx.begin();
+        if (manager.contains(mu)) {
+          manager.remove(mu);
+        } else {
+          manager.remove(manager.merge(mu));
+        }
+        tx.commit();
 
-    } else {
-      if (manager.contains(mu)) {
-        manager.remove(mu);
       } else {
-        manager.remove(manager.merge(mu));
+        if (manager.contains(mu)) {
+          manager.remove(mu);
+        } else {
+          manager.remove(manager.merge(mu));
+        }
       }
+    } catch (Exception e) {
+      if (tx.isActive()) {
+        tx.rollback();
+      }
+      throw e;
     }
 
   }
@@ -317,13 +339,22 @@ public class SecurityServiceJpa extends RootServiceJpa implements
    */
   @Override
   public void updateUser(User user) {
-    if (getTransactionPerOperation()) {
-      tx = manager.getTransaction();
-      tx.begin();
-      manager.merge(user);
-      tx.commit();
-    } else {
-      manager.merge(user);
+    Logger.getLogger(getClass())
+        .debug("Security Service - update user " + user);
+    try {
+      if (getTransactionPerOperation()) {
+        tx = manager.getTransaction();
+        tx.begin();
+        manager.merge(user);
+        tx.commit();
+      } else {
+        manager.merge(user);
+      }
+    } catch (Exception e) {
+      if (tx.isActive()) {
+        tx.rollback();
+      }
+      throw e;
     }
   }
 

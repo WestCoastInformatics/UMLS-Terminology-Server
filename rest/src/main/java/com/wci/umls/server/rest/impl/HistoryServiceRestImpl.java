@@ -56,7 +56,14 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     securityService = new SecurityServiceJpa();
   }
 
-@Override
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.HistoryServiceRest#getReleaseHistory
+   * (java.lang.String, java.lang.String)
+   */
+  @Override
   @GET
   @Path("/releases/{terminology}")
   @ApiOperation(value = "Get release history", notes = "Gets all release info objects.", response = ReleaseInfoList.class)
@@ -67,16 +74,17 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (History): /release/history/");
 
+    HistoryService historyService = new HistoryServiceJpa();
     try {
       authenticate(securityService, authToken, "get release history",
           UserRole.VIEWER);
 
-      HistoryService historyService = new HistoryServiceJpa();
       ReleaseInfoList result = historyService.getReleaseHistory(terminology);
       historyService.close();
       return result;
 
     } catch (Exception e) {
+      historyService.close();
       handleException(e, "trying to get release history");
       return null;
     } finally {
@@ -102,16 +110,17 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (History): /release/current/");
 
+    HistoryService historyService = new HistoryServiceJpa();
     try {
       authenticate(securityService, authToken, "get current release info",
           UserRole.VIEWER);
 
-      HistoryService historyService = new HistoryServiceJpa();
       ReleaseInfo result = historyService.getCurrentReleaseInfo(terminology);
       historyService.close();
       return result;
 
     } catch (Exception e) {
+      historyService.close();
       handleException(e, "trying to get current release info");
       return null;
     } finally {
@@ -137,16 +146,17 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (History): /release/previous/");
 
+    HistoryService historyService = new HistoryServiceJpa();
     try {
       authenticate(securityService, authToken, "get previous release info",
           UserRole.VIEWER);
 
-      HistoryService historyService = new HistoryServiceJpa();
       ReleaseInfo result = historyService.getPreviousReleaseInfo(terminology);
       historyService.close();
       return result;
 
     } catch (Exception e) {
+      historyService.close();
       handleException(e, "trying to get previous release info");
       return null;
     } finally {
@@ -154,6 +164,13 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.HistoryServiceRest#getPlannedReleaseInfo
+   * (java.lang.String, java.lang.String)
+   */
   @Override
   @GET
   @Path("/release/{terminology}/planned")
@@ -165,16 +182,17 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (History): /release/planned/");
 
+    HistoryService historyService = new HistoryServiceJpa();
     try {
       authenticate(securityService, authToken, "get planned release info",
           UserRole.VIEWER);
 
-      HistoryService historyService = new HistoryServiceJpa();
       ReleaseInfo result = historyService.getPlannedReleaseInfo(terminology);
       historyService.close();
       return result;
 
     } catch (Exception e) {
+      historyService.close();
       handleException(e, "trying to get planned release info");
       return null;
     } finally {
@@ -201,16 +219,17 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (History): /release/" + name);
 
+    HistoryService historyService = new HistoryServiceJpa();
     try {
       authenticate(securityService, authToken, "get release info for " + name,
           UserRole.VIEWER);
 
-      HistoryService historyService = new HistoryServiceJpa();
       ReleaseInfo result = historyService.getReleaseInfo(terminology, name);
       historyService.close();
       return result;
 
     } catch (Exception e) {
+      historyService.close();
       handleException(e, "trying to get release info for " + name);
       return null;
     } finally {
@@ -236,11 +255,11 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (History): /release/add " + releaseInfo.getName());
 
+    HistoryService historyService = new HistoryServiceJpa();
     try {
       authenticate(securityService, authToken, "add release info",
           UserRole.ADMINISTRATOR);
 
-      HistoryService historyService = new HistoryServiceJpa();
       releaseInfo.setLastModifiedBy(securityService
           .getUsernameForToken(authToken));
       ReleaseInfo result = historyService.addReleaseInfo(releaseInfo);
@@ -248,6 +267,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
       return result;
 
     } catch (Exception e) {
+      historyService.close();
       handleException(e, "trying to add release info");
       return null;
     } finally {
@@ -273,16 +293,17 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (History): /release/update " + releaseInfo.getName());
 
+    HistoryService historyService = new HistoryServiceJpa();
     try {
       authenticate(securityService, authToken, "update release info",
           UserRole.ADMINISTRATOR);
 
-      HistoryService historyService = new HistoryServiceJpa();
       releaseInfo.setLastModifiedBy(securityService
           .getUsernameForToken(authToken));
       historyService.updateReleaseInfo(releaseInfo);
       historyService.close();
     } catch (Exception e) {
+      historyService.close();
       handleException(e, "trying to update release info");
     } finally {
       securityService.close();
@@ -307,20 +328,28 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (History): /release/remove/" + id);
 
+    HistoryService historyService = new HistoryServiceJpa();
     try {
       authenticate(securityService, authToken, "remove release info",
           UserRole.ADMINISTRATOR);
 
-      HistoryService historyService = new HistoryServiceJpa();
       historyService.removeReleaseInfo(id);
       historyService.close();
     } catch (Exception e) {
+      historyService.close();
       handleException(e, "trying to remove release info");
     } finally {
       securityService.close();
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.HistoryServiceRest#startEditingCycle
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
   @Override
   @POST
   @Path("/release/startEditingCycle/{releaseVersion}/{terminology}/{version}")
@@ -334,15 +363,16 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (History): /release/startEditingCycle/" + releaseVersion
             + "/" + terminology + "/" + version);
+    // Perform operations
+    StartEditingCycleAlgorithm algorithm =
+        new StartEditingCycleAlgorithm(releaseVersion, terminology, version);
     try {
       authenticate(securityService, authToken, "start editing cycle",
           UserRole.ADMINISTRATOR);
-      // Perform operations
-      StartEditingCycleAlgorithm algorithm =
-          new StartEditingCycleAlgorithm(releaseVersion, terminology, version);
       algorithm.setUser(securityService.getUsernameForToken(authToken));
       algorithm.compute();
     } catch (Exception e) {
+      algorithm.compute();
       handleException(e, "start editing cycle");
     } finally {
       securityService.close();

@@ -23,13 +23,11 @@ import com.wci.umls.server.jpa.ProjectJpa;
  */
 public class ProjectServiceRestRoleCheckTest extends ProjectServiceRestTest {
 
-
-  /**  The viewer auth token. */
+  /** The viewer auth token. */
   private static String viewerAuthToken;
-  
-  /**  The admin auth token. */
-  private static String adminAuthToken;
 
+  /** The admin auth token. */
+  private static String adminAuthToken;
 
   /**
    * Create test fixtures per test.
@@ -54,56 +52,53 @@ public class ProjectServiceRestRoleCheckTest extends ProjectServiceRestTest {
   @SuppressWarnings("static-method")
   @Test
   public void testRoleCheckRestProject001() throws Exception {
-	  
-	    // Attempt to add a project with viewer authorization level
-	    ProjectJpa project = new ProjectJpa();
-	    Set<String> values = new HashSet<>();
-	    values.add("PUBLISHED");
-	    project.setActionWorkflowStatusValues(values);
-	    User user = securityService.getUser(adminUser, adminAuthToken);
-	    project.addAdministrator(user);
-	    project.addAuthor(user);
-	    project.addLead(user);
-	    project.addScopeConcept("12345");
-	    project.addScopeExcludesConcept("12345");
-	    project.setDescription("Sample");
-	    project.setModuleId("12345");
-	    project.setName("Sample");
-	    project.setTerminology("SNOMEDCT");
-	    project.setTerminologyVersion("latest");
 
-	    try {
-	      projectService.addProject(project, viewerAuthToken);
-	      fail("Attempt to add a project with viewer authorization level passed.");
-	    } catch (Exception e) {
-	    	// do nothing
-	    }
-	    
-	    // Attempt to update an existing project with viewer authorization level
-	    project.setDescription("Sample Revised");
-	    try {
-	      projectService.updateProject(project, viewerAuthToken);
-	      fail("Attempt to update a project with viewer authorization level passed.");
-	    } catch (Exception e) {
-	    	// do nothing
-	    }
-	    
-	    // Attempt to remove an existing project with viewer authorization level
-	    // first add the project with valid admin authentication
-	    ProjectJpa project2 =
-		        (ProjectJpa) projectService.addProject(project, adminAuthToken);
-	    try {
-	    	projectService.removeProject(project2.getId(), viewerAuthToken);
-	    	fail("Attempt to remove a project with viewer authorization level passed.");
-	    } catch (Exception e) {
-	    	// do nothing
-	    }
-	    
-	    // remove the project with valid admin authentication
-	    projectService.removeProject(project2.getId(), adminAuthToken);
+    // Attempt to add a project with viewer authorization level
+    ProjectJpa project = new ProjectJpa();
+    Set<String> values = new HashSet<>();
+    values.add("PUBLISHED");
+    project.setActionWorkflowStatusValues(values);
+    User user = securityService.getUser(adminUser, adminAuthToken);
+    project.addAdministrator(user);
+    project.addAuthor(user);
+    project.addLead(user);
+    project.addScopeConcept("12345");
+    project.addScopeExcludesConcept("12345");
+    project.setDescription("Sample");
+    project.setName("Sample");
+    project.setTerminology("UMLS");
+    project.setTerminologyVersion("latest");
+
+    try {
+      projectService.addProject(project, viewerAuthToken);
+      fail("Attempt to add a project with viewer authorization level passed.");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+    // Attempt to update an existing project with viewer authorization level
+    project.setDescription("Sample Revised");
+    try {
+      projectService.updateProject(project, viewerAuthToken);
+      fail("Attempt to update a project with viewer authorization level passed.");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+    // Attempt to remove an existing project with viewer authorization level
+    // first add the project with valid admin authentication
+    ProjectJpa project2 =
+        (ProjectJpa) projectService.addProject(project, adminAuthToken);
+    try {
+      projectService.removeProject(project2.getId(), viewerAuthToken);
+      fail("Attempt to remove a project with viewer authorization level passed.");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+    // remove the project with valid admin authentication
+    projectService.removeProject(project2.getId(), adminAuthToken);
   }
-
-
 
   /**
    * Teardown.

@@ -14,9 +14,9 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.RelationshipType;
-import com.wci.umls.server.model.meta.SemanticType;
 
 /**
  * Generically represents an algorithm for reading objects to a certain depth
@@ -31,68 +31,81 @@ public interface GraphResolutionHandler extends Configurable {
    *
    * @param concept the concept
    * @param isaRelTypeIds the isa rel type ids
+   * @throws Exception the exception
    */
-  public void resolve(Concept concept, List<RelationshipType> isaRelTypeIds);
+  public void resolve(Concept concept, List<RelationshipType> isaRelTypeIds)
+    throws Exception;
 
   /**
    * Resolve a concept to simply the concept element and none of the graph,
    * ready for JAXB serialization.
    *
    * @param concept the concept
+   * @throws Exception the exception
    */
-  public void resolveEmpty(Concept concept);
+  public void resolveEmpty(Concept concept) throws Exception;
 
   /**
    * Resolve.
    *
    * @param descriptor the descriptor
    * @param isaRelTypeIds the isa rel type ids
+   * @throws Exception the exception
    */
-  public void resolve(Descriptor descriptor, Set<String> isaRelTypeIds);
+  public void resolve(Descriptor descriptor, Set<String> isaRelTypeIds)
+    throws Exception;
 
   /**
    * Resolve.
    *
    * @param descriptor the descriptor
    * @param isaRelTypeIds the isa rel type ids
+   * @throws Exception the exception
    */
-  public void resolve(Code descriptor, Set<String> isaRelTypeIds);
+  public void resolve(Code descriptor, Set<String> isaRelTypeIds)
+    throws Exception;
 
   /**
    * Resolve.
    *
    * @param lexicalClass the lexical class
+   * @throws Exception the exception
    */
-  public void resolve(LexicalClass lexicalClass);
+  public void resolve(LexicalClass lexicalClass) throws Exception;
 
   /**
    * Resolve.
    *
    * @param stringClass the string class
+   * @throws Exception the exception
    */
-  public void resolve(StringClass stringClass);
+  public void resolve(StringClass stringClass) throws Exception;
 
   /**
    * Resolve atoms.
-   * 
+   *
    * @param atom the atom
+   * @throws Exception the exception
    */
-  public void resolve(Atom atom);
+  public void resolve(Atom atom) throws Exception;
 
   /**
    * Resolve relationships.
    *
    * @param relationship the relationship
+   * @throws Exception the exception
    */
   public void resolve(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship);
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    throws Exception;
 
   /**
    * Resolve.
    *
    * @param sty the sty
+   * @throws Exception the exception
    */
-  public void resolve(SemanticType sty);
+  public void resolve(SemanticTypeComponent sty) throws Exception;
 
   // at some point, other data structures may be useful here
 }

@@ -72,6 +72,7 @@ public class ModelUnit001Test {
   public void testModelGetSet001() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet001");
     GetterSetterTester tester = new GetterSetterTester(object);
+    tester.exclude("objectId");
     tester.test();
   }
 
@@ -84,7 +85,6 @@ public class ModelUnit001Test {
   public void testModelEqualsHashcode001() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode001");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("moduleId");
     tester.include("name");
     //tester.include("scopeConcepts");
     tester.include("scopeDescendantsFlag");
@@ -207,7 +207,6 @@ public class ModelUnit001Test {
     tester.include("terminologyVersion");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
-    tester.include("moduleId");
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }

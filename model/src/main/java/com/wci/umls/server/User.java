@@ -16,6 +16,13 @@ public interface User {
   public Long getId();
 
   /**
+   * Sets the id.
+   *
+   * @param id the id
+   */
+  public void setId(Long id);
+
+  /**
    * Returns the name.
    *
    * @return the name

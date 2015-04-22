@@ -50,7 +50,7 @@ public interface ContentService extends RootService {
    */
   public void disableListeners();
 
-   /**
+  /**
    * Returns the concept.
    * 
    * @param id the id
@@ -87,7 +87,6 @@ public interface ContentService extends RootService {
   public Concept getConcept(String terminologyId, String terminology,
     String version, String branch) throws Exception;
 
-
   /**
    * Returns the descriptor.
    * 
@@ -98,9 +97,10 @@ public interface ContentService extends RootService {
   public Descriptor getDescriptor(Long id) throws Exception;
 
   /**
-   * Returns the descriptor matching the specified parameters. May return more than
-   * one descriptor if there are multiple entries with the same id, terminology,
-   * and version. NOTE: this only applies to descriptor, not to other data types.
+   * Returns the descriptor matching the specified parameters. May return more
+   * than one descriptor if there are multiple entries with the same id,
+   * terminology, and version. NOTE: this only applies to descriptor, not to
+   * other data types.
    * 
    * @param terminologyId the id
    * @param terminology the terminology
@@ -108,12 +108,12 @@ public interface ContentService extends RootService {
    * @return the descriptor
    * @throws Exception if anything goes wrong
    */
-  public DescriptorList getDescriptors(String terminologyId, String terminology,
-    String version) throws Exception;
+  public DescriptorList getDescriptors(String terminologyId,
+    String terminology, String version) throws Exception;
 
   /**
-   * Returns the single descriptor for the specified parameters. If there are more
-   * than one it throws an exception.
+   * Returns the single descriptor for the specified parameters. If there are
+   * more than one it throws an exception.
    *
    * @param terminologyId the id
    * @param terminology the terminology
@@ -136,8 +136,8 @@ public interface ContentService extends RootService {
 
   /**
    * Returns the code matching the specified parameters. May return more than
-   * one code if there are multiple entries with the same id, terminology,
-   * and version. NOTE: this only applies to code, not to other data types.
+   * one code if there are multiple entries with the same id, terminology, and
+   * version. NOTE: this only applies to code, not to other data types.
    * 
    * @param terminologyId the id
    * @param terminology the terminology
@@ -159,9 +159,8 @@ public interface ContentService extends RootService {
    * @return the single code
    * @throws Exception if there are more than one matching codes.
    */
-  public Code getCode(String terminologyId, String terminology,
-    String version, String branch) throws Exception;
-
+  public Code getCode(String terminologyId, String terminology, String version,
+    String branch) throws Exception;
 
   /**
    * Returns the lexical class.
@@ -173,9 +172,10 @@ public interface ContentService extends RootService {
   public LexicalClass getLexicalClass(Long id) throws Exception;
 
   /**
-   * Returns the lexical class matching the specified parameters. May return more than
-   * one lexical class if there are multiple entries with the same id, terminology,
-   * and version. NOTE: this only applies to lexical class, not to other data types.
+   * Returns the lexical class matching the specified parameters. May return
+   * more than one lexical class if there are multiple entries with the same id,
+   * terminology, and version. NOTE: this only applies to lexical class, not to
+   * other data types.
    * 
    * @param terminologyId the id
    * @param terminology the terminology
@@ -183,12 +183,12 @@ public interface ContentService extends RootService {
    * @return the lexical class
    * @throws Exception if anything goes wrong
    */
-  public LexicalClassList getLexicalClasss(String terminologyId, String terminology,
-    String version) throws Exception;
+  public LexicalClassList getLexicalClasss(String terminologyId,
+    String terminology, String version) throws Exception;
 
   /**
-   * Returns the single lexical class for the specified parameters. If there are more
-   * than one it throws an exception.
+   * Returns the single lexical class for the specified parameters. If there are
+   * more than one it throws an exception.
    *
    * @param terminologyId the id
    * @param terminology the terminology
@@ -199,7 +199,6 @@ public interface ContentService extends RootService {
    */
   public LexicalClass getLexicalClass(String terminologyId, String terminology,
     String version, String branch) throws Exception;
-  
 
   /**
    * Returns the string class.
@@ -211,9 +210,10 @@ public interface ContentService extends RootService {
   public StringClass getStringClass(Long id) throws Exception;
 
   /**
-   * Returns the string class matching the specified parameters. May return more than
-   * one string class if there are multiple entries with the same id, terminology,
-   * and version. NOTE: this only applies to string class, not to other data types.
+   * Returns the string class matching the specified parameters. May return more
+   * than one string class if there are multiple entries with the same id,
+   * terminology, and version. NOTE: this only applies to string class, not to
+   * other data types.
    * 
    * @param terminologyId the id
    * @param terminology the terminology
@@ -221,12 +221,12 @@ public interface ContentService extends RootService {
    * @return the string class
    * @throws Exception if anything goes wrong
    */
-  public StringClassList getStringClasss(String terminologyId, String terminology,
-    String version) throws Exception;
+  public StringClassList getStringClasss(String terminologyId,
+    String terminology, String version) throws Exception;
 
   /**
-   * Returns the single string class for the specified parameters. If there are more
-   * than one it throws an exception.
+   * Returns the single string class for the specified parameters. If there are
+   * more than one it throws an exception.
    *
    * @param terminologyId the id
    * @param terminology the terminology
@@ -237,7 +237,7 @@ public interface ContentService extends RootService {
    */
   public StringClass getStringClass(String terminologyId, String terminology,
     String version, String branch) throws Exception;
-  
+
   /**
    * Adds the concept.
    * 
@@ -287,7 +287,7 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public void removeDescriptor(Long id) throws Exception;
-  
+
   /**
    * Adds the code.
    * 
@@ -312,7 +312,7 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public void removeCode(Long id) throws Exception;
-  
+
   /**
    * Adds the lexical class.
    * 
@@ -320,7 +320,8 @@ public interface ContentService extends RootService {
    * @return the lexicalClass
    * @throws Exception the exception
    */
-  public LexicalClass addLexicalClass(LexicalClass lexicalClass) throws Exception;
+  public LexicalClass addLexicalClass(LexicalClass lexicalClass)
+    throws Exception;
 
   /**
    * Update lexical class.
@@ -363,7 +364,6 @@ public interface ContentService extends RootService {
    */
   public void removeStringClass(Long id) throws Exception;
 
-  
   /**
    * Get descendant concepts.
    *
@@ -601,10 +601,12 @@ public interface ContentService extends RootService {
    * Returns the graph resolution handler. This is configured internally but
    * made available through this service.
    *
+   * @param terminology the terminology
    * @return the graph resolution handler
    * @throws Exception the exception
    */
-  public GraphResolutionHandler getGraphResolutionHandler() throws Exception;
+  public GraphResolutionHandler getGraphResolutionHandler(String terminology)
+    throws Exception;
 
   /**
    * Returns the identifier assignment handler.
@@ -634,7 +636,6 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public String getComputedPreferredName(AtomClass atomClass) throws Exception;
-
 
   /**
    * Sets the assign identifiers flag.
@@ -705,7 +706,7 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public Definition getDefinition(String terminologyId, String terminology,
-		String version, String branch) throws Exception;
+    String version, String branch) throws Exception;
 
   /**
    * Gets the definitions.
@@ -716,8 +717,8 @@ public interface ContentService extends RootService {
    * @return the definitions
    * @throws Exception the exception
    */
-  public DefinitionList getDefinitions(String terminologyId, String terminology,
-		String version) throws Exception;
+  public DefinitionList getDefinitions(String terminologyId,
+    String terminology, String version) throws Exception;
 
   /**
    * Gets the definition.
@@ -727,7 +728,7 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public Definition getDefinition(Long id) throws Exception;
-  
+
   /**
    * Removes the semantic type component.
    *
@@ -736,15 +737,14 @@ public interface ContentService extends RootService {
    */
   public void removeSemanticTypeComponent(Long id) throws Exception;
 
-
   /**
    * Update semantic type component.
    *
    * @param sty the sty
    * @throws Exception the exception
    */
-  public void updateSemanticTypeComponent(SemanticTypeComponent sty) throws Exception;
-
+  public void updateSemanticTypeComponent(SemanticTypeComponent sty)
+    throws Exception;
 
   /**
    * Adds the semantic type component.
@@ -753,8 +753,8 @@ public interface ContentService extends RootService {
    * @return the semantic type component
    * @throws Exception the exception
    */
-  public SemanticTypeComponent addSemanticTypeComponent(SemanticTypeComponent sty) throws Exception;
-
+  public SemanticTypeComponent addSemanticTypeComponent(
+    SemanticTypeComponent sty) throws Exception;
 
   /**
    * Gets the semantic type component.
@@ -766,9 +766,8 @@ public interface ContentService extends RootService {
    * @return the semantic type component
    * @throws Exception the exception
    */
-  public SemanticTypeComponent getSemanticTypeComponent(String terminologyId, String terminology,
-		String version, String branch) throws Exception;
-
+  public SemanticTypeComponent getSemanticTypeComponent(String terminologyId,
+    String terminology, String version, String branch) throws Exception;
 
   /**
    * Gets the semantic type components.
@@ -779,9 +778,8 @@ public interface ContentService extends RootService {
    * @return the semantic type components
    * @throws Exception the exception
    */
-  public SemanticTypeComponentList getSemanticTypeComponents(String terminologyId, String terminology,
-		String version) throws Exception;
-
+  public SemanticTypeComponentList getSemanticTypeComponents(
+    String terminologyId, String terminology, String version) throws Exception;
 
   /**
    * Gets the semantic type component.
@@ -790,5 +788,6 @@ public interface ContentService extends RootService {
    * @return the semantic type component
    * @throws Exception the exception
    */
-  public SemanticTypeComponent getSemanticTypeComponent(Long id) throws Exception;
+  public SemanticTypeComponent getSemanticTypeComponent(Long id)
+    throws Exception;
 }
