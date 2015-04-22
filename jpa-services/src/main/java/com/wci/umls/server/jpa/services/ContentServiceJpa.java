@@ -120,7 +120,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /** The graph resolver. */
   public static Map<String, GraphResolutionHandler> graphResolverMap = null;
   static {
-
+    graphResolverMap = new HashMap<>();
     try {
       if (config == null)
         config = ConfigUtility.getConfigProperties();
