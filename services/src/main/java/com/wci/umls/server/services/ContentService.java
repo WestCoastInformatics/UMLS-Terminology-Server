@@ -12,6 +12,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteriaList;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.content.AttributeList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DefinitionList;
@@ -21,6 +22,7 @@ import com.wci.umls.server.helpers.content.SemanticTypeComponentList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
@@ -791,4 +793,67 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public SemanticTypeComponent getSemanticTypeComponent(Long id) throws Exception;
+  
+  /**
+   * Removes the attribute.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeAttribute(Long id) throws Exception;
+
+
+  /**
+   * Update attribute.
+   *
+   * @param attribute the attribute
+   * @throws Exception the exception
+   */
+  public void updateAttribute(Attribute attribute) throws Exception;
+
+  /**
+   * Adds the attribute.
+   *
+   * @param attribute the attribute
+   * @return the attribute
+   * @throws Exception the exception
+   */
+  public Attribute addAttribute(Attribute attribute) throws Exception;
+
+
+  /**
+   * Gets the attribute.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the attribute
+   * @throws Exception the exception
+   */
+  public Attribute getAttribute(String terminologyId, String terminology,
+		String version, String branch) throws Exception;
+
+
+  /**
+   * Gets the attributes.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @return the attributes
+   * @throws Exception the exception
+   */
+  public AttributeList getAttributes(String terminologyId, String terminology,
+		String version) throws Exception;
+
+
+  /**
+   * Gets the attribute.
+   *
+   * @param id the id
+   * @return the attribute
+   * @throws Exception the exception
+   */
+  public Attribute getAttribute(Long id) throws Exception;
 }

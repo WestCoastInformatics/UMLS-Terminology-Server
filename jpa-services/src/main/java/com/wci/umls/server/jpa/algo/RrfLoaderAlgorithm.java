@@ -253,15 +253,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       beginTransaction();
 
       // Definitions
-      // loadMrdef();
+      //loadMrdef();
 
       // Semantic Types
-      // loadMrsty();
+      //loadMrsty();
 
       // Relationships
 
       // Attributes
-      // loadMrsat
+      //loadMrsat();
 
       // Add release info for individual terminology
       for (Map.Entry<String, String> entry : getTerminologyLatestVersions()
@@ -597,6 +597,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Load MRDEF data");
     String line = null;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDEF);
+    // make set of all atoms that got an additional definition
+    Set<Atom> modifiedAtoms = new HashSet<>();
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
@@ -636,6 +638,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       Atom atom = atomMap.get(fields[1]);
       atom.addDefinition(def);
+      modifiedAtoms.add(atom);
+      
 
       def.putAlternateTerminologyId(terminology, fields[2]);
       def.setTerminologyId(fields[3]);
@@ -644,7 +648,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       def.setLastModifiedBy(loader);
       def.setTerminology(fields[4]);
       if (loadedTerminologies.get(fields[4]) == null) {
-        Logger.getLogger(getClass()).info("MISSING TERMINONLOGY " + fields[4]);
+        throw new Exception("Definition references terminology that does not exist: " + fields[4]);
       } else {
         def.setTerminologyVersion(loadedTerminologies.get(fields[4])
             .getTerminologyVersion());
@@ -657,6 +661,13 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
       addDefinition(def);
+      
+
+    }
+    
+    // call updateAtom on all of the modified atoms
+    for (Atom a : modifiedAtoms) {
+  	  updateAtom(a);
     }
 
   }
@@ -670,10 +681,16 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Load MRSAT data");
     String line = null;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAT);
+    // make set of all atoms that got an additional attribute
+    Set<Atom> modifiedAtoms = new HashSet<>();
+    Set<Relationship> modifiedRelationships = new HashSet<>();
+    Set<Code> modifiedCodes = new HashSet<>();
+    Set<Descriptor> modifiedDescriptors = new HashSet<>();
+    Set<Concept> modifiedConcepts = new HashSet<>();
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "|", 12);
+      final String fields[] = FieldedStringTokenizer.split(line, "|", 13);
 
       // Field Description
       // 0 CUI Unique identifier for concept (if METAUI is a relationship
@@ -734,22 +751,21 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             descriptorMap.get(atomMap.get(fields[3]).getDescriptorId());
         descriptor.addAttribute(att);
       } else if (fields[4].equals("SCUI")) {
-        // TODO: turn this back on
-        // Concept concept =
-        // conceptMap.get(atomMap.get(fields[3]).getConceptId());
-        // concept.addAttribute(att);
+        Concept concept =
+        	conceptMap.get(atomMap.get(fields[3]).getConceptId());
+        concept.addAttribute(att);
       }
       // fields[5] CODE not used - redundant
 
       att.putAlternateTerminologyId(terminology, fields[6]);
       att.setTerminologyId(fields[7]);
-      // fields[7] SATUI not used
+      
       att.setLastModified(releaseVersionDate);
       att.setLastModifiedBy(loader);
       att.setName(fields[8]);
       att.setTerminology(fields[9]);
       if (loadedTerminologies.get(fields[9]) == null) {
-        Logger.getLogger(getClass()).info("MISSING TERMINONLOGY " + fields[9]);
+          throw new Exception("Attribute references terminology that does not exist: " + fields[9]);
       } else {
         att.setTerminologyVersion(loadedTerminologies.get(fields[9])
             .getTerminologyVersion());
@@ -764,11 +780,24 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       att.setSuppressible(fields[11].equals("Y") ? true : false);
       att.setObsolete(fields[11].equals("O") ? true : false);
 
-      // addAttribute(att);
+      addAttribute(att);
 
-      // make set of all atoms that got an additional attribute
-      // call updateAtom on all of them
-      // same for description, rel, etc.
+      
+    }
+    for (Concept c: modifiedConcepts) {
+    	updateConcept(c);
+    }
+    for (Atom a: modifiedAtoms) {
+    	updateAtom(a);
+    }
+    for (Relationship r: modifiedRelationships) {
+    	updateRelationship(r);
+    }
+    for (Code code: modifiedCodes) {
+    	updateCode(code);
+    }
+    for (Descriptor d: modifiedDescriptors) {
+    	updateDescriptor(d);
     }
   }
 
@@ -781,6 +810,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Load MRSTY data");
     String line = null;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSTY);
+    // make set of all concepts that got an additional sty
+    Set<Concept> modifiedConcepts = new HashSet<>();
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
@@ -805,16 +836,23 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       List<SemanticTypeComponent> stys = concept.getSemanticTypes();
       stys.add(sty);
       concept.setSemanticTypes(stys);
+      modifiedConcepts.add(concept);
 
       sty.setSemanticType(fields[1]);
       // fields 2 and 3 are already read from SRDEF
       sty.setTerminologyId(fields[4]);
+      sty.setTerminology(terminology);
+      sty.setTerminologyVersion(terminologyVersion);
       sty.setLastModified(releaseVersionDate);
       sty.setLastModifiedBy(loader);
 
       addSemanticTypeComponent(sty);
+      // TODO: add objectCT commit code and logging code
     }
-
+    for (Concept c: modifiedConcepts) {
+    	updateConcept(c);
+    	// TODO: add objectCt commit code and logging
+    }
   }
 
   /**
@@ -1020,7 +1058,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setTerm(fields[14]);
       atom.setTerminology(fields[11]);
       if (loadedTerminologies.get(fields[11]) == null) {
-        Logger.getLogger(getClass()).info("MISSING TERMINONLOGY " + fields[11]);
+    	  throw new Exception("Atom references terminology that does not exist: " + fields[11]);
       } else {
         atom.setTerminologyVersion(loadedTerminologies.get(fields[11])
             .getTerminologyVersion());
@@ -1043,7 +1081,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (!atom.getDescriptorId().equals("")) {
         termIdTypeMap.put(atom.getTerminology(), IdType.CONCEPT);
       } // OTHERWISE it remains "CODE"
-      atomMap.put(atom.getTerminologyId(), atom);
+      atomMap.put(fields[7], atom);
 
       // CUI
       Concept cui = null;
