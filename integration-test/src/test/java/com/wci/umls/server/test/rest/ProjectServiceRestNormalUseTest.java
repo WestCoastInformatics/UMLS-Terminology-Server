@@ -5,8 +5,6 @@ package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.fail;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,10 +17,8 @@ import org.junit.Test;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.helpers.ProjectList;
-import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.model.content.Concept;
 
 /**
  * Implementation of the "Project Service REST Normal Use" Test Cases.

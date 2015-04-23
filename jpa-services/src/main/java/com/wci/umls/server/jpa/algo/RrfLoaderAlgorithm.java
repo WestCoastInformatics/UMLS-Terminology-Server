@@ -46,6 +46,7 @@ import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -138,7 +139,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private Map<String, Atom> atomMap = new HashMap<>();
 
   /** The relationship map. */
-  private Map<String, Relationship> relationshipMap = new HashMap<>();
+  private Map<String, Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipMap = new HashMap<>();
 
   /**
    * Instantiates an empty {@link RrfLoaderAlgorithm}.
@@ -313,7 +314,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       clear();
 
       Logger.getLogger(getClass()).info("Log component stats");
-      Map<String, Integer> stats = getComponentStats(null, null);
+      Map<String, Integer> stats = getComponentStats(null, null, null);
       List<String> statsList = new ArrayList<>(stats.keySet());
       Collections.sort(statsList);
       for (String key : statsList) {
@@ -833,7 +834,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "|", 26);
+      final String fields[] = FieldedStringTokenizer.split(line, "|", 25);
 
       // Field Description
       // 0 VCUI
@@ -859,9 +860,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // 20 CENC
       // 21 CURVER
       // 22 SABIN
-      // 23 SABIN
-      // 24 SSN
-      // 25 SCIT
+      // 23 SSN
+      // 24 SCIT
       //
       // e.g.
       // C3847853|C1140284|RXNORM_14AA_140902F|RXNORM|RxNorm Vocabulary,
@@ -874,10 +874,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // States;20892-4879;kilbourj@mail.nlm.nih.gov|0|1969|278||BN,BPCK,DF,GPCK,IN,MIN,OCD,PIN,PSN,SBD,SBDC,SBDF,SCD,SCDC,SCDF,SCDG,SY,TMSY|AMBIGUITY_FLAG,NDC,ORIG_AMBIGUITY_FLAG,ORIG_CODE,ORIG_SOURCE,ORIG_TTY,ORIG_VSAB,RXAUI,RXCUI,RXN_ACTIVATED,RXN_AVAILABLE_STRENGTH,RXN_BN_CARDINALITY,RXN_HUMAN_DRUG,RXN_OBSOLETED,RXN_QUANTITY,RXN_STRENGTH,RXTERM_FORM|ENG|UTF-8|Y|Y|RXNORM|RxNorm;META2014AA
       // Full Update 2014_09_02;Bethesda, MD;National Library of Medicine|
 
+      // SKIP SABIN=N
+      if (fields[23].equals("N")) {
+        continue;
+      }
+      
       Terminology term = new TerminologyJpa();
 
       term.setAssertsRelDirection(false); // TODO: extract this from MRRREL
-      term.setCitation(new CitationJpa(fields[25]));
+      term.setCitation(new CitationJpa(fields[24]));
       term.setCurrent(fields[21].equals("Y"));
       if (!fields[8].equals("")) {
         term.setEndDate(ConfigUtility.DATE_FORMAT2.parse(fields[8]));

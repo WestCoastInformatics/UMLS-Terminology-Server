@@ -82,7 +82,7 @@ public class ModelUnit027Test {
     tester.include("publisher");
     tester.include("series");
     tester.include("title");
-    tester.include("value");
+    tester.include("unstructuredValue");
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());

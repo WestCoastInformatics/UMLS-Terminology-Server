@@ -109,7 +109,7 @@ public class RrfFullLoadAndUnloadTest {
     // Verify no contents
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0, 
-        service.getAllConcepts("UMLS", "2014AB").getCount());
+        service.getAllConcepts("UMLS", "2014AB", null).getCount());
     service.close();
     service.closeFactory();
     
@@ -135,10 +135,10 @@ public class RrfFullLoadAndUnloadTest {
     // Verify expected contents
     service = new ContentServiceJpa();
     Assert.assertEquals(10293,
-        service.getAllConcepts("UMLS", "2014AB").getCount());
+        service.getAllConcepts("UMLS", "2014AB", null).getCount());
     // Test a non-UMLS terminology too
     Assert.assertEquals(10293,
-        service.getAllConcepts("SNOMEDCT_US", "2014_09_01").getCount());
+        service.getAllConcepts("SNOMEDCT_US", "2014_09_01", null).getCount());
     service.close();
     service.closeFactory();
 
@@ -245,7 +245,7 @@ public class RrfFullLoadAndUnloadTest {
 
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(0, service.getAllConcepts("UMLS", "2014AB").getCount());
+    Assert.assertEquals(0, service.getAllConcepts("UMLS", "2014AB", null).getCount());
     service.close();
     service.closeFactory();
 
@@ -269,7 +269,7 @@ public class RrfFullLoadAndUnloadTest {
 
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(0, service.getAllConcepts("UMLS", "2014AB").getCount());
+    Assert.assertEquals(0, service.getAllConcepts("UMLS", "2014AB", null).getCount());
     service.close();
     service.closeFactory();
     

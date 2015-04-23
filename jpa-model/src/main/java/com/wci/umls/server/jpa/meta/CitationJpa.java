@@ -34,7 +34,7 @@ public class CitationJpa implements Citation {
   private String address;
 
   /** The author. */
-  @Column(nullable = true)
+  @Column(nullable = true, length = 1000)
   private String author;
 
   /** The availability statement. */
@@ -97,9 +97,9 @@ public class CitationJpa implements Citation {
   @Column(nullable = true)
   private String title;
 
-  /** The value. */
-  @Column(nullable = true)
-  private String value;
+  /** The unstructured value. */
+  @Column(nullable = true, length = 4000)
+  private String unstructuredValue;
 
   /**
    * Instantiates an empty {@link CitationJpa}.
@@ -132,15 +132,15 @@ public class CitationJpa implements Citation {
     publisher = citation.getPublisher();
     series = citation.getSeries();
     title = citation.getTitle();
-    value = citation.getValue();
+    unstructuredValue = citation.getUnstructuredValue();
   }
 
   /**
    * Instantiates a {@link CitationJpa} from the specified parameters.
    *
-   * @param mrsabLine the mrsab line
+   * @param scitline the mrsab line
    */
-  public CitationJpa(String mrsabLine) {
+  public CitationJpa(String scitline) {
     // 0 Author name(s),
     // 1 Personal author address,
     // 2 Organization author(s),
@@ -158,28 +158,33 @@ public class CitationJpa implements Citation {
     // 14 Avail. Statement (URL),
     // 15 Language,
     // 16 Notes.
-    String[] fields = FieldedStringTokenizer.split(mrsabLine, ";", 17);
+    String[] fields = FieldedStringTokenizer.split(scitline, ";");
     if (fields.length == 0) {
       return;
     }
-    author = fields[0];
-    address = fields[1];
-    this.organization = fields[2];
-    this.title = fields[3];
-    this.contentDesignator = fields[4];
-    this.mediumDesignator = fields[5];
-    this.edition = fields[6];
-    this.placeOfPublication = fields[7];
-    this.publisher = fields[8];
-    this.dateOfPublication = fields[9];
-    this.dateOfRevision = fields[10];
-    this.location = fields[11];
-    this.extent = fields[12];
-    this.series = fields[13];
-    this.availabilityStatement = fields[14];
-    // no language
-    this.notes = fields[16];
 
+    // Handle legacy data
+    if (fields.length < 17) {
+      this.unstructuredValue = scitline;
+    } else {
+      author = fields[0];
+      address = fields[1];
+      this.organization = fields[2];
+      this.title = fields[3];
+      this.contentDesignator = fields[4];
+      this.mediumDesignator = fields[5];
+      this.edition = fields[6];
+      this.placeOfPublication = fields[7];
+      this.publisher = fields[8];
+      this.dateOfPublication = fields[9];
+      this.dateOfRevision = fields[10];
+      this.location = fields[11];
+      this.extent = fields[12];
+      this.series = fields[13];
+      this.availabilityStatement = fields[14];
+      // no language
+      this.notes = fields[16];
+    }
   }
 
   /*
@@ -557,11 +562,11 @@ public class CitationJpa implements Citation {
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.model.meta.Citation#getValue()
+   * @see com.wci.umls.server.model.meta.Citation#getUnstructuredValue()
    */
   @Override
-  public String getValue() {
-    return value;
+  public String getUnstructuredValue() {
+    return unstructuredValue;
   }
 
   /*
@@ -570,8 +575,8 @@ public class CitationJpa implements Citation {
    * @see com.wci.umls.server.model.meta.Citation#setValue(java.lang.String)
    */
   @Override
-  public void setValue(String value) {
-    this.value = value;
+  public void setUnstructuredValue(String unstructuredValue) {
+    this.unstructuredValue = unstructuredValue;
   }
 
   /*
@@ -616,7 +621,7 @@ public class CitationJpa implements Citation {
     result = prime * result + ((publisher == null) ? 0 : publisher.hashCode());
     result = prime * result + ((series == null) ? 0 : series.hashCode());
     result = prime * result + ((title == null) ? 0 : title.hashCode());
-    result = prime * result + ((value == null) ? 0 : value.hashCode());
+    result = prime * result + ((unstructuredValue == null) ? 0 : unstructuredValue.hashCode());
     return result;
   }
 
@@ -719,10 +724,10 @@ public class CitationJpa implements Citation {
         return false;
     } else if (!title.equals(other.title))
       return false;
-    if (value == null) {
-      if (other.value != null)
+    if (unstructuredValue == null) {
+      if (other.unstructuredValue != null)
         return false;
-    } else if (!value.equals(other.value))
+    } else if (!unstructuredValue.equals(other.unstructuredValue))
       return false;
     return true;
   }
