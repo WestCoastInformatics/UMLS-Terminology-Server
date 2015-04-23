@@ -268,7 +268,7 @@ public interface Citation {
    * 
    * @return the value
    */
-  public String getValue();
+  public String getUnstructuredValue();
 
   /**
    * Sets the value. Used for legacy data where citation information fields are
@@ -276,6 +276,6 @@ public interface Citation {
    * 
    * @param value the value
    */
-  public void setValue(String value);
+  public void setUnstructuredValue(String value);
 
 }

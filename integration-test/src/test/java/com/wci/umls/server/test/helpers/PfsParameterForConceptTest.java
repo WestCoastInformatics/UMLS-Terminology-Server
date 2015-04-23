@@ -36,12 +36,6 @@ public class PfsParameterForConceptTest {
   })
   public static boolean testSort(SearchResultList results, PfsParameter pfs)
     throws Exception {
-
-    System.out.println("testSort called with search results: ");
-    for (SearchResult sr : results.getObjects()) {
-      System.out.println("  " + sr.toString());
-    }
-
     // instantiate content service
     ContentService contentService = new ContentServiceJpa();
 
@@ -61,9 +55,6 @@ public class PfsParameterForConceptTest {
           + " for ConceptJpa");
 
     field.setAccessible(true);
-
-    System.out.println("Found field " + field.getName() + " of type "
-        + field.getType().getSimpleName());
 
     Object prevValue = null;
     Object thisValue = null;
@@ -152,14 +143,6 @@ public class PfsParameterForConceptTest {
         (int) (Math.floor(pfs.getStartIndex() / pfs.getMaxResults()) + 1);
     int pageSize = pfs.getMaxResults();
 
-    System.out.println("List:");
-    for (SearchResult sr : results.getObjects()) {
-      System.out.println("  " + sr.toString());
-    }
-    System.out.println("Full List:");
-    for (SearchResult sr : fullResults.getObjects()) {
-      System.out.println("  " + sr.toString());
-    }
     if (results.getCount() > pageSize)
       return false;
 

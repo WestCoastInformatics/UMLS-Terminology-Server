@@ -90,4 +90,18 @@ public interface PfsParameter {
    * @param ascending the ascending
    */
   public void setAscending(boolean ascending);
+  
+  /**
+   * Returns the branch.
+   *
+   * @return the branch
+   */
+  public String getBranch();
+  
+  /**
+   * Sets the branch.
+   *
+   * @param branch the branch
+   */
+  public void setBranch(String branch);
 }

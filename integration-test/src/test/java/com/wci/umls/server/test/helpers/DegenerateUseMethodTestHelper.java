@@ -225,13 +225,8 @@ public class DegenerateUseMethodTestHelper {
       else
         expectedFailure = expectedFailures[i];
 
-      // System.out.println("  Testing parameter " + i);
-
       // instantiate parameters list from base valid parameter list
       List<Object> parameters = new ArrayList<>(validParameterList);
-
-      // System.out
-      // .println("  Valid parameters: " + validParameterList.toString());
 
       // the invalid value to test with
       Object invalidValue = invalidParameterList.get(i);

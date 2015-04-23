@@ -22,6 +22,9 @@ public class PfsParameterJpa implements PfsParameter {
   /** The filter string. */
   private String queryRestriction = null;
 
+  /** The branch restriction. */
+  private String branch = null;
+
   /** The comparator for sorting. */
   private String sortField = null;
 
@@ -44,95 +47,145 @@ public class PfsParameterJpa implements PfsParameter {
     maxResults = pfs.getMaxResults();
     startIndex = pfs.getStartIndex();
     queryRestriction = pfs.getQueryRestriction();
+    branch = pfs.getBranch();
     sortField = pfs.getSortField();
     ascending = pfs.isAscending();
   }
 
-  /**
-   * Returns the maximum number of results.
-   *
-   * @return the maximum number of results
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PfsParameter#getMaxResults()
    */
   @Override
   public int getMaxResults() {
     return maxResults;
   }
 
-  /**
-   * Sets the maximum number of results.
-   *
-   * @param maxResults the maximum number of results
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PfsParameter#setMaxResults(int)
    */
   @Override
   public void setMaxResults(int maxResults) {
     this.maxResults = maxResults;
   }
 
-  /**
-   * Returns the starting index of a query result subset.
-   *
-   * @return the start index
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PfsParameter#getStartIndex()
    */
   @Override
   public int getStartIndex() {
     return startIndex;
   }
 
-  /**
-   * Sets the starting index of a query result subset.
-   *
-   * @param startIndex the start index
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PfsParameter#setStartIndex(int)
    */
   @Override
   public void setStartIndex(int startIndex) {
     this.startIndex = startIndex;
   }
 
-  /**
-   * Returns the filter string.
-   *
-   * @return the filter string
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PfsParameter#getQueryRestriction()
    */
   @Override
   public String getQueryRestriction() {
     return queryRestriction;
   }
 
-  /**
-   * Sets the filter string.
-   *
-   * @param queryRestriction the filter string
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.PfsParameter#setQueryRestriction(java.lang.
+   * String)
    */
   @Override
   public void setQueryRestriction(String queryRestriction) {
     this.queryRestriction = queryRestriction;
   }
 
-  /**
-   * Indicates whether or not sort is in ascending order
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PfsParameter#getBranch()
+   */
+  @Override
+  public String getBranch() {
+    return branch;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PfsParameter#setBranch(java.lang.String)
+   */
+  @Override
+  public void setBranch(String branch) {
+    this.branch = branch;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PfsParameter#isAscending()
    */
   @Override
   public boolean isAscending() {
     return ascending;
   }
 
-  /**
-   * Sets the ascending.
-   *
-   * @param ascending the ascending
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PfsParameter#setAscending(boolean)
    */
   @Override
   public void setAscending(boolean ascending) {
     this.ascending = ascending;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.PfsParameter#getSortField()
+   */
+  @Override
+  public String getSortField() {
+    return sortField;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.PfsParameter#setSortField(java.lang.String)
+   */
+  @Override
+  public void setSortField(String sortField) {
+    this.sortField = sortField;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#hashCode()
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + (ascending ? 1231 : 1237);
+    result = prime * result + ((branch == null) ? 0 : branch.hashCode());
     result = prime * result + maxResults;
     result =
         prime * result
@@ -142,6 +195,11 @@ public class PfsParameterJpa implements PfsParameter {
     return result;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -152,6 +210,11 @@ public class PfsParameterJpa implements PfsParameter {
       return false;
     PfsParameterJpa other = (PfsParameterJpa) obj;
     if (ascending != other.ascending)
+      return false;
+    if (branch == null) {
+      if (other.branch != null)
+        return false;
+    } else if (!branch.equals(other.branch))
       return false;
     if (maxResults != other.maxResults)
       return false;
@@ -170,26 +233,6 @@ public class PfsParameterJpa implements PfsParameter {
     return true;
   }
 
-  /**
-   * Gets the sort field.
-   * 
-   * @return the sort field
-   */
-  @Override
-  public String getSortField() {
-    return sortField;
-  }
-
-  /**
-   * Sets the sort field.
-   *
-   * @param sortField the sort field
-   */
-  @Override
-  public void setSortField(String sortField) {
-    this.sortField = sortField;
-  }
-
   /*
    * (non-Javadoc)
    * 
@@ -201,11 +244,17 @@ public class PfsParameterJpa implements PfsParameter {
         && i >= getStartIndex() && i < (getStartIndex() + getMaxResults());
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#toString()
+   */
   @Override
   public String toString() {
     return "PfsParameterJpa [maxResults=" + maxResults + ", startIndex="
-        + startIndex + ", queryRestriction=" + queryRestriction
-        + ", sortField=" + sortField + ", ascending=" + ascending + "]";
+        + startIndex + ", queryRestriction=" + queryRestriction + ", branch="
+        + branch + ", sortField=" + sortField + ", ascending=" + ascending
+        + "]";
   }
 
 }

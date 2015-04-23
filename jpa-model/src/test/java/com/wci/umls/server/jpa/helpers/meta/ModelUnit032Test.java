@@ -161,7 +161,6 @@ public class ModelUnit032Test {
   public void testModelXmlTransient032() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient032");
     String xml = ConfigUtility.getStringForGraph(rel);
-    System.out.println(xml);
     assertTrue(xml.contains("<inverseId>"));
     assertTrue(xml.contains("<inverseAbbreviation>"));
     Assert.assertFalse(xml.contains("<inverse>"));

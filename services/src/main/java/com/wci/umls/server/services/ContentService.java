@@ -11,15 +11,14 @@ import java.util.Map;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteriaList;
 import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.AttributeList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
-import com.wci.umls.server.helpers.content.DefinitionList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.LexicalClassList;
-import com.wci.umls.server.helpers.content.SemanticTypeComponentList;
 import com.wci.umls.server.helpers.content.StringClassList;
+import com.wci.umls.server.helpers.content.SubsetList;
+import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Attribute;
@@ -32,6 +31,7 @@ import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
@@ -64,8 +64,8 @@ public interface ContentService extends RootService {
   /**
    * Returns the concept matching the specified parameters. May return more than
    * one concept if there are multiple entries with the same id, terminology,
-   * and version. NOTE: this only applies to concept, not to other data types.
-   * 
+   * and version. This view is needed for conflict resolution.
+   *
    * @param terminologyId the id
    * @param terminology the terminology
    * @param version the version
@@ -89,6 +89,77 @@ public interface ContentService extends RootService {
   public Concept getConcept(String terminologyId, String terminology,
     String version, String branch) throws Exception;
 
+
+  /**
+   * Returns the subset.
+   *
+   * @param id the id
+   * @return the subset
+   * @throws Exception the exception
+   */
+  public Subset getSubset(Long id) throws Exception;
+
+  /**
+   * Returns the subsets.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @return the subsets
+   * @throws Exception the exception
+   */
+  public SubsetList getSubsets(String terminologyId, String terminology,
+    String version) throws Exception;
+
+  /**
+   * Returns the subset.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the subset
+   * @throws Exception the exception
+   */
+  public Subset getSubset(String terminologyId, String terminology,
+    String version, String branch) throws Exception;
+
+  
+  /**
+   * Returns the subset members for the specified subset.
+   *
+   * @param subsetId the subset id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the subset members
+   */
+  public SubsetMemberList getSubsetMembers(String subsetId, String terminology,
+    String version, String branch);
+
+  
+  /**
+   * Returns the atom subset members for the specified atom.
+   *
+   * @param atomId the atom id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the atom subset members
+   */
+  public SubsetMemberList getAtomSubsetMembers(String atomId, String terminology, String version, String branch);
+  
+  /**
+   * Returns the concept subset members for the specified concept.
+   *
+   * @param conceptId the concept id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the concept subset members
+   */
+  public SubsetMemberList getConceptSubsetMembers(String conceptId, String terminology, String version, String branch);
+  
   /**
    * Returns the descriptor.
    * 
@@ -101,8 +172,7 @@ public interface ContentService extends RootService {
   /**
    * Returns the descriptor matching the specified parameters. May return more
    * than one descriptor if there are multiple entries with the same id,
-   * terminology, and version. NOTE: this only applies to descriptor, not to
-   * other data types.
+   * terminology, and version. This view is needed for conflict resolution.
    * 
    * @param terminologyId the id
    * @param terminology the terminology
@@ -139,7 +209,7 @@ public interface ContentService extends RootService {
   /**
    * Returns the code matching the specified parameters. May return more than
    * one code if there are multiple entries with the same id, terminology, and
-   * version. NOTE: this only applies to code, not to other data types.
+   * version. This view is needed for conflict resolution.
    * 
    * @param terminologyId the id
    * @param terminology the terminology
@@ -176,8 +246,7 @@ public interface ContentService extends RootService {
   /**
    * Returns the lexical class matching the specified parameters. May return
    * more than one lexical class if there are multiple entries with the same id,
-   * terminology, and version. NOTE: this only applies to lexical class, not to
-   * other data types.
+   * terminology, and version. This view is needed for conflict resolution.
    * 
    * @param terminologyId the id
    * @param terminology the terminology
@@ -185,7 +254,7 @@ public interface ContentService extends RootService {
    * @return the lexical class
    * @throws Exception if anything goes wrong
    */
-  public LexicalClassList getLexicalClasss(String terminologyId,
+  public LexicalClassList getLexicalClasses(String terminologyId,
     String terminology, String version) throws Exception;
 
   /**
@@ -214,8 +283,7 @@ public interface ContentService extends RootService {
   /**
    * Returns the string class matching the specified parameters. May return more
    * than one string class if there are multiple entries with the same id,
-   * terminology, and version. NOTE: this only applies to string class, not to
-   * other data types.
+   * terminology, and version. This view is needed for conflict resolution.
    * 
    * @param terminologyId the id
    * @param terminology the terminology
@@ -223,7 +291,7 @@ public interface ContentService extends RootService {
    * @return the string class
    * @throws Exception if anything goes wrong
    */
-  public StringClassList getStringClasss(String terminologyId,
+  public StringClassList getStringClasses(String terminologyId,
     String terminology, String version) throws Exception;
 
   /**
@@ -367,37 +435,76 @@ public interface ContentService extends RootService {
   public void removeStringClass(Long id) throws Exception;
 
   /**
-   * Get descendant concepts.
+   * Find descendant concepts.
    *
    * @param concept the concept
+   * @param parentsOnly the parents only flag
    * @param pfsParameter the pfs parameter
    * @return the concept list
    * @throws Exception the exception
    */
-  public ConceptList getDescendantConcepts(Concept concept,
-    PfsParameter pfsParameter) throws Exception;
+  public ConceptList findDescendantConcepts(Concept concept,
+    boolean parentsOnly, PfsParameter pfsParameter) throws Exception;
 
   /**
-   * Get ancestor concepts.
+   * Find ancestor concepts.
    *
    * @param concept the concept
+   * @param childrenOnly the children only flag
    * @param pfsParameter the pfs parameter
    * @return the concept list
    * @throws Exception the exception
    */
-  public ConceptList getAncestorConcepts(Concept concept,
+  public ConceptList findAncestorConcepts(Concept concept,
+    boolean childrenOnly, PfsParameter pfsParameter) throws Exception;
+
+  /**
+   * Find descendant descriptors.
+   *
+   * @param descriptor the descriptor
+   * @param parentsOnly the parents only
+   * @param pfsParameter the pfs parameter
+   * @return the descriptor list
+   * @throws Exception the exception
+   */
+  public DescriptorList findDescendantDescriptors(Descriptor descriptor,
+    boolean parentsOnly, PfsParameter pfsParameter) throws Exception;
+
+  /**
+   * Find ancestor concepts.
+   *
+   * @param descriptor the descriptor
+   * @param childrenOnly the children only
+   * @param pfsParameter the pfs parameter
+   * @return the descriptor list
+   * @throws Exception the exception
+   */
+  public DescriptorList findAncestorDescriptors(Descriptor descriptor,
+    boolean childrenOnly, PfsParameter pfsParameter) throws Exception;
+
+  /**
+   * Find descendant descriptors.
+   *
+   * @param code the code
+   * @param parentsOnly the parents only
+   * @param pfsParameter the pfs parameter
+   * @return the code list
+   * @throws Exception the exception
+   */
+  public CodeList findDescendantCodes(Code code, boolean parentsOnly,
     PfsParameter pfsParameter) throws Exception;
 
   /**
-   * Get child concepts.
+   * Find ancestor concepts.
    *
-   * @param concept the concept
-   * @param pfs the pfs
-   * @return the concept list
+   * @param code the code
+   * @param childrenOnly the children only
+   * @param pfsParameter the pfs parameter
+   * @return the code list
    * @throws Exception the exception
    */
-  public ConceptList getChildConcepts(Concept concept, PfsParameter pfs)
-    throws Exception;
+  public CodeList findAncestorCodes(Code code, boolean childrenOnly,
+    PfsParameter pfsParameter) throws Exception;
 
   /**
    * Returns the atom.
@@ -410,15 +517,16 @@ public interface ContentService extends RootService {
 
   /**
    * Returns the atom matching the specified parameters.
-   * 
+   *
    * @param terminologyId the id
    * @param terminology the terminology
    * @param version the version
+   * @param branch the branch
    * @return the atom
    * @throws Exception if anything goes wrong
    */
-  public Atom getAtom(String terminologyId, String terminology, String version)
-    throws Exception;
+  public Atom getAtom(String terminologyId, String terminology, String version,
+    String branch) throws Exception;
 
   /**
    * Adds the atom.
@@ -457,15 +565,17 @@ public interface ContentService extends RootService {
 
   /**
    * Returns the relationship matching the specified parameters.
-   * 
+   *
    * @param terminologyId the id
    * @param terminology the terminology
    * @param version the version
+   * @param branch the branch
    * @return the relationship
    * @throws Exception if anything goes wrong
    */
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
-    String terminologyId, String terminology, String version) throws Exception;
+    String terminologyId, String terminology, String version, String branch)
+    throws Exception;
 
   /**
    * Adds the relationship.
@@ -558,28 +668,21 @@ public interface ContentService extends RootService {
    *
    * @param terminology the terminology
    * @param version the terminology version
+   * @param branch the branch
    * @return the all concepts
    */
-  public ConceptList getAllConcepts(String terminology, String version);
-
+  public ConceptList getAllConcepts(String terminology, String version,
+    String branch);
+  
   /**
-   * Gets the all relationship ids.
+   * Returns the all subsets.
    *
    * @param terminology the terminology
-   * @param version the terminology version
-   * @return the all relationship ids
+   * @param version the version
+   * @param branch the branch
+   * @return the all subsets
    */
-  public StringList getAllRelationshipTerminologyIds(String terminology,
-    String version);
-
-  /**
-   * Gets the all atom ids.
-   *
-   * @param terminology the terminology
-   * @param version the terminology version
-   * @return the all atom ids
-   */
-  public StringList getAllAtomTerminologyIds(String terminology, String version);
+  public ConceptList getAllSubsets(String terminology, String version, String branch);
 
   /**
    * Clear transitive closure.
@@ -598,6 +701,13 @@ public interface ContentService extends RootService {
    * @param version the terminology version
    */
   public void clearConcepts(String terminology, String version);
+
+  /**
+   * Clear all content in the (non null) branch.
+   *
+   * @param branch the branch
+   */
+  public void clearBranch(String branch);
 
   /**
    * Returns the graph resolution handler. This is configured internally but
@@ -651,11 +761,12 @@ public interface ContentService extends RootService {
    *
    * @param terminology the terminology
    * @param version the version
+   * @param branch the branch
    * @return the component stats
    * @throws Exception the exception
    */
   public Map<String, Integer> getComponentStats(String terminology,
-    String version) throws Exception;
+    String version, String branch) throws Exception;
 
   /**
    * Indicates whether or not to assign last modified when changing terminology
@@ -711,18 +822,6 @@ public interface ContentService extends RootService {
     String version, String branch) throws Exception;
 
   /**
-   * Gets the definitions.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the definitions
-   * @throws Exception the exception
-   */
-  public DefinitionList getDefinitions(String terminologyId,
-    String terminology, String version) throws Exception;
-
-  /**
    * Gets the definition.
    *
    * @param id the id
@@ -770,18 +869,6 @@ public interface ContentService extends RootService {
    */
   public SemanticTypeComponent getSemanticTypeComponent(String terminologyId,
     String terminology, String version, String branch) throws Exception;
-
-  /**
-   * Gets the semantic type components.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the semantic type components
-   * @throws Exception the exception
-   */
-  public SemanticTypeComponentList getSemanticTypeComponents(
-    String terminologyId, String terminology, String version) throws Exception;
 
   /**
    * Gets the semantic type component.

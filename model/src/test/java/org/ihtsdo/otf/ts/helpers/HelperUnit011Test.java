@@ -111,8 +111,6 @@ public class HelperUnit011Test {
     KeyValuesMap map2 = new KeyValuesMap();
     map2.put("1", null);
     map2.put("1", null);
-    System.out.println("map1 = " + map1);
-    System.out.println("map2 = " + map2);
     assertTrue(map1.equals(map2));
     assertTrue(map1.hashCode() == map2.hashCode());
     assertTrue(map1.toString().equals(map2.toString()));

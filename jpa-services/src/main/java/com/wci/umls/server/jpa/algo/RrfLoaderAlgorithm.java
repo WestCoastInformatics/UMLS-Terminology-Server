@@ -36,6 +36,7 @@ import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.CitationJpa;
 import com.wci.umls.server.jpa.meta.ContactInfoJpa;
+import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
 import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
@@ -46,6 +47,7 @@ import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -56,6 +58,7 @@ import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.CodeVariantType;
+import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.NameVariantType;
@@ -138,7 +141,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private Map<String, Atom> atomMap = new HashMap<>();
 
   /** The relationship map. */
-  private Map<String, Relationship> relationshipMap = new HashMap<>();
+  private Map<String, Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipMap = new HashMap<>();
 
   /**
    * Instantiates an empty {@link RrfLoaderAlgorithm}.
@@ -313,7 +316,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       clear();
 
       Logger.getLogger(getClass()).info("Log component stats");
-      Map<String, Integer> stats = getComponentStats(null, null);
+      Map<String, Integer> stats = getComponentStats(null, null, null);
       List<String> statsList = new ArrayList<>(stats.keySet());
       Collections.sort(statsList);
       for (String key : statsList) {
@@ -439,7 +442,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
       // Handle Languages
-      if (fields[0].equals("LAT") && fields[2].equals("expanded_form")) {
+      else if (fields[0].equals("LAT") && fields[2].equals("expanded_form")) {
         final Language lat = new LanguageJpa();
         lat.setAbbreviation(fields[1]);
         lat.setExpandedForm(fields[3]);
@@ -457,7 +460,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
       // Handle AdditionalRelationshipLabel
-      if (fields[0].equals("RELA") && fields[2].equals("expanded_form")) {
+      else if (fields[0].equals("RELA") && fields[2].equals("expanded_form")) {
         final AdditionalRelationshipType rela =
             new AdditionalRelationshipTypeJpa();
         rela.setAbbreviation(fields[1]);
@@ -474,7 +477,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         Logger.getLogger(getClass()).debug(
             "    add additional relationship type - " + rela);
       }
-      if (fields[0].equals("RELA") && fields[2].equals("rela_inverse")) {
+      else if (fields[0].equals("RELA") && fields[2].equals("rela_inverse")) {
         inverseRelaMap.put(fields[1], fields[3]);
 
         if (inverseRelaMap.containsKey(fields[1])
@@ -489,7 +492,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
       // Handle RelationshipLabel
-      if (fields[0].equals("REL") && fields[2].equals("expanded_form")
+      else if (fields[0].equals("REL") && fields[2].equals("expanded_form")
           && !fields[0].equals("SIB")) {
         final RelationshipType rel = new RelationshipTypeJpa();
         rel.setAbbreviation(fields[1]);
@@ -505,7 +508,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         Logger.getLogger(getClass())
             .debug("    add relationship type - " + rel);
       }
-      if (fields[0].equals("REL") && fields[2].equals("rel_inverse")
+      else if (fields[0].equals("REL") && fields[2].equals("rel_inverse")
         && !fields[0].equals("SIB")) {
         inverseRelMap.put(fields[1], fields[3]);
         if (inverseRelMap.containsKey(fields[1])
@@ -519,7 +522,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         }
       }
 
-      if (fields[0].equals("TTY") && fields[2].equals("expanded_form")) {
+      else if (fields[0].equals("TTY") && fields[2].equals("expanded_form")) {
         final TermType tty = new TermTypeJpa();
         tty.setAbbreviation(fields[1]);
         tty.setExpandedForm(fields[3]);
@@ -539,7 +542,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         tty.setUsageType(UsageType.UNDEFINED);
         ttyMap.put(fields[1], tty);
       }
-      if (fields[0].equals("TTY") && fields[2].equals("tty_class")) {
+      else if (fields[0].equals("TTY") && fields[2].equals("tty_class")) {
         if (fields[3].equals("attribute")) {
           ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.ATTRIBUTE);
         }
@@ -574,6 +577,25 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           ttyMap.get(fields[1]).setNameVariantType(NameVariantType.EXPANDED);
         }
 
+      }
+      
+      // General metadata entries (skip MAPATN)
+      else if (!fields[0].equals("MAPATN")){
+        GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
+
+        entry.setLastModified(releaseVersionDate);
+        entry.setLastModifiedBy(loader);
+        entry.setTerminology(terminology);
+        entry.setTerminologyVersion(terminologyVersion);
+        entry.setPublished(true);
+        entry.setPublishable(true);
+
+        entry.setKey(fields[0]);
+        entry.setAbbreviation(fields[1]);
+        entry.setType(fields[2]);
+        entry.setExpandedForm(fields[3]);
+
+        addGeneralMetadataEntry(entry);
       }
 
       // log at regular intervals
@@ -873,7 +895,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "|", 26);
+      final String fields[] = FieldedStringTokenizer.split(line, "|", 25);
 
       // Field Description
       // 0 VCUI
@@ -899,9 +921,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // 20 CENC
       // 21 CURVER
       // 22 SABIN
-      // 23 SABIN
-      // 24 SSN
-      // 25 SCIT
+      // 23 SSN
+      // 24 SCIT
       //
       // e.g.
       // C3847853|C1140284|RXNORM_14AA_140902F|RXNORM|RxNorm Vocabulary,
@@ -914,10 +935,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // States;20892-4879;kilbourj@mail.nlm.nih.gov|0|1969|278||BN,BPCK,DF,GPCK,IN,MIN,OCD,PIN,PSN,SBD,SBDC,SBDF,SCD,SCDC,SCDF,SCDG,SY,TMSY|AMBIGUITY_FLAG,NDC,ORIG_AMBIGUITY_FLAG,ORIG_CODE,ORIG_SOURCE,ORIG_TTY,ORIG_VSAB,RXAUI,RXCUI,RXN_ACTIVATED,RXN_AVAILABLE_STRENGTH,RXN_BN_CARDINALITY,RXN_HUMAN_DRUG,RXN_OBSOLETED,RXN_QUANTITY,RXN_STRENGTH,RXTERM_FORM|ENG|UTF-8|Y|Y|RXNORM|RxNorm;META2014AA
       // Full Update 2014_09_02;Bethesda, MD;National Library of Medicine|
 
+      // SKIP SABIN=N
+      if (fields[23].equals("N")) {
+        continue;
+      }
+      
       Terminology term = new TerminologyJpa();
 
       term.setAssertsRelDirection(false); // TODO: extract this from MRRREL
-      term.setCitation(new CitationJpa(fields[25]));
+      term.setCitation(new CitationJpa(fields[24]));
       term.setCurrent(fields[21].equals("Y"));
       if (!fields[8].equals("")) {
         term.setEndDate(ConfigUtility.DATE_FORMAT2.parse(fields[8]));
@@ -1037,8 +1063,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // 6 ISPREF
       // 7 AUI
       // 8 SAUI
-      // 9 SDUI
-      // 10 SCUI
+      // 9 SCUI
+      // 10 SDUI
       // 11 SAB
       // 12 TTY
       // 13 CODE
@@ -1073,8 +1099,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setWorkflowStatus(published);
 
       atom.setCodeId(fields[13]);
-      atom.setDescriptorId(fields[9]);
-      atom.setConceptId(fields[10]);
+      atom.setDescriptorId(fields[10]);
+      atom.setConceptId(fields[9]);
       atom.setStringClassId(fields[5]);
       atom.setLexicalClassId(fields[3]);
       atom.setCodeId(fields[13]);
@@ -1111,16 +1137,16 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // SCUI
       Concept scui = null;
-      if (conceptMap.containsKey(fields[10])) {
-        scui = conceptMap.get(fields[10]);
-      } else if (!fields[10].equals("")) {
+      if (conceptMap.containsKey(fields[9])) {
+        scui = conceptMap.get(fields[9]);
+      } else if (!fields[9].equals("")) {
         scui = new ConceptJpa();
         scui.setLastModified(releaseVersionDate);
         scui.setLastModifiedBy(loader);
         scui.setPublished(true);
         scui.setPublishable(true);
         scui.setTerminology(fields[11]);
-        scui.setTerminologyId(fields[10]);
+        scui.setTerminologyId(fields[9]);
         scui.setTerminologyVersion(loadedTerminologies.get(fields[11])
             .getTerminologyVersion());
         scui.setWorkflowStatus(published);
@@ -1133,16 +1159,16 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // SDUI
       Descriptor sdui = null;
-      if (descriptorMap.containsKey(fields[9])) {
-        sdui = descriptorMap.get(fields[9]);
-      } else if (!fields[9].equals("")) {
+      if (descriptorMap.containsKey(fields[10])) {
+        sdui = descriptorMap.get(fields[10]);
+      } else if (!fields[10].equals("")) {
         sdui = new DescriptorJpa();
         sdui.setLastModifiedBy(loader);
         sdui.setLastModified(releaseVersionDate);
         sdui.setPublished(true);
         sdui.setPublishable(true);
         sdui.setTerminology(fields[11]);
-        sdui.setTerminologyId(fields[9]);
+        sdui.setTerminologyId(fields[10]);
         sdui.setTerminologyVersion(loadedTerminologies.get(fields[11])
             .getTerminologyVersion());
         sdui.setWorkflowStatus(published);

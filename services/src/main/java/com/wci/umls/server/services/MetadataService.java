@@ -42,11 +42,7 @@ public interface MetadataService extends RootService, Configurable {
     /** The Term_ types. */
     Term_Types,
     /** The Hierarchical_ relationship_ types. */
-    Hierarchical_Relationship_Types,
-    /** Stated relationship types. */
-    Stated_Characteristic_Types,
-    /** Inferred relationship types. */
-    Inferred_Characteristic_Types;
+    Hierarchical_Relationship_Types
   }
 
   /**
@@ -425,6 +421,32 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception the exception
    */
   public void removeTermType(Long id) throws Exception;
+
+
+  /**
+   * Adds the general metadata entry.
+   *
+   * @param entry the entry
+   * @return the general metadata entry
+   * @throws Exception the exception
+   */
+  public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry) throws Exception;
+
+  /**
+   * Update general metadata entry.
+   *
+   * @param entry the entry
+   * @throws Exception the exception
+   */
+  public void updateGeneralMetadataEntry(GeneralMetadataEntry entry) throws Exception;
+
+  /**
+   * Removes the general metadata entry.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeGeneralMetadataEntry(Long id) throws Exception;
 
   /**
    * Adds the terminology.

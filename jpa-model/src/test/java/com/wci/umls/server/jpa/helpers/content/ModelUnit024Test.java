@@ -69,6 +69,7 @@ public class ModelUnit024Test {
     tester.include("queryRestriction");
     tester.include("sortField");
     tester.include("ascending");
+    tester.include("branch");
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
