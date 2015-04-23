@@ -10,9 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.rest.client.SecurityClientRest;
-import com.wci.umls.server.services.SecurityService;
 
 /**
  * The Class SecurityServiceRestTest.
@@ -97,11 +95,12 @@ public class SecurityServiceRestTest {
           "Test prerequisite:  A non-existent (bad) user must be specified in config properties file");
     }
 
-    SecurityService securityService = new SecurityServiceJpa();
-    if (securityService.getUser(badUserName) != null) {
+    String authToken = service.authenticate(adminUserName, adminUserPassword);
+    if (service.getUser(badUserName, authToken) != null) {
       throw new Exception(
           "Test prerequisite:  The bad user specified in config properties file should not exist in database");
     }
+    service.logout(authToken);
   }
 
   /**

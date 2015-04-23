@@ -15,17 +15,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.UserList;
-import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
-import com.wci.umls.server.jpa.services.ProjectServiceJpa;
-import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
-import com.wci.umls.server.services.ProjectService;
-import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.test.helpers.DegenerateUseMethodTestHelper;
 import com.wci.umls.server.test.helpers.DegenerateUseMethodTestHelper.ExpectedFailure;
 
@@ -35,7 +29,7 @@ import com.wci.umls.server.test.helpers.DegenerateUseMethodTestHelper.ExpectedFa
 public class SecurityServiceRestDegenerateUseTest extends
     SecurityServiceRestTest {
 
-  /**  The auth token. */
+  /** The auth token. */
   String authToken = null;
 
   /**
@@ -45,16 +39,8 @@ public class SecurityServiceRestDegenerateUseTest extends
    */
   @Before
   public void setup() throws Exception {
-
-    // before each test, ensure the bad user is removed
-    // possibly added after a test failure
-    SecurityService securityService = new SecurityServiceJpa();
-    User badUser = securityService.getUser(badUserName);
-    if (badUser != null)
-      securityService.removeUser(badUser.getId());
-
     // authenticate user
-    authToken = securityService.authenticate(adminUserName, adminUserPassword);
+    authToken = service.authenticate(adminUserName, adminUserPassword);
   }
 
   /**
@@ -63,10 +49,12 @@ public class SecurityServiceRestDegenerateUseTest extends
    * 
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void testDegenerateUseRestSecurity001() throws Exception {
 
+    // PROCEDURE 1
+    Logger.getLogger(getClass()).info(
+        "  PROCEDURE 1: test degenerate authenticate calls.");
     Method method =
         service.getClass().getMethod("authenticate", new Class<?>[] {
             String.class, String.class
@@ -100,10 +88,8 @@ public class SecurityServiceRestDegenerateUseTest extends
     user.setUserName(badUserName);
     user.setEmail("baduser@example.com");
 
-    /**
-     */
+    // PROCEDURE 1
     Logger.getLogger(getClass()).info("Procedure 1: ADD services");
-
     method = service.getClass().getMethod("addUser", new Class<?>[] {
         UserJpa.class, String.class
     });
@@ -118,7 +104,7 @@ public class SecurityServiceRestDegenerateUseTest extends
 
     // Add user with incomplete user information (e.g. blank name or email)
     // TEST: Should throw deserialization error
-    Logger.getLogger(getClass()).info("  Adding user with incomplete fields");
+    Logger.getLogger(getClass()).info("    Adding user with incomplete fields");
     for (Field field : UserJpa.class.getFields()) {
 
       // construct the user
@@ -141,10 +127,8 @@ public class SecurityServiceRestDegenerateUseTest extends
       }
     }
 
-    /**
-     * Procedure 2: Testing get services
-     */
-    Logger.getLogger(getClass()).info("Procedure 2: GET services");
+    // PROCEDURE 2
+    Logger.getLogger(getClass()).info("  Procedure 2: GET services");
 
     // first get the user
     user = service.getUser(adminUserName, authToken);
@@ -179,8 +163,8 @@ public class SecurityServiceRestDegenerateUseTest extends
       fail("GET non-existent user returned exception instead of null");
     }
 
-    // Procedure 3: Testing update services
-    Logger.getLogger(getClass()).info("Procedure 3: UPDATE services");
+    // PROCEDURE 3
+    Logger.getLogger(getClass()).info("  Procedure 3: UPDATE services");
 
     // Update user with null argument
     // TEST: Should throw exception
@@ -202,8 +186,11 @@ public class SecurityServiceRestDegenerateUseTest extends
 
     // add the user
     user = service.addUser((UserJpa) user, authToken);
+    // save for removing later
+    Long userId = user.getId();
     try {
       // set the id to null and update
+      user.setId(null);
       service.updateUser((UserJpa) user, authToken);
 
       fail("Updating user with null hibernate id did not throw expected exception");
@@ -238,8 +225,8 @@ public class SecurityServiceRestDegenerateUseTest extends
       }
     }
 
-    // Procedure 4: Testing delete services
-    Logger.getLogger(getClass()).info("Procedure 4: DELETE services");
+    // Procedure 4
+    Logger.getLogger(getClass()).info("  Procedure 4: DELETE services");
 
     // Delete user with null id
     // TEST: Should throw exception
@@ -268,40 +255,8 @@ public class SecurityServiceRestDegenerateUseTest extends
       // do nothing
     }
 
-    // Delete user with valid id but used by a project
-    // TEST: Should throw ForeignConstraint exception
-    Project project = new ProjectJpa();
-    project.setName("name");
-    project.setDescription("description");
-    project.setPublic(true);
-    project.setScopeConcepts(null);
-    project.setScopeDescendantsFlag(true);
-    project.setScopeExcludesConcepts(null);
-    project.setScopeExcludesDescendantsFlag(true);
-    project.setTerminology("terminology");
-    project.setTerminologyVersion("version");
-    project.setLastModifiedBy("some_user");
-
-    user = service.getUser(properties.getProperty("bad.user"), authToken);
-    project.addAuthor(user);
-
-    // add the project
-    ProjectService projectService = new ProjectServiceJpa();
-    projectService.addProject(project);
-
-    // attempt to delete the user
-    try {
-      service.removeUser(user.getId(), authToken);
-      fail("DELETE user attached to a project did not throw expected exception");
-    } catch (Exception e) {
-      // do nothing
-    }
-
-    // delete the user and project
-    projectService.removeProject(project.getId());
-    projectService.close();
-    service.removeUser(user.getId(), authToken);
-
+    // Cleanup
+    service.removeUser(userId, authToken);
   }
 
   //
@@ -314,16 +269,8 @@ public class SecurityServiceRestDegenerateUseTest extends
    * @throws Exception the exception
    */
   @After
-  @SuppressWarnings("static-method")
   public void teardown() throws Exception {
-
-    // before each test, ensure the bad user is removed
-    // possibly added after a test failure
-    SecurityService securityService = new SecurityServiceJpa();
-    User badUser = securityService.getUser(badUserName);
-    if (badUser != null)
-      securityService.removeUser(badUser.getId());
-    securityService.close();
+    // n/a
   }
 
 }

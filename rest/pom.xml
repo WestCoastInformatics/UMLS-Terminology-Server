@@ -203,7 +203,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
-          <warName>term-server-rest</warName>
+          <warName>umls-server-rest</warName>
           <attachClasses>true</attachClasses>
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
           <webResources>

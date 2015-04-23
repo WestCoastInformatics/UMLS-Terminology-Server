@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server;
 
-
 import java.util.Date;
 import java.util.Set;
 
@@ -53,7 +52,7 @@ public interface Project {
    * @param description the description
    */
   public void setDescription(String description);
-  
+
   /**
    * Checks if the project is viewable by public roles.
    *
@@ -95,20 +94,6 @@ public interface Project {
    * @param lastModifiedBy the last modified by
    */
   public void setLastModifiedBy(String lastModifiedBy);
-
-  /**
-   * Returns the module id.
-   *
-   * @return the module id
-   */
-  public String getModuleId();
-
-  /**
-   * Sets the module id.
-   *
-   * @param moduleId the module id
-   */
-  public void setModuleId(String moduleId);
 
   /**
    * Returns the leads.
@@ -320,5 +305,19 @@ public interface Project {
    * @param values the action workflow status values
    */
   public void setActionWorkflowStatusValues(Set<String> values);
+  
+  /**
+   * Returns the branch.
+   *
+   * @return the branch
+   */
+  public String getBranch();
+  
+  /**
+   * Sets the branch.
+   *
+   * @param branch the branch
+   */
+  public void setBranch(String branch);
 
 }

@@ -23,23 +23,23 @@ public class ProjectServiceRestTest {
 
   /** The service. */
   protected static ProjectClientRest projectService;
-  
-  /**  The security service. */
+
+  /** The security service. */
   protected static SecurityClientRest securityService;
 
-  /**  The properties. */
+  /** The properties. */
   protected static Properties properties;
-  
-  /**  The test password. */
+
+  /** The test password. */
   protected static String testUser;
-  
-  /**  The test password. */
+
+  /** The test password. */
   protected static String testPassword;
 
-  /**  The test password. */
+  /** The test password. */
   protected static String adminUser;
-  
-  /**  The test password. */
+
+  /** The test password. */
   protected static String adminPassword;
 
   /**
@@ -49,21 +49,14 @@ public class ProjectServiceRestTest {
    */
   @BeforeClass
   public static void setupClass() throws Exception {
-    
+
     // instantiate properties
     properties = ConfigUtility.getConfigProperties();
-    
+
     // instantiate required services
     projectService = new ProjectClientRest(properties);
     securityService = new SecurityClientRest(properties);
-    
-    /**
-     * Test prerequisites
-     * Terminology SNOMEDCT exists in database
-     * Terminology ICD9CM exists in database
-     * The run.config.ts has "viewer.user" and "viewer.password" specified
-     */
-    
+
     // test run.config.ts has viewer user
     testUser = properties.getProperty("viewer.user");
     testPassword = properties.getProperty("viewer.password");
@@ -71,12 +64,13 @@ public class ProjectServiceRestTest {
     // test run.config.ts has admin user
     adminUser = properties.getProperty("admin.user");
     adminPassword = properties.getProperty("admin.password");
-    
+
     if (testUser == null || testUser.isEmpty()) {
       throw new Exception("Test prerequisite: viewer.user must be specified");
     }
     if (testPassword == null || testPassword.isEmpty()) {
-      throw new Exception("Test prerequisite: viewer.password must be specified");
+      throw new Exception(
+          "Test prerequisite: viewer.password must be specified");
     }
     if (adminUser == null || adminUser.isEmpty()) {
       throw new Exception("Test prerequisite: admin.user must be specified");
@@ -84,7 +78,7 @@ public class ProjectServiceRestTest {
     if (adminPassword == null || adminPassword.isEmpty()) {
       throw new Exception("Test prerequisite: admin.password must be specified");
     }
-    
+
   }
 
   /**
@@ -98,7 +92,6 @@ public class ProjectServiceRestTest {
     /**
      * Prerequisites
      */
-
 
   }
 

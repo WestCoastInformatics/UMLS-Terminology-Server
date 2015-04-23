@@ -1,0 +1,11 @@
+# Release Metadata 
+#Wed Apr 22 14:50:53 PDT 2015
+umls.release.description=Base Release for Fall 2014
+umls.release.name=2014AB
+nlm.build.date=2014_11_04_19_57_28
+mmsys.build.date=2014_09_24_15_13_03
+umls.release.date=20141110
+umls.lvg.version=2014
+umls.medline.date=20130401
+umls.medline.file=medline13n0717.xml
+mmsys.version=MMSYS-2014AB-20140924

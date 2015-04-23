@@ -13,8 +13,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.wci.umls.server.User;
+import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 
 /**
@@ -129,23 +132,69 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
   }
 
   /**
-   * Test getProject() with null identifier
+   * Test getProject() with null identifier.
    *
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
   @Test
   public void testDegenerateUseRestProject002() throws Exception {
+    // Procedure 1
     try {
       projectService.getProject(null, adminAuthToken);
     } catch (Exception e) {
       // do nothing
     }
 
+    // Procedure 2
+
+    // Delete user with valid id but used by a project
+    // TEST: Should throw ForeignConstraint exception
+    ProjectJpa project = new ProjectJpa();
+    project.setName("name");
+    project.setDescription("description");
+    project.setPublic(true);
+    project.setScopeConcepts(null);
+    project.setScopeDescendantsFlag(true);
+    project.setScopeExcludesConcepts(null);
+    project.setScopeExcludesDescendantsFlag(true);
+    project.setTerminology("terminology");
+    project.setTerminologyVersion("version");
+    project.setLastModifiedBy("some_user");
+
+    User user = new UserJpa();
+    user.setName(properties.getProperty("bad.user"));
+    user.setEmail("no email");
+    user.setUserName(properties.getProperty("bad.user"));
+    user.setApplicationRole(UserRole.VIEWER);
+
+    // add the user
+    user = securityService.addUser((UserJpa) user, adminAuthToken);
+
+    user =
+        securityService.getUser(properties.getProperty("bad.user"),
+            adminAuthToken);
+    project.addAuthor(user);
+
+    // add the project
+    project = (ProjectJpa) projectService.addProject(project, adminAuthToken);
+
+    // attempt to delete the user
+    try {
+      securityService.removeUser(user.getId(), adminAuthToken);
+      fail("DELETE user attached to a project did not throw expected exception");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+    // delete the user and project
+    projectService.removeProject(project.getId(), adminAuthToken);
+    securityService.removeUser(user.getId(), adminAuthToken);
+
   }
 
   /**
-   * Test findConceptsInScope with degenerate parameters
+   * Test findConceptsInScope with degenerate parameters.
    *
    * @throws Exception the exception
    */

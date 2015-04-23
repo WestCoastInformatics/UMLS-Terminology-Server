@@ -79,9 +79,8 @@ public class ProjectServiceRestEdgeCasesTest extends ProjectServiceRestTest {
     project2.addScopeConcept("12345");
     project2.addScopeExcludesConcept("12345");
     project2.setDescription("Sample");
-    project2.setModuleId("12345");
     project2.setName("Sample");
-    project2.setTerminology("SNOMEDCT");
+    project2.setTerminology("UMLS");
     project2.setTerminologyVersion("latest");
 
     project2 = (ProjectJpa) projectService.addProject(project2, adminAuthToken);

@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.xml.bind.annotation.XmlID;
 
 import org.hibernate.envers.Audited;
 
@@ -83,6 +84,26 @@ public abstract class AbstractHasLastModified implements HasLastModified {
     this.id = id;
   }
 
+  /**
+   * Returns the object id. Needed for JAXB id
+   *
+   * @return the object id
+   */
+  @XmlID
+  public String getObjectId() {
+    return id == null ? "" : id.toString();
+  }
+
+  /**
+   * Sets the object id.
+   *
+   * @param id the object id
+   */
+  public void setObjectId(String id) {
+    if (id != null) {
+      this.id = Long.parseLong(id);
+    }
+  }
   /*
    * (non-Javadoc)
    * 

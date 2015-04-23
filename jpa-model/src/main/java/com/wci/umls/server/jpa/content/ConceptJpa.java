@@ -229,47 +229,38 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     this.semanticTypes = semanticTypes;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#hashCode()
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.Concept#addSemanticType(com.wci.umls.server.model.content.SemanticTypeComponent)
    */
   @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + (fullyDefined ? 1231 : 1237);
-    return result;
+  public void addSemanticType(SemanticTypeComponent semanticType) {
+    if (semanticTypes == null) {
+      semanticTypes = new ArrayList<>();
+    }
+    semanticTypes.add(semanticType);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractAtomClass#equals(java.lang.Object)
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.Concept#removeSemanticType(com.wci.umls.server.model.content.SemanticTypeComponent)
    */
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (!super.equals(obj))
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    ConceptJpa other = (ConceptJpa) obj;
-    if (fullyDefined != other.fullyDefined)
-      return false;
-    return true;
+  public void removeSemanticType(SemanticTypeComponent semanticType) {
+    if (semanticTypes == null) {
+      semanticTypes = new ArrayList<>();
+    }
+    semanticTypes.remove(semanticType);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+
+  /* (non-Javadoc)
    * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
    */
   @Override
   public String toString() {
-    return "ConceptJpa [definitions=" + definitions + "]";
+    return "ConceptJpa [semanticTypes=" + semanticTypes + ", fullyDefined="
+        + fullyDefined + ", usesRelationshipIntersection="
+        + usesRelationshipIntersection + ", usesRelationshipUnion="
+        + usesRelationshipUnion + "]";
   }
 
   /*
@@ -315,6 +306,40 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public void setUsesRelationshipUnion(boolean usesRelationshipUnion) {
     this.usesRelationshipUnion = usesRelationshipUnion;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + (fullyDefined ? 1231 : 1237);
+    result = prime * result + (usesRelationshipIntersection ? 1231 : 1237);
+    result = prime * result + (usesRelationshipUnion ? 1231 : 1237);
+    return result;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ConceptJpa other = (ConceptJpa) obj;
+    if (fullyDefined != other.fullyDefined)
+      return false;
+    if (usesRelationshipIntersection != other.usesRelationshipIntersection)
+      return false;
+    if (usesRelationshipUnion != other.usesRelationshipUnion)
+      return false;
+    return true;
   }
 
 }

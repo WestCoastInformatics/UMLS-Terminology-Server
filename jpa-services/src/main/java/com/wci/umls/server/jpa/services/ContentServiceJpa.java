@@ -122,26 +122,26 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   }
 
   /** The graph resolver. */
-  public static GraphResolutionHandler graphResolver = null;
+  public static Map<String, GraphResolutionHandler> graphResolverMap = null;
   static {
-
+    graphResolverMap = new HashMap<>();
     try {
       if (config == null)
         config = ConfigUtility.getConfigProperties();
       String key = "graph.resolution.handler";
-      String handlerName = config.getProperty(key);
-      if (handlerName == null || handlerName.isEmpty()) {
-        throw new Exception("Undefined graph resolution handler");
+      for (String handlerName : config.getProperty(key).split(",")) {
+        if (handlerName.isEmpty())
+          continue;
+        // Add handlers to map
+        GraphResolutionHandler handlerService =
+            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
+                handlerName, GraphResolutionHandler.class);
+        graphResolverMap.put(handlerName, handlerService);
       }
-      // Set handler up
-      GraphResolutionHandler handler =
-          ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
-              handlerName, GraphResolutionHandler.class);
-      graphResolver = handler;
 
     } catch (Exception e) {
       e.printStackTrace();
-      graphResolver = null;
+      graphResolverMap = null;
     }
   }
 
@@ -172,7 +172,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       throw new Exception(
           "Listeners did not properly initialize, serious error.");
     }
-    if (graphResolver == null) {
+    if (graphResolverMap == null) {
       throw new Exception(
           "Graph resolver did not properly initialize, serious error.");
     }
@@ -378,11 +378,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.services.ContentService#getDefinition(java.lang.Long)
+   * @see
+   * com.wci.umls.server.services.ContentService#getDefinition(java.lang.Long)
    */
   @Override
   public Definition getDefinition(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get definition " + id);
+    Logger.getLogger(getClass())
+        .debug("Content Service - get definition " + id);
     Definition c = manager.find(DefinitionJpa.class, id);
     return c;
   }
@@ -391,15 +393,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getDefinitions(java.lang.String,
-   * java.lang.String, java.lang.String)
+   * com.wci.umls.server.services.ContentService#getDefinitions(java.lang.String
+   * , java.lang.String, java.lang.String)
    */
   @Override
-  public DefinitionList getDefinitions(String terminologyId, String terminology,
-    String version) throws Exception {
+  public DefinitionList getDefinitions(String terminologyId,
+    String terminology, String version) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get definitions " + terminologyId + "/" + terminology
-            + "/" + version);
+        "Content Service - get definitions " + terminologyId + "/"
+            + terminology + "/" + version);
     javax.persistence.Query query =
         manager
             .createQuery("select c from DefinitionJpa c where terminologyId = :terminologyId and terminologyVersion = :version and terminology = :terminology");
@@ -467,8 +469,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#addDefinition(com.wci.umls.server
-   * .model.content.Definition)
+   * com.wci.umls.server.services.ContentService#addDefinition(com.wci.umls.
+   * server .model.content.Definition)
    */
   @Override
   public Definition addDefinition(Definition definition) throws Exception {
@@ -541,12 +543,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#removeDefinition(java.lang.Long)
+   * com.wci.umls.server.services.ContentService#removeDefinition(java.lang.
+   * Long)
    */
   @Override
   public void removeDefinition(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove definition " + id);
+    Logger.getLogger(getClass()).debug(
+        "Content Service - remove definition " + id);
     // Remove the component
     Definition definition = removeComponent(id, DefinitionJpa.class);
 
@@ -556,15 +559,19 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
   }
-  
+
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.services.ContentService#getSemanticTypeComponent(java.lang.Long)
+   * @see
+   * com.wci.umls.server.services.ContentService#getSemanticTypeComponent(java
+   * .lang.Long)
    */
   @Override
-  public SemanticTypeComponent getSemanticTypeComponent(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug("Content Service - get semanticTypeComponent " + id);
+  public SemanticTypeComponent getSemanticTypeComponent(Long id)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get semanticTypeComponent " + id);
     SemanticTypeComponent c = manager.find(SemanticTypeComponentJpa.class, id);
     return c;
   }
@@ -573,15 +580,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getSemanticTypeComponents(java.lang.String,
-   * java.lang.String, java.lang.String)
+   * com.wci.umls.server.services.ContentService#getSemanticTypeComponents(java
+   * .lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public SemanticTypeComponentList getSemanticTypeComponents(String terminologyId, String terminology,
-    String version) throws Exception {
+  public SemanticTypeComponentList getSemanticTypeComponents(
+    String terminologyId, String terminology, String version) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get semanticTypeComponents " + terminologyId + "/" + terminology
-            + "/" + version);
+        "Content Service - get semanticTypeComponents " + terminologyId + "/"
+            + terminology + "/" + version);
     javax.persistence.Query query =
         manager
             .createQuery("select c from SemanticTypeComponentJpa c where terminologyId = :terminologyId and terminologyVersion = :version and terminology = :terminology");
@@ -595,7 +602,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       query.setParameter("version", version);
       @SuppressWarnings("unchecked")
       List<SemanticTypeComponent> m = query.getResultList();
-      SemanticTypeComponentListJpa semanticTypeComponentList = new SemanticTypeComponentListJpa();
+      SemanticTypeComponentListJpa semanticTypeComponentList =
+          new SemanticTypeComponentListJpa();
       semanticTypeComponentList.setObjects(m);
       semanticTypeComponentList.setTotalCount(m.size());
       return semanticTypeComponentList;
@@ -609,16 +617,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getSemanticTypeComponent(java.lang.String,
-   * java.lang.String, java.lang.String, java.lang.String)
+   * com.wci.umls.server.services.ContentService#getSemanticTypeComponent(java
+   * .lang.String, java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public SemanticTypeComponent getSemanticTypeComponent(String terminologyId, String terminology,
-    String version, String branch) throws Exception {
+  public SemanticTypeComponent getSemanticTypeComponent(String terminologyId,
+    String terminology, String version, String branch) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get semanticTypeComponent " + terminologyId + "/" + terminology
-            + "/" + version + "/" + branch);
-    SemanticTypeComponentList cl = getSemanticTypeComponents(terminologyId, terminology, version);
+        "Content Service - get semanticTypeComponent " + terminologyId + "/"
+            + terminology + "/" + version + "/" + branch);
+    SemanticTypeComponentList cl =
+        getSemanticTypeComponents(terminologyId, terminology, version);
     if (cl == null || cl.getTotalCount() == 0) {
       Logger.getLogger(getClass()).debug("  no semanticTypeComponent ");
       return null;
@@ -649,13 +658,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#addSemanticTypeComponent(com.wci.umls.server
-   * .model.content.SemanticTypeComponent)
+   * com.wci.umls.server.services.ContentService#addSemanticTypeComponent(com
+   * .wci.umls.server .model.content.SemanticTypeComponent)
    */
   @Override
-  public SemanticTypeComponent addSemanticTypeComponent(SemanticTypeComponent semanticTypeComponent) throws Exception {
+  public SemanticTypeComponent addSemanticTypeComponent(
+    SemanticTypeComponent semanticTypeComponent) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - add semanticTypeComponent " + semanticTypeComponent.getTerminologyId());
+        "Content Service - add semanticTypeComponent "
+            + semanticTypeComponent.getTerminologyId());
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
@@ -669,12 +680,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Add component
-    SemanticTypeComponent newSemanticTypeComponent = addComponent(semanticTypeComponent);
+    SemanticTypeComponent newSemanticTypeComponent =
+        addComponent(semanticTypeComponent);
 
     // Inform listeners
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
-        listener.semanticTypeChanged(newSemanticTypeComponent, WorkflowListener.Action.ADD);
+        listener.semanticTypeChanged(newSemanticTypeComponent,
+            WorkflowListener.Action.ADD);
       }
     }
     return newSemanticTypeComponent;
@@ -684,20 +697,23 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#updateSemanticTypeComponent(com.wci.umls.
-   * server.model.content.SemanticTypeComponent)
+   * com.wci.umls.server.services.ContentService#updateSemanticTypeComponent
+   * (com.wci.umls. server.model.content.SemanticTypeComponent)
    */
   @Override
-  public void updateSemanticTypeComponent(SemanticTypeComponent semanticTypeComponent) throws Exception {
+  public void updateSemanticTypeComponent(
+    SemanticTypeComponent semanticTypeComponent) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - update semanticTypeComponent " + semanticTypeComponent.getTerminologyId());
+        "Content Service - update semanticTypeComponent "
+            + semanticTypeComponent.getTerminologyId());
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
         getIdentifierAssignmentHandler(semanticTypeComponent.getTerminology());
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
-        SemanticTypeComponent semanticTypeComponent2 = getSemanticTypeComponent(semanticTypeComponent.getId());
+        SemanticTypeComponent semanticTypeComponent2 =
+            getSemanticTypeComponent(semanticTypeComponent.getId());
         if (!idHandler.getTerminologyId(semanticTypeComponent).equals(
             idHandler.getTerminologyId(semanticTypeComponent2))) {
           throw new Exception(
@@ -705,7 +721,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         }
       } else {
         // set semanticTypeComponent id on update
-        semanticTypeComponent.setTerminologyId(idHandler.getTerminologyId(semanticTypeComponent));
+        semanticTypeComponent.setTerminologyId(idHandler
+            .getTerminologyId(semanticTypeComponent));
       }
     }
     // update component
@@ -714,7 +731,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Inform listeners
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
-        listener.semanticTypeChanged(semanticTypeComponent, WorkflowListener.Action.UPDATE);
+        listener.semanticTypeChanged(semanticTypeComponent,
+            WorkflowListener.Action.UPDATE);
       }
     }
   }
@@ -723,23 +741,25 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#removeSemanticTypeComponent(java.lang.Long)
+   * com.wci.umls.server.services.ContentService#removeSemanticTypeComponent
+   * (java.lang.Long)
    */
   @Override
   public void removeSemanticTypeComponent(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove semanticTypeComponent " + id);
+    Logger.getLogger(getClass()).debug(
+        "Content Service - remove semanticTypeComponent " + id);
     // Remove the component
-    SemanticTypeComponent semanticTypeComponent = removeComponent(id, SemanticTypeComponentJpa.class);
+    SemanticTypeComponent semanticTypeComponent =
+        removeComponent(id, SemanticTypeComponentJpa.class);
 
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
-        listener.semanticTypeChanged(semanticTypeComponent, WorkflowListener.Action.REMOVE);
+        listener.semanticTypeChanged(semanticTypeComponent,
+            WorkflowListener.Action.REMOVE);
       }
     }
   }
-  
-  
+
   /*
    * (non-Javadoc)
    * 
@@ -2039,12 +2059,16 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getGraphResolutionHandler()
+   * com.wci.umls.server.services.ContentService#getGraphResolutionHandler(java
+   * .lang.String)
    */
   @Override
-  public GraphResolutionHandler getGraphResolutionHandler() throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+  public GraphResolutionHandler getGraphResolutionHandler(String terminology)
+    throws Exception {
+    if (graphResolverMap.containsKey(terminology)) {
+      return graphResolverMap.get(terminology);
+    }
+    return graphResolverMap.get("DEFAULT");
   }
 
   /*
@@ -2057,10 +2081,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public IdentifierAssignmentHandler getIdentifierAssignmentHandler(
     String terminology) throws Exception {
-		    if (idHandlerMap.containsKey(terminology)) {
-		      return idHandlerMap.get(terminology);
-		    }
-		    return idHandlerMap.get("DEFAULT");
+    if (idHandlerMap.containsKey(terminology)) {
+      return idHandlerMap.get(terminology);
+    }
+    return idHandlerMap.get("DEFAULT");
+
   }
 
   /*
@@ -2075,9 +2100,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String terminology) throws Exception {
     if (pnHandlerMap.containsKey(terminology)) {
       return pnHandlerMap.get(terminology);
-    } else {
-      return pnHandlerMap.get("DEFAULT");
     }
+    return pnHandlerMap.get("DEFAULT");
   }
 
   /*
@@ -2156,7 +2180,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Map<String, Integer> stats = new HashMap<>();
     for (EntityType<?> type : manager.getMetamodel().getEntities()) {
       String jpaTable = type.getName();
-      //Logger.getLogger(getClass()).debug("  jpaTable = " + jpaTable);
+      // Logger.getLogger(getClass()).debug("  jpaTable = " + jpaTable);
       // Skip audit trail tables
       if (jpaTable.toUpperCase().indexOf("_AUD") != -1) {
         continue;
@@ -2319,7 +2343,5 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       throw e;
     }
   }
-
-
 
 }

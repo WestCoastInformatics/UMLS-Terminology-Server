@@ -253,7 +253,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       beginTransaction();
 
       // Definitions
-      //loadMrdef();
+      loadMrdef();
 
       // Semantic Types
       //loadMrsty();
@@ -261,7 +261,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // Relationships
 
       // Attributes
-      //loadMrsat();
+      loadMrsat();
 
       // Add release info for individual terminology
       for (Map.Entry<String, String> entry : getTerminologyLatestVersions()
@@ -489,7 +489,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
       // Handle RelationshipLabel
-      if (fields[0].equals("REL") && fields[2].equals("expanded_form")) {
+      if (fields[0].equals("REL") && fields[2].equals("expanded_form")
+          && !fields[0].equals("SIB")) {
         final RelationshipType rel = new RelationshipTypeJpa();
         rel.setAbbreviation(fields[1]);
         rel.setExpandedForm(fields[3]);
@@ -504,7 +505,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         Logger.getLogger(getClass())
             .debug("    add relationship type - " + rel);
       }
-      if (fields[0].equals("REL") && fields[2].equals("rel_inverse")) {
+      if (fields[0].equals("REL") && fields[2].equals("rel_inverse")
+        && !fields[0].equals("SIB")) {
         inverseRelMap.put(fields[1], fields[3]);
         if (inverseRelMap.containsKey(fields[1])
             && inverseRelMap.containsKey(fields[3])) {
@@ -733,7 +735,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // C0001175|||R54775538|RUI||AT69142126||REFINABILITY|SNOMEDCT|1|N||
 
       Attribute att = new AttributeJpa();
-
+      if (fields[8].equals("SUBSET_MEMBER"))
+    	  continue;
       if (fields[4].equals("AUI")) {
         Atom atom = atomMap.get(fields[3]);
         atom.addAttribute(att);
@@ -744,7 +747,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         Code code = codeMap.get(atomMap.get(fields[3]).getCodeId() + fields[9]);
         code.addAttribute(att);
       } else if (fields[4].equals("CUI")) {
-        Concept concept = conceptMap.get(fields[0] + terminology);
+    	  // TODO: needs to be fields[0] + terminology?
+        Concept concept = conceptMap.get(fields[0]);
         concept.addAttribute(att);
       } else if (fields[4].equals("SDUI")) {
         Descriptor descriptor =
