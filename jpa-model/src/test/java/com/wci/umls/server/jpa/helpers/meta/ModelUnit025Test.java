@@ -190,7 +190,6 @@ public class ModelUnit025Test {
   public void testModelXmlTransient025() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient025");
     String xml = ConfigUtility.getStringForGraph(rela);
-    System.out.println(xml);
     assertTrue(xml.contains("<inverseTypeId>"));
     assertTrue(xml.contains("<inverseTypeAbbreviation>"));
     assertTrue(xml.contains("<equivalentTypeId>"));

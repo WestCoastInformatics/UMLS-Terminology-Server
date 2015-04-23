@@ -21,6 +21,7 @@ import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
+import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
 import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
@@ -1039,9 +1040,69 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   @Override
   public void removeTermType(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove term type" + id);
+        "Metadata Service - remove term type " + id);
     // Remove the component
     removeMetadata(id, TermTypeJpa.class);
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#addGeneralMetadataEntry(com
+   * .wci.umls.server.model.meta.GeneralMetadataEntry)
+   */
+  @Override
+  public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - add general metadata entry "
+            + entry.getAbbreviation());
+
+    // Add component
+    GeneralMetadataEntry newEntry = addMetadata(entry);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+    return newEntry;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.MetadataService#updateGeneralMetadataEntry(com.wci.umls.server.model.meta.GeneralMetadataEntry)
+   */
+  @Override
+  public void updateGeneralMetadataEntry(GeneralMetadataEntry entry)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - update general metadata entry " + entry.getAbbreviation());
+    updateMetadata(entry);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.MetadataService#removeGeneralMetadataEntry(java.lang.Long)
+   */
+  @Override
+  public void removeGeneralMetadataEntry(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - remove general metadata entry " + id);
+    // Remove the component
+    removeMetadata(id, GeneralMetadataEntryJpa.class);
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
         listener.metadataChanged();

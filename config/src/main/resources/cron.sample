@@ -1,0 +1,10 @@
+#
+# Minute     Hour     Day of Month     Month     Day of Week
+#
+
+# Set to blank to fix the following issue in /var/log/syslog
+# postfix/sendmail[8810]: fatal: open /etc/postfix/main.cf: No such file or directory
+MAILTO=""
+
+# Run every day except thursday
+0 0 * * 0,1,2,3,5,6 csh /home/ihtsdo/config/bin/qaCron.csh > /home/ihtsdo/logs/qaCron.log 2>&1

@@ -128,7 +128,7 @@ public class UmlsMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager
             .createQuery("SELECT r from RelationshipTypeJpa r where abbreviation = :rel");
-    query.setParameter("rel", "PAR");
+    query.setParameter("rel", "CHD");
     @SuppressWarnings("unchecked")
     List<RelationshipType> types = query.getResultList();
     return types;

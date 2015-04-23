@@ -22,6 +22,8 @@ import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.LexicalClassList;
 import com.wci.umls.server.helpers.content.StringClassList;
+import com.wci.umls.server.helpers.content.SubsetList;
+import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -50,6 +52,7 @@ import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
@@ -364,6 +367,101 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         listener.conceptChanged(concept, WorkflowListener.Action.REMOVE);
       }
     }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.services.ContentService#getSubset(java.lang.Long)
+   */
+  @Override
+  public Subset getSubset(Long id) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getSubsets(java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  public SubsetList getSubsets(String terminologyId, String terminology,
+    String version) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getSubset(java.lang.String,
+   * java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public Subset getSubset(String terminologyId, String terminology,
+    String version, String branch) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getSubsetMembers(java.lang.
+   * String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public SubsetMemberList getSubsetMembers(String subsetId, String terminology,
+    String version, String branch) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getAtomSubsetMembers(java.lang
+   * .String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public SubsetMemberList getAtomSubsetMembers(String atomId,
+    String terminology, String version, String branch) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getConceptSubsetMembers(java
+   * .lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public SubsetMemberList getConceptSubsetMembers(String conceptId,
+    String terminology, String version, String branch) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getAllSubsets(java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  public ConceptList getAllSubsets(String terminology, String version,
+    String branch) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   /*
@@ -1465,6 +1563,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findDescendantConcepts(com.
+   * wci.umls.server.model.content.Concept, boolean,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
   public ConceptList findDescendantConcepts(Concept concept,
     boolean parentsOnly, PfsParameter pfsParameter) throws Exception {
@@ -1472,6 +1578,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findAncestorConcepts(com.wci
+   * .umls.server.model.content.Concept, boolean,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
   public ConceptList findAncestorConcepts(Concept concept,
     boolean childrenOnly, PfsParameter pfsParameter) throws Exception {
@@ -1479,6 +1593,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findDescendantDescriptors(com
+   * .wci.umls.server.model.content.Descriptor, boolean,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
   public DescriptorList findDescendantDescriptors(Descriptor descriptor,
     boolean parentsOnly, PfsParameter pfsParameter) throws Exception {
@@ -1486,6 +1608,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findAncestorDescriptors(com
+   * .wci.umls.server.model.content.Descriptor, boolean,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
   public DescriptorList findAncestorDescriptors(Descriptor descriptor,
     boolean childrenOnly, PfsParameter pfsParameter) throws Exception {
@@ -1493,6 +1623,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findDescendantCodes(com.wci
+   * .umls.server.model.content.Code, boolean,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
   public CodeList findDescendantCodes(Code code, boolean parentsOnly,
     PfsParameter pfsParameter) throws Exception {
@@ -1500,6 +1638,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findAncestorCodes(com.wci.umls
+   * .server.model.content.Code, boolean,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
   public CodeList findAncestorCodes(Code code, boolean childrenOnly,
     PfsParameter pfsParameter) throws Exception {
@@ -1518,6 +1664,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.services.ContentService#getAtom(java.lang.String,
+   * java.lang.String, java.lang.String, java.lang.String)
+   */
   @Override
   public Atom getAtom(String terminologyId, String terminology, String version,
     String branch) throws Exception {
@@ -1627,6 +1779,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getRelationship(java.lang.String
+   * , java.lang.String, java.lang.String, java.lang.String)
+   */
   @Override
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
     String terminologyId, String terminology, String version, String branch)

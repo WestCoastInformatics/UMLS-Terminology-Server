@@ -16,6 +16,8 @@ import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.LexicalClassList;
 import com.wci.umls.server.helpers.content.StringClassList;
+import com.wci.umls.server.helpers.content.SubsetList;
+import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
@@ -27,6 +29,7 @@ import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
@@ -84,6 +87,77 @@ public interface ContentService extends RootService {
   public Concept getConcept(String terminologyId, String terminology,
     String version, String branch) throws Exception;
 
+
+  /**
+   * Returns the subset.
+   *
+   * @param id the id
+   * @return the subset
+   * @throws Exception the exception
+   */
+  public Subset getSubset(Long id) throws Exception;
+
+  /**
+   * Returns the subsets.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @return the subsets
+   * @throws Exception the exception
+   */
+  public SubsetList getSubsets(String terminologyId, String terminology,
+    String version) throws Exception;
+
+  /**
+   * Returns the subset.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the subset
+   * @throws Exception the exception
+   */
+  public Subset getSubset(String terminologyId, String terminology,
+    String version, String branch) throws Exception;
+
+  
+  /**
+   * Returns the subset members for the specified subset.
+   *
+   * @param subsetId the subset id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the subset members
+   */
+  public SubsetMemberList getSubsetMembers(String subsetId, String terminology,
+    String version, String branch);
+
+  
+  /**
+   * Returns the atom subset members for the specified atom.
+   *
+   * @param atomId the atom id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the atom subset members
+   */
+  public SubsetMemberList getAtomSubsetMembers(String atomId, String terminology, String version, String branch);
+  
+  /**
+   * Returns the concept subset members for the specified concept.
+   *
+   * @param conceptId the concept id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the concept subset members
+   */
+  public SubsetMemberList getConceptSubsetMembers(String conceptId, String terminology, String version, String branch);
+  
   /**
    * Returns the descriptor.
    * 
@@ -597,6 +671,16 @@ public interface ContentService extends RootService {
    */
   public ConceptList getAllConcepts(String terminology, String version,
     String branch);
+  
+  /**
+   * Returns the all subsets.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the all subsets
+   */
+  public ConceptList getAllSubsets(String terminology, String version, String branch);
 
   /**
    * Clear transitive closure.

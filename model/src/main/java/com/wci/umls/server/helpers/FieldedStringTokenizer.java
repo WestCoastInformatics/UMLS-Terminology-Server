@@ -18,7 +18,7 @@ import java.util.List;
  * FieldedStringTokenizer tokenizer = new FieldedStringTokenizer(&quot;a|b||c&quot;, &quot;|&quot;);
  * int i = 1;
  * while (tokenizer.hasMoreTokens()) {
- *   System.out.println(&quot;Token &quot; + i + &quot; is: &quot; + tokenizer.nextToken());
+ *   Logger.getLogger(getClass()).info(&quot;Token &quot; + i + &quot; is: &quot; + tokenizer.nextToken());
  * }
  * </pre>
  *
@@ -322,24 +322,4 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
     return token;
   }
 
-  /**
-   * Self-qa test.
-   * @param args a {@link String}<code>[]</code> containing a string to split
-   *          and a delimiter set
-   */
-  public static void main(String[] args) {
-    System.out.println("split test: " + args[0] + ", " + args[1]);
-    String[] s = FieldedStringTokenizer.split(args[0], args[1]);
-    for (int i = 0; i < s.length; i++) {
-      System.out.println("Token " + i + ": " + s[i]);
-
-    }
-    System.out.println("tokenizer test: " + args[0] + ", " + args[1]);
-    FieldedStringTokenizer t = new FieldedStringTokenizer(args[0], args[1]);
-    int i = 0;
-    while (t.hasMoreTokens()) {
-      System.out.println("Token " + i++ + ": " + t.nextToken());
-    }
-
-  }
 }

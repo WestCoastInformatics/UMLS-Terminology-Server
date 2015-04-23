@@ -18,7 +18,7 @@ import com.wci.umls.server.model.meta.GeneralMetadataEntry;
  */
 @Entity
 @Table(name = "general_metadata_entries", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "metadataKey", "keyType", "abbreviation"
+    "metadataKey", "keyType", "abbreviation", "expandedForm"
 }))
 @Audited
 @XmlRootElement(name = "generalMetadataEntry")
@@ -136,5 +136,16 @@ public class GeneralMetadataEntryJpa extends AbstractAbbreviation implements
     } else if (!type.equals(other.type))
       return false;
     return true;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#toString()
+   */
+  @Override
+  public String toString() {
+    return "GeneralMetadataEntryJpa [key=" + key + ", type=" + type + "] "
+        + super.toString();
   }
 }
