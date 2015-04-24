@@ -16,7 +16,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 /**
  * JAXB enabled implementation of {@link SemanticTypeComponentList}.
  */
-@XmlRootElement(name = "conceptList")
+@XmlRootElement(name = "semanticTypeComponentList")
 public class SemanticTypeComponentListJpa extends AbstractResultList<SemanticTypeComponent> implements
     SemanticTypeComponentList {
 

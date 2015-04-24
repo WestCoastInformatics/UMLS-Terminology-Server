@@ -16,7 +16,7 @@ import com.wci.umls.server.model.content.Definition;
 /**
  * JAXB enabled implementation of {@link DefinitionList}.
  */
-@XmlRootElement(name = "conceptList")
+@XmlRootElement(name = "definitionList")
 public class DefinitionListJpa extends AbstractResultList<Definition> implements
     DefinitionList {
 

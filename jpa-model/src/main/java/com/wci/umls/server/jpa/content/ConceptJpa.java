@@ -35,15 +35,15 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
 
   /** The definitions. */
   @OneToMany(orphanRemoval = true, targetEntity = DefinitionJpa.class)
-  private List<Definition> definitions = null;
+  private List<Definition> definitions = new ArrayList<>();
 
   /** The relationships. */
   @OneToMany(orphanRemoval = true, targetEntity = ConceptRelationshipJpa.class)
-  private List<ConceptRelationship> relationships = null;
+  private List<ConceptRelationship> relationships = new ArrayList<>();
 
   /** The semantic type components. */
   @OneToMany(orphanRemoval = true, targetEntity = SemanticTypeComponentJpa.class)
-  private List<SemanticTypeComponent> semanticTypes = null;
+  private List<SemanticTypeComponent> semanticTypes = new ArrayList<>();
 
   /** The fully defined. */
   @Column(nullable = false)
