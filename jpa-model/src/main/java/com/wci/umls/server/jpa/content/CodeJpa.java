@@ -32,7 +32,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
 
   /** The relationships. */
   @OneToMany(orphanRemoval = true, targetEntity = CodeRelationshipJpa.class)
-  private List<CodeRelationship> relationships = null;
+  private List<CodeRelationship> relationships = new ArrayList<>();
 
   /**
    * Instantiates an empty {@link CodeJpa}.

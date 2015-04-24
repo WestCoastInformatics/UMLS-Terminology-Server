@@ -33,11 +33,11 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
 
   /** The definitions. */
   @OneToMany(orphanRemoval = true, targetEntity = DefinitionJpa.class)
-  private List<Definition> definitions = null;
+  private List<Definition> definitions = new ArrayList<>();;
 
   /** The relationships. */
   @OneToMany(orphanRemoval = true, targetEntity = DescriptorRelationshipJpa.class)
-  private List<DescriptorRelationship> relationships = null;
+  private List<DescriptorRelationship> relationships = new ArrayList<>();;
 
   /**
    * Instantiates an empty {@link DescriptorJpa}.

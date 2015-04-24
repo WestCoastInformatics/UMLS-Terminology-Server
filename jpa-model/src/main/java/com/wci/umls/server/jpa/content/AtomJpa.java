@@ -50,11 +50,11 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /** The definitions. */
   @OneToMany(orphanRemoval = true, targetEntity = DefinitionJpa.class)
   @IndexedEmbedded
-  private List<Definition> definitions = null;
+  private List<Definition> definitions = new ArrayList<>();
 
   /** The relationships. */
   @OneToMany(orphanRemoval = true, targetEntity = AtomRelationshipJpa.class)
-  private List<AtomRelationship> relationships = null;
+  private List<AtomRelationship> relationships = new ArrayList<>();
 
   /** The concept terminology id map. */
   @ElementCollection

@@ -1983,7 +1983,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public Attribute addAttribute(Attribute attribute) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - add attribute " + attribute.getTerminologyId());
+        "Content Service - add attribute " + attribute.toString());
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
