@@ -6,6 +6,23 @@ ATN|CASE_SIGNIFICANCE_ID|expanded_form|Case significance ID|
 ATN|CHARACTERISTIC_TYPE_ID|expanded_form|Characteristic type ID|
 ATN|CORRELATIONID|expanded_form|Correlation Id|
 ATN|CTV3ID|expanded_form|The Read Code for a SNOMED CT concept taken from the United Kingdom?s Clinical Terms Version 3 terminology.|
+ATN|CV_ALGORITHM|expanded_form|Content view algorithm|
+ATN|CV_CATEGORY|expanded_form|Content view category|
+ATN|CV_CLASS|expanded_form|Content view class|
+ATN|CV_CODE|expanded_form|Content view code|
+ATN|CV_CONTRIBUTOR_DATE|expanded_form|Date corresponding to the contributor version of this concept view|
+ATN|CV_CONTRIBUTOR_URL|expanded_form|URL corresponding to the contributor version of this concept view|
+ATN|CV_CONTRIBUTOR_VERSION|expanded_form|Version of this content view submitted by the contributor|
+ATN|CV_CONTRIBUTOR|expanded_form|Content view contributor|
+ATN|CV_DESCRIPTION|expanded_form|Content view description|
+ATN|CV_INCLUDE_OBSOLETE|expanded_form|Content view includes obsolete data: YN|
+ATN|CV_IS_GENERATED|expanded_form|Content view generated: Y/N|
+ATN|CV_MAINTAINER_DATE|expanded_form|Date corresponding to the maintainer version of this concept view|
+ATN|CV_MAINTAINER_URL|expanded_form|URL corresponding to the maintainer version of this concept view|
+ATN|CV_MAINTAINER_VERSION|expanded_form|Version of this content view submitted by the maintainer|
+ATN|CV_MAINTAINER|expanded_form|Content view maintainer|
+ATN|CV_MEMBER|expanded_form|Describes the membership for an atom belonging to a particular content view. The value for this attribute is a tilde-delimited microsyntax. The first field is the content view bitflag (e.g. 2048), followed by field name-value pairs describing the member.|
+ATN|CV_PREVIOUS_META|expanded_form|Previous UMLS Metathesaurus version used to generate content view. A null value means the content view is generated based on current UMLS Metathesaurus version.|
 ATN|CX|expanded_form|MeSH Consider Also Note - other word roots or prefixes that should be consulted for concepts related to this MeSH concept, e.g., the value for "Heart" is "consider also terms at cardi- and myocardi-".|
 ATN|DA|expanded_form|Metathesaurus Date of entry - YYYYMMDD, e.g., 19920830 - date of entry of the concept into the Metathesaurus. |
 ATN|DC|expanded_form|MeSH Descriptor class - type of MeSH term the concept name represents.|
@@ -15,6 +32,7 @@ ATN|DQ|expanded_form|MeSH Date Qualifier Established YYYYMMDD - date the qualifi
 ATN|DX|expanded_form|MeSH Date major descriptor established YYYYMMDD - first day of the Index Medicus publication month in which the descriptor (in any form) was available for searching as a major descriptor.|
 ATN|EC|expanded_form|Specifies the MeSH main heading to be used instead of the Descriptor/Qualifier combination specified in the EC_OF attribute.|
 ATN|EFFECTIVE_TIME|expanded_form|Effective time|
+ATN|FIRST_IN_SUBSET|expanded_form|Version of subset first containing this concept|
 ATN|FROMRSAB|expanded_form|Root source abbreviation for the "from" identifiers of a map set|
 ATN|FROMVSAB|expanded_form|Versioned source abbreviation for the "from" identifiers of a map set|
 ATN|FR|expanded_form|MeSH Frequency|
@@ -24,6 +42,7 @@ ATN|HN|expanded_form|History Note - for MeSH history notes, the year when the cu
 ATN|ICD-O-3_CODE|expanded_form|ICD-O-3 Code|
 ATN|II|expanded_form|MeSH Indexing Information - for MeSH chemical terms (Term Type=NM), MeSH headings that may be relevant to articles that are also assigned the NM term.|
 ATN|INACTIVATION_INDICATOR|expanded_form|Inactivation indicator|
+ATN|IS_RETIRED_FROM_SUBSET|expanded_form|In future, some concepts will be marked retired if they are retired by IHTSDO or no longer considered to be useful e.g. when there are more appropriate SNOMED CT concepts|
 ATN|LANGUAGECODE|expanded_form|SNOMED CT string identifying a language and, if appropriate, a dialect in which this description is valid.|
 ATN|LT|expanded_form|Indicates if a chemicals or medical device is a tradename (present in older versions of the Metathesaurus and was discontinued, then brought back starting in 2002AD)|
 ATN|MAPADVICE|expanded_form|Map Advice|
@@ -31,9 +50,11 @@ ATN|MAPCATEGORYID|expanded_form|Map Category Id|
 ATN|MAPGROUP|expanded_form|Map Group|
 ATN|MAPPRIORITY|expanded_form|Map Priority|
 ATN|MAPRULE|expanded_form|Map Rule|
+ATN|MAPSETGRAMMAR|expanded_form|Grammar used to describe boolean expressions used in a map set|
 ATN|MAPSETNAME|expanded_form|Official name of a map set|
 ATN|MAPSETRSAB|expanded_form|Root source abbreviation for a map set|
 ATN|MAPSETSID|expanded_form|Source asserted identifier for a map set|
+ATN|MAPSETTYPE|expanded_form|Indicates the nature of a map set. Its value is map set specific. It can be used to indicate the inclusion of one to one, one to many and choices of maps.|
 ATN|MAPSETVERSION|expanded_form|Version of the map set|
 ATN|MAPSETVSAB|expanded_form|Versioned source abbreviation for a map set|
 ATN|MAPSETXRTARGETID|expanded_form|Map set target identifier used for XR mappings.|
@@ -49,11 +70,13 @@ ATN|MTH_MAPFROMEXHAUSTIVE|expanded_form|Indicates whether or not the "from" sour
 ATN|MTH_MAPSETCOMPLEXITY|expanded_form|Indicates the overall complexity of a map set|
 ATN|MTH_MAPTOCOMPLEXITY|expanded_form|Indicates the complexity of "to" expressions in a map set|
 ATN|MTH_MAPTOEXHAUSTIVE|expanded_form|Indicates whether or not the "to" source is completely mapped|
+ATN|OCCURRENCE|expanded_form|Number of institutions having this concept on their problem list (from 1 to 7), not populated for concepts retired from Subset|
 ATN|OL|expanded_form|MeSH Online Note - information helpful to online searchers of MEDLINE, especially when the history of a term or cross-reference has implications for online searching. This is a potential source of useful information for rules for search interface programs.|
 ATN|PA|expanded_form|Pharmacologic Action of MeSH main headings (MH) for drugs and supplementary concept names (NM). The information in this element is also represented by an "isa" relationship between the MH or NM concept and the MeSH concept name for the class of drugs with a particular pharmacologic action.|
 ATN|PI|expanded_form|MeSH heading or heading/subheading combination(s) followed by a date range in parentheses (YYYY).|
 ATN|PM|expanded_form|Public MeSH note - combines key information from the HN and PI elements in a format that is printed in the MeSH publications.|
 ATN|REFSET_PATTERN|expanded_form|Refset pattern|
+ATN|REPLACED_BY_SNOMED_CID|expanded_form|Current version SNOMEDCT concept id this concept is replaced by|
 ATN|RN|expanded_form|Registry Number - series of numbers and hyphens (any leading zeros in an RN are dropped) or a series of numbers and periods, preceded by EC|
 ATN|RR|expanded_form|The Chemical Abstracts Registry numbers for salts, optical isomers, or isotope-labeled versions of the concept followed by the relationship of this RR to the RN (in parentheses.) Applies to chemicals only. These numbers can be used as links to information in a number of chemical and toxicological databases.|
 ATN|SC|expanded_form|MeSH Supplemental record class.|
@@ -70,6 +93,7 @@ ATN|TOVSAB|expanded_form|Versioned source abbreviation for the "to" identifiers 
 ATN|TYPE_ID|expanded_form|Type ID|
 ATN|UMLSRELA|expanded_form|UMLS relationship attribute|
 ATN|UMLSREL|expanded_form|The UMLS Metathesaurus REL relationship (SY, CHD, RN, RB, RO) assigned to SNOMED CT relationship identifiers.|
+ATN|USAGE|expanded_form|The average usage percentage among all institutions (i.e. sum of individual usage percentages divided by 7), not populated for concepts retired from Subset|
 ATN|VALUEID|expanded_form|Value Id|
 CXTY|FULL-MULTIPLE|expanded_form|Full contexts, multiple tree positions|
 CXTY|FULL-NOSIB-IGNORE-RELA|expanded_form|Full contexts, no siblings, RELA not used when computing ancestors/descendants|
@@ -77,6 +101,7 @@ CXTY|FULL-NOSIB-MULTIPLE-IGNORE-RELA|expanded_form|Full contexts, no siblings, m
 CXTY|FULL-NOSIB-MULTIPLE|expanded_form|Full contexts, no siblings, multiple tree positions|
 CXTY|FULL-NOSIB|expanded_form|Full contexts, no siblings|
 CXTY|FULL|expanded_form|Full contexts|
+FROMTYPE|CUI|expanded_form|Concept unique identifier|
 FROMTYPE|SCUI|expanded_form|Source asserted concept unique identifier|
 LAT|BAQ|expanded_form|Basque|
 LAT|CZE|expanded_form|Czech|
@@ -100,6 +125,7 @@ LAT|SCR|expanded_form|Croatian|
 LAT|SPA|expanded_form|Spanish|
 LAT|SWE|expanded_form|Swedish|
 MAPATN|ACTIVE|expanded_form|Active|
+MAPATN||expanded_form|Empty attribute name|
 RELA|116676008|snomedct_rela_mapping|has_associated_morphology|
 RELA|116678009|snomedct_rela_mapping|has_measured_component|
 RELA|116680003|snomedct_rela_mapping|isa|
@@ -480,6 +506,8 @@ REL|RN|expanded_form|has a narrower relationship|
 REL|RN|rel_inverse|RB|
 REL|RO|expanded_form|has relationship other than synonymous, narrower, or broader|
 REL|RO|rel_inverse|RO|
+REL|RU|expanded_form|Related, unspecified|
+REL|RU|rel_inverse|RU|
 REL|SIB|expanded_form|has sibling relationship in a Metathesaurus source vocabulary.|
 REL|SIB|rel_inverse|SIB|
 REL|SUBX|expanded_form|Concept removed from current subset|
@@ -505,13 +533,17 @@ STT|VO|expanded_form|Variant of the preferred form|
 STT|VW|expanded_form|Word-order variant of the preferred form|
 STYPE1|AUI|expanded_form|Atom identifier|
 STYPE1|CODE|expanded_form|Unique Identifier or code for string in source|
+STYPE1|CUI|expanded_form|Concept unique identifier|
 STYPE1|SCUI|expanded_form|Source asserted concept unique identifier|
 STYPE1|SDUI|expanded_form|Source asserted descriptor identifier|
 STYPE2|AUI|expanded_form|Atom identifier|
 STYPE2|CODE|expanded_form|Unique Identifier or code for string in source|
+STYPE2|CUI|expanded_form|Concept unique identifier|
 STYPE2|SCUI|expanded_form|Source asserted concept unique identifier|
 STYPE2|SDUI|expanded_form|Source asserted descriptor identifier|
 STYPE|AUI|expanded_form|Atom identifier|
+STYPE|CODE|expanded_form|Unique Identifier or code for string in source|
+STYPE|CUI|expanded_form|Concept unique identifier|
 STYPE|RUI|expanded_form|Relationship identifier|
 STYPE|SCUI|expanded_form|Source asserted concept unique identifier|
 STYPE|SDUI|expanded_form|Source asserted descriptor identifier|
@@ -520,6 +552,7 @@ SUPPRESS|N|expanded_form|Not suppressible|
 SUPPRESS|O|expanded_form|Obsolete, SAB,TTY may be independently suppressible|
 SUPPRESS|Y|expanded_form|Suppressible due to SAB,TTY|
 SUPPRESS||expanded_form|Suppressibility not yet assigned by the UMLS|
+TOTYPE|BOOLEAN_EXPRESSION_STR|expanded_form|Boolean expression of STR values|
 TOTYPE|SDUI|expanded_form|Source asserted descriptor identifier|
 TS|P|expanded_form|Preferred LUI of the CUI|
 TS|S|expanded_form|Non-Preferred LUI of the CUI|
@@ -527,6 +560,8 @@ TS|p|expanded_form|Preferred LUI of the CUI, suppressible (only used in ORF MRCO
 TS|s|expanded_form|Non-Preferred LUI of the CUI, suppressible (only used in ORF MRCON)|
 TTY|CE|expanded_form|Entry term for a Supplementary Concept|
 TTY|CE|tty_class|entry_term|
+TTY|CV|expanded_form|Content view|
+TTY|CV|tty_class|preferred|
 TTY|DEV|expanded_form|Descriptor entry version|
 TTY|DEV|tty_class|abbreviation|
 TTY|DSV|expanded_form|Descriptor sort version|
@@ -586,6 +621,8 @@ TTY|PEP|tty_class|entry_term|
 TTY|PEP|tty_class|preferred|
 TTY|PM|expanded_form|Machine permutation|
 TTY|PM|tty_class|synonym|
+TTY|PN|expanded_form|Metathesaurus preferred name|
+TTY|PN|tty_class|preferred|
 TTY|PTGB|expanded_form|British preferred term|
 TTY|PTGB|tty_class|preferred|
 TTY|PT|expanded_form|Designated preferred name|
@@ -602,6 +639,8 @@ TTY|RHT|expanded_form|Root hierarchical term|
 TTY|RHT|tty_class|hierarchical|
 TTY|RPT|expanded_form|Root preferred term|
 TTY|RPT|tty_class|preferred|
+TTY|RT|expanded_form|Term that is related to, but often considered non-synonymous with, the preferred term|
+TTY|RT|tty_class|other|
 TTY|SB|expanded_form|Named subset of a source|
 TTY|SB|tty_class|other|
 TTY|SSN|expanded_form|Source short name, used in the UMLS Knowledge Source Server|

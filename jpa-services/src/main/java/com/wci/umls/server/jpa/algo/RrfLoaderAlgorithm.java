@@ -666,7 +666,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // Full Update 2014_09_02;Bethesda, MD;National Library of Medicine|
 
       // SKIP SABIN=N - may be an issue later for maps.
-      if (fields[22].equals("N")) {
+      if (fields[22].equals("N") && fields[3] != "MTH") {
         continue;
       }
 
