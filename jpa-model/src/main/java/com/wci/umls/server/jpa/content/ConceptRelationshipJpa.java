@@ -318,8 +318,9 @@ public class ConceptRelationshipJpa extends
    */
   @Override
   public String toString() {
-    return "ConceptRelationshipJpa [from=" + from + ", to=" + to
-        + ", alternateTerminologyIds=" + alternateTerminologyIds + "]";
+    return "ConceptRelationshipJpa [from=" + from.getTerminologyId() + ", to="
+        + to.getTerminologyId() + ", alternateTerminologyIds="
+        + alternateTerminologyIds + "]";
   }
 
 }

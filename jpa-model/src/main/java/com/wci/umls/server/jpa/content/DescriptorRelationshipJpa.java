@@ -319,8 +319,9 @@ public class DescriptorRelationshipJpa extends
    */
   @Override
   public String toString() {
-    return "DescriptorRelationshipJpa [from=" + from + ", to=" + to
-        + ", alternateTerminologyIds=" + alternateTerminologyIds + "]";
+    return "DescriptorRelationshipJpa [from=" + from.getTerminologyId()
+        + ", to=" + to.getTerminologyId() + ", alternateTerminologyIds="
+        + alternateTerminologyIds + "]";
   }
 
 }

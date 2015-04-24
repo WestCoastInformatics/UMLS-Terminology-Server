@@ -33,11 +33,11 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
 
   /** The definitions. */
   @OneToMany(orphanRemoval = true, targetEntity = DefinitionJpa.class)
-  private List<Definition> definitions = new ArrayList<>();;
+  private List<Definition> definitions = new ArrayList<>();
 
   /** The relationships. */
-  @OneToMany(orphanRemoval = true, targetEntity = DescriptorRelationshipJpa.class)
-  private List<DescriptorRelationship> relationships = new ArrayList<>();;
+  @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = DescriptorRelationshipJpa.class)
+  private List<DescriptorRelationship> relationships = new ArrayList<>();
 
   /**
    * Instantiates an empty {@link DescriptorJpa}.
@@ -164,6 +164,29 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
       relationships = new ArrayList<>();
     }
     relationships.remove(relationship);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
+   */
+  @Override
+  public String toString() {
+    return "DescriptorJpa [getAtoms()=" + getAtoms()
+        + ", getDefaultPreferredName()=" + getDefaultPreferredName()
+        + ", getWorkflowStatus()=" + getWorkflowStatus() + ", hashCode()="
+        + hashCode() + ", toString()=" + super.toString()
+        + ", getBranchedTo()=" + getBranchedTo() + ", getAttributes()="
+        + getAttributes() + ", getId()=" + getId() + ", getObjectId()="
+        + getObjectId() + ", getTimestamp()=" + getTimestamp()
+        + ", getLastModified()=" + getLastModified() + ", getLastModifiedBy()="
+        + getLastModifiedBy() + ", isSuppressible()=" + isSuppressible()
+        + ", isObsolete()=" + isObsolete() + ", isPublished()=" + isPublished()
+        + ", isPublishable()=" + isPublishable() + ", getBranch()="
+        + getBranch() + ", getTerminologyVersion()=" + getTerminologyVersion()
+        + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
+        + getTerminologyId() + ", getClass()=" + getClass() + "]";
   }
 
 }

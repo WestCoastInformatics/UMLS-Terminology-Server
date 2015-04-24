@@ -53,7 +53,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private List<Definition> definitions = new ArrayList<>();
 
   /** The relationships. */
-  @OneToMany(orphanRemoval = true, targetEntity = AtomRelationshipJpa.class)
+  @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = AtomRelationshipJpa.class)
   private List<AtomRelationship> relationships = new ArrayList<>();
 
   /** The concept terminology id map. */

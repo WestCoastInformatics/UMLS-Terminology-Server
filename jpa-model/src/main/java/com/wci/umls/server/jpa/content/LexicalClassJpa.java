@@ -123,6 +123,19 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
    */
   @Override
   public String toString() {
-    return "LexicalClassJpa [normalizedString=" + normalizedString + "]";
+    return "LexicalClassJpa [normalizedString=" + normalizedString
+        + ", getAtoms()=" + getAtoms() + ", getDefaultPreferredName()="
+        + getDefaultPreferredName() + ", getWorkflowStatus()="
+        + getWorkflowStatus() + ", toString()=" + super.toString()
+        + ", getBranchedTo()=" + getBranchedTo() + ", getAttributes()="
+        + getAttributes() + ", getId()=" + getId() + ", getObjectId()="
+        + getObjectId() + ", getTimestamp()=" + getTimestamp()
+        + ", getLastModified()=" + getLastModified() + ", getLastModifiedBy()="
+        + getLastModifiedBy() + ", isSuppressible()=" + isSuppressible()
+        + ", isObsolete()=" + isObsolete() + ", isPublished()=" + isPublished()
+        + ", isPublishable()=" + isPublishable() + ", getBranch()="
+        + getBranch() + ", getTerminologyVersion()=" + getTerminologyVersion()
+        + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
+        + getTerminologyId() + ", getClass()=" + getClass() + "]";
   }
 }

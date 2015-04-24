@@ -26,6 +26,7 @@ import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
+import com.wci.umls.server.jpa.content.AbstractRelationship;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -280,7 +281,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public Concept addConcept(Concept concept) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - add concept " + concept.getTerminologyId());
+        "Content Service - add concept " + concept);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
@@ -315,7 +316,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public void updateConcept(Concept concept) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - update concept " + concept.getTerminologyId());
+        "Content Service - update concept " + concept);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -469,7 +470,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public Definition addDefinition(Definition definition) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - add definition " + definition.getTerminologyId());
+        "Content Service - add definition " + definition);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
@@ -504,7 +505,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public void updateDefinition(Definition definition) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - update definition " + definition.getTerminologyId());
+        "Content Service - update definition " + definition);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -566,12 +567,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public SemanticTypeComponent addSemanticTypeComponent(
     SemanticTypeComponent semanticTypeComponent) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - add semanticTypeComponent "
-            + semanticTypeComponent.getTerminologyId());
+        "Content Service - add semanticTypeComponent " + semanticTypeComponent);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
-      idHandler = getIdentifierAssignmentHandler(semanticTypeComponent.getTerminology());
+      idHandler =
+          getIdentifierAssignmentHandler(semanticTypeComponent.getTerminology());
       if (idHandler == null) {
         throw new Exception("Unable to find id handler for "
             + semanticTypeComponent.getTerminology());
@@ -606,7 +607,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     SemanticTypeComponent semanticTypeComponent) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - update semanticTypeComponent "
-            + semanticTypeComponent.getTerminologyId());
+            + semanticTypeComponent);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -734,12 +735,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       return null;
     }
     // Find the one matching the branch (or without having been branched to)
-    
+
     for (Descriptor d : list.getObjects()) {
       if (d.getBranch().equals(branch)) {
         return d;
       }
-      
+
     }
     // TODO: deal with branching
     // If nothing found, return null;
@@ -756,7 +757,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public Descriptor addDescriptor(Descriptor descriptor) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - add descriptor " + descriptor.getTerminologyId());
+        "Content Service - add descriptor " + descriptor);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
@@ -791,7 +792,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public void updateDescriptor(Descriptor descriptor) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - update descriptor " + descriptor.getTerminologyId());
+        "Content Service - update descriptor " + descriptor);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -914,7 +915,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         return c;
       }
     }
-    //TODOO: deal with branching
+    // TODOO: deal with branching
     // If nothing found, return null;
     return null;
   }
@@ -928,8 +929,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public Code addCode(Code code) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - add code " + code.getTerminologyId());
+    Logger.getLogger(getClass()).debug("Content Service - add code " + code);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
@@ -963,8 +963,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public void updateCode(Code code) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - update code " + code.getTerminologyId());
+    Logger.getLogger(getClass()).debug("Content Service - update code " + code);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -1083,7 +1082,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       Logger.getLogger(getClass()).debug("  no lexicalClass ");
       return null;
     }
-   
+
     for (LexicalClass lui : ll.getObjects()) {
       if (lui.getBranch().equals(branch)) {
         return lui;
@@ -1105,8 +1104,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public LexicalClass addLexicalClass(LexicalClass lexicalClass)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - add lexical class "
-            + lexicalClass.getTerminologyId());
+        "Content Service - add lexical class " + lexicalClass);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
@@ -1142,8 +1140,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public void updateLexicalClass(LexicalClass lexicalClass) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - update lexical class "
-            + lexicalClass.getTerminologyId());
+        "Content Service - update lexical class " + lexicalClass);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -1273,7 +1270,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         return sui;
       }
     }
-// TODO:deal with branching
+    // TODO:deal with branching
     // If nothing found, return null;
     return null;
   }
@@ -1288,7 +1285,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public StringClass addStringClass(StringClass stringClass) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - add string class " + stringClass.getTerminologyId());
+        "Content Service - add string class " + stringClass);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
@@ -1325,7 +1322,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public void updateStringClass(StringClass stringClass) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - update string class "
-            + stringClass.getTerminologyId());
+            + stringClass);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -1500,8 +1497,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public Atom addAtom(Atom atom) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - add atom " + atom.getTerminologyId());
+    Logger.getLogger(getClass()).debug("Content Service - add atom " + atom);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
@@ -1537,13 +1533,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public void updateAtom(Atom atom) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - update atom " + atom.getTerminologyId());
+    Logger.getLogger(getClass()).debug("Content Service - update atom " + atom);
     // Id assignment
     final IdentifierAssignmentHandler idHandler =
         getIdentifierAssignmentHandler(atom.getTerminology());
     if (!idHandler.allowIdChangeOnUpdate() && assignIdentifiersFlag) {
-      Atom atom2 = getAtom(atom.getId()); 
+      Atom atom2 = getAtom(atom.getId());
       if (!idHandler.getTerminologyId(atom).equals(
           idHandler.getTerminologyId(atom2))) {
         throw new Exception("Update cannot be used to change object identity.");
@@ -1589,10 +1584,33 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> addRelationship(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Service - add relationship " + rel);
+    // Assign id
+    IdentifierAssignmentHandler idHandler = null;
+    if (assignIdentifiersFlag) {
+      idHandler = getIdentifierAssignmentHandler(rel.getTerminology());
+      if (idHandler == null) {
+        throw new Exception("Unable to find id handler for "
+            + rel.getTerminology());
+      }
+      String id = idHandler.getTerminologyId(rel);
+      rel.setTerminologyId(id);
+    }
+
+    // Add component
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> newRel =
+        addComponent(rel);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.relationshipChanged(newRel, WorkflowListener.Action.ADD);
+      }
+    }
+    return newRel;
   }
 
   /*
@@ -1604,10 +1622,38 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public void updateRelationship(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel)
     throws Exception {
-    // TODO Auto-generated method stub
+    Logger.getLogger(getClass()).debug(
+        "Content Service - update relationship " + rel);
 
+    // Id assignment should not change
+    final IdentifierAssignmentHandler idHandler =
+        getIdentifierAssignmentHandler(rel.getTerminology());
+    if (assignIdentifiersFlag) {
+      if (!idHandler.allowIdChangeOnUpdate()) {
+        @SuppressWarnings("unchecked")
+        Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel2 =
+            getComponent(rel.getId(), rel.getClass());
+        if (!idHandler.getTerminologyId(rel).equals(
+            idHandler.getTerminologyId(rel2))) {
+          throw new Exception(
+              "Update cannot be used to change object identity.");
+        }
+      } else {
+        // set attribute id on update
+        rel.setTerminologyId(idHandler.getTerminologyId(rel));
+      }
+    }
+    // update component
+    this.updateComponent(rel);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.relationshipChanged(rel, WorkflowListener.Action.UPDATE);
+      }
+    }
   }
 
   /*
@@ -1619,8 +1665,18 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public void removeRelationship(Long id) throws Exception {
-    // TODO Auto-generated method stub
+    Logger.getLogger(getClass()).debug(
+        "Content Service - remove relationship " + id);
+    // Remove the component
+    @SuppressWarnings("unchecked")
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel =
+        removeComponent(id, AbstractRelationship.class);
 
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.relationshipChanged(rel, WorkflowListener.Action.REMOVE);
+      }
+    }
   }
 
   /*
@@ -1666,11 +1722,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
-  
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.services.ContentService#getAttribute(java.lang.Long)
+   * @see
+   * com.wci.umls.server.services.ContentService#getAttribute(java.lang.Long)
    */
   @Override
   public Attribute getAttribute(Long id) throws Exception {
@@ -1765,7 +1821,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public Attribute addAttribute(Attribute attribute) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - add attribute " + attribute.toString());
+        "Content Service - add attribute " + attribute);
     // Assign id
     IdentifierAssignmentHandler idHandler = null;
     if (assignIdentifiersFlag) {
@@ -1800,11 +1856,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public void updateAttribute(Attribute attribute) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - update attribute " + attribute.getTerminologyId());
+        "Content Service - update attribute " + attribute);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
-    		getIdentifierAssignmentHandler(attribute.getTerminology());
+        getIdentifierAssignmentHandler(attribute.getTerminology());
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
         Attribute attribute2 = getAttribute(attribute.getId());
@@ -1837,8 +1893,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public void removeAttribute(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove attribute " + id);
+    Logger.getLogger(getClass()).debug(
+        "Content Service - remove attribute " + id);
     // Remove the component
     Attribute attribute = removeComponent(id, AttributeJpa.class);
 
@@ -1848,7 +1904,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
   }
- 
+
   /*
    * (non-Javadoc)
    * 
@@ -2216,17 +2272,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       javax.persistence.Query query = null;
       // TODO, deal with branching
       if (terminology != null) {
-          query =
-              manager
-                  .createQuery("select count(*) from " + jpaTable
-                      + " where terminology = :terminology "
-                      + "and terminologyVersion = :version ");
-          query.setParameter("terminology", terminology);
-          query.setParameter("version", version);
-        
+        query =
+            manager.createQuery("select count(*) from " + jpaTable
+                + " where terminology = :terminology "
+                + "and terminologyVersion = :version ");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+
       } else {
-          query =
-              manager.createQuery("select count(*) from " + jpaTable);
+        query = manager.createQuery("select count(*) from " + jpaTable);
       }
       int ct = ((Long) query.getSingleResult()).intValue();
       stats.put("Total " + jpaTable, ct);
@@ -2236,16 +2290,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           .getBindableJavaType())) {
         // TODO: deal with branching
         if (terminology != null) {
-         
-            query =
-                manager.createQuery("select count(*) from " + jpaTable
-                    + " where obsolete = 0 and terminology = :terminology "
-                    + "and terminologyVersion = :version ");
-            query.setParameter("terminology", terminology);
-            query.setParameter("version", version);
+
+          query =
+              manager.createQuery("select count(*) from " + jpaTable
+                  + " where obsolete = 0 and terminology = :terminology "
+                  + "and terminologyVersion = :version ");
+          query.setParameter("terminology", terminology);
+          query.setParameter("version", version);
         } else {
-            query =
-                manager.createQuery("select count(*) from " + jpaTable);
+          query = manager.createQuery("select count(*) from " + jpaTable);
         }
         ct = ((Long) query.getSingleResult()).intValue();
         stats.put("Non-obsolete " + jpaTable, ct);

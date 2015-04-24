@@ -31,7 +31,7 @@ import com.wci.umls.server.model.content.CodeRelationship;
 public class CodeJpa extends AbstractAtomClass implements Code {
 
   /** The relationships. */
-  @OneToMany(orphanRemoval = true, targetEntity = CodeRelationshipJpa.class)
+  @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = CodeRelationshipJpa.class)
   private List<CodeRelationship> relationships = new ArrayList<>();
 
   /**
@@ -104,5 +104,28 @@ public class CodeJpa extends AbstractAtomClass implements Code {
       relationships = new ArrayList<>();
     }
     relationships.remove(relationship);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
+   */
+  @Override
+  public String toString() {
+    return "CodeJpa [getAtoms()=" + getAtoms() + ", getDefaultPreferredName()="
+        + getDefaultPreferredName() + ", getWorkflowStatus()="
+        + getWorkflowStatus() + ", hashCode()=" + hashCode() + ", toString()="
+        + super.toString() + ", getBranchedTo()=" + getBranchedTo()
+        + ", getAttributes()=" + getAttributes() + ", getId()=" + getId()
+        + ", getObjectId()=" + getObjectId() + ", getTimestamp()="
+        + getTimestamp() + ", getLastModified()=" + getLastModified()
+        + ", getLastModifiedBy()=" + getLastModifiedBy()
+        + ", isSuppressible()=" + isSuppressible() + ", isObsolete()="
+        + isObsolete() + ", isPublished()=" + isPublished()
+        + ", isPublishable()=" + isPublishable() + ", getBranch()="
+        + getBranch() + ", getTerminologyVersion()=" + getTerminologyVersion()
+        + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
+        + getTerminologyId() + ", getClass()=" + getClass() + "]";
   }
 }

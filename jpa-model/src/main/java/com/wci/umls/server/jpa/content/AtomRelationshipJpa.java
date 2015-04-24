@@ -34,12 +34,12 @@ import com.wci.umls.server.model.content.AtomRelationship;
 public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     implements AtomRelationship {
 
-  /** The from concept. */
+  /** The from atom. */
   @ManyToOne(targetEntity = AtomJpa.class, optional = false)
   @JoinColumn(nullable = false)
   private Atom from;
 
-  /** the to concept. */
+  /** the to atom. */
   @ManyToOne(targetEntity = AtomJpa.class, optional = false)
   @JoinColumn(nullable = false)
   private Atom to;

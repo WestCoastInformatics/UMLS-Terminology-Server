@@ -34,12 +34,12 @@ import com.wci.umls.server.model.content.CodeRelationship;
 public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     implements CodeRelationship {
 
-  /** The from Code. */
+  /** The from code. */
   @ManyToOne(targetEntity = CodeJpa.class, optional = false)
   @JoinColumn(nullable = false)
   private Code from;
 
-  /** the to Code. */
+  /** the to code. */
   @ManyToOne(targetEntity = CodeJpa.class, optional = false)
   @JoinColumn(nullable = false)
   private Code to;
@@ -316,7 +316,8 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
    */
   @Override
   public String toString() {
-    return "CodeRelationshipJpa [from=" + from + ", to=" + to + "]";
+    return "CodeRelationshipJpa [from=" + from.getTerminologyId() + ", to="
+        + to.getTerminologyId() + "]";
   }
 
 }

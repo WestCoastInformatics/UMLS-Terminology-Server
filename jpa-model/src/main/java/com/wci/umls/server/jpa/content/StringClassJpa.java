@@ -42,4 +42,27 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
     super(code, deepCopy);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
+   */
+  @Override
+  public String toString() {
+    return "StringClassJpa [getAtoms()=" + getAtoms()
+        + ", getDefaultPreferredName()=" + getDefaultPreferredName()
+        + ", getWorkflowStatus()=" + getWorkflowStatus() + ", hashCode()="
+        + hashCode() + ", toString()=" + super.toString()
+        + ", getBranchedTo()=" + getBranchedTo() + ", getAttributes()="
+        + getAttributes() + ", getId()=" + getId() + ", getObjectId()="
+        + getObjectId() + ", getTimestamp()=" + getTimestamp()
+        + ", getLastModified()=" + getLastModified() + ", getLastModifiedBy()="
+        + getLastModifiedBy() + ", isSuppressible()=" + isSuppressible()
+        + ", isObsolete()=" + isObsolete() + ", isPublished()=" + isPublished()
+        + ", isPublishable()=" + isPublishable() + ", getBranch()="
+        + getBranch() + ", getTerminologyVersion()=" + getTerminologyVersion()
+        + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
+        + getTerminologyId() + ", getClass()=" + getClass() + "]";
+  }
+
 }
