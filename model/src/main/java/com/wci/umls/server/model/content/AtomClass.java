@@ -67,4 +67,31 @@ public interface AtomClass extends ComponentHasAttributes {
    */
   public void setWorkflowStatus(String workflowStatus);
 
+  /**
+   * Returns the branched to.
+   *
+   * @return the branched to
+   */
+  public String getBranchedTo();
+  
+  /**
+   * Sets the branched to.
+   *
+   * @param branchedTo the branched to
+   */
+  public void setBranchedTo(String branchedTo);
+  
+  /**
+   * Adds the branched to.
+   *
+   * @param newBranch the new branch
+   */
+  public void addBranchedTo(String newBranch);
+  
+  /**
+   * Removes the branched to.
+   *
+   * @param closedBranch the closed branch
+   */
+  public void removeBranchedTo(String closedBranch);
 }

@@ -108,6 +108,30 @@
         </plugins>
       </build>
     </profile>
+
+    <!-- Reset dev database to stock conditions -->
+    <profile>
+      <id>reset</id>
+      <build>
+        <plugins>
+          <!-- Add src/main/resources to the classpath -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/com/wci/umls/server/test/mojo/ResetDevDatabase.java</include>
+              </includes>
+              <additionalClasspathElements>
+                <additionalClasspathElement>src/main/resources</additionalClasspathElement>
+              </additionalClasspathElements>
+              <skipTests>${skipTests}</skipTests>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
   </profiles>
 
 </project>

@@ -19,6 +19,7 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 
@@ -76,9 +77,9 @@ public abstract class AbstractComponent implements Component {
   @Column(nullable = false)
   private String terminologyVersion;
 
-  /** The branch. */
+  /** The branch set to include empty branch */
   @Column(nullable = true)
-  private String branch = null;
+  private String branch = Branch.ROOT;
 
   /**
    * Instantiates an empty {@link AbstractComponent}.
@@ -146,6 +147,7 @@ public abstract class AbstractComponent implements Component {
       this.id = Long.parseLong(id);
     }
   }
+
   /*
    * (non-Javadoc)
    * 

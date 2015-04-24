@@ -11,7 +11,7 @@ import com.wci.umls.server.helpers.HasTerminologyId;
  * Represents a terminology component.
  */
 public interface Component extends HasTerminologyId {
-
+  
   /**
    * Returns the id.
    * 
@@ -132,12 +132,11 @@ public interface Component extends HasTerminologyId {
    * @return the branch
    */
   public String getBranch();
-  
+
   /**
    * Sets the branch.
    *
    * @param branch the branch
    */
   public void setBranch(String branch);
-  
 }

@@ -19,6 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.Project;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
@@ -109,7 +110,7 @@ public class RrfFullLoadAndUnloadTest {
     // Verify no contents
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0, 
-        service.getAllConcepts("UMLS", "2014AB", null).getCount());
+        service.getAllConcepts("UMLS", "2014AB", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
     
@@ -135,10 +136,10 @@ public class RrfFullLoadAndUnloadTest {
     // Verify expected contents
     service = new ContentServiceJpa();
     Assert.assertEquals(10293,
-        service.getAllConcepts("UMLS", "2014AB", null).getCount());
+        service.getAllConcepts("UMLS", "2014AB", Branch.ROOT).getCount());
     // Test a non-UMLS terminology too
     Assert.assertEquals(10293,
-        service.getAllConcepts("SNOMEDCT_US", "2014_09_01", null).getCount());
+        service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 
@@ -245,7 +246,7 @@ public class RrfFullLoadAndUnloadTest {
 
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(0, service.getAllConcepts("UMLS", "2014AB", null).getCount());
+    Assert.assertEquals(0, service.getAllConcepts("UMLS", "2014AB", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 
@@ -269,7 +270,7 @@ public class RrfFullLoadAndUnloadTest {
 
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(0, service.getAllConcepts("UMLS", "2014AB", null).getCount());
+    Assert.assertEquals(0, service.getAllConcepts("UMLS", "2014AB", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
     

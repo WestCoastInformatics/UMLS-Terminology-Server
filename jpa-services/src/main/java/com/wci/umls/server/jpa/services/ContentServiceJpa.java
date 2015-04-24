@@ -248,29 +248,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - get concept " + terminologyId + "/" + terminology
             + "/" + version + "/" + branch);
-    ConceptList cl = getConcepts(terminologyId, terminology, version);
-    if (cl == null || cl.getTotalCount() == 0) {
+    assert branch != null;
+    ConceptList list = getConcepts(terminologyId, terminology, version);
+    if (list == null || list.getTotalCount() == 0) {
       Logger.getLogger(getClass()).debug("  no concept ");
       return null;
     }
-    Concept nullBranch = null;
-    for (Concept c : cl.getObjects()) {
-      // handle null case
-      if (c.getBranch() == null) {
-        nullBranch = c;
-      }
-      if (c.getBranch() == null && branch == null) {
-        return c;
-      }
-      if (c.getBranch().equals(branch)) {
-        return c;
+    // Find the one matching the branch (or without having been branched to)
+    for (Concept obj : list.getObjects()) {
+      if (obj.getBranch().equals(branch)) {
+        return obj;
       }
     }
-    // if it falls out and branch isn't null but nullBranch is set, return it
-    // this is the "master" branch copy.
-    if (nullBranch != null) {
-      return nullBranch;
-    }
+    // TODO: deal with branching
+
     // If nothing found, return null;
     return null;
   }
@@ -468,78 +459,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getDefinition(java.lang.Long)
-   */
-  @Override
-  public Definition getDefinition(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - get definition " + id);
-    Definition c = manager.find(DefinitionJpa.class, id);
-    return c;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getDefinition(java.lang.String,
-   * java.lang.String, java.lang.String, java.lang.String)
-   */
-  @Override
-  public Definition getDefinition(String terminologyId, String terminology,
-    String version, String branch) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - get definition " + terminologyId + "/" + terminology
-            + "/" + version + "/" + branch);
-
-    javax.persistence.Query query =
-        manager
-            .createQuery("select c from DefinitionJpa c where "
-                + "terminologyId = :terminologyId and terminologyVersion = :version "
-                + "and terminology = :terminology");
-    // Try to retrieve the single expected result If zero or more than one
-    // result are returned, log error and set result to null
-    try {
-      query.setParameter("terminologyId", terminologyId);
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
-      @SuppressWarnings("unchecked")
-      List<Definition> results = query.getResultList();
-      if (results.size() == 0) {
-        Logger.getLogger(getClass()).debug("  no definition ");
-        return null;
-      }
-      Definition nullBranch = null;
-      for (Definition c : results) {
-        // handle null case
-        if (c.getBranch() == null) {
-          nullBranch = c;
-        }
-        if (c.getBranch() == null && branch == null) {
-          return c;
-        }
-        if (c.getBranch().equals(branch)) {
-          return c;
-        }
-      }
-      // if it falls out and branch isn't null but nullBranch is set, return it
-      // this is the "master" branch copy.
-      if (nullBranch != null) {
-        return nullBranch;
-      }
-
-    } catch (NoResultException e) {
-      return null;
-    }
-
-    // If nothing found, return null;
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
    * com.wci.umls.server.services.ContentService#addDefinition(com.wci.umls.
    * server .model.content.Definition)
    */
@@ -588,7 +507,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         idHandlerMap.get(definition.getTerminology());
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
-        Definition definition2 = getDefinition(definition.getId());
+        Definition definition2 =
+            getComponent(definition.getId(), DefinitionJpa.class);
         if (!idHandler.getTerminologyId(definition).equals(
             idHandler.getTerminologyId(definition2))) {
           throw new Exception(
@@ -629,80 +549,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         listener.definitionChanged(definition, WorkflowListener.Action.REMOVE);
       }
     }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getSemanticTypeComponent(java
-   * .lang.Long)
-   */
-  @Override
-  public SemanticTypeComponent getSemanticTypeComponent(Long id)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - get semanticTypeComponent " + id);
-    SemanticTypeComponent c = manager.find(SemanticTypeComponentJpa.class, id);
-    return c;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getSemanticTypeComponent(java
-   * .lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
-  @Override
-  public SemanticTypeComponent getSemanticTypeComponent(String terminologyId,
-    String terminology, String version, String branch) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - get semantic type " + terminologyId + "/"
-            + terminology + "/" + version + "/" + branch);
-
-    javax.persistence.Query query =
-        manager
-            .createQuery("select c from SemanticTypeComponentJpa c where "
-                + "terminologyId = :terminologyId and terminologyVersion = :version "
-                + "and terminology = :terminology");
-    // Try to retrieve the single expected result If zero or more than one
-    // result are returned, log error and set result to null
-    try {
-      query.setParameter("terminologyId", terminologyId);
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
-      @SuppressWarnings("unchecked")
-      List<SemanticTypeComponent> results = query.getResultList();
-      if (results.size() == 0) {
-        Logger.getLogger(getClass()).debug("  no semantic type component ");
-        return null;
-      }
-      SemanticTypeComponent nullBranch = null;
-      for (SemanticTypeComponent sty : results) {
-        // handle null case
-        if (sty.getBranch() == null) {
-          nullBranch = sty;
-        }
-        if (sty.getBranch() == null && branch == null) {
-          return sty;
-        }
-        if (sty.getBranch().equals(branch)) {
-          return sty;
-        }
-      }
-      // if it falls out and branch isn't null but nullBranch is set, return it
-      // this is the "master" branch copy.
-      if (nullBranch != null) {
-        return nullBranch;
-      }
-
-    } catch (NoResultException e) {
-      return null;
-    }
-
-    // If nothing found, return null;
-    return null;
   }
 
   /*
@@ -764,7 +610,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
         SemanticTypeComponent semanticTypeComponent2 =
-            getSemanticTypeComponent(semanticTypeComponent.getId());
+            getComponent(semanticTypeComponent.getId(),
+                SemanticTypeComponent.class);
         if (!idHandler.getTerminologyId(semanticTypeComponent).equals(
             idHandler.getTerminologyId(semanticTypeComponent2))) {
           throw new Exception(
@@ -876,29 +723,21 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - get descriptor " + terminologyId + "/" + terminology
             + "/" + version + "/" + branch);
-    DescriptorList cl = getDescriptors(terminologyId, terminology, version);
-    if (cl == null || cl.getTotalCount() == 0) {
+    assert branch != null;
+    DescriptorList list = getDescriptors(terminologyId, terminology, version);
+    if (list == null || list.getTotalCount() == 0) {
       Logger.getLogger(getClass()).debug("  no descriptor ");
       return null;
     }
-    Descriptor nullBranch = null;
-    for (Descriptor c : cl.getObjects()) {
-      // handle null case
-      if (c.getBranch() == null) {
-        nullBranch = c;
+    // Find the one matching the branch (or without having been branched to)
+    
+    for (Descriptor d : list.getObjects()) {
+      if (d.getBranch().equals(branch)) {
+        return d;
       }
-      if (c.getBranch() == null && branch == null) {
-        return c;
-      }
-      if (c.getBranch().equals(branch)) {
-        return c;
-      }
+      
     }
-    // if it falls out and branch isn't null but nullBranch is set, return it
-    // this is the "master" branch copy.
-    if (nullBranch != null) {
-      return nullBranch;
-    }
+    // TODO: deal with branching
     // If nothing found, return null;
     return null;
   }
@@ -1059,29 +898,19 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - get code " + terminologyId + "/" + terminology + "/"
             + version + "/" + branch);
-    CodeList cl = getCodes(terminologyId, terminology, version);
-    if (cl == null || cl.getTotalCount() == 0) {
+    assert branch != null;
+    CodeList list = getCodes(terminologyId, terminology, version);
+    if (list == null || list.getTotalCount() == 0) {
       Logger.getLogger(getClass()).debug("  no code ");
       return null;
     }
-    Code nullBranch = null;
-    for (Code c : cl.getObjects()) {
-      // handle null case
-      if (c.getBranch() == null) {
-        nullBranch = c;
-      }
-      if (c.getBranch() == null && branch == null) {
-        return c;
-      }
+    // Find the one matching the branch (or without having been branched to)
+    for (Code c : list.getObjects()) {
       if (c.getBranch().equals(branch)) {
         return c;
       }
     }
-    // if it falls out and branch isn't null but nullBranch is set, return it
-    // this is the "master" branch copy.
-    if (nullBranch != null) {
-      return nullBranch;
-    }
+    //TODOO: deal with branching
     // If nothing found, return null;
     return null;
   }
@@ -1243,30 +1072,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - get lexical class " + terminologyId + "/"
             + terminology + "/" + version + "/" + branch);
-    LexicalClassList cl =
+    assert branch != null;
+    LexicalClassList ll =
         getLexicalClasses(terminologyId, terminology, version);
-    if (cl == null || cl.getTotalCount() == 0) {
+    if (ll == null || ll.getTotalCount() == 0) {
       Logger.getLogger(getClass()).debug("  no lexicalClass ");
       return null;
     }
-    LexicalClass nullBranch = null;
-    for (LexicalClass c : cl.getObjects()) {
-      // handle null case
-      if (c.getBranch() == null) {
-        nullBranch = c;
-      }
-      if (c.getBranch() == null && branch == null) {
-        return c;
-      }
-      if (c.getBranch().equals(branch)) {
-        return c;
+   
+    for (LexicalClass lui : ll.getObjects()) {
+      if (lui.getBranch().equals(branch)) {
+        return lui;
       }
     }
-    // if it falls out and branch isn't null but nullBranch is set, return it
-    // this is the "master" branch copy.
-    if (nullBranch != null) {
-      return nullBranch;
-    }
+    // TDOO: deal with branching
     // If nothing found, return null;
     return null;
   }
@@ -1437,29 +1256,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - get string class " + terminologyId + "/"
             + terminology + "/" + version + "/" + branch);
-    StringClassList cl = getStringClasses(terminologyId, terminology, version);
-    if (cl == null || cl.getTotalCount() == 0) {
-      Logger.getLogger(getClass()).debug("  no stringClass ");
+    assert branch != null;
+    StringClassList list =
+        getStringClasses(terminologyId, terminology, version);
+    if (list == null || list.getTotalCount() == 0) {
+      Logger.getLogger(getClass()).debug("  no string class ");
       return null;
     }
-    StringClass nullBranch = null;
-    for (StringClass c : cl.getObjects()) {
-      // handle null case
-      if (c.getBranch() == null) {
-        nullBranch = c;
-      }
-      if (c.getBranch() == null && branch == null) {
-        return c;
-      }
-      if (c.getBranch().equals(branch)) {
-        return c;
+    // Find the one matching the branch (or without having been branched to)
+    for (StringClass sui : list.getObjects()) {
+      if (sui.getBranch().equals(branch)) {
+        return sui;
       }
     }
-    // if it falls out and branch isn't null but nullBranch is set, return it
-    // this is the "master" branch copy.
-    if (nullBranch != null) {
-      return nullBranch;
-    }
+// TODO:deal with branching
     // If nothing found, return null;
     return null;
   }
@@ -1770,34 +1580,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getRelationship(java.lang.Long)
-   */
-  @Override
-  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
-    Long id) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getRelationship(java.lang.String
-   * , java.lang.String, java.lang.String, java.lang.String)
-   */
-  @Override
-  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
-    String terminologyId, String terminology, String version, String branch)
-    throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
    * com.wci.umls.server.services.ContentService#addRelationship(com.wci.umls
    * .server.model.content.Relationship)
    */
@@ -1922,8 +1704,98 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public ConceptList getAllConcepts(String terminology, String version,
     String branch) {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get all concepts " + terminology + "/" + version
+            + "/" + branch);
+    assert branch != null;
+
+    try {
+      javax.persistence.Query query =
+          manager.createQuery("select c from ConceptJpa c "
+              + "where terminologyVersion = :version "
+              + "and terminology = :terminology ");
+      // TODO: implement branching
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      @SuppressWarnings("unchecked")
+      List<Concept> concepts = query.getResultList();
+      ConceptList conceptList = new ConceptListJpa();
+      conceptList.setObjects(concepts);
+      conceptList.setTotalCount(concepts.size());
+      return conceptList;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getAllDescriptors(java.lang
+   * .String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public DescriptorList getAllDescriptors(String terminology, String version,
+    String branch) {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get all descriptors " + terminology + "/" + version
+            + "/" + branch);
+    assert branch != null;
+
+    try {
+      javax.persistence.Query query =
+          manager.createQuery("select c from DescriptorJpa c "
+              + "where terminologyVersion = :version "
+              + "and terminology = :terminology ");
+
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      // TODO: deal with branching
+
+      @SuppressWarnings("unchecked")
+      List<Descriptor> descriptors = query.getResultList();
+      DescriptorList descriptorList = new DescriptorListJpa();
+      descriptorList.setObjects(descriptors);
+      descriptorList.setTotalCount(descriptors.size());
+      return descriptorList;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getAllCodes(java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  public CodeList getAllCodes(String terminology, String version, String branch) {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get all codes " + terminology + "/" + version + "/"
+            + branch);
+    assert branch != null;
+
+    try {
+      javax.persistence.Query query =
+          manager.createQuery("select c from CodeJpa c "
+              + "where terminologyVersion = :version "
+              + "and terminology = :terminology ");
+
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      // TODO: deal with branching
+      @SuppressWarnings("unchecked")
+      List<Code> codes = query.getResultList();
+      CodeList codeList = new CodeListJpa();
+      codeList.setObjects(codes);
+      codeList.setTotalCount(codes.size());
+      return codeList;
+    } catch (NoResultException e) {
+      return null;
+    }
   }
 
   /*
@@ -1936,7 +1808,59 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public void clearTransitiveClosure(String terminology, String version)
     throws Exception {
-    // TODO Auto-generated method stub
+    Logger.getLogger(getClass()).info(
+        "Content Service - Clear transitive closure data for " + terminology
+            + ", " + version);
+    try {
+      if (getTransactionPerOperation()) {
+        // remove simple ref set member
+        tx.begin();
+      }
+
+      javax.persistence.Query query =
+          manager.createQuery("DELETE From ConceptTransitiveRelationshipJpa "
+              + " c where terminology = :terminology "
+              + " and terminologyVersion = :version");
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      int deleteRecords = query.executeUpdate();
+      Logger.getLogger(getClass()).info(
+          "    ConceptTransitiveRelationshipJpa records deleted = "
+              + deleteRecords);
+
+      query =
+          manager
+              .createQuery("DELETE From DescriptorTransitiveRelationshipJpa "
+                  + " c where terminology = :terminology "
+                  + " and terminologyVersion = :version");
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      deleteRecords = query.executeUpdate();
+      Logger.getLogger(getClass()).info(
+          "    DescriptorTransitiveRelationshipJpa records deleted = "
+              + deleteRecords);
+
+      query =
+          manager.createQuery("DELETE From CodeTransitiveRelationshipJpa "
+              + " c where terminology = :terminology "
+              + " and terminologyVersion = :version");
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      deleteRecords = query.executeUpdate();
+      Logger.getLogger(getClass()).info(
+          "    CodeTransitiveRelationshipJpa records deleted = "
+              + deleteRecords);
+
+      if (getTransactionPerOperation()) {
+        // remove simple ref set member
+        tx.commit();
+      }
+    } catch (Exception e) {
+      if (tx.isActive()) {
+        tx.rollback();
+      }
+      throw e;
+    }
 
   }
 
@@ -2086,6 +2010,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public Map<String, Integer> getComponentStats(String terminology,
     String version, String branch) throws Exception {
     Logger.getLogger(getClass()).info("Content Service - getComponentStats");
+    assert branch != null;
     Map<String, Integer> stats = new HashMap<>();
     for (EntityType<?> type : manager.getMetamodel().getEntities()) {
       String jpaTable = type.getName();
@@ -2102,40 +2027,19 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
       Logger.getLogger(getClass()).info("  " + jpaTable);
       javax.persistence.Query query = null;
+      // TODO, deal with branching
       if (terminology != null) {
-        if (branch == null) {
           query =
               manager
                   .createQuery("select count(*) from " + jpaTable
                       + " where terminology = :terminology "
-                      + "and terminologyVersion = :version "
-                      + "and branch is null");
+                      + "and terminologyVersion = :version ");
           query.setParameter("terminology", terminology);
           query.setParameter("version", version);
-        } else {
-
-          query =
-              manager
-                  .createQuery("select count(distinct o) from "
-                      + jpaTable
-                      + " o "
-                      + " where terminology = :terminology and terminologyVersion = :version "
-                      + " and (branch is null OR branch = :branch)");
-          query.setParameter("terminology", terminology);
-          query.setParameter("version", version);
-          query.setParameter("branch", branch);
-        }
+        
       } else {
-        if (branch == null) {
           query =
-              manager.createQuery("select count(*) from " + jpaTable
-                  + " where branch is null");
-        } else {
-          query =
-              manager.createQuery("select count(distinct o) from " + jpaTable
-                  + " o " + " where (branch is null or branch = :branch)");
-          query.setParameter("branch", branch);
-        }
+              manager.createQuery("select count(*) from " + jpaTable);
       }
       int ct = ((Long) query.getSingleResult()).intValue();
       stats.put("Total " + jpaTable, ct);
@@ -2143,42 +2047,18 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       // Only compute active counts for components
       if (AbstractComponentHasAttributes.class.isAssignableFrom(type
           .getBindableJavaType())) {
+        // TODO: deal with branching
         if (terminology != null) {
-          if (branch == null) {
+         
             query =
                 manager.createQuery("select count(*) from " + jpaTable
                     + " where obsolete = 0 and terminology = :terminology "
-                    + "and terminologyVersion = :version "
-                    + "and branch is null");
+                    + "and terminologyVersion = :version ");
             query.setParameter("terminology", terminology);
             query.setParameter("version", version);
-          } else {
-
-            query =
-                manager
-                    .createQuery("select count(distinct o) from "
-                        + jpaTable
-                        + " o "
-                        + " where obsolete = 0 and terminology = :terminology and terminologyVersion = :version "
-                        + " and (branch is null OR branch = :branch)");
-            query.setParameter("terminology", terminology);
-            query.setParameter("version", version);
-            query.setParameter("branch", branch);
-          }
         } else {
-          if (branch == null) {
             query =
-                manager.createQuery("select count(*) from " + jpaTable
-                    + " where obsolete = 0 and branch is null");
-          } else {
-            query =
-                manager
-                    .createQuery("select count(distinct o) from "
-                        + jpaTable
-                        + " o "
-                        + " where obsolete = 0 and (branch is null or branch = :branch)");
-            query.setParameter("branch", branch);
-          }
+                manager.createQuery("select count(*) from " + jpaTable);
         }
         ct = ((Long) query.getSingleResult()).intValue();
         stats.put("Non-obsolete " + jpaTable, ct);
@@ -2251,6 +2131,23 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       throw e;
     }
 
+  }
+
+  /**
+   * Returns the component.
+   *
+   * @param <T> the
+   * @param id the id
+   * @param clazz the clazz
+   * @return the component
+   * @throws Exception the exception
+   */
+  private <T extends Component> T getComponent(Long id, Class<T> clazz)
+    throws Exception {
+    // Get transaction and object
+    tx = manager.getTransaction();
+    T component = manager.find(clazz, id);
+    return component;
   }
 
   /**

@@ -6,7 +6,6 @@ package com.wci.umls.server.jpa.meta;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -17,9 +16,7 @@ import com.wci.umls.server.model.meta.GeneralMetadataEntry;
  * JPA-enabled implementation of {@link GeneralMetadataEntry}.
  */
 @Entity
-@Table(name = "general_metadata_entries", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "metadataKey", "keyType", "abbreviation", "expandedForm"
-}))
+@Table(name = "general_metadata_entries")
 @Audited
 @XmlRootElement(name = "generalMetadataEntry")
 public class GeneralMetadataEntryJpa extends AbstractAbbreviation implements

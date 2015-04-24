@@ -15,20 +15,36 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
+import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
+import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.CodeTransitiveRelationship;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptTransitiveRelationship;
+import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
+import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.content.TransitiveRelationship;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
+ *
+ * @param <T> the
  */
 public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     Algorithm {
 
-  /** Listeners */
-  @SuppressWarnings("hiding")
+  /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The request cancel flag. */
@@ -43,8 +59,9 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
   /** The descendants map. */
   private Map<Long, Set<Long>> descendantsMap = new HashMap<>();
 
+  private IdType idType;
+
   /** The Constant commitCt. */
-  @SuppressWarnings("unused")
   private final static int commitCt = 2000;
 
   /**
@@ -73,6 +90,29 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     this.terminologyVersion = terminologyVersion;
   }
 
+  /**
+   * Returns the id type.
+   *
+   * @return the id type
+   */
+  public IdType getIdType() {
+    return idType;
+  }
+
+  /**
+   * Sets the id type.
+   *
+   * @param idType the id type
+   */
+  public void setIdType(IdType idType) {
+    if (idType != IdType.CONCEPT && idType != IdType.DESCRIPTOR
+        && idType != IdType.CODE) {
+      throw new IllegalArgumentException(
+          "Only CONCEPT, DESCRIPTOR, and CODE types are allowed.");
+    }
+    this.idType = idType;
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -80,7 +120,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
    */
   @Override
   public void compute() throws Exception {
-    computeTransitiveClosure(terminology, terminologyVersion);
+    computeTransitiveClosure(terminology, terminologyVersion, idType);
   }
 
   /*
@@ -98,147 +138,166 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
    *
    * @param terminology the terminology
    * @param version the terminology version
+   * @param idType the id type
    * @throws Exception the exception
    */
-  private void computeTransitiveClosure(String terminology, String version)
-    throws Exception {
-    //
+  private void computeTransitiveClosure(String terminology, String version,
+    IdType idType) throws Exception {
     // Check assumptions/prerequisites
-    //
     Logger.getLogger(getClass()).info(
         "Start computing transitive closure ... " + new Date());
     fireProgressEvent(0, "Starting...");
-    // TODO:
-    // // Disable transaction per operation
-    // boolean currentTransactionStrategy = getTransactionPerOperation();
-    // if (getTransactionPerOperation()) {
-    // this.setTransactionPerOperation(false);
-    // }
+
+    // Disable transaction per operation
+    setTransactionPerOperation(false);
+
+    // Initialize rels
+    Logger.getLogger(getClass()).info(
+        "  Initialize relationships ... " + new Date());
+
+    // Get hierarchcial rels
+    MetadataService service = new MetadataServiceJpa();
+    String chdRel =
+        service.getHierarchicalRelationshipTypes(terminology, version)
+            .iterator().next().getAbbreviation();
+    service.close();
+    Logger.getLogger(getClass()).info("    count = " + chdRel);
+
+    fireProgressEvent(1, "Initialize relationships");
+    String tableName = "ConceptJpa";
+    if (idType == IdType.DESCRIPTOR) {
+      tableName = "DescriptorJpa";
+    }
+    if (idType == IdType.CODE) {
+      tableName = "CodeJpa";
+    }
+    javax.persistence.Query query =
+        manager
+            .createQuery(
+                "select r from " + tableName + " r where active = 1 "
+                    + "and terminology = :terminology "
+                    + "and terminologyVersion = :version"
+                    + " and inferred = 1 ")
+            .setParameter("terminology", terminology)
+            .setParameter("version", version);
+
+    @SuppressWarnings("unchecked")
+    List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> rels =
+        query.getResultList();
+    Map<Long, Set<Long>> parChd = new HashMap<>();
+    int ct = 0;
+    for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : rels) {
+      final Long chd = rel.getFrom().getId();
+      final Long par = rel.getTo().getId();
+      if (!parChd.containsKey(par)) {
+        parChd.put(par, new HashSet<Long>());
+      }
+      final Set<Long> children = parChd.get(par);
+      children.add(chd);
+      ct++;
+      if (requestCancel) {
+        rollback();
+        throw new CancelException("Transitive closure computation cancelled.");
+      }
+    }
+    Logger.getLogger(getClass()).info("    ct = " + ct);
+
+    // Initialize concepts
+    fireProgressEvent(5, "Initialize concepts");
+    Logger.getLogger(getClass())
+        .info("  Initialize concepts ... " + new Date());
+    Map<Long, ComponentHasAttributes> componentMap = new HashMap<>();
+    if (idType == IdType.CONCEPT) {
+      for (Concept concept : getAllConcepts(terminology, version, null)
+          .getObjects()) {
+        componentMap.put(concept.getId(), concept);
+      }
+    } else if (idType == IdType.DESCRIPTOR) {
+      for (Descriptor descriptor : getAllDescriptors(terminology, version, null)
+          .getObjects()) {
+        componentMap.put(descriptor.getId(), descriptor);
+      }
+    } else if (idType == IdType.CODE) {
+      for (Code code : getAllCodes(terminology, version, null).getObjects()) {
+        componentMap.put(code.getId(), code);
+      }
+    }
+
+    // detatch concepts
+    manager.clear();
+    fireProgressEvent(8, "Start creating transitive closure relationships");
+
     //
-    // //
-    // // Initialize rels
-    // // id effectiveTime active moduleId sourceId destinationId
-    // relationshipGroup
-    // // typeId characteristicTypeId modifierId
-    // //
-    // Logger.getLogger(getClass()).info(
-    // "  Initialize relationships ... " + new Date());
+    // Create transitive closure rels
     //
-    // String inferredCharType =
-    // TerminologyUtility.getInferredType(terminology, version);
-    // Logger.getLogger(getClass()).info("    inferredType = " +
-    // inferredCharType);
-    //
-    // String isaRel =
-    // TerminologyUtility
-    // .getHierarchicalIsaRels(terminology, version).iterator()
-    // .next();
-    // Logger.getLogger(getClass()).info("    isaRel = " + isaRel);
-    //
-    // // Skip non isa
-    // // Skip non-inferred
-    // fireProgressEvent(1, "Initialize relationships");
-    // javax.persistence.Query query =
-    // manager
-    // .createQuery(
-    // "select r from RelationshipJpa r where active = 1 "
-    // + "and terminology = :terminology "
-    // + "and terminologyVersion = :version "
-    // +
-    // "and typeId = :typeId and characteristicTypeId = :characteristicTypeId")
-    // .setParameter("terminology", terminology)
-    // .setParameter("version", version)
-    // .setParameter("typeId", isaRel)
-    // .setParameter("characteristicTypeId", inferredCharType);
-    //
-    // @SuppressWarnings("unchecked")
-    // List<Relationship> rels = query.getResultList();
-    // Map<Long, Set<Long>> parChd = new HashMap<>();
-    // int ct = 0;
-    // for (Relationship rel : rels) {
-    // final Long chd = rel.getSourceConcept().getId();
-    // final Long par = rel.getDestinationConcept().getId();
-    // if (!parChd.containsKey(par)) {
-    // parChd.put(par, new HashSet<Long>());
-    // }
-    // final Set<Long> children = parChd.get(par);
-    // children.add(chd);
-    // ct++;
-    // if (requestCancel) {
-    // rollback();
-    // throw new CancelException("Transitive closure computation cancelled.");
-    // }
-    // }
-    // Logger.getLogger(getClass()).info("    ct = " + ct);
-    //
-    // // Initialize concepts
-    // fireProgressEvent(5, "Initialize concepts");
-    // Logger.getLogger(getClass()).info(
-    // "  Initialize concepts ... " + new Date());
-    // Map<Long, Concept> conceptMap = new HashMap<>();
-    // for (Concept concept : getAllConcepts(terminology, version)
-    // .getObjects()) {
-    // conceptMap.put(concept.getId(), concept);
-    // }
-    // // detatch concepts
-    // manager.clear();
-    // fireProgressEvent(8, "Start creating transitive closure relationships");
-    //
-    // //
-    // // Create transitive closure rels
-    // //
-    // Logger.getLogger(getClass()).info(
-    // "  Create transitive closure rels... " + new Date());
-    // ct = 0;
-    // // initialize descendant map
-    // descendantsMap = new HashMap<>();
-    // beginTransaction();
-    // int progressMax = parChd.keySet().size();
-    // int progress = 0;
-    // for (Long code : parChd.keySet()) {
-    // if (requestCancel) {
-    // rollback();
-    // throw new CancelException("Transitive closure computation cancelled.");
-    // }
-    //
-    // // Scale the progress monitor from 8%-100%
-    // ct++;
-    // int ctProgress = (int) ((((ct * 100) / progressMax) * .92) + 8);
-    // if (ctProgress > progress) {
-    // progress = ctProgress;
-    // fireProgressEvent((int) ((progress * .92) + 8),
-    // "Creating transitive closure relationships");
-    // }
-    // List<Long> ancPath = new ArrayList<>();
-    // ancPath.add(code);
-    // final Set<Long> descs = getDescendants(code, parChd, ancPath);
-    // for (final Long desc : descs) {
-    // final TransitiveRelationship tr = new TransitiveRelationshipJpa();
-    // tr.setSuperTypeConcept(conceptMap.get(code));
-    // tr.setSubTypeConcept(conceptMap.get(desc));
-    // tr.setActive(true);
-    // tr.setLastModified(new Date());
-    // tr.setLastModifiedBy("admin");
-    // tr.setEffectiveTime(new Date());
-    // tr.setLabel("");
-    // tr.setModuleId("");
-    // tr.setTerminologyId("");
-    // tr.setTerminology(terminology);
-    // tr.setTerminologyVersion(version);
-    // addTransitiveRelationship(tr);
-    // }
-    // if (ct % commitCt == 0) {
-    // Logger.getLogger(getClass()).info(
-    // "      " + ct + " codes processed ..." + new Date());
-    // commit();
-    // clear();
-    // beginTransaction();
-    // }
-    // }
-    // // release memory
-    // descendantsMap = new HashMap<>();
-    // commit();
-    // clear();
+    Logger.getLogger(getClass()).info(
+        "  Create transitive closure rels... " + new Date());
+    ct = 0;
+    // initialize descendant map
+    descendantsMap = new HashMap<>();
+    beginTransaction();
+    int progressMax = parChd.keySet().size();
+    int progress = 0;
+    for (Long code : parChd.keySet()) {
+      if (requestCancel) {
+        rollback();
+        throw new CancelException("Transitive closure computation cancelled.");
+      }
+
+      // Scale the progress monitor from 8%-100%
+      ct++;
+      int ctProgress = (int) ((((ct * 100) / progressMax) * .92) + 8);
+      if (ctProgress > progress) {
+        progress = ctProgress;
+        fireProgressEvent((int) ((progress * .92) + 8),
+            "Creating transitive closure relationships");
+      }
+      List<Long> ancPath = new ArrayList<>();
+      ancPath.add(code);
+      final Set<Long> descs = getDescendants(code, parChd, ancPath);
+      for (final Long desc : descs) {
+        TransitiveRelationship<? extends ComponentHasAttributes> tr = null;
+        if (idType == IdType.CONCEPT) {
+          final ConceptTransitiveRelationship ctr =
+              new ConceptTransitiveRelationshipJpa();
+          ctr.setSuperType((Concept) componentMap.get(code));
+          ctr.setSubType((Concept) componentMap.get(desc));
+          tr = ctr;
+        } else if (idType == IdType.DESCRIPTOR) {
+          final DescriptorTransitiveRelationship ctr =
+              new DescriptorTransitiveRelationshipJpa();
+          ctr.setSuperType((Descriptor) componentMap.get(code));
+          ctr.setSubType((Descriptor) componentMap.get(desc));
+          tr = ctr;
+        } else if (idType == IdType.CODE) {
+          final CodeTransitiveRelationship ctr =
+              new CodeTransitiveRelationshipJpa();
+          ctr.setSuperType((Code) componentMap.get(code));
+          ctr.setSubType((Code) componentMap.get(desc));
+          tr = ctr;
+        }
+        tr.setObsolete(false);
+        tr.setLastModified(new Date());
+        tr.setLastModifiedBy("admin");
+        tr.setPublishable(true);
+        tr.setPublished(false);
+        tr.setTerminologyId("");
+        tr.setTerminology(terminology);
+        tr.setTerminologyVersion(version);
+        addTransitiveRelationship(tr);
+      }
+      if (ct % commitCt == 0) {
+        Logger.getLogger(getClass()).info(
+            "      " + ct + " codes processed ..." + new Date());
+        commit();
+        clear();
+        beginTransaction();
+      }
+    }
+    // release memory
+    descendantsMap = new HashMap<>();
+    commit();
+    clear();
 
     Logger.getLogger(getClass()).info(
         "Finished computing transitive closure ... " + new Date());
@@ -256,7 +315,6 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
    * @return the descendants
    * @throws Exception the exception
    */
-  @SuppressWarnings("unused")
   private Set<Long> getDescendants(Long par, Map<Long, Set<Long>> parChd,
     List<Long> ancPath) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -346,4 +404,5 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
   public void cancel() {
     requestCancel = true;
   }
+
 }

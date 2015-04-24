@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -64,7 +65,7 @@ public class PfsParameterForConceptTest {
     for (SearchResult sr : results.getObjects()) {
       Concept c =
           contentService.getConcept(sr.getTerminologyId(),
-              sr.getTerminology(), sr.getTerminologyVersion(), null);
+              sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
       concepts.add(c);
     }
 

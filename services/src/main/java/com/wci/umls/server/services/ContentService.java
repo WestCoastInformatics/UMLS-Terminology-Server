@@ -551,29 +551,6 @@ public interface ContentService extends RootService {
    */
   public void removeAtom(Long id) throws Exception;
 
-  /**
-   * Returns the relationship.
-   * 
-   * @param id the id
-   * @return the relationship
-   * @throws Exception if anything goes wrong
-   */
-  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
-    Long id) throws Exception;
-
-  /**
-   * Returns the relationship matching the specified parameters.
-   *
-   * @param terminologyId the id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the relationship
-   * @throws Exception if anything goes wrong
-   */
-  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
-    String terminologyId, String terminology, String version, String branch)
-    throws Exception;
 
   /**
    * Adds the relationship.
@@ -671,7 +648,29 @@ public interface ContentService extends RootService {
    */
   public ConceptList getAllConcepts(String terminology, String version,
     String branch);
-  
+
+  /**
+   * Returns the all descriptors.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the all descriptors
+   */
+  public DescriptorList getAllDescriptors(String terminology, String version,
+    String branch);
+
+  /**
+   * Returns the all codes.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the all codes
+   */
+  public CodeList getAllCodes(String terminology, String version,
+    String branch);
+
   /**
    * Returns the all subsets.
    *
@@ -807,28 +806,6 @@ public interface ContentService extends RootService {
   public Definition addDefinition(Definition definition) throws Exception;
 
   /**
-   * Gets the definition.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the definition
-   * @throws Exception the exception
-   */
-  public Definition getDefinition(String terminologyId, String terminology,
-    String version, String branch) throws Exception;
-
-  /**
-   * Gets the definition.
-   *
-   * @param id the id
-   * @return the definition
-   * @throws Exception the exception
-   */
-  public Definition getDefinition(Long id) throws Exception;
-
-  /**
    * Removes the semantic type component.
    *
    * @param id the id
@@ -855,26 +832,4 @@ public interface ContentService extends RootService {
   public SemanticTypeComponent addSemanticTypeComponent(
     SemanticTypeComponent sty) throws Exception;
 
-  /**
-   * Gets the semantic type component.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the semantic type component
-   * @throws Exception the exception
-   */
-  public SemanticTypeComponent getSemanticTypeComponent(String terminologyId,
-    String terminology, String version, String branch) throws Exception;
-
-  /**
-   * Gets the semantic type component.
-   *
-   * @param id the id
-   * @return the semantic type component
-   * @throws Exception the exception
-   */
-  public SemanticTypeComponent getSemanticTypeComponent(Long id)
-    throws Exception;
 }

@@ -895,8 +895,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // States;20892-4879;kilbourj@mail.nlm.nih.gov|0|1969|278||BN,BPCK,DF,GPCK,IN,MIN,OCD,PIN,PSN,SBD,SBDC,SBDF,SCD,SCDC,SCDF,SCDG,SY,TMSY|AMBIGUITY_FLAG,NDC,ORIG_AMBIGUITY_FLAG,ORIG_CODE,ORIG_SOURCE,ORIG_TTY,ORIG_VSAB,RXAUI,RXCUI,RXN_ACTIVATED,RXN_AVAILABLE_STRENGTH,RXN_BN_CARDINALITY,RXN_HUMAN_DRUG,RXN_OBSOLETED,RXN_QUANTITY,RXN_STRENGTH,RXTERM_FORM|ENG|UTF-8|Y|Y|RXNORM|RxNorm;META2014AA
       // Full Update 2014_09_02;Bethesda, MD;National Library of Medicine|
 
-      // SKIP SABIN=N
-      if (fields[23].equals("N")) {
+      // SKIP SABIN=N - may be an issue later for maps.
+      if (fields[22].equals("N")) {
         continue;
       }
       

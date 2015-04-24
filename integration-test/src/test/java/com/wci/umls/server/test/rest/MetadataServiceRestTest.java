@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.content.ConceptList;
@@ -81,7 +82,7 @@ public class MetadataServiceRestTest {
     ConceptList conceptList;
 
     // check UMLS (support both SAMPLE_2014AB and SCTMTH_2014AB)
-    conceptList = contentService.getAllConcepts("UMLS", "latest", null);
+    conceptList = contentService.getAllConcepts("UMLS", "latest", Branch.ROOT);
     if (conceptList.getCount() == 0)
       throw new Exception("Could not retrieve any concepts for UMLS");
     if (conceptList.getTotalCount() != 2863 &&
@@ -91,7 +92,7 @@ public class MetadataServiceRestTest {
     }
 
     // check SNOMEDCT
-    conceptList = contentService.getAllConcepts("SNOMEDCT_US", "2014_09_01", null);
+    conceptList = contentService.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT);
     if (conceptList.getCount() == 0)
       throw new Exception("Could not retrieve any concepts for SNOMEDCT_US");
     if (conceptList.getTotalCount() != 3902) {
@@ -100,7 +101,7 @@ public class MetadataServiceRestTest {
     }
 
     // check MSH
-    conceptList = contentService.getAllConcepts("MSH", "2015_2014_09_08", null);
+    conceptList = contentService.getAllConcepts("MSH", "2015_2014_09_08", Branch.ROOT);
     if (conceptList.getCount() == 0) {
       throw new Exception("Could not retrieve any concepts for MSH");
     }

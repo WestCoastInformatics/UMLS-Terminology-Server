@@ -25,6 +25,7 @@ import org.hibernate.search.annotations.Store;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
 
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 
@@ -48,6 +49,10 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
   /** The default preferred name. */
   @Column(nullable = false, length = 4000)
   private String defaultPreferredName;
+
+  /** branched to tracking. */
+  @Column(nullable = true)
+  private String branchedTo;
 
   /** The workflow status. */
   @Column(nullable = true)
@@ -82,6 +87,11 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
    * 
    * @see com.wci.umls.server.model.content.AtomClass#getAtoms()
    */
+  /**
+   * Returns the atoms.
+   *
+   * @return the atoms
+   */
   @Override
   public List<Atom> getAtoms() {
     if (atoms == null) {
@@ -95,6 +105,11 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
    * 
    * @see com.wci.umls.server.model.content.AtomClass#setAtoms(java.util.List)
    */
+  /**
+   * Sets the atoms.
+   *
+   * @param atoms the atoms
+   */
   @Override
   public void setAtoms(List<Atom> atoms) {
     this.atoms = atoms;
@@ -106,6 +121,11 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
    * @see
    * com.wci.umls.server.model.content.AtomClass#addAtom(com.wci.umls.server
    * .model.content.Atom)
+   */
+  /**
+   * Adds the atom.
+   *
+   * @param atom the atom
    */
   @Override
   public void addAtom(Atom atom) {
@@ -122,6 +142,11 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
    * com.wci.umls.server.model.content.AtomClass#removeAtom(com.wci.umls.server
    * .model.content.Atom)
    */
+  /**
+   * Removes the atom.
+   *
+   * @param atom the atom
+   */
   @Override
   public void removeAtom(Atom atom) {
     if (atoms == null) {
@@ -134,6 +159,11 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
    * (non-Javadoc)
    * 
    * @see com.wci.umls.server.model.content.AtomClass#getDefaultPreferredName()
+   */
+  /**
+   * Returns the default preferred name.
+   *
+   * @return the default preferred name
    */
   @Override
   @Fields({
@@ -152,21 +182,42 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
    * com.wci.umls.server.model.content.AtomClass#setDefaultPreferredName(java
    * .lang.String)
    */
+  /**
+   * Sets the default preferred name.
+   *
+   * @param defaultPreferredName the default preferred name
+   */
   @Override
   public void setDefaultPreferredName(String defaultPreferredName) {
     this.defaultPreferredName = defaultPreferredName;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.content.AtomClass#getWorkflowStatus()
+   */
+  /**
+   * Returns the workflow status.
+   *
+   * @return the workflow status
    */
   @Override
   public String getWorkflowStatus() {
     return workflowStatus;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.content.AtomClass#setWorkflowStatus(java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.AtomClass#setWorkflowStatus(java.lang
+   * .String)
+   */
+  /**
+   * Sets the workflow status.
+   *
+   * @param workflowStatus the workflow status
    */
   @Override
   public void setWorkflowStatus(String workflowStatus) {
@@ -178,6 +229,11 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
    * (non-Javadoc)
    * 
    * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
+   */
+  /**
+   * Hash code.
+   *
+   * @return the int
    */
   @Override
   public int hashCode() {
@@ -197,6 +253,12 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
    * @see
    * com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
    */
+  /**
+   * Equals.
+   *
+   * @param obj the obj
+   * @return true, if successful
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -214,15 +276,44 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
   @Override
   public String toString() {
     return "AbstractAtomClass [atoms=" + atoms + ", defaultPreferredName="
         + defaultPreferredName + "]";
+  }
+
+  @Override
+  public String getBranchedTo() {
+    return branchedTo;
+  }
+
+  @Override
+  public void setBranchedTo(String branchedTo) {
+    this.branchedTo = branchedTo;
+  }
+
+  @Override
+  public void addBranchedTo(String newBranch) {
+    if (newBranch.indexOf(Branch.SEPARATOR) != -1) {
+      throw new IllegalArgumentException(
+          "New branches may not have a comma in them.");
+    }
+    branchedTo += newBranch + Branch.SEPARATOR;
+  }
+
+  @Override
+  public void removeBranchedTo(String closedBranch) {
+    if (closedBranch.indexOf(Branch.SEPARATOR) != -1) {
+      throw new IllegalArgumentException(
+          "New branches may not have a comma in them.");
+    }
+    final int index = branchedTo.indexOf(closedBranch);
+    if (index != -1) {
+      branchedTo =
+          branchedTo.substring(0, index - 1)
+              + branchedTo.substring(index + closedBranch.length() + 1);
+    }
+
   }
 
 }
