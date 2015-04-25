@@ -98,7 +98,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the terminology latest versions
    * @throws Exception if anything goes wrong
    */
-  public Map<String, String> getTerminologyLatestVersions() throws Exception;
+  public List<Terminology> getTerminologyLatestVersions() throws Exception;
 
   /**
    * Returns the all metadata.

@@ -93,7 +93,7 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
    * com.wci.umls.server.services.MetadataService#getTerminologyLatestVersions()
    */
   @Override
-  public Map<String, String> getTerminologyLatestVersions() throws Exception {
+  public List<Terminology> getTerminologyLatestVersions() throws Exception {
     // n/a
     return null;
   }

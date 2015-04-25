@@ -6,9 +6,10 @@ package com.wci.umls.server.jpa.content;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -22,9 +23,11 @@ import com.wci.umls.server.model.content.Subset;
  * JPA-enabled implementation of an {@link Atom} {@link Subset}.
  */
 @Entity
+@Table(name = "atom_subsets", uniqueConstraints = @UniqueConstraint(columnNames = {
+    "terminologyId", "terminology", "terminologyVersion", "id"
+}))
 @Audited
-@DiscriminatorValue("Atom")
-@XmlRootElement(name = "subset")
+@XmlRootElement(name = "atomSubset")
 public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
 
   /** The members. */

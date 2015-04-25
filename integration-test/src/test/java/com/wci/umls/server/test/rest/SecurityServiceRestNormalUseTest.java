@@ -36,9 +36,10 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
    * 
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void testNormalUseRestSecurity001() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
     String authToken = service.authenticate(viewerUserName, viewerUserPassword);
     if (authToken == null || authToken.isEmpty()) {
       fail("Failed to authenticate viewer user");
@@ -57,6 +58,7 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
    */
   @Test
   public void testNormalUseRestSecurity002() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
 
     // local variables
     User user;
@@ -152,10 +154,11 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void testNormalUseRestSecurity003() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
     service.authenticate("guest", "guest");
+    
     service.authenticate("admin", "admin");
     service.logout("guest");
     service.logout("admin");

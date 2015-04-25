@@ -53,9 +53,7 @@ public class SecurityServiceRestRoleCheckTest extends SecurityServiceRestTest {
    */
   @Test
   public void testRoleCheckRestSecurity002() throws Exception {
-
-    Logger.getLogger(getClass()).info(
-        "Testing role requirements for user management services...");
+    Logger.getLogger(getClass()).debug("Start test");
 
     // create test user
     UserJpa testUser = new UserJpa();

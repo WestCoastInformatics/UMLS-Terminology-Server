@@ -5,6 +5,7 @@ package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.fail;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -32,9 +33,9 @@ public class SecurityServiceRestEdgeCasesTest extends SecurityServiceRestTest {
    * 
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void testEdgeCasesRestSecurity001() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
 
     String authToken;
     // Procedure 1
@@ -56,9 +57,9 @@ public class SecurityServiceRestEdgeCasesTest extends SecurityServiceRestTest {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void testEdgeCasesRestSecurity003() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
 
     // Procedure 1
 

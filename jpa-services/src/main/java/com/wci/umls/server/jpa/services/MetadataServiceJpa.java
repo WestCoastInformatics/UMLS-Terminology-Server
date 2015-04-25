@@ -360,7 +360,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * com.wci.umls.server.services.MetadataService#getTerminologyLatestVersions()
    */
   @Override
-  public Map<String, String> getTerminologyLatestVersions() throws Exception {
+  public List<Terminology> getTerminologyLatestVersions() throws Exception {
     javax.persistence.TypedQuery<Object[]> query =
         manager
             .createQuery(
@@ -368,11 +368,13 @@ public class MetadataServiceJpa extends RootServiceJpa implements
                 Object[].class);
 
     List<Object[]> resultList = query.getResultList();
-    Map<String, String> resultMap = new HashMap<>(resultList.size());
-    for (Object[] result : resultList)
-      resultMap.put((String) result[0], (String) result[1]);
+    List<Terminology> results = new ArrayList<>();
+    for (Object[] result : resultList) {
+      results.add(getTerminology((String) result[0], (String) result[1]));
 
-    return resultMap;
+    }
+
+    return results;
   }
 
   /*
@@ -1076,14 +1078,19 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     return newEntry;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.MetadataService#updateGeneralMetadataEntry(com.wci.umls.server.model.meta.GeneralMetadataEntry)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#updateGeneralMetadataEntry
+   * (com.wci.umls.server.model.meta.GeneralMetadataEntry)
    */
   @Override
   public void updateGeneralMetadataEntry(GeneralMetadataEntry entry)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Metadata Service - update general metadata entry " + entry.getAbbreviation());
+        "Metadata Service - update general metadata entry "
+            + entry.getAbbreviation());
     updateMetadata(entry);
 
     // Inform listeners
@@ -1094,8 +1101,12 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.MetadataService#removeGeneralMetadataEntry(java.lang.Long)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removeGeneralMetadataEntry
+   * (java.lang.Long)
    */
   @Override
   public void removeGeneralMetadataEntry(Long id) throws Exception {

@@ -11,6 +11,7 @@ import static org.junit.Assert.fail;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,9 +50,9 @@ public class ProjectServiceRestRoleCheckTest extends ProjectServiceRestTest {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void testRoleCheckRestProject001() throws Exception {
+    Logger.getLogger(getClass()).debug("RUN testRoleCheckRestProject001");
 
     // Attempt to add a project with viewer authorization level
     ProjectJpa project = new ProjectJpa();

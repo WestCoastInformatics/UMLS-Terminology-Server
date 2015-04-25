@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.services.handlers;
 
-import java.util.List;
 import java.util.Set;
 
 import com.wci.umls.server.helpers.Configurable;
@@ -16,7 +15,6 @@ import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
-import com.wci.umls.server.model.meta.RelationshipType;
 
 /**
  * Generically represents an algorithm for reading objects to a certain depth
@@ -30,10 +28,10 @@ public interface GraphResolutionHandler extends Configurable {
    * Resolve concepts.
    *
    * @param concept the concept
-   * @param isaRelTypeIds the isa rel type ids
+   * @param hierarchicalTypeIds the isa rel type ids
    * @throws Exception the exception
    */
-  public void resolve(Concept concept, List<RelationshipType> isaRelTypeIds)
+  public void resolve(Concept concept, Set<String> hierarchicalTypeIds)
     throws Exception;
 
   /**

@@ -52,6 +52,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    */
   @Test
   public void testNormalUseRestProject001() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
 
     // Add a project
     Logger.getLogger(getClass()).info("  Add project");
@@ -106,6 +107,8 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    */
   @Test
   public void testNormalUseRestProject002() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
     // Add a project
     Logger.getLogger(getClass()).info("  Add project");
     ProjectJpa project = new ProjectJpa();
@@ -159,6 +162,8 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    */
   @Test
   public void testNormalUseRestProject003() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
     // Get the projects
     Logger.getLogger(getClass()).info("  Get projects");
     ProjectList projectList = projectService.getProjects(viewerAuthToken);

@@ -32,6 +32,7 @@ import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
+import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
@@ -89,7 +90,6 @@ public interface ContentService extends RootService {
   public Concept getConcept(String terminologyId, String terminology,
     String version, String branch) throws Exception;
 
-
   /**
    * Returns the subset.
    *
@@ -124,7 +124,6 @@ public interface ContentService extends RootService {
   public Subset getSubset(String terminologyId, String terminology,
     String version, String branch) throws Exception;
 
-  
   /**
    * Returns the subset members for the specified subset.
    *
@@ -137,7 +136,6 @@ public interface ContentService extends RootService {
   public SubsetMemberList getSubsetMembers(String subsetId, String terminology,
     String version, String branch);
 
-  
   /**
    * Returns the atom subset members for the specified atom.
    *
@@ -147,8 +145,9 @@ public interface ContentService extends RootService {
    * @param branch the branch
    * @return the atom subset members
    */
-  public SubsetMemberList getAtomSubsetMembers(String atomId, String terminology, String version, String branch);
-  
+  public SubsetMemberList getAtomSubsetMembers(String atomId,
+    String terminology, String version, String branch);
+
   /**
    * Returns the concept subset members for the specified concept.
    *
@@ -158,8 +157,9 @@ public interface ContentService extends RootService {
    * @param branch the branch
    * @return the concept subset members
    */
-  public SubsetMemberList getConceptSubsetMembers(String conceptId, String terminology, String version, String branch);
-  
+  public SubsetMemberList getConceptSubsetMembers(String conceptId,
+    String terminology, String version, String branch);
+
   /**
    * Returns the descriptor.
    * 
@@ -440,11 +440,13 @@ public interface ContentService extends RootService {
    * @param concept the concept
    * @param parentsOnly the parents only flag
    * @param pfsParameter the pfs parameter
+   * @param branch the branch
    * @return the concept list
    * @throws Exception the exception
    */
   public ConceptList findDescendantConcepts(Concept concept,
-    boolean parentsOnly, PfsParameter pfsParameter) throws Exception;
+    boolean parentsOnly, PfsParameter pfsParameter, String branch)
+    throws Exception;
 
   /**
    * Find ancestor concepts.
@@ -452,11 +454,13 @@ public interface ContentService extends RootService {
    * @param concept the concept
    * @param childrenOnly the children only flag
    * @param pfsParameter the pfs parameter
+   * @param branch the branch
    * @return the concept list
    * @throws Exception the exception
    */
   public ConceptList findAncestorConcepts(Concept concept,
-    boolean childrenOnly, PfsParameter pfsParameter) throws Exception;
+    boolean childrenOnly, PfsParameter pfsParameter, String branch)
+    throws Exception;
 
   /**
    * Find descendant descriptors.
@@ -464,11 +468,13 @@ public interface ContentService extends RootService {
    * @param descriptor the descriptor
    * @param parentsOnly the parents only
    * @param pfsParameter the pfs parameter
+   * @param branch the branch
    * @return the descriptor list
    * @throws Exception the exception
    */
   public DescriptorList findDescendantDescriptors(Descriptor descriptor,
-    boolean parentsOnly, PfsParameter pfsParameter) throws Exception;
+    boolean parentsOnly, PfsParameter pfsParameter, String branch)
+    throws Exception;
 
   /**
    * Find ancestor concepts.
@@ -476,11 +482,13 @@ public interface ContentService extends RootService {
    * @param descriptor the descriptor
    * @param childrenOnly the children only
    * @param pfsParameter the pfs parameter
+   * @param branch the branch
    * @return the descriptor list
    * @throws Exception the exception
    */
   public DescriptorList findAncestorDescriptors(Descriptor descriptor,
-    boolean childrenOnly, PfsParameter pfsParameter) throws Exception;
+    boolean childrenOnly, PfsParameter pfsParameter, String branch)
+    throws Exception;
 
   /**
    * Find descendant descriptors.
@@ -488,11 +496,12 @@ public interface ContentService extends RootService {
    * @param code the code
    * @param parentsOnly the parents only
    * @param pfsParameter the pfs parameter
+   * @param branch the branch
    * @return the code list
    * @throws Exception the exception
    */
   public CodeList findDescendantCodes(Code code, boolean parentsOnly,
-    PfsParameter pfsParameter) throws Exception;
+    PfsParameter pfsParameter, String branch) throws Exception;
 
   /**
    * Find ancestor concepts.
@@ -500,11 +509,12 @@ public interface ContentService extends RootService {
    * @param code the code
    * @param childrenOnly the children only
    * @param pfsParameter the pfs parameter
+   * @param branch the branch
    * @return the code list
    * @throws Exception the exception
    */
   public CodeList findAncestorCodes(Code code, boolean childrenOnly,
-    PfsParameter pfsParameter) throws Exception;
+    PfsParameter pfsParameter, String branch) throws Exception;
 
   /**
    * Returns the atom.
@@ -552,7 +562,6 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public void removeAtom(Long id) throws Exception;
-
 
   /**
    * Adds the relationship.
@@ -613,23 +622,138 @@ public interface ContentService extends RootService {
   public void removeTransitiveRelationship(Long id) throws Exception;
 
   /**
+   * Adds the subset.
+   * 
+   * @param subset the subset
+   * @return the subset
+   * @throws Exception the exception
+   */
+  public Subset addSubset(Subset subset) throws Exception;
+
+  /**
+   * Update subset.
+   * 
+   * @param subset the subset
+   * @throws Exception the exception
+   */
+  public void updateSubset(Subset subset) throws Exception;
+
+  /**
+   * Removes the subset.
+   * 
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeSubset(Long id) throws Exception;
+
+  /**
+   * Adds the subset member.
+   *
+   * @param member the member
+   * @return the subset member
+   * @throws Exception the exception
+   */
+  public SubsetMember<? extends ComponentHasAttributes> addSubsetMember(
+    SubsetMember<? extends ComponentHasAttributes> member) throws Exception;
+
+  /**
+   * Update subset member.
+   *
+   * @param member the member
+   * @throws Exception the exception
+   */
+  public void updateSubsetMember(
+    SubsetMember<? extends ComponentHasAttributes> member) throws Exception;
+
+  /**
+   * Removes the subset member.
+   * 
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeSubsetMember(Long id) throws Exception;
+
+  /**
    * Returns the concept search results matching the query. Results can be
    * paged, filtered, and sorted.
+   *
    * @param terminology the terminology
    * @param version the version
+   * @param branch the branch
    * @param query the search string
    * @param pfs the paging, filtering, sorting parameter
    * @return the search results for the search string
    * @throws Exception if anything goes wrong
    */
   public SearchResultList findConceptsForQuery(String terminology,
-    String version, String query, PfsParameter pfs) throws Exception;
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
+
+  /**
+   * Find descriptors for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param branch the branch
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findDescriptorsForQuery(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
+
+  /**
+   * Find codes for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findCodesForQuery(String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception;
+
+  /**
+   * Find lexical classes for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findLexicalClassesForQuery(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
+
+  /**
+   * Find string classes for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findStringClassesForQuery(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find concepts for search criteria.
    *
    * @param terminology the terminology
    * @param version the version
+   * @param branch the branch
    * @param query the query
    * @param criteria the criteria
    * @param pfs the pfs
@@ -637,8 +761,72 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public SearchResultList findConceptsForSearchCriteria(String terminology,
-    String version, String query, SearchCriteriaList criteria, PfsParameter pfs)
-    throws Exception;
+    String version, String branch, String query, SearchCriteriaList criteria,
+    PfsParameter pfs) throws Exception;
+
+  /**
+   * Find descriptors for search criteria.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param criteria the criteria
+   * @param pfs the pfs
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findDescriptorsForSearchCriteria(String terminology,
+    String version, String branch, String query, SearchCriteriaList criteria,
+    PfsParameter pfs) throws Exception;
+
+  /**
+   * Find codes for search criteria.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param criteria the criteria
+   * @param pfs the pfs
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findCodesForSearchCriteria(String terminology,
+    String version, String branch, String query, SearchCriteriaList criteria,
+    PfsParameter pfs) throws Exception;
+
+  /**
+   * Find lexical classes for search criteria.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param criteria the criteria
+   * @param pfs the pfs
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findLexicalClassesForSearchCriteria(
+    String terminology, String version, String branch, String query,
+    SearchCriteriaList criteria, PfsParameter pfs) throws Exception;
+
+  /**
+   * Find string classes for search criteria.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param criteria the criteria
+   * @param pfs the pfs
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findStringClassesForSearchCriteria(
+    String terminology, String version, String branch, String query,
+    SearchCriteriaList criteria, PfsParameter pfs) throws Exception;
 
   /**
    * Gets the all concepts.
@@ -670,8 +858,7 @@ public interface ContentService extends RootService {
    * @param branch the branch
    * @return the all codes
    */
-  public CodeList getAllCodes(String terminology, String version,
-    String branch);
+  public CodeList getAllCodes(String terminology, String version, String branch);
 
   /**
    * Returns the all subsets.
@@ -681,7 +868,8 @@ public interface ContentService extends RootService {
    * @param branch the branch
    * @return the all subsets
    */
-  public ConceptList getAllSubsets(String terminology, String version, String branch);
+  public ConceptList getAllSubsets(String terminology, String version,
+    String branch);
 
   /**
    * Clear transitive closure.
@@ -834,7 +1022,6 @@ public interface ContentService extends RootService {
   public SemanticTypeComponent addSemanticTypeComponent(
     SemanticTypeComponent sty) throws Exception;
 
-  
   /**
    * Removes the attribute.
    *
@@ -842,7 +1029,6 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public void removeAttribute(Long id) throws Exception;
-
 
   /**
    * Update attribute.
@@ -861,7 +1047,6 @@ public interface ContentService extends RootService {
    */
   public Attribute addAttribute(Attribute attribute) throws Exception;
 
-
   /**
    * Gets the attribute.
    *
@@ -873,8 +1058,7 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public Attribute getAttribute(String terminologyId, String terminology,
-		String version, String branch) throws Exception;
-
+    String version, String branch) throws Exception;
 
   /**
    * Gets the attributes.
@@ -886,8 +1070,7 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public AttributeList getAttributes(String terminologyId, String terminology,
-		String version) throws Exception;
-
+    String version) throws Exception;
 
   /**
    * Gets the attribute.

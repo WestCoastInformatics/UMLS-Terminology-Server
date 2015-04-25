@@ -112,46 +112,47 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
     MetadataService metadataService = new MetadataServiceJpa();
     try {
-    // verify terminology and version pair exist
-    if (metadataService.getTerminologies().contains(terminology)) {
+      // verify terminology and version pair exist
+      if (metadataService.getTerminologies().contains(terminology)) {
 
-      // if this version does not exist for terminology, throw 204 (No Content)
-      if (!metadataService.getVersions(terminology).contains(version)) {
-        throw new WebApplicationException(Response
-            .status(204)
-            .entity(
-                "No version " + version + " is loaded for terminology "
-                    + terminology).build());
+        // if this version does not exist for terminology, throw 204 (No
+        // Content)
+        if (!metadataService.getVersions(terminology).contains(version)) {
+          throw new WebApplicationException(Response
+              .status(204)
+              .entity(
+                  "No version " + version + " is loaded for terminology "
+                      + terminology).build());
+        } else {
+          // do nothing
+        }
       } else {
-        // do nothing
+        // terminology does not exist, throw 204 (No Content)
+        throw new WebApplicationException(Response.status(204)
+            .entity("No terminology " + terminology + " is loaded").build());
       }
-    } else {
-      // terminology does not exist, throw 204 (No Content)
-      throw new WebApplicationException(Response.status(204)
-          .entity("No terminology " + terminology + " is loaded").build());
-    }
 
-    // call jpa service and get complex map return type
-    Map<String, Map<String, String>> mapOfMaps =
-        metadataService.getAllMetadata(terminology, version);
+      // call jpa service and get complex map return type
+      Map<String, Map<String, String>> mapOfMaps =
+          metadataService.getAllMetadata(terminology, version);
 
-    // convert complex map to KeyValuePair objects for easy transformation to
-    // XML/JSON
-    KeyValuePairLists keyValuePairLists = new KeyValuePairLists();
-    for (Map.Entry<String, Map<String, String>> entry : mapOfMaps.entrySet()) {
-      String metadataType = entry.getKey();
-      Map<String, String> metadataPairs = entry.getValue();
-      KeyValuePairList keyValuePairList = new KeyValuePairList();
-      keyValuePairList.setName(metadataType);
-      for (Map.Entry<String, String> pairEntry : metadataPairs.entrySet()) {
-        KeyValuePair keyValuePair =
-            new KeyValuePair(pairEntry.getKey().toString(),
-                pairEntry.getValue());
-        keyValuePairList.addKeyValuePair(keyValuePair);
+      // convert complex map to KeyValuePair objects for easy transformation to
+      // XML/JSON
+      KeyValuePairLists keyValuePairLists = new KeyValuePairLists();
+      for (Map.Entry<String, Map<String, String>> entry : mapOfMaps.entrySet()) {
+        String metadataType = entry.getKey();
+        Map<String, String> metadataPairs = entry.getValue();
+        KeyValuePairList keyValuePairList = new KeyValuePairList();
+        keyValuePairList.setName(metadataType);
+        for (Map.Entry<String, String> pairEntry : metadataPairs.entrySet()) {
+          KeyValuePair keyValuePair =
+              new KeyValuePair(pairEntry.getKey().toString(),
+                  pairEntry.getValue());
+          keyValuePairList.addKeyValuePair(keyValuePair);
+        }
+        keyValuePairLists.addKeyValuePairList(keyValuePairList);
       }
-      keyValuePairLists.addKeyValuePairList(keyValuePairList);
-    }
-    return keyValuePairLists;
+      return keyValuePairLists;
     } catch (Exception e) {
       metadataService.close();
       throw e;
@@ -190,12 +191,13 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
                     "User does not have permissions to retrieve the latest versions of all terminologies.")
                 .build());
 
-      Map<String, String> versionMap =
-          metadataService.getTerminologyLatestVersions();
+      List<Terminology> list = metadataService.getTerminologyLatestVersions();
       KeyValuePairList keyValuePairList = new KeyValuePairList();
-      for (Map.Entry<String, String> termVersionPair : versionMap.entrySet()) {
-        keyValuePairList.addKeyValuePair(new KeyValuePair(termVersionPair
-            .getKey(), termVersionPair.getValue()));
+      for (Terminology terminology : list) {
+        final KeyValuePair pair = new KeyValuePair();
+        pair.setKey(terminology.getTerminology());
+        pair.setValue(terminology.getTerminologyVersion());
+        keyValuePairList.addKeyValuePair(pair);
       }
       metadataService.close();
       return keyValuePairList;

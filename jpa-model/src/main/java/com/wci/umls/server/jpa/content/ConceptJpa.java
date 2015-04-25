@@ -259,29 +259,16 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     semanticTypes.remove(semanticType);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /* (non-Javadoc)
    * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
    */
   @Override
   public String toString() {
-    return "ConceptJpa [fullyDefined=" + fullyDefined
-        + ", usesRelationshipIntersection=" + usesRelationshipIntersection
-        + ", usesRelationshipUnion=" + usesRelationshipUnion + ", getAtoms()="
-        + getAtoms() + ", getDefaultPreferredName()="
-        + getDefaultPreferredName() + ", getWorkflowStatus()="
-        + getWorkflowStatus() + ", toString()=" + super.toString()
-        + ", getBranchedTo()=" + getBranchedTo() + ", getAttributes()="
-        + getAttributes() + ", getId()=" + getId() + ", getObjectId()="
-        + getObjectId() + ", getTimestamp()=" + getTimestamp()
-        + ", getLastModified()=" + getLastModified() + ", getLastModifiedBy()="
-        + getLastModifiedBy() + ", isSuppressible()=" + isSuppressible()
-        + ", isObsolete()=" + isObsolete() + ", isPublished()=" + isPublished()
-        + ", isPublishable()=" + isPublishable() + ", getBranch()="
-        + getBranch() + ", getTerminologyVersion()=" + getTerminologyVersion()
+    return "ConceptJpa [semanticTypes=" + semanticTypes + ", fullyDefined="
+        + fullyDefined + ", isObsolete()=" + isObsolete()
+        + ", getTerminologyVersion()=" + getTerminologyVersion()
         + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
-        + getTerminologyId() + ", getClass()=" + getClass() + "]";
+        + getTerminologyId() + "]";
   }
 
   /*

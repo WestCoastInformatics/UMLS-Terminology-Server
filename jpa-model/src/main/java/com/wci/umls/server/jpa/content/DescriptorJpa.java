@@ -166,27 +166,15 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
     relationships.remove(relationship);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /* (non-Javadoc)
    * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
    */
   @Override
   public String toString() {
-    return "DescriptorJpa [getAtoms()=" + getAtoms()
-        + ", getDefaultPreferredName()=" + getDefaultPreferredName()
-        + ", getWorkflowStatus()=" + getWorkflowStatus() + ", hashCode()="
-        + hashCode() + ", toString()=" + super.toString()
-        + ", getBranchedTo()=" + getBranchedTo() + ", getAttributes()="
-        + getAttributes() + ", getId()=" + getId() + ", getObjectId()="
-        + getObjectId() + ", getTimestamp()=" + getTimestamp()
-        + ", getLastModified()=" + getLastModified() + ", getLastModifiedBy()="
-        + getLastModifiedBy() + ", isSuppressible()=" + isSuppressible()
-        + ", isObsolete()=" + isObsolete() + ", isPublished()=" + isPublished()
-        + ", isPublishable()=" + isPublishable() + ", getBranch()="
-        + getBranch() + ", getTerminologyVersion()=" + getTerminologyVersion()
+    return "DescriptorJpa [isObsolete()=" + isObsolete()
+        + ", getTerminologyVersion()=" + getTerminologyVersion()
         + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
-        + getTerminologyId() + ", getClass()=" + getClass() + "]";
+        + getTerminologyId() + "]";
   }
 
 }

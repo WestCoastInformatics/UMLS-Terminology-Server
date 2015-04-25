@@ -27,6 +27,8 @@ import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
+import com.wci.umls.server.jpa.content.AbstractSubset;
+import com.wci.umls.server.jpa.content.AbstractSubsetMember;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -58,6 +60,7 @@ import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
+import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
@@ -1321,8 +1324,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public void updateStringClass(StringClass stringClass) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - update string class "
-            + stringClass);
+        "Content Service - update string class " + stringClass);
 
     // Id assignment should not change
     final IdentifierAssignmentHandler idHandler =
@@ -1380,11 +1382,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @see
    * com.wci.umls.server.services.ContentService#findDescendantConcepts(com.
    * wci.umls.server.model.content.Concept, boolean,
-   * com.wci.umls.server.helpers.PfsParameter)
+   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
    */
   @Override
   public ConceptList findDescendantConcepts(Concept concept,
-    boolean parentsOnly, PfsParameter pfsParameter) throws Exception {
+    boolean parentsOnly, PfsParameter pfsParameter, String branch)
+    throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
@@ -1395,11 +1398,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @see
    * com.wci.umls.server.services.ContentService#findAncestorConcepts(com.wci
    * .umls.server.model.content.Concept, boolean,
-   * com.wci.umls.server.helpers.PfsParameter)
+   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
    */
   @Override
   public ConceptList findAncestorConcepts(Concept concept,
-    boolean childrenOnly, PfsParameter pfsParameter) throws Exception {
+    boolean childrenOnly, PfsParameter pfsParameter, String branch)
+    throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
@@ -1410,11 +1414,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @see
    * com.wci.umls.server.services.ContentService#findDescendantDescriptors(com
    * .wci.umls.server.model.content.Descriptor, boolean,
-   * com.wci.umls.server.helpers.PfsParameter)
+   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
    */
   @Override
   public DescriptorList findDescendantDescriptors(Descriptor descriptor,
-    boolean parentsOnly, PfsParameter pfsParameter) throws Exception {
+    boolean parentsOnly, PfsParameter pfsParameter, String branch)
+    throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
@@ -1425,11 +1430,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @see
    * com.wci.umls.server.services.ContentService#findAncestorDescriptors(com
    * .wci.umls.server.model.content.Descriptor, boolean,
-   * com.wci.umls.server.helpers.PfsParameter)
+   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
    */
   @Override
   public DescriptorList findAncestorDescriptors(Descriptor descriptor,
-    boolean childrenOnly, PfsParameter pfsParameter) throws Exception {
+    boolean childrenOnly, PfsParameter pfsParameter, String branch)
+    throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
@@ -1440,11 +1446,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @see
    * com.wci.umls.server.services.ContentService#findDescendantCodes(com.wci
    * .umls.server.model.content.Code, boolean,
-   * com.wci.umls.server.helpers.PfsParameter)
+   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
    */
   @Override
   public CodeList findDescendantCodes(Code code, boolean parentsOnly,
-    PfsParameter pfsParameter) throws Exception {
+    PfsParameter pfsParameter, String branch) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
@@ -1455,11 +1461,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @see
    * com.wci.umls.server.services.ContentService#findAncestorCodes(com.wci.umls
    * .server.model.content.Code, boolean,
-   * com.wci.umls.server.helpers.PfsParameter)
+   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
    */
   @Override
   public CodeList findAncestorCodes(Code code, boolean childrenOnly,
-    PfsParameter pfsParameter) throws Exception {
+    PfsParameter pfsParameter, String branch) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
@@ -1722,6 +1728,166 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
+  @Override
+  public Subset addSubset(Subset subset) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - add subset " + subset);
+    // Assign id
+    IdentifierAssignmentHandler idHandler = null;
+    if (assignIdentifiersFlag) {
+      idHandler = getIdentifierAssignmentHandler(subset.getTerminology());
+      if (idHandler == null) {
+        throw new Exception("Unable to find id handler for "
+            + subset.getTerminology());
+      }
+      subset.setTerminologyId(idHandler.getTerminologyId(subset));
+    }
+    if (assignIdentifiersFlag && idHandler == null) {
+      throw new Exception("Unable to find id handler for "
+          + subset.getTerminology());
+    }
+
+    // Add component
+    Subset newSubset = addComponent(subset);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.subsetChanged(newSubset, WorkflowListener.Action.ADD);
+      }
+    }
+    return newSubset;
+  }
+
+  @Override
+  public void updateSubset(Subset subset) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - update subset " + subset);
+    // Id assignment
+    final IdentifierAssignmentHandler idHandler =
+        getIdentifierAssignmentHandler(subset.getTerminology());
+    if (!idHandler.allowIdChangeOnUpdate() && assignIdentifiersFlag) {
+      Subset subset2 = getSubset(subset.getId());
+      if (!idHandler.getTerminologyId(subset).equals(
+          idHandler.getTerminologyId(subset2))) {
+        throw new Exception("Update cannot be used to change object identity.");
+      }
+    }
+
+    // update component
+    this.updateComponent(subset);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.subsetChanged(subset, WorkflowListener.Action.UPDATE);
+      }
+    }
+  }
+
+
+  @Override
+  public void removeSubset(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - remove subset " + id);
+    // Remove the component
+    Subset subset = removeComponent(id, AbstractSubset.class);
+
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.subsetChanged(subset, WorkflowListener.Action.REMOVE);
+      }
+    }
+  }
+
+  @Override
+  public SubsetMember<? extends ComponentHasAttributes> addSubsetMember(
+    SubsetMember<? extends ComponentHasAttributes> subsetMember)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - add subset member " + subsetMember);
+    // Assign id
+    IdentifierAssignmentHandler idHandler = null;
+    if (assignIdentifiersFlag) {
+      idHandler = getIdentifierAssignmentHandler(subsetMember.getTerminology());
+      if (idHandler == null) {
+        throw new Exception("Unable to find id handler for "
+            + subsetMember.getTerminology());
+      }
+      subsetMember.setTerminologyId(idHandler.getTerminologyId(subsetMember));
+    }
+    if (assignIdentifiersFlag && idHandler == null) {
+      throw new Exception("Unable to find id handler for "
+          + subsetMember.getTerminology());
+    }
+
+    // Add component
+    SubsetMember<? extends ComponentHasAttributes> newSubsetMember =
+        addComponent(subsetMember);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.subsetMemberChanged(newSubsetMember,
+            WorkflowListener.Action.ADD);
+      }
+    }
+    return newSubsetMember;
+  }
+
+  @Override
+  public void updateSubsetMember(
+    SubsetMember<? extends ComponentHasAttributes> subsetMember)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - update subsetMember " + subsetMember);
+    // Id assignment
+    final IdentifierAssignmentHandler idHandler =
+        getIdentifierAssignmentHandler(subsetMember.getTerminology());
+    if (!idHandler.allowIdChangeOnUpdate() && assignIdentifiersFlag) {
+      @SuppressWarnings("unchecked")
+      SubsetMember<? extends ComponentHasAttributes> subsetMember2 =
+          getComponent(subsetMember.getId(), subsetMember.getClass());
+      if (!idHandler.getTerminologyId(subsetMember).equals(
+          idHandler.getTerminologyId(subsetMember2))) {
+        throw new Exception("Update cannot be used to change object identity.");
+      }
+    }
+
+    // update component
+    this.updateComponent(subsetMember);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.subsetMemberChanged(subsetMember,
+            WorkflowListener.Action.UPDATE);
+      }
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.services.ContentService#removeSubsetMember<?
+   * extends ComponentHasAttributes>(java.lang.Long)
+   */
+  @Override
+  public void removeSubsetMember(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - remove subsetMember " + id);
+    // Remove the component
+    @SuppressWarnings("unchecked")
+    SubsetMember<? extends ComponentHasAttributes> subsetMember =
+        removeComponent(id, AbstractSubsetMember.class);
+
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.subsetMemberChanged(subsetMember,
+            WorkflowListener.Action.REMOVE);
+      }
+    }
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -1910,12 +2076,76 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * 
    * @see
    * com.wci.umls.server.services.ContentService#findConceptsForQuery(java.lang
-   * .String, java.lang.String, java.lang.String,
+   * .String, java.lang.String, java.lang.String, java.lang.String,
    * com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
   public SearchResultList findConceptsForQuery(String terminology,
-    String version, String query, PfsParameter pfs) throws Exception {
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findDescriptorsForQuery(java
+   * .lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public SearchResultList findDescriptorsForQuery(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findCodesForQuery(java.lang
+   * .String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public SearchResultList findCodesForQuery(String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findLexicalClassesForQuery(
+   * java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public SearchResultList findLexicalClassesForQuery(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findStringClassesForQuery(java
+   * .lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public SearchResultList findStringClassesForQuery(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
@@ -1925,14 +2155,82 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * 
    * @see
    * com.wci.umls.server.services.ContentService#findConceptsForSearchCriteria
-   * (java.lang.String, java.lang.String, java.lang.String,
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
    * com.wci.umls.server.helpers.SearchCriteriaList,
    * com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
   public SearchResultList findConceptsForSearchCriteria(String terminology,
-    String version, String query, SearchCriteriaList criteria, PfsParameter pfs)
-    throws Exception {
+    String version, String branch, String query, SearchCriteriaList criteria,
+    PfsParameter pfs) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findDescriptorsForSearchCriteria
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.SearchCriteriaList,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public SearchResultList findDescriptorsForSearchCriteria(String terminology,
+    String version, String branch, String query, SearchCriteriaList criteria,
+    PfsParameter pfs) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findCodesForSearchCriteria(
+   * java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.SearchCriteriaList,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public SearchResultList findCodesForSearchCriteria(String terminology,
+    String version, String branch, String query, SearchCriteriaList criteria,
+    PfsParameter pfs) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findLexicalClassesForSearchCriteria
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.SearchCriteriaList,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public SearchResultList findLexicalClassesForSearchCriteria(
+    String terminology, String version, String branch, String query,
+    SearchCriteriaList criteria, PfsParameter pfs) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findStringClassesForSearchCriteria
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.SearchCriteriaList,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public SearchResultList findStringClassesForSearchCriteria(
+    String terminology, String version, String branch, String query,
+    SearchCriteriaList criteria, PfsParameter pfs) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }

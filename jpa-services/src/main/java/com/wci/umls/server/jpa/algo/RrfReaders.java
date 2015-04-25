@@ -11,7 +11,6 @@ import java.util.Map;
 
 import com.wci.umls.server.services.helpers.PushBackReader;
 
-// TODO: Auto-generated Javadoc
 /**
  * Container for RF2 readers.
  */

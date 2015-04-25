@@ -49,20 +49,10 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
    */
   @Override
   public String toString() {
-    return "StringClassJpa [getAtoms()=" + getAtoms()
-        + ", getDefaultPreferredName()=" + getDefaultPreferredName()
-        + ", getWorkflowStatus()=" + getWorkflowStatus() + ", hashCode()="
-        + hashCode() + ", toString()=" + super.toString()
-        + ", getBranchedTo()=" + getBranchedTo() + ", getAttributes()="
-        + getAttributes() + ", getId()=" + getId() + ", getObjectId()="
-        + getObjectId() + ", getTimestamp()=" + getTimestamp()
-        + ", getLastModified()=" + getLastModified() + ", getLastModifiedBy()="
-        + getLastModifiedBy() + ", isSuppressible()=" + isSuppressible()
-        + ", isObsolete()=" + isObsolete() + ", isPublished()=" + isPublished()
-        + ", isPublishable()=" + isPublishable() + ", getBranch()="
-        + getBranch() + ", getTerminologyVersion()=" + getTerminologyVersion()
+    return "StringClassJpa [isObsolete()=" + isObsolete()
+        + ", getTerminologyVersion()=" + getTerminologyVersion()
         + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
-        + getTerminologyId() + ", getClass()=" + getClass() + "]";
+        + getTerminologyId() + "]";
   }
 
 }

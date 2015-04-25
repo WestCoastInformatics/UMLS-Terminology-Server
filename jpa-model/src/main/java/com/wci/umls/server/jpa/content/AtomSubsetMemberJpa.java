@@ -3,10 +3,11 @@
  */
 package com.wci.umls.server.jpa.content;
 
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -20,9 +21,11 @@ import com.wci.umls.server.model.content.SubsetMember;
  * Abstract JPA-enabled implementation of an {@link Atom} {@link SubsetMember}.
  */
 @Entity
+@Table(name = "atom_subset_members", uniqueConstraints = @UniqueConstraint(columnNames = {
+    "terminologyId", "terminology", "terminologyVersion", "id"
+}))
 @Audited
-@DiscriminatorValue("Atom")
-@XmlRootElement(name = "member")
+@XmlRootElement(name = "atomMember")
 public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom> implements
     AtomSubsetMember {
 

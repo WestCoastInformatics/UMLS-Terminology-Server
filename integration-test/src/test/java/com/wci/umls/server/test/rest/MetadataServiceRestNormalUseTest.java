@@ -48,7 +48,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    */
   @Test
   public void testNormalUseRestMetadata001() throws Exception {
-    Logger.getLogger(getClass()).info(" Test retrieval of all terminology/version pairs");
+    Logger.getLogger(getClass()).debug("Start test");
+
     KeyValuePairLists keyValuePairLists =
         metadataService.getAllTerminologiesVersions(authToken);
 
@@ -94,7 +95,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    */
   @Test
   public void testNormalUseRestMetadata002() throws Exception {
-    Logger.getLogger(getClass()).info(" Test retrieval of all terminology/version latest pairs");
+    Logger.getLogger(getClass()).debug("Start test");
 
     // flags for whether SNOMEDCT_US and ICD9CM were found
     boolean foundUmls = false;
@@ -139,7 +140,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    */
   @Test
   public void testNormalUseRestMetadata003() throws Exception {
-    Logger.getLogger(getClass()).info(" Test retrieval of all metadata");
+    Logger.getLogger(getClass()).debug("Start test");
 
     // test UMLS metadata
     assertTrue(testUmlsMetadata(metadataService.getAllMetadata("UMLS",

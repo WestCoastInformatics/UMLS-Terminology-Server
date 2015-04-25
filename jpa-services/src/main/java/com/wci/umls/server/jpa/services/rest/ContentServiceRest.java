@@ -6,10 +6,159 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.StringClass;
+
 /**
  * Represents a content available via a REST service.
  */
 public interface ContentServiceRest {
+
+
+  /**
+   * Returns the concept.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param authToken the auth token
+   * @return the concept
+   * @throws Exception the exception
+   */
+  public Concept getConcept(String terminologyId, String terminology,
+    String version, String authToken) throws Exception;
+
+  /**
+   * Find concepts for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findConceptsForQuery(String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the descriptor.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param authToken the auth token
+   * @return the descriptor
+   * @throws Exception the exception
+   */
+  public Descriptor getDescriptor(String terminologyId, String terminology,
+    String version, String authToken) throws Exception;
+
+  /**
+   * Find descriptorss for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findDescriptorsForQuery(String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the code.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param authToken the auth token
+   * @return the code
+   * @throws Exception the exception
+   */
+  public Code getCode(String terminologyId, String terminology,
+    String version, String authToken) throws Exception;
+
+  /**
+   * Find codes for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findCodesForQuery(String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the lexical class.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param authToken the auth token
+   * @return the lexical class
+   * @throws Exception the exception
+   */
+  public LexicalClass getLexicalClass(String terminologyId, String terminology,
+    String version, String authToken) throws Exception;
+
+  /**
+   * Find lexical classes for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findLexicalClassesForQuery(String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the string class.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param authToken the auth token
+   * @return the string class
+   * @throws Exception the exception
+   */
+  public StringClass getStringClass(String terminologyId, String terminology,
+    String version, String authToken) throws Exception;
+
+  /**
+   * Find string classes for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findStringClassesForQuery(String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
 
   /**
    * Recomputes lucene indexes for the specified objects as a comma-separated

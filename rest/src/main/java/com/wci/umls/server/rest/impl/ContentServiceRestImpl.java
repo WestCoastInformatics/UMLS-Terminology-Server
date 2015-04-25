@@ -7,6 +7,7 @@ import java.io.File;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -18,16 +19,26 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.RrfFileSorter;
 import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
+import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
@@ -222,14 +233,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algorithm = null;
 
       // Compute transitive closure
-      // TODO
-      // Logger.getLogger(getClass()).info(
-      // "  Compute transitive closure from  " + terminology + "/" + version);
-      // TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-      // algo.setTerminology(terminology);
-      // algo.setTerminologyVersion(version);
-      // algo.reset();
-      // algo.compute();
+      // Obtain each terminology and run transitive closure on it with the
+      // correct id type
+      MetadataService metadataService = new MetadataServiceJpa();
+      for (Terminology t : metadataService.getTerminologyLatestVersions()) {
+        // Only compute for organizing class types
+        if (t.getOrganizingClassType() != null) {
+          TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+          algo.setTerminology(terminology);
+          algo.setTerminologyVersion(version);
+          algo.setIdType(t.getOrganizingClassType());
+          algo.compute();
+          algo.close();
+        }
+      }
 
       // Clean-up
       // readers.closeReaders();
@@ -292,6 +309,467 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       metadataService.close();
       contentService.close();
       handleException(e, "trying to load terminology from ClaML file");
+    } finally {
+      securityService.close();
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getConcept(java
+   * .lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  @GET
+  @Path("/cui/{terminology}/{version}/{terminologyId}")
+  @ApiOperation(value = "Get concept by id, terminology, and version", notes = "Get the root branch concept matching the specified parameters.", response = Concept.class)
+  public Concept getConcept(
+    @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+            + terminologyId);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "retrieve the concept",
+          UserRole.VIEWER);
+
+      Concept concept =
+          contentService.getConcept(terminologyId, terminology, version,
+              Branch.ROOT);
+
+      if (concept != null) {
+        contentService.getGraphResolutionHandler(terminology).resolve(
+            concept,
+            TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
+                concept.getTerminologyVersion()));
+
+      }
+      contentService.close();
+      return concept;
+    } catch (Exception e) {
+      contentService.close();
+      handleException(e, "trying to retrieve a concept");
+      return null;
+    } finally {
+      securityService.close();
+    }
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findConceptsForQuery
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  @POST
+  @Path("/cui/{terminology}/{version}/query/{query}")
+  @ApiOperation(value = "Find concepts matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
+  public SearchResultList findConceptsForQuery(
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/" + terminology + "/" + version
+            + "/query/" + query + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find concepts by query",
+          UserRole.VIEWER);
+
+      SearchResultList sr =
+          contentService.findConceptsForQuery(terminology, version,
+              Branch.ROOT, query, pfs);
+      contentService.close();
+      return sr;
+
+    } catch (Exception e) {
+      contentService.close();
+      handleException(e, "trying to find the concepts by query");
+      return null;
+    } finally {
+      securityService.close();
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getDescriptor(
+   * java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  @GET
+  @Path("/dui/{terminology}/{version}/{terminologyId}")
+  @ApiOperation(value = "Get descriptor by id, terminology, and version", notes = "Get the root branch descriptor matching the specified parameters.", response = Descriptor.class)
+  public Descriptor getDescriptor(
+    @ApiParam(value = "Descriptor terminology id, e.g. D003933", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Descriptor terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+            + terminologyId);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "retrieve the descriptor",
+          UserRole.VIEWER);
+
+      Descriptor descriptor =
+          contentService.getDescriptor(terminologyId, terminology, version,
+              Branch.ROOT);
+
+      if (descriptor != null) {
+        contentService.getGraphResolutionHandler(terminology)
+            .resolve(
+                descriptor,
+                TerminologyUtility.getHierarchicalIsaRels(
+                    descriptor.getTerminology(),
+                    descriptor.getTerminologyVersion()));
+
+      }
+      contentService.close();
+      return descriptor;
+    } catch (Exception e) {
+      contentService.close();
+      handleException(e, "trying to retrieve a descriptor");
+      return null;
+    } finally {
+      securityService.close();
+    }
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findDescriptorsForQuery(java.lang.String, java.lang.String,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
+   */
+  @Override
+  @POST
+  @Path("/dui/{terminology}/{version}/query/{query}")
+  @ApiOperation(value = "Find descriptors matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
+  public SearchResultList findDescriptorsForQuery(
+    @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Descriptor terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /dui/" + terminology + "/" + version
+            + "/query/" + query + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find descriptors by query",
+          UserRole.VIEWER);
+
+      SearchResultList sr =
+          contentService.findDescriptorsForQuery(terminology, version,
+              Branch.ROOT, query, pfs);
+      contentService.close();
+      return sr;
+
+    } catch (Exception e) {
+      contentService.close();
+      handleException(e, "trying to find the descriptors by query");
+      return null;
+    } finally {
+      securityService.close();
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getCode(java.lang
+   * .String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  @GET
+  @Path("/code/{terminology}/{version}/{terminologyId}")
+  @ApiOperation(value = "Get code by id, terminology, and version", notes = "Get the root branch code matching the specified parameters.", response = Code.class)
+  public Code getCode(
+    @ApiParam(value = "Code terminology id, e.g. U002135", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Code terminology version, e.g. 2014AB", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /code/" + terminology + "/" + version + "/"
+            + terminologyId);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "retrieve the code",
+          UserRole.VIEWER);
+
+      Code code =
+          contentService.getCode(terminologyId, terminology, version,
+              Branch.ROOT);
+
+      if (code != null) {
+        contentService.getGraphResolutionHandler(terminology).resolve(
+            code,
+            TerminologyUtility.getHierarchicalIsaRels(code.getTerminology(),
+                code.getTerminologyVersion()));
+
+      }
+      contentService.close();
+      return code;
+    } catch (Exception e) {
+      contentService.close();
+      handleException(e, "trying to retrieve a code");
+      return null;
+    } finally {
+      securityService.close();
+    }
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findCodesForQuery
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  @POST
+  @Path("/code/{terminology}/{version}/query/{query}")
+  @ApiOperation(value = "Find codes matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
+  public SearchResultList findCodesForQuery(
+    @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Code terminology version, e.g. 2014AB", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /code/" + terminology + "/" + version
+            + "/query/" + query + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find codes by query",
+          UserRole.VIEWER);
+
+      SearchResultList sr =
+          contentService.findCodesForQuery(terminology, version, Branch.ROOT,
+              query, pfs);
+      contentService.close();
+      return sr;
+
+    } catch (Exception e) {
+      contentService.close();
+      handleException(e, "trying to find the codes by query");
+      return null;
+    } finally {
+      securityService.close();
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getLexicalClass
+   * (java.lang .String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  @GET
+  @Path("/lui/{terminology}/{version}/{terminologyId}")
+  @ApiOperation(value = "Get lexical class by id, terminology, and version", notes = "Get the root branch lexical class matching the specified parameters.", response = LexicalClass.class)
+  public LexicalClass getLexicalClass(
+    @ApiParam(value = "Lexical class terminology id, e.g. L0356926", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Lexical class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Lexical class terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /lui/" + terminology + "/" + version + "/"
+            + terminologyId);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "retrieve the lexical class",
+          UserRole.VIEWER);
+
+      LexicalClass lexicalClass =
+          contentService.getLexicalClass(terminologyId, terminology, version,
+              Branch.ROOT);
+
+      if (lexicalClass != null) {
+        contentService.getGraphResolutionHandler(terminology).resolve(
+            lexicalClass);
+      }
+      contentService.close();
+      return lexicalClass;
+    } catch (Exception e) {
+      contentService.close();
+      handleException(e, "trying to retrieve a lexicalClass");
+      return null;
+    } finally {
+      securityService.close();
+    }
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findLexicalClasssForQuery (java.lang.String, java.lang.String,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
+   */
+  @Override
+  @POST
+  @Path("/lui/{terminology}/{version}/query/{query}")
+  @ApiOperation(value = "Find lexical class matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
+  public SearchResultList findLexicalClassesForQuery(
+    @ApiParam(value = "Lexical class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Lexical class terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /lui/" + terminology + "/" + version
+            + "/query/" + query + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find lexical class by query",
+          UserRole.VIEWER);
+
+      SearchResultList sr =
+          contentService.findLexicalClassesForQuery(terminology, version,
+              Branch.ROOT, query, pfs);
+      contentService.close();
+      return sr;
+
+    } catch (Exception e) {
+      contentService.close();
+      handleException(e, "trying to find the lexicalClasss by query");
+      return null;
+    } finally {
+      securityService.close();
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getStringClass
+   * (java.lang .String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  @GET
+  @Path("/sui/{terminology}/{version}/{terminologyId}")
+  @ApiOperation(value = "Get string class by id, terminology, and version", notes = "Get the root branch string class matching the specified parameters.", response = StringClass.class)
+  public StringClass getStringClass(
+    @ApiParam(value = "String class terminology id, e.g. L0356926", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "String class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "String class terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /sui/" + terminology + "/" + version + "/"
+            + terminologyId);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "retrieve the string class",
+          UserRole.VIEWER);
+
+      StringClass stringClass =
+          contentService.getStringClass(terminologyId, terminology, version,
+              Branch.ROOT);
+
+      if (stringClass != null) {
+        contentService.getGraphResolutionHandler(terminology).resolve(
+            stringClass);
+      }
+      contentService.close();
+      return stringClass;
+    } catch (Exception e) {
+      contentService.close();
+      handleException(e, "trying to retrieve a stringClass");
+      return null;
+    } finally {
+      securityService.close();
+    }
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findStringClasssForQuery (java.lang.String, java.lang.String,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
+   */
+  @Override
+  @POST
+  @Path("/sui/{terminology}/{version}/query/{query}")
+  @ApiOperation(value = "Find string class matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
+  public SearchResultList findStringClassesForQuery(
+    @ApiParam(value = "String class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "String class terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /sui/" + terminology + "/" + version
+            + "/query/" + query + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find string class by query",
+          UserRole.VIEWER);
+
+      SearchResultList sr =
+          contentService.findStringClassesForQuery(terminology, version,
+              Branch.ROOT, query, pfs);
+      contentService.close();
+      return sr;
+
+    } catch (Exception e) {
+      contentService.close();
+      handleException(e, "trying to find the stringClasss by query");
+      return null;
     } finally {
       securityService.close();
     }

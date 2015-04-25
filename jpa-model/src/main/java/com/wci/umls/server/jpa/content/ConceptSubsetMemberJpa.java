@@ -3,10 +3,11 @@
  */
 package com.wci.umls.server.jpa.content;
 
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -21,15 +22,17 @@ import com.wci.umls.server.model.content.SubsetMember;
  * {@link SubsetMember}.
  */
 @Entity
+@Table(name = "concept_subset_members", uniqueConstraints = @UniqueConstraint(columnNames = {
+    "terminologyId", "terminology", "terminologyVersion", "id"
+}))
 @Audited
-@DiscriminatorValue("Concept")
-@XmlRootElement(name = "member")
+@XmlRootElement(name = "conceptMember")
 public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
     implements ConceptSubsetMember {
 
   /** The member. */
   @ManyToOne(targetEntity = ConceptJpa.class, optional = false)
-  @JoinColumn(nullable = false, name="concept_id")
+  @JoinColumn(nullable = false, name = "concept_id")
   private Concept member;
 
   /** The subset. */

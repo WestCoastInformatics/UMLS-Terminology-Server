@@ -9,6 +9,7 @@ package com.wci.umls.server.test.rest;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,9 +50,9 @@ public class ProjectServiceRestEdgeCasesTest extends ProjectServiceRestTest {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void testEdgeCasesRestProject001() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
 
     // Get all projects and choose the first one.
     ProjectList projectList = projectService.getProjects(adminAuthToken);

@@ -38,13 +38,12 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
- *
- * @param <T> the
  */
 public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     Algorithm {
 
   /** Listeners. */
+  @SuppressWarnings("hiding")
   private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The request cancel flag. */
@@ -59,6 +58,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
   /** The descendants map. */
   private Map<Long, Set<Long>> descendantsMap = new HashMap<>();
 
+  /**  The id type. */
   private IdType idType;
 
   /** The Constant commitCt. */
@@ -275,7 +275,10 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
           ctr.setSuperType((Code) componentMap.get(code));
           ctr.setSubType((Code) componentMap.get(desc));
           tr = ctr;
+        } else {
+          throw new Exception("Illegal id type: " + idType);
         }
+
         tr.setObsolete(false);
         tr.setLastModified(new Date());
         tr.setLastModifiedBy("admin");

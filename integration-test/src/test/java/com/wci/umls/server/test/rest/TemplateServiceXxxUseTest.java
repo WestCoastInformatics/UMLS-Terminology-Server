@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.test.rest;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -54,6 +55,7 @@ public class TemplateServiceXxxUseTest {
   @Test
   // TODO: Edit this method name to match the test case
   public void testXxxUseRestTemplate001() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
 
     // TODO: implement the test case
 

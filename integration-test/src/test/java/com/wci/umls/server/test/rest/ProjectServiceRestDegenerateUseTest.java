@@ -8,6 +8,7 @@ package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.fail;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -51,9 +52,9 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void testDegenerateUseRestProject001() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
 
     // Get all projects and choose the first one.
     ProjectList projectList = projectService.getProjects(adminAuthToken);
@@ -136,9 +137,10 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void testDegenerateUseRestProject002() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
     // Procedure 1
     try {
       projectService.getProject(null, adminAuthToken);
@@ -198,9 +200,9 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void testDegenerateUseRestProject003() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
 
     // Call findConceptsInScope() project id is null
     try {

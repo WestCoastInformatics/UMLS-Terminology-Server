@@ -5,6 +5,7 @@ package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.fail;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,9 +36,9 @@ public class MetadataServiceRestDegenerateUseTest extends
    * Test retrieval of all versions for all terminologies
    * @throws Exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void testDegenerateUseRestMetadata001() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
     try {
       metadataService.getAllTerminologiesVersions("InvalidAuthToken");
       fail("Getting all terminology/version pairs without authorization token succeeded.");
@@ -55,9 +56,9 @@ public class MetadataServiceRestDegenerateUseTest extends
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void testDegenerateUseRestMetadata002() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
 
     // test bad authorization
     try {
@@ -72,9 +73,9 @@ public class MetadataServiceRestDegenerateUseTest extends
    * Test retrieving all metadata for a terminology
    * @throws Exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void testDegenerateUseRestMetadata003() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
 
     // test bad authorization
     try {
@@ -101,15 +102,6 @@ public class MetadataServiceRestDegenerateUseTest extends
       // do nothing
     }
 
-  }
-
-  /**
-   * Test retrieving all metadata for latest version of a terminology
-   * @throws Exception
-   */
-  @Test
-  public void testDegenerateUseRestMetadata004() throws Exception {
-    // n/a - this method was removed
   }
 
   /**
