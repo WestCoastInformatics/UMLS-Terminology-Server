@@ -157,6 +157,10 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
 
     // Get hierarchcial rels
     MetadataService service = new MetadataServiceJpa();
+    if (service.getHierarchicalRelationshipTypes(terminology, version).size() == 0) {
+      Logger.getLogger(getClass()).info("  NO hierarchical rels, exiting...");
+      return;
+    }
     String chdRel =
         service.getHierarchicalRelationshipTypes(terminology, version)
             .iterator().next().getAbbreviation();
