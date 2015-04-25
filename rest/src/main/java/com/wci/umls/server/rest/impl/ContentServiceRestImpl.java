@@ -240,8 +240,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // Only compute for organizing class types
         if (t.getOrganizingClassType() != null) {
           TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-          algo.setTerminology(terminology);
-          algo.setTerminologyVersion(version);
+          algo.setTerminology(t.getTerminology());
+          algo.setTerminologyVersion(t.getTerminologyVersion());
           algo.setIdType(t.getOrganizingClassType());
           algo.compute();
           algo.close();

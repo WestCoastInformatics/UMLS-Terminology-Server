@@ -58,7 +58,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
   /** The descendants map. */
   private Map<Long, Set<Long>> descendantsMap = new HashMap<>();
 
-  /**  The id type. */
+  /** The id type. */
   private IdType idType;
 
   /** The Constant commitCt. */
@@ -145,7 +145,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     IdType idType) throws Exception {
     // Check assumptions/prerequisites
     Logger.getLogger(getClass()).info(
-        "Start computing transitive closure ... " + new Date());
+        "Start computing transitive closure - " + terminology);
     fireProgressEvent(0, "Starting...");
 
     // Disable transaction per operation
@@ -164,20 +164,19 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     Logger.getLogger(getClass()).info("    count = " + chdRel);
 
     fireProgressEvent(1, "Initialize relationships");
-    String tableName = "ConceptJpa";
+    String tableName = "ConceptRelationshipJpa";
     if (idType == IdType.DESCRIPTOR) {
-      tableName = "DescriptorJpa";
+      tableName = "DescriptorRelationshipJpa";
     }
     if (idType == IdType.CODE) {
-      tableName = "CodeJpa";
+      tableName = "CodeRelationshipJpa";
     }
     javax.persistence.Query query =
         manager
             .createQuery(
-                "select r from " + tableName + " r where active = 1 "
+                "select r from " + tableName + " r where obsolete = 0 "
                     + "and terminology = :terminology "
-                    + "and terminologyVersion = :version"
-                    + " and inferred = 1 ")
+                    + "and terminologyVersion = :version")
             .setParameter("terminology", terminology)
             .setParameter("version", version);
 
