@@ -990,8 +990,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       att.setName(fields[8]);
       att.setValue(fields[10]);
 
+      // Skip CV_MEMBER attributes for now
+      if (fields[8].equals("CV_MEMBER")) {
+        continue;
+      }
       // Handle subset members and subset member attributes
-      if (fields[8].equals("SUBSET_MEMBER")) {
+      else if (fields[8].equals("SUBSET_MEMBER")) {
         // Create subset member and any subset member attributes.
         // NOTE: subset member may already exist.
         // C3853348|L11739318|S14587084|A24131773|AUI|442311000124105|AT200797951|45bb6996-8734-5033-b069-302708da2761|SUBSET_MEMBER|SNOMEDCT_US|900000000000509007~ACCEPTABILITYID~900000000000548007|N||
@@ -1050,6 +1054,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         }
         // handle subset member attributes
         if (atvFields.length > 1 && atvFields[1] != null) {
+          if (atvFields[2] == null) {
+            atvFields[2]="";
+          }
           // C3853348|L11739318|S14587084|A24131773|AUI|442311000124105|AT200797951|45bb6996-8734-5033-b069-302708da2761|SUBSET_MEMBER|SNOMEDCT_US|900000000000509007~ACCEPTABILITYID~900000000000548007|N||
           Attribute memberAtt = new AttributeJpa();
           // No terminology id for the member attribute
