@@ -301,6 +301,7 @@ public abstract class AbstractComponent implements Component {
    * @see com.wci.umls.server.model.content.Component#getBranch()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getBranch() {
     return branch;
   }

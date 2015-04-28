@@ -78,4 +78,17 @@ public interface User {
    */
   public void setApplicationRole(UserRole role);
 
+  /**
+   * Returns the user preferences.
+   *
+   * @return the user preferences
+   */
+  public UserPreferences getUserPreferences();
+  
+  /**
+   * Sets the user preferences.
+   *
+   * @param preferences the user preferences
+   */
+  public void setUserPreferences(UserPreferences preferences);
 }

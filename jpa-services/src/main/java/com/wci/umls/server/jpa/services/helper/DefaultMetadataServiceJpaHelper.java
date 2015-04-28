@@ -3,16 +3,20 @@
  */
 package com.wci.umls.server.jpa.services.helper;
 
-import java.util.List;
-
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
+import com.wci.umls.server.helpers.meta.AttributeNameList;
+import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
+import com.wci.umls.server.helpers.meta.RelationshipTypeList;
+import com.wci.umls.server.helpers.meta.SemanticTypeList;
+import com.wci.umls.server.helpers.meta.TermTypeList;
+import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
+import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
+import com.wci.umls.server.jpa.helpers.meta.GeneralMetadataEntryListJpa;
+import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
+import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
+import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
 import com.wci.umls.server.model.content.Relationship;
-import com.wci.umls.server.model.meta.AdditionalRelationshipType;
-import com.wci.umls.server.model.meta.AttributeName;
-import com.wci.umls.server.model.meta.GeneralMetadataEntry;
-import com.wci.umls.server.model.meta.RelationshipType;
-import com.wci.umls.server.model.meta.SemanticType;
-import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.services.MetadataService;
 
 /**
@@ -37,8 +41,11 @@ public class DefaultMetadataServiceJpaHelper extends
    * com.wci.umls.server.services.MetadataService#getRelationshipTypes(java.
    * lang.String, java.lang.String)
    */
+  @SuppressWarnings({
+    "unchecked"
+  })
   @Override
-  public List<RelationshipType> getRelationshipTypes(String terminology,
+  public RelationshipTypeList getRelationshipTypes(String terminology,
     String version) throws Exception {
     javax.persistence.Query query =
         manager
@@ -47,8 +54,9 @@ public class DefaultMetadataServiceJpaHelper extends
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    @SuppressWarnings("unchecked")
-    List<RelationshipType> types = query.getResultList();
+    RelationshipTypeList types = new RelationshipTypeListJpa();
+    types.setObjects(query.getResultList());
+    types.setTotalCount(types.getObjects().size());
     return types;
   }
 
@@ -59,8 +67,9 @@ public class DefaultMetadataServiceJpaHelper extends
    * com.wci.umls.server.services.MetadataService#getAdditionalRelationshipTypes
    * (java.lang.String, java.lang.String)
    */
+  @SuppressWarnings("unchecked")
   @Override
-  public List<AdditionalRelationshipType> getAdditionalRelationshipTypes(
+  public AdditionalRelationshipTypeList getAdditionalRelationshipTypes(
     String terminology, String version) throws Exception {
     javax.persistence.Query query =
         manager
@@ -69,8 +78,11 @@ public class DefaultMetadataServiceJpaHelper extends
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    @SuppressWarnings("unchecked")
-    List<AdditionalRelationshipType> types = query.getResultList();
+    AdditionalRelationshipTypeList types =
+        new AdditionalRelationshipTypeListJpa();
+    types.setObjects(query.getResultList());
+    types.setTotalCount(types.getObjects().size());
+
     return types;
   }
 
@@ -81,9 +93,10 @@ public class DefaultMetadataServiceJpaHelper extends
    * com.wci.umls.server.services.MetadataService#getAttributeNames(java.lang
    * .String, java.lang.String)
    */
+  @SuppressWarnings("unchecked")
   @Override
-  public List<AttributeName> getAttributeNames(String terminology,
-    String version) throws Exception {
+  public AttributeNameList getAttributeNames(String terminology, String version)
+    throws Exception {
     javax.persistence.Query query =
         manager
             .createQuery("SELECT a from AttributeNameJpa a where terminology = :terminology"
@@ -91,8 +104,9 @@ public class DefaultMetadataServiceJpaHelper extends
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    @SuppressWarnings("unchecked")
-    List<AttributeName> names = query.getResultList();
+    AttributeNameList names = new AttributeNameListJpa();
+    names.setObjects(query.getResultList());
+    names.setTotalCount(names.getObjects().size());
     return names;
   }
 
@@ -103,8 +117,9 @@ public class DefaultMetadataServiceJpaHelper extends
    * com.wci.umls.server.services.MetadataService#getSemanticTypes(java.lang
    * .String, java.lang.String)
    */
+  @SuppressWarnings("unchecked")
   @Override
-  public List<SemanticType> getSemanticTypes(String terminology, String version)
+  public SemanticTypeList getSemanticTypes(String terminology, String version)
     throws Exception {
     javax.persistence.Query query =
         manager
@@ -113,8 +128,9 @@ public class DefaultMetadataServiceJpaHelper extends
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    @SuppressWarnings("unchecked")
-    List<SemanticType> types = query.getResultList();
+    SemanticTypeList types = new SemanticTypeListJpa();
+    types.setObjects(query.getResultList());
+    types.setTotalCount(types.getObjects().size());
     return types;
   }
 
@@ -125,8 +141,9 @@ public class DefaultMetadataServiceJpaHelper extends
    * com.wci.umls.server.services.MetadataService#getTermTypes(java.lang.String,
    * java.lang.String)
    */
+  @SuppressWarnings("unchecked")
   @Override
-  public List<TermType> getTermTypes(String terminology, String version)
+  public TermTypeList getTermTypes(String terminology, String version)
     throws Exception {
     javax.persistence.Query query =
         manager
@@ -135,8 +152,9 @@ public class DefaultMetadataServiceJpaHelper extends
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    @SuppressWarnings("unchecked")
-    List<TermType> types = query.getResultList();
+    TermTypeList types = new TermTypeListJpa();
+    types.setObjects(query.getResultList());
+    types.setTotalCount(types.getObjects().size());
     return types;
   }
 
@@ -147,8 +165,9 @@ public class DefaultMetadataServiceJpaHelper extends
    * com.wci.umls.server.services.MetadataService#getHierarchicalRelationshipTypes
    * (java.lang.String, java.lang.String)
    */
+  @SuppressWarnings("unchecked")
   @Override
-  public List<RelationshipType> getHierarchicalRelationshipTypes(
+  public RelationshipTypeList getHierarchicalRelationshipTypes(
     String terminology, String version) throws Exception {
     javax.persistence.Query query =
         manager
@@ -158,8 +177,9 @@ public class DefaultMetadataServiceJpaHelper extends
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     query.setParameter("rel", "PAR");
-    @SuppressWarnings("unchecked")
-    List<RelationshipType> types = query.getResultList();
+    RelationshipTypeList types = new RelationshipTypeListJpa();
+    types.setObjects(query.getResultList());
+    types.setTotalCount(types.getObjects().size());
     return types;
   }
 
@@ -207,8 +227,9 @@ public class DefaultMetadataServiceJpaHelper extends
    * com.wci.umls.server.services.MetadataService#getNonGroupingRelationshipTypes
    * (java.lang.String, java.lang.String)
    */
+  @SuppressWarnings("unchecked")
   @Override
-  public List<RelationshipType> getNonGroupingRelationshipTypes(
+  public RelationshipTypeList getNonGroupingRelationshipTypes(
     String terminology, String version) throws Exception {
     javax.persistence.Query query =
         manager
@@ -217,8 +238,9 @@ public class DefaultMetadataServiceJpaHelper extends
                 + " and terminologyVersion = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    @SuppressWarnings("unchecked")
-    List<RelationshipType> types = query.getResultList();
+    RelationshipTypeList types = new RelationshipTypeListJpa();
+    types.setObjects(query.getResultList());
+    types.setTotalCount(types.getObjects().size());
     return types;
   }
 
@@ -229,9 +251,10 @@ public class DefaultMetadataServiceJpaHelper extends
    * com.wci.umls.server.services.MetadataService#getGeneralMetadataEntries(
    * java.lang.String, java.lang.String)
    */
+  @SuppressWarnings("unchecked")
   @Override
-  public List<GeneralMetadataEntry> getGeneralMetadataEntries(
-    String terminology, String version) {
+  public GeneralMetadataEntryList getGeneralMetadataEntries(String terminology,
+    String version) {
     javax.persistence.Query query =
         manager
             .createQuery("SELECT g from GeneralMetadataEntryJpa g where terminology = :terminology"
@@ -239,10 +262,10 @@ public class DefaultMetadataServiceJpaHelper extends
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    @SuppressWarnings("unchecked")
-    List<GeneralMetadataEntry> entries = query.getResultList();
+    GeneralMetadataEntryList entries = new GeneralMetadataEntryListJpa();
+    entries.setObjects(query.getResultList());
+    entries.setTotalCount(entries.getObjects().size());
     return entries;
-
   }
 
   /*
@@ -261,7 +284,5 @@ public class DefaultMetadataServiceJpaHelper extends
 
     return (PrecedenceList) query.getSingleResult();
   }
-
-
 
 }

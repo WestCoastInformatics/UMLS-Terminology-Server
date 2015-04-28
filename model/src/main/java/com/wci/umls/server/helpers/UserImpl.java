@@ -4,6 +4,7 @@
 package com.wci.umls.server.helpers;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 
 /**
@@ -26,6 +27,9 @@ public class UserImpl implements User {
   /** The application role. */
   private UserRole applicationRole;
 
+  /**  The user preferences. */
+  private UserPreferences userPreferences;
+  
   /**
    * Instantiates an empty {@link UserImpl}.
    */
@@ -195,6 +199,16 @@ public class UserImpl implements User {
     } else if (!userName.equals(other.userName))
       return false;
     return true;
+  }
+
+  @Override
+  public UserPreferences getUserPreferences() {
+    return userPreferences;
+  }
+
+  @Override
+  public void setUserPreferences(UserPreferences preferences) {
+    this.userPreferences = preferences;
   }
 
 }

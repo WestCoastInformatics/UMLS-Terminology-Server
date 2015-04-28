@@ -63,6 +63,9 @@ import com.sun.jersey.api.client.WebResource;
  * Loads and serves configuration.
  */
 public class ConfigUtility {
+  
+  /**  The Constant DEFAULT. */
+  public final static String DEFAULT = "DEFAULT";
 
   /** The date format. */
   public final static FastDateFormat DATE_FORMAT = FastDateFormat

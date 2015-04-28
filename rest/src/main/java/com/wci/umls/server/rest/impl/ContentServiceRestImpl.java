@@ -236,7 +236,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // Obtain each terminology and run transitive closure on it with the
       // correct id type
       MetadataService metadataService = new MetadataServiceJpa();
-      for (Terminology t : metadataService.getTerminologyLatestVersions()) {
+      for (Terminology t : metadataService.getTerminologyLatestVersions().getObjects()) {
         // Only compute for organizing class types
         if (t.getOrganizingClassType() != null) {
           TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();

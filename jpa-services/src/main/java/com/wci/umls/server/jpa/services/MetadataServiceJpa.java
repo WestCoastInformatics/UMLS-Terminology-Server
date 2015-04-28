@@ -17,7 +17,23 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
+import com.wci.umls.server.helpers.meta.AttributeNameList;
+import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
+import com.wci.umls.server.helpers.meta.RelationshipTypeList;
+import com.wci.umls.server.helpers.meta.RootTerminologyList;
+import com.wci.umls.server.helpers.meta.SemanticTypeList;
+import com.wci.umls.server.helpers.meta.TermTypeList;
+import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
+import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
+import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
+import com.wci.umls.server.jpa.helpers.meta.GeneralMetadataEntryListJpa;
+import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
+import com.wci.umls.server.jpa.helpers.meta.RootTerminologyListJpa;
+import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
+import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
+import com.wci.umls.server.jpa.helpers.meta.TerminologyListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
@@ -75,7 +91,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
                 handlerName, WorkflowListener.class);
         listeners.add(handlerService);
       }
-
     } catch (Exception e) {
       e.printStackTrace();
       listeners = null;
@@ -97,6 +112,10 @@ public class MetadataServiceJpa extends RootServiceJpa implements
             ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
                 handlerName, MetadataService.class);
         helperMap.put(handlerName, handlerService);
+      }
+      if (!helperMap.containsKey(ConfigUtility.DEFAULT)) {
+        throw new Exception("metadata.service.handler." + ConfigUtility.DEFAULT
+            + " expected and does not exist.");
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -167,20 +186,22 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     Map<String, Map<String, String>> abbrMapList = new HashMap<>();
 
     Map<String, String> additionalRelTypeMap =
-        getAbbreviationMap(getAdditionalRelationshipTypes(terminology, version));
+        getAbbreviationMap(getAdditionalRelationshipTypes(terminology, version)
+            .getObjects());
     if (additionalRelTypeMap != null) {
       abbrMapList.put(MetadataKeys.Additional_Relationship_Types.toString(),
           additionalRelTypeMap);
     }
 
     Map<String, String> relTypeMap =
-        getAbbreviationMap(getRelationshipTypes(terminology, version));
+        getAbbreviationMap(getRelationshipTypes(terminology, version)
+            .getObjects());
     if (relTypeMap != null) {
       abbrMapList.put(MetadataKeys.Relationship_Types.toString(), relTypeMap);
     }
 
     Map<String, String> attNameMap =
-        getAbbreviationMap(getAttributeNames(terminology, version));
+        getAbbreviationMap(getAttributeNames(terminology, version).getObjects());
     if (attNameMap != null) {
       abbrMapList.put(MetadataKeys.Attribute_Names.toString(), attNameMap);
     }
@@ -188,20 +209,20 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     // Skip general metadata entries
 
     Map<String, String> semanticTypeMap =
-        getAbbreviationMap(getSemanticTypes(terminology, version));
+        getAbbreviationMap(getSemanticTypes(terminology, version).getObjects());
     if (semanticTypeMap != null) {
       abbrMapList.put(MetadataKeys.Semantic_Types.toString(), semanticTypeMap);
     }
 
     Map<String, String> termTypeMap =
-        getAbbreviationMap(getTermTypes(terminology, version));
+        getAbbreviationMap(getTermTypes(terminology, version).getObjects());
     if (termTypeMap != null) {
       abbrMapList.put(MetadataKeys.Term_Types.toString(), termTypeMap);
     }
 
     Map<String, String> hierRelTypeMap =
         getAbbreviationMap(getHierarchicalRelationshipTypes(terminology,
-            version));
+            version).getObjects());
     if (hierRelTypeMap != null) {
       abbrMapList.put(MetadataKeys.Hierarchical_Relationship_Types.toString(),
           hierRelTypeMap);
@@ -237,17 +258,17 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * java.lang.String, java.lang.String)
    */
   @Override
-  public List<GeneralMetadataEntry> getGeneralMetadataEntries(
-    String terminology, String version) {
+  public GeneralMetadataEntryList getGeneralMetadataEntries(String terminology,
+    String version) {
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getGeneralMetadataEntries(terminology,
           version);
-    } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT").getGeneralMetadataEntries(terminology,
-          version);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).getGeneralMetadataEntries(
+          terminology, version);
     } else {
       // return an empty map
-      return new ArrayList<>();
+      return new GeneralMetadataEntryListJpa();
     }
   }
 
@@ -264,9 +285,9 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getDefaultPrecedenceList(terminology,
           version);
-    } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT").getDefaultPrecedenceList(terminology,
-          version);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).getDefaultPrecedenceList(
+          terminology, version);
     } else {
       return null;
     }
@@ -277,13 +298,15 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * 
    * @see com.wci.umls.server.services.MetadataService#getTerminologies()
    */
+  @SuppressWarnings("unchecked")
   @Override
-  public List<RootTerminology> getTerminologies() throws Exception {
+  public RootTerminologyList getTerminologies() throws Exception {
     javax.persistence.Query query =
         manager
             .createQuery("SELECT distinct t.terminology from RootTerminologyJpa t");
-    @SuppressWarnings("unchecked")
-    List<RootTerminology> terminologies = query.getResultList();
+    RootTerminologyList terminologies = new RootTerminologyListJpa();
+    terminologies.setObjects(query.getResultList());
+    terminologies.setTotalCount(terminologies.getObjects().size());
     return terminologies;
   }
 
@@ -318,14 +341,16 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * @see
    * com.wci.umls.server.services.MetadataService#getVersions(java.lang.String)
    */
+  @SuppressWarnings("unchecked")
   @Override
-  public List<Terminology> getVersions(String terminology) throws Exception {
+  public TerminologyList getVersions(String terminology) throws Exception {
     javax.persistence.Query query =
         manager
             .createQuery("SELECT distinct t.terminologyVersion from TerminologyJpa t where terminology = :terminology");
     query.setParameter("terminology", terminology);
-    @SuppressWarnings("unchecked")
-    List<Terminology> versions = query.getResultList();
+    TerminologyList versions = new TerminologyListJpa();
+    versions.setObjects(query.getResultList());
+    versions.setTotalCount(versions.getObjects().size());
     return versions;
 
   }
@@ -360,7 +385,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * com.wci.umls.server.services.MetadataService#getTerminologyLatestVersions()
    */
   @Override
-  public List<Terminology> getTerminologyLatestVersions() throws Exception {
+  public TerminologyList getTerminologyLatestVersions() throws Exception {
     javax.persistence.TypedQuery<Object[]> query =
         manager
             .createQuery(
@@ -373,8 +398,11 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       results.add(getTerminology((String) result[0], (String) result[1]));
 
     }
+    TerminologyList list = new TerminologyListJpa();
+    list.setObjects(results);
+    list.setTotalCount(results.size());
 
-    return results;
+    return list;
   }
 
   /*
@@ -385,17 +413,17 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * lang.String, java.lang.String)
    */
   @Override
-  public List<RelationshipType> getRelationshipTypes(String terminology,
+  public RelationshipTypeList getRelationshipTypes(String terminology,
     String version) throws Exception {
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getRelationshipTypes(terminology,
           version);
-    } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT")
-          .getRelationshipTypes(terminology, version);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).getRelationshipTypes(
+          terminology, version);
     } else {
       // return an empty map
-      return new ArrayList<>();
+      return new RelationshipTypeListJpa();
     }
   }
 
@@ -407,17 +435,17 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * (java.lang.String, java.lang.String)
    */
   @Override
-  public List<AdditionalRelationshipType> getAdditionalRelationshipTypes(
+  public AdditionalRelationshipTypeList getAdditionalRelationshipTypes(
     String terminology, String version) throws Exception {
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getAdditionalRelationshipTypes(
           terminology, version);
-    } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT").getAdditionalRelationshipTypes(
-          terminology, version);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT)
+          .getAdditionalRelationshipTypes(terminology, version);
     } else {
       // return an empty map
-      return new ArrayList<>();
+      return new AdditionalRelationshipTypeListJpa();
     }
 
   }
@@ -430,15 +458,16 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * .String, java.lang.String)
    */
   @Override
-  public List<AttributeName> getAttributeNames(String terminology,
-    String version) throws Exception {
+  public AttributeNameList getAttributeNames(String terminology, String version)
+    throws Exception {
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getAttributeNames(terminology, version);
-    } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT").getAttributeNames(terminology, version);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).getAttributeNames(
+          terminology, version);
     } else {
       // return an empty map
-      return new ArrayList<>();
+      return new AttributeNameListJpa();
     }
   }
 
@@ -450,15 +479,16 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * .String, java.lang.String)
    */
   @Override
-  public List<SemanticType> getSemanticTypes(String terminology, String version)
+  public SemanticTypeList getSemanticTypes(String terminology, String version)
     throws Exception {
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getSemanticTypes(terminology, version);
-    } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT").getSemanticTypes(terminology, version);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).getSemanticTypes(terminology,
+          version);
     } else {
       // return an empty map
-      return new ArrayList<>();
+      return new SemanticTypeListJpa();
     }
   }
 
@@ -470,15 +500,16 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * java.lang.String)
    */
   @Override
-  public List<TermType> getTermTypes(String terminology, String version)
+  public TermTypeList getTermTypes(String terminology, String version)
     throws Exception {
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getTermTypes(terminology, version);
-    } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT").getTermTypes(terminology, version);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).getTermTypes(terminology,
+          version);
     } else {
       // return an empty map
-      return new ArrayList<>();
+      return new TermTypeListJpa();
     }
   }
 
@@ -490,17 +521,17 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * (java.lang.String, java.lang.String)
    */
   @Override
-  public List<RelationshipType> getHierarchicalRelationshipTypes(
+  public RelationshipTypeList getHierarchicalRelationshipTypes(
     String terminology, String version) throws Exception {
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getHierarchicalRelationshipTypes(
           terminology, version);
-    } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT").getHierarchicalRelationshipTypes(
-          terminology, version);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT)
+          .getHierarchicalRelationshipTypes(terminology, version);
     } else {
       // return an empty map
-      return new ArrayList<>();
+      return new RelationshipTypeListJpa();
     }
   }
 
@@ -516,8 +547,9 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     if (helperMap.containsKey(relationship.getTerminology())) {
       return helperMap.get(relationship.getTerminology())
           .isHierarchcialRelationship(relationship);
-    } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT").isHierarchcialRelationship(relationship);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).isHierarchcialRelationship(
+          relationship);
     } else {
       return false;
     }
@@ -535,8 +567,9 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     if (helperMap.containsKey(relationship.getTerminology())) {
       return helperMap.get(relationship.getTerminology()).isStatedRelationship(
           relationship);
-    } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT").isStatedRelationship(relationship);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).isStatedRelationship(
+          relationship);
     } else {
       return false;
     }
@@ -554,8 +587,9 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     if (helperMap.containsKey(relationship.getTerminology())) {
       return helperMap.get(relationship.getTerminology())
           .isInferredRelationship(relationship);
-    } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT").isInferredRelationship(relationship);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).isInferredRelationship(
+          relationship);
     } else {
       return false;
     }
@@ -569,17 +603,17 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * (java.lang.String, java.lang.String)
    */
   @Override
-  public List<RelationshipType> getNonGroupingRelationshipTypes(
+  public RelationshipTypeList getNonGroupingRelationshipTypes(
     String terminology, String version) throws Exception {
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getNonGroupingRelationshipTypes(
           terminology, version);
-    } else if (helperMap.containsKey("DEFAULT")) {
-      return helperMap.get("DEFAULT").getNonGroupingRelationshipTypes(
-          terminology, version);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT)
+          .getNonGroupingRelationshipTypes(terminology, version);
     } else {
       // return an empty map
-      return new ArrayList<>();
+      return new RelationshipTypeListJpa();
     }
   }
 

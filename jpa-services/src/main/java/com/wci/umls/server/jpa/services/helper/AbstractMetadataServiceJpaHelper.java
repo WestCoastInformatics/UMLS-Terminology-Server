@@ -3,11 +3,12 @@
  */
 package com.wci.umls.server.jpa.services.helper;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.meta.RootTerminologyList;
+import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.services.RootServiceJpa;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
@@ -44,7 +45,7 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
    * @see com.wci.umls.server.services.MetadataService#getTerminologies()
    */
   @Override
-  public List<RootTerminology> getTerminologies() throws Exception {
+  public RootTerminologyList getTerminologies() throws Exception {
     // n/a
     return null;
   }
@@ -68,7 +69,7 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
    * com.wci.umls.server.services.MetadataService#getVersions(java.lang.String)
    */
   @Override
-  public List<Terminology> getVersions(String terminology) throws Exception {
+  public TerminologyList getVersions(String terminology) throws Exception {
     // n/a
     return null;
   }
@@ -93,7 +94,7 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
    * com.wci.umls.server.services.MetadataService#getTerminologyLatestVersions()
    */
   @Override
-  public List<Terminology> getTerminologyLatestVersions() throws Exception {
+  public TerminologyList getTerminologyLatestVersions() throws Exception {
     // n/a
     return null;
   }

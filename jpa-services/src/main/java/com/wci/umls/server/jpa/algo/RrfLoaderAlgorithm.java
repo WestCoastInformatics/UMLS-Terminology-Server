@@ -98,7 +98,6 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /** Listeners. */
-  @SuppressWarnings("hiding")
   private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The logging object ct threshold. */
@@ -320,7 +319,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
       // Add release info for individual terminology
-      for (Terminology terminology : getTerminologyLatestVersions()) {
+      for (Terminology terminology : getTerminologyLatestVersions().getObjects()) {
         final String version = terminology.getTerminologyVersion();
         ReleaseInfo info =
             getReleaseInfo(terminology.getTerminology(), version);
@@ -994,6 +993,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (fields[8].equals("CV_MEMBER")) {
         continue;
       }
+
       // Handle subset members and subset member attributes
       else if (fields[8].equals("SUBSET_MEMBER")) {
         // Create subset member and any subset member attributes.
@@ -1018,13 +1018,14 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         // If not, create it
         if (!found) {
           if (idTerminologyAtomSubsetMap.containsKey(subsetIdKey)) {
-
             final AtomSubset atomSubset =
                 idTerminologyAtomSubsetMap.get(subsetIdKey);
             final AtomSubsetMember atomMember = new AtomSubsetMemberJpa();
+            atomSubset.addMember(atomMember);
             atomMember.setMember(atomMap.get(fields[3]));
             atomMember.setSubset(atomSubset);
             atomSubsetMemberMap.put(subsetMemberIdKey, atomMember);
+            idTerminologyConceptSubsetMap.remove(subsetIdKey);
             member = atomMember;
 
           } else if (idTerminologyConceptSubsetMap.containsKey(subsetIdKey)) {
@@ -1032,14 +1033,17 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
                 idTerminologyConceptSubsetMap.get(subsetIdKey);
             final ConceptSubsetMember conceptMember =
                 new ConceptSubsetMemberJpa();
+            conceptSubset.addMember(conceptMember);
             conceptMember.setMember(conceptMap.get(atomMap.get(fields[1])
                 .getConceptId() + fields[10]));
             conceptMember.setSubset(conceptSubset);
             conceptSubsetMemberMap.put(subsetMemberIdKey, conceptMember);
+            idTerminologyAtomSubsetMap.remove(subsetIdKey);
             member = conceptMember;
           } else {
             throw new Exception("Unexpected subset type for member: " + line);
           }
+
           // Populate common member fields
           member.setTerminologyId(fields[7]);
           member.setTerminology(fields[9]);
@@ -1051,11 +1055,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           member.setSuppressible(!fields[11].equals("N"));
           member.setPublishable(true);
           member.setPublished(true);
+
         }
         // handle subset member attributes
         if (atvFields.length > 1 && atvFields[1] != null) {
           if (atvFields[2] == null) {
-            atvFields[2]="";
+            atvFields[2] = "";
           }
           // C3853348|L11739318|S14587084|A24131773|AUI|442311000124105|AT200797951|45bb6996-8734-5033-b069-302708da2761|SUBSET_MEMBER|SNOMEDCT_US|900000000000509007~ACCEPTABILITYID~900000000000548007|N||
           Attribute memberAtt = new AttributeJpa();
@@ -1111,24 +1116,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       addAttribute(att);
       logAndCommit(++objectCt);
 
-      // Handle subset attributes and decide on subset type
-      final String cuiAuiKey = fields[0] + fields[3];
-      if (fields[4].equals("AUI") && cuiAuiAtomSubsetMap.containsKey(cuiAuiKey)) {
-        // this is an atom subset, remove concept subset
-        AtomSubset atomSubset = cuiAuiAtomSubsetMap.get(cuiAuiKey);
-        cuiAuiConceptSubsetMap.remove(cuiAuiKey);
-        // also attach this attribute to the subset (not as a copy)
-        atomSubset.addAttribute(att);
-        // wait until later to add subset so that all attributes are present
-      } else if (fields[4].equals("SCUI")
-          && cuiAuiConceptSubsetMap.containsKey(cuiAuiKey)) {
-        // this is a concept subset, remove atom subset
-        ConceptSubset conceptSubset = cuiAuiConceptSubsetMap.get(cuiAuiKey);
-        cuiAuiAtomSubsetMap.remove(cuiAuiKey);
-        // also attach this attribute to the subset (not as a copy)
-        conceptSubset.addAttribute(att);
-        // wait until later to add subset so that all attributes are present
-      }
+      //
+      // NOTE: there are no subset attributes in RRF
+      //
 
     }
 
@@ -1243,7 +1233,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
        * |has_ingredient|R91984327||MMSL|MMSL|||N||
        */
 
-      if (fields[2].equals("AUI") && fields[6].equals("AUI")) {
+      // Skip SIB rels
+      if (fields[3].equals("SIB")) {
+        continue;
+      }
+
+      else if (fields[2].equals("AUI") && fields[6].equals("AUI")) {
         final AtomRelationship aRel = new AtomRelationshipJpa();
 
         Atom fromAtom = atomMap.get(fields[5]);
@@ -1327,6 +1322,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         addRelationship(codeRel);
         relationshipMap.put(fields[8], codeRel);
 
+      } else {
+        Logger.getLogger(getClass()).debug(
+            "  SKIPPING relationship STYPE1!=STYPE2 - " + line);
       }
 
       logAndCommit(++objectCt);
@@ -1368,6 +1366,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
     relationship.setAssertedDirection(fields[13].equals("Y"));
     relationship.setGroup(fields[12]);
+
+    // Since we don't know, have the rels count as "both"
+    relationship.setInferred(true);
+    relationship.setStated(true);
   }
 
   /**
@@ -1650,6 +1652,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // C3539934|ENG|S|L11195730|PF|S13913746|N|A23460885||900000000000538005||SNOMEDCT_US|SB|900000000000538005|Description
       // format|9|N|256|
       if (fields[12].equals("SB")) {
+
         // Have to handle the type later, when we get to attributes
         AtomSubset atomSubset = new AtomSubsetJpa();
         setSubsetFields(atomSubset, fields);
@@ -1659,8 +1662,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         ConceptSubset conceptSubset = new ConceptSubsetJpa();
         setSubsetFields(conceptSubset, fields);
         cuiAuiConceptSubsetMap.put(fields[0] + fields[7], conceptSubset);
-        idTerminologyConceptSubsetMap.put(atomSubset.getTerminologyId()
-            + atomSubset.getTerminology(), conceptSubset);
+        idTerminologyConceptSubsetMap.put(conceptSubset.getTerminologyId()
+            + conceptSubset.getTerminology(), conceptSubset);
       }
 
     }

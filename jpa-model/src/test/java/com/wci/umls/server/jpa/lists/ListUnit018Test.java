@@ -10,9 +10,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.UserPreferences;
+import com.wci.umls.server.helpers.KeyValuePairList;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.UserJpa;
+import com.wci.umls.server.jpa.UserPreferencesJpa;
+import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
 
 /**
@@ -53,7 +58,18 @@ public class ListUnit018Test extends AbstractListUnit<User> {
     ProxyTester tester = new ProxyTester(new UserJpa());
     o1 = (User) tester.createObject(1);
     o2 = (User) tester.createObject(2);
-
+    UserPreferences up = new UserPreferencesJpa();
+    up.setId(1L);
+    User user = new  UserJpa();
+    user.setId(1L);
+    user.setUserName("1");
+    PrecedenceList pl = new PrecedenceListJpa();
+    pl.setId(1L);
+    pl.setPrecedence(new KeyValuePairList());
+    up.setUser(user);
+    up.setPrecedenceList(pl);
+    o1.setUserPreferences(up);
+    o2.setUserPreferences(up);
   }
 
   /**
