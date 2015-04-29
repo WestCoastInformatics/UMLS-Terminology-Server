@@ -16,7 +16,11 @@ import com.sun.jersey.api.client.WebResource;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.LexicalClassJpa;
+import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
@@ -230,64 +234,326 @@ public class ContentClientRest implements ContentServiceRest {
     return list;
   }
 
-  
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getDescriptor(
+   * java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
   @Override
   public Descriptor getDescriptor(String terminologyId, String terminology,
     String version, String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get descriptor " + terminologyId + ", " + terminology
+            + ", " + version);
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/dui/"
+            + terminology + "/" + version + "/" + terminologyId + "/"
+            + Branch.ROOT);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get(ClientResponse.class);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    DescriptorJpa descriptor =
+        (DescriptorJpa) ConfigUtility.getGraphForString(resultString,
+            DescriptorJpa.class);
+    return descriptor;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findDescriptorsForQuery(java.lang.String, java.lang.String,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
+   */
   @Override
   public SearchResultList findDescriptorsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find descriptors " + terminology + ", " + version
+            + ", " + query + ", " + pfs);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/dui/"
+            + terminology + "/" + version + "/" + Branch.ROOT + "/query/"
+            + query);
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    Logger.getLogger(getClass()).debug(pfsString);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    SearchResultListJpa list =
+        (SearchResultListJpa) ConfigUtility.getGraphForString(resultString,
+            SearchResultListJpa.class);
+    return list;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getCode(java.lang
+   * .String, java.lang.String, java.lang.String, java.lang.String)
+   */
   @Override
   public Code getCode(String terminologyId, String terminology, String version,
     String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get code " + terminologyId + ", " + terminology
+            + ", " + version);
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/code/"
+            + terminology + "/" + version + "/" + terminologyId + "/"
+            + Branch.ROOT);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get(ClientResponse.class);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    CodeJpa descriptor =
+        (CodeJpa) ConfigUtility.getGraphForString(resultString, CodeJpa.class);
+    return descriptor;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findCodesForQuery
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
   @Override
   public SearchResultList findCodesForQuery(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find codes " + terminology + ", " + version + ", "
+            + query + ", " + pfs);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/code/"
+            + terminology + "/" + version + "/" + Branch.ROOT + "/query/"
+            + query);
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    Logger.getLogger(getClass()).debug(pfsString);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    SearchResultListJpa list =
+        (SearchResultListJpa) ConfigUtility.getGraphForString(resultString,
+            SearchResultListJpa.class);
+    return list;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getLexicalClass
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
   @Override
   public LexicalClass getLexicalClass(String terminologyId, String terminology,
     String version, String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get lexical class " + terminologyId + ", "
+            + terminology + ", " + version);
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/lui/"
+            + terminology + "/" + version + "/" + terminologyId + "/"
+            + Branch.ROOT);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get(ClientResponse.class);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    LexicalClassJpa lexicalClass =
+        (LexicalClassJpa) ConfigUtility.getGraphForString(resultString,
+            LexicalClassJpa.class);
+    return lexicalClass;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findLexicalClassesForQuery(java.lang.String, java.lang.String,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
+   */
   @Override
   public SearchResultList findLexicalClassesForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find lexical classes " + terminology + ", " + version
+            + ", " + query + ", " + pfs);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/lui/"
+            + terminology + "/" + version + "/" + Branch.ROOT + "/query/"
+            + query);
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    Logger.getLogger(getClass()).debug(pfsString);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    SearchResultListJpa list =
+        (SearchResultListJpa) ConfigUtility.getGraphForString(resultString,
+            SearchResultListJpa.class);
+    return list;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getStringClass
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
   @Override
   public StringClass getStringClass(String terminologyId, String terminology,
     String version, String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get string class " + terminologyId + ", "
+            + terminology + ", " + version);
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/sui/"
+            + terminology + "/" + version + "/" + terminologyId + "/"
+            + Branch.ROOT);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get(ClientResponse.class);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    StringClassJpa stringClass =
+        (StringClassJpa) ConfigUtility.getGraphForString(resultString,
+            StringClassJpa.class);
+    return stringClass;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findStringClassesForQuery(java.lang.String, java.lang.String,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
+   */
   @Override
   public SearchResultList findStringClassesForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find string classes " + terminology + ", " + version
+            + ", " + query + ", " + pfs);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/sui/"
+            + terminology + "/" + version + "/" + Branch.ROOT + "/query/"
+            + query);
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    Logger.getLogger(getClass()).debug(pfsString);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    SearchResultListJpa list =
+        (SearchResultListJpa) ConfigUtility.getGraphForString(resultString,
+            SearchResultListJpa.class);
+    return list;
   }
 
 }
