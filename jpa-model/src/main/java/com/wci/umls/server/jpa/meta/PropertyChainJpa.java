@@ -6,9 +6,10 @@ package com.wci.umls.server.jpa.meta;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -16,8 +17,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
 
+import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.PropertyChain;
-import com.wci.umls.server.model.meta.RelationshipType;
 
 /**
  * JPA-enabled implementation of {@link PropertyChain}.
@@ -32,13 +33,13 @@ public class PropertyChainJpa extends AbstractAbbreviation implements
     PropertyChain {
 
   /** The chain. */
-  @ElementCollection
-  @Column(nullable = false)
-  private List<RelationshipType> chain;
+  @ManyToMany(targetEntity = AdditionalRelationshipTypeJpa.class)
+  @JoinTable(name = "projects_chains_chain", joinColumns = @JoinColumn(name = "chain_id"), inverseJoinColumns = @JoinColumn(name = "type_id"))
+  private List<AdditionalRelationshipType> chain;
 
   /** The result. */
-  @ManyToOne(targetEntity = RelationshipTypeJpa.class, optional = false)
-  private RelationshipType result;
+  @ManyToOne(targetEntity = AdditionalRelationshipTypeJpa.class, optional = false)
+  private AdditionalRelationshipType result;
 
   /**
    * Instantiates an empty {@link PropertyChainJpa}.
@@ -64,7 +65,7 @@ public class PropertyChainJpa extends AbstractAbbreviation implements
    * @see com.wci.umls.server.model.meta.PropertyChain#getChain()
    */
   @Override
-  public List<RelationshipType> getChain() {
+  public List<AdditionalRelationshipType> getChain() {
     if (chain == null) {
       chain = new ArrayList<>();
     }
@@ -77,7 +78,7 @@ public class PropertyChainJpa extends AbstractAbbreviation implements
    * @see com.wci.umls.server.model.meta.PropertyChain#setChain(java.util.List)
    */
   @Override
-  public void setChain(List<RelationshipType> chain) {
+  public void setChain(List<AdditionalRelationshipType> chain) {
     this.chain = chain;
   }
 
@@ -87,7 +88,7 @@ public class PropertyChainJpa extends AbstractAbbreviation implements
    * @see com.wci.umls.server.model.meta.PropertyChain#getResult()
    */
   @Override
-  public RelationshipType getResult() {
+  public AdditionalRelationshipType getResult() {
     return result;
   }
 
@@ -96,10 +97,10 @@ public class PropertyChainJpa extends AbstractAbbreviation implements
    * 
    * @see
    * com.wci.umls.server.model.meta.PropertyChain#setResult(com.wci.umls.server
-   * .model.meta.RelationshipType)
+   * .model.meta.AdditionalRelationshipType)
    */
   @Override
-  public void setResult(RelationshipType result) {
+  public void setResult(AdditionalRelationshipType result) {
     this.result = result;
   }
 

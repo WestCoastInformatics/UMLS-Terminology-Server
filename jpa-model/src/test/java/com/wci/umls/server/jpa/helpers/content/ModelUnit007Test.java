@@ -253,6 +253,7 @@ public class ModelUnit007Test {
     tester.include("termType");
     tester.include("language");
     tester.include("workflowStatus");
+    tester.include("branch");
     
     assertTrue(tester.testNotAnalyzedIndexedFields());
 

@@ -20,6 +20,7 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
+import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.RootTerminologyList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
@@ -29,6 +30,7 @@ import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
 import com.wci.umls.server.jpa.helpers.meta.GeneralMetadataEntryListJpa;
+import com.wci.umls.server.jpa.helpers.meta.PropertyChainListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RootTerminologyListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
@@ -427,6 +429,20 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
   }
 
+  @Override
+  public PropertyChainList getPropertyChains(String terminology,
+    String version) throws Exception {
+    if (helperMap.containsKey(terminology)) {
+      return helperMap.get(terminology).getPropertyChains(terminology,
+          version);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).getPropertyChains(
+          terminology, version);
+    } else {
+      // return an empty map
+      return new PropertyChainListJpa();
+    }
+  }
   /*
    * (non-Javadoc)
    * 

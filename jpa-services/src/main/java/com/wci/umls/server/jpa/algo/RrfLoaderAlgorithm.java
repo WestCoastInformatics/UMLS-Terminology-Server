@@ -1017,7 +1017,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
         // If not, create it
         if (!found) {
-          if (idTerminologyAtomSubsetMap.containsKey(subsetIdKey)) {
+          if (fields[4].equals("AUI")) {
             final AtomSubset atomSubset =
                 idTerminologyAtomSubsetMap.get(subsetIdKey);
             final AtomSubsetMember atomMember = new AtomSubsetMemberJpa();
@@ -1028,14 +1028,14 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             idTerminologyConceptSubsetMap.remove(subsetIdKey);
             member = atomMember;
 
-          } else if (idTerminologyConceptSubsetMap.containsKey(subsetIdKey)) {
+          } else if (fields[4].equals("SCUI")) {
             final ConceptSubset conceptSubset =
                 idTerminologyConceptSubsetMap.get(subsetIdKey);
             final ConceptSubsetMember conceptMember =
                 new ConceptSubsetMemberJpa();
             conceptSubset.addMember(conceptMember);
-            conceptMember.setMember(conceptMap.get(atomMap.get(fields[1])
-                .getConceptId() + fields[10]));
+            conceptMember.setMember(conceptMap.get(atomMap.get(fields[3])
+                .getConceptId() + fields[9]));
             conceptMember.setSubset(conceptSubset);
             conceptSubsetMemberMap.put(subsetMemberIdKey, conceptMember);
             idTerminologyAtomSubsetMap.remove(subsetIdKey);
@@ -1055,7 +1055,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           member.setSuppressible(!fields[11].equals("N"));
           member.setPublishable(true);
           member.setPublished(true);
-
+          // add the member later
         }
         // handle subset member attributes
         if (atvFields.length > 1 && atvFields[1] != null) {
@@ -1156,6 +1156,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     objectCt = 0;
     for (AtomSubset subset : idTerminologyAtomSubsetMap.values()) {
       List<AtomSubsetMember> members = subset.getMembers();
+      // Skip subsets that have no members
+      if (members.size() == 0) {
+        continue;
+      }
       subset.setMembers(new ArrayList<AtomSubsetMember>());
       addSubset(subset);
       for (AtomSubsetMember member : members) {
@@ -1171,6 +1175,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     objectCt = 0;
     for (ConceptSubset subset : idTerminologyConceptSubsetMap.values()) {
       List<ConceptSubsetMember> members = subset.getMembers();
+      // Skip subsets that have no members
+      if (members.size() == 0) {
+        continue;
+      }
       subset.setMembers(new ArrayList<ConceptSubsetMember>());
       addSubset(subset);
       for (ConceptSubsetMember member : members) {

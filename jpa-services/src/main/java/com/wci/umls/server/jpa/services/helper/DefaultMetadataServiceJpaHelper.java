@@ -7,12 +7,14 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
+import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TermTypeList;
 import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
 import com.wci.umls.server.jpa.helpers.meta.GeneralMetadataEntryListJpa;
+import com.wci.umls.server.jpa.helpers.meta.PropertyChainListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
@@ -55,6 +57,22 @@ public class DefaultMetadataServiceJpaHelper extends
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     RelationshipTypeList types = new RelationshipTypeListJpa();
+    types.setObjects(query.getResultList());
+    types.setTotalCount(types.getObjects().size());
+    return types;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public PropertyChainList getPropertyChains(String terminology, String version)
+    throws Exception {
+    javax.persistence.Query query =
+        manager
+            .createQuery("SELECT r from PropertyChainJpa r where terminology = :terminology"
+                + " and terminologyVersion = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    PropertyChainList types = new PropertyChainListJpa();
     types.setObjects(query.getResultList());
     types.setTotalCount(types.getObjects().size());
     return types;
@@ -169,17 +187,15 @@ public class DefaultMetadataServiceJpaHelper extends
   @Override
   public RelationshipTypeList getHierarchicalRelationshipTypes(
     String terminology, String version) throws Exception {
+    // Here, not terminology specific
     javax.persistence.Query query =
         manager
-            .createQuery("SELECT r from RelationshipTypeJpa r where terminology = :terminology"
-                + " and terminologyVersion = :version and abbreviation = :rel");
-
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
-    query.setParameter("rel", "PAR");
+            .createQuery("SELECT r from RelationshipTypeJpa r where abbreviation = :rel");
+    query.setParameter("rel", "CHD");
     RelationshipTypeList types = new RelationshipTypeListJpa();
     types.setObjects(query.getResultList());
     types.setTotalCount(types.getObjects().size());
+
     return types;
   }
 

@@ -7,12 +7,14 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
+import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TermTypeList;
 import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
 import com.wci.umls.server.jpa.helpers.meta.GeneralMetadataEntryListJpa;
+import com.wci.umls.server.jpa.helpers.meta.PropertyChainListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
@@ -53,6 +55,18 @@ public class UmlsMetadataServiceJpaHelper extends
     return types;
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public PropertyChainList getPropertyChains(String terminology,
+    String version) throws Exception {
+    javax.persistence.Query query =
+        manager.createQuery("SELECT r from PropertyChainJpa r");
+    PropertyChainList types = new PropertyChainListJpa();
+    types.setObjects(query.getResultList());
+    types.setTotalCount(types.getObjects().size());
+    return types;
+  }
+  
   /*
    * (non-Javadoc)
    * 

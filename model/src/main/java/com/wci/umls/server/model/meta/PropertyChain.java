@@ -6,7 +6,7 @@ package com.wci.umls.server.model.meta;
 import java.util.List;
 
 /**
- * Represents a property chain (of {@link RelationshipType}s).
+ * Represents a property chain (of {@link AdditionalRelationshipType}s).
  */
 public interface PropertyChain extends Abbreviation {
 
@@ -15,27 +15,27 @@ public interface PropertyChain extends Abbreviation {
    *
    * @return the chain
    */
-  public List<RelationshipType> getChain();
+  public List<AdditionalRelationshipType> getChain();
 
   /**
    * Sets the chain.
    *
    * @param chain the chain
    */
-  public void setChain(List<RelationshipType> chain);
+  public void setChain(List<AdditionalRelationshipType> chain);
 
   /**
    * Returns the result.
    *
    * @return the result
    */
-  public RelationshipType getResult();
+  public AdditionalRelationshipType getResult();
 
   /**
    * Sets the result.
    *
    * @param result the result
    */
-  public void setResult(RelationshipType result);
+  public void setResult(AdditionalRelationshipType result);
 
 }

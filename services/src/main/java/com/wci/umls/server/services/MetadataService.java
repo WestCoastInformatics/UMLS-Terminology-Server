@@ -10,6 +10,7 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
+import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.RootTerminologyList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
@@ -131,6 +132,17 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception the exception
    */
   public RelationshipTypeList getRelationshipTypes(String terminology,
+    String version) throws Exception;
+
+  /**
+   * Returns the property chains.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @return the property chains
+   * @throws Exception the exception
+   */
+  public PropertyChainList getPropertyChains(String terminology,
     String version) throws Exception;
 
   /**
