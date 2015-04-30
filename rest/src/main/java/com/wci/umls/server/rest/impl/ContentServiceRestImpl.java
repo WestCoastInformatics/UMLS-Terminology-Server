@@ -243,6 +243,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           algo.setTerminology(t.getTerminology());
           algo.setTerminologyVersion(t.getTerminologyVersion());
           algo.setIdType(t.getOrganizingClassType());
+          // some terminologies have cycles, allow these for now.
+          algo.setCycleTolerant(true);
           algo.compute();
           algo.close();
         }

@@ -43,7 +43,6 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     Algorithm {
 
   /** Listeners. */
-  @SuppressWarnings("hiding")
   private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The request cancel flag. */
@@ -60,6 +59,9 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
 
   /** The id type. */
   private IdType idType;
+
+  /** The cycle tolerant. */
+  private boolean cycleTolerant;
 
   /** The Constant commitCt. */
   private final static int commitCt = 2000;
@@ -111,6 +113,24 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
           "Only CONCEPT, DESCRIPTOR, and CODE types are allowed.");
     }
     this.idType = idType;
+  }
+
+  /**
+   * Indicates whether or not cycle tolerant is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isCycleTolerant() {
+    return cycleTolerant;
+  }
+
+  /**
+   * Sets the cycle tolerant.
+   *
+   * @param cycleTolerant the cycle tolerant
+   */
+  public void setCycleTolerant(boolean cycleTolerant) {
+    this.cycleTolerant = cycleTolerant;
   }
 
   /*
@@ -350,7 +370,11 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
       // Iterate through children, mark as descendant and recursively call
       for (Long chd : children) {
         if (ancPath.contains(chd)) {
-          throw new Exception("Cycle detected: " + chd + ", " + ancPath);
+          if (cycleTolerant) {
+            return new HashSet<>(0);
+          } else {
+            throw new Exception("Cycle detected: " + chd + ", " + ancPath);
+          }
         }
         descendants.add(chd);
         ancPath.add(chd);
