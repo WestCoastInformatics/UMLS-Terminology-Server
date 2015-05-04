@@ -201,9 +201,11 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
             .createQuery(
                 "select r from " + tableName + " r where obsolete = 0 "
                     + "and terminology = :terminology "
-                    + "and terminologyVersion = :version")
+                    + "and terminologyVersion = :version "
+                    + "and relationshipType = :relationshipType")
             .setParameter("terminology", terminology)
-            .setParameter("version", version);
+            .setParameter("version", version)
+            .setParameter("relationshipType", chdRel);
 
     @SuppressWarnings("unchecked")
     List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> rels =

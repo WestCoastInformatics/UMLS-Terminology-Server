@@ -238,16 +238,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       MetadataService metadataService = new MetadataServiceJpa();
       for (Terminology t : metadataService.getTerminologyLatestVersions().getObjects()) {
         // Only compute for organizing class types
-//        if (t.getOrganizingClassType() != null) {
-//          TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-//          algo.setTerminology(t.getTerminology());
-//          algo.setTerminologyVersion(t.getTerminologyVersion());
-//          algo.setIdType(t.getOrganizingClassType());
-//          // some terminologies have cycles, allow these for now.
-//          algo.setCycleTolerant(true);
-//          algo.compute();
-//          algo.close();
-//        }
+        if (t.getOrganizingClassType() != null) {
+          TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+          algo.setTerminology(t.getTerminology());
+          algo.setTerminologyVersion(t.getTerminologyVersion());
+          algo.setIdType(t.getOrganizingClassType());
+          // some terminologies have cycles, allow these for now.
+          algo.setCycleTolerant(true);
+          algo.compute();
+          algo.close();
+        }
       }
 
       // Clean-up
