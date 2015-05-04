@@ -276,22 +276,45 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
     return true;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
+   */
   @Override
   public String toString() {
     return "AbstractAtomClass [atoms=" + atoms + ", defaultPreferredName="
         + defaultPreferredName + "]";
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.content.AtomClass#getBranchedTo()
+   */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getBranchedTo() {
     return branchedTo;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.AtomClass#setBranchedTo(java.lang.String)
+   */
   @Override
   public void setBranchedTo(String branchedTo) {
     this.branchedTo = branchedTo;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.AtomClass#addBranchedTo(java.lang.String)
+   */
   @Override
   public void addBranchedTo(String newBranch) {
     if (newBranch.indexOf(Branch.SEPARATOR) != -1) {
@@ -301,6 +324,13 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
     branchedTo += newBranch + Branch.SEPARATOR;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.AtomClass#removeBranchedTo(java.lang.
+   * String)
+   */
   @Override
   public void removeBranchedTo(String closedBranch) {
     if (closedBranch.indexOf(Branch.SEPARATOR) != -1) {

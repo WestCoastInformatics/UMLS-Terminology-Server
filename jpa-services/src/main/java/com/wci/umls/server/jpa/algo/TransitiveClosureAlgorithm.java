@@ -43,7 +43,6 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     Algorithm {
 
   /** Listeners. */
-  @SuppressWarnings("hiding")
   private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The request cancel flag. */
@@ -60,6 +59,9 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
 
   /** The id type. */
   private IdType idType;
+
+  /** The cycle tolerant. */
+  private boolean cycleTolerant;
 
   /** The Constant commitCt. */
   private final static int commitCt = 2000;
@@ -113,6 +115,24 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     this.idType = idType;
   }
 
+  /**
+   * Indicates whether or not cycle tolerant is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isCycleTolerant() {
+    return cycleTolerant;
+  }
+
+  /**
+   * Sets the cycle tolerant.
+   *
+   * @param cycleTolerant the cycle tolerant
+   */
+  public void setCycleTolerant(boolean cycleTolerant) {
+    this.cycleTolerant = cycleTolerant;
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -157,13 +177,14 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
 
     // Get hierarchcial rels
     MetadataService service = new MetadataServiceJpa();
-    if (service.getHierarchicalRelationshipTypes(terminology, version).size() == 0) {
+    if (service.getHierarchicalRelationshipTypes(terminology, version)
+        .getObjects().size() == 0) {
       Logger.getLogger(getClass()).info("  NO hierarchical rels, exiting...");
       return;
     }
     String chdRel =
         service.getHierarchicalRelationshipTypes(terminology, version)
-            .iterator().next().getAbbreviation();
+            .getObjects().iterator().next().getAbbreviation();
     service.close();
     Logger.getLogger(getClass()).info("    count = " + chdRel);
 
@@ -180,9 +201,11 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
             .createQuery(
                 "select r from " + tableName + " r where obsolete = 0 "
                     + "and terminology = :terminology "
-                    + "and terminologyVersion = :version")
+                    + "and terminologyVersion = :version "
+                    + "and relationshipType = :relationshipType")
             .setParameter("terminology", terminology)
-            .setParameter("version", version);
+            .setParameter("version", version)
+            .setParameter("relationshipType", chdRel);
 
     @SuppressWarnings("unchecked")
     List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> rels =
@@ -349,7 +372,11 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
       // Iterate through children, mark as descendant and recursively call
       for (Long chd : children) {
         if (ancPath.contains(chd)) {
-          throw new Exception("Cycle detected: " + chd + ", " + ancPath);
+          if (cycleTolerant) {
+            return new HashSet<>(0);
+          } else {
+            throw new Exception("Cycle detected: " + chd + ", " + ancPath);
+          }
         }
         descendants.add(chd);
         ancPath.add(chd);

@@ -170,11 +170,4 @@ public class RelationshipTypeJpa extends AbstractAbbreviation implements
     return "RelationshipTypeJpa [groupingType=" + groupingType + "]";
   }
 
-  
-  // TODO
-  // isreflexive, is transitive, is functional, etc.
-  // domain/range
-  // is non-grouping
-  // property chains.
-
 }

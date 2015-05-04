@@ -9,7 +9,9 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -20,6 +22,7 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 
 /**
@@ -52,6 +55,10 @@ public class UserJpa implements User {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private UserRole applicationRole;
+
+  /** The user preferences. */
+  @OneToOne(targetEntity = UserPreferencesJpa.class, mappedBy = "user", optional = true)
+  private UserPreferences userPreferences;
 
   /**
    * The default constructor.
@@ -92,7 +99,9 @@ public class UserJpa implements User {
     this.applicationRole = user.getApplicationRole();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.User#getId()
    */
   @Override
@@ -100,13 +109,16 @@ public class UserJpa implements User {
     return id;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.User#setId(java.lang.Long)
    */
   @Override
   public void setId(Long id) {
     this.id = id;
   }
+
   /**
    * Returns the object id. Needed for JAXB id
    *
@@ -251,11 +263,6 @@ public class UserJpa implements User {
         + "," + this.getName() + "," + this.getApplicationRole().getValue();
   }
 
-  /**
-   * Hash code.
-   *
-   * @return the int
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -269,12 +276,6 @@ public class UserJpa implements User {
     return result;
   }
 
-  /**
-   * Equals.
-   *
-   * @param obj the obj
-   * @return true, if successful
-   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -302,6 +303,29 @@ public class UserJpa implements User {
     } else if (!userName.equals(other.userName))
       return false;
     return true;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.User#getUserPreferences()
+   */
+  @XmlElement(type = UserPreferencesJpa.class, name = "userPreferences")
+  @Override
+  public UserPreferences getUserPreferences() {
+    return userPreferences;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.User#setUserPreferences(com.wci.umls.server.UserPreferences
+   * )
+   */
+  @Override
+  public void setUserPreferences(UserPreferences preferences) {
+    this.userPreferences = preferences;
   }
 
 }

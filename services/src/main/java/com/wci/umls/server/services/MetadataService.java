@@ -3,11 +3,19 @@
  */
 package com.wci.umls.server.services;
 
-import java.util.List;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
+import com.wci.umls.server.helpers.meta.AttributeNameList;
+import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
+import com.wci.umls.server.helpers.meta.PropertyChainList;
+import com.wci.umls.server.helpers.meta.RelationshipTypeList;
+import com.wci.umls.server.helpers.meta.RootTerminologyList;
+import com.wci.umls.server.helpers.meta.SemanticTypeList;
+import com.wci.umls.server.helpers.meta.TermTypeList;
+import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
@@ -61,7 +69,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the terminologies
    * @throws Exception if anything goes wrong
    */
-  public List<RootTerminology> getTerminologies() throws Exception;
+  public RootTerminologyList getTerminologies() throws Exception;
 
   /**
    * Returns the terminology.
@@ -81,7 +89,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the versions
    * @throws Exception if anything goes wrong
    */
-  public List<Terminology> getVersions(String terminology) throws Exception;
+  public TerminologyList getVersions(String terminology) throws Exception;
 
   /**
    * Returns the latest version.
@@ -98,7 +106,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the terminology latest versions
    * @throws Exception if anything goes wrong
    */
-  public List<Terminology> getTerminologyLatestVersions() throws Exception;
+  public TerminologyList getTerminologyLatestVersions() throws Exception;
 
   /**
    * Returns the all metadata.
@@ -123,7 +131,18 @@ public interface MetadataService extends RootService, Configurable {
    * @return the relation types
    * @throws Exception the exception
    */
-  public List<RelationshipType> getRelationshipTypes(String terminology,
+  public RelationshipTypeList getRelationshipTypes(String terminology,
+    String version) throws Exception;
+
+  /**
+   * Returns the property chains.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @return the property chains
+   * @throws Exception the exception
+   */
+  public PropertyChainList getPropertyChains(String terminology,
     String version) throws Exception;
 
   /**
@@ -134,7 +153,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the additional relation types
    * @throws Exception the exception
    */
-  public List<AdditionalRelationshipType> getAdditionalRelationshipTypes(
+  public AdditionalRelationshipTypeList getAdditionalRelationshipTypes(
     String terminology, String version) throws Exception;
 
   /**
@@ -145,7 +164,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the attribute names
    * @throws Exception the exception
    */
-  public List<AttributeName> getAttributeNames(String terminology,
+  public AttributeNameList getAttributeNames(String terminology,
     String version) throws Exception;
 
   /**
@@ -156,7 +175,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the semantic types
    * @throws Exception the exception
    */
-  public List<SemanticType> getSemanticTypes(String terminology, String version)
+  public SemanticTypeList getSemanticTypes(String terminology, String version)
     throws Exception;
 
   /**
@@ -167,7 +186,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the term types
    * @throws Exception the exception
    */
-  public List<TermType> getTermTypes(String terminology, String version)
+  public TermTypeList getTermTypes(String terminology, String version)
     throws Exception;
 
   /**
@@ -183,7 +202,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the relationship types
    * @throws Exception if anything goes wrong
    */
-  public List<RelationshipType> getHierarchicalRelationshipTypes(
+  public RelationshipTypeList getHierarchicalRelationshipTypes(
     String terminology, String version) throws Exception;
 
   /**
@@ -218,7 +237,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the non grouping relationship types
    * @throws Exception the exception
    */
-  public List<RelationshipType> getNonGroupingRelationshipTypes(
+  public RelationshipTypeList getNonGroupingRelationshipTypes(
     String terminology, String version) throws Exception;
 
   /**
@@ -228,7 +247,7 @@ public interface MetadataService extends RootService, Configurable {
    * @param version the version
    * @return the general metadata entries
    */
-  public List<GeneralMetadataEntry> getGeneralMetadataEntries(
+  public GeneralMetadataEntryList getGeneralMetadataEntries(
     String terminology, String version);
 
   /**

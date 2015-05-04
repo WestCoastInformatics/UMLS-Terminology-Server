@@ -87,7 +87,7 @@ public class TerminologyUtility {
       MetadataService metadataService = new MetadataServiceJpa();
       Set<String> relTypes = new HashSet<>();
       for (RelationshipType type : metadataService
-          .getHierarchicalRelationshipTypes(terminology, version)) {
+          .getHierarchicalRelationshipTypes(terminology, version).getObjects()) {
         relTypes.add(type.getAbbreviation());
       }
       isaRelsMap.put(terminology + version, relTypes);

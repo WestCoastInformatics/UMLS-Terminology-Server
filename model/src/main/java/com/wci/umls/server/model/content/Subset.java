@@ -51,4 +51,18 @@ public interface Subset extends
    * @param disjointSubset the new disjoint subset
    */
   public void setDisjointSubset(boolean disjointSubset);
+
+  /**
+   * Returns the branched to.
+   *
+   * @return the branched to
+   */
+  public String getBranchedTo();
+  
+  /**
+   * Sets the branched to.
+   *
+   * @param branchedTo the branched to
+   */
+  public void setBranchedTo(String branchedTo);
 }

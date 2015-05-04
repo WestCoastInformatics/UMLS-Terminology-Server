@@ -113,11 +113,12 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     MetadataService metadataService = new MetadataServiceJpa();
     try {
       // verify terminology and version pair exist
-      if (metadataService.getTerminologies().contains(terminology)) {
+      if (metadataService.getTerminologies().getObjects().contains(terminology)) {
 
         // if this version does not exist for terminology, throw 204 (No
         // Content)
-        if (!metadataService.getVersions(terminology).contains(version)) {
+        if (!metadataService.getVersions(terminology).getObjects()
+            .contains(version)) {
           throw new WebApplicationException(Response
               .status(204)
               .entity(
@@ -191,7 +192,8 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
                     "User does not have permissions to retrieve the latest versions of all terminologies.")
                 .build());
 
-      List<Terminology> list = metadataService.getTerminologyLatestVersions();
+      List<Terminology> list =
+          metadataService.getTerminologyLatestVersions().getObjects();
       KeyValuePairList keyValuePairList = new KeyValuePairList();
       for (Terminology terminology : list) {
         final KeyValuePair pair = new KeyValuePair();
@@ -245,10 +247,12 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
                 .build());
 
       KeyValuePairLists keyValuePairLists = new KeyValuePairLists();
-      List<RootTerminology> terminologies = metadataService.getTerminologies();
+      List<RootTerminology> terminologies =
+          metadataService.getTerminologies().getObjects();
       for (RootTerminology terminology : terminologies) {
         List<Terminology> versions =
-            metadataService.getVersions(terminology.getTerminology());
+            metadataService.getVersions(terminology.getTerminology())
+                .getObjects();
         KeyValuePairList keyValuePairList = new KeyValuePairList();
         for (Terminology version : versions) {
           keyValuePairList.addKeyValuePair(new KeyValuePair(terminology

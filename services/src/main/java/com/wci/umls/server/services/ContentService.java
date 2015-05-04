@@ -868,7 +868,7 @@ public interface ContentService extends RootService {
    * @param branch the branch
    * @return the all subsets
    */
-  public ConceptList getAllSubsets(String terminology, String version,
+  public SubsetList getAllSubsets(String terminology, String version,
     String branch);
 
   /**

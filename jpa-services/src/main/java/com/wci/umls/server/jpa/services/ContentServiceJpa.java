@@ -13,6 +13,7 @@ import javax.persistence.metamodel.EntityType;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteriaList;
@@ -45,6 +46,7 @@ import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
 import com.wci.umls.server.jpa.helpers.content.DescriptorListJpa;
 import com.wci.umls.server.jpa.helpers.content.LexicalClassListJpa;
 import com.wci.umls.server.jpa.helpers.content.StringClassListJpa;
+import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -95,6 +97,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
                 handlerName, IdentifierAssignmentHandler.class);
         idHandlerMap.put(handlerName, handlerService);
       }
+      if (!idHandlerMap.containsKey(ConfigUtility.DEFAULT)) {
+        throw new Exception("identifier.assignment.handler."
+            + ConfigUtility.DEFAULT + " expected and does not exist.");
+      }
     } catch (Exception e) {
       e.printStackTrace();
       idHandlerMap = null;
@@ -116,6 +122,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
                 handlerName, ComputePreferredNameHandler.class);
         pnHandlerMap.put(handlerName, handlerService);
+      }
+      if (!pnHandlerMap.containsKey(ConfigUtility.DEFAULT)) {
+        throw new Exception("compute.preferred.name.handler."
+            + ConfigUtility.DEFAULT + " expected and does not exist.");
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -140,7 +150,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
                 handlerName, GraphResolutionHandler.class);
         graphResolverMap.put(handlerName, handlerService);
       }
-
+      if (!graphResolverMap.containsKey(ConfigUtility.DEFAULT)) {
+        throw new Exception("graph.resolution.handler." + ConfigUtility.DEFAULT
+            + " expected and does not exist.");
+      }
     } catch (Exception e) {
       e.printStackTrace();
       graphResolverMap = null;
@@ -264,12 +277,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
     // Find the one matching the branch (or without having been branched to)
     for (Concept obj : list.getObjects()) {
-      if (obj.getBranch().equals(branch)) {
+      if (obj.getBranch().equals(branch)
+          || !obj.getBranchedTo().contains(branch + Branch.SEPARATOR)) {
         return obj;
       }
     }
-    // TODO: deal with branching
-
     // If nothing found, return null;
     return null;
   }
@@ -375,8 +387,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public Subset getSubset(Long id) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug("Content Service - subset " + id);
+    Subset s = manager.find(AbstractSubset.class, id);
+    return s;
   }
 
   /*
@@ -389,8 +402,30 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public SubsetList getSubsets(String terminologyId, String terminology,
     String version) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get subsets " + terminologyId + "/" + terminology
+            + "/" + version);
+    javax.persistence.Query query =
+        manager.createQuery("select s from AbstractSubset s where "
+            + "terminologyId = :terminologyId and " + ""
+            + "terminologyVersion = :version and terminology = :terminology");
+
+    // Try to retrieve the single expected result If zero or more than one
+    // result are returned, log error and set result to null
+    try {
+      query.setParameter("terminologyId", terminologyId);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      @SuppressWarnings("unchecked")
+      List<Subset> m = query.getResultList();
+      SubsetListJpa subsetList = new SubsetListJpa();
+      subsetList.setObjects(m);
+      subsetList.setTotalCount(m.size());
+      return subsetList;
+
+    } catch (NoResultException e) {
+      return null;
+    }
   }
 
   /*
@@ -403,9 +438,24 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public Subset getSubset(String terminologyId, String terminology,
     String version, String branch) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get subset " + terminologyId + "/" + terminology
+            + "/" + version + "/" + branch);
+    assert branch != null;
+    SubsetList list = getSubsets(terminologyId, terminology, version);
+    if (list == null || list.getTotalCount() == 0) {
+      Logger.getLogger(getClass()).debug("  no subset ");
+      return null;
+    }
+    // Find the one matching the branch (or without having been branched to)
+    for (Subset obj : list.getObjects()) {
+      if (obj.getBranch().equals(branch)
+          || !obj.getBranchedTo().contains(branch + Branch.SEPARATOR)) {
+        return obj;
+      }
+    }
+    // If nothing found, return null;
+    return null;  }
 
   /*
    * (non-Javadoc)
@@ -457,10 +507,32 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * java.lang.String, java.lang.String)
    */
   @Override
-  public ConceptList getAllSubsets(String terminology, String version,
+  public SubsetList getAllSubsets(String terminology, String version,
     String branch) {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get all subsets " + terminology + "/" + version
+            + "/" + branch);
+    assert branch != null;
+
+    try {
+      javax.persistence.Query query =
+          manager.createQuery("select s from AbstractSubset s "
+              + "where terminologyVersion = :version "
+              + "and terminology = :terminology "
+              + "and (branch = :branch or branchedTo not like :branchMatch)");
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      query.setParameter("branch", branch);
+      query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
+      @SuppressWarnings("unchecked")
+      List<Subset> subsets = query.getResultList();
+      SubsetList subsetList = new SubsetListJpa();
+      subsetList.setObjects(subsets);
+      subsetList.setTotalCount(subsets.size());
+      return subsetList;
+    } catch (NoResultException e) {
+      return null;
+    }
   }
 
   /*
@@ -739,13 +811,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
     // Find the one matching the branch (or without having been branched to)
 
-    for (Descriptor d : list.getObjects()) {
-      if (d.getBranch().equals(branch)) {
-        return d;
+    for (Descriptor obj : list.getObjects()) {
+      if (obj.getBranch().equals(branch)
+          || !obj.getBranchedTo().contains(branch + Branch.SEPARATOR)) {
+        return obj;
       }
-
     }
-    // TODO: deal with branching
     // If nothing found, return null;
     return null;
   }
@@ -913,12 +984,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       return null;
     }
     // Find the one matching the branch (or without having been branched to)
-    for (Code c : list.getObjects()) {
-      if (c.getBranch().equals(branch)) {
-        return c;
+    for (Code obj : list.getObjects()) {
+      if (obj.getBranch().equals(branch)
+          || !obj.getBranchedTo().contains(branch + Branch.SEPARATOR)) {
+        return obj;
       }
     }
-    // TODOO: deal with branching
     // If nothing found, return null;
     return null;
   }
@@ -1086,12 +1157,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       return null;
     }
 
-    for (LexicalClass lui : ll.getObjects()) {
-      if (lui.getBranch().equals(branch)) {
-        return lui;
+    for (LexicalClass obj : ll.getObjects()) {
+      if (obj.getBranch().equals(branch)
+          || !obj.getBranchedTo().contains(branch + Branch.SEPARATOR)) {
+        return obj;
       }
     }
-    // TDOO: deal with branching
     // If nothing found, return null;
     return null;
   }
@@ -1268,12 +1339,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       return null;
     }
     // Find the one matching the branch (or without having been branched to)
-    for (StringClass sui : list.getObjects()) {
-      if (sui.getBranch().equals(branch)) {
-        return sui;
+    for (StringClass obj : list.getObjects()) {
+      if (obj.getBranch().equals(branch)
+          || !obj.getBranchedTo().contains(branch + Branch.SEPARATOR)) {
+        return obj;
       }
     }
-    // TODO:deal with branching
     // If nothing found, return null;
     return null;
   }
@@ -1785,7 +1856,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-
   @Override
   public void removeSubset(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - remove subset " + id);
@@ -2254,10 +2324,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       javax.persistence.Query query =
           manager.createQuery("select c from ConceptJpa c "
               + "where terminologyVersion = :version "
-              + "and terminology = :terminology ");
-      // TODO: implement branching
+              + "and terminology = :terminology "
+              + "and (branch = :branch or branchedTo not like :branchMatch)");
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
+      query.setParameter("branch", branch);
+      query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
       @SuppressWarnings("unchecked")
       List<Concept> concepts = query.getResultList();
       ConceptList conceptList = new ConceptListJpa();
@@ -2288,11 +2360,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       javax.persistence.Query query =
           manager.createQuery("select c from DescriptorJpa c "
               + "where terminologyVersion = :version "
-              + "and terminology = :terminology ");
-
+              + "and terminology = :terminology "
+              + "and (branch = :branch or branchedTo not like :branchMatch)");
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
-      // TODO: deal with branching
+      query.setParameter("branch", branch);
+      query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
 
       @SuppressWarnings("unchecked")
       List<Descriptor> descriptors = query.getResultList();
@@ -2323,11 +2396,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       javax.persistence.Query query =
           manager.createQuery("select c from CodeJpa c "
               + "where terminologyVersion = :version "
-              + "and terminology = :terminology ");
-
+              + "and terminology = :terminology "
+              + "and (branch = :branch or branchedTo not like :branchMatch)");
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
-      // TODO: deal with branching
+      query.setParameter("branch", branch);
+      query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
       @SuppressWarnings("unchecked")
       List<Code> codes = query.getResultList();
       CodeList codeList = new CodeListJpa();
@@ -2442,7 +2516,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (graphResolverMap.containsKey(terminology)) {
       return graphResolverMap.get(terminology);
     }
-    return graphResolverMap.get("DEFAULT");
+    return graphResolverMap.get(ConfigUtility.DEFAULT);
   }
 
   /*
@@ -2458,7 +2532,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (idHandlerMap.containsKey(terminology)) {
       return idHandlerMap.get(terminology);
     }
-    return idHandlerMap.get("DEFAULT");
+    return idHandlerMap.get(ConfigUtility.DEFAULT);
 
   }
 
@@ -2475,7 +2549,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (pnHandlerMap.containsKey(terminology)) {
       return pnHandlerMap.get(terminology);
     }
-    return pnHandlerMap.get("DEFAULT");
+    return pnHandlerMap.get(ConfigUtility.DEFAULT);
   }
 
   /*
@@ -2492,7 +2566,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           pnHandlerMap.get(atomClass.getTerminology());
       // look for default if null
       if (handler == null) {
-        handler = pnHandlerMap.get("DEFAULT");
+        handler = pnHandlerMap.get(ConfigUtility.DEFAULT);
       }
       if (handler == null) {
         throw new Exception(
