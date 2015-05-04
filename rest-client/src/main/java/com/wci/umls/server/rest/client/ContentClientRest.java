@@ -174,8 +174,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
-            + terminology + "/" + version + "/" + terminologyId + "/"
-            + Branch.ROOT);
+            + terminology + "/" + version + "/" + terminologyId);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get(ClientResponse.class);
