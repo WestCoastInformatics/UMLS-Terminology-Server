@@ -24,8 +24,9 @@ import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
 }))
 @Audited
 @XmlRootElement(name = "descriptorTransitiveRel")
-public class DescriptorTransitiveRelationshipJpa extends AbstractComponentHasAttributes
-    implements DescriptorTransitiveRelationship {
+public class DescriptorTransitiveRelationshipJpa extends
+    AbstractTransitiveRelationship<Descriptor> implements
+    DescriptorTransitiveRelationship {
 
   /** The super type. */
   @ManyToOne(targetEntity = DescriptorJpa.class, optional = false)

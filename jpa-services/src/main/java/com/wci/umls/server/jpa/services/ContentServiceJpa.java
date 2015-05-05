@@ -30,6 +30,7 @@ import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
 import com.wci.umls.server.jpa.content.AbstractSubset;
 import com.wci.umls.server.jpa.content.AbstractSubsetMember;
+import com.wci.umls.server.jpa.content.AbstractTransitiveRelationship;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -455,7 +456,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     // If nothing found, return null;
-    return null;  }
+    return null;
+  }
 
   /*
    * (non-Javadoc)
@@ -1765,10 +1767,34 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public TransitiveRelationship<? extends ComponentHasAttributes> addTransitiveRelationship(
-    TransitiveRelationship<? extends ComponentHasAttributes> transitiveRelationship)
+    TransitiveRelationship<? extends ComponentHasAttributes> rel)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Service - add transitive relationship " + rel);
+    // Assign id
+    IdentifierAssignmentHandler idHandler = null;
+    if (assignIdentifiersFlag) {
+      idHandler = getIdentifierAssignmentHandler(rel.getTerminology());
+      if (idHandler == null) {
+        throw new Exception("Unable to find id handler for "
+            + rel.getTerminology());
+      }
+      String id = idHandler.getTerminologyId(rel);
+      rel.setTerminologyId(id);
+    }
+
+    // Add component
+    TransitiveRelationship<? extends ComponentHasAttributes> newRel =
+        addComponent(rel);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      // for (WorkflowListener listener : listeners) {
+      // // TODO:
+      // // consider whether this needs a listener
+      // }
+    }
+    return newRel;
   }
 
   /*
@@ -1780,10 +1806,40 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public void updateTransitiveRelationship(
-    TransitiveRelationship<? extends ComponentHasAttributes> transitiveRelationship)
+    TransitiveRelationship<? extends ComponentHasAttributes> rel)
     throws Exception {
-    // TODO Auto-generated method stub
+    Logger.getLogger(getClass()).debug(
+        "Content Service - update transitive relationship " + rel);
 
+    // Id assignment should not change
+    final IdentifierAssignmentHandler idHandler =
+        getIdentifierAssignmentHandler(rel.getTerminology());
+    if (assignIdentifiersFlag) {
+      if (!idHandler.allowIdChangeOnUpdate()) {
+        @SuppressWarnings("unchecked")
+        TransitiveRelationship<? extends ComponentHasAttributes> rel2 =
+            getComponent(rel.getId(), rel.getClass());
+        if (!idHandler.getTerminologyId(rel).equals(
+            idHandler.getTerminologyId(rel2))) {
+          throw new Exception(
+              "Update cannot be used to change object identity.");
+        }
+      } else {
+        // set attribute id on update
+        rel.setTerminologyId(idHandler.getTerminologyId(rel));
+      }
+    }
+    // update component
+    this.updateComponent(rel);
+
+    // Inform listeners
+    if (listenersEnabled) {
+
+      // TODO: consider whether to have a listener
+      // for (WorkflowListener listener : listeners) {
+      // listener.relationshipChanged(rel, WorkflowListener.Action.UPDATE);
+      // }
+    }
   }
 
   /*
@@ -1795,8 +1851,21 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public void removeTransitiveRelationship(Long id) throws Exception {
-    // TODO Auto-generated method stub
+    Logger.getLogger(getClass()).debug(
+        "Content Service - remove transitive relationship " + id);
+    // Remove the component
+    @SuppressWarnings({
+        "unchecked", "unused"
+    })
+    TransitiveRelationship<? extends ComponentHasAttributes> rel =
+        removeComponent(id, AbstractTransitiveRelationship.class);
 
+    if (listenersEnabled) {
+      // TODO: decide whether to have a listener
+      // for (WorkflowListener listener : listeners) {
+      // listener.relationshipChanged(rel, WorkflowListener.Action.REMOVE);
+      // }
+    }
   }
 
   @Override

@@ -24,15 +24,15 @@ import com.wci.umls.server.services.MetadataService;
 /**
  * Default implementation of {@link MetadataService}.
  */
-public class DefaultMetadataServiceJpaHelper extends
+public class StandardMetadataServiceJpaHelper extends
     AbstractMetadataServiceJpaHelper {
 
   /**
-   * Instantiates an empty {@link DefaultMetadataServiceJpaHelper}.
+   * Instantiates an empty {@link StandardMetadataServiceJpaHelper}.
    *
    * @throws Exception the exception
    */
-  public DefaultMetadataServiceJpaHelper() throws Exception {
+  public StandardMetadataServiceJpaHelper() throws Exception {
     super();
   }
 
@@ -189,9 +189,12 @@ public class DefaultMetadataServiceJpaHelper extends
     String terminology, String version) throws Exception {
     // Here, not terminology specific
     javax.persistence.Query query =
-        manager
-            .createQuery("SELECT r from RelationshipTypeJpa r where abbreviation = :rel");
+        manager.createQuery("SELECT r from RelationshipTypeJpa r "
+            + "where abbreviation = :rel " + "and terminology = :terminology"
+            + " and terminologyVersion = :version");
     query.setParameter("rel", "CHD");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
     RelationshipTypeList types = new RelationshipTypeListJpa();
     types.setObjects(query.getResultList());
     types.setTotalCount(types.getObjects().size());
@@ -208,7 +211,7 @@ public class DefaultMetadataServiceJpaHelper extends
    */
   @Override
   public boolean isHierarchcialRelationship(Relationship<?, ?> relationship) {
-    return relationship.getRelationshipType().equals("PAR");
+    return relationship.getRelationshipType().equals("CHD");
   }
 
   /*
@@ -220,7 +223,6 @@ public class DefaultMetadataServiceJpaHelper extends
    */
   @Override
   public boolean isStatedRelationship(Relationship<?, ?> relationship) {
-    // TODO: think on this one
     return true;
   }
 
@@ -233,7 +235,7 @@ public class DefaultMetadataServiceJpaHelper extends
    */
   @Override
   public boolean isInferredRelationship(Relationship<?, ?> relationship) {
-    return false;
+    return true;
   }
 
   /*
@@ -249,7 +251,8 @@ public class DefaultMetadataServiceJpaHelper extends
     String terminology, String version) throws Exception {
     javax.persistence.Query query =
         manager
-            .createQuery("SELECT r from RelationshipTypeJpa r where groupingType = 0"
+            .createQuery("SELECT r from RelationshipTypeJpa r "
+                + " where groupingType = 0"
                 + " and terminology = :terminology"
                 + " and terminologyVersion = :version");
     query.setParameter("terminology", terminology);
@@ -273,7 +276,8 @@ public class DefaultMetadataServiceJpaHelper extends
     String version) {
     javax.persistence.Query query =
         manager
-            .createQuery("SELECT g from GeneralMetadataEntryJpa g where terminology = :terminology"
+            .createQuery("SELECT g from GeneralMetadataEntryJpa g"
+                + " where terminology = :terminology"
                 + " and terminologyVersion = :version");
 
     query.setParameter("terminology", terminology);
@@ -296,9 +300,14 @@ public class DefaultMetadataServiceJpaHelper extends
     String version) {
     javax.persistence.Query query =
         manager
-            .createQuery("SELECT p from PrecedenceListJpa p where defaultList = 1");
+            .createQuery("SELECT p from PrecedenceListJpa p"
+                + " where defaultList = 1");
 
     return (PrecedenceList) query.getSingleResult();
   }
 
+  @Override
+  public void refreshCaches() throws Exception {
+    // n/a
+  }
 }

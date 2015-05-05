@@ -99,7 +99,7 @@ public class ResetDevDatabase {
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     p.setProperty("terminology", "UMLS");
-    p.setProperty("version", "2014AB");
+    p.setProperty("version", "latest");
     p.setProperty("input.dir",
         "../../config/src/main/resources/data/SCTMSH_2014AB");
     request.setProperties(p);
@@ -120,7 +120,7 @@ public class ResetDevDatabase {
     p.setProperty("name", "Sample project.");
     p.setProperty("description", "Sample project.");
     p.setProperty("terminology", "UMLS");
-    p.setProperty("version", "2014AB");
+    p.setProperty("version", "latest");
     // TODO: p.setProperty("scope.concepts", "");
     p.setProperty("scope.descendants.flag", "true");
     p.setProperty("admin.user", "admin");
@@ -142,7 +142,7 @@ public class ResetDevDatabase {
     p.setProperty("server", server);
     p.setProperty("release.version", "2015AA");
     p.setProperty("terminology", "UMLS");
-    p.setProperty("version", "2014AB");
+    p.setProperty("version", "latest");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);

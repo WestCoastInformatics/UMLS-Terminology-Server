@@ -9,7 +9,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.services.RootServiceJpa;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 
 /**
  * Goal which updates the db to sync it with the model via JPA.
@@ -54,7 +54,7 @@ public class UpdateDbMojo extends AbstractMojo {
       config.setProperty("hibernate.hbm2ddl.auto", mode);
       
       // Trigger a JPA event
-      new RootServiceJpa().close();
+      new MetadataServiceJpa().close();
       getLog().info("done ...");
     } catch (Exception e) {
       e.printStackTrace();

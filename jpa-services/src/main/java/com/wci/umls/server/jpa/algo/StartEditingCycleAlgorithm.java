@@ -36,7 +36,6 @@ public class StartEditingCycleAlgorithm extends ContentServiceJpa implements
   private String terminologyVersion = null;
 
   /** Listeners. */
-  @SuppressWarnings("hiding")
   private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The request cancel flag. */

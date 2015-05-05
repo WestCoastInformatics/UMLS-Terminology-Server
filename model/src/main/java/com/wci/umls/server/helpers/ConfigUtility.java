@@ -63,8 +63,8 @@ import com.sun.jersey.api.client.WebResource;
  * Loads and serves configuration.
  */
 public class ConfigUtility {
-  
-  /**  The Constant DEFAULT. */
+
+  /** The Constant DEFAULT. */
   public final static String DEFAULT = "DEFAULT";
 
   /** The date format. */
@@ -441,8 +441,8 @@ public class ConfigUtility {
       transformer.transform(xmlInput, xmlOutput);
       return xmlOutput.getWriter().toString();
     } catch (Exception e) {
-      throw new RuntimeException(e); // simple exception handling, please review
-                                     // it
+      // simple exception handling, please review it
+      throw new RuntimeException(e);
     }
   }
 
@@ -457,7 +457,6 @@ public class ConfigUtility {
    * @return the sorted {@link File}
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  @SuppressWarnings("null")
   public static File mergeSortedFiles(File files1, File files2,
     Comparator<String> comp, File dir, String headerLine) throws IOException {
 

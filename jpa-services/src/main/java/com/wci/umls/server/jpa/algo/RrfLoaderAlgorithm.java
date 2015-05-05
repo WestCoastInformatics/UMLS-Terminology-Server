@@ -163,22 +163,51 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       new HashMap<>();
 
   /** The cui aui atom subset map. */
-  Map<String, AtomSubset> cuiAuiAtomSubsetMap = new HashMap<>();
+  private Map<String, AtomSubset> cuiAuiAtomSubsetMap = new HashMap<>();
 
   /** The cui auiconcept subset map. */
-  Map<String, ConceptSubset> cuiAuiConceptSubsetMap = new HashMap<>();
+  private Map<String, ConceptSubset> cuiAuiConceptSubsetMap = new HashMap<>();
 
   /** The id atom subset map. */
-  Map<String, AtomSubset> idTerminologyAtomSubsetMap = new HashMap<>();
+  private Map<String, AtomSubset> idTerminologyAtomSubsetMap = new HashMap<>();
 
   /** The id auiconcept subset map. */
-  Map<String, ConceptSubset> idTerminologyConceptSubsetMap = new HashMap<>();
+  private Map<String, ConceptSubset> idTerminologyConceptSubsetMap =
+      new HashMap<>();
 
   /** The atom subset member map. */
-  Map<String, AtomSubsetMember> atomSubsetMemberMap = new HashMap<>();
+  private Map<String, AtomSubsetMember> atomSubsetMemberMap = new HashMap<>();
 
   /** The atom subset member map. */
-  Map<String, ConceptSubsetMember> conceptSubsetMemberMap = new HashMap<>();
+  private Map<String, ConceptSubsetMember> conceptSubsetMemberMap =
+      new HashMap<>();
+
+  private static Map<String, String> latCodeMap = new HashMap<>();
+  static {
+    // from http://www.nationsonline.org/oneworld/country_code_list.htm
+
+    latCodeMap.put("BAQ", "eu");
+    latCodeMap.put("CZE", "cz");
+    latCodeMap.put("DAN", "dk");
+    latCodeMap.put("DUT", "nl");
+    latCodeMap.put("ENG", "en");
+    latCodeMap.put("FIN", "fi");
+    latCodeMap.put("FRE", "fr");
+    latCodeMap.put("GER", "de");
+    latCodeMap.put("HEB", "he");
+    latCodeMap.put("HUN", "hu");
+    latCodeMap.put("ITA", "it");
+    latCodeMap.put("JPN", "ja");
+    latCodeMap.put("KOR", "ko");
+    latCodeMap.put("LAV", "lv");
+    latCodeMap.put("NOR", "nn");
+    latCodeMap.put("POL", "pl");
+    latCodeMap.put("POR", "pt");
+    latCodeMap.put("RUS", "ru");
+    latCodeMap.put("SCR", "sc");
+    latCodeMap.put("SPA", "es");
+    latCodeMap.put("SWE", "sv");
+  }
 
   /**
    * Instantiates an empty {@link RrfLoaderAlgorithm}.
@@ -228,11 +257,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * (non-Javadoc)
    * 
    * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#compute()
-   */
-  /**
-   * Compute.
-   *
-   * @throws Exception the exception
    */
   @Override
   public void compute() throws Exception {
@@ -319,7 +343,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
       // Add release info for individual terminology
-      for (Terminology terminology : getTerminologyLatestVersions().getObjects()) {
+      for (Terminology terminology : getTerminologyLatestVersions()
+          .getObjects()) {
         final String version = terminology.getTerminologyVersion();
         ReleaseInfo info =
             getReleaseInfo(terminology.getTerminology(), version);
@@ -499,8 +524,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         lat.setPublished(true);
         lat.setPublishable(true);
         lat.setISO3Code(fields[1]);
-        // TODO: need actual codes.
-        lat.setISOCode(fields[1].toLowerCase().substring(0, 2));
+        if (latCodeMap.containsKey(fields[1])) {
+          lat.setISOCode(latCodeMap.get(fields[1]));
+        } else {
+          throw new Exception("Language map does not have 2 letter code for "
+              + fields[1]);
+        }
         Logger.getLogger(getClass()).debug("    add language - " + lat);
         addLanguage(lat);
       }
@@ -580,7 +609,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         // based on TTY class (set later)
         tty.setHierarchicalType(false);
         tty.setNameVariantType(NameVariantType.UNDEFINED);
-        // TODO: set based on MRRANK
         tty.setSuppressible(false);
         tty.setStyle(TermTypeStyle.UNDEFINED);
         tty.setUsageType(UsageType.UNDEFINED);
@@ -715,14 +743,13 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       Terminology term = new TerminologyJpa();
 
-      term.setAssertsRelDirection(false); // TODO: extract this from MRRREL
+      term.setAssertsRelDirection(false);
       term.setCitation(new CitationJpa(fields[24]));
       term.setCurrent(fields[21].equals("Y"));
       if (!fields[8].equals("")) {
         term.setEndDate(ConfigUtility.DATE_FORMAT2.parse(fields[8]));
       }
 
-      // TODO: Set properly after loading atoms
       term.setOrganizingClassType(IdType.CODE);
       term.setPreferredName(fields[4]);
       if (!fields[7].equals("")) {
@@ -733,7 +760,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       term.setLastModifiedBy(loader);
       term.setTerminology(fields[3]);
       if (fields[6].equals(""))
-        term.setTerminologyVersion(terminology);
+        term.setTerminologyVersion(terminologyVersion);
       else
         term.setTerminologyVersion(fields[6]);
       term.setDescriptionLogicTerminology(false);
@@ -744,13 +771,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         root.setAcquisitionContact(null); // no data for this in MRSAB
         root.setContentContact(new ContactInfoJpa(fields[12]));
         root.setFamily(fields[5]);
-        root.setHierarchicalName(""); // TODO: extract this from MRCONSO.
         // root.setLanguage(getLanguages(terminology, terminologyVersion));
         root.setLicenseContact(new ContactInfoJpa(fields[11]));
         root.setPolyhierarchy(fields[16].contains("MULTIPLE"));
         root.setPreferredName(fields[4]);
         root.setRestrictionLevel(Integer.parseInt(fields[13]));
-        root.setShortName(""); // TODO: extract this from MRCONSO.
         root.setTerminology(fields[3]);
         root.setLastModified(releaseVersionDate);
         root.setLastModifiedBy(loader);
@@ -761,9 +786,38 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       RootTerminology root = rootTerminologies.get(fields[3]);
       term.setRootTerminology(root);
       addTerminology(term);
+      // cache terminology by RSAB and VSAB
       loadedTerminologies.put(term.getTerminology(), term);
+      if (!fields[2].equals("")) {
+        loadedTerminologies.put(fields[2], term);
+      }
     }
 
+    // Add the terminology for this load, e.g. "UMLS"
+    Terminology term = new TerminologyJpa();
+    term.setAssertsRelDirection(false);
+    term.setCurrent(true);
+    term.setOrganizingClassType(IdType.CONCEPT);
+    term.setPreferredName(terminology);
+    term.setLastModified(releaseVersionDate);
+    term.setLastModifiedBy(loader);
+    term.setTerminology(terminology);
+    term.setTerminologyVersion(terminologyVersion);
+    term.setDescriptionLogicTerminology(false);
+    terminologies.put(terminology, term);
+
+    RootTerminology root = new RootTerminologyJpa();
+    root.setFamily(terminology);
+    root.setPreferredName(terminology);
+    root.setRestrictionLevel(-1);
+    root.setTerminology(terminology);
+    root.setLastModified(releaseVersionDate);
+    root.setLastModifiedBy(loader);
+    addRootTerminology(root);
+    rootTerminologies.put(terminology, root);
+    term.setRootTerminology(root);
+    addTerminology(term);
+    loadedTerminologies.put(term.getTerminology(), term);
   }
 
   /**
@@ -912,6 +966,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private void loadMrsat() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRSAT data");
     String line = null;
+
     int objectCt = 0;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAT);
     // make set of all atoms that got an additional attribute
@@ -1201,6 +1256,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private void loadMrrel() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRREL data");
     String line = null;
+
     int objectCt = 0;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRREL);
     Set<Atom> modifiedAtoms = new HashSet<>();
@@ -1333,11 +1389,16 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else {
         Logger.getLogger(getClass()).debug(
             "  SKIPPING relationship STYPE1!=STYPE2 - " + line);
+        continue;
       }
 
       logAndCommit(++objectCt);
     }
 
+    // update terminologies after setting the rel directionality flag
+    for (final Terminology terminology : loadedTerminologies.values()) {
+      updateTerminology(terminology);
+    }
   }
 
   /**
@@ -1373,11 +1434,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           .getTerminologyVersion());
     }
     relationship.setAssertedDirection(fields[13].equals("Y"));
+    if (fields[13].equals("Y")) {
+      loadedTerminologies.get(fields[10]).setAssertsRelDirection(true);
+    }
     relationship.setGroup(fields[12]);
 
     // Since we don't know, have the rels count as "both"
     relationship.setInferred(true);
     relationship.setStated(true);
+
   }
 
   /**
@@ -1513,6 +1578,32 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setStringClassId(fields[5]);
       atom.setLexicalClassId(fields[3]);
       atom.setCodeId(fields[13]);
+
+      // Handle root terminology short name, hierarchical name, and sy names
+      if (fields[11].equals("SRC") && fields[12].equals("SSN")) {
+        loadedTerminologies.get(fields[13].substring(2)).getRootTerminology()
+            .setShortName(fields[14]);
+      }
+      if (fields[11].equals("SRC") && fields[12].equals("RHT")) {
+        loadedTerminologies.get(fields[13].substring(2)).getRootTerminology()
+            .setHierarchicalName(fields[14]);
+      }
+      if (fields[11].equals("SRC") && fields[12].equals("RSY")
+          && !fields[14].equals("")) {
+        List<String> syNames =
+            loadedTerminologies.get(fields[13].substring(2))
+                .getRootTerminology().getSynonymousNames();
+        syNames.add(fields[14]);
+      }
+
+      // Handle terminology sy names
+      if (fields[11].equals("SRC") && fields[12].equals("VSY")
+          && !fields[14].equals("")) {
+        List<String> syNames =
+            loadedTerminologies.get(fields[13].substring(2))
+                .getSynonymousNames();
+        syNames.add(fields[14]);
+      }
 
       // Determine organizing class type for terminology
       if (!atom.getDescriptorId().equals("")) {
@@ -1881,4 +1972,5 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       commitClearBegin();
     }
   }
+
 }

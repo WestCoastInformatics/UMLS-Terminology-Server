@@ -55,7 +55,7 @@ public class TerminologyUtility {
     cacheIsaRels(terminology, version);
     return isaRelsMap.get(terminology + version);
   }
-
+  
   /**
    * Indicates whether or not the relationship is a hierarchical isa rel.
    *

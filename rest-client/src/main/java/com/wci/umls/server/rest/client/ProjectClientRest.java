@@ -8,8 +8,6 @@ import java.util.Properties;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status.Family;
 
-import org.apache.log4j.Logger;
-
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -56,7 +54,6 @@ public class ProjectClientRest implements ProjectServiceRest {
     String projectString =
         ConfigUtility.getStringForGraph(project == null ? new ProjectJpa()
             : project);
-    Logger.getLogger(getClass()).debug(projectString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -65,7 +62,7 @@ public class ProjectClientRest implements ProjectServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(resultString);
     }
@@ -95,7 +92,6 @@ public class ProjectClientRest implements ProjectServiceRest {
     String projectString =
         ConfigUtility.getStringForGraph(project == null ? new ProjectJpa()
             : project);
-    Logger.getLogger(getClass()).debug(projectString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -156,16 +152,14 @@ public class ProjectClientRest implements ProjectServiceRest {
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
-    Logger.getLogger(getClass()).debug(pfsString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
             .header("Content-type", MediaType.APPLICATION_XML)
             .post(ClientResponse.class, pfsString);
 
-    String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -196,7 +190,7 @@ public class ProjectClientRest implements ProjectServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -225,7 +219,7 @@ public class ProjectClientRest implements ProjectServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(resultString);
     }

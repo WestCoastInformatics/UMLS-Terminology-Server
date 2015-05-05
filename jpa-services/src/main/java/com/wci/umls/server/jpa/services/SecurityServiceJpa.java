@@ -375,4 +375,9 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     return mapUserList;
   }
 
+  @Override
+  public void refreshCaches() throws Exception {
+    // n/a    
+  }
+
 }

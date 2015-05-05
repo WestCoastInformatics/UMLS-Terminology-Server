@@ -14,6 +14,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
@@ -179,6 +180,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     MetadataService service = new MetadataServiceJpa();
     if (service.getHierarchicalRelationshipTypes(terminology, version)
         .getObjects().size() == 0) {
+      fireProgressEvent(100,"NO hierarchical rels, exiting...");
       Logger.getLogger(getClass()).info("  NO hierarchical rels, exiting...");
       return;
     }
@@ -186,7 +188,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
         service.getHierarchicalRelationshipTypes(terminology, version)
             .getObjects().iterator().next().getAbbreviation();
     service.close();
-    Logger.getLogger(getClass()).info("    count = " + chdRel);
+    Logger.getLogger(getClass()).info("    hierarchical rel = " + chdRel);
 
     fireProgressEvent(1, "Initialize relationships");
     String tableName = "ConceptRelationshipJpa";
@@ -234,17 +236,17 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
         .info("  Initialize concepts ... " + new Date());
     Map<Long, ComponentHasAttributes> componentMap = new HashMap<>();
     if (idType == IdType.CONCEPT) {
-      for (Concept concept : getAllConcepts(terminology, version, null)
+      for (Concept concept : getAllConcepts(terminology, version, Branch.ROOT)
           .getObjects()) {
         componentMap.put(concept.getId(), concept);
       }
     } else if (idType == IdType.DESCRIPTOR) {
-      for (Descriptor descriptor : getAllDescriptors(terminology, version, null)
+      for (Descriptor descriptor : getAllDescriptors(terminology, version, Branch.ROOT)
           .getObjects()) {
         componentMap.put(descriptor.getId(), descriptor);
       }
     } else if (idType == IdType.CODE) {
-      for (Code code : getAllCodes(terminology, version, null).getObjects()) {
+      for (Code code : getAllCodes(terminology, version, Branch.ROOT).getObjects()) {
         componentMap.put(code.getId(), code);
       }
     }
