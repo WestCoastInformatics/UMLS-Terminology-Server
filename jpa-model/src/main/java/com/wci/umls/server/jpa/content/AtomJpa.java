@@ -12,6 +12,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -63,7 +64,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   Map<String, String> conceptTerminologyIds;
 
   /** The alternate terminology ids. */
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "atom_alt_terminology_ids", joinColumns = @JoinColumn(name = "atom_id"))
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;

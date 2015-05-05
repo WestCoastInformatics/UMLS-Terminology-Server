@@ -80,13 +80,13 @@ public class HelperUnit003Test {
    * @throws Exception the exception
    */
   @SuppressWarnings({
-      "static-method"
+      "static-method", 
   })
   @Test
   public void testHelperDegenerateUse003() throws Exception {
     try {
-      new KeyValuePair(null);
-      fail("Expected exception did not occur.");
+      KeyValuePair p = new KeyValuePair(null);
+      fail("Expected exception did not occur." + p);
     } catch (Exception e) {
       // do nothing, this is expected
     }

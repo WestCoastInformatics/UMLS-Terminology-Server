@@ -182,6 +182,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private Map<String, ConceptSubsetMember> conceptSubsetMemberMap =
       new HashMap<>();
 
+  /**  The lat code map. */
   private static Map<String, String> latCodeMap = new HashMap<>();
   static {
     // from http://www.nationsonline.org/oneworld/country_code_list.htm

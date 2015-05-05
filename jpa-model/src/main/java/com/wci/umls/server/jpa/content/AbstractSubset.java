@@ -30,6 +30,7 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
   @Column(nullable = false)
   private boolean disjointSubset = false;
 
+  /**  The branched to. */
   @Column(nullable = true)
   private String branchedTo;
 
@@ -119,6 +120,7 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
    * 
    * @see com.wci.umls.server.model.content.Subset#getBranchedTo()
    */
+  @Override
   public String getBranchedTo() {
     return branchedTo;
   }
@@ -129,6 +131,7 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
    * @see
    * com.wci.umls.server.model.content.Subset#setBranchedTo(java.lang.String)
    */
+  @Override
   public void setBranchedTo(String branchedTo) {
     this.branchedTo = branchedTo;
   }

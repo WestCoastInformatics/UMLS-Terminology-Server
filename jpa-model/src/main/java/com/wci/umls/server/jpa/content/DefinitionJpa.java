@@ -10,6 +10,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -40,7 +41,7 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
   private String value;
 
   /** The alternate terminology ids. */
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "def_alt_terminology_ids", joinColumns = @JoinColumn(name = "definition_id"))
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;

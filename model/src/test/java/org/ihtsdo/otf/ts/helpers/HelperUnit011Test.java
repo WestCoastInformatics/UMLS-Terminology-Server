@@ -90,8 +90,8 @@ public class HelperUnit011Test {
   @Test
   public void testHelperDegenerateUse011() throws Exception {
     try {
-      new KeyValuesMap(null);
-      fail("Expected exception did not occur.");
+      KeyValuesMap map = new KeyValuesMap(null);
+      fail("Expected exception did not occur. " + map);
     } catch (Exception e) {
       // do nothing, this is expected
     }

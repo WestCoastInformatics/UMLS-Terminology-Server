@@ -10,6 +10,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -46,7 +47,7 @@ public class DescriptorRelationshipJpa extends
   private Descriptor to;
 
   /** The alternate terminology ids. */
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "descrel_alt_terminology_ids", joinColumns = @JoinColumn(name = "relationship_id"))
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
