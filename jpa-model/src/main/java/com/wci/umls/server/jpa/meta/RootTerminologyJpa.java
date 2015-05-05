@@ -357,6 +357,9 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
   @Override
   @XmlElement(type = String.class, name = "syName")
   public List<String> getSynonymousNames() {
+    if (synonymousNames == null) {
+      synonymousNames = new ArrayList<>();
+    }
     return synonymousNames;
   }
 
@@ -491,7 +494,9 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
     return true;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#toString()
    */
   @Override

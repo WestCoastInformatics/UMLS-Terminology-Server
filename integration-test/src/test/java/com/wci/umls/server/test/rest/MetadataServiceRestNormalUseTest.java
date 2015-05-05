@@ -52,6 +52,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
 
     KeyValuePairLists keyValuePairLists =
         metadataService.getAllTerminologiesVersions(authToken);
+    Logger.getLogger(getClass()).debug("  data = " + keyValuePairLists);
 
     // flags for whether UMLS, SNOMEDCT_US, and MSH were found
     boolean foundUmls = false;

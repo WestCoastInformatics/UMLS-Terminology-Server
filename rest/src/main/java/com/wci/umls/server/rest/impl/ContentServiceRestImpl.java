@@ -143,6 +143,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     long startTimeOrig = System.nanoTime();
 
     TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+    MetadataService service = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken, "compute transitive closure",
           UserRole.ADMINISTRATOR);
@@ -152,6 +153,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "  Compute transitive closure from  " + terminology + "/" + version);
       algo.setTerminology(terminology);
       algo.setTerminologyVersion(version);
+      algo.setIdType(service.getTerminology(terminology, version).getOrganizingClassType());
       algo.reset();
       algo.compute();
       algo.close();
@@ -162,10 +164,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Logger.getLogger(getClass()).info("done ...");
 
     } catch (Exception e) {
-      algo.close();
       handleException(e, "trying to compute transitive closure");
     } finally {
       securityService.close();
+      service.close();
+      algo.close();
     }
   }
 
@@ -236,6 +239,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // Obtain each terminology and run transitive closure on it with the
       // correct id type
       MetadataService metadataService = new MetadataServiceJpa();
+      // Refresh caches after metadata has changed in loader
+      metadataService.refreshCaches();
       for (Terminology t : metadataService.getTerminologyLatestVersions().getObjects()) {
         // Only compute for organizing class types
         if (t.getOrganizingClassType() != null) {
@@ -243,7 +248,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           algo.setTerminology(t.getTerminology());
           algo.setTerminologyVersion(t.getTerminologyVersion());
           algo.setIdType(t.getOrganizingClassType());
-          // some terminologies have cycles, allow these for now.
+          // some terminologies may have cycles, allow these for now.
           algo.setCycleTolerant(true);
           algo.compute();
           algo.close();

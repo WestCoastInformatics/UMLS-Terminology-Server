@@ -291,4 +291,9 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
   public void cancel() {
     requestCancel = true;
   }
+
+  @Override
+  public void refreshCaches() throws Exception {
+    // n/a    
+  }
 }

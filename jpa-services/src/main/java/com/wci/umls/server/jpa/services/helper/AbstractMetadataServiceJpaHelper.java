@@ -49,10 +49,13 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     // n/a
     return null;
   }
-  
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.MetadataService#getTerminology(java.lang.String, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#getTerminology(java.lang.String
+   * , java.lang.String)
    */
   @Override
   public Terminology getTerminology(String terminology, String version)
@@ -60,7 +63,6 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     // TODO Auto-generated method stub
     return null;
   }
-
 
   /*
    * (non-Javadoc)
@@ -301,8 +303,12 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
 
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.MetadataService#addAdditionalRelationshipType(com.wci.umls.server.model.meta.AdditionalRelationshipType)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#addAdditionalRelationshipType
+   * (com.wci.umls.server.model.meta.AdditionalRelationshipType)
    */
   @Override
   public AdditionalRelationshipType addAdditionalRelationshipType(
@@ -311,8 +317,12 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.MetadataService#updateAdditionalRelationshipType(com.wci.umls.server.model.meta.AdditionalRelationshipType)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#updateAdditionalRelationshipType
+   * (com.wci.umls.server.model.meta.AdditionalRelationshipType)
    */
   @Override
   public void updateAdditionalRelationshipType(
@@ -321,8 +331,12 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
 
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.MetadataService#removeAdditionalRelationshipType(java.lang.Long)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removeAdditionalRelationshipType
+   * (java.lang.Long)
    */
   @Override
   public void removeAdditionalRelationshipType(Long id) throws Exception {
@@ -330,8 +344,12 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
 
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.MetadataService#addRelationshipType(com.wci.umls.server.model.meta.RelationshipType)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#addRelationshipType(com.wci
+   * .umls.server.model.meta.RelationshipType)
    */
   @Override
   public RelationshipType addRelationshipType(RelationshipType relationshipType)
@@ -340,8 +358,12 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.MetadataService#updateRelationshipType(com.wci.umls.server.model.meta.RelationshipType)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#updateRelationshipType(com
+   * .wci.umls.server.model.meta.RelationshipType)
    */
   @Override
   public void updateRelationshipType(RelationshipType relationshipType)
@@ -349,14 +371,17 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     // n/a
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.MetadataService#removeRelationshipType(java.lang.Long)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removeRelationshipType(java
+   * .lang.Long)
    */
   @Override
   public void removeRelationshipType(Long id) throws Exception {
     // n/a
   }
-
 
   @Override
   public Terminology addTerminology(Terminology terminology) throws Exception {
@@ -367,13 +392,13 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
   @Override
   public void updateTerminology(Terminology terminology) throws Exception {
     // n/a
-    
+
   }
 
   @Override
   public void removeTerminology(Long id) throws Exception {
     // n/a
-    
+
   }
 
   @Override
@@ -387,15 +412,15 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
   public void updateRootTerminology(RootTerminology rootTerminology)
     throws Exception {
     // n/a
-    
+
   }
 
   @Override
   public void removeRootTerminology(Long id) throws Exception {
     // n/a
-    
+
   }
-  
+
   @Override
   public TermType addTermType(TermType termType) throws Exception {
     // n/a
@@ -423,17 +448,17 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
   public void updateGeneralMetadataEntry(GeneralMetadataEntry entry)
     throws Exception {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void removeGeneralMetadataEntry(Long id) throws Exception {
     // TODO Auto-generated method stub
-    
+
   }
+
   @Override
-  public PrecedenceList addPrecedenceList(PrecedenceList list)
-    throws Exception {
+  public PrecedenceList addPrecedenceList(PrecedenceList list) throws Exception {
     // n/a
     return null;
   }
@@ -447,4 +472,5 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
   public void removePrecedenceList(Long id) throws Exception {
     // n/a
   }
+
 }

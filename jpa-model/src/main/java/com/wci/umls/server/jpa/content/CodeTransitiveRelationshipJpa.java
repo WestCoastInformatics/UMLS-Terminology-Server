@@ -24,8 +24,8 @@ import com.wci.umls.server.model.content.CodeTransitiveRelationship;
 }))
 @Audited
 @XmlRootElement(name = "codeTransitiveRel")
-public class CodeTransitiveRelationshipJpa extends AbstractComponentHasAttributes
-    implements CodeTransitiveRelationship {
+public class CodeTransitiveRelationshipJpa extends
+    AbstractTransitiveRelationship<Code> implements CodeTransitiveRelationship {
 
   /** The super type. */
   @ManyToOne(targetEntity = CodeJpa.class, optional = false)
@@ -51,8 +51,8 @@ public class CodeTransitiveRelationshipJpa extends AbstractComponentHasAttribute
    * @param relationship the relationship
    * @param deepCopy the deep copy
    */
-  public CodeTransitiveRelationshipJpa(
-    CodeTransitiveRelationship relationship, boolean deepCopy) {
+  public CodeTransitiveRelationshipJpa(CodeTransitiveRelationship relationship,
+      boolean deepCopy) {
     super(relationship, deepCopy);
     superType = relationship.getSuperType();
     subType = relationship.getSubType();

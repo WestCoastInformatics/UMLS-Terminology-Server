@@ -19,7 +19,7 @@ import com.wci.umls.server.services.RootService;
  * The root service for managing the entity manager factory and hibernate search
  * field names.
  */
-public class RootServiceJpa implements RootService {
+public abstract class RootServiceJpa implements RootService {
 
   /** The factory. */
   protected static EntityManagerFactory factory = null;

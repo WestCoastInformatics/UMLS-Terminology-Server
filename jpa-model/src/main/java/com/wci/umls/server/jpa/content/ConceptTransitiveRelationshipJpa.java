@@ -24,8 +24,8 @@ import com.wci.umls.server.model.content.ConceptTransitiveRelationship;
 }))
 @Audited
 @XmlRootElement(name = "conceptTransitiveRel")
-public class ConceptTransitiveRelationshipJpa extends AbstractComponentHasAttributes
-    implements ConceptTransitiveRelationship {
+public class ConceptTransitiveRelationshipJpa extends
+    AbstractTransitiveRelationship<Concept> implements ConceptTransitiveRelationship {
 
   /** The super type. */
   @ManyToOne(targetEntity = ConceptJpa.class, optional = false)

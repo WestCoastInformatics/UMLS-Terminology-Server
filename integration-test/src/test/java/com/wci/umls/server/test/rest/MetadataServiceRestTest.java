@@ -5,6 +5,7 @@ package com.wci.umls.server.test.rest;
 
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -82,17 +83,25 @@ public class MetadataServiceRestTest {
     ConceptList conceptList;
 
     // check UMLS (support both SAMPLE_2014AB and SCTMTH_2014AB)
+    Logger.getLogger(MetadataServiceRestTest.class).info("Count UMLS concepts");
     conceptList = contentService.getAllConcepts("UMLS", "latest", Branch.ROOT);
+    Logger.getLogger(MetadataServiceRestTest.class).info(
+        "  count = " + conceptList.getTotalCount());
     if (conceptList.getCount() == 0)
       throw new Exception("Could not retrieve any concepts for UMLS");
-    if (conceptList.getTotalCount() != 2863 &&
-        conceptList.getTotalCount() != 1863) {
+    if (conceptList.getTotalCount() != 2863
+        && conceptList.getTotalCount() != 2013) {
       throw new Exception(
           "Metadata service requires UMLS loaded from the config project data.");
     }
 
     // check SNOMEDCT
-    conceptList = contentService.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT);
+    Logger.getLogger(MetadataServiceRestTest.class).info(
+        "Count SNOMEDCT_US concepts");
+    conceptList =
+        contentService.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT);
+    Logger.getLogger(MetadataServiceRestTest.class).info(
+        "  count = " + conceptList.getTotalCount());
     if (conceptList.getCount() == 0)
       throw new Exception("Could not retrieve any concepts for SNOMEDCT_US");
     if (conceptList.getTotalCount() != 3902) {
@@ -101,11 +110,15 @@ public class MetadataServiceRestTest {
     }
 
     // check MSH
-    conceptList = contentService.getAllConcepts("MSH", "2015_2014_09_08", Branch.ROOT);
+    Logger.getLogger(MetadataServiceRestTest.class).info("Count MSH concepts");
+    conceptList =
+        contentService.getAllConcepts("MSH", "2015_2014_09_08", Branch.ROOT);
+    Logger.getLogger(MetadataServiceRestTest.class).info(
+        "  count = " + conceptList.getTotalCount());
     if (conceptList.getCount() == 0) {
       throw new Exception("Could not retrieve any concepts for MSH");
     }
-    if (conceptList.getTotalCount() != 1028) {
+    if (conceptList.getTotalCount() != 1027) {
       throw new Exception(
           "Metadata service requires MSH loaded from config project data.");
     }

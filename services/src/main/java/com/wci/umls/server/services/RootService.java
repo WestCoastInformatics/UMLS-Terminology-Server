@@ -5,7 +5,7 @@ package com.wci.umls.server.services;
 
 
 /**
- * Genericall represents a service.
+ * Generically represents a service.
  */
 public interface RootService {
 
@@ -76,4 +76,11 @@ public interface RootService {
      * @throws Exception the exception
      */
     public void clear() throws Exception;
+    
+    /**
+     * Refresh caches.
+     *
+     * @throws Exception the exception
+     */
+    public void refreshCaches() throws Exception;
 }

@@ -304,6 +304,9 @@ public class TerminologyJpa extends AbstractHasLastModified implements
    */
   @Override
   public List<String> getSynonymousNames() {
+    if (synonymousNames == null) {
+      synonymousNames = new ArrayList<>();
+    }
     return synonymousNames;
   }
 
@@ -319,7 +322,9 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     this.synonymousNames = synonymousNames;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.meta.Terminology#getTerminology()
    */
   @Override
@@ -327,8 +332,11 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     return terminology;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.meta.Terminology#setTerminology(java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.meta.Terminology#setTerminology(java.lang.String)
    */
   @Override
   public void setTerminology(String terminology) {
@@ -388,7 +396,9 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     return current;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.meta.Terminology#setCurrent(boolean)
    */
   @Override
@@ -396,22 +406,29 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     this.current = isCurrent;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.meta.Terminology#isDescriptionLogicTerminology()
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.meta.Terminology#isDescriptionLogicTerminology()
    */
   @Override
   public boolean isDescriptionLogicTerminology() {
     return descriptionLogicTerminology;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.meta.Terminology#setDescriptionLogicTerminology(boolean)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.meta.Terminology#setDescriptionLogicTerminology
+   * (boolean)
    */
   @Override
   public void setDescriptionLogicTerminology(boolean flag) {
-    descriptionLogicTerminology = flag;    
+    descriptionLogicTerminology = flag;
   }
-  
+
   @Override
   public int hashCode() {
     final int prime = 31;

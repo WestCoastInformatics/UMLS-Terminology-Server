@@ -343,4 +343,10 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
       return null;
     }
   }
+  
+  @Override
+  public void refreshCaches() throws Exception {
+    // n/a    
+  }
+
 }
