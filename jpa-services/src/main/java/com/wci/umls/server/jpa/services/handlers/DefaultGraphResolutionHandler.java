@@ -60,10 +60,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
       // Definitions
       for (Definition def : concept.getDefinitions()) {
-        if (nullId) {
-          def.setId(null);
-        }
-        def.getValue();
+        resolveDefinition(def, nullId);
       }
 
       // Semantic type components
@@ -134,10 +131,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
       // Definitions
       for (Definition def : atom.getDefinitions()) {
-        if (nullId) {
-          def.setId(null);
-        }
-        def.getValue();
+        resolveDefinition(def, nullId);
       }
 
       // Relationships
@@ -168,6 +162,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     if (relationship != null) {
       relationship.getFrom().getTerminology();
       relationship.getTo().getTerminology();
+      relationship.getAlternateTerminologyIds().keySet();
       resolveAttributes(relationship, relationship.getId() == null);
     } else if (relationship == null) {
       throw new Exception("Cannot resolve a null relationship.");
@@ -197,10 +192,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
       // Definitions
       for (Definition def : descriptor.getDefinitions()) {
-        if (nullId) {
-          def.setId(null);
-        }
-        def.getValue();
+        resolveDefinition(def, nullId);
       }
 
       // Atoms
@@ -341,10 +333,21 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     boolean nullId) {
     for (Attribute att : component.getAttributes()) {
       att.getName();
+      att.getAlternateTerminologyIds().keySet();
       if (nullId) {
         att.setId(null);
       }
     }
   }
 
+  private void resolveDefinition(Definition definition,
+    boolean nullId) {
+    definition.getValue();
+    definition.getAlternateTerminologyIds().keySet();
+      if (nullId) {
+        definition.setId(null);
+      }
+
+      resolveAttributes(definition, nullId);
+  }
 }

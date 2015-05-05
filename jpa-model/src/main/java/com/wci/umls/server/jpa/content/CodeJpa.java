@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -61,6 +62,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
    *
    * @return the relationships
    */
+  @XmlElement(type = CodeRelationship.class, name = "relationship")
   @Override
   public List<CodeRelationship> getRelationships() {
     if (relationships == null) {

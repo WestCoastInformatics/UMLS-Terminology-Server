@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -70,6 +71,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
    *
    * @return the definitions
    */
+  @XmlElement(type = DefinitionJpa.class, name = "definition")
   @Override
   public List<Definition> getDefinitions() {
     if (definitions == null) {
@@ -121,6 +123,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
    *
    * @return the relationships
    */
+  @XmlElement(type = DescriptorRelationshipJpa.class, name = "relationship")
   @Override
   public List<DescriptorRelationship> getRelationships() {
     if (relationships == null) {

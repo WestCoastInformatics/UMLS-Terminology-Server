@@ -9,6 +9,7 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
+import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.standard.StandardFilterFactory;
@@ -92,6 +93,7 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
    *
    * @return the atoms
    */
+  @XmlElement(type = AtomJpa.class, name = "atom")
   @Override
   public List<Atom> getAtoms() {
     if (atoms == null) {

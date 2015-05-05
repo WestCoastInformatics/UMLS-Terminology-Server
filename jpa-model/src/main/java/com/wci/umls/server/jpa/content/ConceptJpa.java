@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -89,6 +90,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    *
    * @return the definitions
    */
+  @XmlElement(type = DefinitionJpa.class, name = "definition")
   @Override
   public List<Definition> getDefinitions() {
     if (definitions == null) {
@@ -140,6 +142,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    *
    * @return the relationships
    */
+  @XmlElement(type = ConceptRelationshipJpa.class, name = "relationship")
   @Override
   public List<ConceptRelationship> getRelationships() {
     if (relationships == null) {
@@ -210,6 +213,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    * 
    * @see com.wci.umls.server.model.content.Concept#getSemanticTypes()
    */
+  @XmlElement(type = SemanticTypeComponentJpa.class, name = "semanticType")
   @Override
   public List<SemanticTypeComponent> getSemanticTypes() {
     if (semanticTypes == null) {

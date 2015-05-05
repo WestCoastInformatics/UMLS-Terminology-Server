@@ -208,7 +208,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
-            + terminology + "/" + version + "/" + Branch.ROOT + "/query/" + query);
+            + terminology + "/" + version +  "/query/" + query);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -249,8 +249,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
-            + terminology + "/" + version + "/" + terminologyId + "/"
-            + Branch.ROOT);
+            + terminology + "/" + version + "/" + terminologyId);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get(ClientResponse.class);
@@ -288,7 +287,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
-            + terminology + "/" + version + "/" + Branch.ROOT + "/query/"
+            + terminology + "/" + version + "/query/"
             + query);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -330,8 +329,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
-            + terminology + "/" + version + "/" + terminologyId + "/"
-            + Branch.ROOT);
+            + terminology + "/" + version + "/" + terminologyId);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get(ClientResponse.class);
@@ -367,7 +365,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
-            + terminology + "/" + version + "/" + Branch.ROOT + "/query/"
+            + terminology + "/" + version  + "/query/"
             + query);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -409,8 +407,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/lui/"
-            + terminology + "/" + version + "/" + terminologyId + "/"
-            + Branch.ROOT);
+            + terminology + "/" + version + "/" + terminologyId);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get(ClientResponse.class);
@@ -448,7 +445,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/lui/"
-            + terminology + "/" + version + "/" + Branch.ROOT + "/query/"
+            + terminology + "/" + version  + "/query/"
             + query);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -490,8 +487,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/sui/"
-            + terminology + "/" + version + "/" + terminologyId + "/"
-            + Branch.ROOT);
+            + terminology + "/" + version + "/" + terminologyId);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get(ClientResponse.class);
@@ -529,7 +525,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/sui/"
-            + terminology + "/" + version + "/" + Branch.ROOT + "/query/"
+            + terminology + "/" + version  + "/query/"
             + query);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()

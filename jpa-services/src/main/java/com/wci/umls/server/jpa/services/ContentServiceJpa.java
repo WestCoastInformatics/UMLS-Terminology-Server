@@ -11,12 +11,22 @@ import java.util.Map;
 import javax.persistence.NoResultException;
 import javax.persistence.metamodel.EntityType;
 
-import org.apache.log4j.Logger;
+import org.apache.log4j.Logger;import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Query;
+import org.hibernate.search.SearchFactory;
+import org.hibernate.search.jpa.FullTextEntityManager;
+import org.hibernate.search.jpa.FullTextQuery;
+import org.hibernate.search.jpa.Search;
+
 
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteriaList;
+import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.AttributeList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -40,6 +50,8 @@ import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.IndexUtility;
+import com.wci.umls.server.jpa.helpers.SearchResultJpa;
+import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.AttributeListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
@@ -2153,8 +2165,71 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String branch, String query, PfsParameter pfs)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).info(
+        "Content Service - find concepts " + terminology + "/" + version + "/"
+            + query);
+
+    if (pfs != null) {
+      Logger.getLogger(getClass()).debug("  pfs = " + pfs.toString());
+    }
+
+    // Prepare results
+    SearchResultList results = new SearchResultListJpa();
+
+    // Prepare the query string
+    StringBuilder finalQuery = new StringBuilder();
+    finalQuery.append(query);
+    finalQuery.append(" AND terminology:" + terminology
+        + " AND terminologyVersion:" + version);
+    if (pfs != null && pfs.getQueryRestriction() != null) {
+      finalQuery.append(" AND ");
+      finalQuery.append(pfs.getQueryRestriction());
+    }
+    Logger.getLogger(getClass()).info("query " + finalQuery);
+
+    // Prepare the manager and lucene query
+    FullTextEntityManager fullTextEntityManager =
+        Search.getFullTextEntityManager(manager);
+    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+    Query luceneQuery;
+    try {
+      QueryParser queryParser =
+          new MultiFieldQueryParser(conceptFieldNames,
+              searchFactory.getAnalyzer(ConceptJpa.class));
+
+      luceneQuery = queryParser.parse(finalQuery.toString());
+    } catch (ParseException e) {
+      throw new LocalException(
+          "The specified search terms cannot be parsed.  Please check syntax and try again.");
+    }
+    FullTextQuery fullTextQuery =
+        fullTextEntityManager
+            .createFullTextQuery(luceneQuery, ConceptJpa.class);
+
+    results.setTotalCount(fullTextQuery.getResultSize());
+
+    // Apply paging and sorting parameters
+    // applyPfsToLuceneQuery(ConceptJpa.class, fullTextQuery, pfs);
+
+    // execute the query
+    @SuppressWarnings("unchecked")
+    List<Concept> concepts = fullTextQuery.getResultList();
+    // construct the search results
+    for (Concept c : concepts) {
+      SearchResult sr = new SearchResultJpa();
+      sr.setId(c.getId());
+      sr.setTerminologyId(c.getTerminologyId());
+      sr.setTerminology(c.getTerminology());
+      sr.setTerminologyVersion(c.getTerminologyVersion());
+      sr.setValue(c.getDefaultPreferredName());
+      results.addObject(sr);
+    }
+    fullTextEntityManager.close();
+    // closing fullTextEntityManager closes manager as well, recreate
+    manager = factory.createEntityManager();
+
+    return results;
+
   }
 
   /*
@@ -2169,8 +2244,71 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public SearchResultList findDescriptorsForQuery(String terminology,
     String version, String branch, String query, PfsParameter pfs)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).info(
+        "Content Service - find descriptors " + terminology + "/" + version + "/"
+            + query);
+
+    if (pfs != null) {
+      Logger.getLogger(getClass()).debug("  pfs = " + pfs.toString());
+    }
+
+    // Prepare results
+    SearchResultList results = new SearchResultListJpa();
+
+    // Prepare the query string
+    StringBuilder finalQuery = new StringBuilder();
+    finalQuery.append(query);
+    finalQuery.append(" AND terminology:" + terminology
+        + " AND terminologyVersion:" + version);
+    if (pfs != null && pfs.getQueryRestriction() != null) {
+      finalQuery.append(" AND ");
+      finalQuery.append(pfs.getQueryRestriction());
+    }
+    Logger.getLogger(getClass()).info("query " + finalQuery);
+
+    // Prepare the manager and lucene query
+    FullTextEntityManager fullTextEntityManager =
+        Search.getFullTextEntityManager(manager);
+    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+    Query luceneQuery;
+    try {
+      QueryParser queryParser =
+          new MultiFieldQueryParser(conceptFieldNames,
+              searchFactory.getAnalyzer(DescriptorJpa.class));
+
+      luceneQuery = queryParser.parse(finalQuery.toString());
+    } catch (ParseException e) {
+      throw new LocalException(
+          "The specified search terms cannot be parsed.  Please check syntax and try again.");
+    }
+    FullTextQuery fullTextQuery =
+        fullTextEntityManager
+            .createFullTextQuery(luceneQuery, DescriptorJpa.class);
+
+    results.setTotalCount(fullTextQuery.getResultSize());
+
+    // Apply paging and sorting parameters
+    // applyPfsToLuceneQuery(DescriptorJpa.class, fullTextQuery, pfs);
+
+    // execute the query
+    @SuppressWarnings("unchecked")
+    List<Descriptor> descriptors = fullTextQuery.getResultList();
+    // construct the search results
+    for (Descriptor c : descriptors) {
+      SearchResult sr = new SearchResultJpa();
+      sr.setId(c.getId());
+      sr.setTerminologyId(c.getTerminologyId());
+      sr.setTerminology(c.getTerminology());
+      sr.setTerminologyVersion(c.getTerminologyVersion());
+      sr.setValue(c.getDefaultPreferredName());
+      results.addObject(sr);
+    }
+    fullTextEntityManager.close();
+    // closing fullTextEntityManager closes manager as well, recreate
+    manager = factory.createEntityManager();
+
+    return results;
+
   }
 
   /*
