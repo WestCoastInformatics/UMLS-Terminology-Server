@@ -10,6 +10,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -45,7 +46,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   private Atom to;
 
   /** The alternate terminology ids. */
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "atomrel_alt_terminology_ids", joinColumns = @JoinColumn(name = "relationship_id"))
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
@@ -115,6 +116,27 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   }
 
   /**
+   * Returns the from terminology id.
+   *
+   * @return the from terminology id
+   */
+  public String getFromTerminologyId() {
+    return from == null ? "" : from.getTerminologyId();
+  }
+
+  /**
+   * Sets the from terminology id.
+   *
+   * @param terminologyId the from terminology id
+   */
+  public void setFromTerminologyId(String terminologyId) {
+    if (from == null) {
+      from = new AtomJpa();
+    }
+    from.setTerminologyId(terminologyId);
+  }
+
+  /**
    * Returns the from term. For JAXB.
    *
    * @return the from term
@@ -155,6 +177,26 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     return to == null ? null : to.getId();
   }
 
+  /**
+   * Returns the to terminology id.
+   *
+   * @return the to terminology id
+   */
+  public String getToTerminologyId() {
+    return to == null ? "" : to.getTerminologyId();
+  }
+
+  /**
+   * Sets the to terminology id.
+   *
+   * @param terminologyId the to terminology id
+   */
+  public void setToTerminologyId(String terminologyId) {
+    if (to == null) {
+      to = new AtomJpa();
+    }
+    to.setTerminologyId(terminologyId);
+  }
   /**
    * Returns the to term.
    *
@@ -256,7 +298,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   }
 
   /**
-   * CUSTOM to support alternateTerminologyIds.
+   * CUSTOM to support to/from/alternateTerminologyIds.
    *
    * @return the int
    * @see com.wci.umls.server.jpa.content.AbstractRelationship#hashCode()
@@ -265,8 +307,17 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((from == null) ? 0 : from.hashCode());
-    result = prime * result + ((to == null) ? 0 : to.hashCode());
+    result =
+        prime
+            * result
+            + ((from == null || from.getTerminologyId() == null) ? 0 : from
+                .getTerminologyId().hashCode());
+    result =
+        prime
+            * result
+            + ((to == null || to.getTerminologyId() == null) ? 0 : to
+                .getTerminologyId().hashCode());
+
     result =
         prime
             * result
@@ -275,12 +326,11 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractRelationship#equals(java.lang.Object
-   * )
+  /**
+   * Custom equals method for to/from.getTerminologyId
+   *
+   * @param obj the obj
+   * @return true, if successful
    */
   @Override
   public boolean equals(Object obj) {
@@ -294,12 +344,18 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     if (from == null) {
       if (other.from != null)
         return false;
-    } else if (!from.equals(other.from))
+    } else if (from.getTerminologyId() == null) {
+      if (other.from != null && other.from.getTerminologyId() != null)
+        return false;
+    } else if (!from.getTerminologyId().equals(other.from.getTerminologyId()))
       return false;
     if (to == null) {
       if (other.to != null)
         return false;
-    } else if (!to.equals(other.to))
+    } else if (to.getTerminologyId() == null) {
+      if (other.to != null && other.to.getTerminologyId() != null)
+        return false;
+    } else if (!to.getTerminologyId().equals(other.to.getTerminologyId()))
       return false;
     if (alternateTerminologyIds == null) {
       if (other.alternateTerminologyIds != null)

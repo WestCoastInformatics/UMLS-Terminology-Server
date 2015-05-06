@@ -109,8 +109,8 @@ public class HelperUnit004Test {
   @Test
   public void testHelperDegenerateUse004() throws Exception {
     try {
-      new KeyValuePairList(null);
-      fail("Expected exception did not occur.");
+      KeyValuePairList l = new KeyValuePairList(null);
+      fail("Expected exception did not occur." + l);
     } catch (Exception e) {
       // do nothing, this is expected
     }

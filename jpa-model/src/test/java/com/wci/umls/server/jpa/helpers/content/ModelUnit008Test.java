@@ -68,9 +68,9 @@ public class ModelUnit008Test {
     object = new AtomRelationshipJpa();
 
     map1 = new HashMap<>();
-    map1.put("1","1");
+    map1.put("1", "1");
     map2 = new HashMap<>();
-    map2.put("2","2");
+    map2.put("2", "2");
 
     ProxyTester tester = new ProxyTester(new AtomJpa());
     tester.proxy(Map.class, 1, map1);
@@ -92,8 +92,10 @@ public class ModelUnit008Test {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet008");
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("fromId");
+    tester.exclude("fromTerminologyId");
     tester.exclude("fromTerm");
     tester.exclude("toId");
+    tester.exclude("toTerminologyId");
     tester.exclude("toTerm");
     tester.test();
   }
@@ -124,15 +126,25 @@ public class ModelUnit008Test {
     tester.include("to");
     tester.include("from");
 
-    tester.proxy(Atom.class, 1, atom1);
-    tester.proxy(Atom.class, 2, atom2);
+    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
+    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
     assertTrue(tester.testIdentitiyFieldEquals());
+    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
+    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
     assertTrue(tester.testNonIdentitiyFieldEquals());
+    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
+    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
     assertTrue(tester.testIdentityFieldNotEquals());
+    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
+    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
     assertTrue(tester.testIdentitiyFieldHashcode());
+    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
+    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
     assertTrue(tester.testNonIdentitiyFieldHashcode());
+    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
+    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 

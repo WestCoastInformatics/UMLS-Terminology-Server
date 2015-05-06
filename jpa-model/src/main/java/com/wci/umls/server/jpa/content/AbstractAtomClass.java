@@ -205,6 +205,7 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
    * @return the workflow status
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getWorkflowStatus() {
     return workflowStatus;
   }

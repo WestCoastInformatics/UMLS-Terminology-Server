@@ -3,12 +3,8 @@
  */
 package com.wci.umls.server.jpa.helpers.content;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -23,33 +19,25 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
-import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
-import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
+import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.CodeRelationship;
+import com.wci.umls.server.model.content.CodeTransitiveRelationship;
 
 /**
- * Unit testing for {@link CodeRelationshipJpa}.
+ * Unit testing for {@link CodeTransitiveRelationshipJpa}.
  */
-public class ModelUnit021Test {
+public class ModelUnit045Test {
 
   /** The model object to test. */
-  private CodeRelationshipJpa object;
+  private CodeTransitiveRelationshipJpa object;
 
   /** test fixture */
   private Code code1;
 
   /** test fixture */
   private Code code2;
-
-  /** The map fixture 1. */
-  private Map<String, String> map1;
-
-  /** The map fixture 2. */
-  private Map<String, String> map2;
 
   /**
    * Setup class.
@@ -65,21 +53,14 @@ public class ModelUnit021Test {
    */
   @Before
   public void setup() throws Exception {
-    object = new CodeRelationshipJpa();
-
-    map1 = new HashMap<>();
-    map1.put("1", "1");
-    map2 = new HashMap<>();
-    map2.put("2", "2");
+    object = new CodeTransitiveRelationshipJpa();
 
     ProxyTester tester = new ProxyTester(new CodeJpa());
-    tester.proxy(Map.class, 1, map1);
-    tester.proxy(Map.class, 2, map2);
     code1 = (CodeJpa) tester.createObject(1);
     code2 = (CodeJpa) tester.createObject(2);
 
-    object.setFrom(code1);
-    object.setTo(code2);
+    object.setSuperType(code1);
+    object.setSubType(code2);
   }
 
   /**
@@ -88,15 +69,15 @@ public class ModelUnit021Test {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet021() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet021");
+  public void testModelGetSet045() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelGetSet045");
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("fromId");
-    tester.exclude("fromTerminologyId");
-    tester.exclude("fromDefaultPreferredName");
-    tester.exclude("toId");
-    tester.exclude("toTerminologyId");
-    tester.exclude("toDefaultPreferredName");
+    tester.exclude("superTypeId");
+    tester.exclude("superTypeTerminologyId");
+    tester.exclude("superTypeDefaultPreferredName");
+    tester.exclude("subTypeId");
+    tester.exclude("subTypeTerminologyId");
+    tester.exclude("subTypeDefaultPreferredName");
     tester.test();
   }
 
@@ -106,8 +87,8 @@ public class ModelUnit021Test {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode021() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode021");
+  public void testModelEqualsHashcode045() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode045");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
@@ -116,23 +97,11 @@ public class ModelUnit021Test {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("terminologyVersion");
-    tester.include("alternateTerminologyIds");
-    tester.include("assertedDirection");
-    tester.include("additionalRelationshipType");
-    tester.include("group");
-    tester.include("inferred");
-    tester.include("relationshipType");
-    tester.include("stated");
-    tester.include("to");
-    tester.include("from");
-    tester.exclude("toTerminologyId");
-    tester.exclude("fromTerminologyId");
+    tester.include("superType");
+    tester.include("subType");
 
     tester.proxy(Code.class, 1, new CodeJpa(code1, false));
     tester.proxy(Code.class, 2, new CodeJpa(code2, false));
-    tester.proxy(Map.class, 1, map1);
-    tester.proxy(Map.class, 2, map2);
-
     assertTrue(tester.testIdentitiyFieldEquals());
     tester.proxy(Code.class, 1, new CodeJpa(code1, false));
     tester.proxy(Code.class, 2, new CodeJpa(code2, false));
@@ -157,50 +126,13 @@ public class ModelUnit021Test {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy021() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy021");
+  public void testModelCopy045() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelCopy045");
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Code.class, 1, code1);
     tester.proxy(Code.class, 2, code2);
-    tester.proxy(Map.class, 1, map1);
-    tester.proxy(Map.class, 2, map2);
-    assertTrue(tester.testCopyConstructorDeep(CodeRelationship.class));
-  }
-
-  /**
-   * Test deep copy constructor.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testModelDeepCopy021() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy021");
-
-    CodeRelationship rel = new CodeRelationshipJpa();
-    ProxyTester tester = new ProxyTester(rel);
-    tester.proxy(Map.class, 1, map1);
-    rel = (CodeRelationship) tester.createObject(1);
-
-    ProxyTester tester2 = new ProxyTester(new CodeJpa());
-    tester.proxy(Map.class, 1, map1);
-    tester.proxy(Map.class, 2, map2);
-    Code fromCode = (Code) tester2.createObject(1);
-    Code toCode = (Code) tester2.createObject(2);
-
-    ProxyTester tester3 = new ProxyTester(new AttributeJpa());
-    Attribute att = (Attribute) tester3.createObject(1);
-
-    rel.setFrom(fromCode);
-    rel.setTo(toCode);
-    rel.addAttribute(att);
-
-    CodeRelationship rel2 = new CodeRelationshipJpa(rel, false);
-    assertEquals(0, rel2.getAttributes().size());
-
-    CodeRelationship rel3 = new CodeRelationshipJpa(rel, true);
-    assertEquals(1, rel3.getAttributes().size());
-    assertEquals(att, rel3.getAttributes().iterator().next());
-
+    assertTrue(tester
+        .testCopyConstructorDeep(CodeTransitiveRelationship.class));
   }
 
   /**
@@ -209,10 +141,11 @@ public class ModelUnit021Test {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization021() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization021");
+  public void testModelXmlSerialization045() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization045");
     XmlSerializationTester tester = new XmlSerializationTester(object);
-    // The proxy codes can have only "id" and "term" set due to xml transient
+    // The proxy codes can have only "id" and "term" set due to xml
+    // transient
     Code code1 = new CodeJpa();
     code1.setId(1L);
     code1.setDefaultPreferredName("1");
@@ -222,8 +155,6 @@ public class ModelUnit021Test {
 
     tester.proxy(Code.class, 1, code1);
     tester.proxy(Code.class, 2, code2);
-    tester.proxy(Map.class, 1, map1);
-    tester.proxy(Map.class, 2, map2);
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -233,16 +164,18 @@ public class ModelUnit021Test {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlTransient021() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient021");
+  public void testXmlTransient045() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient045");
 
     String xml = ConfigUtility.getStringForGraph(object);
-    assertTrue(xml.contains("<fromId>"));
-    assertTrue(xml.contains("<fromDefaultPreferredName>"));
-    assertTrue(xml.contains("<toId>"));
-    assertTrue(xml.contains("<toDefaultPreferredName>"));
-    assertFalse(xml.contains("<from>"));
-    assertFalse(xml.contains("<to>"));
+    assertTrue(xml.contains("<subTypeId>"));
+    assertTrue(xml.contains("<subTypeTerminologyId>"));
+    assertTrue(xml.contains("<subTypeDefaultPreferredName>"));
+    assertTrue(xml.contains("<superTypeId>"));
+    assertTrue(xml.contains("<superTypeTerminologyId>"));
+    assertTrue(xml.contains("<superTypeDefaultPreferredName>"));
+    assertFalse(xml.contains("<subType>"));
+    assertFalse(xml.contains("<superType>"));
 
   }
 
@@ -252,7 +185,7 @@ public class ModelUnit021Test {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField021() throws Exception {
+  public void testModelNotNullField045() throws Exception {
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("timestamp");
     tester.include("lastModified");
@@ -264,12 +197,8 @@ public class ModelUnit021Test {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("terminologyVersion");
-    tester.include("assertedDirection");
-    tester.include("relationshipType");
-    tester.include("inferred");
-    tester.include("stated");
-    tester.include("from");
-    tester.include("to");
+    tester.include("subType");
+    tester.include("superType");
     assertTrue(tester.testNotNullFields());
   }
 
