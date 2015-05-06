@@ -4,7 +4,6 @@
 package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.ArrayList;
-import java.util.Properties;
 import java.util.Set;
 
 import com.wci.umls.server.model.content.Atom;
@@ -26,19 +25,7 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
  * Default implementation of {@link GraphResolutionHandler}. This connects
  * graphs at the level at which CascadeType.ALL is used in the data model.
  */
-public class UmlsGraphResolutionHandler implements GraphResolutionHandler {
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
-   * )
-   */
-  @Override
-  public void setProperties(Properties p) throws Exception {
-    // do nothing
-  }
+public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
 
   /*
    * (non-Javadoc)
@@ -58,10 +45,7 @@ public class UmlsGraphResolutionHandler implements GraphResolutionHandler {
 
       // Definitions
       for (Definition def : concept.getDefinitions()) {
-        if (nullId) {
-          def.setId(null);
-        }
-        def.getValue();
+        resolveDefinition(def, nullId);
       }
 
       // Semantic type components
@@ -94,22 +78,6 @@ public class UmlsGraphResolutionHandler implements GraphResolutionHandler {
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolveEmpty
-   * (com.wci.umls.server.model.content.Concept)
-   */
-  @Override
-  public void resolveEmpty(Concept concept) {
-    concept.setAtoms(new ArrayList<Atom>());
-    concept.setSemanticTypes(new ArrayList<SemanticTypeComponent>());
-    concept.setDefinitions(new ArrayList<Definition>());
-    concept.setAttributes(new ArrayList<Attribute>());
-    concept.setRelationships(new ArrayList<ConceptRelationship>());
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
    * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
    * .wci.umls.server.model.content.Atom)
    */
@@ -127,10 +95,7 @@ public class UmlsGraphResolutionHandler implements GraphResolutionHandler {
 
       // Definitions
       for (Definition def : atom.getDefinitions()) {
-        if (nullId) {
-          def.setId(null);
-        }
-        def.getValue();
+        resolveDefinition(def, nullId);
       }
 
       atom.setRelationships(new ArrayList<AtomRelationship>());
@@ -275,4 +240,17 @@ public class UmlsGraphResolutionHandler implements GraphResolutionHandler {
     }
   }
 
+  /**
+   * Resolve definition.
+   *
+   * @param def the def
+   * @param nullId the null id
+   */
+  private void resolveDefinition(Definition def, boolean nullId) {
+    if (nullId) {
+      def.setId(null);
+    }
+    def.getValue();
+    resolveAttributes(def, nullId);
+  }
 }

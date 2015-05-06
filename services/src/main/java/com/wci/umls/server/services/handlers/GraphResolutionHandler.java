@@ -44,6 +44,22 @@ public interface GraphResolutionHandler extends Configurable {
   public void resolveEmpty(Concept concept) throws Exception;
 
   /**
+   * Resolve empty.
+   *
+   * @param descriptor the descriptor
+   * @throws Exception the exception
+   */
+  public void resolveEmpty(Descriptor descriptor) throws Exception;
+  
+  /**
+   * Resolve empty.
+   *
+   * @param code the code
+   * @throws Exception the exception
+   */
+  public void resolveEmpty(Code code) throws Exception;
+
+  /**
    * Resolve.
    *
    * @param descriptor the descriptor

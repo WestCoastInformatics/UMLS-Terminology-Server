@@ -114,6 +114,35 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
    * (non-Javadoc)
    * 
    * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolveEmpty
+   * (com.wci.umls.server.model.content.Descriptor)
+   */
+  @Override
+  public void resolveEmpty(Descriptor descriptor) {
+    descriptor.setAtoms(new ArrayList<Atom>());
+    descriptor.setDefinitions(new ArrayList<Definition>());
+    descriptor.setAttributes(new ArrayList<Attribute>());
+    descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolveEmpty
+   * (com.wci.umls.server.model.content.Code)
+   */
+  @Override
+  public void resolveEmpty(Code code) {
+    code.setAtoms(new ArrayList<Atom>());
+    code.setAttributes(new ArrayList<Attribute>());
+    code.setRelationships(new ArrayList<CodeRelationship>());
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
    * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
    * .wci.umls.server.model.content.Atom)
    */
@@ -169,6 +198,13 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.content.SemanticTypeComponent)
+   */
   @Override
   public void resolve(SemanticTypeComponent sty) {
     sty.getSemanticType();
@@ -346,14 +382,13 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
    * @param definition the definition
    * @param nullId the null id
    */
-  private void resolveDefinition(Definition definition,
-    boolean nullId) {
+  private void resolveDefinition(Definition definition, boolean nullId) {
     definition.getValue();
     definition.getAlternateTerminologyIds().keySet();
-      if (nullId) {
-        definition.setId(null);
-      }
+    if (nullId) {
+      definition.setId(null);
+    }
 
-      resolveAttributes(definition, nullId);
+    resolveAttributes(definition, nullId);
   }
 }

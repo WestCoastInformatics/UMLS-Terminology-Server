@@ -238,6 +238,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     if (idType == IdType.CONCEPT) {
       for (Concept concept : getAllConcepts(terminology, version, Branch.ROOT)
           .getObjects()) {
+        getGraphResolutionHandler(terminology).resolveEmpty(concept);
         componentMap.put(concept.getId(), concept);
       }
     } else if (idType == IdType.DESCRIPTOR) {

@@ -300,8 +300,8 @@ public class CodeTransitiveRelationshipJpa extends
    */
   @Override
   public String toString() {
-    return "CodeTransitiveRelationshipJpa [superType=" + superType
-        + ", subType=" + subType + "]";
+    return "CodeTransitiveRelationshipJpa [superType=" + superType.getTerminologyId()
+        + ", subType=" + subType.getTerminologyId() + "]";
   }
 
 }
