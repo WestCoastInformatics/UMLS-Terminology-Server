@@ -219,4 +219,18 @@ public interface AdditionalRelationshipType extends Abbreviation {
    */
   public void setRangeId(String rangeId);
   
+
+  /**
+   * Indicates whether or not grouping type is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isGroupingType();
+
+  /**
+   * Sets the grouping type.
+   *
+   * @param groupingType the grouping type
+   */
+  public void setGroupingType(boolean groupingType);
 }

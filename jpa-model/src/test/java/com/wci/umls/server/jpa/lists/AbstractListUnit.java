@@ -135,8 +135,8 @@ public class AbstractListUnit<T> {
    * @param object2 the object2
    * @throws Exception the exception
    */
-  public void testEdgeCases(ResultList<T> list, ResultList<T> list2,
-    T object1, T object2) throws Exception {
+  public void testEdgeCases(ResultList<T> list, ResultList<T> list2, T object1,
+    T object2) throws Exception {
 
     // add and remove null
     list.addObject(null);
@@ -202,9 +202,11 @@ public class AbstractListUnit<T> {
 
     // Add contents
     list.addObject(object1);
+
     xml = ConfigUtility.getStringForGraph(list);
     ResultList<T> list3 =
         (ResultList<T>) ConfigUtility.getGraphForString(xml, list.getClass());
+
     assertTrue(list.equals(list3));
 
     // Add 2 contents
@@ -212,6 +214,7 @@ public class AbstractListUnit<T> {
     xml = ConfigUtility.getStringForGraph(list);
     list3 =
         (ResultList<T>) ConfigUtility.getGraphForString(xml, list.getClass());
+
     assertTrue(list.equals(list3));
 
     // test serializing with a null array

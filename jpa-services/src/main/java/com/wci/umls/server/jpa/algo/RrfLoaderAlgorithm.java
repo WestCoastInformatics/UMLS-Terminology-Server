@@ -578,7 +578,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         rel.setTerminologyVersion(terminologyVersion);
         rel.setPublished(true);
         rel.setPublishable(true);
-        rel.setGroupingType(true);
         relMap.put(fields[1], rel);
         Logger.getLogger(getClass())
             .debug("    add relationship type - " + rel);

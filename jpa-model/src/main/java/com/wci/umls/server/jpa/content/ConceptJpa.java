@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -43,6 +44,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   private List<ConceptRelationship> relationships = new ArrayList<>();
 
   /** The semantic type components. */
+  @IndexedEmbedded
   @OneToMany(orphanRemoval = true, targetEntity = SemanticTypeComponentJpa.class)
   private List<SemanticTypeComponent> semanticTypes = new ArrayList<>();
 
