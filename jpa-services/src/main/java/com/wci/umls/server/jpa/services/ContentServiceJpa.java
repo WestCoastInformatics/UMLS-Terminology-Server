@@ -3,10 +3,13 @@
  */
 package com.wci.umls.server.jpa.services;
 
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.NoResultException;
 import javax.persistence.metamodel.EntityType;
@@ -15,10 +18,19 @@ import org.apache.log4j.Logger;import org.apache.lucene.queryparser.classic.Mult
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.hibernate.search.SearchFactory;
+import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
+
+
+
+
+
+
 
 
 import com.wci.umls.server.helpers.Branch;
@@ -187,7 +199,67 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       conceptFieldNames = null;
     }
   }
+  
+  /** The descriptor field names. */
+  private static String[] descriptorFieldNames = {};
+  static {
 
+    try {
+      descriptorFieldNames =
+          IndexUtility.getIndexedStringFieldNames(DescriptorJpa.class).toArray(
+              new String[] {});
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      descriptorFieldNames = null;
+    }
+  }
+  
+  /** The lexical class field names. */
+  private static String[] lexicalClassFieldNames = {};
+  static {
+
+    try {
+      lexicalClassFieldNames =
+          IndexUtility.getIndexedStringFieldNames(LexicalClassJpa.class).toArray(
+              new String[] {});
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      lexicalClassFieldNames = null;
+    }
+  }
+  
+  /** The string class field names. */
+  private static String[] stringClassFieldNames = {};
+  static {
+
+    try {
+      stringClassFieldNames =
+          IndexUtility.getIndexedStringFieldNames(StringClassJpa.class).toArray(
+              new String[] {});
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      stringClassFieldNames = null;
+    }
+  }
+
+  /** The code field names. */
+  private static String[] codeFieldNames = {};
+  static {
+
+    try {
+      codeFieldNames =
+          IndexUtility.getIndexedStringFieldNames(CodeJpa.class).toArray(
+              new String[] {});
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      codeFieldNames = null;
+    }
+  }
+  
   /**
    * Instantiates an empty {@link ContentServiceJpa}.
    *
@@ -1473,8 +1545,42 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public ConceptList findDescendantConcepts(Concept concept,
     boolean parentsOnly, PfsParameter pfsParameter, String branch)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    if (pfsParameter != null && pfsParameter.getQueryRestriction() != null) {
+      throw new IllegalArgumentException(
+          "Query restriction is not implemented for this call: "
+              + pfsParameter.getQueryRestriction());
+    }
+    ConceptList list = new ConceptListJpa();
+    String queryStr =
+        "select a from TransitiveRelationshipJpa tr, ConceptJpa super, ConceptJpa a "
+            + " where super.terminologyVersion = :version "
+            + " and super.terminology = :terminology "
+            + " and super.terminologyId = :terminologyId"
+            + " and tr.superTypeConcept = super"
+            + " and tr.subTypeConcept = a ";
+    javax.persistence.Query query = applyPfsToQuery(queryStr, pfsParameter);
+
+    javax.persistence.Query ctQuery =
+        manager
+            .createQuery("select count(*) from TransitiveRelationshipJpa tr, ConceptJpa super"
+                + " where super.terminologyVersion = :version "
+                + " and super.terminology = :terminology "
+                + " and super.terminologyId = :terminologyId"
+                + " and tr.superTypeConcept = super");
+
+    ctQuery.setParameter("terminology", concept.getTerminology());
+    ctQuery.setParameter("version", concept.getTerminologyVersion());
+    ctQuery.setParameter("terminologyId", concept.getTerminologyId());
+    list.setTotalCount(((Long) ctQuery.getSingleResult()).intValue());
+
+    query.setParameter("terminology", concept.getTerminology());
+    query.setParameter("version", concept.getTerminologyVersion());
+    query.setParameter("terminologyId", concept.getTerminologyId());
+
+    List<Concept> descendants = query.getResultList();
+    list.setObjects(descendants);
+    return list;
+
   }
 
   /*
@@ -1489,8 +1595,62 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public ConceptList findAncestorConcepts(Concept concept,
     boolean childrenOnly, PfsParameter pfsParameter, String branch)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+
+    if (pfsParameter != null && pfsParameter.getQueryRestriction() != null) {
+      throw new IllegalArgumentException(
+          "Query restriction is not implemented for this call: "
+              + pfsParameter.getQueryRestriction());
+    }
+    ConceptList list = new ConceptListJpa();
+    String queryStr =
+        "select a from TransitiveRelationshipJpa tr, ConceptJpa a, ConceptJpa sub "
+            + " where sub.terminologyVersion = :version "
+            + " and sub.terminology = :terminology "
+            + " and sub.terminologyId = :terminologyId"
+            + " and tr.superTypeConcept = a" + " and tr.subTypeConcept = sub";
+    javax.persistence.Query query = applyPfsToQuery(queryStr, pfsParameter);
+
+    javax.persistence.Query ctQuery =
+        manager
+            .createQuery("select count(*) from TransitiveRelationshipJpa tr, ConceptJpa sub"
+                + " where sub.terminologyVersion = :version "
+                + " and sub.terminology = :terminology "
+                + " and sub.terminologyId = :terminologyId"
+                + " and tr.subTypeConcept = sub");
+
+    ctQuery.setParameter("terminology", concept.getTerminology());
+    ctQuery.setParameter("version", concept.getTerminologyVersion());
+    ctQuery.setParameter("terminologyId", concept.getTerminologyId());
+    list.setTotalCount(((Long) ctQuery.getSingleResult()).intValue());
+
+    query.setParameter("terminology", concept.getTerminology());
+    query.setParameter("version", concept.getTerminologyVersion());
+    query.setParameter("terminologyId", concept.getTerminologyId());
+    List<Concept> ancestors = query.getResultList();
+    list.setObjects(ancestors);
+    return list;
+
+  }
+
+  /**
+   * Apply pfs to query.
+   *
+   * @param queryStr the query str
+   * @param pfs the pfs
+   * @return the javax.persistence. query
+   */
+  protected javax.persistence.Query applyPfsToQuery(String queryStr,
+    PfsParameter pfs) {
+    String localQueryStr = queryStr;
+    if (pfs != null && pfs.getSortField() != null) {
+      localQueryStr += " order by a." + pfs.getSortField();
+    }
+    javax.persistence.Query query = manager.createQuery(localQueryStr);
+    if (pfs != null && pfs.getStartIndex() > -1 && pfs.getMaxResults() > -1) {
+      query.setFirstResult(pfs.getStartIndex());
+      query.setMaxResults(pfs.getMaxResults());
+    }
+    return query;
   }
 
   /*
@@ -2278,7 +2438,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     results.setTotalCount(fullTextQuery.getResultSize());
 
     // Apply paging and sorting parameters
-    // applyPfsToLuceneQuery(ConceptJpa.class, fullTextQuery, pfs);
+    applyPfsToLuceneQuery(ConceptJpa.class, fullTextQuery, pfs);
 
     // execute the query
     @SuppressWarnings("unchecked")
@@ -2342,7 +2502,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Query luceneQuery;
     try {
       QueryParser queryParser =
-          new MultiFieldQueryParser(conceptFieldNames,
+          new MultiFieldQueryParser(descriptorFieldNames,
               searchFactory.getAnalyzer(DescriptorJpa.class));
 
       luceneQuery = queryParser.parse(finalQuery.toString());
@@ -2363,13 +2523,199 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     @SuppressWarnings("unchecked")
     List<Descriptor> descriptors = fullTextQuery.getResultList();
     // construct the search results
-    for (Descriptor c : descriptors) {
+    for (Descriptor d : descriptors) {
       SearchResult sr = new SearchResultJpa();
-      sr.setId(c.getId());
-      sr.setTerminologyId(c.getTerminologyId());
-      sr.setTerminology(c.getTerminology());
-      sr.setTerminologyVersion(c.getTerminologyVersion());
-      sr.setValue(c.getDefaultPreferredName());
+      sr.setId(d.getId());
+      sr.setTerminologyId(d.getTerminologyId());
+      sr.setTerminology(d.getTerminology());
+      sr.setTerminologyVersion(d.getTerminologyVersion());
+      sr.setValue(d.getDefaultPreferredName());
+      results.addObject(sr);
+    }
+    fullTextEntityManager.close();
+    // closing fullTextEntityManager closes manager as well, recreate
+    manager = factory.createEntityManager();
+
+    return results;
+
+  }
+
+  /**
+   * Apply pfs to lucene query.
+   *
+   * @param clazz the clazz
+   * @param fullTextQuery the full text query
+   * @param pfs the pfs
+   * @throws Exception the exception
+   */
+  protected void applyPfsToLuceneQuery(Class<?> clazz,
+    FullTextQuery fullTextQuery, PfsParameter pfs) throws Exception {
+
+    // set paging/filtering/sorting if indicated
+    if (pfs != null) {
+      // if start index and max results are set, set paging
+      if (pfs.getStartIndex() != -1 && pfs.getMaxResults() != -1) {
+        fullTextQuery.setFirstResult(pfs.getStartIndex());
+        fullTextQuery.setMaxResults(pfs.getMaxResults());
+      }
+
+      // if sort field is specified, set sort key
+      if (pfs.getSortField() != null && !pfs.getSortField().isEmpty()) {
+        Map<String, Boolean> nameToAnalyzedMap =
+            this.getNameAnalyzedPairsFromAnnotation(clazz, pfs.getSortField());
+        String sortField = null;
+
+        if (nameToAnalyzedMap.size() == 0) {
+          throw new Exception(clazz.getName()
+              + " does not have declared, annotated method for field "
+              + pfs.getSortField());
+        }
+
+        // first check the default name (rendered as ""), if not analyzed, use
+        // this as sort
+        if (nameToAnalyzedMap.get("") != null
+            && nameToAnalyzedMap.get("").equals(false)) {
+          sortField = pfs.getSortField();
+        }
+
+        // otherwise check explicit [name]Sort index
+        else if (nameToAnalyzedMap.get(pfs.getSortField() + "Sort") != null
+            && nameToAnalyzedMap.get(pfs.getSortField() + "Sort").equals(false)) {
+          sortField = pfs.getSortField() + "Sort";
+        }
+
+        // if none, throw exception
+        if (sortField == null) {
+          throw new Exception(
+              "Could not retrieve a non-analyzed Field annotation for get method for variable name "
+                  + pfs.getSortField());
+        }
+
+        Sort sort =
+            new Sort(new SortField(sortField, SortField.Type.STRING,
+                !pfs.isAscending()));
+        fullTextQuery.setSort(sort);
+      }
+    }
+  }
+
+  /**
+   * Returns the name analyzed pairs from annotation.
+   *
+   * @param clazz the clazz
+   * @param sortField the sort field
+   * @return the name analyzed pairs from annotation
+   * @throws NoSuchMethodException the no such method exception
+   * @throws SecurityException the security exception
+   */
+  @SuppressWarnings("static-method")
+  private Map<String, Boolean> getNameAnalyzedPairsFromAnnotation(
+    Class<?> clazz, String sortField) throws NoSuchMethodException,
+    SecurityException {
+
+    // initialize the name->analyzed pair map
+    Map<String, Boolean> nameAnalyzedPairs = new HashMap<>();
+
+    Method m =
+        clazz.getMethod("get" + sortField.substring(0, 1).toUpperCase()
+            + sortField.substring(1), new Class<?>[] {});
+
+    Set<org.hibernate.search.annotations.Field> annotationFields =
+        new HashSet<>();
+
+    // check for Field annotation
+    if (m.isAnnotationPresent(org.hibernate.search.annotations.Field.class)) {
+      annotationFields.add(m
+          .getAnnotation(org.hibernate.search.annotations.Field.class));
+    }
+
+    // check for Fields annotation
+    if (m.isAnnotationPresent(org.hibernate.search.annotations.Fields.class)) {
+      // add all specified fields
+      for (org.hibernate.search.annotations.Field f : m.getAnnotation(
+          org.hibernate.search.annotations.Fields.class).value()) {
+        annotationFields.add(f);
+      }
+    }
+
+    // cycle over discovered fields and put name and analyze == YES into map
+    for (org.hibernate.search.annotations.Field f : annotationFields) {
+      nameAnalyzedPairs.put(f.name(), f.analyze().equals(Analyze.YES) ? true
+          : false);
+    }
+
+    return nameAnalyzedPairs;
+  }
+
+  
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findCodesForQuery(java.lang
+   * .String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public SearchResultList findCodesForQuery(String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Content Service - find codes " + terminology + "/" + version + "/"
+            + query);
+
+    if (pfs != null) {
+      Logger.getLogger(getClass()).debug("  pfs = " + pfs.toString());
+    }
+
+    // Prepare results
+    SearchResultList results = new SearchResultListJpa();
+
+    // Prepare the query string
+    StringBuilder finalQuery = new StringBuilder();
+    finalQuery.append(query);
+    finalQuery.append(" AND terminology:" + terminology
+        + " AND terminologyVersion:" + version);
+    if (pfs != null && pfs.getQueryRestriction() != null) {
+      finalQuery.append(" AND ");
+      finalQuery.append(pfs.getQueryRestriction());
+    }
+    Logger.getLogger(getClass()).info("query " + finalQuery);
+
+    // Prepare the manager and lucene query
+    FullTextEntityManager fullTextEntityManager =
+        Search.getFullTextEntityManager(manager);
+    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+    Query luceneQuery;
+    try {
+      QueryParser queryParser =
+          new MultiFieldQueryParser(codeFieldNames,
+              searchFactory.getAnalyzer(CodeJpa.class));
+
+      luceneQuery = queryParser.parse(finalQuery.toString());
+    } catch (ParseException e) {
+      throw new LocalException(
+          "The specified search terms cannot be parsed.  Please check syntax and try again.");
+    }
+    FullTextQuery fullTextQuery =
+        fullTextEntityManager
+            .createFullTextQuery(luceneQuery, CodeJpa.class);
+
+    results.setTotalCount(fullTextQuery.getResultSize());
+
+    // Apply paging and sorting parameters
+    // applyPfsToLuceneQuery(CodeJpa.class, fullTextQuery, pfs);
+
+    // execute the query
+    @SuppressWarnings("unchecked")
+    List<Code> codes = fullTextQuery.getResultList();
+    // construct the search results
+    for (Code d : codes) {
+      SearchResult sr = new SearchResultJpa();
+      sr.setId(d.getId());
+      sr.setTerminologyId(d.getTerminologyId());
+      sr.setTerminology(d.getTerminology());
+      sr.setTerminologyVersion(d.getTerminologyVersion());
+      sr.setValue(d.getDefaultPreferredName());
       results.addObject(sr);
     }
     fullTextEntityManager.close();
@@ -2384,21 +2730,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#findCodesForQuery(java.lang
-   * .String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
-  @Override
-  public SearchResultList findCodesForQuery(String terminology, String version,
-    String branch, String query, PfsParameter pfs) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
    * com.wci.umls.server.services.ContentService#findLexicalClassesForQuery(
    * java.lang.String, java.lang.String, java.lang.String, java.lang.String,
    * com.wci.umls.server.helpers.PfsParameter)
@@ -2407,8 +2738,71 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public SearchResultList findLexicalClassesForQuery(String terminology,
     String version, String branch, String query, PfsParameter pfs)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).info(
+        "Content Service - find lexical classes " + terminology + "/" + version + "/"
+            + query);
+
+    if (pfs != null) {
+      Logger.getLogger(getClass()).debug("  pfs = " + pfs.toString());
+    }
+
+    // Prepare results
+    SearchResultList results = new SearchResultListJpa();
+
+    // Prepare the query string
+    StringBuilder finalQuery = new StringBuilder();
+    finalQuery.append(query);
+    finalQuery.append(" AND terminology:" + terminology
+        + " AND terminologyVersion:" + version);
+    if (pfs != null && pfs.getQueryRestriction() != null) {
+      finalQuery.append(" AND ");
+      finalQuery.append(pfs.getQueryRestriction());
+    }
+    Logger.getLogger(getClass()).info("query " + finalQuery);
+
+    // Prepare the manager and lucene query
+    FullTextEntityManager fullTextEntityManager =
+        Search.getFullTextEntityManager(manager);
+    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+    Query luceneQuery;
+    try {
+      QueryParser queryParser =
+          new MultiFieldQueryParser(lexicalClassFieldNames,
+              searchFactory.getAnalyzer(LexicalClassJpa.class));
+
+      luceneQuery = queryParser.parse(finalQuery.toString());
+    } catch (ParseException e) {
+      throw new LocalException(
+          "The specified search terms cannot be parsed.  Please check syntax and try again.");
+    }
+    FullTextQuery fullTextQuery =
+        fullTextEntityManager
+            .createFullTextQuery(luceneQuery, LexicalClassJpa.class);
+
+    results.setTotalCount(fullTextQuery.getResultSize());
+
+    // Apply paging and sorting parameters
+    // applyPfsToLuceneQuery(DescriptorJpa.class, fullTextQuery, pfs);
+
+    // execute the query
+    @SuppressWarnings("unchecked")
+    List<LexicalClass> lexicalClasses = fullTextQuery.getResultList();
+    // construct the search results
+    for (LexicalClass lc : lexicalClasses) {
+      SearchResult sr = new SearchResultJpa();
+      sr.setId(lc.getId());
+      sr.setTerminologyId(lc.getTerminologyId());
+      sr.setTerminology(lc.getTerminology());
+      sr.setTerminologyVersion(lc.getTerminologyVersion());
+      sr.setValue(lc.getDefaultPreferredName());
+      results.addObject(sr);
+    }
+    fullTextEntityManager.close();
+    // closing fullTextEntityManager closes manager as well, recreate
+    manager = factory.createEntityManager();
+
+    return results;
+
   }
 
   /*
@@ -2423,8 +2817,71 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public SearchResultList findStringClassesForQuery(String terminology,
     String version, String branch, String query, PfsParameter pfs)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).info(
+        "Content Service - find string classes " + terminology + "/" + version + "/"
+            + query);
+
+    if (pfs != null) {
+      Logger.getLogger(getClass()).debug("  pfs = " + pfs.toString());
+    }
+
+    // Prepare results
+    SearchResultList results = new SearchResultListJpa();
+
+    // Prepare the query string
+    StringBuilder finalQuery = new StringBuilder();
+    finalQuery.append(query);
+    finalQuery.append(" AND terminology:" + terminology
+        + " AND terminologyVersion:" + version);
+    if (pfs != null && pfs.getQueryRestriction() != null) {
+      finalQuery.append(" AND ");
+      finalQuery.append(pfs.getQueryRestriction());
+    }
+    Logger.getLogger(getClass()).info("query " + finalQuery);
+
+    // Prepare the manager and lucene query
+    FullTextEntityManager fullTextEntityManager =
+        Search.getFullTextEntityManager(manager);
+    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+    Query luceneQuery;
+    try {
+      QueryParser queryParser =
+          new MultiFieldQueryParser(stringClassFieldNames,
+              searchFactory.getAnalyzer(StringClassJpa.class));
+
+      luceneQuery = queryParser.parse(finalQuery.toString());
+    } catch (ParseException e) {
+      throw new LocalException(
+          "The specified search terms cannot be parsed.  Please check syntax and try again.");
+    }
+    FullTextQuery fullTextQuery =
+        fullTextEntityManager
+            .createFullTextQuery(luceneQuery, StringClassJpa.class);
+
+    results.setTotalCount(fullTextQuery.getResultSize());
+
+    // Apply paging and sorting parameters
+    // applyPfsToLuceneQuery(DescriptorJpa.class, fullTextQuery, pfs);
+
+    // execute the query
+    @SuppressWarnings("unchecked")
+    List<StringClass> stringClasses = fullTextQuery.getResultList();
+    // construct the search results
+    for (StringClass lc : stringClasses) {
+      SearchResult sr = new SearchResultJpa();
+      sr.setId(lc.getId());
+      sr.setTerminologyId(lc.getTerminologyId());
+      sr.setTerminology(lc.getTerminology());
+      sr.setTerminologyVersion(lc.getTerminologyVersion());
+      sr.setValue(lc.getDefaultPreferredName());
+      results.addObject(sr);
+    }
+    fullTextEntityManager.close();
+    // closing fullTextEntityManager closes manager as well, recreate
+    manager = factory.createEntityManager();
+
+    return results;
+
   }
 
   /*
