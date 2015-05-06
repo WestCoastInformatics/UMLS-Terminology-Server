@@ -118,6 +118,27 @@ public class ConceptRelationshipJpa extends
   }
 
   /**
+   * Returns the from terminology id.
+   *
+   * @return the from terminology id
+   */
+  public String getFromTerminologyId() {
+    return from == null ? "" : from.getTerminologyId();
+  }
+
+  /**
+   * Sets the from terminology id.
+   *
+   * @param terminologyId the from terminology id
+   */
+  public void setFromTerminologyId(String terminologyId) {
+    if (from == null) {
+      from = new ConceptJpa();
+    }
+    from.setTerminologyId(terminologyId);
+  }
+
+  /**
    * Returns the from term. For JAXB.
    *
    * @return the from term
@@ -180,6 +201,27 @@ public class ConceptRelationshipJpa extends
       to = new ConceptJpa();
     }
     to.setId(id);
+  }
+
+  /**
+   * Returns the to terminology id.
+   *
+   * @return the to terminology id
+   */
+  public String getToTerminologyId() {
+    return to == null ? "" : to.getTerminologyId();
+  }
+
+  /**
+   * Sets the to terminology id.
+   *
+   * @param terminologyId the to terminology id
+   */
+  public void setToTerminologyId(String terminologyId) {
+    if (to == null) {
+      to = new ConceptJpa();
+    }
+    to.setTerminologyId(terminologyId);
   }
 
   /**
@@ -259,7 +301,7 @@ public class ConceptRelationshipJpa extends
   }
 
   /**
-   * CUSTOM to support alternateTerminologyIds.
+   * CUSTOM to support to/from/alternateTerminologyIds.
    *
    * @return the int
    * @see com.wci.umls.server.jpa.content.AbstractRelationship#hashCode()
@@ -268,8 +310,16 @@ public class ConceptRelationshipJpa extends
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((from == null) ? 0 : from.hashCode());
-    result = prime * result + ((to == null) ? 0 : to.hashCode());
+    result =
+        prime
+            * result
+            + ((from == null || from.getTerminologyId() == null) ? 0 : from
+                .getTerminologyId().hashCode());
+    result =
+        prime
+            * result
+            + ((to == null || to.getTerminologyId() == null) ? 0 : to
+                .getTerminologyId().hashCode());
     result =
         prime
             * result
@@ -278,12 +328,11 @@ public class ConceptRelationshipJpa extends
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractRelationship#equals(java.lang.Object
-   * )
+  /**
+   * Custom equals method for to/from.getTerminologyId
+   *
+   * @param obj the obj
+   * @return true, if successful
    */
   @Override
   public boolean equals(Object obj) {
@@ -297,12 +346,18 @@ public class ConceptRelationshipJpa extends
     if (from == null) {
       if (other.from != null)
         return false;
-    } else if (!from.equals(other.from))
+    } else if (from.getTerminologyId() == null) {
+      if (other.from != null && other.from.getTerminologyId() != null)
+        return false;
+    } else if (!from.getTerminologyId().equals(other.from.getTerminologyId()))
       return false;
     if (to == null) {
       if (other.to != null)
         return false;
-    } else if (!to.equals(other.to))
+    } else if (to.getTerminologyId() == null) {
+      if (other.to != null && other.to.getTerminologyId() != null)
+        return false;
+    } else if (!to.getTerminologyId().equals(other.to.getTerminologyId()))
       return false;
     if (alternateTerminologyIds == null) {
       if (other.alternateTerminologyIds != null)
@@ -321,7 +376,7 @@ public class ConceptRelationshipJpa extends
   public String toString() {
     return "ConceptRelationshipJpa [from=" + from.getTerminologyId() + ", to="
         + to.getTerminologyId() + ", alternateTerminologyIds="
-        + alternateTerminologyIds + "]";
+        + alternateTerminologyIds + "] " + super.toString();
   }
 
 }

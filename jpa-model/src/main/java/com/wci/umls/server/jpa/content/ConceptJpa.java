@@ -74,6 +74,8 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   public ConceptJpa(Concept concept, boolean deepCopy) {
     super(concept, deepCopy);
     fullyDefined = concept.isFullyDefined();
+    usesRelationshipIntersection = concept.getUsesRelationshipIntersection();
+    usesRelationshipUnion = concept.getUsesRelationshipUnion();
 
     if (deepCopy) {
       for (Definition definition : concept.getDefinitions()) {
@@ -81,6 +83,9 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       }
       for (ConceptRelationship relationship : concept.getRelationships()) {
         addRelationship(new ConceptRelationshipJpa(relationship, deepCopy));
+      }
+      for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+        addSemanticType(new SemanticTypeComponentJpa(sty, deepCopy));
       }
     }
   }
@@ -263,7 +268,9 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     semanticTypes.remove(semanticType);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
    */
   @Override

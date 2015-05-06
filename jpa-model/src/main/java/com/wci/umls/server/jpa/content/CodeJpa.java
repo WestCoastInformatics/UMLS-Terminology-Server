@@ -62,7 +62,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
    *
    * @return the relationships
    */
-  @XmlElement(type = CodeRelationship.class, name = "relationship")
+  @XmlElement(type = CodeRelationshipJpa.class, name = "relationship")
   @Override
   public List<CodeRelationship> getRelationships() {
     if (relationships == null) {

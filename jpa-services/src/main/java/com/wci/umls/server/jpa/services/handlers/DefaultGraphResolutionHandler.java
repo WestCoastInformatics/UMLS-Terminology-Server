@@ -340,6 +340,12 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
   }
 
+  /**
+   * Resolve definition.
+   *
+   * @param definition the definition
+   * @param nullId the null id
+   */
   private void resolveDefinition(Definition definition,
     boolean nullId) {
     definition.getValue();
