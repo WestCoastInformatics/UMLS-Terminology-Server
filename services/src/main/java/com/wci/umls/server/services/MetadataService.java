@@ -256,9 +256,10 @@ public interface MetadataService extends RootService, Configurable {
    * @param terminology the terminology
    * @param version the version
    * @return the precedence list
+   * @throws Exception the exception
    */
   public PrecedenceList getDefaultPrecedenceList(String terminology,
-    String version);
+    String version) throws Exception;
 
   /**
    * Indicates whether or not to assign last modified when changing terminology

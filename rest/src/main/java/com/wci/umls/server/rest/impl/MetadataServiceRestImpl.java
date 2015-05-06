@@ -112,25 +112,35 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
     MetadataService metadataService = new MetadataServiceJpa();
     try {
-      // verify terminology and version pair exist
-      if (metadataService.getTerminologies().getObjects().contains(terminology)) {
 
-        // if this version does not exist for terminology, throw 204 (No
-        // Content)
-        if (!metadataService.getVersions(terminology).getObjects()
-            .contains(version)) {
-          throw new WebApplicationException(Response
-              .status(204)
-              .entity(
-                  "No version " + version + " is loaded for terminology "
-                      + terminology).build());
-        } else {
-          // do nothing
+      RootTerminology rootTerminology = null;
+      for (RootTerminology root : metadataService.getTerminologies()
+          .getObjects()) {
+        if (root.getTerminology().equals(terminology)) {
+          rootTerminology = root;
+          break;
         }
-      } else {
+      }
+      if (rootTerminology == null) {
         // terminology does not exist, throw 204 (No Content)
         throw new WebApplicationException(Response.status(204)
             .entity("No terminology " + terminology + " is loaded").build());
+      }
+
+      Terminology term = null;
+      for (Terminology t : metadataService.getVersions(terminology)
+          .getObjects()) {
+        if (t.getTerminologyVersion().equals(version)) {
+          term = t;
+          break;
+        }
+      }
+      if (term == null) {
+        throw new WebApplicationException(Response
+            .status(204)
+            .entity(
+                "No version " + version + " is loaded for terminology "
+                    + terminology).build());
       }
 
       // call jpa service and get complex map return type

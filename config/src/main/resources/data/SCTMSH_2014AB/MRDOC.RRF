@@ -24,7 +24,7 @@ ATN|CV_MAINTAINER|expanded_form|Content view maintainer|
 ATN|CV_MEMBER|expanded_form|Describes the membership for an atom belonging to a particular content view. The value for this attribute is a tilde-delimited microsyntax. The first field is the content view bitflag (e.g. 2048), followed by field name-value pairs describing the member.|
 ATN|CV_PREVIOUS_META|expanded_form|Previous UMLS Metathesaurus version used to generate content view. A null value means the content view is generated based on current UMLS Metathesaurus version.|
 ATN|CX|expanded_form|MeSH Consider Also Note - other word roots or prefixes that should be consulted for concepts related to this MeSH concept, e.g., the value for "Heart" is "consider also terms at cardi- and myocardi-".|
-ATN|DA|expanded_form|Metathesaurus Date of entry - YYYYMMDD, e.g., 19920830 - date of entry of the concept into the Metathesaurus. |
+ATN|DA|expanded_form|Metathesaurus Date of entry - YYYYMMDD, e.g., 19920830 - date of entry of the concept into the Metathesaurus.|
 ATN|DC|expanded_form|MeSH Descriptor class - type of MeSH term the concept name represents.|
 ATN|DEFAULT_MODULE_ID|expanded_form|Default module ID|
 ATN|DEFINITION_STATUS_ID|expanded_form|Definition status ID|
@@ -64,7 +64,7 @@ ATN|MMR|expanded_form|MeSH revision date YYYYMMDD - date of the last major revis
 ATN|MN|expanded_form|MeSH hierarchical number for the concept in the MeSH tree structures. This number also appears in the HCD subelement of the REL and CXT elements.|
 ATN|MODIFIER_ID|expanded_form|Modifier ID|
 ATN|MODULE_ID|expanded_form|Module ID|
-ATN|MR|expanded_form|Major revision date YYYYMMDD - date the Metathesaurus entry for the concept underwent any revision in content. |
+ATN|MR|expanded_form|Major revision date YYYYMMDD - date the Metathesaurus entry for the concept underwent any revision in content.|
 ATN|MTH_MAPFROMCOMPLEXITY|expanded_form|Indicates the complexity of "from" expressions used in a map set|
 ATN|MTH_MAPFROMEXHAUSTIVE|expanded_form|Indicates whether or not the "from" source of a map set is completely mapped|
 ATN|MTH_MAPSETCOMPLEXITY|expanded_form|Indicates the overall complexity of a map set|
@@ -83,7 +83,7 @@ ATN|SC|expanded_form|MeSH Supplemental record class.|
 ATN|SNOMEDID|expanded_form|SNOMED RT identifier for a SNOMED CT concept|
 ATN|SOS|expanded_form|Scope Statement|
 ATN|SRC|expanded_form|MeSH Literature source of chemical name - a citation to an article in a journal indexed for MEDLINE in which the chemical has been identified. (Note: Not to be confused with source abbreviation of SRC)|
-ATN|ST|expanded_form|Concept Attributes Status - valid values: R Reviewed, U Unreviewed |
+ATN|ST|expanded_form|Concept Attributes Status - valid values: R Reviewed, U Unreviewed|
 ATN|SUBSET_MEMBER|expanded_form|Subset member|
 ATN|TARGETCOMPONENT|expanded_form|Target Component|
 ATN|TERMUI|expanded_form|Term unique identifier|
@@ -493,10 +493,10 @@ REL|900000000000530003|snomedct_rel_mapping|RN|
 REL|900000000000531004|snomedct_rel_mapping|RN|
 REL|AQ|expanded_form|Allowed qualifier|
 REL|AQ|rel_inverse|QB|
-REL|CHD|expanded_form|has child relationship in a Metathesaurus source vocabulary |
+REL|CHD|expanded_form|has child relationship in a Metathesaurus source vocabulary|
 REL|CHD|rel_inverse|PAR|
 REL|DEL|expanded_form|Deleted concept|
-REL|PAR|expanded_form|has parent relationship in a Metathesaurus source vocabulary |
+REL|PAR|expanded_form|has parent relationship in a Metathesaurus source vocabulary|
 REL|PAR|rel_inverse|CHD|
 REL|QB|expanded_form|can be qualified by.|
 REL|QB|rel_inverse|AQ|
@@ -526,7 +526,7 @@ SRL|4|expanded_form|General terms + additional restrictions in category 12.4|
 SRL|4|uri|https://uts.nlm.nih.gov/help/license/licensecategoryhelp.html#category4|
 SRL|9|expanded_form|General terms + SNOMED CT Affiliate License in Appendix 2|
 SRL|9|uri|https://uts.nlm.nih.gov/help/license/licensecategoryihtsdohelp.html|
-STT|PF|expanded_form|Preferred form of term |
+STT|PF|expanded_form|Preferred form of term|
 STT|VCW|expanded_form|Case and word-order variant of the preferred form|
 STT|VC|expanded_form|Case variant of the preferred form|
 STT|VO|expanded_form|Variant of the preferred form|

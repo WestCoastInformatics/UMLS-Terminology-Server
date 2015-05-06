@@ -237,8 +237,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
           expectedNames.add("Is a");
           break;
         case Attribute_Names:
-          expectedSize = 73;
-          expectedSize2 = 446;
+          expectedSize = 97;
+          expectedSize2 = 445;
           expectedId = "ACCEPTABILITYID";
           expectedNames.add("Acceptability Id");
           break;
@@ -248,7 +248,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
           expectedNames.add("Clinical Drug");
           break;
         case Term_Types:
-          expectedSize = 44;
+          expectedSize = 47;
           expectedId = "PT";
           expectedNames.add("Designated preferred name");
           break;

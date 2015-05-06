@@ -297,7 +297,7 @@ public class StandardMetadataServiceJpaHelper extends
    */
   @Override
   public PrecedenceList getDefaultPrecedenceList(String terminology,
-    String version) {
+    String version) throws Exception {
     javax.persistence.Query query =
         manager
             .createQuery("SELECT p from PrecedenceListJpa p"
