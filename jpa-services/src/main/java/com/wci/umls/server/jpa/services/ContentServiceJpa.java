@@ -2517,7 +2517,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     results.setTotalCount(fullTextQuery.getResultSize());
 
     // Apply paging and sorting parameters
-    // applyPfsToLuceneQuery(DescriptorJpa.class, fullTextQuery, pfs);
+    applyPfsToLuceneQuery(DescriptorJpa.class, fullTextQuery, pfs);
 
     // execute the query
     @SuppressWarnings("unchecked")
@@ -2703,7 +2703,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     results.setTotalCount(fullTextQuery.getResultSize());
 
     // Apply paging and sorting parameters
-    // applyPfsToLuceneQuery(CodeJpa.class, fullTextQuery, pfs);
+    applyPfsToLuceneQuery(CodeJpa.class, fullTextQuery, pfs);
 
     // execute the query
     @SuppressWarnings("unchecked")
@@ -2782,7 +2782,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     results.setTotalCount(fullTextQuery.getResultSize());
 
     // Apply paging and sorting parameters
-    // applyPfsToLuceneQuery(DescriptorJpa.class, fullTextQuery, pfs);
+    applyPfsToLuceneQuery(LexicalClassJpa.class, fullTextQuery, pfs);
 
     // execute the query
     @SuppressWarnings("unchecked")
@@ -2861,7 +2861,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     results.setTotalCount(fullTextQuery.getResultSize());
 
     // Apply paging and sorting parameters
-    // applyPfsToLuceneQuery(DescriptorJpa.class, fullTextQuery, pfs);
+    applyPfsToLuceneQuery(StringClassJpa.class, fullTextQuery, pfs);
 
     // execute the query
     @SuppressWarnings("unchecked")
