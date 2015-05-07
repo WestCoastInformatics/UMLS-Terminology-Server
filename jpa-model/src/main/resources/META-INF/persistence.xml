@@ -8,23 +8,6 @@
 
     <!-- JPA persistence provider. -->
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-    <!-- List managed classes -->
-    <class>org.ihtsdo.otf.ts.rf2.jpa.AbstractComponent</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.ConceptJpa</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.DescriptionTypeRefSetMemberJpa</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.DescriptionJpa</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.RelationshipJpa</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.AbstractRefSetMemberJpa</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.AbstractConceptRefSetMember</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.AbstractDescriptionRefSetMember</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.AttributeValueConceptRefSetMemberJpa</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.ComplexMapRefSetMemberJpa</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.LanguageRefSetMemberJpa</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.ModuleDependencyRefSetMemberJpa</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.RefsetDescriptorRefSetMemberJpa</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.SimpleMapRefSetMemberJpa</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.SimpleRefSetMemberJpa</class>
-    <class>org.ihtsdo.otf.ts.rf2.jpa.TransitiveRelationshipJpa</class>
-    <class>org.ihtsdo.otf.ts.jpa.UserJpa</class>
+
   </persistence-unit>
 </persistence>

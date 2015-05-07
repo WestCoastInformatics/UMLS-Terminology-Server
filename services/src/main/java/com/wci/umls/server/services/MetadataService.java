@@ -43,8 +43,6 @@ public interface MetadataService extends RootService, Configurable {
     Additional_Relationship_Types,
     /** The Attribute names. */
     Attribute_Names,
-    /** The General_ metadata_ entries. */
-    General_Metadata_Entries,
     /** The Semantic_ types. */
     Semantic_Types,
     /** The Term_ types. */
