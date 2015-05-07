@@ -33,6 +33,8 @@ import org.hibernate.search.jpa.Search;
 
 
 
+
+
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
@@ -1577,10 +1579,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     query.setParameter("version", concept.getTerminologyVersion());
     query.setParameter("terminologyId", concept.getTerminologyId());
 
+    @SuppressWarnings("unchecked")
     List<Concept> descendants = query.getResultList();
     list.setObjects(descendants);
     return list;
-
   }
 
   /*
@@ -1626,6 +1628,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     query.setParameter("terminology", concept.getTerminology());
     query.setParameter("version", concept.getTerminologyVersion());
     query.setParameter("terminologyId", concept.getTerminologyId());
+    @SuppressWarnings("unchecked")
     List<Concept> ancestors = query.getResultList();
     list.setObjects(ancestors);
     return list;

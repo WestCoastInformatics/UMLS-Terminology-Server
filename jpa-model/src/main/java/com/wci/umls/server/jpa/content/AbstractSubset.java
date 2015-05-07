@@ -19,11 +19,11 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
     implements Subset {
 
   /** The name. */
-  @Column(nullable = true)
+  @Column(nullable = false)
   private String name;
 
   /** The description. */
-  @Column(nullable = true, length = 4000)
+  @Column(nullable = false, length = 4000)
   private String description;
 
   /** The disjoint subset. */

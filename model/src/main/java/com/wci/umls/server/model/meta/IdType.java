@@ -16,6 +16,6 @@ public enum IdType {
   CONCEPT,
   
   /**  The sdui. */
-  DESCRIPTOR,
+  DESCRIPTOR
   
 }

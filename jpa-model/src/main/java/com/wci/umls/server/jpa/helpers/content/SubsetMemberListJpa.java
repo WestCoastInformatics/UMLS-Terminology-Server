@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import com.wci.umls.server.helpers.AbstractResultList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.content.AbstractSubsetMember;
-import com.wci.umls.server.model.content.AtomSubsetMember;
+import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
+import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
-import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
@@ -22,7 +22,7 @@ import com.wci.umls.server.model.content.SubsetMember;
  */
 @XmlRootElement(name = "subsetMemberList")
 @XmlSeeAlso({
-    AtomSubsetMember.class, ConceptSubsetMember.class
+    AtomSubsetMemberJpa.class, ConceptSubsetMemberJpa.class
 })
 public class SubsetMemberListJpa extends
     AbstractResultList<SubsetMember<? extends ComponentHasAttributes>>

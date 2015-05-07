@@ -10,6 +10,10 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 
@@ -108,6 +112,7 @@ public class SemanticTypeComponentJpa extends AbstractComponentHasAttributes imp
    * com.wci.umls.server.model.content.SemanticTypeComponent#getSemanticType()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getSemanticType() {
     return semanticType;
   }

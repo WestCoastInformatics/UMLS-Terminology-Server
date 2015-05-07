@@ -302,8 +302,8 @@ public class ConceptTransitiveRelationshipJpa extends
    */
   @Override
   public String toString() {
-    return "ConceptTransitiveRelationshipJpa [superType=" + superType
-        + ", subType=" + subType + "]";
+    return "ConceptTransitiveRelationshipJpa [superType=" + superType.getTerminologyId()
+        + ", subType=" + subType.getTerminologyId() + "]";
   }
 
 }

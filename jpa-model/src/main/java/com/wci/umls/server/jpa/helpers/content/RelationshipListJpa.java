@@ -12,10 +12,11 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import com.wci.umls.server.helpers.AbstractResultList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
-import com.wci.umls.server.model.content.CodeRelationship;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
+import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
-import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.content.Relationship;
 
 /**
@@ -23,8 +24,8 @@ import com.wci.umls.server.model.content.Relationship;
  */
 @XmlRootElement(name = "relationshipList")
 @XmlSeeAlso({
-    CodeRelationship.class, ConceptRelationship.class,
-    DescriptorRelationship.class
+    CodeRelationshipJpa.class, ConceptRelationshipJpa.class,
+    DescriptorRelationshipJpa.class, AtomRelationshipJpa.class
 })
 public class RelationshipListJpa
     extends

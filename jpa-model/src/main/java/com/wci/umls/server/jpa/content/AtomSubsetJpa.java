@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -51,7 +52,8 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
     super(subset, deepCopy);
 
     if (deepCopy) {
-      for (AtomSubsetMember member : members) {
+      for (AtomSubsetMember member : subset.getMembers()) {
+        System.out.println("add member " + member);
         addMember(new AtomSubsetMemberJpa(member, deepCopy));
       }
     }
@@ -63,6 +65,7 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
    * @see com.wci.umls.server.model.content.AtomSubset#getMembers()
    */
   @Override
+  @XmlElement(type = AtomSubsetMemberJpa.class, name = "member")
   public List<AtomSubsetMember> getMembers() {
     if (members == null) {
       members = new ArrayList<>();

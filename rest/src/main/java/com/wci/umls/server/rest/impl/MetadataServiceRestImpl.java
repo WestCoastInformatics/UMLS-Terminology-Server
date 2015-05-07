@@ -54,6 +54,51 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
   public MetadataServiceRestImpl() throws Exception {
     securityService = new SecurityServiceJpa();
   }
+  
+  @Override
+  @GET
+  @Path("/terminology/id/{terminology}/{version}")
+  @ApiOperation(value = "Get all terminology information for a name and version", notes = "Gets the key-value pairs representing all information for a particular terminology and version.", response = KeyValuePairLists.class)
+  public Terminology getTerminology(
+    @ApiParam(value = "Terminology name, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Metadata): /terminology/id/" + terminology + "/"
+            + version);
+
+    String user = "";
+    MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      user = securityService.getUsernameForToken(authToken);
+
+      // authorize call
+      UserRole role = securityService.getApplicationRoleForToken(authToken);
+      if (!role.hasPrivilegesOf(UserRole.VIEWER))
+        throw new WebApplicationException(Response.status(401)
+            .entity("User does not have permissions to retrieve the metadata.")
+            .build());
+      
+      
+
+      Terminology termInfo = metadataService.getTerminology(terminology, version);
+      
+      // TODO:  Move lazy instantiation into graph resolver
+      termInfo.getSynonymousNames().size();
+     
+      return termInfo;
+
+    } catch (Exception e) {
+      
+      handleException(e, "trying to retrieve the metadata", user);
+      return null;
+    } finally {
+    	metadataService.close();
+      securityService.close();
+    }
+  }
 
   /*
    * (non-Javadoc)
@@ -112,25 +157,35 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
     MetadataService metadataService = new MetadataServiceJpa();
     try {
-      // verify terminology and version pair exist
-      if (metadataService.getTerminologies().getObjects().contains(terminology)) {
 
-        // if this version does not exist for terminology, throw 204 (No
-        // Content)
-        if (!metadataService.getVersions(terminology).getObjects()
-            .contains(version)) {
-          throw new WebApplicationException(Response
-              .status(204)
-              .entity(
-                  "No version " + version + " is loaded for terminology "
-                      + terminology).build());
-        } else {
-          // do nothing
+      RootTerminology rootTerminology = null;
+      for (RootTerminology root : metadataService.getTerminologies()
+          .getObjects()) {
+        if (root.getTerminology().equals(terminology)) {
+          rootTerminology = root;
+          break;
         }
-      } else {
+      }
+      if (rootTerminology == null) {
         // terminology does not exist, throw 204 (No Content)
         throw new WebApplicationException(Response.status(204)
             .entity("No terminology " + terminology + " is loaded").build());
+      }
+
+      Terminology term = null;
+      for (Terminology t : metadataService.getVersions(terminology)
+          .getObjects()) {
+        if (t.getTerminologyVersion().equals(version)) {
+          term = t;
+          break;
+        }
+      }
+      if (term == null) {
+        throw new WebApplicationException(Response
+            .status(204)
+            .entity(
+                "No version " + version + " is loaded for terminology "
+                    + terminology).build());
       }
 
       // call jpa service and get complex map return type

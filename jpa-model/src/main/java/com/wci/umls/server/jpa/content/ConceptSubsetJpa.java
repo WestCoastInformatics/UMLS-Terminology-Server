@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -50,7 +51,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
   public ConceptSubsetJpa(ConceptSubset subset, boolean deepCopy) {
     super(subset, deepCopy);
     if (deepCopy) {
-      for (ConceptSubsetMember member : members) {
+      for (ConceptSubsetMember member : subset.getMembers()) {
         addMember(new ConceptSubsetMemberJpa(member, deepCopy));
       }
     }
@@ -62,6 +63,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
    * 
    * @see com.wci.umls.server.model.content.ConceptSubset#getMembers()
    */
+  @XmlElement(type = ConceptSubsetMemberJpa.class, name = "member")
   @Override
   public List<ConceptSubsetMember> getMembers() {
     if (members == null) {

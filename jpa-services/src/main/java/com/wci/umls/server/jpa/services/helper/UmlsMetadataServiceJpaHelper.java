@@ -12,16 +12,21 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.KeyValuePairList;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.TermTypeList;
+import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.RelationshipType;
+import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.services.MetadataService;
 
 /**
@@ -172,7 +177,7 @@ public class UmlsMetadataServiceJpaHelper extends
           manager
               .createQuery("select distinct a.terminology, a.terminologyVersion, t.abbreviation "
                   + "from ConceptRelationshipJpa a, AdditionalRelationshipTypeJpa t "
-                  + "where a.additionalRrelationshipType = t.abbreviation");
+                  + "where a.additionalRelationshipType = t.abbreviation");
       List<Object[]> results = query.getResultList();
       for (Object[] result : results) {
         if (!additionalRelationshipTypesMap.containsKey(result[0].toString()
@@ -313,6 +318,42 @@ public class UmlsMetadataServiceJpaHelper extends
     types.setObjects(query.getResultList());
     types.setTotalCount(types.getObjects().size());
     return types;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.helper.StandardMetadataServiceJpaHelper#getDefaultPrecedenceList(java.lang.String, java.lang.String)
+   */
+  @Override
+  public PrecedenceList getDefaultPrecedenceList(String terminology,
+    String version) throws Exception {
+    javax.persistence.Query query =
+        manager
+            .createQuery("SELECT p from PrecedenceListJpa p"
+                + " where defaultList = 1");
+
+    PrecedenceList defaultList = (PrecedenceList) query.getSingleResult();
+    // copy and prune to this terminology/version
+    PrecedenceList list = new PrecedenceListJpa(defaultList);
+    list.setId(null);
+
+    // Get TTY values for this terminology/version
+    TermTypeList ttyList = getTermTypes(terminology,version);
+    Set<String> ttySet = new HashSet<>();
+    for (TermType tty : ttyList.getObjects()) {
+      ttySet.add(tty.getAbbreviation());
+    }
+
+    // Restrict default list to just those ttys matching this terminology
+    KeyValuePairList defaultKvpl = list.getPrecedence();
+    KeyValuePairList kvpl = new KeyValuePairList();
+    for (KeyValuePair pair : defaultKvpl.getKeyValuePairList()) {
+      if (ttySet.contains(pair.getKey())) {
+        kvpl.addKeyValuePair(pair);
+      }
+    }
+
+    // return the shorter list
+    return list;
   }
 
   /*

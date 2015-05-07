@@ -9,20 +9,6 @@ package com.wci.umls.server.model.meta;
 public interface RelationshipType extends Abbreviation {
 
   /**
-   * Indicates whether or not grouping type is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isGroupingType();
-
-  /**
-   * Sets the grouping type.
-   *
-   * @param groupingType the grouping type
-   */
-  public void setGroupingType(boolean groupingType);
-
-  /**
    * Returns the inverse.
    * 
    * @return the inverse

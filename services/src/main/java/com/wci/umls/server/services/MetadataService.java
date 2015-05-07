@@ -43,8 +43,6 @@ public interface MetadataService extends RootService, Configurable {
     Additional_Relationship_Types,
     /** The Attribute names. */
     Attribute_Names,
-    /** The General_ metadata_ entries. */
-    General_Metadata_Entries,
     /** The Semantic_ types. */
     Semantic_Types,
     /** The Term_ types. */
@@ -256,9 +254,10 @@ public interface MetadataService extends RootService, Configurable {
    * @param terminology the terminology
    * @param version the version
    * @return the precedence list
+   * @throws Exception the exception
    */
   public PrecedenceList getDefaultPrecedenceList(String terminology,
-    String version);
+    String version) throws Exception;
 
   /**
    * Indicates whether or not to assign last modified when changing terminology

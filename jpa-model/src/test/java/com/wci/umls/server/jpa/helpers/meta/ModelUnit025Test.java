@@ -112,6 +112,7 @@ public class ModelUnit025Test {
     tester.include("universalQuantification");
     tester.include("domainId");
     tester.include("rangeId");
+    tester.include("groupingType");
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
@@ -177,6 +178,7 @@ public class ModelUnit025Test {
     tester.include("symmetric");
     tester.include("transitive");
     tester.include("universalQuantification");
+    tester.include("groupingType");
 
     assertTrue(tester.testNotNullFields());
   }

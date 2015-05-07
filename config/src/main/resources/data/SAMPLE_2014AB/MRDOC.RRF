@@ -22,8 +22,8 @@ ATN|BRAININFO_URL|expanded_form|URL of the central directory page in BrainInfo|
 ATN|CASE_SIGNIFICANCE_ID|expanded_form|Case significance ID|
 ATN|CAS_REGISTRY|expanded_form|CAS Registry|
 ATN|CCDS_ID|expanded_form|CCDS ID|
-ATN|CCF|expanded_form|Canonical Clinical Problem Statement System (CCPSS) frequency - the number of times a CCPSS term appears in a patient record. |
-ATN|CCI|expanded_form|ICD-9-CM code(s) clusters in a Clinical Classifications Software (CCS) category - individual ICD-9-CM codes (or ranges of such codes) classified into CCS categories. |
+ATN|CCF|expanded_form|Canonical Clinical Problem Statement System (CCPSS) frequency - the number of times a CCPSS term appears in a patient record.|
+ATN|CCI|expanded_form|ICD-9-CM code(s) clusters in a Clinical Classifications Software (CCS) category - individual ICD-9-CM codes (or ranges of such codes) classified into CCS categories.|
 ATN|CHANGE_CLASS|expanded_form|Identifies the type of change made to this version of the Code (i.e., changes from the prior version published in "CDT-2011-2012"), with the following meanings: 30 = No change to existing code, nomenclature or descriptor; 31 = New procedure code and nomenclature, and descriptor, if present; 35 = Revision in the nomenclature or descriptor (or both), or to indicate a revision to an entire subcategory.|
 ATN|CHAPTER|expanded_form|Chapter code|
 ATN|CHARACTERISTIC_TYPE_ID|expanded_form|Characteristic type ID|
@@ -71,7 +71,7 @@ ATN|DATE_FIRST_PUBLISHED|expanded_form|Date first published|
 ATN|DATE_LAST_MODIFIED|expanded_form|Date last modified|
 ATN|DATE_NAME_CHANGED|expanded_form|Date name changed|
 ATN|DATE_SYMBOL_CHANGED|expanded_form|Date symbol changed|
-ATN|DA|expanded_form|Metathesaurus Date of entry - YYYYMMDD, e.g., 19920830 - date of entry of the concept into the Metathesaurus. |
+ATN|DA|expanded_form|Metathesaurus Date of entry - YYYYMMDD, e.g., 19920830 - date of entry of the concept into the Metathesaurus.|
 ATN|DB_XR_ID|expanded_form|Database cross-reference ID|
 ATN|DB_XR|expanded_form|Database cross-reference|
 ATN|DCSA|expanded_form|Controlled Substance Act designation code (e.g. 0,2,3n)|
@@ -89,7 +89,7 @@ ATN|DIMENSION|expanded_form|Dimension code|
 ATN|DISPARAGED|expanded_form|Disparaged|
 ATN|DIV|expanded_form|NCBI Division/Phyla (e.g. DIV[NCBI]Viruses)|
 ATN|DM_SPL_ID|expanded_form|DailyMed internal identifier for MTHSPL atom|
-ATN|DPC|expanded_form|Multum Pregnancy Hazard Classification Code assigned to Multum clinical drugs. (e.g. X, D) |
+ATN|DPC|expanded_form|Multum Pregnancy Hazard Classification Code assigned to Multum clinical drugs. (e.g. X, D)|
 ATN|DQ|expanded_form|MeSH Date Qualifier Established YYYYMMDD - date the qualifier became available for indexing MEDLARS citations.|
 ATN|DRTA|expanded_form|Drug Route of Administration Abbreviation (e.g. INJ)|
 ATN|DRT|expanded_form|Drug Route of Administration (e.g. Injection (systemic) )|
@@ -200,8 +200,8 @@ ATN|IAL|expanded_form|ICD10AM Age Edit, lower limit - minimum age is expressed a
 ATN|IAN|expanded_form|Annotation or Usage Note - a value of "+" or "DAGGER," denotes a code describing the etiology or underlying cause of the disease; an "*" or "ASTERISK," denotes a code describing the manifestation of a disease. A value of "DEFAULT" indicates that dual coding is not indicated.|
 ATN|IAR|expanded_form|ICD10AM Relationship Note - code embedded in the term, may have a * or +.|
 ATN|IAS|expanded_form|ICD10AM Sex Edit flag to indicate whether the code is valid for a particular sex. Sex flags are 1 (male) or 2 (female).|
-ATN|IAT|expanded_form|ICD10AM Sex Edit Type - all sex flagged codes are followed by a "sex edit type" flag. The sex edit type flags are 1 (fatal) or 2 (warning). |
-ATN|IAY|expanded_form|ICD10AM Age Edit Type - all age flagged codes are followed by an age edit type flag. The age edit type flags are 1 (fatal) or 2 (warning). |
+ATN|IAT|expanded_form|ICD10AM Sex Edit Type - all sex flagged codes are followed by a "sex edit type" flag. The sex edit type flags are 1 (fatal) or 2 (warning).|
+ATN|IAY|expanded_form|ICD10AM Age Edit Type - all age flagged codes are followed by an age edit type flag. The age edit type flags are 1 (fatal) or 2 (warning).|
 ATN|ICA|expanded_form|ICD Additional Codes Note - an ICD-9-CM instruction to signal the coder that an additional code should be used if the information is available to provide a more complete picture of that diagnoses or procedure.|
 ATN|ICC|expanded_form|ICD Code Also Note - an ICD-9-CM instruction to signal the coder to code additional information.|
 ATN|ICD-O-3_CODE|expanded_form|ICD-O-3 Code|
@@ -217,8 +217,8 @@ ATN|INACTIVATION_INDICATOR|expanded_form|Inactivation indicator|
 ATN|INC|expanded_form|ICD10AM Neoplasm code (e.g. C34.- )|
 ATN|IND_CODE|expanded_form|IND Code|
 ATN|INFOODS|expanded_form|Infoods|
-ATN|IPX|expanded_form|ICD10 code related to an ICPC code - a + indicates that the ICD10 code is broader than the ICPC code; a - indicates that the ICD10 code is narrower than the ICPC code. |
-ATN|ISLEAF|expanded_form|Leaf flag: 0 for hierarchical nodes, 1 for leaf nodes |
+ATN|IPX|expanded_form|ICD10 code related to an ICPC code - a + indicates that the ICD10 code is broader than the ICPC code; a - indicates that the ICD10 code is narrower than the ICPC code.|
+ATN|ISLEAF|expanded_form|Leaf flag: 0 for hierarchical nodes, 1 for leaf nodes|
 ATN|IS_DRUG_CLASS|expanded_form|Is Drug Class|
 ATN|IS_RETIRED_FROM_SUBSET|expanded_form|In future, some concepts will be marked retired if they are retired by IHTSDO or no longer considered to be useful e.g. when there are more appropriate SNOMED CT concepts|
 ATN|JXR|expanded_form|OMIM code that is related to Jablonski term.|
@@ -298,7 +298,7 @@ ATN|MP_GROUP_URL|expanded_form|MEDLINEPLUS group URL|
 ATN|MP_HEALTH_TOPIC_URL|expanded_form|MEDLINEPLUS health topic URL|
 ATN|MP_OTHER_LANGUAGE_URL|expanded_form|MEDLINEPLUS health topic other-language URL|
 ATN|MP_PRIMARY_INSTITUTE_URL|expanded_form|MEDLINEPLUS health topic primary-institute URL|
-ATN|MR|expanded_form|Major revision date YYYYMMDD - date the Metathesaurus entry for the concept underwent any revision in content. |
+ATN|MR|expanded_form|Major revision date YYYYMMDD - date the Metathesaurus entry for the concept underwent any revision in content.|
 ATN|MSC|expanded_form|Minimal Standard (Terminology) Class|
 ATN|MTH_MAPFROMCOMPLEXITY|expanded_form|Indicates the complexity of "from" expressions used in a map set|
 ATN|MTH_MAPFROMEXHAUSTIVE|expanded_form|Indicates whether or not the "from" source of a map set is completely mapped|
@@ -358,7 +358,7 @@ ATN|REF|expanded_form|References or citations related to a given atom or concept
 ATN|RELATEDFACTORS|expanded_form|Related factors|
 ATN|REMARKS|expanded_form|Specific coding instructions|
 ATN|REPLACED_BY_SNOMED_CID|expanded_form|Current version SNOMEDCT concept id this concept is replaced by|
-ATN|RID|expanded_form|Read Codes Term_id - identifier assigned to a Read term, used in referring to the term in the Read file structure, and may be used in clinical information systems. |
+ATN|RID|expanded_form|Read Codes Term_id - identifier assigned to a Read term, used in referring to the term in the Read file structure, and may be used in clinical information systems.|
 ATN|RN|expanded_form|Registry Number - series of numbers and hyphens (any leading zeros in an RN are dropped) or a series of numbers and periods, preceded by EC|
 ATN|RR|expanded_form|The Chemical Abstracts Registry numbers for salts, optical isomers, or isotope-labeled versions of the concept followed by the relationship of this RR to the RN (in parentheses.) Applies to chemicals only. These numbers can be used as links to information in a number of chemical and toxicological databases.|
 ATN|RXAUI|expanded_form|RxNorm atom identifier for the atom it is connected to|
@@ -373,14 +373,14 @@ ATN|RXN_STRENGTH|expanded_form|Strength plus unit of SCDC|
 ATN|RXO|expanded_form|Drug Description from NDF - R for Rx and O for OTC|
 ATN|RXR|expanded_form|Replacement: cross reference from obsolete code to current code|
 ATN|RXTERM_FORM|expanded_form|The RxTerm dose form name for this drug|
-ATN|SB|expanded_form|SNOMED International subset indicator - valid values: * =can code using two T codes or G code for laterality B Bethesda system (Morphology); IC= ICDO (Oncology) related; N=Nursing; N* =Nursing, provisional; U=Ultrastructure (Morphology); V= Veterinary; V* =Veterinary AND can code using two T codes or G code for laterality (Topography) |
+ATN|SB|expanded_form|SNOMED International subset indicator - valid values: * =can code using two T codes or G code for laterality B Bethesda system (Morphology); IC= ICDO (Oncology) related; N=Nursing; N* =Nursing, provisional; U=Ultrastructure (Morphology); V= Veterinary; V* =Veterinary AND can code using two T codes or G code for laterality (Topography)|
 ATN|SCORE|expanded_form|FDA Structured Product Label imprint attribute for score|
 ATN|SC|expanded_form|MeSH Supplemental record class.|
 ATN|SECONDLEVEL|expanded_form|Second Level code|
 ATN|SEQ_NO|expanded_form|Sequence number|
 ATN|SHAPETEXT|expanded_form|FDA Structured Product Label imprint attribute for shape text|
 ATN|SHAPE|expanded_form|FDA Structured Product Label imprint attribute for shape|
-ATN|SHF|expanded_form|SNOMED Hospital Formulary Code - the American Hospital Formulary Code for a chemical contained in SNOMED International (e.g. 84:24:12) |
+ATN|SHF|expanded_form|SNOMED Hospital Formulary Code - the American Hospital Formulary Code for a chemical contained in SNOMED International (e.g. 84:24:12)|
 ATN|SIC|expanded_form|SNOMED ICD9CM Reference - the ICD9CM code or codes listed as relevant to the meaning of the concept in SNOMED International.|
 ATN|SID|expanded_form|Secondary GO ID (e.g. GO:0020034)|
 ATN|SIZE|expanded_form|FDA Structured Product Label imprint attribute for size|
@@ -395,7 +395,7 @@ ATN|SMQ_TERM_LMVERSION|expanded_form|Standardised MedDRA Query (SMQ) Last Modifi
 ATN|SMQ_TERM_SCOPE|expanded_form|Standardised MedDRA Query (SMQ) Term Scope. Defines the MedDRA term as a member of the broad scope (1), narrow scope (2) of the SMQ search, or a child SMQ (0) (zero).|
 ATN|SMQ_TERM_STATUS|expanded_form|Standardised MedDRA Query (SMQ) Term Status. Identifies a term as active ("A") or inactive ("I") within this SMQ.|
 ATN|SMQ_TERM_WEIGHT|expanded_form|Standardised MedDRA Query (SMQ) Term Weight. Used for some SMQ algorithms; "0" is used as default.|
-ATN|SMX|expanded_form|SNOMED Multiaxial coding - an alphanumeric string that includes hyphens, parentheses, and sometimes ellipses. |
+ATN|SMX|expanded_form|SNOMED Multiaxial coding - an alphanumeric string that includes hyphens, parentheses, and sometimes ellipses.|
 ATN|SNGL_OR_MULT_SRC_PRD|expanded_form|Single or multi-source product|
 ATN|SNOMEDID|expanded_form|SNOMED RT identifier for a SNOMED CT concept|
 ATN|SNOMED_CID|expanded_form|SNOMED-CT concept ID mapping for NDFRT disease name term|
@@ -405,7 +405,7 @@ ATN|SOURCE_UI|expanded_form|Unique identifier from the source|
 ATN|SPL_SET_ID|expanded_form|FDA Structured Product Label SET_ID code|
 ATN|SRC|expanded_form|MeSH Literature source of chemical name - a citation to an article in a journal indexed for MEDLINE in which the chemical has been identified. (Note: Not to be confused with source abbreviation of SRC)|
 ATN|STRENGTH|expanded_form|NDF strength|
-ATN|ST|expanded_form|Concept Attributes Status - valid values: R Reviewed, U Unreviewed |
+ATN|ST|expanded_form|Concept Attributes Status - valid values: R Reviewed, U Unreviewed|
 ATN|SUBSET_MEMBER|expanded_form|Subset member|
 ATN|SWISS_PROT|expanded_form|Swiss Prot|
 ATN|SWP|expanded_form|Swiss Protein Number|
@@ -432,7 +432,7 @@ ATN|USDA_ID|expanded_form|USDA ID|
 ATN|USE_ADDITIONAL|expanded_form|Certain conditions have both an underlying etiology and multiple body system manifestations due to the underlying etiology. ICD-10-CM has a coding convention that requires the underlying condition be sequenced first followed by the manifestation. Wherever such a combination exists there is a "use additional code" note at the etiology code. These instructional notes indicate the proper sequencing order of the codes, etiology followed by manifestation. In most cases the manifestation codes will have in the code title, "in diseases classified elsewhere." Codes with this title are a component of the etiology/ manifestation convention. The code title indicates that it is a manifestation code. "In diseases classified elsewhere" codes are never permitted to be used as first listed or principle diagnosis codes. They must be used in conjunction with an underlying condition code and they must be listed following the underlying condition.|
 ATN|USE_FOR|expanded_form|Use for|
 ATN|US_RECOMMENDED_INTAKE|expanded_form|US Recommended Intake|
-ATN|UWT|expanded_form|A semantic type provided from terms from the University of Washington Digital Anatomist |
+ATN|UWT|expanded_form|A semantic type provided from terms from the University of Washington Digital Anatomist|
 ATN|VACCINE_STATUS|expanded_form|Vaccine status. CVX codes for inactive vaccines allow transmission of historical immunization records.|
 ATN|VAC|expanded_form|VA Class - the code of an NDF/HT drug class name (e.g. AM110)|
 ATN|VALUEID|expanded_form|Value Id|
@@ -733,7 +733,7 @@ RELA|has_british_form|expanded_form|Has British form|
 RELA|has_british_form|rela_inverse|british_form_of|
 RELA|has_causative_agent|expanded_form|Has causative agent|
 RELA|has_causative_agent|rela_inverse|causative_agent_of|
-RELA|has_cdrh_parent|expanded_form|has cdrh parent |
+RELA|has_cdrh_parent|expanded_form|has cdrh parent|
 RELA|has_cdrh_parent|rela_inverse|parent_is_cdrh|
 RELA|has_chemical_structure|expanded_form|Has chemical structure|
 RELA|has_chemical_structure|rela_inverse|chemical_structure_of|
@@ -1162,10 +1162,10 @@ REL|900000000000530003|snomedct_rel_mapping|RN|
 REL|900000000000531004|snomedct_rel_mapping|RN|
 REL|AQ|expanded_form|Allowed qualifier|
 REL|AQ|rel_inverse|QB|
-REL|CHD|expanded_form|has child relationship in a Metathesaurus source vocabulary |
+REL|CHD|expanded_form|has child relationship in a Metathesaurus source vocabulary|
 REL|CHD|rel_inverse|PAR|
 REL|DEL|expanded_form|Deleted concept|
-REL|PAR|expanded_form|has parent relationship in a Metathesaurus source vocabulary |
+REL|PAR|expanded_form|has parent relationship in a Metathesaurus source vocabulary|
 REL|PAR|rel_inverse|CHD|
 REL|QB|expanded_form|can be qualified by.|
 REL|QB|rel_inverse|AQ|
@@ -1199,7 +1199,7 @@ SRL|4|expanded_form|General terms + additional restrictions in category 12.4|
 SRL|4|uri|https://uts.nlm.nih.gov/help/license/licensecategoryhelp.html#category4|
 SRL|9|expanded_form|General terms + SNOMED CT Affiliate License in Appendix 2|
 SRL|9|uri|https://uts.nlm.nih.gov/help/license/licensecategoryihtsdohelp.html|
-STT|PF|expanded_form|Preferred form of term |
+STT|PF|expanded_form|Preferred form of term|
 STT|VCW|expanded_form|Case and word-order variant of the preferred form|
 STT|VC|expanded_form|Case variant of the preferred form|
 STT|VO|expanded_form|Variant of the preferred form|

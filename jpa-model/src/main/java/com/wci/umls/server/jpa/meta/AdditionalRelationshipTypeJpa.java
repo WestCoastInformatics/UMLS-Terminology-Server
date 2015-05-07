@@ -88,6 +88,10 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
   @Column(nullable = true)
   private String rangeId;
 
+  /** The grouping type. */
+  @Column(nullable = false)
+  private boolean groupingType = true;
+
   /**
    * Instantiates an empty {@link AdditionalRelationshipTypeJpa}.
    */
@@ -118,6 +122,7 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
     universalQuantification = rela.isUniversalQuantification();
     domainId = rela.getDomainId();
     rangeId = rela.getRangeId();
+    groupingType = rela.isGroupingType();
   }
 
   /*
@@ -204,6 +209,7 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
     result = prime * result + (symmetric ? 1231 : 1237);
     result = prime * result + (transitive ? 1231 : 1237);
     result = prime * result + (universalQuantification ? 1231 : 1237);
+    result = prime * result + (groupingType ? 1231 : 1237);
     return result;
   }
 
@@ -245,6 +251,8 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
     if (transitive != other.transitive)
       return false;
     if (universalQuantification != other.universalQuantification)
+      return false;
+    if (groupingType != other.groupingType)
       return false;
     return true;
   }
@@ -659,6 +667,27 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
   @Override
   public void setRangeId(String rangeId) {
     this.rangeId = rangeId;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.meta.RelationshipType#isGroupingType()
+   */
+  @Override
+  public boolean isGroupingType() {
+    return groupingType;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.meta.RelationshipType#setGroupingType(boolean)
+   */
+  @Override
+  public void setGroupingType(boolean groupingType) {
+    this.groupingType = groupingType;
   }
 
   @Override
