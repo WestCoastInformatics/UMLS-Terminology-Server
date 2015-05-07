@@ -15,6 +15,22 @@ tsApp.run(function($http) {
 
 })
 
+tsApp.directive('conceptReport', function() {
+	 return {
+		    replace : false,
+		    restrict : 'AE',
+		    templateUrl : 'ui/partials/conceptReport.html',
+		    scope : {
+		      concept : '=', // two-way binding, currently un-used
+		      type : '@' // isolate scope, string expected
+		    },
+		    link : function(scope, element, attrs) {
+		    
+		    }
+	 }
+
+});
+
 tsApp.directive('component', function() {
 
   return {
@@ -119,8 +135,8 @@ tsApp
           $scope.glassPane++;
           $http(
             {
-              url : metadataUrl + 'all/terminology/id/' + $scope.terminology.name
-                + '/' + $scope.terminology.version,
+              url : metadataUrl + 'all/terminology/id/' + $scope.terminology.terminology
+                + '/' + $scope.terminology.terminologyVersion,
               method : "GET",
               headers : {
                 "Content-Type" : "application/json"
@@ -161,6 +177,7 @@ tsApp
         	  console.log(name + " = " + data);
             $scope.userName = name;
             $scope.authToken = data;
+            $scope.password = "";
 
             // set request header
             // authorization
@@ -207,6 +224,31 @@ tsApp
             $scope.glassPane--;
           });
         }
+        
+        $scope.getTerminology = function(name, version) {
+        	
+        	var deferred = $q.defer();
+        	 setTimeout(function() {
+        		 $scope.glassPane++;
+        	// login
+            $http({
+              url : metadataUrl + 'terminology/id/' + name + '/' + version,
+              method : "GET",
+              headers : {
+                "Content-Type" : "text/plain"
+              }
+            }).success(function(data) {
+            	$scope.glassPane--;
+            	deferred.resolve(data);
+            }).error(function(data, status, headers, config) {
+            	 $scope.glassPane--;
+                deferred.reject("Could not retrieve terminology " + name + ", " + version);
+               
+              });
+        	 });
+        	
+        	 return deferred.promise;
+        }
 
         $scope.getTerminologies = function() {
 
@@ -237,15 +279,31 @@ tsApp
                 name : pair['key'],
                 version : pair['value']
               };
-              // console
-              // .debug(terminologyObj);
-              $scope.terminologies.push(terminologyObj);
-
+              
+             
+              var terminologyObj = $scope.getTerminology(pair['key'], pair['value']);
+              console.debug("Retrievig terminology" + pair['key'] + ", " + pair['value']);
+              terminologyObj.then(function(terminology) {
+            	  console.debug("  Retrieved", terminology.terminology);
+            	  
+            	  // add result to the list of terminologies
+            	  if (terminology.terminology != 'MTH' && terminology.terminology != 'SRC') {
+            		  $scope.terminologies.push(terminology);
+            	  
+            	  if (terminology.terminology === 'SNOMEDCT') {
+                      console.debug('SNOMEDCT found');
+                      $scope.setTerminology(terminology);
+                  }
+            	  console.debug("Current terminologies", $scope.terminologies);
+            	  }
+              } , function(reason) {
+            	  // do error message here
+              });
+              
+             
             }
 
-            // select the first
-            // terminology
-            $scope.setTerminology($scope.terminologies[0]);
+            // select SNOMEDCT terminology if present
             $scope.glassPane--;
 
           }).error(function(data, status, headers, config) {
@@ -254,12 +312,12 @@ tsApp
           });
         }
 
-        $scope.getConcept = function(terminology, version, terminologyId) {
+        $scope.getConcept = function(terminology, terminologyId) {
           // get single concept
             $scope.glassPane++;
           $http(
             {
-              url : contentUrl + "concept/" + terminology + "/" + version + "/"
+              url : contentUrl + getTypePrefix(terminology) + "/" + terminology.terminology + "/" + terminology.terminologyVersion + "/"
                 + terminologyId,
               method : "GET",
 
@@ -270,11 +328,9 @@ tsApp
 
             setActiveRow(terminologyId);
             $scope.setComponent($scope.concept, 'Concept');
-            $scope.getParentAndChildConcepts($scope.concept);
+           // $scope.getParentAndChildConcepts($scope.concept);
 
-            // default button selected is structure, otherwise don't change
-            if ($scope.navSelected == null)
-              $scope.navSelected = 'Structure';
+            
             $scope.glassPane--;
 
           }).error(function(data, status, headers, config) {
@@ -304,8 +360,8 @@ tsApp
           $scope.glassPane++;
           $http(
             {
-              url : contentUrl + "concepts/" + terminology.name + "/"
-                + terminology.version + "/query/" + queryStr,
+              url : contentUrl + getTypePrefix(terminology) + "/" + terminology.terminology + "/"
+                + terminology.terminologyVersion + "/query/" + queryStr,
               method : "POST",
               dataType : "json",
               data : pfs,
@@ -330,30 +386,7 @@ tsApp
           $scope.component = component;
           $scope.componentType = componentType;
 
-          // clear all viewed component settings
-          $scope.concept.viewed = false;
-
-          for (var i = 0; i < $scope.concept.description.length; i++) {
-            // console.debug("Settingn description...")
-            $scope.concept.description[i].viewed = false;
-            // console.debug(" Set for ",
-            // $scope.concept.description[i].id);
-            // console.debug("Languages: " +
-            // $scope.concept.description[i].language.length);
-
-            for (var j = 0; j < $scope.concept.description[i].language.length; j++) {
-              console.debug("Setting for language... ", i, j);
-              $scope.concept.description[i].language[j].viewed = false;
-              console.debug("  Set for language",
-                $scope.concept.description[i].language[j].id);
-            }
-            // console.debug("Done with description");
-
-          }
-          for (var i = 0; i < $scope.concept.relationship.length; i++) {
-            $scope.concept.relationship[i].viewed = false;
-          }
-          component.viewed = true;
+          
         }
 
         $scope.getParentAndChildConcepts = function(concept) {
@@ -421,6 +454,19 @@ tsApp
             sortField : null,
             queryRestriction : null
           };
+        }
+        
+        function getTypePrefix(terminology) {
+          switch (terminology.organizingClassType) {
+          case 'CODE':
+        	  return 'code';
+          case 'CONCEPT':
+        	  return 'cui';
+          case 'DESCRIPTOR':
+        	  return 'dui';
+          default:
+              return null;
+          }
         }
 
       } ]);

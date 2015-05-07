@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
+import com.wci.umls.server.model.meta.Terminology;
 
 /**
  * Represents a security available via a REST service.
@@ -41,5 +42,17 @@ public interface MetadataServiceRest {
 
   public KeyValuePairLists getAllTerminologiesVersions(String authToken)
     throws Exception;
+
+  /**
+   * Gets the terminology information for a terminology
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the terminology information
+   * @throws Exception the exception
+   */
+  public Terminology getTerminology(String terminology, String version,
+		String authToken) throws Exception;
 
 }
