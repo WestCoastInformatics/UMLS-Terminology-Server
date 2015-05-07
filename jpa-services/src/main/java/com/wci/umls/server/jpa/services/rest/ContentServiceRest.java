@@ -183,6 +183,17 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
+   * Compute tree positions.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void computeTreePositions(String terminology, String version,
+    String authToken) throws Exception;
+
+  /**
    * Load terminology from RRF directory.
    *
    * @param terminology the terminology

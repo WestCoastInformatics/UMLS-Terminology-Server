@@ -27,6 +27,7 @@ import com.wci.umls.server.jpa.algo.RrfFileSorter;
 import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
+import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
@@ -150,7 +151,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // Compute transitive closure
       Logger.getLogger(getClass()).info(
-          "  Compute transitive closure from  " + terminology + "/" + version);
+          "  Compute transitive closure for  " + terminology + "/" + version);
       algo.setTerminology(terminology);
       algo.setTerminologyVersion(version);
       algo.setIdType(service.getTerminology(terminology, version).getOrganizingClassType());
@@ -171,6 +172,57 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo.close();
     }
   }
+  
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#computeTreePositions(java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  @POST
+  @Path("/terminology/treepos/compute/{terminology}/{version}")
+  @ApiOperation(value = "Computes terminology tree positions", notes = "Computes tree positions for the latest version of the specified terminology")
+  public void computeTreePositions(
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+
+  throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (ContentChange): /terminology/treepos/compute/"
+            + terminology + "/" + version);
+
+    // Track system level information
+    long startTimeOrig = System.nanoTime();
+
+    TreePositionAlgorithm algo = new TreePositionAlgorithm();
+    MetadataService service = new MetadataServiceJpa();
+    try {
+      authenticate(securityService, authToken, "compute tree positions ",
+          UserRole.ADMINISTRATOR);
+
+      // Compute tree positions
+      Logger.getLogger(getClass()).info(
+          "  Compute tree positions for " + terminology + "/" + version);
+      algo.setTerminology(terminology);
+      algo.setTerminologyVersion(version);
+      algo.setIdType(service.getTerminology(terminology, version).getOrganizingClassType());
+      algo.reset();
+      algo.compute();
+      algo.close();
+
+      // Final logging messages
+      Logger.getLogger(getClass()).info(
+          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+      Logger.getLogger(getClass()).info("done ...");
+
+    } catch (Exception e) {
+      handleException(e, "trying to compute tree positions");
+    } finally {
+      securityService.close();
+      service.close();
+      algo.close();
+    }
+  }  
 
   /*
    * (non-Javadoc)
@@ -254,9 +306,27 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           algo.close();
         }
       }
+      
+      // Compute tree positions
+      // Refresh caches after metadata has changed in loader
+//      for (Terminology t : metadataService.getTerminologyLatestVersions().getObjects()) {
+//        // Only compute for organizing class types
+//        if (t.getOrganizingClassType() != null) {
+//          TreePositionAlgorithm algo = new TreePositionAlgorithm();
+//          algo.setTerminology(t.getTerminology());
+//          algo.setTerminologyVersion(t.getTerminologyVersion());
+//          algo.setIdType(t.getOrganizingClassType());
+//          // some terminologies may have cycles, allow these for now.
+//          algo.setCycleTolerant(true);
+//          algo.compute();
+//          algo.close();
+//        }
+//      }      
 
+      
       // Clean-up
       // readers.closeReaders();
+      metadataService.close();
       ConfigUtility
           .deleteDirectory(new File(inputDirFile, "/RRF-sorted-temp/"));
 

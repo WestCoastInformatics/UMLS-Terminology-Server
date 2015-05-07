@@ -98,7 +98,7 @@
         </plugins>
       </build>
     </profile>
-   
+
     <!-- Compute transitive closure, specify -Drun.config=... -Dterminology=... -->
     <profile>
       <id>TransitiveClosure</id>
@@ -114,6 +114,34 @@
                 <phase>package</phase>
                 <goals>
                   <goal>compute-transitive-closure</goal>
+                </goals>
+                <configuration>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Compute tree positions, specify -Drun.config=... -Dterminology=... -->
+    <profile>
+      <id>TreePositions</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wci.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>compute-tree-positions</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>compute-tree-positions</goal>
                 </goals>
                 <configuration>
                   <terminology>${terminology}</terminology>
