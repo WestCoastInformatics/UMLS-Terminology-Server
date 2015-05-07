@@ -177,7 +177,7 @@ public class UmlsMetadataServiceJpaHelper extends
           manager
               .createQuery("select distinct a.terminology, a.terminologyVersion, t.abbreviation "
                   + "from ConceptRelationshipJpa a, AdditionalRelationshipTypeJpa t "
-                  + "where a.additionalRrelationshipType = t.abbreviation");
+                  + "where a.additionalRelationshipType = t.abbreviation");
       List<Object[]> results = query.getResultList();
       for (Object[] result : results) {
         if (!additionalRelationshipTypesMap.containsKey(result[0].toString()

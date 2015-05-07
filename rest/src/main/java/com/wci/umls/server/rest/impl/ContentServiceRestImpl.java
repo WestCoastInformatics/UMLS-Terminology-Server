@@ -373,9 +373,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.ADMINISTRATOR);
 
       metadataService.clearMetadata(terminology, version);
-      metadataService.close();
       contentService.clearConcepts(terminology, version);
-      contentService.close();
 
       // Final logging messages
       Logger.getLogger(getClass()).info(
@@ -383,11 +381,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Logger.getLogger(getClass()).info("done ...");
 
     } catch (Exception e) {
-      metadataService.close();
-      contentService.close();
       handleException(e, "trying to load terminology from ClaML file");
     } finally {
       securityService.close();
+      metadataService.close();
+      contentService.close();
     }
   }
 
@@ -428,14 +426,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                 concept.getTerminologyVersion()));
 
       }
-      contentService.close();
       return concept;
     } catch (Exception e) {
-      contentService.close();
       handleException(e, "trying to retrieve a concept");
       return null;
     } finally {
       securityService.close();
+      contentService.close();
     }
 
   }
@@ -472,15 +469,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       SearchResultList sr =
           contentService.findConceptsForQuery(terminology, version,
               Branch.ROOT, query, pfs);
-      contentService.close();
       return sr;
 
     } catch (Exception e) {
-      contentService.close();
       handleException(e, "trying to find the concepts by query");
       return null;
     } finally {
       securityService.close();
+      contentService.close();
     }
   }
 
@@ -523,14 +519,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                     descriptor.getTerminologyVersion()));
 
       }
-      contentService.close();
       return descriptor;
     } catch (Exception e) {
-      contentService.close();
       handleException(e, "trying to retrieve a descriptor");
       return null;
     } finally {
       securityService.close();
+      contentService.close();
     }
 
   }
@@ -567,15 +562,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       SearchResultList sr =
           contentService.findDescriptorsForQuery(terminology, version,
               Branch.ROOT, query, pfs);
-      contentService.close();
       return sr;
 
     } catch (Exception e) {
-      contentService.close();
       handleException(e, "trying to find the descriptors by query");
       return null;
     } finally {
       securityService.close();
+      contentService.close();
     }
   }
 
@@ -616,14 +610,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                 code.getTerminologyVersion()));
 
       }
-      contentService.close();
       return code;
     } catch (Exception e) {
-      contentService.close();
       handleException(e, "trying to retrieve a code");
       return null;
     } finally {
       securityService.close();
+      contentService.close();
     }
 
   }
@@ -660,15 +653,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       SearchResultList sr =
           contentService.findCodesForQuery(terminology, version, Branch.ROOT,
               query, pfs);
-      contentService.close();
       return sr;
 
     } catch (Exception e) {
-      contentService.close();
       handleException(e, "trying to find the codes by query");
       return null;
     } finally {
       securityService.close();
+      contentService.close();
     }
   }
 
@@ -706,14 +698,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         contentService.getGraphResolutionHandler(terminology).resolve(
             lexicalClass);
       }
-      contentService.close();
       return lexicalClass;
     } catch (Exception e) {
-      contentService.close();
       handleException(e, "trying to retrieve a lexicalClass");
       return null;
     } finally {
       securityService.close();
+      contentService.close();
     }
 
   }
@@ -750,15 +741,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       SearchResultList sr =
           contentService.findLexicalClassesForQuery(terminology, version,
               Branch.ROOT, query, pfs);
-      contentService.close();
       return sr;
 
     } catch (Exception e) {
-      contentService.close();
-      handleException(e, "trying to find the lexicalClasss by query");
+      handleException(e, "trying to find the lexicalClasses by query");
       return null;
     } finally {
       securityService.close();
+      contentService.close();
     }
   }
 
@@ -796,14 +786,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         contentService.getGraphResolutionHandler(terminology).resolve(
             stringClass);
       }
-      contentService.close();
       return stringClass;
     } catch (Exception e) {
-      contentService.close();
       handleException(e, "trying to retrieve a stringClass");
       return null;
     } finally {
       securityService.close();
+      contentService.close();
     }
 
   }
@@ -840,15 +829,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       SearchResultList sr =
           contentService.findStringClassesForQuery(terminology, version,
               Branch.ROOT, query, pfs);
-      contentService.close();
       return sr;
 
     } catch (Exception e) {
-      contentService.close();
-      handleException(e, "trying to find the stringClasss by query");
+      handleException(e, "trying to find the stringClasses by query");
       return null;
     } finally {
       securityService.close();
+      contentService.close();
     }
   }
 }
