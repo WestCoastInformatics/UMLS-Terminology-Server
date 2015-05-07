@@ -209,7 +209,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedNames.get(MetadataKeys.Additional_Relationship_Types).add("Is a");
 
     // Attribute names
-    expectedSizes.put(MetadataKeys.Attribute_Names, 97);
+    expectedSizes.put(MetadataKeys.Attribute_Names, 98);
     expectedSizes2.put(MetadataKeys.Attribute_Names, 445);
     expectedIds.put(MetadataKeys.Attribute_Names, "ACCEPTABILITYID");
     expectedNames.put(MetadataKeys.Attribute_Names, new HashSet<String>());
@@ -343,7 +343,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedIds.put(MetadataKeys.Relationship_Types, "PAR");
     expectedNames.put(MetadataKeys.Relationship_Types, new HashSet<String>());
     expectedNames.get(MetadataKeys.Relationship_Types).add(
-        "has parent relationship in a Metathesaurus source vocabulary ");
+        "has parent relationship in a Metathesaurus source vocabulary");
 
     // Additional relationship types
     expectedSizes.put(MetadataKeys.Additional_Relationship_Types, 7);
@@ -356,9 +356,9 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     // Attribute names
     expectedSizes.put(MetadataKeys.Attribute_Names, 27);
     expectedSizes2.put(MetadataKeys.Attribute_Names, 27);
-    expectedIds.put(MetadataKeys.Attribute_Names, "ACCEPTABILITYID");
+    expectedIds.put(MetadataKeys.Attribute_Names, "TERMUI");
     expectedNames.put(MetadataKeys.Attribute_Names, new HashSet<String>());
-    expectedNames.get(MetadataKeys.Attribute_Names).add("Acceptability Id");
+    expectedNames.get(MetadataKeys.Attribute_Names).add("Term unique identifier");
 
     // Semantic types
     expectedSizes.put(MetadataKeys.Semantic_Types, 0);
@@ -370,17 +370,9 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     // Term types
     expectedSizes.put(MetadataKeys.Term_Types, 19);
     expectedSizes2.put(MetadataKeys.Term_Types, 19);
-    expectedIds.put(MetadataKeys.Term_Types, "PT");
+    expectedIds.put(MetadataKeys.Term_Types, "MH");
     expectedNames.put(MetadataKeys.Term_Types, new HashSet<String>());
-    expectedNames.get(MetadataKeys.Term_Types).add("Designated preferred name");
-
-    // General metadata entries
-    expectedSizes.put(MetadataKeys.Term_Types, 247);
-    expectedSizes2.put(MetadataKeys.Term_Types, 247);
-    expectedIds.put(MetadataKeys.Term_Types, "SCUI");
-    expectedNames.put(MetadataKeys.Term_Types, new HashSet<String>());
-    expectedNames.get(MetadataKeys.Term_Types).add(
-        "Source asserted concept unique identifier");
+    expectedNames.get(MetadataKeys.Term_Types).add("Main heading");
 
     // Hierarchical relationship types
     expectedSizes.put(MetadataKeys.Hierarchical_Relationship_Types, 1);
