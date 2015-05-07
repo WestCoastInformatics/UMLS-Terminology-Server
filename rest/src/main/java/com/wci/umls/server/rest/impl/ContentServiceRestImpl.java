@@ -110,9 +110,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Logger.getLogger(getClass()).info("done ...");
 
     } catch (Exception e) {
-      algo.close();
       handleException(e, "trying to reindex");
     } finally {
+      algo.close();
       securityService.close();
     }
 
@@ -154,10 +154,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "  Compute transitive closure for  " + terminology + "/" + version);
       algo.setTerminology(terminology);
       algo.setTerminologyVersion(version);
-      algo.setIdType(service.getTerminology(terminology, version).getOrganizingClassType());
+      algo.setIdType(service.getTerminology(terminology, version)
+          .getOrganizingClassType());
       algo.reset();
       algo.compute();
-      algo.close();
 
       // Final logging messages
       Logger.getLogger(getClass()).info(
@@ -167,14 +167,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } catch (Exception e) {
       handleException(e, "trying to compute transitive closure");
     } finally {
-      securityService.close();
-      service.close();
       algo.close();
+      service.close();
+      securityService.close();
     }
   }
-  
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#computeTreePositions(java.lang.String, java.lang.String, java.lang.String)
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#computeTreePositions
+   * (java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
   @POST
@@ -205,10 +209,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "  Compute tree positions for " + terminology + "/" + version);
       algo.setTerminology(terminology);
       algo.setTerminologyVersion(version);
-      algo.setIdType(service.getTerminology(terminology, version).getOrganizingClassType());
+      algo.setIdType(service.getTerminology(terminology, version)
+          .getOrganizingClassType());
       algo.reset();
       algo.compute();
-      algo.close();
 
       // Final logging messages
       Logger.getLogger(getClass()).info(
@@ -218,11 +222,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } catch (Exception e) {
       handleException(e, "trying to compute tree positions");
     } finally {
-      securityService.close();
-      service.close();
       algo.close();
+      service.close();
+      securityService.close();
     }
-  }  
+  }
 
   /*
    * (non-Javadoc)
@@ -293,7 +297,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       MetadataService metadataService = new MetadataServiceJpa();
       // Refresh caches after metadata has changed in loader
       metadataService.refreshCaches();
-      for (Terminology t : metadataService.getTerminologyLatestVersions().getObjects()) {
+      for (Terminology t : metadataService.getTerminologyLatestVersions()
+          .getObjects()) {
         // Only compute for organizing class types
         if (t.getOrganizingClassType() != null) {
           TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
@@ -306,24 +311,24 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           algo.close();
         }
       }
-      
+
       // Compute tree positions
       // Refresh caches after metadata has changed in loader
-//      for (Terminology t : metadataService.getTerminologyLatestVersions().getObjects()) {
-//        // Only compute for organizing class types
-//        if (t.getOrganizingClassType() != null) {
-//          TreePositionAlgorithm algo = new TreePositionAlgorithm();
-//          algo.setTerminology(t.getTerminology());
-//          algo.setTerminologyVersion(t.getTerminologyVersion());
-//          algo.setIdType(t.getOrganizingClassType());
-//          // some terminologies may have cycles, allow these for now.
-//          algo.setCycleTolerant(true);
-//          algo.compute();
-//          algo.close();
-//        }
-//      }      
+      // for (Terminology t :
+      // metadataService.getTerminologyLatestVersions().getObjects()) {
+      // // Only compute for organizing class types
+      // if (t.getOrganizingClassType() != null) {
+      // TreePositionAlgorithm algo = new TreePositionAlgorithm();
+      // algo.setTerminology(t.getTerminology());
+      // algo.setTerminologyVersion(t.getTerminologyVersion());
+      // algo.setIdType(t.getOrganizingClassType());
+      // // some terminologies may have cycles, allow these for now.
+      // algo.setCycleTolerant(true);
+      // algo.compute();
+      // algo.close();
+      // }
+      // }
 
-      
       // Clean-up
       // readers.closeReaders();
       metadataService.close();
@@ -383,9 +388,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } catch (Exception e) {
       handleException(e, "trying to load terminology from ClaML file");
     } finally {
-      securityService.close();
       metadataService.close();
       contentService.close();
+      securityService.close();
     }
   }
 
@@ -424,15 +429,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             concept,
             TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
                 concept.getTerminologyVersion()));
-
+        concept.setAtoms(contentService.getComputePreferredNameHandler(
+            concept.getTerminology()).sortByPreference(concept.getAtoms()));
       }
       return concept;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a concept");
       return null;
     } finally {
-      securityService.close();
       contentService.close();
+      securityService.close();
     }
 
   }
@@ -475,8 +481,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to find the concepts by query");
       return null;
     } finally {
-      securityService.close();
       contentService.close();
+      securityService.close();
     }
   }
 
@@ -517,6 +523,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                 TerminologyUtility.getHierarchicalIsaRels(
                     descriptor.getTerminology(),
                     descriptor.getTerminologyVersion()));
+        descriptor.setAtoms(contentService.getComputePreferredNameHandler(
+            descriptor.getTerminology()).sortByPreference(descriptor.getAtoms()));
 
       }
       return descriptor;
@@ -524,8 +532,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to retrieve a descriptor");
       return null;
     } finally {
-      securityService.close();
       contentService.close();
+      securityService.close();
     }
 
   }
@@ -568,8 +576,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to find the descriptors by query");
       return null;
     } finally {
-      securityService.close();
       contentService.close();
+      securityService.close();
     }
   }
 
@@ -608,6 +616,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             code,
             TerminologyUtility.getHierarchicalIsaRels(code.getTerminology(),
                 code.getTerminologyVersion()));
+        code.setAtoms(contentService.getComputePreferredNameHandler(
+            code.getTerminology()).sortByPreference(code.getAtoms()));
 
       }
       return code;
@@ -615,8 +625,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to retrieve a code");
       return null;
     } finally {
-      securityService.close();
       contentService.close();
+      securityService.close();
     }
 
   }
@@ -659,8 +669,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to find the codes by query");
       return null;
     } finally {
-      securityService.close();
       contentService.close();
+      securityService.close();
     }
   }
 
@@ -697,14 +707,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       if (lexicalClass != null) {
         contentService.getGraphResolutionHandler(terminology).resolve(
             lexicalClass);
+        lexicalClass.setAtoms(contentService.getComputePreferredNameHandler(
+            lexicalClass.getTerminology()).sortByPreference(lexicalClass.getAtoms()));
+
       }
       return lexicalClass;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a lexicalClass");
       return null;
     } finally {
-      securityService.close();
       contentService.close();
+      securityService.close();
     }
 
   }
@@ -747,8 +760,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to find the lexicalClasses by query");
       return null;
     } finally {
-      securityService.close();
       contentService.close();
+      securityService.close();
     }
   }
 
@@ -785,14 +798,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       if (stringClass != null) {
         contentService.getGraphResolutionHandler(terminology).resolve(
             stringClass);
+        stringClass.setAtoms(contentService.getComputePreferredNameHandler(
+            stringClass.getTerminology()).sortByPreference(stringClass.getAtoms()));
       }
       return stringClass;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a stringClass");
       return null;
     } finally {
-      securityService.close();
       contentService.close();
+      securityService.close();
     }
 
   }
@@ -835,8 +850,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       handleException(e, "trying to find the stringClasses by query");
       return null;
     } finally {
-      securityService.close();
       contentService.close();
+      securityService.close();
     }
   }
 }

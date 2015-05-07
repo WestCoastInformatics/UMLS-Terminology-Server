@@ -95,13 +95,12 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       // Add project
       project.setLastModifiedBy(securityService.getUsernameForToken(authToken));
       Project newProject = projectService.addProject(project);
-      projectService.close();
       return newProject;
     } catch (Exception e) {
-      projectService.close();
       handleException(e, "trying to add a project");
       return null;
     } finally {
+      projectService.close();
       securityService.close();
     }
 
@@ -146,12 +145,11 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       // Update project
       project.setLastModifiedBy(securityService.getUsernameForToken(authToken));
       projectService.updateProject(project);
-      projectService.close();
 
     } catch (Exception e) {
-      projectService.close();
       handleException(e, "trying to update a project");
     } finally {
+      projectService.close();
       securityService.close();
     }
 
@@ -182,12 +180,11 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
       // Create service and configure transaction scope
       projectService.removeProject(id);
-      projectService.close();
 
     } catch (Exception e) {
-      projectService.close();
       handleException(e, "trying to remove a project");
     } finally {
+      projectService.close();
       securityService.close();
     }
 
@@ -226,13 +223,12 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
         list2.addObject(new ConceptJpa(c, false));
       }
       list2.setTotalCount(list.getTotalCount());
-      projectService.close();
       return list2;
     } catch (Exception e) {
-      projectService.close();
       handleException(e, "trying to retrieve scope concepts for project " + id);
       return null;
     } finally {
+      projectService.close();
       securityService.close();
     }
 
@@ -260,13 +256,13 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       Project project = projectService.getProject(id);
-      projectService.close();
+      
       return project;
     } catch (Exception e) {
-      projectService.close();
       handleException(e, "trying to retrieve a project");
       return null;
     } finally {
+      projectService.close();
       securityService.close();
     }
 
@@ -298,13 +294,12 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
         project.getScopeExcludesConcepts().size();
         project.getActionWorkflowStatusValues().size();
       }
-      projectService.close();
       return projects;
     } catch (Exception e) {
-      projectService.close();
       handleException(e, "trying to retrieve the projects");
       return null;
     } finally {
+      projectService.close();
       securityService.close();
     }
 
