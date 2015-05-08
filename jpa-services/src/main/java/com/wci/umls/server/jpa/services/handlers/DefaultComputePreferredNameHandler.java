@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.services.handlers;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 
 import com.wci.umls.server.model.content.Atom;
@@ -38,8 +40,14 @@ public class DefaultComputePreferredNameHandler implements
     // Use ranking algorithm from MetamorphoSys
     // [termgroupRank][lrr][inverse SUI][inverse AUI]
     // LRR isn't available here so just don't worry about it.
-    return null;
+    return atoms.size() > 0 ? atoms.iterator().next().getTerm() : "";
 
+  }
+
+  @Override
+  public List<Atom> sortByPreference(Collection<Atom> atoms) throws Exception {
+    // n/a
+    return new ArrayList<>(atoms);
   }
 
 }

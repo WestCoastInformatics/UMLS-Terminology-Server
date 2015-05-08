@@ -26,7 +26,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 }))
 @Audited
 @XmlRootElement(name = "semanticTypeComponent")
-public class SemanticTypeComponentJpa extends AbstractComponentHasAttributes implements
+public class SemanticTypeComponentJpa extends AbstractComponent implements
     SemanticTypeComponent {
 
   /** The semantic type. */
@@ -51,9 +51,8 @@ public class SemanticTypeComponentJpa extends AbstractComponentHasAttributes imp
    * @param semanticType the semantic type
    * @param deepCopy the deep copy
    */
-  public SemanticTypeComponentJpa(SemanticTypeComponent semanticType,
-      boolean deepCopy) {
-    super(semanticType, deepCopy);
+  public SemanticTypeComponentJpa(SemanticTypeComponent semanticType) {
+    super(semanticType);
     this.semanticType = semanticType.getSemanticType();
     workflowStatus = semanticType.getWorkflowStatus();
   }

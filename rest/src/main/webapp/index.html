@@ -2,9 +2,9 @@
 <head>
 <meta http-equiv="Content-Language" content="en" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>UMLS Terminology Server Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SNOMED Terminology Server Demo (RF2)</title>
 <style type="text/css" media="all"></style>
-
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="images/favicon.png" />
 
@@ -94,25 +94,29 @@
               <p style="margin-top: 25px; max-width: 500px">This
                 demonstration app is loaded with data from two terminologies.</p>
               <ul>
-                <li>TBD</li>
-                <li></li>
+                <li>ICD9CM, 2013</li>
+                <li>SNOMEDCT, 20140731 (mini edition)</li>
               </ul>
-              <p style="max-width: 400px">The mini version of the UMLS
+              <p style="max-width: 400px">The mini version of SNOMED
                 contains about 10K concepts. Due to the use of IP restricted
                 content, we require users to authenticate with an NLM UTS
                 account to ensure they have agreed to the UMLS License. We are a
                 UMLS authorized content distributor.</p>
               <p style="max-width: 400px">
-                To obtain a UTS account, visit <a href="http://uts.nlm.nih.gov/">http://uts.nlm.nih.gov</a>
+                To obtain a UTS account, visit <a href="http://uts.nlm.nih.gov">http://uts.nlm.nih.gov</a>
               </p>
               <p style="max-width: 400px">
                 Disclaimer: this is not an official <a
-                  href="http://umls.nlm.nih.gov/">NLM</a> site.
+                  href="http://www.ihtsdo.org">IHTSDO</a> site.
               </p>
               <p>
                 For complete documentation, see the <a
-                  href="http://wiki.terminology.tools/confluence/display/UTS/UMLS+Terminology+Server+Home">UMLS
+                  href="http://wiki.terminology.tools/confluence/display/TS/TermServer+Home">SNOMED/RF2
                   Terminology Server wiki</a>.
+              </p>
+              <p>
+                For support, email:<a
+                  href="mailto:info@westcoastinformatics.com">info@westcoastinformatics.com</a>
             </form>
           </div>
 
@@ -144,7 +148,9 @@
                 <button class="btn btn-small btn-warning" type="cancel"
                   ng-click="conceptQuery = null">Clear</button>
                 <br> <em>Searchable terms include concept names, e.g.
-                  ossification, and concept ids, e.g. C1234567</em></td>
+                  ossification, and concept ids, e.g. 728.1 (for ICD9CM),
+                  102276005 (for SNOMEDCT)</em></td>
+
             </form>
           </tr>
         </table>
@@ -348,7 +354,9 @@
               style="margin-top: 10px" ng-click="logout()"
               ng-show="authToken != null">Logout</button>
           </li>
-          <li>&nbsp;<p class="navbar-text">${project.version}</p></li>
+          <li>&nbsp;
+            <p class="navbar-text">${project.version}</p>
+          </li>
           <li>
             <div style="text-align: center; padding: 5px; margin: 0 0 0 0;"
               class="alert alert-danger" ng-show="glassPane < 0">

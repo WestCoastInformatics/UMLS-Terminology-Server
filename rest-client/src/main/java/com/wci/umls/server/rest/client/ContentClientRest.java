@@ -103,6 +103,31 @@ public class ContentClientRest implements ContentServiceRest {
     }
 
   }
+  
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#computeTreePositions(java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public void computeTreePositions(String terminology, String version,
+    String authToken) throws Exception {
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url")
+            + "/content/terminology/treepos/compute/" + terminology + "/"
+            + version);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class);
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing
+    } else {
+      throw new Exception("Unexpected status " + response.getStatus());
+    }
+
+  }
 
   /*
    * (non-Javadoc)

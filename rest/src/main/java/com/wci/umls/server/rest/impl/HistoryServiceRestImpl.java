@@ -80,14 +80,13 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       ReleaseInfoList result = historyService.getReleaseHistory(terminology);
-      historyService.close();
       return result;
 
     } catch (Exception e) {
-      historyService.close();
       handleException(e, "trying to get release history");
       return null;
     } finally {
+      historyService.close();
       securityService.close();
     }
   }
@@ -116,14 +115,13 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       ReleaseInfo result = historyService.getCurrentReleaseInfo(terminology);
-      historyService.close();
       return result;
 
     } catch (Exception e) {
-      historyService.close();
       handleException(e, "trying to get current release info");
       return null;
     } finally {
+      historyService.close();
       securityService.close();
     }
   }
@@ -152,14 +150,13 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       ReleaseInfo result = historyService.getPreviousReleaseInfo(terminology);
-      historyService.close();
       return result;
 
     } catch (Exception e) {
-      historyService.close();
       handleException(e, "trying to get previous release info");
       return null;
     } finally {
+      historyService.close();
       securityService.close();
     }
   }
@@ -188,14 +185,13 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       ReleaseInfo result = historyService.getPlannedReleaseInfo(terminology);
-      historyService.close();
       return result;
 
     } catch (Exception e) {
-      historyService.close();
       handleException(e, "trying to get planned release info");
       return null;
     } finally {
+      historyService.close();
       securityService.close();
     }
   }
@@ -225,14 +221,13 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       ReleaseInfo result = historyService.getReleaseInfo(terminology, name);
-      historyService.close();
       return result;
 
     } catch (Exception e) {
-      historyService.close();
       handleException(e, "trying to get release info for " + name);
       return null;
     } finally {
+      historyService.close();
       securityService.close();
     }
   }
@@ -263,14 +258,13 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
       releaseInfo.setLastModifiedBy(securityService
           .getUsernameForToken(authToken));
       ReleaseInfo result = historyService.addReleaseInfo(releaseInfo);
-      historyService.close();
       return result;
 
     } catch (Exception e) {
-      historyService.close();
       handleException(e, "trying to add release info");
       return null;
     } finally {
+      historyService.close();
       securityService.close();
     }
   }
@@ -301,11 +295,10 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
       releaseInfo.setLastModifiedBy(securityService
           .getUsernameForToken(authToken));
       historyService.updateReleaseInfo(releaseInfo);
-      historyService.close();
     } catch (Exception e) {
-      historyService.close();
       handleException(e, "trying to update release info");
     } finally {
+      historyService.close();
       securityService.close();
     }
   }
@@ -334,11 +327,10 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
           UserRole.ADMINISTRATOR);
 
       historyService.removeReleaseInfo(id);
-      historyService.close();
     } catch (Exception e) {
-      historyService.close();
       handleException(e, "trying to remove release info");
     } finally {
+      historyService.close();
       securityService.close();
     }
   }
@@ -375,6 +367,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
       algorithm.compute();
       handleException(e, "start editing cycle");
     } finally {
+      algorithm.close();
       securityService.close();
     }
   }

@@ -55,6 +55,50 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     securityService = new SecurityServiceJpa();
   }
 
+  @Override
+  @GET
+  @Path("/terminology/id/{terminology}/{version}")
+  @ApiOperation(value = "Get all terminology information for a name and version", notes = "Gets the key-value pairs representing all information for a particular terminology and version.", response = KeyValuePairLists.class)
+  public Terminology getTerminology(
+    @ApiParam(value = "Terminology name, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Metadata): /terminology/id/" + terminology + "/"
+            + version);
+
+    String user = "";
+    MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      user = securityService.getUsernameForToken(authToken);
+
+      // authorize call
+      UserRole role = securityService.getApplicationRoleForToken(authToken);
+      if (!role.hasPrivilegesOf(UserRole.VIEWER))
+        throw new WebApplicationException(Response.status(401)
+            .entity("User does not have permissions to retrieve the metadata.")
+            .build());
+
+      Terminology termInfo =
+          metadataService.getTerminology(terminology, version);
+
+      // TODO: Move lazy instantiation into graph resolver
+      termInfo.getSynonymousNames().size();
+
+      return termInfo;
+
+    } catch (Exception e) {
+
+      handleException(e, "trying to retrieve the metadata", user);
+      return null;
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -91,10 +135,10 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       return getMetadataHelper(terminology, version);
 
     } catch (Exception e) {
-      metadataService.close();
       handleException(e, "trying to retrieve the metadata", user);
       return null;
     } finally {
+      metadataService.close();
       securityService.close();
     }
   }
@@ -165,8 +209,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       }
       return keyValuePairLists;
     } catch (Exception e) {
-      metadataService.close();
       throw e;
+    } finally {
+      metadataService.close();
     }
   }
 
@@ -211,14 +256,13 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
         pair.setValue(terminology.getTerminologyVersion());
         keyValuePairList.addKeyValuePair(pair);
       }
-      metadataService.close();
       return keyValuePairList;
     } catch (Exception e) {
-      metadataService.close();
       handleException(e,
           "trying to retrieve the latest versions of all terminologies", user);
       return null;
     } finally {
+      metadataService.close();
       securityService.close();
     }
   }
@@ -271,14 +315,13 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
         keyValuePairList.setName(terminology.getTerminology());
         keyValuePairLists.addKeyValuePairList(keyValuePairList);
       }
-      metadataService.close();
       return keyValuePairLists;
     } catch (Exception e) {
-      metadataService.close();
       handleException(e,
           "trying to retrieve the versions of all terminologies", user);
       return null;
     } finally {
+      metadataService.close();
       securityService.close();
     }
   }

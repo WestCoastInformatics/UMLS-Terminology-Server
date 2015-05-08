@@ -4,6 +4,7 @@
 package com.wci.umls.server.services.handlers;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.model.content.Atom;
@@ -21,5 +22,14 @@ public interface ComputePreferredNameHandler extends Configurable {
    * @throws Exception the exception
    */
   public String computePreferredName(Collection<Atom> atoms) throws Exception;
+  
+  /**
+   * Sort by preference.
+   *
+   * @param atoms the atoms
+   * @return the list
+   * @throws Exception the exception
+   */
+  public List<Atom> sortByPreference(Collection<Atom> atoms) throws Exception;
 
 }
