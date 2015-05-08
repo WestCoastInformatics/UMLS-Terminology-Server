@@ -3,7 +3,10 @@
  */
 package com.wci.umls.server.jpa.services.handlers;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +85,31 @@ public class RrfComputePreferredNameHandler implements
     return "[Could not determine preferred name]";
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#
+   * sortByPreference(java.util.Collection)
+   */
+  @Override
+  public List<Atom> sortByPreference(Collection<Atom> atoms) throws Exception {
+    List<Atom> sortedAtoms = new ArrayList<>(atoms);
+    // Get each atom rank
+    final Map<Atom, String> atomRanks = new HashMap<>();
+    for (Atom atom : atoms) {
+      atomRanks.put(atom, getRank(atom));
+    }
+    // Sort by atom rank - this works because atom ranks are designed to be
+    // fixed-length strings that are directly comparable
+    Collections.sort(sortedAtoms, new Comparator<Atom>() {
+      @Override
+      public int compare(Atom o1, Atom o2) {
+        return atomRanks.get(o1).compareTo(atomRanks.get(o2));
+      }
+    });
+    return null;
+  }
+
   /**
    * Returns the rank.
    *
@@ -91,8 +119,8 @@ public class RrfComputePreferredNameHandler implements
   private String getRank(Atom atom) {
     return ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType())
         + (10000000000L - Long.parseLong(atom.getStringClassId().substring(1)))
-        + (10000000000L - Long.parseLong(atom.getAlternateTerminologyIds().get(
-            "UMLS").substring(1)));
+        + (10000000000L - Long.parseLong(atom.getAlternateTerminologyIds()
+            .get("UMLS").substring(1)));
   }
 
   /**
@@ -113,4 +141,5 @@ public class RrfComputePreferredNameHandler implements
     }
 
   }
+
 }

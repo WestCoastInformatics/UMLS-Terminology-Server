@@ -879,7 +879,17 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public void clearTransitiveClosure(String terminology, String version)
-    throws Exception;
+      throws Exception;
+
+  /**
+   * Clear tree positions.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @throws Exception the exception
+   */
+  public void clearTreePositions(String terminology, String version)
+      throws Exception;
 
   /**
    * Removes all concepts and connected data structures.

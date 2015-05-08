@@ -54,7 +54,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
   public MetadataServiceRestImpl() throws Exception {
     securityService = new SecurityServiceJpa();
   }
-  
+
   @Override
   @GET
   @Path("/terminology/id/{terminology}/{version}")
@@ -80,22 +80,21 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
         throw new WebApplicationException(Response.status(401)
             .entity("User does not have permissions to retrieve the metadata.")
             .build());
-      
-      
 
-      Terminology termInfo = metadataService.getTerminology(terminology, version);
-      
-      // TODO:  Move lazy instantiation into graph resolver
+      Terminology termInfo =
+          metadataService.getTerminology(terminology, version);
+
+      // TODO: Move lazy instantiation into graph resolver
       termInfo.getSynonymousNames().size();
-     
+
       return termInfo;
 
     } catch (Exception e) {
-      
+
       handleException(e, "trying to retrieve the metadata", user);
       return null;
     } finally {
-    	metadataService.close();
+      metadataService.close();
       securityService.close();
     }
   }
@@ -136,10 +135,10 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       return getMetadataHelper(terminology, version);
 
     } catch (Exception e) {
-      metadataService.close();
       handleException(e, "trying to retrieve the metadata", user);
       return null;
     } finally {
+      metadataService.close();
       securityService.close();
     }
   }
@@ -210,8 +209,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       }
       return keyValuePairLists;
     } catch (Exception e) {
-      metadataService.close();
       throw e;
+    } finally {
+      metadataService.close();
     }
   }
 
@@ -256,14 +256,13 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
         pair.setValue(terminology.getTerminologyVersion());
         keyValuePairList.addKeyValuePair(pair);
       }
-      metadataService.close();
       return keyValuePairList;
     } catch (Exception e) {
-      metadataService.close();
       handleException(e,
           "trying to retrieve the latest versions of all terminologies", user);
       return null;
     } finally {
+      metadataService.close();
       securityService.close();
     }
   }
@@ -316,14 +315,13 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
         keyValuePairList.setName(terminology.getTerminology());
         keyValuePairLists.addKeyValuePairList(keyValuePairList);
       }
-      metadataService.close();
       return keyValuePairLists;
     } catch (Exception e) {
-      metadataService.close();
       handleException(e,
           "trying to retrieve the versions of all terminologies", user);
       return null;
     } finally {
+      metadataService.close();
       securityService.close();
     }
   }
