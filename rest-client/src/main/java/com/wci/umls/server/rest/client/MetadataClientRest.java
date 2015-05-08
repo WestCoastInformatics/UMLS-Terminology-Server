@@ -15,6 +15,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
 import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
+import com.wci.umls.server.model.meta.Terminology;
 
 /**
  * A client for connecting to a metadata REST service.
@@ -123,5 +124,12 @@ public class MetadataClientRest implements MetadataServiceRest {
             KeyValuePairLists.class);
     return result;
   }
+
+@Override
+public Terminology getTerminology(String terminology, String version,
+		String authToken) throws Exception {
+	// TODO Auto-generated method stub
+	return null;
+}
 
 }

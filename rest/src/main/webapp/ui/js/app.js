@@ -15,74 +15,39 @@ tsApp.run(function($http) {
 
 })
 
+// currently unused
 tsApp.directive('conceptReport', function() {
 	 return {
 		    replace : false,
 		    restrict : 'AE',
 		    templateUrl : 'ui/partials/conceptReport.html',
 		    scope : {
-		      concept : '=', // two-way binding, currently un-used
-		      type : '@' // isolate scope, string expected
+		      concept : '=', // two-way binding in anticipation of editing
+		      terminology : '@', // isolate scope as terminology will not change
+		      showSuppressible : '=',  // two way binding for showing Suppressible control
+		      showObsolete : '=', // two way binding for showing Obsolete control
+		      changeConcept : '&' // method link for following concept links
+		   
 		    },
 		    link : function(scope, element, attrs) {
+		    	
+		    	scope.showItem = function(item) {
+		    		
+		    		if (scope.showSuppressible == false && item.suppressible == true)
+		    			return false;
+		    		
+		    		if (scope.showObsolete == false && item.obsolete == true)
+		    			return false;
+		    		
+		    		return true;
+		    	}
 		    
 		    }
 	 }
 
 });
 
-tsApp.directive('component', function() {
-
-  return {
-    replace : false,
-    restrict : 'AE',
-    templateUrl : 'ui/partials/component.html',
-    scope : {
-      object : '=', // two-way binding, currently un-used
-      type : '@' // isolate scope, string expected
-    },
-    link : function(scope, element, attrs) {
-
-      // initially collapsible is expanded
-      scope.componentExpanded = true;
-
-      // function to determine if string is boolean "true"/"false" value
-      // used to distinguish between real boolean values and, e.g. "0",
-      // "1"
-      scope.isTrueFalse = function(elem) {
-        if (elem == null)
-          return false;
-
-        return elem.toString() === 'true' || elem.toString() === 'false';
-      }
-
-      // function to determine if element is a model component array
-      // tests (1) if Array, (2) if Array elements have id field
-      scope.isComponentArray = function(elem) {
-        if (elem == null || !Array.isArray(elem) || elem[0] == null)
-          return false;
-
-        return elem[0].hasOwnProperty('terminologyId');
-      }
-
-      // quick function to convert "string" into "String"
-      scope.getLabelString = function(key, value) {
-
-        var labelString = "";
-        if (value == false) {
-          labelString = "Not " + key;
-        } else {
-          labelString = key.substring(0, 1).toUpperCase() + key.substring(1);
-        }
-
-        return labelString;
-
-      }
-    }
-
-  }
-});
-
+// currently unused
 tsApp
   .controller(
     'tsIndexCtrl',
@@ -100,10 +65,19 @@ tsApp
         // the viewed terminology
         $scope.terminology = null;
 
+        // initialize the search results
+        $scope.searchResult = [];
+        $scope.resultsPage = 1;
+        
         // the displayed component
         $scope.component = null;
         $scope.componentType = null;
 
+        // whether to show suppressible/obsolete component elements
+        $scope.showSuppressible = true;
+        $scope.showObsolete = true;
+        
+        // basic scope variables
         $scope.userName = null;
         $scope.authToken = null;
         $scope.error = "";
@@ -120,7 +94,7 @@ tsApp
         $scope.setTerminology = function(terminology) {
           $scope.terminology = terminology;
         }
-        
+      
         $scope.$watch('terminology', function() {
           
           console.debug("terminology changed: ", $scope.terminology);
@@ -290,7 +264,7 @@ tsApp
             	  if (terminology.terminology != 'MTH' && terminology.terminology != 'SRC') {
             		  $scope.terminologies.push(terminology);
             	  
-            	  if (terminology.terminology === 'SNOMEDCT') {
+            	  if (terminology.terminology === 'SNOMEDCT-US') {
                       console.debug('SNOMEDCT found');
                       $scope.setTerminology(terminology);
                   }
@@ -328,6 +302,7 @@ tsApp
 
             setActiveRow(terminologyId);
             $scope.setComponent($scope.concept, 'Concept');
+            
            // $scope.getParentAndChildConcepts($scope.concept);
 
             
@@ -371,7 +346,7 @@ tsApp
             }).success(function(data) {
             console.debug("Retrieved concepts:", data);
             $scope.searchResults = data.searchResult;
-            console.debug("Retrieved terminologies:", data.keyValuePairList);
+           
             $scope.glassPane--;
 
           }).error(function(data, status, headers, config) {
@@ -385,56 +360,33 @@ tsApp
           // componentType, component);
           $scope.component = component;
           $scope.componentType = componentType;
-
-          
         }
-
-        $scope.getParentAndChildConcepts = function(concept) {
-            $scope.glassPane++;
-          // find concepts
-          $http(
-            {
-              url : contentUrl + "concepts/" + concept.terminology + "/"
-                + concept.terminologyVersion + "/" + concept.terminologyId
-                + "/parents",
-              method : "POST",
-              dataType : "json",
-              data : getPfs(),
-              headers : {
-                "Content-Type" : "application/json"
-              }
-            }).success(function(data) {
-            console.debug("Retrieved parent concepts:", data);
-            $scope.parentConcepts = data.concept;
-            $scope.glassPane--;
-
-          }).error(function(data, status, headers, config) {
-            $scope.error = data;
-            $scope.glassPane--;
-          });
-
-          // find concepts
-          $scope.glassPane++;
-          $http(
-            {
-              url : contentUrl + "concepts/" + concept.terminology + "/"
-                + concept.terminologyVersion + "/" + concept.terminologyId
-                + "/children",
-              method : "POST",
-              dataType : "json",
-              data : getPfs(),
-              headers : {
-                "Content-Type" : "application/json"
-              }
-            }).success(function(data) {
-            console.debug("Retrieved child concepts:", data);
-            $scope.childConcepts = data.concept;
-            $scope.glassPane--;
-
-          }).error(function(data, status, headers, config) {
-            $scope.error = data;
-            $scope.glassPane--;
-          });
+        
+        $scope.showItem = function(item) {
+        
+        	if ($scope.showSuppressible == false && item.suppressible == true)
+    			return false;
+    		
+    		if ($scope.showObsolete == false && item.obsolete == true)
+    			return false;
+    		
+    		return true;
+    	}
+        
+        $scope.toggleSuppressible = function() {
+        	if ($scope.showSuppressible == null || $scope.showSuppressible == undefined) {
+        		$scope.showSuppressible = false;
+        	} else {
+        		$scope.showSuppressible = !$scope.showSuppressible;
+        	}
+        }
+        
+        $scope.toggleObsolete = function() {
+        	if ($scope.showObsolete == null || $scope.showObsolete == undefined) {
+        		$scope.showObsolete = false;
+        	} else {
+        		$scope.showObsolete = !$scope.showObsolete;
+        	}
         }
 
         function setActiveRow(terminologyId) {

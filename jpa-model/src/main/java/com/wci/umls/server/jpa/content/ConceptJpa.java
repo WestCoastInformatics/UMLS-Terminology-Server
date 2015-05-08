@@ -87,7 +87,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
         addRelationship(new ConceptRelationshipJpa(relationship, deepCopy));
       }
       for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
-        addSemanticType(new SemanticTypeComponentJpa(sty, deepCopy));
+        addSemanticType(new SemanticTypeComponentJpa(sty));
       }
     }
   }

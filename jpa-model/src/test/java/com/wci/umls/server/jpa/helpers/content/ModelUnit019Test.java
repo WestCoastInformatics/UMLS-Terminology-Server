@@ -92,7 +92,7 @@ public class ModelUnit019Test {
   public void testModelCopy019() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelCopy019");
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructorDeep(SemanticTypeComponent.class));
+    assertTrue(tester.testCopyConstructor(SemanticTypeComponent.class));
   }
 
   /**

@@ -7,7 +7,7 @@ package com.wci.umls.server.model.content;
 /**
  * A semantic type {@link ComponentHasAttributes}.
  */
-public interface SemanticTypeComponent extends ComponentHasAttributes {
+public interface SemanticTypeComponent extends Component {
 
   /**
    * Returns the semantic type.
