@@ -11,6 +11,7 @@ import java.util.Map;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteriaList;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.AttributeList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
@@ -100,18 +101,6 @@ public interface ContentService extends RootService {
   public Subset getSubset(Long id) throws Exception;
 
   /**
-   * Returns the subsets.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the subsets
-   * @throws Exception the exception
-   */
-  public SubsetList getSubsets(String terminologyId, String terminology,
-    String version) throws Exception;
-
-  /**
    * Returns the subset.
    *
    * @param terminologyId the terminology id
@@ -125,16 +114,52 @@ public interface ContentService extends RootService {
     String version, String branch) throws Exception;
 
   /**
-   * Returns the subset members for the specified subset.
+   * Returns the atom subsets.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @return the subsets
+   * @throws Exception the exception
+   */
+  public SubsetList getAtomSubsets(String terminology, String version)
+      throws Exception;
+  
+  /**
+   * Returns the concept subsets.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @return the concept subsets
+   * @throws Exception the exception
+   */
+  public SubsetList getConceptSubsets(String terminology, String version)
+      throws Exception;
+
+  /**
+   * Returns the atom subset members for the specified subset.
    *
    * @param subsetId the subset id
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param pfs the pfs
    * @return the subset members
    */
-  public SubsetMemberList getSubsetMembers(String subsetId, String terminology,
-    String version, String branch);
+  public SubsetMemberList findAtomSubsetMembers(String subsetId, String terminology,
+    String version, String branch, PfsParameter pfs);
+  
+  /**
+   * Returns the concept subset members.
+   *
+   * @param subsetId the subset id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param pfs the pfs
+   * @return the concept subset members
+   */
+  public SubsetMemberList findConceptSubsetMembers(String subsetId, String terminology,
+    String version, String branch, PfsParameter pfs);
 
   /**
    * Returns the atom subset members for the specified atom.
@@ -145,7 +170,7 @@ public interface ContentService extends RootService {
    * @param branch the branch
    * @return the atom subset members
    */
-  public SubsetMemberList getAtomSubsetMembers(String atomId,
+  public SubsetMemberList getSubsetMembersForAtom(String atomId,
     String terminology, String version, String branch);
 
   /**
@@ -157,7 +182,7 @@ public interface ContentService extends RootService {
    * @param branch the branch
    * @return the concept subset members
    */
-  public SubsetMemberList getConceptSubsetMembers(String conceptId,
+  public SubsetMemberList getSubsetMembersForConcept(String conceptId,
     String terminology, String version, String branch);
 
   /**
@@ -690,6 +715,15 @@ public interface ContentService extends RootService {
     throws Exception;
 
   /**
+   * Autocomplete concepts.
+   *
+   * @param searchTerm the search term
+   * @return the string list
+   * @throws Exception the exception
+   */
+  public StringList autocompleteConcepts(String searchTerm) throws Exception;
+
+  /**
    * Find descriptors for query.
    *
    * @param terminology the terminology
@@ -705,6 +739,15 @@ public interface ContentService extends RootService {
     throws Exception;
 
   /**
+   * Autocomplete descriptors.
+   *
+   * @param searchTerm the search term
+   * @return the string list
+   * @throws Exception the exception
+   */
+  public StringList autocompleteDescriptors(String searchTerm) throws Exception;
+
+  /**
    * Find codes for query.
    *
    * @param terminology the terminology
@@ -717,6 +760,15 @@ public interface ContentService extends RootService {
    */
   public SearchResultList findCodesForQuery(String terminology, String version,
     String branch, String query, PfsParameter pfs) throws Exception;
+
+  /**
+   * Autocomplete codes.
+   *
+   * @param searchTerm the search term
+   * @return the string list
+   * @throws Exception the exception
+   */
+  public StringList autocompleteCodes(String searchTerm) throws Exception;
 
   /**
    * Find lexical classes for query.
@@ -879,7 +931,7 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public void clearTransitiveClosure(String terminology, String version)
-      throws Exception;
+    throws Exception;
 
   /**
    * Clear tree positions.
@@ -889,7 +941,7 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public void clearTreePositions(String terminology, String version)
-      throws Exception;
+    throws Exception;
 
   /**
    * Removes all concepts and connected data structures.
@@ -945,6 +997,15 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public String getComputedPreferredName(AtomClass atomClass) throws Exception;
+
+  /**
+   * Returns the normalized string.
+   *
+   * @param string the string
+   * @return the normalized string
+   * @throws Exception the exception
+   */
+  public String getNormalizedString(String string) throws Exception;
 
   /**
    * Sets the assign identifiers flag.

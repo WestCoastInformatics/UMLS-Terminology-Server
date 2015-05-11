@@ -137,24 +137,24 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   }
 
   /**
-   * Returns the from term. For JAXB.
+   * Returns the from name. For JAXB.
    *
-   * @return the from term
+   * @return the from name
    */
-  public String getFromTerm() {
-    return from == null ? null : from.getTerm();
+  public String getFromName() {
+    return from == null ? null : from.getName();
   }
 
   /**
-   * Sets the from term.
+   * Sets the from name.
    *
-   * @param term the from term
+   * @param name the from name
    */
-  public void setFromTerm(String term) {
+  public void setFromName(String name) {
     if (from == null) {
       from = new AtomJpa();
     }
-    from.setTerm(term);
+    from.setName(name);
   }
 
   /*
@@ -198,12 +198,12 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     to.setTerminologyId(terminologyId);
   }
   /**
-   * Returns the to term.
+   * Returns the to name.
    *
-   * @return the to term
+   * @return the to name
    */
-  public String getToTerm() {
-    return to == null ? null : to.getTerm();
+  public String getToName() {
+    return to == null ? null : to.getName();
   }
 
   /**
@@ -219,15 +219,15 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   }
 
   /**
-   * Sets the to term.
+   * Sets the to name.
    *
-   * @param term the to term
+   * @param name the to name
    */
-  public void setToTerm(String term) {
+  public void setToName(String name) {
     if (to == null) {
       to = new AtomJpa();
     }
-    to.setTerm(term);
+    to.setName(name);
   }
 
   /*

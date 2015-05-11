@@ -44,6 +44,10 @@
       <artifactId>term-server-rest</artifactId>
       <classifier>classes</classifier>
     </dependency>
+    <dependency>
+      <groupId>com.wci.umls.server</groupId>
+      <artifactId>term-server-custom</artifactId>
+    </dependency>
 
     <!-- JPA dependencies -->
     <dependency>

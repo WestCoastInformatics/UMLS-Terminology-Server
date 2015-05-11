@@ -13,22 +13,8 @@ import com.wci.umls.server.helpers.HasRelationships;
  * Represents a single atomic unit of meaning. It's a name from a vocabulary
  * with associated identifiers.
  */
-public interface Atom extends ComponentHasAttributes, HasDefinitions,
+public interface Atom extends ComponentHasAttributesAndName, HasDefinitions,
     HasRelationships<AtomRelationship>, HasAlternateTerminologyIds {
-
-  /**
-   * Returns the term.
-   *
-   * @return the term
-   */
-  public String getTerm();
-
-  /**
-   * Sets the term.
-   *
-   * @param term the term
-   */
-  public void setTerm(String term);
 
   /**
    * Returns the string class id.
@@ -75,7 +61,7 @@ public interface Atom extends ComponentHasAttributes, HasDefinitions,
   /**
    * Returns the concept id for this atom in its own terminology.
    *
-   * @return the concept id 
+   * @return the concept id
    */
   public String getConceptId();
 
@@ -85,7 +71,7 @@ public interface Atom extends ComponentHasAttributes, HasDefinitions,
    * @param id the concept id
    */
   public void setConceptId(String id);
-  
+
   /**
    * Returns the descriptor id for this atom in its own terminology.
    *
@@ -121,7 +107,7 @@ public interface Atom extends ComponentHasAttributes, HasDefinitions,
    * @param terminologyId the terminology id
    */
   public void putConceptTerminologyId(String terminology, String terminologyId);
-  
+
   /**
    * Removes the concept terminology id.
    *

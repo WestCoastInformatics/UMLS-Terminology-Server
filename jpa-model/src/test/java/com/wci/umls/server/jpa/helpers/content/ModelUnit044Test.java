@@ -62,11 +62,11 @@ public class ModelUnit044Test {
     concept1 = new ConceptJpa();
     concept1.setId(1L);
     concept1.setTerminologyId("1");
-    concept1.setDefaultPreferredName("1");
+    concept1.setName("1");
     concept2 = new ConceptJpa();
     concept2.setId(2L);
     concept2.setTerminologyId("2");
-    concept1.setDefaultPreferredName("2");
+    concept1.setName("2");
 
     subset1 = new ConceptSubsetJpa();
     subset1.setId(1L);
@@ -89,7 +89,7 @@ public class ModelUnit044Test {
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("memberId");
     tester.exclude("memberTerminologyId");
-    tester.exclude("memberDefaultPreferredName");
+    tester.exclude("memberName");
     tester.exclude("subsetId");
     tester.exclude("subsetTerminologyId");
     tester.exclude("subsetName");
@@ -180,7 +180,7 @@ public class ModelUnit044Test {
     assertFalse(xml.contains("<subset>"));
     assertTrue(xml.contains("<memberId>"));
     assertTrue(xml.contains("<memberTerminologyId>"));
-    assertTrue(xml.contains("<memberDefaultPreferredName>"));
+    assertTrue(xml.contains("<memberName>"));
     assertFalse(xml.contains("<member>"));
 
   }

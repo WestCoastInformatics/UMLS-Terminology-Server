@@ -101,7 +101,7 @@ public class ModelUnit007Test {
     tester.include("language");
     tester.include("lexicalClassId");
     tester.include("stringClassId");
-    tester.include("term");
+    tester.include("name");
     tester.include("termType");
 
     tester.proxy(Map.class, 1, map1);
@@ -210,7 +210,7 @@ public class ModelUnit007Test {
     tester.include("language");
     tester.include("lexicalClassId");
     tester.include("stringClassId");
-    tester.include("term");
+    tester.include("name");
     tester.include("termType");
 
     assertTrue(tester.testNotNullFields());
@@ -227,7 +227,9 @@ public class ModelUnit007Test {
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    tester.include("term");
+    tester.include("name");
+    tester.include("edgeNGramName");
+    tester.include("nGramName");
     tester.include("conceptTerminologyIds");
     tester.include("alternateTerminologyIds");
     assertTrue(tester.testAnalyzedIndexedFields());
@@ -244,7 +246,7 @@ public class ModelUnit007Test {
     tester.include("terminologyId");
     tester.include("terminology");
     tester.include("terminologyVersion");
-    tester.include("termSort");
+    tester.include("nameSort");
     tester.include("codeId");
     tester.include("descriptorId");
     tester.include("conceptId");

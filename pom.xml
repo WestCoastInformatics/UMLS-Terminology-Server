@@ -20,6 +20,7 @@
     <module>jpa-model</module>
     <module>jpa-services</module>
     <module>admin</module>
+    <module>custom</module>
     <module>rest</module>
     <module>rest-client</module>
     <module>integration-test</module>

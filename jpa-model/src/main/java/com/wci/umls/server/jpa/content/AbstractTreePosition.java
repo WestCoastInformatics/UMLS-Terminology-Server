@@ -26,9 +26,17 @@ public abstract class AbstractTreePosition extends
   @Column(nullable = true, length = 4000)
   private String ancestorPath;
 
-  /** The default preferred name. */
+  /** The name. */
   @Column(nullable = true, length = 4000)
-  private String defaultPreferredName;
+  private String name;
+
+  /**  The child ct. */
+  @Column(nullable = false)
+  private int childCt;
+  
+  /**  The descendant ct. */
+  @Column(nullable = false)
+  private int descendantCt;
 
   /**
    * Instantiates an empty {@link AbstractTreePosition}.
@@ -97,28 +105,59 @@ public abstract class AbstractTreePosition extends
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.model.content.TreePosition#getDefaultPreferredName()
+   * com.wci.umls.server.model.content.TreePosition#getName()
    */
   @Override
-  public String getDefaultPreferredName() {
-    return defaultPreferredName;
+  public String getName() {
+    return name;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.model.content.TreePosition#setDefaultPreferredName(
+   * com.wci.umls.server.model.content.TreePosition#setName(
    * java.lang.String)
    */
   @Override
-  public void setDefaultPreferredName(String defaultPreferredName) {
-    this.defaultPreferredName = defaultPreferredName;
+  public void setName(String name) {
+    this.name = name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.TreePosition#getChildCt()
+   */
+  @Override
+  public int getChildCt() {
+    return childCt;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.TreePosition#setChildCt(int)
+   */
+  @Override
+  public void setChildCt(int childCt) {
+    this.childCt = childCt;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.TreePosition#getDescendantCt()
+   */
+  @Override
+  public int getDescendantCt() {
+    return descendantCt;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.TreePosition#setDescendantCt(int)
+   */
+  @Override
+  public void setDescendantCt(int descendantCt) {
+    this.descendantCt = descendantCt;
+  }
+  
+  /* (non-Javadoc)
    * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
    */
   @Override
@@ -132,14 +171,13 @@ public abstract class AbstractTreePosition extends
                 : additionalRelationshipType.hashCode());
     result =
         prime * result + ((ancestorPath == null) ? 0 : ancestorPath.hashCode());
+    result = prime * result + childCt;
+    result = prime * result + descendantCt;
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
    */
   @Override
   public boolean equals(Object obj) {
@@ -161,19 +199,23 @@ public abstract class AbstractTreePosition extends
         return false;
     } else if (!ancestorPath.equals(other.ancestorPath))
       return false;
+    if (childCt != other.childCt)
+      return false;
+    if (descendantCt != other.descendantCt)
+      return false;
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /* (non-Javadoc)
    * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
    */
   @Override
   public String toString() {
     return "AbstractTreePosition [additionalRelationshipType="
         + additionalRelationshipType + ", ancestorPath=" + ancestorPath
-        + ", defaultPreferredName=" + defaultPreferredName + "]";
+        + ", name=" + name + ", childCt="
+        + childCt + ", descendantCt=" + descendantCt + "]";
   }
+
 
 }

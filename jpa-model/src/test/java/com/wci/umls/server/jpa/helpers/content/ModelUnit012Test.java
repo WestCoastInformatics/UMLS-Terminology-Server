@@ -93,10 +93,10 @@ public class ModelUnit012Test {
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("fromId");
     tester.exclude("fromTerminologyId");
-    tester.exclude("fromDefaultPreferredName");
+    tester.exclude("fromName");
     tester.exclude("toId");
     tester.exclude("toTerminologyId");
-    tester.exclude("toDefaultPreferredName");
+    tester.exclude("toName");
     tester.test();
   }
 
@@ -215,10 +215,10 @@ public class ModelUnit012Test {
     // The proxy concepts can have only "id" and "term" set due to xml transient
     Concept concept1 = new ConceptJpa();
     concept1.setId(1L);
-    concept1.setDefaultPreferredName("1");
+    concept1.setName("1");
     Concept concept2 = new ConceptJpa();
     concept2.setId(2L);
-    concept2.setDefaultPreferredName("2");
+    concept2.setName("2");
 
     tester.proxy(Concept.class, 1, concept1);
     tester.proxy(Concept.class, 2, concept2);
@@ -238,9 +238,9 @@ public class ModelUnit012Test {
 
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<fromId>"));
-    assertTrue(xml.contains("<fromDefaultPreferredName>"));
+    assertTrue(xml.contains("<fromName>"));
     assertTrue(xml.contains("<toId>"));
-    assertTrue(xml.contains("<toDefaultPreferredName>"));
+    assertTrue(xml.contains("<toName>"));
     assertFalse(xml.contains("<from>"));
     assertFalse(xml.contains("<to>"));
 

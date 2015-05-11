@@ -144,8 +144,8 @@ public class DescriptorRelationshipJpa extends
    *
    * @return the from term
    */
-  public String getFromDefaultPreferredName() {
-    return from == null ? null : from.getDefaultPreferredName();
+  public String getFromName() {
+    return from == null ? null : from.getName();
   }
 
   /**
@@ -153,11 +153,11 @@ public class DescriptorRelationshipJpa extends
    *
    * @param term the from term
    */
-  public void setFromDefaultPreferredName(String term) {
+  public void setFromName(String term) {
     if (from == null) {
       from = new DescriptorJpa();
     }
-    from.setDefaultPreferredName(term);
+    from.setName(term);
   }
 
   /*
@@ -230,8 +230,8 @@ public class DescriptorRelationshipJpa extends
    *
    * @return the to term
    */
-  public String getToDefaultPreferredName() {
-    return to == null ? null : to.getDefaultPreferredName();
+  public String getToName() {
+    return to == null ? null : to.getName();
   }
 
   /**
@@ -239,11 +239,11 @@ public class DescriptorRelationshipJpa extends
    *
    * @param term the to term
    */
-  public void setToDefaultPreferredName(String term) {
+  public void setToName(String term) {
     if (to == null) {
       to = new DescriptorJpa();
     }
-    to.setDefaultPreferredName(term);
+    to.setName(term);
   }
 
   /*

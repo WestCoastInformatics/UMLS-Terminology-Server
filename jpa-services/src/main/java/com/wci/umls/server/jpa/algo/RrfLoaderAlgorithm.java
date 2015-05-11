@@ -121,10 +121,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** The readers. */
   private RrfReaders readers;
 
-  /** The all metadata. */
-  @SuppressWarnings("unused")
-  private Map<String, Map<String, String>> allMetadata;
-
   /** The loader. */
   private final String loader = "loader";
 
@@ -302,12 +298,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // Commit
       commitClearBegin();
 
-      // read for later use (perhaps)
-      allMetadata = getAllMetadata(terminology, terminologyVersion);
-
-      //
       // Load the content
-      //
       loadMrconso();
 
       // Definitions
@@ -1179,25 +1170,30 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     // Update objects with new attributes
     objectCt = 0;
+    Logger.getLogger(getClass()).info("  Update concepts");
     for (final Concept c : modifiedConcepts) {
       updateConcept(c);
       logAndCommit(++objectCt);
     }
+    Logger.getLogger(getClass()).info("  Update atoms");
     objectCt = 0;
     for (final Atom a : modifiedAtoms) {
       updateAtom(a);
       logAndCommit(++objectCt);
     }
+    Logger.getLogger(getClass()).info("  Update relationships");
     objectCt = 0;
     for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : modifiedRelationships) {
       updateRelationship(r);
       logAndCommit(++objectCt);
     }
+    Logger.getLogger(getClass()).info("  Update codes");
     objectCt = 0;
     for (final Code code : modifiedCodes) {
       updateCode(code);
       logAndCommit(++objectCt);
     }
+    Logger.getLogger(getClass()).info("  Update descriptors");
     objectCt = 0;
     for (final Descriptor d : modifiedDescriptors) {
       updateDescriptor(d);
@@ -1208,6 +1204,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     commitClearBegin();
 
     // Insert subsets, subset members now (attributes already inserted)
+    Logger.getLogger(getClass()).info("  Insert atom subsets and subset members");
     objectCt = 0;
     for (AtomSubset subset : idTerminologyAtomSubsetMap.values()) {
       List<AtomSubsetMember> members = subset.getMembers();
@@ -1227,6 +1224,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // commit
     commitClearBegin();
 
+    Logger.getLogger(getClass()).info("  Insert concept subsets and subset members");
     objectCt = 0;
     for (ConceptSubset subset : idTerminologyConceptSubsetMap.values()) {
       List<ConceptSubsetMember> members = subset.getMembers();
@@ -1559,7 +1557,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setSuppressible(!fields[16].equals("N"));
       atom.setPublished(true);
       atom.setPublishable(true);
-      atom.setTerm(fields[14]);
+      atom.setName(fields[14]);
       atom.setTerminology(fields[11]);
       if (loadedTerminologies.get(fields[11]) == null) {
         throw new Exception("Atom references terminology that does not exist: "
@@ -1627,7 +1625,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         cui.setTerminologyId(fields[0]);
         cui.setTerminologyVersion(terminologyVersion);
         cui.setWorkflowStatus(published);
-        cui.setDefaultPreferredName("TBD");
+        cui.setName("TBD");
         conceptMap.put(cui.getTerminologyId() + terminology, cui);
       }
       if (cui != null) {
@@ -1650,7 +1648,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         scui.setTerminologyVersion(loadedTerminologies.get(fields[11])
             .getTerminologyVersion());
         scui.setWorkflowStatus(published);
-        scui.setDefaultPreferredName("TBD");
+        scui.setName("TBD");
         conceptMap.put(scui.getTerminologyId() + fields[11], scui);
       }
       if (scui != null) {
@@ -1672,7 +1670,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         sdui.setTerminologyVersion(loadedTerminologies.get(fields[11])
             .getTerminologyVersion());
         sdui.setWorkflowStatus(published);
-        sdui.setDefaultPreferredName("TBD");
+        sdui.setName("TBD");
         descriptorMap.put(sdui.getTerminologyId() + fields[11], sdui);
       }
       if (sdui != null) {
@@ -1694,7 +1692,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         code.setTerminologyVersion(loadedTerminologies.get(fields[11])
             .getTerminologyVersion());
         code.setWorkflowStatus(published);
-        code.setDefaultPreferredName("TBD");
+        code.setName("TBD");
         codeMap.put(fields[13] + fields[11], code);
       }
       if (code != null) {
@@ -1714,9 +1712,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         lui.setTerminologyId(fields[3]);
         lui.setTerminologyVersion(terminologyVersion);
         lexicalClassMap.put(lui.getTerminologyId(), lui);
-        lui.setNormalizedString("TBD");
+        lui.setNormalizedString(getNormalizedString(atom.getName()));
         lui.setWorkflowStatus(published);
-        lui.setDefaultPreferredName("TBD");
+        lui.setName("TBD");
       }
       if (lui != null) {
         lui.addAtom(atom);
@@ -1737,7 +1735,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         stringClassMap.put(sui.getTerminologyId(), sui);
         sui.setWorkflowStatus(published);
         // prefered name is just the string
-        sui.setDefaultPreferredName(atom.getTerm());
+        sui.setName(atom.getName());
       }
       if (sui != null) {
         sui.addAtom(atom);
@@ -1777,28 +1775,33 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
 
     objectCt = 0;
-    // Set default preferred names
+    Logger.getLogger(getClass()).info("  Add concepts");
+    // Set names
     for (final Concept concept : conceptMap.values()) {
-      concept.setDefaultPreferredName(getComputedPreferredName(concept));
+      concept.setName(getComputedPreferredName(concept));
       addConcept(concept);
       logAndCommit(++objectCt);
     }
+    Logger.getLogger(getClass()).info("  Add descriptors");
     for (final Descriptor descriptor : descriptorMap.values()) {
-      descriptor.setDefaultPreferredName(getComputedPreferredName(descriptor));
+      descriptor.setName(getComputedPreferredName(descriptor));
       addDescriptor(descriptor);
       logAndCommit(++objectCt);
     }
+    Logger.getLogger(getClass()).info("  Add codes");
     for (final Code code : codeMap.values()) {
-      code.setDefaultPreferredName(getComputedPreferredName(code));
+      code.setName(getComputedPreferredName(code));
       addCode(code);
       logAndCommit(++objectCt);
     }
+    Logger.getLogger(getClass()).info("  Add lexical classes");
     for (final LexicalClass lui : lexicalClassMap.values()) {
-      lui.setDefaultPreferredName(getComputedPreferredName(lui));
+      lui.setName(getComputedPreferredName(lui));
       addLexicalClass(lui);
       logAndCommit(++objectCt);
     }
     lexicalClassMap = null;
+    Logger.getLogger(getClass()).info("  Add string classes");
     for (final StringClass sui : stringClassMap.values()) {
       addStringClass(sui);
       logAndCommit(++objectCt);

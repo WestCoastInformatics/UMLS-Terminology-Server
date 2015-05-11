@@ -26,6 +26,7 @@ import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
+import org.hibernate.search.query.dsl.QueryBuilder;
 
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -34,6 +35,7 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteriaList;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.AttributeList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
@@ -87,6 +89,7 @@ import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
+import com.wci.umls.server.services.handlers.NormalizedStringHandler;
 import com.wci.umls.server.services.handlers.WorkflowListener;
 
 /**
@@ -149,6 +152,24 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     } catch (Exception e) {
       e.printStackTrace();
       pnHandlerMap = null;
+    }
+  }
+
+  /** The normalized string handler. */
+  private static NormalizedStringHandler normalizedStringHandler = null;
+  static {
+    try {
+      config = ConfigUtility.getConfigProperties();
+      String key = "normalized.string.handler";
+      String handlerName = config.getProperty(key);
+
+      NormalizedStringHandler handlerService =
+          ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
+              handlerName, NormalizedStringHandler.class);
+      normalizedStringHandler = handlerService;
+    } catch (Exception e) {
+      e.printStackTrace();
+      normalizedStringHandler = null;
     }
   }
 
@@ -247,6 +268,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (conceptFieldNames == null) {
       throw new Exception(
           "Concept indexed field names did not properly initialize, serious error.");
+    }
+
+    if (normalizedStringHandler == null) {
+      throw new Exception(
+          "Normalized string handler did not properly initialize, serious error.");
     }
   }
 
@@ -438,15 +464,42 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getSubsets(java.lang.String,
-   * java.lang.String, java.lang.String)
+   * com.wci.umls.server.services.ContentService#getSubset(java.lang.String,
+   * java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public SubsetList getSubsets(String terminologyId, String terminology,
-    String version) throws Exception {
+  public Subset getSubset(String terminologyId, String terminology,
+    String version, String branch) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get subsets " + terminologyId + "/" + terminology
-            + "/" + version);
+        "Content Service - get subset " + terminologyId + "/" + terminology
+            + "/" + version + "/" + branch);
+    assert branch != null;
+    SubsetList list = getSubsets(terminology, version);
+    if (list == null || list.getTotalCount() == 0) {
+      Logger.getLogger(getClass()).debug("  no subset ");
+      return null;
+    }
+    // Find the one matching the branch (or without having been branched to)
+    for (Subset obj : list.getObjects()) {
+      if (obj.getBranch().equals(branch)
+          || !obj.getBranchedTo().contains(branch + Branch.SEPARATOR)) {
+        return obj;
+      }
+    }
+    // If nothing found, return null;
+    return null;
+  }
+
+  /**
+   * Returns the subsets.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @return the subsets
+   * @throws Exception the exception
+   */
+  private SubsetList getSubsets(String terminology, String version)
+    throws Exception {
     javax.persistence.Query query =
         manager.createQuery("select s from AbstractSubset s where "
             + "terminologyId = :terminologyId and " + ""
@@ -455,7 +508,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Try to retrieve the single expected result If zero or more than one
     // result are returned, log error and set result to null
     try {
-      query.setParameter("terminologyId", terminologyId);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       @SuppressWarnings("unchecked")
@@ -474,29 +526,82 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getSubset(java.lang.String,
-   * java.lang.String, java.lang.String, java.lang.String)
+   * com.wci.umls.server.services.ContentService#getAtomSubsets(java.lang.String
+   * , java.lang.String)
    */
   @Override
-  public Subset getSubset(String terminologyId, String terminology,
-    String version, String branch) throws Exception {
+  public SubsetList getAtomSubsets(String terminology, String version)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get subset " + terminologyId + "/" + terminology
-            + "/" + version + "/" + branch);
-    assert branch != null;
-    SubsetList list = getSubsets(terminologyId, terminology, version);
-    if (list == null || list.getTotalCount() == 0) {
-      Logger.getLogger(getClass()).debug("  no subset ");
+        "Content Service - get atom subsets " + terminology + "/" + version);
+    javax.persistence.Query query =
+        manager.createQuery("select s from AtomSubsetJpa s where "
+            + "terminologyId = :terminologyId and " + ""
+            + "terminologyVersion = :version and terminology = :terminology");
+
+    // Try to retrieve the single expected result If zero or more than one
+    // result are returned, log error and set result to null
+    try {
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      @SuppressWarnings("unchecked")
+      List<Subset> m = query.getResultList();
+      SubsetListJpa subsetList = new SubsetListJpa();
+      subsetList.setObjects(m);
+      subsetList.setTotalCount(m.size());
+      return subsetList;
+
+    } catch (NoResultException e) {
       return null;
     }
-    // Find the one matching the branch (or without having been branched to)
-    for (Subset obj : list.getObjects()) {
-      if (obj.getBranch().equals(branch)
-          || !obj.getBranchedTo().contains(branch + Branch.SEPARATOR)) {
-        return obj;
-      }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getConceptSubsets(java.lang
+   * .String, java.lang.String)
+   */
+  @Override
+  public SubsetList getConceptSubsets(String terminology, String version)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get concept subsets " + terminology + "/" + version);
+    javax.persistence.Query query =
+        manager.createQuery("select s from ConceptSubsetJpa s where "
+            + "terminologyId = :terminologyId and " + ""
+            + "terminologyVersion = :version and terminology = :terminology");
+
+    // Try to retrieve the single expected result If zero or more than one
+    // result are returned, log error and set result to null
+    try {
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      @SuppressWarnings("unchecked")
+      List<Subset> m = query.getResultList();
+      SubsetListJpa subsetList = new SubsetListJpa();
+      subsetList.setObjects(m);
+      subsetList.setTotalCount(m.size());
+      return subsetList;
+
+    } catch (NoResultException e) {
+      return null;
     }
-    // If nothing found, return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findAtomSubsetMembers(java.
+   * lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public SubsetMemberList findAtomSubsetMembers(String subsetId,
+    String terminology, String version, String branch, PfsParameter pfs) {
+    // TODO Auto-generated method stub
     return null;
   }
 
@@ -504,12 +609,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getSubsetMembers(java.lang.
-   * String, java.lang.String, java.lang.String, java.lang.String)
+   * com.wci.umls.server.services.ContentService#findConceptSubsetMembers(java
+   * .lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
-  public SubsetMemberList getSubsetMembers(String subsetId, String terminology,
-    String version, String branch) {
+  public SubsetMemberList findConceptSubsetMembers(String subsetId,
+    String terminology, String version, String branch, PfsParameter pfs) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -522,7 +628,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * .String, java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public SubsetMemberList getAtomSubsetMembers(String atomId,
+  public SubsetMemberList getSubsetMembersForAtom(String atomId,
     String terminology, String version, String branch) {
     // TODO Auto-generated method stub
     return null;
@@ -536,7 +642,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * .lang.String, java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public SubsetMemberList getConceptSubsetMembers(String conceptId,
+  public SubsetMemberList getSubsetMembersForConcept(String conceptId,
     String terminology, String version, String branch) {
     // TODO Auto-generated method stub
     return null;
@@ -2088,6 +2194,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#addSubset(com.wci.umls.server
+   * .model.content.Subset)
+   */
   @Override
   public Subset addSubset(Subset subset) throws Exception {
     Logger.getLogger(getClass())
@@ -2119,6 +2232,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newSubset;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#updateSubset(com.wci.umls.server
+   * .model.content.Subset)
+   */
   @Override
   public void updateSubset(Subset subset) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -2145,6 +2265,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#removeSubset(java.lang.Long)
+   */
   @Override
   public void removeSubset(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - remove subset " + id);
@@ -2158,6 +2284,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#addSubsetMember(com.wci.umls
+   * .server.model.content.SubsetMember)
+   */
   @Override
   public SubsetMember<? extends ComponentHasAttributes> addSubsetMember(
     SubsetMember<? extends ComponentHasAttributes> subsetMember)
@@ -2193,6 +2326,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newSubsetMember;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#updateSubsetMember(com.wci.
+   * umls.server.model.content.SubsetMember)
+   */
   @Override
   public void updateSubsetMember(
     SubsetMember<? extends ComponentHasAttributes> subsetMember)
@@ -2453,6 +2593,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
+   * com.wci.umls.server.services.ContentService#autocompleteConcepts(java.lang
+   * .String)
+   */
+  @Override
+  public StringList autocompleteConcepts(String searchTerm) throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Content Service - autocomplete concepts " + searchTerm);
+    return autocompleteHelper(searchTerm, ConceptJpa.class);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
    * com.wci.umls.server.services.ContentService#findDescriptorsForQuery(java
    * .lang.String, java.lang.String, java.lang.String, java.lang.String,
    * com.wci.umls.server.helpers.PfsParameter)
@@ -2468,6 +2622,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         descriptorFieldNames, DescriptorJpa.class);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#autocompleteDescriptors(java
+   * .lang.String)
+   */
+  @Override
+  public StringList autocompleteDescriptors(String searchTerm) throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Content Service - autocomplete descriptors " + searchTerm);
+    return autocompleteHelper(searchTerm, DescriptorJpa.class);
+  }
+
   /**
    * Find for query helper.
    *
@@ -2477,6 +2645,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @param query the query
    * @param pfs the pfs
    * @param fieldNames the field names
+   * @param clazz the clazz
    * @return the search result list
    * @throws Exception the exception
    */
@@ -2530,7 +2699,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       sr.setTerminologyId(atomClass.getTerminologyId());
       sr.setTerminology(atomClass.getTerminology());
       sr.setTerminologyVersion(atomClass.getTerminologyVersion());
-      sr.setValue(atomClass.getDefaultPreferredName());
+      sr.setValue(atomClass.getName());
       results.addObject(sr);
     }
     fullTextEntityManager.close();
@@ -2539,6 +2708,44 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     return results;
 
+  }
+
+  /**
+   * Autocomplete helper.
+   *
+   * @param searchTerm the search term
+   * @param clazz the clazz
+   * @return the string list
+   * @throws Exception the exception
+   */
+  private StringList autocompleteHelper(String searchTerm, Class<?> clazz)
+    throws Exception {
+
+    final String TITLE_EDGE_NGRAM_INDEX = "atoms.edgeNGramName";
+    final String TITLE_NGRAM_INDEX = "atoms.nGramName";
+
+    FullTextEntityManager fullTextEntityManager =
+        Search.getFullTextEntityManager(manager);
+    QueryBuilder titleQB =
+        fullTextEntityManager.getSearchFactory().buildQueryBuilder()
+            .forEntity(clazz).get();
+
+    Query query =
+        titleQB.phrase().withSlop(2).onField(TITLE_NGRAM_INDEX)
+            .andField(TITLE_EDGE_NGRAM_INDEX).boostedTo(5)
+            .sentence(searchTerm.toLowerCase()).createQuery();
+
+    FullTextQuery fullTextQuery =
+        fullTextEntityManager.createFullTextQuery(query, clazz);
+    fullTextQuery.setMaxResults(20);
+
+    @SuppressWarnings("unchecked")
+    List<Concept> results = fullTextQuery.getResultList();
+    StringList list = new StringList();
+    for (Concept result : results) {
+      list.addObject(result.getName());
+    }
+    return list;
   }
 
   /**
@@ -2664,6 +2871,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + query);
     return findForQueryHelper(terminology, version, branch, query, pfs,
         codeFieldNames, CodeJpa.class);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#autocompleteCodes(java.lang
+   * .String)
+   */
+  @Override
+  public StringList autocompleteCodes(String searchTerm) throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Content Service - autocomplete codes " + searchTerm);
+    return autocompleteHelper(searchTerm, CodeJpa.class);
   }
 
   /*
@@ -2963,6 +3184,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#clearTreePositions(java.lang
+   * .String, java.lang.String)
+   */
   @Override
   public void clearTreePositions(String terminology, String version)
     throws Exception {
@@ -3123,6 +3351,18 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
       throw e;
     }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getNormalizedString(java.lang
+   * .String)
+   */
+  @Override
+  public String getNormalizedString(String string) throws Exception {
+    return normalizedStringHandler.getNormalizedString(string);
   }
 
   /*

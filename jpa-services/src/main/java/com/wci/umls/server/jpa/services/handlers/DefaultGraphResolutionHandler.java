@@ -151,7 +151,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     if (atom != null) {
       boolean nullId = atom.getId() == null;
 
-      atom.getTerm();
+      atom.getName();
       atom.getConceptTerminologyIds().keySet();
       atom.getAlternateTerminologyIds().keySet();
 
@@ -307,7 +307,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       // Atoms but none of the members
       for (Atom atom : lexicalClass.getAtoms()) {
         // if the concept is "new", then the atom must be too
-        atom.getTerm();
+        atom.getName();
         atom.getConceptTerminologyIds().keySet();
         atom.getAlternateTerminologyIds().keySet();
 
@@ -341,7 +341,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       // Atoms but none of the members
       for (Atom atom : stringClass.getAtoms()) {
         // if the concept is "new", then the atom must be too
-        atom.getTerm();
+        atom.getName();
         atom.getConceptTerminologyIds().keySet();
         atom.getAlternateTerminologyIds().keySet();
 

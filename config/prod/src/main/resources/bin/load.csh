@@ -18,7 +18,7 @@ echo "UMLS_CONFIG = $UMLS_CONFIG"
 echo "SERVER = $SERVER"
 
 echo "    Run Createdb ...`/bin/date`"
-cd $UMLS_HOME/admin/db
+cd $UMLS_CODE/admin/db
 mvn install -PCreatedb -Drun.config.umls=$UMLS_CONFIG >&! mvn.log
 if ($status != 0) then
     echo "ERROR running createdb"
@@ -27,7 +27,7 @@ if ($status != 0) then
 endif
 
 echo "    Clear indexes ...`/bin/date`"
-cd $UMLS_HOME/admin/lucene
+cd $UMLS_CODE/admin/lucene
 mvn install -PReindex -Drun.config.umls=$UMLS_CONFIG -Dserver=$SERVER >&! mvn.log
 if ($status != 0) then
     echo "ERROR running lucene"
@@ -36,7 +36,7 @@ if ($status != 0) then
 endif
 
 echo "    Load UMLS ...`/bin/date`"
-cd $UMLS_HOME/admin/loader
+cd $UMLS_CODE/admin/loader
 mvn install -PRF2-full -Drun.config.umls=$UMLS_CONFIG -Dserver=$SERVER -Dterminology=UMLS -Dversion=latest -Dinput.dir=$UMLS_DATA/SCTMSH_2014AB >&! mvn.log
 if ($status != 0) then
     echo "ERROR loading UMLS"
@@ -45,7 +45,7 @@ if ($status != 0) then
 endif
 
 echo "    Add UMLS project ...`/bin/date`"
-cd $UMLS_HOME/admin/loader
+cd $UMLS_CODE/admin/loader
 mvn install -PProject -Drun.config.umls=$UMLS_CONFIG -Dserver=$SERVER \
   -Dname="Sample Project" -Ddescription="Sample project." \
   -Dterminology=UMLS -Dversion=latest \
@@ -59,7 +59,7 @@ endif
 
 
 echo "    Start UMLS editing ...`/bin/date`"
-cd $UMLS_HOME/admin/release
+cd $UMLS_CODE/admin/release
 mvn install -PStartEditingCycle -Drun.config.umls=$UMLS_CONFIG \
   -Dserver=$SERVER -Drelease.version=2015AA -Dterminology=UMLS \
   -Dversion=latest >&! mvn.log

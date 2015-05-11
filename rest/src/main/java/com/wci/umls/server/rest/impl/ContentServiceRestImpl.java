@@ -268,18 +268,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         throw new Exception("Specified input directory does not exist");
       }
 
-      // Sort files
+      // Sort files - not really needed because files are already sorted
       Logger.getLogger(getClass()).info("  Sort RRF Files");
       RrfFileSorter sorter = new RrfFileSorter();
       sorter.setRequireAllFiles(true);
-      File outputDir = new File(inputDirFile, "/RRF-sorted-temp/");
-      sorter.sortFiles(inputDirFile, outputDir);
-      String releaseVersion = sorter.getFileVersion();
+      //File outputDir = new File(inputDirFile, "/RRF-sorted-temp/");
+      //sorter.sortFiles(inputDirFile, outputDir);
+      String releaseVersion = sorter.getFileVersion(inputDirFile);
       Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
 
-      // Open readers
-      RrfReaders readers = new RrfReaders(outputDir);
-      readers.openReaders();
+      // Open readers - just open original RRF
+      RrfReaders readers = new RrfReaders(inputDirFile);
+      readers.openOriginalReaders();
 
       // Load snapshot
       RrfLoaderAlgorithm algorithm = new RrfLoaderAlgorithm();

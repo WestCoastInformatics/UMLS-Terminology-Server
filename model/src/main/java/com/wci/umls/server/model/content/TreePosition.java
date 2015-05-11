@@ -40,17 +40,45 @@ public interface TreePosition extends ComponentHasAttributes {
   public void setAncestorPath(String ancestorPath);
 
   /**
-   * Returns the default preferred name.
+   * Returns the name.
    *
-   * @return the default preferred name
+   * @return the name
    */
-  public String getDefaultPreferredName();
+  public String getName();
 
   /**
-   * Sets the default preferred name.
+   * Sets the name.
    *
-   * @param name the default preferred name
+   * @param name the name
    */
-  public void setDefaultPreferredName(String name);
+  public void setName(String name);
+  
+  /**
+   * Returns the child ct.
+   *
+   * @return the child ct
+   */
+  public int getChildCt();
+  
+  /**
+   * Sets the child ct.
+   *
+   * @param childCt the child ct
+   */
+  public void setChildCt(int childCt);
+  
+  /**
+   * Returns the descendant ct.
+   *
+   * @return the descendant ct
+   */
+  public int getDescendantCt();
+  
+  /**
+   * Sets the descendant ct.
+   *
+   * @param descendantCt the descendant ct
+   */
+  public void setDescendantCt(int descendantCt);
   
 }
