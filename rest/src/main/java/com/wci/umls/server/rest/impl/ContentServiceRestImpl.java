@@ -22,6 +22,9 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.content.CodeList;
+import com.wci.umls.server.helpers.content.ConceptList;
+import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.RrfFileSorter;
 import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
@@ -39,6 +42,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.MetadataService;
@@ -854,4 +858,231 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
+
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorConcepts(java.lang.String, java.lang.String, java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  @POST
+  @Path("/cui/{terminology}/{version}/{terminologyId}/ancestors")
+  @ApiOperation(value = "Find ancestor concepts.", notes = "Gets a list of ancestor concepts.", response = ConceptList.class)
+  public ConceptList findAncestorConcepts(
+    @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/" + terminology + "/" + version
+             + terminologyId + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find ancestor concepts",
+          UserRole.VIEWER);
+
+      Concept concept =
+          contentService.getConcept(terminologyId, terminology, version,
+              Branch.ROOT);
+      return contentService.findAncestorConcepts(concept, childrenOnly, pfs, Branch.ROOT);
+
+    } catch (Exception e) {
+      handleException(e, "trying to find the ancestor concepts");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+
+
+  @Override
+  @POST
+  @Path("/cui/{terminology}/{version}/{terminologyId}/descendants")
+  @ApiOperation(value = "Find descendant concepts.", notes = "Gets a list of descendant concepts.", response = ConceptList.class)
+  public ConceptList findDescendantConcepts(
+    @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/" + terminology + "/" + version
+             + terminologyId + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find descendant concepts",
+          UserRole.VIEWER);
+
+      Concept concept =
+          contentService.getConcept(terminologyId, terminology, version,
+              Branch.ROOT);
+      return contentService.findDescendantConcepts(concept, childrenOnly, pfs, Branch.ROOT);
+
+    } catch (Exception e) {
+      handleException(e, "trying to find the descendant concepts");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+
+  @Override
+  @POST
+  @Path("/dui/{terminology}/{version}/{terminologyId}/ancestors")
+  @ApiOperation(value = "Find ancestor descriptors.", notes = "Gets a list of ancestor descriptors.", response = DescriptorList.class)
+  public DescriptorList findAncestorDescriptors(
+    @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /dui/" + terminology + "/" + version
+             + terminologyId + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find ancestor descriptors",
+          UserRole.VIEWER);
+
+      Descriptor descriptor =
+          contentService.getDescriptor(terminologyId, terminology, version,
+              Branch.ROOT);
+      return contentService.findAncestorDescriptors(descriptor, childrenOnly, pfs, Branch.ROOT);
+
+    } catch (Exception e) {
+      handleException(e, "trying to find the ancestor descriptors");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  @Override
+  @POST
+  @Path("/dui/{terminology}/{version}/{terminologyId}/descendants")
+  @ApiOperation(value = "Find descendant descriptors.", notes = "Gets a list of descendant descriptors.", response = DescriptorList.class)
+  public DescriptorList findDescendantDescriptors(
+    @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /dui/" + terminology + "/" + version
+             + terminologyId + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find descendant descriptors",
+          UserRole.VIEWER);
+
+      Descriptor descriptor =
+          contentService.getDescriptor(terminologyId, terminology, version,
+              Branch.ROOT);
+      return contentService.findDescendantDescriptors(descriptor, childrenOnly, pfs, Branch.ROOT);
+
+    } catch (Exception e) {
+      handleException(e, "trying to find the descendant descriptors");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+
+  @Override
+  @POST
+  @Path("/code/{terminology}/{version}/{terminologyId}/ancestors")
+  @ApiOperation(value = "Find ancestor codes.", notes = "Gets a list of ancestor codes.", response = CodeList.class)
+  public CodeList findAncestorCodes(
+    @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /code/" + terminology + "/" + version
+             + terminologyId + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find ancestor codes",
+          UserRole.VIEWER);
+
+      Code code =
+          contentService.getCode(terminologyId, terminology, version,
+              Branch.ROOT);
+      return contentService.findAncestorCodes(code, childrenOnly, pfs, Branch.ROOT);
+
+    } catch (Exception e) {
+      handleException(e, "trying to find the ancestor codes");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  @Override
+  @POST
+  @Path("/code/{terminology}/{version}/{terminologyId}/descendants")
+  @ApiOperation(value = "Find descendant codes.", notes = "Gets a list of descendant codes.", response = CodeList.class)
+  public CodeList findDescendantCodes(
+    @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /code/" + terminology + "/" + version
+             + terminologyId + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find descendant codes",
+          UserRole.VIEWER);
+
+      Code code =
+          contentService.getCode(terminologyId, terminology, version,
+              Branch.ROOT);
+      return contentService.findDescendantCodes(code, childrenOnly, pfs, Branch.ROOT);
+
+    } catch (Exception e) {
+      handleException(e, "trying to find the descendant codes");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+
+
 }

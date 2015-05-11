@@ -15,6 +15,9 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.content.CodeList;
+import com.wci.umls.server.helpers.content.ConceptList;
+import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
@@ -22,12 +25,17 @@ import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
+import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
+import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
+import com.wci.umls.server.jpa.helpers.content.DescriptorListJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.content.Subset;
+
 
 /**
  * A client for connecting to a content REST service.
@@ -574,5 +582,241 @@ public class ContentClientRest implements ContentServiceRest {
             SearchResultListJpa.class);
     return list;
   }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorConcepts(java.lang.String, java.lang.String, java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  public ConceptList findAncestorConcepts(String terminologyId,
+    String terminology, String version, boolean childrenOnly,
+    PfsParameterJpa pfsParameter, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find ancestor concepts " + terminologyId  + ", " + terminology + ", " + version + ", "
+            + childrenOnly + ", " + pfsParameter);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/cui/"
+            + terminologyId + "/" + terminology + "/" + version +  "/ancestors");
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfsParameter == null ? new PfsParameterJpa()
+            : pfsParameter);
+    Logger.getLogger(getClass()).debug(pfsString);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    ConceptListJpa list =
+        (ConceptListJpa) ConfigUtility.getGraphForString(resultString,
+            ConceptListJpa.class);
+    return list;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#findDescendantConcepts(java.lang.String, java.lang.String, java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  public ConceptList findDescendantConcepts(String terminologyId,
+    String terminology, String version, boolean childrenOnly,
+    PfsParameterJpa pfsParameter, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find descendant concepts " + terminologyId  + ", " + terminology + ", " + version + ", "
+            + childrenOnly + ", " + pfsParameter);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/cui/"
+            + terminologyId + "/" + terminology + "/" + version +  "/descendants");
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfsParameter == null ? new PfsParameterJpa()
+            : pfsParameter);
+    Logger.getLogger(getClass()).debug(pfsString);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    ConceptListJpa list =
+        (ConceptListJpa) ConfigUtility.getGraphForString(resultString,
+            ConceptListJpa.class);
+    return list;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorDescriptors(java.lang.String, java.lang.String, java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  public DescriptorList findAncestorDescriptors(String terminologyId,
+    String terminology, String version, boolean childrenOnly,
+    PfsParameterJpa pfsParameter, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find ancestor descriptors " + terminologyId  + ", " + terminology + ", " + version + ", "
+            + childrenOnly + ", " + pfsParameter);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/dui/"
+            + terminologyId + "/" + terminology + "/" + version +  "/ancestors");
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfsParameter == null ? new PfsParameterJpa()
+            : pfsParameter);
+    Logger.getLogger(getClass()).debug(pfsString);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    DescriptorListJpa list =
+        (DescriptorListJpa) ConfigUtility.getGraphForString(resultString,
+            DescriptorListJpa.class);
+    return list;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#findDescendantDescriptors(java.lang.String, java.lang.String, java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  public DescriptorList findDescendantDescriptors(String terminologyId,
+    String terminology, String version, boolean childrenOnly,
+    PfsParameterJpa pfsParameter, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find descendant descriptors " + terminologyId  + ", " + terminology + ", " + version + ", "
+            + childrenOnly + ", " + pfsParameter);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/dui/"
+            + terminologyId + "/" + terminology + "/" + version +  "/descendants");
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfsParameter == null ? new PfsParameterJpa()
+            : pfsParameter);
+    Logger.getLogger(getClass()).debug(pfsString);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    DescriptorListJpa list =
+        (DescriptorListJpa) ConfigUtility.getGraphForString(resultString,
+            DescriptorListJpa.class);
+    return list;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorCodes(java.lang.String, java.lang.String, java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  public CodeList findAncestorCodes(String terminologyId,
+    String terminology, String version, boolean childrenOnly,
+    PfsParameterJpa pfsParameter, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find ancestor codes " + terminologyId  + ", " + terminology + ", " + version + ", "
+            + childrenOnly + ", " + pfsParameter);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/code/"
+            + terminologyId + "/" + terminology + "/" + version +  "/ancestors");
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfsParameter == null ? new PfsParameterJpa()
+            : pfsParameter);
+    Logger.getLogger(getClass()).debug(pfsString);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    CodeListJpa list =
+        (CodeListJpa) ConfigUtility.getGraphForString(resultString,
+            CodeListJpa.class);
+    return list;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#findDescendantCodes(java.lang.String, java.lang.String, java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  public CodeList findDescendantCodes(String terminologyId,
+    String terminology, String version, boolean childrenOnly,
+    PfsParameterJpa pfsParameter, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find descendant codes " + terminologyId  + ", " + terminology + ", " + version + ", "
+            + childrenOnly + ", " + pfsParameter);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/code/"
+            + terminologyId + "/" + terminology + "/" + version +  "/descendants");
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfsParameter == null ? new PfsParameterJpa()
+            : pfsParameter);
+    Logger.getLogger(getClass()).debug(pfsString);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    CodeListJpa list =
+        (CodeListJpa) ConfigUtility.getGraphForString(resultString,
+            CodeListJpa.class);
+    return list;
+  }
+
+
 
 }

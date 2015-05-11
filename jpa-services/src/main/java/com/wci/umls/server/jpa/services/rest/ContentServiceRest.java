@@ -6,13 +6,18 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.content.CodeList;
+import com.wci.umls.server.helpers.content.ConceptList;
+import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
+
 
 /**
  * Represents a content available via a REST service.
@@ -49,6 +54,38 @@ public interface ContentServiceRest {
     throws Exception;
 
   /**
+   * Find ancestor concepts.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param childrenOnly the children only
+   * @param pfsParameter the pfs parameter
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public ConceptList findAncestorConcepts(String terminologyId,
+    String terminology, String version, boolean childrenOnly,
+    PfsParameterJpa pfsParameter, String authToken) throws Exception;
+
+  /**
+   * Find descendant concepts.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param parentsOnly the parents only
+   * @param pfsParameter the pfs parameter
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public ConceptList findDescendantConcepts(String terminologyId,
+    String terminology, String version, boolean parentsOnly,
+    PfsParameterJpa pfsParameter, String authToken) throws Exception;
+  
+  /**
    * Returns the descriptor.
    *
    * @param terminologyId the terminology id
@@ -77,6 +114,38 @@ public interface ContentServiceRest {
     throws Exception;
 
   /**
+   * Find ancestor descriptors.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param childrenOnly the children only
+   * @param pfsParameter the pfs parameter
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public DescriptorList findAncestorDescriptors(String terminologyId,
+    String terminology, String version, boolean childrenOnly,
+    PfsParameterJpa pfsParameter, String authToken) throws Exception;
+
+  /**
+   * Find descendant descriptors.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param parentsOnly the parents only
+   * @param pfsParameter the pfs parameter
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public DescriptorList findDescendantDescriptors(String terminologyId,
+    String terminology, String version, boolean parentsOnly,
+    PfsParameterJpa pfsParameter, String authToken) throws Exception;
+  
+  /**
    * Returns the code.
    *
    * @param terminologyId the terminology id
@@ -104,6 +173,38 @@ public interface ContentServiceRest {
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
 
+  /**
+   * Find ancestor codes.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param childrenOnly the children only
+   * @param pfsParameter the pfs parameter
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public CodeList findAncestorCodes(String terminologyId,
+    String terminology, String version, boolean childrenOnly,
+    PfsParameterJpa pfsParameter, String authToken) throws Exception;
+
+  /**
+   * Find descendant codes.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param parentsOnly the parents only
+   * @param pfsParameter the pfs parameter
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public CodeList findDescendantCodes(String terminologyId,
+    String terminology, String version, boolean parentsOnly,
+    PfsParameterJpa pfsParameter, String authToken) throws Exception;
+  
   /**
    * Returns the lexical class.
    *
@@ -160,6 +261,7 @@ public interface ContentServiceRest {
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
 
+  
   /**
    * Recomputes lucene indexes for the specified objects as a comma-separated
    * string list.
