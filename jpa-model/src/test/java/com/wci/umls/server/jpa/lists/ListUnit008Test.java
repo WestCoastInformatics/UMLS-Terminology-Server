@@ -82,7 +82,7 @@ public class ListUnit008Test
     Concept c = new ConceptJpa();
     c.setId(1L);
     c.setTerminologyId("1");
-    c.setDefaultPreferredName("1");
+    c.setName("1");
     r1 = new ConceptRelationshipJpa();
     r1.setId(1L);
     r1.setTerminologyId("1");
@@ -97,7 +97,7 @@ public class ListUnit008Test
     Code code = new CodeJpa();
     code.setId(1L);
     code.setTerminologyId("1");
-    code.setDefaultPreferredName("1");
+    code.setName("1");
     r3 = new CodeRelationshipJpa();
     r3.setId(1L);
     r3.setTerminologyId("1");
@@ -112,7 +112,7 @@ public class ListUnit008Test
     Descriptor d = new DescriptorJpa();
     d.setId(1L);
     d.setTerminologyId("1");
-    d.setDefaultPreferredName("1");
+    d.setName("1");
     r5 = new DescriptorRelationshipJpa();
     r5.setId(1L);
     r5.setTerminologyId("1");
@@ -127,7 +127,7 @@ public class ListUnit008Test
     Atom a = new AtomJpa();
     a.setId(1L);
     a.setTerminologyId("1");
-    a.setTerm("1");
+    a.setName("1");
     r7 = new AtomRelationshipJpa();
     r7.setId(1L);
     r7.setTerminologyId("1");

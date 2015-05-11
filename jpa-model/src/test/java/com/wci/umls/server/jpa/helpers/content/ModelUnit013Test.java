@@ -74,10 +74,10 @@ public class ModelUnit013Test {
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("superTypeId");
     tester.exclude("superTypeTerminologyId");
-    tester.exclude("superTypeDefaultPreferredName");
+    tester.exclude("superTypeName");
     tester.exclude("subTypeId");
     tester.exclude("subTypeTerminologyId");
-    tester.exclude("subTypeDefaultPreferredName");
+    tester.exclude("subTypeName");
     tester.test();
   }
 
@@ -147,10 +147,10 @@ public class ModelUnit013Test {
     // The proxy concepts can have only "id" and "term" set due to xml transient
     Concept concept1 = new ConceptJpa();
     concept1.setId(1L);
-    concept1.setDefaultPreferredName("1");
+    concept1.setName("1");
     Concept concept2 = new ConceptJpa();
     concept2.setId(2L);
-    concept2.setDefaultPreferredName("2");
+    concept2.setName("2");
 
     tester.proxy(Concept.class, 1, concept1);
     tester.proxy(Concept.class, 2, concept2);
@@ -169,10 +169,10 @@ public class ModelUnit013Test {
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<subTypeId>"));
     assertTrue(xml.contains("<subTypeTerminologyId>"));
-    assertTrue(xml.contains("<subTypeDefaultPreferredName>"));
+    assertTrue(xml.contains("<subTypeName>"));
     assertTrue(xml.contains("<superTypeId>"));
     assertTrue(xml.contains("<superTypeTerminologyId>"));
-    assertTrue(xml.contains("<superTypeDefaultPreferredName>"));
+    assertTrue(xml.contains("<superTypeName>"));
     assertFalse(xml.contains("<subType>"));
     assertFalse(xml.contains("<superType>"));
 

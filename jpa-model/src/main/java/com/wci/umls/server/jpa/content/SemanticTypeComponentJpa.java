@@ -49,7 +49,6 @@ public class SemanticTypeComponentJpa extends AbstractComponent implements
    * parameters.
    *
    * @param semanticType the semantic type
-   * @param deepCopy the deep copy
    */
   public SemanticTypeComponentJpa(SemanticTypeComponent semanticType) {
     super(semanticType);

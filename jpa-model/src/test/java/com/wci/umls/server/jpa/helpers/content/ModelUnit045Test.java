@@ -74,10 +74,10 @@ public class ModelUnit045Test {
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("superTypeId");
     tester.exclude("superTypeTerminologyId");
-    tester.exclude("superTypeDefaultPreferredName");
+    tester.exclude("superTypeName");
     tester.exclude("subTypeId");
     tester.exclude("subTypeTerminologyId");
-    tester.exclude("subTypeDefaultPreferredName");
+    tester.exclude("subTypeName");
     tester.test();
   }
 
@@ -148,10 +148,10 @@ public class ModelUnit045Test {
     // transient
     Code code1 = new CodeJpa();
     code1.setId(1L);
-    code1.setDefaultPreferredName("1");
+    code1.setName("1");
     Code code2 = new CodeJpa();
     code2.setId(2L);
-    code2.setDefaultPreferredName("2");
+    code2.setName("2");
 
     tester.proxy(Code.class, 1, code1);
     tester.proxy(Code.class, 2, code2);
@@ -170,10 +170,10 @@ public class ModelUnit045Test {
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<subTypeId>"));
     assertTrue(xml.contains("<subTypeTerminologyId>"));
-    assertTrue(xml.contains("<subTypeDefaultPreferredName>"));
+    assertTrue(xml.contains("<subTypeName>"));
     assertTrue(xml.contains("<superTypeId>"));
     assertTrue(xml.contains("<superTypeTerminologyId>"));
-    assertTrue(xml.contains("<superTypeDefaultPreferredName>"));
+    assertTrue(xml.contains("<superTypeName>"));
     assertFalse(xml.contains("<subType>"));
     assertFalse(xml.contains("<superType>"));
 

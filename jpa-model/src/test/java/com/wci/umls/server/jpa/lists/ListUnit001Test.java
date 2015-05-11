@@ -49,11 +49,11 @@ public class ListUnit001Test extends AbstractListUnit<Atom> {
     a1 = new AtomJpa();
     a1.setId(1L);
     a1.setTerminologyId("1");
-    a1.setTerm("1");
+    a1.setName("1");
     a2 = new AtomJpa();
     a2.setId(2L);
     a2.setTerminologyId("2");
-    a2.setTerm("2");
+    a2.setName("2");
 
   }
 

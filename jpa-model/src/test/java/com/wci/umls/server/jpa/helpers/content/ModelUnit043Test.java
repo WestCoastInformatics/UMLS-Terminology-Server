@@ -62,11 +62,11 @@ public class ModelUnit043Test {
     atom1 = new AtomJpa();
     atom1.setId(1L);
     atom1.setTerminologyId("1");
-    atom1.setTerm("1");
+    atom1.setName("1");
     atom2 = new AtomJpa();
     atom2.setId(2L);
     atom2.setTerminologyId("2");
-    atom2.setTerm("2");
+    atom2.setName("2");
 
     subset1 = new AtomSubsetJpa();
     subset1.setId(1L);
@@ -89,7 +89,7 @@ public class ModelUnit043Test {
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("memberId");
     tester.exclude("memberTerminologyId");
-    tester.exclude("memberTerm");
+    tester.exclude("memberName");
     tester.exclude("subsetId");
     tester.exclude("subsetTerminologyId");
     tester.exclude("subsetName");
@@ -180,7 +180,7 @@ public class ModelUnit043Test {
     assertFalse(xml.contains("<subset>"));
     assertTrue(xml.contains("<memberId>"));
     assertTrue(xml.contains("<memberTerminologyId>"));
-    assertTrue(xml.contains("<memberTerm>"));
+    assertTrue(xml.contains("<memberName>"));
     assertFalse(xml.contains("<member>"));
 
   }

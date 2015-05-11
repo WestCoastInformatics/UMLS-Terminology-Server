@@ -134,8 +134,8 @@ public class DescriptorTransitiveRelationshipJpa extends
    *
    * @return the super type term
    */
-  public String getSuperTypeDefaultPreferredName() {
-    return superType == null ? null : superType.getDefaultPreferredName();
+  public String getSuperTypeName() {
+    return superType == null ? null : superType.getName();
   }
 
   /**
@@ -143,11 +143,11 @@ public class DescriptorTransitiveRelationshipJpa extends
    *
    * @param term the super type term
    */
-  public void setSuperTypeDefaultPreferredName(String term) {
+  public void setSuperTypeName(String term) {
     if (superType == null) {
       superType = new DescriptorJpa();
     }
-    superType.setDefaultPreferredName(term);
+    superType.setName(term);
   }
 
   /*
@@ -223,8 +223,8 @@ public class DescriptorTransitiveRelationshipJpa extends
    *
    * @return the sub type term
    */
-  public String getSubTypeDefaultPreferredName() {
-    return subType == null ? null : subType.getDefaultPreferredName();
+  public String getSubTypeName() {
+    return subType == null ? null : subType.getName();
   }
 
   /**
@@ -232,11 +232,11 @@ public class DescriptorTransitiveRelationshipJpa extends
    *
    * @param term the sub type term
    */
-  public void setSubTypeDefaultPreferredName(String term) {
+  public void setSubTypeName(String term) {
     if (subType == null) {
       subType = new DescriptorJpa();
     }
-    subType.setDefaultPreferredName(term);
+    subType.setName(term);
   }
 
   /**

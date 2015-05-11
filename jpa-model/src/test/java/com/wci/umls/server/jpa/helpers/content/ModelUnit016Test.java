@@ -93,10 +93,10 @@ public class ModelUnit016Test {
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("fromId");
     tester.exclude("fromTerminologyId");
-    tester.exclude("fromDefaultPreferredName");
+    tester.exclude("fromName");
     tester.exclude("toId");
     tester.exclude("toTerminologyId");
-    tester.exclude("toDefaultPreferredName");
+    tester.exclude("toName");
     tester.test();
   }
 
@@ -216,10 +216,10 @@ public class ModelUnit016Test {
     // transient
     Descriptor descriptor1 = new DescriptorJpa();
     descriptor1.setId(1L);
-    descriptor1.setDefaultPreferredName("1");
+    descriptor1.setName("1");
     Descriptor descriptor2 = new DescriptorJpa();
     descriptor2.setId(2L);
-    descriptor2.setDefaultPreferredName("2");
+    descriptor2.setName("2");
 
     tester.proxy(Descriptor.class, 1, descriptor1);
     tester.proxy(Descriptor.class, 2, descriptor2);
@@ -239,9 +239,9 @@ public class ModelUnit016Test {
 
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<fromId>"));
-    assertTrue(xml.contains("<fromDefaultPreferredName>"));
+    assertTrue(xml.contains("<fromName>"));
     assertTrue(xml.contains("<toId>"));
-    assertTrue(xml.contains("<toDefaultPreferredName>"));
+    assertTrue(xml.contains("<toName>"));
     assertFalse(xml.contains("<from>"));
     assertFalse(xml.contains("<to>"));
 

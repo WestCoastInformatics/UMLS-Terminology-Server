@@ -11,17 +11,25 @@ import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlElement;
 
+import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
+import org.apache.lucene.analysis.core.StopFilterFactory;
+import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilterFactory;
+import org.apache.lucene.analysis.ngram.EdgeNGramFilterFactory;
+import org.apache.lucene.analysis.ngram.NGramFilterFactory;
+import org.apache.lucene.analysis.pattern.PatternReplaceFilterFactory;
 import org.apache.lucene.analysis.standard.StandardFilterFactory;
 import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.AnalyzerDef;
+import org.hibernate.search.annotations.AnalyzerDefs;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Parameter;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
@@ -33,9 +41,46 @@ import com.wci.umls.server.model.content.AtomClass;
 /**
  * Abstract JPA-enabled implementation of {@link AtomClass}.
  */
-@AnalyzerDef(name = "noStopWord", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
-    @TokenFilterDef(factory = StandardFilterFactory.class),
-    @TokenFilterDef(factory = LowerCaseFilterFactory.class)
+@AnalyzerDefs({
+    @AnalyzerDef(name = "noStopWord", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
+        @TokenFilterDef(factory = StandardFilterFactory.class),
+        @TokenFilterDef(factory = LowerCaseFilterFactory.class)
+    }),
+    @AnalyzerDef(name = "autocompleteEdgeAnalyzer",
+    // Split input into tokens according to tokenizer
+    tokenizer = @TokenizerDef(factory = KeywordTokenizerFactory.class), filters = {
+        // Normalize token text to lowercase, as the user is unlikely to
+        // care about casing when searching for matches
+        @TokenFilterDef(factory = PatternReplaceFilterFactory.class, params = {
+            @Parameter(name = "pattern", value = "([^a-zA-Z0-9\\.])"),
+            @Parameter(name = "replacement", value = " "),
+            @Parameter(name = "replace", value = "all")
+        }), @TokenFilterDef(factory = LowerCaseFilterFactory.class),
+        @TokenFilterDef(factory = StopFilterFactory.class),
+        // Index partial words starting at the front, so we can provide
+        // Autocomplete functionality
+        @TokenFilterDef(factory = EdgeNGramFilterFactory.class, params = {
+            @Parameter(name = "minGramSize", value = "3"),
+            @Parameter(name = "maxGramSize", value = "50")
+        })
+    }),
+    @AnalyzerDef(name = "autocompleteNGramAnalyzer",
+    // Split input into tokens according to tokenizer
+    tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
+        // Normalize token text to lowercase, as the user is unlikely to
+        // care about casing when searching for matches
+        @TokenFilterDef(factory = WordDelimiterFilterFactory.class),
+        @TokenFilterDef(factory = LowerCaseFilterFactory.class),
+        @TokenFilterDef(factory = NGramFilterFactory.class, params = {
+            @Parameter(name = "minGramSize", value = "3"),
+            @Parameter(name = "maxGramSize", value = "5")
+        }),
+        @TokenFilterDef(factory = PatternReplaceFilterFactory.class, params = {
+            @Parameter(name = "pattern", value = "([^a-zA-Z0-9\\.])"),
+            @Parameter(name = "replacement", value = " "),
+            @Parameter(name = "replace", value = "all")
+        })
+    }),
 })
 @Audited
 @MappedSuperclass
@@ -47,9 +92,9 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
   @IndexedEmbedded(targetElement = AtomJpa.class)
   private List<Atom> atoms = null;
 
-  /** The default preferred name. */
+  /** The name. */
   @Column(nullable = false, length = 4000)
-  private String defaultPreferredName;
+  private String name;
 
   /** branched to tracking. */
   @Column(nullable = true)
@@ -74,7 +119,7 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
    */
   public AbstractAtomClass(AtomClass atomClass, boolean deepCopy) {
     super(atomClass, deepCopy);
-    defaultPreferredName = atomClass.getDefaultPreferredName();
+    name = atomClass.getName();
     workflowStatus = atomClass.getWorkflowStatus();
     if (deepCopy) {
       for (Atom atom : atomClass.getAtoms()) {
@@ -160,38 +205,38 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.model.content.AtomClass#getDefaultPreferredName()
+   * @see com.wci.umls.server.model.content.AtomClass#getName()
    */
   /**
-   * Returns the default preferred name.
+   * Returns the name.
    *
-   * @return the default preferred name
+   * @return the name
    */
   @Override
   @Fields({
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
-      @Field(name = "defaultPreferredNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+      @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
   @Analyzer(definition = "noStopWord")
-  public String getDefaultPreferredName() {
-    return defaultPreferredName;
+  public String getName() {
+    return name;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.model.content.AtomClass#setDefaultPreferredName(java
+   * com.wci.umls.server.model.content.AtomClass#setName(java
    * .lang.String)
    */
   /**
-   * Sets the default preferred name.
+   * Sets the name.
    *
-   * @param defaultPreferredName the default preferred name
+   * @param name the name
    */
   @Override
-  public void setDefaultPreferredName(String defaultPreferredName) {
-    this.defaultPreferredName = defaultPreferredName;
+  public void setName(String name) {
+    this.name = name;
   }
 
   /*
@@ -245,7 +290,7 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
     result =
         prime
             * result
-            + ((defaultPreferredName == null) ? 0 : defaultPreferredName
+            + ((name == null) ? 0 : name
                 .hashCode());
     return result;
   }
@@ -271,10 +316,10 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
     if (getClass() != obj.getClass())
       return false;
     AbstractAtomClass other = (AbstractAtomClass) obj;
-    if (defaultPreferredName == null) {
-      if (other.defaultPreferredName != null)
+    if (name == null) {
+      if (other.name != null)
         return false;
-    } else if (!defaultPreferredName.equals(other.defaultPreferredName))
+    } else if (!name.equals(other.name))
       return false;
     return true;
   }
@@ -286,8 +331,8 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
    */
   @Override
   public String toString() {
-    return "AbstractAtomClass [atoms=" + atoms + ", defaultPreferredName="
-        + defaultPreferredName + "]";
+    return "AbstractAtomClass [atoms=" + atoms + ", name="
+        + name + "]";
   }
 
   /*

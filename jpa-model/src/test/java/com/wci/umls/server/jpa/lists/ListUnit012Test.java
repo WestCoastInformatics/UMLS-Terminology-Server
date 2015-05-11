@@ -73,7 +73,7 @@ public class ListUnit012Test extends
     Atom atom = new AtomJpa();
     atom.setId(1L);
     atom.setTerminologyId("1");
-    atom.setTerm("1");
+    atom.setName("1");
     AtomSubset atomSubset = new AtomSubsetJpa();
     atomSubset.setId(1L);
     atomSubset.setTerminologyId("1");
@@ -95,7 +95,7 @@ public class ListUnit012Test extends
     Concept concept = new ConceptJpa();
     concept.setId(1L);
     concept.setTerminologyId("1");
-    concept.setDefaultPreferredName("1");
+    concept.setName("1");
     ConceptSubset conceptSubset = new ConceptSubsetJpa();
     conceptSubset.setId(1L);
     conceptSubset.setTerminologyId("1");

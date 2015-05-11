@@ -122,26 +122,26 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom> implements
     }
     member.setTerminologyId(terminologyId);
   }
-
+  
   /**
-   * Returns the member term. For JAXB.
+   * Returns the member name. For JAXB.
    *
-   * @return the member term
+   * @return the member name
    */
-  public String getMemberTerm() {
-    return member == null ? "" : member.getTerm();
+  public String getMemberName() {
+    return member == null ? "" : member.getName();
   }
 
   /**
-   * Sets the member term. For JAXB.
+   * Sets the member name. For JAXB.
    *
-   * @param term the member term
+   * @param name the member name
    */
-  public void setMemberTerm(String term) {
+  public void setMemberName(String name) {
     if (member == null) {
       member = new AtomJpa();
     }
-    member.setTerm(term);
+    member.setName(name);
   }
 
   /*

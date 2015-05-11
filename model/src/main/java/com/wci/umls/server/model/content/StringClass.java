@@ -9,6 +9,6 @@ package com.wci.umls.server.model.content;
  */
 public interface StringClass extends AtomClass {
 
-  // nothing extra, the "default preferred name" is the string
+  // nothing extra, the "name" is the string
   
 }

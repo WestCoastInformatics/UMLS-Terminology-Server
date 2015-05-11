@@ -54,7 +54,7 @@
 
   <dependencyManagement>
     <dependencies>
-    
+
       <!-- Term server dependencies. -->
       <dependency>
         <groupId>com.wci.umls.server</groupId>
@@ -85,6 +85,11 @@
       <dependency>
         <groupId>com.wci.umls.server</groupId>
         <artifactId>term-server-rest-client</artifactId>
+        <version>${releaseVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.wci.umls.server</groupId>
+        <artifactId>term-server-custom</artifactId>
         <version>${releaseVersion}</version>
       </dependency>
 

@@ -7,7 +7,7 @@ import javax.persistence.MappedSuperclass;
 
 import org.hibernate.envers.Audited;
 
-import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
@@ -17,7 +17,7 @@ import com.wci.umls.server.model.content.SubsetMember;
  */
 @Audited
 @MappedSuperclass
-public abstract class AbstractSubsetMember<T extends ComponentHasAttributes>
+public abstract class AbstractSubsetMember<T extends ComponentHasAttributesAndName>
     extends AbstractComponentHasAttributes implements SubsetMember<T> {
 
   /**

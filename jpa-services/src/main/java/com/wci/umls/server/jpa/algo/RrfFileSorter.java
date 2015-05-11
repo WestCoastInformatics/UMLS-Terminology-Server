@@ -54,6 +54,32 @@ public class RrfFileSorter {
   }
 
   /**
+   * Returns the file version.
+   *
+   * @param inputDir the input dir
+   * @return the file version
+   * @throws Exception the exception
+   */
+  public String getFileVersion(File inputDir) throws Exception {
+
+    // Determine file version from filename
+    String fileVersion = null;
+    Properties p = new Properties();
+    try {
+      final File releasedat = findFile(inputDir, "release.dat");
+      p.load(new FileInputStream(releasedat));
+    } catch (Exception e) {
+      throw new Exception("Unable to resolve version from release.dat", e);
+    }
+    fileVersion = p.getProperty("umls.release.name");
+    if (fileVersion == null) {
+      throw new Exception("Unable to determine file version");
+    }
+    return fileVersion;
+
+  }
+
+  /**
    * Sort files.
    *
    * @param inputDir the input dir

@@ -10,7 +10,7 @@ import java.util.List;
  * coding scheme. For example Metathesaurus CUIs, SNOMED CT source concepts, or
  * RXCUIs within RXNORM.
  */
-public interface AtomClass extends ComponentHasAttributes {
+public interface AtomClass extends ComponentHasAttributesAndName {
 
   /**
    * Returns the atoms.
@@ -39,19 +39,6 @@ public interface AtomClass extends ComponentHasAttributes {
    * @param atom the atom
    */
   public void removeAtom(Atom atom);
-
-  /**
-   * Returns the preferred atom name.
-   * @return the preferred atom name
-   */
-  public String getDefaultPreferredName();
-
-  /**
-   * Sets the default preferred name.
-   *
-   * @param defaultPreferredName the default preferred name
-   */
-  public void setDefaultPreferredName(String defaultPreferredName);
 
   /**
    * Returns the workflow status.

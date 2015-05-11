@@ -7,7 +7,7 @@ package com.wci.umls.server.model.content;
  * Represents membership of something in a {@link Subset}.
  * @param <T> the type
  */
-public interface SubsetMember<T extends ComponentHasAttributes> extends
+public interface SubsetMember<T extends ComponentHasAttributesAndName> extends
     ComponentHasAttributes {
 
   /**

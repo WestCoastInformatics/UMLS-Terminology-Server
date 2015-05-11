@@ -227,8 +227,12 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
    * @throws Exception the exception
    */
   private void clearLuceneIndexes() throws Exception {
-  // TODO: reenable this
-    //fullTextEntityManager.purgeAll(ConceptJpa.class);
+
+    fullTextEntityManager.purgeAll(ConceptJpa.class);
+    fullTextEntityManager.purgeAll(CodeJpa.class);
+    fullTextEntityManager.purgeAll(DescriptorJpa.class);
+    fullTextEntityManager.purgeAll(LexicalClassJpa.class);
+    fullTextEntityManager.purgeAll(StringClassJpa.class);
     fullTextEntityManager.purgeAll(ProjectJpa.class);
   }
 

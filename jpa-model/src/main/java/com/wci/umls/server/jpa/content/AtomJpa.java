@@ -93,9 +93,9 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Column(nullable = false)
   private String stringClassId;
 
-  /** The term. */
+  /** The name. */
   @Column(nullable = false, length = 4000)
-  private String term;
+  private String name;
 
   /** The term type. */
   @Column(nullable = false)
@@ -137,7 +137,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     language = atom.getLanguage();
     lexicalClassId = atom.getLexicalClassId();
     stringClassId = atom.getStringClassId();
-    term = atom.getTerm();
+    name = atom.getName();
     termType = atom.getTermType();
     workflowStatus = atom.getWorkflowStatus();
 
@@ -394,12 +394,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    */
   @Override
   @Fields({
-      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
-      @Field(name = "termSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+      @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+      @Field(name = "edgeNGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteEdgeAnalyzer")),
+      @Field(name = "nGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteNGramAnalyzer"))
   })
-  @Analyzer(definition = "noStopWord")
-  public String getTerm() {
-    return term;
+  public String getName() {
+    return name;
   }
 
   /*
@@ -408,8 +409,8 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @see com.wci.umls.server.model.content.Atom#setTerm(java.lang.String)
    */
   @Override
-  public void setTerm(String term) {
-    this.term = term;
+  public void setName(String name) {
+    this.name = name;
   }
 
   /*
@@ -607,7 +608,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     result =
         prime * result
             + ((stringClassId == null) ? 0 : stringClassId.hashCode());
-    result = prime * result + ((term == null) ? 0 : term.hashCode());
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((termType == null) ? 0 : termType.hashCode());
     return result;
   }
@@ -667,10 +668,10 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
         return false;
     } else if (!stringClassId.equals(other.stringClassId))
       return false;
-    if (term == null) {
-      if (other.term != null)
+    if (name == null) {
+      if (other.name != null)
         return false;
-    } else if (!term.equals(other.term))
+    } else if (!name.equals(other.name))
       return false;
     if (termType == null) {
       if (other.termType != null)
@@ -691,8 +692,8 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
         + ", alternateTerminologyIds=" + alternateTerminologyIds + ", codeId="
         + codeId + ", descriptorId=" + descriptorId + ", conceptId="
         + conceptId + ", language=" + language + ", lexicalClassId="
-        + lexicalClassId + ", stringClassId=" + stringClassId + ", term="
-        + term + ", termType=" + termType + ", workflowStatus="
+        + lexicalClassId + ", stringClassId=" + stringClassId + ", name="
+        + name + ", termType=" + termType + ", workflowStatus="
         + workflowStatus + "] - " + super.toString();
   }
 

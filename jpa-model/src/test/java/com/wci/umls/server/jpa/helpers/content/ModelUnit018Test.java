@@ -77,7 +77,7 @@ public class ModelUnit018Test {
     tester.include("terminologyId");
     tester.include("terminologyVersion");
 
-    tester.include("defaultPreferredName");
+    tester.include("name");
     tester.include("normalizedString");
 
     assertTrue(tester.testIdentitiyFieldEquals());
@@ -130,7 +130,7 @@ public class ModelUnit018Test {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("terminologyVersion");
-    tester.include("defaultPreferredName");
+    tester.include("name");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -146,7 +146,7 @@ public class ModelUnit018Test {
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    tester.include("defaultPreferredName");
+    tester.include("name");
     tester.include("normalizedString");
     assertTrue(tester.testAnalyzedIndexedFields());
 
@@ -162,7 +162,7 @@ public class ModelUnit018Test {
     tester.include("terminologyId");
     tester.include("terminology");
     tester.include("terminologyVersion");
-    tester.include("defaultPreferredNameSort");
+    tester.include("nameSort");
     tester.include("normalizedStringSort");
     tester.include("workflowStatus");
     tester.include("branch");

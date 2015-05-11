@@ -93,10 +93,10 @@ public class ModelUnit008Test {
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("fromId");
     tester.exclude("fromTerminologyId");
-    tester.exclude("fromTerm");
+    tester.exclude("fromName");
     tester.exclude("toId");
     tester.exclude("toTerminologyId");
-    tester.exclude("toTerm");
+    tester.exclude("toName");
     tester.test();
   }
 
@@ -212,10 +212,10 @@ public class ModelUnit008Test {
     // The proxy atoms can have only "id" and "term" set due to xml transient
     Atom atom1 = new AtomJpa();
     atom1.setId(1L);
-    atom1.setTerm("1");
+    atom1.setName("1");
     Atom atom2 = new AtomJpa();
     atom2.setId(2L);
-    atom2.setTerm("2");
+    atom2.setName("2");
 
     tester.proxy(Atom.class, 1, atom1);
     tester.proxy(Atom.class, 2, atom2);
@@ -235,9 +235,9 @@ public class ModelUnit008Test {
 
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<fromId>"));
-    assertTrue(xml.contains("<fromTerm>"));
+    assertTrue(xml.contains("<fromName>"));
     assertTrue(xml.contains("<toId>"));
-    assertTrue(xml.contains("<toTerm>"));
+    assertTrue(xml.contains("<toName>"));
     assertFalse(xml.contains("<from>"));
     assertFalse(xml.contains("<to>"));
 

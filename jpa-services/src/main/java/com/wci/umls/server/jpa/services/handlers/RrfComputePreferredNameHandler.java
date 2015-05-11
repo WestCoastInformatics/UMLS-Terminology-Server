@@ -80,7 +80,7 @@ public class RrfComputePreferredNameHandler implements
     }
 
     if (maxAtom != null) {
-      return maxAtom.getTerm();
+      return maxAtom.getName();
     }
     return "[Could not determine preferred name]";
   }

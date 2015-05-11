@@ -126,24 +126,24 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
   }
 
   /**
-   * Returns the member default preferred name. For JAXB.
+   * Returns the member name. For JAXB.
    *
-   * @return the member default preferred name
+   * @return the member name
    */
-  public String getMemberDefaultPreferredName() {
-    return member == null ? "" : member.getDefaultPreferredName();
+  public String getMemberName() {
+    return member == null ? "" : member.getName();
   }
 
   /**
-   * Sets the member default preferred name. For JAXB.
+   * Sets the member name. For JAXB.
    *
-   * @param name the member default preferred name
+   * @param name the member name
    */
-  public void setMemberDefaultPreferredName(String name) {
+  public void setMemberName(String name) {
     if (member == null) {
       member = new ConceptJpa();
     }
-    member.setDefaultPreferredName(name);
+    member.setName(name);
   }
 
   /*

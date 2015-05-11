@@ -88,6 +88,19 @@ public class RrfReaders {
     readers.put(Keys.SRDEF, getReader("srdef.sort"));
 
   }
+  
+  /**
+   * Open original readers.
+   *
+   * @throws Exception the exception
+   */
+  public void openOriginalReaders() throws Exception {
+
+    for (Keys key : Keys.values()) {
+      readers.put(key, getReader(key.toString()+".RRF"));
+    }
+    readers.put(Keys.SRDEF, getReader("SRDEF"));
+  }
 
   /**
    * Close readers.

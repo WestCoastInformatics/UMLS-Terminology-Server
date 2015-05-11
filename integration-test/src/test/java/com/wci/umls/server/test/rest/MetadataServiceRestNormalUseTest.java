@@ -150,12 +150,12 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
         "latest", authToken)));
 
     // test SNOMED metadata
-    //assertTrue(testSnomedMetadata(metadataService.getAllMetadata("SNOMEDCT_US",
-    //    "2014_09_01", authToken)));
+    assertTrue(testSnomedMetadata(metadataService.getAllMetadata("SNOMEDCT_US",
+        "2014_09_01", authToken)));
 
     // test MSH metadata
-    //assertTrue(testMshMetadata(metadataService.getAllMetadata("MSH",
-    //    "2015_2014_09_08", authToken)));
+    assertTrue(testMshMetadata(metadataService.getAllMetadata("MSH",
+        "2015_2014_09_08", authToken)));
   }
 
   /**
@@ -209,7 +209,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedNames.get(MetadataKeys.Additional_Relationship_Types).add("Is a");
 
     // Attribute names
-    expectedSizes.put(MetadataKeys.Attribute_Names, 97);
+    expectedSizes.put(MetadataKeys.Attribute_Names, 98);
     expectedSizes2.put(MetadataKeys.Attribute_Names, 445);
     expectedIds.put(MetadataKeys.Attribute_Names, "ACCEPTABILITYID");
     expectedNames.put(MetadataKeys.Attribute_Names, new HashSet<String>());
@@ -265,38 +265,38 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     Map<MetadataKeys, Set<String>> expectedNames = new HashMap<>();
 
     // Relationship types
-    expectedSizes.put(MetadataKeys.Relationship_Types, 9);
-    expectedSizes2.put(MetadataKeys.Relationship_Types, 9);
+    expectedSizes.put(MetadataKeys.Relationship_Types, 6);
+    expectedSizes2.put(MetadataKeys.Relationship_Types, 6);
     expectedIds.put(MetadataKeys.Relationship_Types, "PAR");
     expectedNames.put(MetadataKeys.Relationship_Types, new HashSet<String>());
     expectedNames.get(MetadataKeys.Relationship_Types).add(
         "has parent relationship in a Metathesaurus source vocabulary");
 
     // Additional relationship types
-    expectedSizes.put(MetadataKeys.Additional_Relationship_Types, 82);
-    expectedSizes2.put(MetadataKeys.Additional_Relationship_Types, 82);
-    expectedIds.put(MetadataKeys.Additional_Relationship_Types, "isa");
+    expectedSizes.put(MetadataKeys.Additional_Relationship_Types, 61);
+    expectedSizes2.put(MetadataKeys.Additional_Relationship_Types, 61);
+    expectedIds.put(MetadataKeys.Additional_Relationship_Types, "has_temporal_context");
     expectedNames.put(MetadataKeys.Additional_Relationship_Types,
         new HashSet<String>());
-    expectedNames.get(MetadataKeys.Additional_Relationship_Types).add("Is a");
+    expectedNames.get(MetadataKeys.Additional_Relationship_Types).add("Has temporal context");
 
     // Attribute names
-    expectedSizes.put(MetadataKeys.Attribute_Names, 97);
-    expectedSizes2.put(MetadataKeys.Attribute_Names, 445);
+    expectedSizes.put(MetadataKeys.Attribute_Names, 43);
+    expectedSizes2.put(MetadataKeys.Attribute_Names, 43);
     expectedIds.put(MetadataKeys.Attribute_Names, "ACCEPTABILITYID");
     expectedNames.put(MetadataKeys.Attribute_Names, new HashSet<String>());
     expectedNames.get(MetadataKeys.Attribute_Names).add("Acceptability Id");
 
     // Semantic types
-    expectedSizes.put(MetadataKeys.Semantic_Types, 133);
-    expectedSizes2.put(MetadataKeys.Semantic_Types, 133);
+    expectedSizes.put(MetadataKeys.Semantic_Types, 0);
+    expectedSizes2.put(MetadataKeys.Semantic_Types, 0);
     expectedIds.put(MetadataKeys.Semantic_Types, "clnd");
     expectedNames.put(MetadataKeys.Semantic_Types, new HashSet<String>());
-    expectedNames.get(MetadataKeys.Semantic_Types).add("Clinical Drug");
+    //expectedNames.get(MetadataKeys.Semantic_Types).add("Clinical Drug");
 
     // Term types
-    expectedSizes.put(MetadataKeys.Term_Types, 47);
-    expectedSizes2.put(MetadataKeys.Term_Types, 47);
+    expectedSizes.put(MetadataKeys.Term_Types, 18);
+    expectedSizes2.put(MetadataKeys.Term_Types, 18);
     expectedIds.put(MetadataKeys.Term_Types, "PT");
     expectedNames.put(MetadataKeys.Term_Types, new HashSet<String>());
     expectedNames.get(MetadataKeys.Term_Types).add("Designated preferred name");
@@ -325,7 +325,6 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    * @return true, if successful
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   private boolean testMshMetadata(KeyValuePairLists keyValuePairLists)
     throws Exception {
     Logger.getLogger(getClass()).info(
@@ -339,49 +338,41 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     Map<MetadataKeys, Set<String>> expectedNames = new HashMap<>();
 
     // Relationship types
-    expectedSizes.put(MetadataKeys.Relationship_Types, 9);
-    expectedSizes2.put(MetadataKeys.Relationship_Types, 9);
+    expectedSizes.put(MetadataKeys.Relationship_Types, 7);
+    expectedSizes2.put(MetadataKeys.Relationship_Types, 7);
     expectedIds.put(MetadataKeys.Relationship_Types, "PAR");
     expectedNames.put(MetadataKeys.Relationship_Types, new HashSet<String>());
     expectedNames.get(MetadataKeys.Relationship_Types).add(
-        "has parent relationship in a Metathesaurus source vocabulary ");
+        "has parent relationship in a Metathesaurus source vocabulary");
 
     // Additional relationship types
-    expectedSizes.put(MetadataKeys.Additional_Relationship_Types, 82);
-    expectedSizes2.put(MetadataKeys.Additional_Relationship_Types, 82);
+    expectedSizes.put(MetadataKeys.Additional_Relationship_Types, 7);
+    expectedSizes2.put(MetadataKeys.Additional_Relationship_Types, 7);
     expectedIds.put(MetadataKeys.Additional_Relationship_Types, "isa");
     expectedNames.put(MetadataKeys.Additional_Relationship_Types,
         new HashSet<String>());
     expectedNames.get(MetadataKeys.Additional_Relationship_Types).add("Is a");
 
     // Attribute names
-    expectedSizes.put(MetadataKeys.Attribute_Names, 97);
-    expectedSizes2.put(MetadataKeys.Attribute_Names, 445);
-    expectedIds.put(MetadataKeys.Attribute_Names, "ACCEPTABILITYID");
+    expectedSizes.put(MetadataKeys.Attribute_Names, 27);
+    expectedSizes2.put(MetadataKeys.Attribute_Names, 27);
+    expectedIds.put(MetadataKeys.Attribute_Names, "TERMUI");
     expectedNames.put(MetadataKeys.Attribute_Names, new HashSet<String>());
-    expectedNames.get(MetadataKeys.Attribute_Names).add("Acceptability Id");
+    expectedNames.get(MetadataKeys.Attribute_Names).add("Term unique identifier");
 
     // Semantic types
-    expectedSizes.put(MetadataKeys.Semantic_Types, 133);
-    expectedSizes2.put(MetadataKeys.Semantic_Types, 133);
+    expectedSizes.put(MetadataKeys.Semantic_Types, 0);
+    expectedSizes2.put(MetadataKeys.Semantic_Types, 0);
     expectedIds.put(MetadataKeys.Semantic_Types, "clnd");
     expectedNames.put(MetadataKeys.Semantic_Types, new HashSet<String>());
-    expectedNames.get(MetadataKeys.Semantic_Types).add("Clinical Drug");
+    //expectedNames.get(MetadataKeys.Semantic_Types).add("Clinical Drug");
 
     // Term types
-    expectedSizes.put(MetadataKeys.Term_Types, 47);
-    expectedSizes2.put(MetadataKeys.Term_Types, 47);
-    expectedIds.put(MetadataKeys.Term_Types, "PT");
+    expectedSizes.put(MetadataKeys.Term_Types, 19);
+    expectedSizes2.put(MetadataKeys.Term_Types, 19);
+    expectedIds.put(MetadataKeys.Term_Types, "MH");
     expectedNames.put(MetadataKeys.Term_Types, new HashSet<String>());
-    expectedNames.get(MetadataKeys.Term_Types).add("Designated preferred name");
-
-    // General metadata entries
-    expectedSizes.put(MetadataKeys.Term_Types, 247);
-    expectedSizes2.put(MetadataKeys.Term_Types, 247);
-    expectedIds.put(MetadataKeys.Term_Types, "SCUI");
-    expectedNames.put(MetadataKeys.Term_Types, new HashSet<String>());
-    expectedNames.get(MetadataKeys.Term_Types).add(
-        "Source asserted concept unique identifier");
+    expectedNames.get(MetadataKeys.Term_Types).add("Main heading");
 
     // Hierarchical relationship types
     expectedSizes.put(MetadataKeys.Hierarchical_Relationship_Types, 1);
@@ -484,8 +475,11 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
 
       KeyValuePair testCase = null;
 
+      if (expectedSize == 0 && pairs.size() == 0) {
+        categorySuccessCt++;
+      } 
       // if this case has been specified, check it
-      if (expectedSize != -1 && pairs.size() != 0) {
+      else if (expectedSize != -1 && pairs.size() != 0) {
 
         for (KeyValuePair pair : pairs) {
           if (expectedId != null && expectedId.equals(pair.getKey())

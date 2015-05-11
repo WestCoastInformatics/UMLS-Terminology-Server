@@ -77,7 +77,7 @@ public class ModelUnit011Test {
     tester.include("terminologyId");
     tester.include("terminologyVersion");
 
-    tester.include("defaultPreferredName");
+    tester.include("name");
     tester.include("fullyDefined");
     tester.include("usesRelationshipIntersection");
     tester.include("usesRelationshipUnion");
@@ -132,7 +132,7 @@ public class ModelUnit011Test {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("terminologyVersion");
-    tester.include("defaultPreferredName");
+    tester.include("name");
     tester.include("fullyDefined");
     tester.include("usesRelationshipIntersection");
     tester.include("usesRelationshipUnion");
@@ -151,7 +151,7 @@ public class ModelUnit011Test {
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    tester.include("defaultPreferredName");
+    tester.include("name");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
@@ -166,7 +166,7 @@ public class ModelUnit011Test {
     tester.include("terminologyId");
     tester.include("terminology");
     tester.include("terminologyVersion");
-    tester.include("defaultPreferredNameSort");
+    tester.include("nameSort");
     tester.include("workflowStatus");
     tester.include("branch");
     tester.include("branchedTo");
