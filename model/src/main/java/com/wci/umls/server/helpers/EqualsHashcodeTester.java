@@ -104,17 +104,9 @@ public class EqualsHashcodeTester extends ProxyTester {
       // Create second object each time, so we can compare resetting each field
       // value
       Object o2 = createObject(1);
-      Logger.getLogger(getClass()).debug("  field = " + fieldName);
-      Logger.getLogger(getClass()).debug(
-          "  o1 = " + o1.hashCode() + ", " + o1);
-      Logger.getLogger(getClass()).debug(
-          "  o2 = " + o2.hashCode() + ", " + o2);
       // Change the field (use an initializer of 2).
       setField(o2, getter, m, args[0], 2);
-      Logger.getLogger(getClass()).debug(
-          "  o1 = " + o1.hashCode() + ", " + o1);
-      Logger.getLogger(getClass()).debug(
-          "  o2 = " + o2.hashCode() + ", " + o2);
+
 
       if (o1.equals(o2)) {
         // if equals, fail here
@@ -220,6 +212,8 @@ public class EqualsHashcodeTester extends ProxyTester {
 
       if (o1.hashCode() == o2.hashCode()) {
         // if equals, fail here
+        Logger.getLogger(getClass()).debug("  o1 = " + o1);
+        Logger.getLogger(getClass()).debug("  o2 = " + o2);
         throw new Exception("Equality did not change when field " + fieldName
             + " was changed");
       }

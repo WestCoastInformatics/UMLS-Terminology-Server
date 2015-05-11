@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.content;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -30,12 +31,12 @@ public class DescriptorTransitiveRelationshipJpa extends
     DescriptorTransitiveRelationship {
 
   /** The super type. */
-  @ManyToOne(targetEntity = DescriptorJpa.class, optional = false)
+  @ManyToOne(targetEntity = DescriptorJpa.class, fetch = FetchType.EAGER, optional = false)
   @JoinColumn(nullable = false)
   private Descriptor superType;
 
   /** The sub type. */
-  @ManyToOne(targetEntity = DescriptorJpa.class, optional = false)
+  @ManyToOne(targetEntity = DescriptorJpa.class, fetch = FetchType.EAGER, optional = false)
   @JoinColumn(nullable = false)
   private Descriptor subType;
 

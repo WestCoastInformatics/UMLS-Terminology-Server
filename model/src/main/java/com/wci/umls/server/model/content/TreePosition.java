@@ -8,9 +8,26 @@ package com.wci.umls.server.model.content;
  * positions may be based around {@link Concept}s, {@link Descriptor}s, or
  * {@link Code}s. The data type is defined by the terminology's
  * "organizing class type". See sub classes
+ * 
+ * @param <T> the type
+ * 
  */
-public interface TreePosition extends ComponentHasAttributes {
+public interface TreePosition<T extends ComponentHasAttributesAndName> extends ComponentHasAttributes {
 
+  /**
+   * Returns the node.
+   *
+   * @return the node
+   */
+  public T getNode();
+  
+  /**
+   * Sets the node.
+   *
+   * @param node the node
+   */
+  public void setNode(T node);
+  
   /**
    * Returns the additional relationship label, such as "isa" or "branch_of".
    *
@@ -39,20 +56,6 @@ public interface TreePosition extends ComponentHasAttributes {
    */
   public void setAncestorPath(String ancestorPath);
 
-  /**
-   * Returns the name.
-   *
-   * @return the name
-   */
-  public String getName();
-
-  /**
-   * Sets the name.
-   *
-   * @param name the name
-   */
-  public void setName(String name);
-  
   /**
    * Returns the child ct.
    *

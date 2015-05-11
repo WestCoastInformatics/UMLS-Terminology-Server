@@ -3,14 +3,19 @@
  */
 package com.wci.umls.server.jpa.content;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptTreePosition;
 
 /**
@@ -22,12 +27,13 @@ import com.wci.umls.server.model.content.ConceptTreePosition;
 }))
 @Audited
 @XmlRootElement(name = "conceptTreePosition")
-public class ConceptTreePositionJpa extends AbstractTreePosition implements
-    ConceptTreePosition {
+public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
+    implements ConceptTreePosition {
 
-  /** The concept id. */
-  @Column(nullable = false)
-  private String conceptId;
+  /** The concept. */
+  @ManyToOne(targetEntity = ConceptJpa.class, fetch = FetchType.EAGER, optional = false)
+  @JoinColumn(nullable = false)
+  private Concept node;
 
   /**
    * Instantiates an empty {@link ConceptTreePositionJpa}.
@@ -45,31 +51,96 @@ public class ConceptTreePositionJpa extends AbstractTreePosition implements
    */
   public ConceptTreePositionJpa(ConceptTreePosition treepos, boolean deepCopy) {
     super(treepos, deepCopy);
-    conceptId = treepos.getConceptId();
+    node = treepos.getNode();
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.model.content.ConceptTreePosition#getConceptId()
+   * @see com.wci.umls.server.model.content.TreePosition#getNode()
    */
+  @XmlTransient
   @Override
-  public String getConceptId() {
-    return conceptId;
+  public Concept getNode() {
+    return node;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.model.content.ConceptTreePosition#setConceptId(java
-   * .lang.String)
+   * com.wci.umls.server.model.content.TreePosition#setNode(com.wci.umls.server
+   * .model.content.ComponentHasAttributesAndName)
    */
   @Override
-  public void setConceptId(String conceptId) {
-    this.conceptId = conceptId;
+  public void setNode(Concept concept) {
+    this.node = concept;
   }
-  
+
+  /**
+   * Returns the node id. For JAXB.
+   *
+   * @return the node id
+   */
+  @XmlElement
+  public Long getNodeId() {
+    return node == null ? 0 : node.getId();
+  }
+
+  /**
+   * Sets the node id. For JAXB.
+   *
+   * @param id the node id
+   */
+  public void setNodeId(Long id) {
+    if (node == null) {
+      node = new ConceptJpa();
+    }
+    node.setId(id);
+  }
+
+  /**
+   * Returns the node name. For JAXB.
+   *
+   * @return the node name
+   */
+  public String getNodeName() {
+    return node == null ? "" : node.getName();
+  }
+
+  /**
+   * Sets the node name. For JAXB.
+   *
+   * @param name the node name
+   */
+  public void setNodeName(String name) {
+    if (node == null) {
+      node = new ConceptJpa();
+    }
+    node.setName(name);
+  }  
+
+  /**
+   * Returns the node terminology id. For JAXB.
+   *
+   * @return the node terminology id
+   */
+  public String getNodeTerminologyId() {
+    return node == null ? "" : node.getTerminologyId();
+  }
+
+  /**
+   * Sets the node terminology id. For JAXB.
+   *
+   * @param terminologyId the node terminology id
+   */
+  public void setNodeTerminologyId(String terminologyId) {
+    if (node == null) {
+      node = new ConceptJpa();
+    }
+    node.setTerminologyId(terminologyId);
+  }  
+
   /*
    * (non-Javadoc)
    * 
@@ -79,16 +150,19 @@ public class ConceptTreePositionJpa extends AbstractTreePosition implements
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((conceptId == null) ? 0 : conceptId.hashCode());
+    result =
+        prime
+            * result
+            + ((node == null || node.getTerminologyId() == null) ? 0 : node
+                .getTerminologyId().hashCode());
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractTreePosition#equals(java.lang.Object
-   * )
+  /**
+   * CUSTOM for concept id.
+   *
+   * @param obj the obj
+   * @return true, if successful
    */
   @Override
   public boolean equals(Object obj) {
@@ -99,10 +173,13 @@ public class ConceptTreePositionJpa extends AbstractTreePosition implements
     if (getClass() != obj.getClass())
       return false;
     ConceptTreePositionJpa other = (ConceptTreePositionJpa) obj;
-    if (conceptId == null) {
-      if (other.conceptId != null)
+    if (node == null) {
+      if (other.node != null)
         return false;
-    } else if (!conceptId.equals(other.conceptId))
+    } else if (node.getTerminologyId() == null) {
+      if (other.node != null && other.node.getTerminologyId() != null)
+        return false;
+    } else if (!node.getTerminologyId().equals(other.node.getTerminologyId()))
       return false;
     return true;
   }
@@ -114,7 +191,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition implements
    */
   @Override
   public String toString() {
-    return "ConceptTreePositionJpa [conceptId=" + conceptId + "]";
+    return "ConceptTreePositionJpa [concept=" + node + "]";
   }
 
 }
