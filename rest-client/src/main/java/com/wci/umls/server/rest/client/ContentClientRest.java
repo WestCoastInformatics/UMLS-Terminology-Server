@@ -34,7 +34,6 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
-import com.wci.umls.server.model.content.Subset;
 
 
 /**

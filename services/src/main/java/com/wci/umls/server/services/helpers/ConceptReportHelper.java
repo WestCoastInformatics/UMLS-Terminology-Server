@@ -9,6 +9,7 @@ import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 
 /**
  * Helper class for walking graphs of objects.
@@ -25,7 +26,10 @@ public class ConceptReportHelper {
     final String nl = System.getProperty("line.separator");
     final StringBuilder builder = new StringBuilder();
     builder.append(nl);
-    builder.append("CONCEPT " + concept).append(nl);
+    builder.append("CONCEPT = " + concept).append(nl);
+    for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+      builder.append("  STY = " + sty);
+    }
     for (Atom atom : concept.getAtoms()) {
       builder.append("  ATOM = " + atom).append(nl);
       for (Attribute att : atom.getAttributes()) {
@@ -61,7 +65,7 @@ public class ConceptReportHelper {
     final String nl = System.getProperty("line.separator");
     final StringBuilder builder = new StringBuilder();
     builder.append(nl);
-    builder.append("ATOM" + atom).append(nl);
+    builder.append("ATOM = " + atom).append(nl);
     for (Attribute att : atom.getAttributes()) {
       builder.append("  ATT = " + att).append(nl);
     }

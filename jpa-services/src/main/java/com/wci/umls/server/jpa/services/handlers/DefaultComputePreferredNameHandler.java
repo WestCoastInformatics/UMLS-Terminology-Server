@@ -40,7 +40,7 @@ public class DefaultComputePreferredNameHandler implements
     // Use ranking algorithm from MetamorphoSys
     // [termgroupRank][lrr][inverse SUI][inverse AUI]
     // LRR isn't available here so just don't worry about it.
-    return atoms.size() > 0 ? atoms.iterator().next().getName() : "";
+    return atoms.size() > 0 ? atoms.iterator().next().getName() : null;
 
   }
 
