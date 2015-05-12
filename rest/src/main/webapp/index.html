@@ -8,379 +8,355 @@
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="images/favicon.png" />
 
-<!-- Bootstrap core CSS  -->
-<link href="ui/components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+<!-- CSS  -->
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+<link href="ui/css/tsMobile.css" rel="stylesheet">
 
 <!-- Angular core  -->
 <script type="text/javascript" src="./ui/components/angular/angular.js"></script>
 
 <!-- Angular/Boostrap UI Components -->
 <script type="text/javascript"
-  src="ui/components/angular-bootstrap/ui-bootstrap.js"></script>
+	src="ui/components/angular-bootstrap/ui-bootstrap.js"></script>
 <script type="text/javascript"
-  src="ui/components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-
+	src="ui/components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 
 <!-- Terminology server Angular application -->
 <script src="ui/js/app.js"></script>
-<link href="ui/css/tsApp.css" rel="stylesheet">
 </head>
-<body>
-
-  <div ng-controller="tsIndexCtrl">
-
-    <!--  Javascript detection -->
-    <noscript>
-      <style type="text/css">
-.container {
+<body ng-controller="tsIndexCtrl">
+	<!--  Javascript detection -->
+	<noscript>
+		<style type="text/css">
+.container-fluid {
 	display: none;
 }
 </style>
-      <div class="alert alert-danger">You must have Javascript enabled to
-        use the Terminology Server Demo</div>
-    </noscript>
+		<div class="alert alert-danger">You must have Javascript enabled
+			to use the Terminology Server Demo</div>
+	</noscript>
 
 
-    <!--  header -->
+	<!--  header -->
+	<nav id="navBar"
+		style="background: #00008A url('images/background.jpg');"
+		class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<table>
+					<tr>
+						<td><a href="http://www.westcoastinformatics.com"> <img
+								class="hidden-xs" height="72px"
+								style="background-color: white; padding: 5px; margin: 5px; border-radius: 5px;"
+								src="images/logo65x72.jpg"> <img class="visible-xs"
+								height="40px"
+								style="background-color: white; padding: 3px; margin: 3px; border-radius: 3px;"
+								src="images/logo36x40.jpg">
+						</a></td>
+						<td style="vertical-align: middle"><b style="color: white;">
+								SNOMED/RF2 Terminology Server Demo and <a href="swagger.html"
+								style="color: white; text-decoration: underline" target="_blank">API
+									Documentation</a>
+						</b></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</nav>
 
-    <nav style="background: #00008A url('images/background.jpg');"
-      class="navbar navbar-default navbar-fixed-top" role="navigation">
-      <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div>
-          <a href="http://www.westcoastinformatics.com"> <img
-            style="background-color: white; border: 3px solid white; border-radius: 5px; margin-left: 58px; margin-top: 14px;"
-            class="pull-left" src="images/logo.jpg"> <b
-            class="navbar-brand" style="color: white; margin-top: 60px;"></a>
-          &nbsp;UMLS Terminology Server Demo and <a href="swagger.html"
-            style="color: white; text-decoration: underline" target="_blank">API
-            Documentation</a> </b>
+	<div class="container-fluid">
+		<!-- Blank for header -->
+		<div class="hidden-xs" style="height: 94px;">Makes room for
+			content</div>
+		<div class="visible-xs" style="height: 60px;">Makes room for
+			content</div>
 
-        </div>
-      </div>
-    </nav>
+		<div class="row">
+			<div class="col-md-1 col-xs-0">
+				<!-- blank column -->
+			</div>
 
+			<!-- Content -->
 
-    <div class="ts-container" style="margin-top: 50px">
+			<div class="col-md-10 col-xs-12">
+				<!-- Error Messages -->
+				<div id="errorMsg" class="border-error alert-error"
+					ng-show="error.length > 0">
+					<h4 class="alert alert-danger alert-error">
+						{{error}}
+						<div style="display: inline; float: right; width: 3%;">
+							<i class="glyphicon glyphicon-remove" ng-click="clearError()"></i>
+						</div>
+					</h4>
+				</div>
+				<!-- Done error messages -->
 
-      <!-- Error Messages -->
-      <div id="errorMsg" class="border-error alert-error"
-        ng-show="error.length > 0">
-        <h4 class="alert alert-danger alert-error">
-          {{error}}
-          <div style="display: inline; float: right; width: 3%;">
-            <i class="glyphicon glyphicon-remove" ng-click="clearError()"></i>
-          </div>
-        </h4>
-      </div>
-
-      <!-- Login form -->
-      <div ng-show="authToken == null">
-        <div>
-          <div class="ts-panel">
-            <strong>Enter User and Password</strong><br>
-            <form>
-              <input style="margin-top: 5px;" id="userField" ng-model="userName"
-                type="text" placeholder="Username" /><br> <input
-                style="margin-top: 5px;" id="passwordField" type="password"
-                placeholder="Password" ng-model="password" /><br>
-              <button style="margin-top: 10px;" id="userLoginButton"
-                type="submit" ng-click="login(userName, password)">Login</button>
-              <p style="margin-top: 5px">
-                <a
-                  href="https://uts.nlm.nih.gov/license.html#emailTemporaryPassword">Forgot
-                  Password?</a>
-              </p>
-              <p style="margin-top: 25px; max-width: 500px">This
-                demonstration app is loaded with data from two terminologies.</p>
-              <ul>
-                <li>ICD9CM, 2013</li>
-                <li>SNOMEDCT, 20140731 (mini edition)</li>
-              </ul>
-              <p style="max-width: 400px">The mini version of SNOMED
-                contains about 10K concepts. Due to the use of IP restricted
-                content, we require users to authenticate with an NLM UTS
-                account to ensure they have agreed to the UMLS License. We are a
-                UMLS authorized content distributor.</p>
-              <p style="max-width: 400px">
-                To obtain a UTS account, visit <a href="http://uts.nlm.nih.gov">http://uts.nlm.nih.gov</a>
-              </p>
-              <p style="max-width: 400px">
-                Disclaimer: this is not an official <a
-                  href="http://www.ihtsdo.org">IHTSDO</a> site.
-              </p>
-              <p>
-                For complete documentation, see the <a
-                  href="http://wiki.terminology.tools/confluence/display/TS/TermServer+Home">SNOMED/RF2
-                  Terminology Server wiki</a>.
-              </p>
-              <p>
-                For support, email:<a
-                  href="mailto:info@westcoastinformatics.com">info@westcoastinformatics.com</a>
-            </form>
-          </div>
-
-
-        </div>
-
-      </div>
-
-      <!-- Content displayed after log in -->
-      <div ng-show="authToken != null">
-
-        <tabset> <tab heading="Concepts">
-
-        <table class="table">
-
-          <tr>
-            <td>Select terminology</td>
-            <td><select ng-model="terminology"
-              ng-change="setTerminology(terminology)"
-              ng-options="terminology as terminology.name + ', ' + terminology.version
-					for terminology in terminologies"></select>
-            </td>
-          <tr>
-            <td style="width: 15%;">Enter search terms</td>
-            <td><form>
-                <input ng-model="conceptQuery">
-                <button class="btn btn-small btn-primary" type="submit"
-                  ng-click="findConcepts(terminology, conceptQuery)">Search</button>
-                <button class="btn btn-small btn-warning" type="cancel"
-                  ng-click="conceptQuery = null">Clear</button>
-                <br> <em>Searchable terms include concept names, e.g.
-                  ossification, and concept ids, e.g. 728.1 (for ICD9CM),
-                  102276005 (for SNOMEDCT)</em></td>
-
-            </form>
-          </tr>
-        </table>
+				<!-- Login form -->
+				<div ng-show="authToken == null">
+					<div>
+						<div>
+							<strong>Enter User and Password</strong><br>
+							<form>
+								<input class="loginField" id="userField" ng-model="userName"
+									type="text" placeholder="Username" /><br> <input
+									class="loginField" id="passwordField" type="password"
+									placeholder="Password" ng-model="password" /><br>
+								<button class="loginField" id="userLoginButton" type="submit"
+									ng-click="login(userName, password)">Login</button>
+								<p>
+									<br /> <a
+										href="https://uts.nlm.nih.gov/license.html#emailTemporaryPassword">Forgot
+										Password?</a> <br /> <br />
+								</p>
+								<p class="introText">This demonstration app is loaded with
+									data from two terminologies.</p>
+								<ul>
+									<li>ICD9CM, 2013</li>
+									<li>SNOMEDCT, 20140731 (mini edition)</li>
+								</ul>
+								<p class="introText">The mini version of SNOMED contains
+									about 10K concepts. Due to the use of IP restricted content, we
+									require users to authenticate with an NLM UTS account to ensure
+									they have agreed to the UMLS License. We are a UMLS authorized
+									content distributor.</p>
+								<p class="introText">
+									To obtain a UTS account, visit <a href="http://uts.nlm.nih.gov">http://uts.nlm.nih.gov</a>
+								</p>
+								<p class="introText">
+									Disclaimer: this is not an official <a
+										href="http://www.ihtsdo.org">IHTSDO</a> site.
+								</p>
+								<p class="introText">
+									For complete documentation, see the <a
+										href="http://wiki.terminology.tools/confluence/display/TS/TermServer+Home">SNOMED/RF2
+										Terminology Server wiki</a>.
+								</p>
+								<p class="introText">
+									For support, email:<a
+										href="mailto:info@westcoastinformatics.com">info@westcoastinformatics.com</a>
+							</form>
+						</div>
+					</div>
+				</div>
+				<!-- Done login form -->
 
 
+				<!-- Content displayed after log in -->
+				<div ng-show="authToken != null">
 
-        <!--  Side-by-side table and concept display -->
-        <div class="container-fluid"">
+					<tabset> <tab heading="Concepts"> <!-- Search field is all columns -->
+					<div>
+						<table class="table">
+							<tr>
+								<td>Select terminology</td>
+								<td><select ng-model="terminology"
+									ng-change="setTerminology(terminology)"
+									ng-options="terminology as terminology.terminology + ', ' + terminology.terminologyVersion
+          for terminology in terminologies"></select></td>
+							<tr>
+								<td>Enter search terms</td>
+								<td><form>
+										<input ng-model="conceptQuery">
+										<button class="btn btn-small btn-primary" type="submit"
+											ng-click="findConcepts(terminology, conceptQuery)">Search</button>
+										<button class="btn btn-small btn-warning" type="cancel"
+											ng-click="conceptQuery = null">Clear</button>
+										<br> <em>Searchable terms include concept names,
+											e.g. ossification, and concept ids, e.g. 728.1 (for ICD9CM),
+											102276005 (for SNOMEDCT)</em>
+									</form></td>
+							</tr>
+						</table>
+					</div>
+					<!-- End search field --> <!-- Search Results -->
+					<div class="row">
 
-          <div class="row">
-            <div class="col-md-3">
+						<!-- search results field is 3 columns -->
+						<div class="col-md-3 col-xs-4">
+							<div class="alert alert-success"
+								ng-show="searchResults.length > 0">{{searchResults.length}}
+								Results (Click a row for details)</div>
+							<div class="alert alert-danger"
+								ng-show="searchResults.length == 0">Search returned no
+								results.</div>
 
-              <div class="alert alert-success"
-                ng-show="searchResults.length > 0">
-                {{searchResults.length}} Results (Click a row for details)</div>
+							<table class="table table-hover"
+								ng-show="searchResults.length > 0">
+
+								<tbody>
+									<tr ng-repeat="searchResult in searchResults"
+										ng-class="searchResult.rowClass"
+										ng-click="getConcept(terminology, searchResult.terminologyId)">
+										<td>{{searchResult.terminologyId}}</a></td>
+										<td>{{searchResult.value}}</td>
+								</tbody>
+							</table>
+						</div>
 
 
-              <div class="alert alert-danger"
-                ng-show="searchResults.length == 0">Search returned no
-                results.</div>
-
-              <table class="table table-hover"
-                ng-show="searchResults.length > 0">
-
-                <tbody>
-                  <tr
-                    ng-repeat="
-								searchResult in
-								searchResults"
-                    ng-class="searchResult.rowClass"
-                    ng-click="getConcept(terminology.name, terminology.version, searchResult.terminologyId)">
-                    <td>{{searchResult.terminologyId}}</a></td>
-                    <td>{{searchResult.value}}</td>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="col-md-2" ng-show="component != null"
-              style="border-left: 1px solid #d9edf7; border-right: 1px solid #d9edf7;">
-
-              <div class="dropdown alert alert-info">
-                <div class="dropdown-toggle">
-                  View: {{navSelected}} <span class="caret"></span>
-                </div>
-                <ul class="dropdown-menu">
-                  <li><a ng-click="navSelected = 'Structure'">Structure</a></li>
-                  <li><a ng-click="navSelected = 'Parents'">Parents
-                      ({{parentConcepts.length}})</a></li>
-                  <li><a ng-click="navSelected = 'Children'">Children
-                      ({{childConcepts.length}})</a></li>
-                </ul>
-              </div>
-              <!-- 
-
-              <div class="alert alert-info">Select View</div>
-              <button class="btn btn-sm btn-primary btn-structure"
-                ng-disabled="navSelected === 'Structure'"
-                ng-click="navSelected = 'Structure'">Structure</button>
-              <button class="btn btn-sm btn-primary btn-structure"
-                ng-disabled="navSelected === 'Parents'"
-                ng-click="navSelected = 'Parents'">Parents
-                ({{parentConcepts.length}})</button>
-              <button class="btn btn-sm btn-primary btn-structure"
-                ng-disabled="navSelected === 'Children'"
-                ng-click="navSelected = 'Children'">Children
-                ({{childConcepts.length}})</button>
-
-              <div style="margin-top: 15px;" class="alert alert-info">View:
-                {{navSelected}}</div> -->
-
-              <!-- View: Structure -->
-              <div ng-show="navSelected === 'Structure'">
-                <div style="">
-                  <button class="btn btn-sm btn-primary btn-structure"
-                    ng-click="setComponent(concept, 'Concept')"
-                    ng-disabled="concept.viewed">Concept</button>
-                </div>
-                <div style="margin-left: 15px;"
-                  ng-repeat="description in concept.description">
-                  <button class="btn btn-sm btn-primary btn-structure"
-                    ng-disabled="description.viewed"
-                    ng-click="setComponent(description, 'Description')">Description</button>
-                  <div style="margin-left: 15px;"
-                    ng-repeat="language in description.language">
-                    <button class="btn btn-sm btn-primary btn-structure"
-                      ng-disabled="language.viewed"
-                      ng-click="setComponent(language, 'Language Ref Set Member')">Language</button>
-                  </div>
-                </div>
-                <div style="margin-left: 15px;"
-                  ng-repeat="relationship in concept.relationship">
-                  <button class="btn btn-sm btn-primary btn-structure"
-                    ng-disabled="relationship.viewed"
-                    ng-click="setComponent(relationship, 'Relationship')">Relationship</button>
-                </div>
-              </div>
-
-              <!--  View: Parents -->
-              <div ng-show="navSelected === 'Parents'">
-                <div ng-show="parentConcepts.length == 0"
-                  class="alert alert-warning">No parents</div>
-                <button class="btn btn-sm btn-primary btn-structure"
-                  ng-repeat="parentConcept in parentConcepts | orderBy:'terminologyId'"
-                  ng-click="getConcept(parentConcept.terminology, parentConcept.terminologyVersion, parentConcept.terminologyId)"
-                  tooltip-placement="right"
-                  tooltip="{{parentConcept.defaultPreferredName}}">{{parentConcept.terminologyId}}</button>
-
-              </div>
-
-              <!--  View: Children -->
-              <div ng-show="navSelected === 'Children'">
-                <div ng-show="childConcepts.length == 0"
-                  class="alert alert-warning">No children</div>
-                <button class="btn btn-sm btn-primary btn-structure"
-                  ng-repeat="childConcept in childConcepts | orderBy:'terminologyId'"
-                  ng-click="getConcept(childConcept.terminology, childConcept.terminologyVersion, childConcept.terminologyId)"
-                  tooltip-placement="right"
-                  tooltip="{{childConcept.defaultPreferredName}}">{{childConcept.terminologyId}}</button>
-              </div>
-            </div>
+						<!-- Component display is 4 -->
+						<div class="col-md-8 col-xs-12" ng-show="component != null">
+							<div class="alert alert-info">{{terminology.organizingClassType}}
+								Report</div>
+							<h3>ID# {{component.terminologyId}}
+								{{component.defaultPreferredName}}</h3>
+							<button ng-click="toggleSuppressible()"
+								class="btn btn-sm btn-primary">
+								<span ng-show="showSuppressible == true">Hide
+									Suppressible</span> <span ng-show="showSuppressible == false">Show
+									Suppressible</span>
+							</button>
+							<button ng-click="toggleObsolete()"
+								class="btn btn-sm btn-primary">
+								<span ng-show="showObsolete == true">Hide Obsolete</span> <span
+									ng-show="showObsolete == false">Show Obsolete</span>
+							</button>
 
 
 
+							<!--  Semantic types -->
+							<div
+								ng-show="component.semanticType.length > 0">
+								<h4>Semantic Types</h4>
+								<ul>
+									<li class="cr-list" ng-repeat="item in component.semanticType"
+										ng-show="showItem(item)"><span class="label label-info"
+										ng-show="item.suppressible == true">Suppressible</span> <span
+										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
+										{{item.semanticType}}</li>
+								</ul>
+
+							</div>
+
+							<!--  Definitions -->
+							<div ng-show="type!='CODE' && component.definition.length > 0">
+								<h4>
+									Definitions
+									<h4>
+										<ul>
+											<li class="cr-list"
+												ng-repeat="item in component.semanticType"
+												ng-show="showItem(item)"><span class="label label-info"
+												ng-show="item.suppressible == true">Suppressible</span> <span
+												class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
+												{{item}}</li>
+										</ul>
+							</div>
+
+							<!-- Atoms -->
+							<div ng-show="component.atom.length > 0">
+								<h4>Atoms</h4>
+								<ul>
+									<li class="cr-list" ng-repeat="item in component.atom"
+										ng-show="showItem(item)"><span class="label label-info"
+										ng-show="item.suppressible == true">Suppressible</span> <span
+										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
+										{{item.term}}
+										[{{item.terminology}}/{{item.termType}}/{{item.codeId}}]
+										{{item.componentId}} {{item.descriptorId}}</li>
+								</ul>
+							</div>
+
+							<!--  Attributes -->
+							<div ng-show="component.attribute.length > 0">
+								<h4>Attributes</h4>
+								<ul>
+									<li class="cr-list" ng-repeat="item in component.attribute"
+										ng-show="showItem(item)"><span class="label label-info"
+										ng-show="item.suppressible == true">Suppressible</span> <span
+										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
+										{{item.name}} = {{item.value}}
+								</ul>
+							</div>
+
+							<!-- Relationships -->
+							<div ng-show="component.relationship.length> 0">
+								<h4>Relationships</h4>
+								<ul>
+									<li class="cr-list" ng-repeat="item in component.relationship"
+										ng-show="showItem(item)"><span class="label label-info"
+										ng-show="item.suppressible == true">Suppressible</span> <span
+										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
+										{{item.relationshipType}} {{item.additionalRelationshipType}}
+										<a ng-click="getConcept(terminology, item.toTerminologyId)">{{item.toTerminologyId}}</a>
+										{{item.toDefaultPreferredName}}</li>
+								</ul>
+
+							</div>
+						</div>
+					</div>
+
+					</tab> <tab heading="Metadata"> <!-- Metadata display -->
+					<div class="container-fluid"">
+
+						<div class="row">
+							<h3>Metadata</h3>
+							<ul>
+								<li class="col-md-12 col-xs-12" ng-repeat="item in metadata"
+									ng-show="item.keyValuePair.length > 0"><b>{{item.name}}</b>
+									<ul>
+										<li ng-repeat="pair in item.keyValuePair">
+											{{pair.key}}&nbsp;{{pair.value}}</li>
+									</ul></li>
+							</ul>
+						</div>
+					</div>
+					</tab> </tabset>
+				</div>
+			</div>
 
 
-            <div class="col-md-7" ng-show="component != null">
-              <div class="alert alert-info">Viewing {{componentType}}
-                {{component.terminologyId}}</div>
 
-              <div component object="component" type="{{componentType}}"></div>
-              <!-- 
-						<div component object="concept" type="Concept"></div>
-						<div component ng-repeat="description in concept.description"
-							object="description" type="Description"></div>
-						<div component ng-repeat="relationship in concept.relationship"
-							object="relationship" type="Relationship"></div>
- -->
-            </div>
-          </div>
-        </div>
+			<div class="col-md-1 col-xs-0">
+				<!-- blank column -->
+			</div>
+		</div>
+	</div>
 
+	<!-- Footer -->
+	<nav style="background-color: #ffffff"
+		class="hidden-xs navbar navbar-default navbar-fixed-bottom">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<ul class="nav navbar-nav navbar-left">
+					<li><p class="navbar-text">
+							<a class="navbar-link" href="${deploy.footer.link}">Copyright
+								@2015</a>
+						</p></li>
+					<li>
+						<button class="btn btn-sm btn-primary btn-structure"
+							style="margin-top: 10px" ng-click="logout()"
+							ng-show="authToken != null">Logout</button>
+					</li>
+					<li>&nbsp;
+						<p class="navbar-text">${project.version}</p>
+					</li>
+					<li>
+						<div style="text-align: center; padding: 5px; margin: 0 0 0 0;"
+							class="alert alert-danger" ng-show="glassPane < 0">
+							The Glass Pane activity indicator may not be functioning
+							correctly.<br>Please send a screenshot to an administrator.
+							(GPC: {{glassPane}})
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div class="collapse navbar-collapse">
+				<ul class="nav navbar-nav navbar-right">
+					<li>
+						<p class="navbar-text">
+							Presented by <a href="http://www.westcoastinformatics.com">West
+								Coast Informatics, LLC</a>
+						</p>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
 
-        </tab> <tab heading="Metadata">
-
-        <table class="table">
-
-          <tr>
-            <td style="width: 15%;">Select terminology</td>
-            <td><select ng-model="terminology"
-              ng-change="setTerminology(terminology)"
-              ng-options="terminology as terminology.name + ', ' + terminology.version
-          for terminology in terminologies"></select>
-            </td>
-          </tr>
-
-        </table>
-        <div class="container-fluid"">
-
-          <div class="row">
-            <div class="col-md-12">
-
-
-
-              <h3>Metadata</h3>
-              <table class="table table-compact"">
-                <thead>
-                  <th style="width: 15%;">Metadata Type</th>
-                  <th>Id, Value</th>
-                </thead>
-                <tbody>
-                  <tr ng-repeat="item in metadata"
-                    ng-show="item.keyValuePair.length > 0">
-                    <td>{{item.name}}</td>
-                    <td><table>
-                        <tr ng-repeat="pair in item.keyValuePair">
-                          <td style="padding-right: 15px;">{{pair.key}}</td>
-                          <td>{{pair.value}}</td>
-                        </tr>
-                      </table>
-                </tbody>
-              </table>
-
-            </div>
-          </div>
-        </tab> </tabset>
-      </div>
-    </div>
-  </div>
-
-  <nav style="background-color: #ffffff"
-    class="navbar navbar-default navbar-fixed-bottom">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <ul class="nav navbar-nav navbar-left">
-          <li><p class="navbar-text">
-              <a class="navbar-link" href="${deploy.footer.link}">Copyright
-                @2015</a>
-            </p></li>
-          <li>
-            <button class="btn btn-sm btn-primary btn-structure"
-              style="margin-top: 10px" ng-click="logout()"
-              ng-show="authToken != null">Logout</button>
-          </li>
-          <li>&nbsp;
-            <p class="navbar-text">${project.version}</p>
-          </li>
-          <li>
-            <div style="text-align: center; padding: 5px; margin: 0 0 0 0;"
-              class="alert alert-danger" ng-show="glassPane < 0">
-              The Glass Pane activity indicator may not be functioning
-              correctly.<br>Please send a screenshot to an administrator.
-              (GPC: {{glassPane}})
-            </div>
-          </li>
-        </ul>
-      </div>
-      <div class="collapse navbar-collapse">
-        <ul class="nav navbar-nav navbar-right">
-          <li>
-            <p class="navbar-text">
-              Presented by <a href="http://www.westcoastinformatics.com">West
-                Coast Informatics, LLC</a>
-            </p>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Glass Pane -->
-  <div ng-show="glassPane > 0" class="top-layer"></div>
+	<!-- Glass Pane -->
+	<div ng-show="glassPane > 0" class="top-layer"></div>
 </body>
 </html>

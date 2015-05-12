@@ -1,0 +1,52 @@
+/* quick style for horiontal placement with padding */
+
+body {
+	padding-bottom: 100px;
+}
+
+.loginField {
+	margin: 5px;
+}
+
+.introText {
+	max-width: 400px;
+}
+
+.alert {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 5px;
+}
+
+.btn-structure {
+	width: 90px;
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
+
+.btn-selected {
+	color: grey;
+}
+
+.swagger-ui-wrap p {
+	line-height: 1.4em;
+	padding: 0 0 10px;
+	color: #333333;
+}
+
+.top-layer {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	top: 0;
+	left: 0;
+	opacity: 0.5;
+	z-index: 10000;
+	cursor: wait;
+	background-color: #FFFFFF;
+}
+
+
+
