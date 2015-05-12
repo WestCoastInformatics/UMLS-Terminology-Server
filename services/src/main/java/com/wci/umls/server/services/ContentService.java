@@ -492,7 +492,6 @@ public interface ContentService extends RootService {
    * Find concept tree positions.
    *
    * @param concept the concept
-   * @param childrenOnly the children only
    * @param pfsParameter the pfs parameter
    * @param branch the branch
    * @return the tree position list
