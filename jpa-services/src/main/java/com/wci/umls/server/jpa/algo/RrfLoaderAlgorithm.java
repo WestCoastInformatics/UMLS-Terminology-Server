@@ -1601,19 +1601,30 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // Handle root terminology short name, hierarchical name, and sy names
       if (fields[11].equals("SRC") && fields[12].equals("SSN")) {
-        loadedTerminologies.get(fields[13].substring(2)).getRootTerminology()
-            .setShortName(fields[14]);
+        Terminology t = loadedTerminologies.get(fields[13].substring(2));
+        if (t == null || t.getRootTerminology() == null) {
+          Logger.getLogger(getClass()).error("  Null root " + t);
+        } else {
+          t.getRootTerminology().setShortName(fields[14]);
+        }
       }
       if (fields[11].equals("SRC") && fields[12].equals("RHT")) {
-        loadedTerminologies.get(fields[13].substring(2)).getRootTerminology()
-            .setHierarchicalName(fields[14]);
+        Terminology t = loadedTerminologies.get(fields[13].substring(2));
+        if (t == null || t.getRootTerminology() == null) {
+          Logger.getLogger(getClass()).error("  Null root " + t);
+        } else {
+          t.getRootTerminology().setHierarchicalName(fields[14]);
+        }
       }
       if (fields[11].equals("SRC") && fields[12].equals("RSY")
           && !fields[14].equals("")) {
-        List<String> syNames =
-            loadedTerminologies.get(fields[13].substring(2))
-                .getRootTerminology().getSynonymousNames();
-        syNames.add(fields[14]);
+        Terminology t = loadedTerminologies.get(fields[13].substring(2));
+        if (t == null || t.getRootTerminology() == null) {
+          Logger.getLogger(getClass()).error("  Null root " + t);
+        } else {
+          List<String> syNames = t.getRootTerminology().getSynonymousNames();
+          syNames.add(fields[14]);
+        }
       }
 
       // Handle terminology sy names
@@ -1631,7 +1642,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (!atom.getConceptId().equals("")) {
         termIdTypeMap.put(atom.getTerminology(), IdType.CONCEPT);
       } // OTHERWISE it remains "CODE"
-      
+
       atom.putConceptTerminologyId(terminology, fields[0]);
 
       atomMap.put(fields[7], atom);
