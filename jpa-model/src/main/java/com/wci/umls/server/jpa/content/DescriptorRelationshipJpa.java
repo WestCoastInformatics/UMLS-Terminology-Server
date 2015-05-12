@@ -124,7 +124,7 @@ public class DescriptorRelationshipJpa extends
    * @return the from terminology id
    */
   public String getFromTerminologyId() {
-    return from == null ? "" : from.getTerminologyId();
+    return from == null ? null : from.getTerminologyId();
   }
 
   /**
@@ -210,7 +210,7 @@ public class DescriptorRelationshipJpa extends
    * @return the to terminology id
    */
   public String getToTerminologyId() {
-    return to == null ? "" : to.getTerminologyId();
+    return to == null ? null : to.getTerminologyId();
   }
 
   /**

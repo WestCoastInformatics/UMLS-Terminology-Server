@@ -36,11 +36,13 @@ public class ModelUnit044Test {
 
   /** Test fixture */
   private Concept concept1;
+
   /** Test fixture */
   private Concept concept2;
 
   /** Test fixture */
   private ConceptSubset subset1;
+
   /** Test fixture */
   private ConceptSubset subset2;
 
@@ -58,7 +60,7 @@ public class ModelUnit044Test {
   @Before
   public void setup() {
     object = new ConceptSubsetMemberJpa();
-    
+
     concept1 = new ConceptJpa();
     concept1.setId(1L);
     concept1.setTerminologyId("1");
@@ -115,35 +117,35 @@ public class ModelUnit044Test {
     tester.include("member");
     tester.include("subset");
 
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1,false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2,false));
-    tester.proxy(ConceptSubset.class, 1, new ConceptSubsetJpa(subset1,false));
-    tester.proxy(ConceptSubset.class, 2, new ConceptSubsetJpa(subset2,false));
+    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
+    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
+    tester.proxy(ConceptSubset.class, 1, new ConceptSubsetJpa(subset1, false));
+    tester.proxy(ConceptSubset.class, 2, new ConceptSubsetJpa(subset2, false));
     assertTrue(tester.testIdentitiyFieldEquals());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1,false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2,false));
-    tester.proxy(ConceptSubset.class, 1, new ConceptSubsetJpa(subset1,false));
-    tester.proxy(ConceptSubset.class, 2, new ConceptSubsetJpa(subset2,false));
+    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
+    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
+    tester.proxy(ConceptSubset.class, 1, new ConceptSubsetJpa(subset1, false));
+    tester.proxy(ConceptSubset.class, 2, new ConceptSubsetJpa(subset2, false));
     assertTrue(tester.testNonIdentitiyFieldEquals());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1,false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2,false));
-    tester.proxy(ConceptSubset.class, 1, new ConceptSubsetJpa(subset1,false));
-    tester.proxy(ConceptSubset.class, 2, new ConceptSubsetJpa(subset2,false));
+    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
+    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
+    tester.proxy(ConceptSubset.class, 1, new ConceptSubsetJpa(subset1, false));
+    tester.proxy(ConceptSubset.class, 2, new ConceptSubsetJpa(subset2, false));
     assertTrue(tester.testIdentityFieldNotEquals());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1,false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2,false));
-    tester.proxy(ConceptSubset.class, 1, new ConceptSubsetJpa(subset1,false));
-    tester.proxy(ConceptSubset.class, 2, new ConceptSubsetJpa(subset2,false));
+    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
+    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
+    tester.proxy(ConceptSubset.class, 1, new ConceptSubsetJpa(subset1, false));
+    tester.proxy(ConceptSubset.class, 2, new ConceptSubsetJpa(subset2, false));
     assertTrue(tester.testIdentitiyFieldHashcode());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1,false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2,false));
-    tester.proxy(ConceptSubset.class, 1, new ConceptSubsetJpa(subset1,false));
-    tester.proxy(ConceptSubset.class, 2, new ConceptSubsetJpa(subset2,false));
+    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
+    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
+    tester.proxy(ConceptSubset.class, 1, new ConceptSubsetJpa(subset1, false));
+    tester.proxy(ConceptSubset.class, 2, new ConceptSubsetJpa(subset2, false));
     assertTrue(tester.testNonIdentitiyFieldHashcode());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1,false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2,false));
-    tester.proxy(ConceptSubset.class, 1, new ConceptSubsetJpa(subset1,false));
-    tester.proxy(ConceptSubset.class, 2, new ConceptSubsetJpa(subset2,false));
+    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
+    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
+    tester.proxy(ConceptSubset.class, 1, new ConceptSubsetJpa(subset1, false));
+    tester.proxy(ConceptSubset.class, 2, new ConceptSubsetJpa(subset2, false));
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 
@@ -163,7 +165,6 @@ public class ModelUnit044Test {
     assertTrue(tester.testCopyConstructorDeep(ConceptSubsetMember.class));
   }
 
-
   /**
    * Test xml transient fields
    *
@@ -173,6 +174,8 @@ public class ModelUnit044Test {
   public void testXmlTransient044() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient044");
 
+    object.setMember(concept1);
+    object.setSubset(subset1);
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<subsetId>"));
     assertTrue(xml.contains("<subsetTerminologyId>"));
