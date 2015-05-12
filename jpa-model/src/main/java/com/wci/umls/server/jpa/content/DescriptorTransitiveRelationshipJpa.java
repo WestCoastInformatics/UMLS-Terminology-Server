@@ -112,7 +112,7 @@ public class DescriptorTransitiveRelationshipJpa extends
    * @return the super type terminology id
    */
   public String getSuperTypeTerminologyId() {
-    return superType == null ? "" : superType.getTerminologyId();
+    return superType == null ? null : superType.getTerminologyId();
   }
 
   /**
@@ -201,7 +201,7 @@ public class DescriptorTransitiveRelationshipJpa extends
    * @return the sub type terminology id
    */
   public String getSubTypeTerminologyId() {
-    return subType == null ? "" : subType.getTerminologyId();
+    return subType == null ? null : subType.getTerminologyId();
   }
 
   /**

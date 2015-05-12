@@ -71,7 +71,7 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
    */
   @XmlElement
   public Long getNodeId() {
-    return node == null ? 0 : node.getId();
+    return node == null ? null : node.getId();
   }
 
   /**
@@ -92,7 +92,7 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
    * @return the node name
    */
   public String getNodeName() {
-    return node == null ? "" : node.getName();
+    return node == null ? null : node.getName();
   }
 
   /**
@@ -113,7 +113,7 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
    * @return the node terminology id
    */
   public String getNodeTerminologyId() {
-    return node == null ? "" : node.getTerminologyId();
+    return node == null ? null : node.getTerminologyId();
   }
 
   /**

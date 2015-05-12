@@ -18,8 +18,11 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
@@ -28,6 +31,7 @@ import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
 import com.wci.umls.server.jpa.helpers.content.DescriptorListJpa;
+import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
@@ -816,6 +820,73 @@ public class ContentClientRest implements ContentServiceRest {
     return list;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * getSubsetMembersForConcept(java.lang.String, java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  public SubsetMemberList getSubsetMembersForConcept(String conceptId,
+    String terminology, String version, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get subset members for concept " + conceptId + ", "
+            + terminology + ", " + version);
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/csm/"
+            + terminology + "/" + version + "/" + conceptId);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get(ClientResponse.class);
 
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
 
+    // converting to object
+    SubsetMemberListJpa concept =
+        (SubsetMemberListJpa) ConfigUtility.getGraphForString(resultString,
+            ConceptSubsetMemberJpa.class);
+    return concept;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * getSubsetMembersForAtom(java.lang.String, java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  public SubsetMemberList getSubsetMembersForAtom(String atomId,
+    String terminology, String version, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get subset members for atom " + atomId + ", "
+            + terminology + ", " + version);
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/csm/"
+            + terminology + "/" + version + "/" + atomId);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get(ClientResponse.class);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    SubsetMemberListJpa atom =
+        (SubsetMemberListJpa) ConfigUtility.getGraphForString(resultString,
+            AtomSubsetMemberJpa.class);
+    return atom;
+  }
 }

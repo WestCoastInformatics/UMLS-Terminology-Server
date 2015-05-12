@@ -74,7 +74,7 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
    */
   @XmlElement
   public Long getNodeId() {
-    return node == null ? 0 : node.getId();
+    return node == null ? null : node.getId();
   }
   
   /**
@@ -96,7 +96,7 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
    * @return the node name
    */
   public String getNodeName() {
-    return node == null ? "" : node.getName();
+    return node == null ? null : node.getName();
   }
 
   /**
@@ -118,7 +118,7 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
    * @return the node terminology id
    */
   public String getNodeTerminologyId() {
-    return node == null ? "" : node.getTerminologyId();
+    return node == null ? null : node.getTerminologyId();
   }
 
   /**

@@ -11,9 +11,12 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
@@ -98,6 +101,32 @@ public interface ContentServiceRest {
   public Descriptor getDescriptor(String terminologyId, String terminology,
     String version, String authToken) throws Exception;
 
+  /**
+   * Gets the subset member for atom.
+   *
+   * @param atomId the atom id
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the subset members for atom
+   * @throws Exception the exception
+   */
+  public SubsetMemberList getSubsetMembersForAtom(String atomId, String terminology,
+    String version, String authToken) throws Exception;
+  
+  /**
+   * Gets the subset member for concept.
+   *
+   * @param conceptId the concept id
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the subset members for concept
+   * @throws Exception the exception
+   */
+  public SubsetMemberList getSubsetMembersForConcept(String conceptId, String terminology,
+    String version, String authToken) throws Exception;
+  
   /**
    * Find descriptorss for query.
    *
