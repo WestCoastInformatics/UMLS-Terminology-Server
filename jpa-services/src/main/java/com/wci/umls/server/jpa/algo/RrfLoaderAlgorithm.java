@@ -408,10 +408,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     String line = null;
     int objectCt = 0;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.SRDEF);
+    final String[] fields = new String[10];
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "|", 10);
+      FieldedStringTokenizer.split(line, "|", 10, fields);
 
       if (fields[0].equals("STY")) {
 
@@ -474,10 +475,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Map<String, TermType> ttyMap = new HashMap<>();
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDOC);
     int objectCt = 0;
+    final String fields[] = new String[4];
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "|", 4);
+      FieldedStringTokenizer.split(line, "|", 4, fields);
 
       // Field Description DOCKEY,VALUE,TYPE,EXPL
       // 0 DOCKEY
@@ -690,10 +692,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Map<String, RootTerminology> rootTerminologies = new HashMap<>();
     Map<String, Terminology> terminologies = new HashMap<>();
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAB);
+    final String fields[] = new String[25];
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "|", 25);
+      FieldedStringTokenizer.split(line, "|", 25, fields);
 
       // Field Description
       // 0 VCUI
@@ -838,10 +841,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Load MRRANK data");
     String line = null;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRRANK);
+    final String fields[] = new String[4];
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "|", 4);
+      FieldedStringTokenizer.split(line, "|", 4, fields);
 
       // FIELDS
       // 0 RNK
@@ -882,10 +886,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDEF);
     // make set of all atoms that got an additional definition
     Set<Atom> modifiedAtoms = new HashSet<>();
+    final String fields[] = new String[8];
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "|", 8);
+      FieldedStringTokenizer.split(line, "|", 8, fields);
 
       // Field Description
       // 0 CUI Unique identifier for concept
@@ -980,10 +985,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Set<Code> modifiedCodes = new HashSet<>();
     Set<Descriptor> modifiedDescriptors = new HashSet<>();
     Set<Concept> modifiedConcepts = new HashSet<>();
+    final String fields[] = new String[13];
+    final String atvFields[] = new String[3];
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "|", 13);
+      FieldedStringTokenizer.split(line, "|", 13, fields);
 
       // Field Description
       // 0 CUI Unique identifier for concept (if METAUI is a relationship
@@ -1059,8 +1066,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         // Create subset member and any subset member attributes.
         // NOTE: subset member may already exist.
         // C3853348|L11739318|S14587084|A24131773|AUI|442311000124105|AT200797951|45bb6996-8734-5033-b069-302708da2761|SUBSET_MEMBER|SNOMEDCT_US|900000000000509007~ACCEPTABILITYID~900000000000548007|N||
-        final String[] atvFields =
-            FieldedStringTokenizer.split(fields[10], "~", 3);
+        FieldedStringTokenizer.split(fields[10], "~", 3, atvFields);
         final String subsetIdKey = atvFields[0] + fields[9];
         final String subsetMemberIdKey = fields[7] + fields[9];
         SubsetMember<? extends ComponentHasAttributes> member = null;
@@ -1223,7 +1229,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info(
         "  Insert atom subsets and subset members");
     objectCt = 0;
-    for (AtomSubset subset : idTerminologyAtomSubsetMap.values()) {
+    for (final AtomSubset subset : idTerminologyAtomSubsetMap.values()) {
       List<AtomSubsetMember> members = subset.getMembers();
       // Skip subsets that have no members
       if (members.size() == 0) {
@@ -1231,7 +1237,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       subset.setMembers(new ArrayList<AtomSubsetMember>());
       addSubset(subset);
-      for (AtomSubsetMember member : members) {
+      for (final AtomSubsetMember member : members) {
         addSubsetMember(member);
         // add member
         logAndCommit(++objectCt);
@@ -1244,7 +1250,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info(
         "  Insert concept subsets and subset members");
     objectCt = 0;
-    for (ConceptSubset subset : idTerminologyConceptSubsetMap.values()) {
+    for (final ConceptSubset subset : idTerminologyConceptSubsetMap.values()) {
       List<ConceptSubsetMember> members = subset.getMembers();
       // Skip subsets that have no members
       if (members.size() == 0) {
@@ -1252,7 +1258,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       subset.setMembers(new ArrayList<ConceptSubsetMember>());
       addSubset(subset);
-      for (ConceptSubsetMember member : members) {
+      for (final ConceptSubsetMember member : members) {
         addSubsetMember(member);
         // add member
         logAndCommit(++objectCt);
@@ -1279,10 +1285,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Set<Code> modifiedCodes = new HashSet<>();
     Set<Descriptor> modifiedDescriptors = new HashSet<>();
     Set<Concept> modifiedConcepts = new HashSet<>();
+    final String fields[] = new String[16];
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "|", 16);
+      FieldedStringTokenizer.split(line, "|", 16, fields);
       /*
        * 0 CUI 1 Unique identifier of first concept 1 AUI1 Unique identifier of
        * first atom 2 STYPE1 The name of the column in MRCONSO.RRF that contains
@@ -1474,10 +1481,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // make set of all concepts that got an additional sty
     int objectCt = 0;
     Set<Concept> modifiedConcepts = new HashSet<>();
+    final String fields[] = new String[6];
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "|", 6);
+      FieldedStringTokenizer.split(line, "|", 6, fields);
 
       // Field Description
       // 0 CUI Unique identifier of concept
@@ -1541,10 +1549,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     int objectCt = 0;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRCONSO);
+    final String fields[] = new String[18];
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "|");
+      FieldedStringTokenizer.split(line, "|", 18, fields);
 
       // Field Description
       // 0 CUI
@@ -1571,7 +1580,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // Albumin|0|N|256|
 
       final Atom atom = new AtomJpa();
-      atom.setLanguage(fields[3]);
+      atom.setLanguage(fields[3].intern());
       atom.setTimestamp(releaseVersionDate);
       atom.setLastModified(releaseVersionDate);
       atom.setLastModifiedBy(loader);
@@ -1586,10 +1595,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             + fields[11]);
       }
       atom.setTerminologyVersion(loadedTerminologies.get(fields[11])
-          .getTerminologyVersion());
+          .getTerminologyVersion().intern());
       atom.putAlternateTerminologyId(terminology, fields[7]);
       atom.setTerminologyId(fields[8]);
-      atom.setTermType(fields[12]);
+      atom.setTermType(fields[12].intern());
       atom.setWorkflowStatus(published);
 
       atom.setCodeId(fields[13]);
@@ -1601,7 +1610,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // Handle root terminology short name, hierarchical name, and sy names
       if (fields[11].equals("SRC") && fields[12].equals("SSN")) {
-        Terminology t = loadedTerminologies.get(fields[13].substring(2));
+        final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
           Logger.getLogger(getClass()).error("  Null root " + t);
         } else {
@@ -1609,7 +1618,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         }
       }
       if (fields[11].equals("SRC") && fields[12].equals("RHT")) {
-        Terminology t = loadedTerminologies.get(fields[13].substring(2));
+        final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
           Logger.getLogger(getClass()).error("  Null root " + t);
         } else {
@@ -1618,7 +1627,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       if (fields[11].equals("SRC") && fields[12].equals("RSY")
           && !fields[14].equals("")) {
-        Terminology t = loadedTerminologies.get(fields[13].substring(2));
+        final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
           Logger.getLogger(getClass()).error("  Null root " + t);
         } else {
@@ -1683,7 +1692,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         scui.setTerminology(fields[11].intern());
         scui.setTerminologyId(fields[9]);
         scui.setTerminologyVersion(loadedTerminologies.get(fields[11])
-            .getTerminologyVersion());
+            .getTerminologyVersion().intern());
         scui.setWorkflowStatus(published);
         scui.setName("TBD");
         conceptMap.put(scui.getTerminologyId() + fields[11], scui);
@@ -1706,7 +1715,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         sdui.setTerminology(fields[11].intern());
         sdui.setTerminologyId(fields[10]);
         sdui.setTerminologyVersion(loadedTerminologies.get(fields[11])
-            .getTerminologyVersion());
+            .getTerminologyVersion().intern());
         sdui.setWorkflowStatus(published);
         sdui.setName("TBD");
         descriptorMap.put(sdui.getTerminologyId() + fields[11], sdui);
@@ -1729,7 +1738,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         code.setTerminology(fields[11].intern());
         code.setTerminologyId(fields[13]);
         code.setTerminologyVersion(loadedTerminologies.get(fields[11])
-            .getTerminologyVersion());
+            .getTerminologyVersion().intern());
         code.setWorkflowStatus(published);
         code.setName("TBD");
         codeMap.put(fields[13] + fields[11], code);
@@ -1792,12 +1801,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (fields[12].equals("SB")) {
 
         // Have to handle the type later, when we get to attributes
-        AtomSubset atomSubset = new AtomSubsetJpa();
+        final AtomSubset atomSubset = new AtomSubsetJpa();
         setSubsetFields(atomSubset, fields);
         cuiAuiAtomSubsetMap.put(fields[0] + fields[7], atomSubset);
         idTerminologyAtomSubsetMap.put(atomSubset.getTerminologyId()
             + atomSubset.getTerminology(), atomSubset);
-        ConceptSubset conceptSubset = new ConceptSubsetJpa();
+        final ConceptSubset conceptSubset = new ConceptSubsetJpa();
         setSubsetFields(conceptSubset, fields);
         cuiAuiConceptSubsetMap.put(fields[0] + fields[7], conceptSubset);
         idTerminologyConceptSubsetMap.put(conceptSubset.getTerminologyId()
