@@ -317,8 +317,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       commitClearBegin();
 
       // Clear memory
-      for (final Atom a : atomMap.values()) {
-        a.setAttributes(new ArrayList<Attribute>());
+      for (final Atom atom : atomMap.values()) {
+        atom.setAttributes(new ArrayList<Attribute>());
       }
       for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : this.relationshipMap
           .values()) {
@@ -446,6 +446,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         sty.setUsageNote(fields[6]);
         sty.setValue(fields[2]);
 
+        sty.setTimestamp(releaseVersionDate);
         sty.setLastModified(releaseVersionDate);
         sty.setLastModifiedBy(loader);
         sty.setPublished(true);
@@ -493,6 +494,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         final AttributeName atn = new AttributeNameJpa();
         atn.setAbbreviation(fields[1]);
         atn.setExpandedForm(fields[3]);
+        atn.setTimestamp(releaseVersionDate);
         atn.setLastModified(releaseVersionDate);
         atn.setLastModifiedBy(loader);
         atn.setTerminology(terminology);
@@ -509,6 +511,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         final Language lat = new LanguageJpa();
         lat.setAbbreviation(fields[1]);
         lat.setExpandedForm(fields[3]);
+        lat.setTimestamp(releaseVersionDate);
         lat.setLastModified(releaseVersionDate);
         lat.setLastModifiedBy(loader);
         lat.setTerminology(terminology);
@@ -532,6 +535,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             new AdditionalRelationshipTypeJpa();
         rela.setAbbreviation(fields[1]);
         rela.setExpandedForm(fields[3]);
+        rela.setTimestamp(releaseVersionDate);
         rela.setLastModified(releaseVersionDate);
         rela.setLastModifiedBy(loader);
         rela.setTerminology(terminology);
@@ -563,6 +567,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         final RelationshipType rel = new RelationshipTypeJpa();
         rel.setAbbreviation(fields[1]);
         rel.setExpandedForm(fields[3]);
+        rel.setTimestamp(releaseVersionDate);
         rel.setLastModified(releaseVersionDate);
         rel.setLastModifiedBy(loader);
         rel.setTerminology(terminology);
@@ -590,6 +595,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         final TermType tty = new TermTypeJpa();
         tty.setAbbreviation(fields[1]);
         tty.setExpandedForm(fields[3]);
+        tty.setTimestamp(releaseVersionDate);
         tty.setLastModified(releaseVersionDate);
         tty.setLastModifiedBy(loader);
         tty.setTerminology(terminology);
@@ -645,6 +651,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       else if (!fields[0].equals("MAPATN")) {
         GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
 
+        entry.setTimestamp(releaseVersionDate);
         entry.setLastModified(releaseVersionDate);
         entry.setLastModifiedBy(loader);
         entry.setTerminology(terminology);
@@ -747,6 +754,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         term.setStartDate(ConfigUtility.DATE_FORMAT2.parse(fields[7]));
       }
 
+      term.setTimestamp(releaseVersionDate);
       term.setLastModified(releaseVersionDate);
       term.setLastModifiedBy(loader);
       term.setTerminology(fields[3]);
@@ -768,6 +776,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         root.setPreferredName(fields[4]);
         root.setRestrictionLevel(Integer.parseInt(fields[13]));
         root.setTerminology(fields[3]);
+        root.setTimestamp(releaseVersionDate);
         root.setLastModified(releaseVersionDate);
         root.setLastModifiedBy(loader);
         addRootTerminology(root);
@@ -790,6 +799,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     term.setCurrent(true);
     term.setOrganizingClassType(IdType.CONCEPT);
     term.setPreferredName(terminology);
+    term.setTimestamp(releaseVersionDate);
     term.setLastModified(releaseVersionDate);
     term.setLastModifiedBy(loader);
     term.setTerminology(terminology);
@@ -802,6 +812,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     root.setPreferredName(terminology);
     root.setRestrictionLevel(-1);
     root.setTerminology(terminology);
+    root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
     root.setLastModifiedBy(loader);
     addRootTerminology(root);
@@ -852,6 +863,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     KeyValuePairList kvpl = new KeyValuePairList();
     kvpl.setKeyValuePairList(lkvp);
     list.setPrecedence(kvpl);
+    list.setTimestamp(releaseVersionDate);
     list.setLastModified(releaseVersionDate);
     list.setLastModifiedBy(loader);
     list.setName("DEFAULT");
@@ -911,6 +923,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.addDefinition(def);
       modifiedAtoms.add(atom);
 
+      def.setTimestamp(releaseVersionDate);
       def.setLastModified(releaseVersionDate);
       def.setLastModifiedBy(loader);
       def.setObsolete(fields[6].equals("O"));
@@ -921,7 +934,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       def.putAlternateTerminologyId(terminology, fields[2]);
       def.setTerminologyId(fields[3]);
 
-      def.setTerminology(fields[4]);
+      def.setTerminology(fields[4].intern());
       if (loadedTerminologies.get(fields[4]) == null) {
         throw new Exception(
             "Definition references terminology that does not exist: "
@@ -1014,6 +1027,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       final Attribute att = new AttributeJpa();
 
+      att.setTimestamp(releaseVersionDate);
       att.setLastModified(releaseVersionDate);
       att.setLastModifiedBy(loader);
       att.setObsolete(fields[11].equals("O"));
@@ -1023,7 +1037,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // fields[5] CODE not used - redundant
       att.putAlternateTerminologyId(terminology, fields[6]);
       att.setTerminologyId(fields[7]);
-      att.setTerminology(fields[9]);
+      att.setTerminology(fields[9].intern());
       if (loadedTerminologies.get(fields[9]) == null) {
         throw new Exception(
             "Attribute references terminology that does not exist: "
@@ -1092,9 +1106,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
           // Populate common member fields
           member.setTerminologyId(fields[7]);
-          member.setTerminology(fields[9]);
+          member.setTerminology(fields[9].intern());
           member.setTerminologyVersion(loadedTerminologies.get(fields[9])
               .getTerminologyVersion());
+          member.setTimestamp(releaseVersionDate);
           member.setLastModified(releaseVersionDate);
           member.setLastModifiedBy(loader);
           member.setObsolete(fields[11].equals("O"));
@@ -1113,9 +1128,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           // No terminology id for the member attribute
           // borrow most other data
           memberAtt.setTerminologyId("");
-          memberAtt.setTerminology(fields[9]);
+          memberAtt.setTerminology(fields[9].intern());
           memberAtt.setTerminologyVersion(loadedTerminologies.get(fields[9])
               .getTerminologyVersion());
+          memberAtt.setTimestamp(releaseVersionDate);
           memberAtt.setLastModified(releaseVersionDate);
           memberAtt.setLastModifiedBy(loader);
           memberAtt.setObsolete(fields[11].equals("O"));
@@ -1204,7 +1220,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     commitClearBegin();
 
     // Insert subsets, subset members now (attributes already inserted)
-    Logger.getLogger(getClass()).info("  Insert atom subsets and subset members");
+    Logger.getLogger(getClass()).info(
+        "  Insert atom subsets and subset members");
     objectCt = 0;
     for (AtomSubset subset : idTerminologyAtomSubsetMap.values()) {
       List<AtomSubsetMember> members = subset.getMembers();
@@ -1224,7 +1241,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // commit
     commitClearBegin();
 
-    Logger.getLogger(getClass()).info("  Insert concept subsets and subset members");
+    Logger.getLogger(getClass()).info(
+        "  Insert concept subsets and subset members");
     objectCt = 0;
     for (ConceptSubset subset : idTerminologyConceptSubsetMap.values()) {
       List<ConceptSubsetMember> members = subset.getMembers();
@@ -1410,6 +1428,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     String[] fields,
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
     throws Exception {
+    relationship.setTimestamp(releaseVersionDate);
     relationship.setLastModified(releaseVersionDate);
     relationship.setLastModifiedBy(loader);
     relationship.setObsolete(fields[14].equals("O"));
@@ -1422,7 +1441,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     relationship.putAlternateTerminologyId(terminology, fields[8]);
     relationship.setTerminologyId(fields[9]);
-    relationship.setTerminology(fields[10]);
+    relationship.setTerminology(fields[10].intern());
     if (loadedTerminologies.get(fields[10]) == null) {
       throw new Exception(
           "Relationship references terminology that does not exist: "
@@ -1479,6 +1498,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       concept.addSemanticType(sty);
       modifiedConcepts.add(concept);
 
+      sty.setTimestamp(releaseVersionDate);
       sty.setLastModified(releaseVersionDate);
       sty.setLastModifiedBy(loader);
       sty.setObsolete(false);
@@ -1497,6 +1517,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
 
     // Update concepts
+    Logger.getLogger(getClass()).info("  Update concepts");
     objectCt = 0;
     for (final Concept c : modifiedConcepts) {
       updateConcept(c);
@@ -1551,6 +1572,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       final Atom atom = new AtomJpa();
       atom.setLanguage(fields[3]);
+      atom.setTimestamp(releaseVersionDate);
       atom.setLastModified(releaseVersionDate);
       atom.setLastModifiedBy(loader);
       atom.setObsolete(fields[16].equals("O"));
@@ -1558,7 +1580,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setPublished(true);
       atom.setPublishable(true);
       atom.setName(fields[14]);
-      atom.setTerminology(fields[11]);
+      atom.setTerminology(fields[11].intern());
       if (loadedTerminologies.get(fields[11]) == null) {
         throw new Exception("Atom references terminology that does not exist: "
             + fields[11]);
@@ -1609,6 +1631,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (!atom.getConceptId().equals("")) {
         termIdTypeMap.put(atom.getTerminology(), IdType.CONCEPT);
       } // OTHERWISE it remains "CODE"
+      
+      atom.putConceptTerminologyId(terminology, fields[0]);
+
       atomMap.put(fields[7], atom);
 
       // CUI
@@ -1617,11 +1642,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         cui = conceptMap.get(fields[0] + terminology);
       } else if (!fields[0].equals("")) {
         cui = new ConceptJpa();
+        cui.setTimestamp(releaseVersionDate);
         cui.setLastModified(releaseVersionDate);
         cui.setLastModifiedBy(loader);
         cui.setPublished(true);
         cui.setPublishable(true);
-        cui.setTerminology(terminology);
+        cui.setTerminology(terminology.intern());
         cui.setTerminologyId(fields[0]);
         cui.setTerminologyVersion(terminologyVersion);
         cui.setWorkflowStatus(published);
@@ -1630,7 +1656,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       if (cui != null) {
         cui.addAtom(atom);
-        atom.putConceptTerminologyId(terminology, cui.getTerminologyId());
       }
 
       // SCUI
@@ -1639,11 +1664,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         scui = conceptMap.get(fields[9] + fields[11]);
       } else if (!fields[9].equals("")) {
         scui = new ConceptJpa();
+        scui.setTimestamp(releaseVersionDate);
         scui.setLastModified(releaseVersionDate);
         scui.setLastModifiedBy(loader);
         scui.setPublished(true);
         scui.setPublishable(true);
-        scui.setTerminology(fields[11]);
+        scui.setTerminology(fields[11].intern());
         scui.setTerminologyId(fields[9]);
         scui.setTerminologyVersion(loadedTerminologies.get(fields[11])
             .getTerminologyVersion());
@@ -1661,11 +1687,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         sdui = descriptorMap.get(fields[10] + fields[11]);
       } else if (!fields[10].equals("")) {
         sdui = new DescriptorJpa();
+        sdui.setTimestamp(releaseVersionDate);
         sdui.setLastModifiedBy(loader);
         sdui.setLastModified(releaseVersionDate);
         sdui.setPublished(true);
         sdui.setPublishable(true);
-        sdui.setTerminology(fields[11]);
+        sdui.setTerminology(fields[11].intern());
         sdui.setTerminologyId(fields[10]);
         sdui.setTerminologyVersion(loadedTerminologies.get(fields[11])
             .getTerminologyVersion());
@@ -1683,11 +1710,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         code = codeMap.get(fields[13] + fields[11]);
       } else if (!fields[13].equals("")) {
         code = new CodeJpa();
+        code.setTimestamp(releaseVersionDate);
         code.setLastModified(releaseVersionDate);
         code.setLastModifiedBy(loader);
         code.setPublished(true);
         code.setPublishable(true);
-        code.setTerminology(fields[11]);
+        code.setTerminology(fields[11].intern());
         code.setTerminologyId(fields[13]);
         code.setTerminologyVersion(loadedTerminologies.get(fields[11])
             .getTerminologyVersion());
@@ -1704,6 +1732,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         lui = lexicalClassMap.get(fields[3]);
       } else if (!fields[3].equals("")) {
         lui = new LexicalClassJpa();
+        lui.setTimestamp(releaseVersionDate);
         lui.setLastModified(releaseVersionDate);
         lui.setLastModifiedBy(loader);
         lui.setPublished(true);
@@ -1712,7 +1741,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         lui.setTerminologyId(fields[3]);
         lui.setTerminologyVersion(terminologyVersion);
         lexicalClassMap.put(lui.getTerminologyId(), lui);
-        lui.setNormalizedString(getNormalizedString(atom.getName()));
+        lui.setNormalizedString(getNormalizedString(fields[14]));
         lui.setWorkflowStatus(published);
         lui.setName("TBD");
       }
@@ -1725,6 +1754,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         sui = stringClassMap.get(fields[5]);
       } else if (!fields[5].equals("")) {
         sui = new StringClassJpa();
+        sui.setTimestamp(releaseVersionDate);
         sui.setLastModified(releaseVersionDate);
         sui.setLastModifiedBy(loader);
         sui.setPublished(true);
@@ -1735,7 +1765,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         stringClassMap.put(sui.getTerminologyId(), sui);
         sui.setWorkflowStatus(published);
         // prefered name is just the string
-        sui.setName(atom.getName());
+        sui.setName(fields[14]);
       }
       if (sui != null) {
         sui.addAtom(atom);
@@ -1824,6 +1854,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // format|9|N|256|
     subset.setDescription(fields[14]);
     subset.setDisjointSubset(false);
+    subset.setTimestamp(releaseVersionDate);
     subset.setLastModified(releaseVersionDate);
     subset.setLastModifiedBy(loader);
     subset.setName(fields[14]);
@@ -1831,7 +1862,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     subset.setPublishable(true);
     subset.setPublished(true);
     subset.setSuppressible(!fields[16].equals("N"));
-    subset.setTerminology(fields[11]);
+    subset.setTerminology(fields[11].intern());
     // already vetted by atom
     subset.setTerminologyVersion(loadedTerminologies.get(fields[11])
         .getTerminologyVersion());

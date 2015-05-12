@@ -164,6 +164,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
    */
   private void computeTransitiveClosure(String terminology, String version,
     IdType idType) throws Exception {
+    final Date startDate = new Date();
     // Check assumptions/prerequisites
     Logger.getLogger(getClass()).info(
         "Start computing transitive closure - " + terminology);
@@ -309,7 +310,8 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
         }
 
         tr.setObsolete(false);
-        tr.setLastModified(new Date());
+        tr.setTimestamp(startDate);
+        tr.setLastModified(startDate);
         tr.setLastModifiedBy("admin");
         tr.setPublishable(true);
         tr.setPublished(false);

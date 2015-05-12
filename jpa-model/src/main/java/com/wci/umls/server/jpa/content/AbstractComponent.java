@@ -38,12 +38,12 @@ public abstract class AbstractComponent implements Component {
   /** the timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp = new Date();
+  private Date timestamp = null;
 
   /** The last modified. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
-  private Date lastModified = new Date();
+  private Date lastModified = null;
 
   /** The last modified. */
   @Column(nullable = false)

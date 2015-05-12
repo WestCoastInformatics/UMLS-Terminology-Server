@@ -34,11 +34,11 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
 
   /** The definitions. */
   @OneToMany(orphanRemoval = true, targetEntity = DefinitionJpa.class)
-  private List<Definition> definitions = new ArrayList<>();
+  private List<Definition> definitions = new ArrayList<>(1);
 
   /** The relationships. */
   @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = DescriptorRelationshipJpa.class)
-  private List<DescriptorRelationship> relationships = new ArrayList<>();
+  private List<DescriptorRelationship> relationships = new ArrayList<>(1);
 
   /**
    * Instantiates an empty {@link DescriptorJpa}.
@@ -75,7 +75,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   @Override
   public List<Definition> getDefinitions() {
     if (definitions == null) {
-      definitions = new ArrayList<>();
+      definitions = new ArrayList<>(1);
     }
     return definitions;
   }
@@ -98,7 +98,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   @Override
   public void addDefinition(Definition definition) {
     if (definitions == null) {
-      definitions = new ArrayList<>();
+      definitions = new ArrayList<>(1);
     }
     definitions.add(definition);
 
@@ -112,7 +112,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   @Override
   public void removeDefinition(Definition definition) {
     if (definitions == null) {
-      definitions = new ArrayList<>();
+      definitions = new ArrayList<>(1);
     }
     definitions.remove(definition);
 
@@ -127,7 +127,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   @Override
   public List<DescriptorRelationship> getRelationships() {
     if (relationships == null) {
-      relationships = new ArrayList<>();
+      relationships = new ArrayList<>(1);
     }
     return relationships;
   }
@@ -151,7 +151,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   @Override
   public void addRelationship(DescriptorRelationship relationship) {
     if (relationships == null) {
-      relationships = new ArrayList<>();
+      relationships = new ArrayList<>(1);
     }
     relationships.add(relationship);
   }
@@ -164,7 +164,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   @Override
   public void removeRelationship(DescriptorRelationship relationship) {
     if (relationships == null) {
-      relationships = new ArrayList<>();
+      relationships = new ArrayList<>(1);
     }
     relationships.remove(relationship);
   }

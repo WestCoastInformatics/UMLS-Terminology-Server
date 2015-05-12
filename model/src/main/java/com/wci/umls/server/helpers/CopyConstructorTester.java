@@ -36,10 +36,7 @@ public class CopyConstructorTester extends ProxyTester {
     }).newInstance(new Object[] {
       o1
     });
-    Logger.getLogger(getClass()).debug(
-        "    " + o1.toString() + " = " + o2.toString());
-    return o1.equals(o2) && o1.hashCode() == o2.hashCode()
-        && o1.toString().equals(o2.toString());
+    return o1.equals(o2) && o1.hashCode() == o2.hashCode();
   }
 
   /**
@@ -60,8 +57,7 @@ public class CopyConstructorTester extends ProxyTester {
       });
       Logger.getLogger(getClass()).info(
           "    " + o1.toString() + " = " + o2.toString());
-      return o1.equals(o2) && o1.hashCode() == o2.hashCode()
-          && o1.toString().equals(o2.toString());
+      return o1.equals(o2) && o1.hashCode() == o2.hashCode();
     }
 
   /**
@@ -81,10 +77,7 @@ public class CopyConstructorTester extends ProxyTester {
     }).newInstance(new Object[] {
         o1, false
     });
-    Logger.getLogger(getClass()).info(
-        "    " + o1.toString() + " = " + o2.toString());
-    return o1.equals(o2) && o1.hashCode() == o2.hashCode()
-        && o1.toString().equals(o2.toString());
+    return o1.equals(o2) && o1.hashCode() == o2.hashCode();
   }
 
 }

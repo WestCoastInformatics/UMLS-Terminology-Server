@@ -62,7 +62,7 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
   @XmlElement(type = AttributeJpa.class, name = "attribute")
   public List<Attribute> getAttributes() {
     if (attributes == null) {
-      attributes = new ArrayList<>();
+      attributes = new ArrayList<>(1);
     }
     return attributes;
   }
@@ -88,7 +88,7 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
   @Override
   public void addAttribute(Attribute attribute) {
     if (attributes == null) {
-      attributes = new ArrayList<>();
+      attributes = new ArrayList<>(1);
     }
     attributes.add(attribute);
   }
@@ -103,7 +103,7 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
   @Override
   public void removeAttribute(Attribute attribute) {
     if (attributes == null) {
-      attributes = new ArrayList<>();
+      attributes = new ArrayList<>(1);
     }
     attributes.remove(attribute);
   }

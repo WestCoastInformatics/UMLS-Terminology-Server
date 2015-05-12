@@ -308,6 +308,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     } else {
       throw new Exception("Unsupported id type: " + idType);
     }
+    tp.setTimestamp(startDate);
     tp.setLastModified(startDate);
     tp.setLastModifiedBy("admin");
     tp.setObsolete(false);

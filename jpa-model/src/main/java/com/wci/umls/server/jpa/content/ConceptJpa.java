@@ -36,17 +36,17 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 public class ConceptJpa extends AbstractAtomClass implements Concept {
 
   /** The definitions. */
-  @OneToMany(orphanRemoval = true, targetEntity = DefinitionJpa.class)
-  private List<Definition> definitions = new ArrayList<>();
+  @OneToMany(targetEntity = DefinitionJpa.class)
+  private List<Definition> definitions = null;
 
   /** The relationships. */
-  @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = ConceptRelationshipJpa.class)
-  private List<ConceptRelationship> relationships = new ArrayList<>();
+  @OneToMany(mappedBy = "from", targetEntity = ConceptRelationshipJpa.class)
+  private List<ConceptRelationship> relationships = null;
 
   /** The semantic type components. */
   @IndexedEmbedded
-  @OneToMany(orphanRemoval = true, targetEntity = SemanticTypeComponentJpa.class)
-  private List<SemanticTypeComponent> semanticTypes = new ArrayList<>();
+  @OneToMany(targetEntity = SemanticTypeComponentJpa.class)
+  private List<SemanticTypeComponent> semanticTypes = null;
 
   /** The fully defined. */
   @Column(nullable = false)
@@ -101,7 +101,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public List<Definition> getDefinitions() {
     if (definitions == null) {
-      definitions = new ArrayList<>();
+      definitions = new ArrayList<>(1);
     }
     return definitions;
   }
@@ -124,7 +124,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public void addDefinition(Definition definition) {
     if (definitions == null) {
-      definitions = new ArrayList<>();
+      definitions = new ArrayList<>(1);
     }
     definitions.add(definition);
 
@@ -138,7 +138,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public void removeDefinition(Definition definition) {
     if (definitions == null) {
-      definitions = new ArrayList<>();
+      definitions = new ArrayList<>(1);
     }
     definitions.remove(definition);
 
@@ -153,7 +153,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public List<ConceptRelationship> getRelationships() {
     if (relationships == null) {
-      relationships = new ArrayList<>();
+      relationships = new ArrayList<>(1);
     }
     return relationships;
   }
@@ -177,7 +177,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public void addRelationship(ConceptRelationship relationship) {
     if (relationships == null) {
-      relationships = new ArrayList<>();
+      relationships = new ArrayList<>(1);
     }
     relationships.add(relationship);
   }
@@ -190,7 +190,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public void removeRelationship(ConceptRelationship relationship) {
     if (relationships == null) {
-      relationships = new ArrayList<>();
+      relationships = new ArrayList<>(1);
     }
     relationships.remove(relationship);
   }
@@ -224,7 +224,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public List<SemanticTypeComponent> getSemanticTypes() {
     if (semanticTypes == null) {
-      semanticTypes = new ArrayList<>();
+      semanticTypes = new ArrayList<>(1);
     }
     return semanticTypes;
   }
@@ -250,7 +250,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public void addSemanticType(SemanticTypeComponent semanticType) {
     if (semanticTypes == null) {
-      semanticTypes = new ArrayList<>();
+      semanticTypes = new ArrayList<>(1);
     }
     semanticTypes.add(semanticType);
   }
@@ -265,7 +265,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public void removeSemanticType(SemanticTypeComponent semanticType) {
     if (semanticTypes == null) {
-      semanticTypes = new ArrayList<>();
+      semanticTypes = new ArrayList<>(1);
     }
     semanticTypes.remove(semanticType);
   }
