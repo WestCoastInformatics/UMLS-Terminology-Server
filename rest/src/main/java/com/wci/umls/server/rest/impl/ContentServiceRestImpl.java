@@ -25,6 +25,7 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.RrfFileSorter;
 import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
@@ -42,7 +43,6 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
-import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.MetadataService;
@@ -1083,6 +1083,82 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * getSubsetMembersForConcept(java.lang.String, java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  @GET
+  @Path("/csm/{terminology}/{version}/{conceptId}")
+  @ApiOperation(value = "Get subset members with this conceptId", notes = "Get the subset members with the given concept id.", response = SubsetMemberList.class)
+  public SubsetMemberList getSubsetMembersForConcept(
+    @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("conceptId") String conceptId,
+    @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /csm/" + terminology + "/" + version + "/"
+            + conceptId);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve subset members for the concept", UserRole.VIEWER);
+
+      return contentService.getSubsetMembersForConcept(conceptId, terminology,
+          version, Branch.ROOT);
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve subset members for a concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * getSubsetMembersForAtom(java.lang.String, java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  @GET
+  @Path("/asm/{terminology}/{version}/{atomId}")
+  @ApiOperation(value = "Get subset members with this atomId", notes = "Get the subset members with the given atom id.", response = SubsetMemberList.class)
+  public SubsetMemberList getSubsetMembersForAtom(
+    @ApiParam(value = "Atom terminology id, e.g. 102751005", required = true) @PathParam("atomId") String atomId,
+    @ApiParam(value = "Atom terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Atom terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /asm/" + terminology + "/" + version + "/"
+            + atomId);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve subset members for the atom", UserRole.VIEWER);
+
+      return contentService.getSubsetMembersForAtom(atomId, terminology,
+          version, Branch.ROOT);
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve subset members for a atom");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
 
 
 }

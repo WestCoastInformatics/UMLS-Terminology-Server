@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.services;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,6 +69,7 @@ import com.wci.umls.server.jpa.helpers.content.DescriptorListJpa;
 import com.wci.umls.server.jpa.helpers.content.LexicalClassListJpa;
 import com.wci.umls.server.jpa.helpers.content.StringClassListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
+import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -601,8 +603,41 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public SubsetMemberList findAtomSubsetMembers(String subsetId,
     String terminology, String version, String branch, PfsParameter pfs) {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Service - find atom subset members " + subsetId
+            + "/" + terminology + "/" + version);
+    javax.persistence.Query query =
+        applyPfsToQuery("select a from AtomSubsetMemberJpa a "
+            + "where terminologyId = :subsetId "
+            + "and terminologyVersion = :version "
+            + "and terminology = :terminology", pfs);
+    javax.persistence.Query ctQuery =
+        manager
+            .createQuery("select count(a) ct from AtomSubsetMemberJpa a "
+                + "where terminologyId = :subsetId "
+                + "and terminologyVersion = :version "
+                + "and terminology = :terminology");
+    try {
+      SubsetMemberList list =
+          new SubsetMemberListJpa();
+
+      // execute count query
+      ctQuery.setParameter("terminologyId", subsetId);
+      ctQuery.setParameter("terminology", terminology);
+      ctQuery.setParameter("version", version);
+      list.setTotalCount(((BigDecimal) ctQuery.getResultList().get(0))
+          .intValue());
+
+      // Get results
+      query.setParameter("terminologyId", subsetId);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      list.setObjects(query.getResultList());
+
+      return list;
+    } catch (NoResultException e) {
+      return null;
+    }
   }
 
   /*
@@ -616,8 +651,41 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public SubsetMemberList findConceptSubsetMembers(String subsetId,
     String terminology, String version, String branch, PfsParameter pfs) {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Service - find concept subset members " + subsetId
+            + "/" + terminology + "/" + version);
+    javax.persistence.Query query =
+        applyPfsToQuery("select a from ConceptSubsetMemberJpa a "
+            + "where terminologyId = :subsetId "
+            + "and terminologyVersion = :version "
+            + "and terminology = :terminology", pfs);
+    javax.persistence.Query ctQuery =
+        manager
+            .createQuery("select count(a) ct from ConceptSubsetMemberJpa a "
+                + "where terminologyId = :subsetId "
+                + "and terminologyVersion = :version "
+                + "and terminology = :terminology");
+    try {
+      SubsetMemberList list =
+          new SubsetMemberListJpa();
+
+      // execute count query
+      ctQuery.setParameter("terminologyId", subsetId);
+      ctQuery.setParameter("terminology", terminology);
+      ctQuery.setParameter("version", version);
+      list.setTotalCount(((BigDecimal) ctQuery.getResultList().get(0))
+          .intValue());
+
+      // Get results
+      query.setParameter("terminologyId", subsetId);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      list.setObjects(query.getResultList());
+
+      return list;
+    } catch (NoResultException e) {
+      return null;
+    }
   }
 
   /*
@@ -630,8 +698,29 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public SubsetMemberList getSubsetMembersForAtom(String atomId,
     String terminology, String version, String branch) {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get subset members for atom "
+            + atomId + "/" + terminology + "/" + version);
+    javax.persistence.Query query =
+        manager
+            .createQuery("select a from SubsetMemberJpa s, "
+                + " AtomJpa a where a.terminologyId = :atomId "
+                + "and a.terminologyVersion = :version "
+                + "and a.terminology = :terminology and s.atom = a");
+
+    try {
+      SubsetMemberList list =
+          new SubsetMemberListJpa();
+
+      query.setParameter("terminologyId", atomId);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      list.setObjects(query.getResultList());
+      list.setTotalCount(list.getObjects().size());
+      return list;
+    } catch (NoResultException e) {
+      return null;
+    }
   }
 
   /*
@@ -644,8 +733,29 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @Override
   public SubsetMemberList getSubsetMembersForConcept(String conceptId,
     String terminology, String version, String branch) {
-    // TODO Auto-generated method stub
-    return null;
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get subset members for concept "
+            + conceptId + "/" + terminology + "/" + version);
+    javax.persistence.Query query =
+        manager
+            .createQuery("select a from SubsetMemberJpa s, "
+                + " ConceptJpa c where c.terminologyId = :conceptId "
+                + "and c.terminologyVersion = :version "
+                + "and c.terminology = :terminology and s.concept = c");
+
+    try {
+      SubsetMemberList list =
+          new SubsetMemberListJpa();
+
+      query.setParameter("terminologyId", conceptId);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      list.setObjects(query.getResultList());
+      list.setTotalCount(list.getObjects().size());
+      return list;
+    } catch (NoResultException e) {
+      return null;
+    }
   }
 
   /*
