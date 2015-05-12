@@ -20,6 +20,7 @@ import com.wci.umls.server.helpers.content.LexicalClassList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Attribute;
@@ -122,8 +123,8 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public SubsetList getAtomSubsets(String terminology, String version)
-      throws Exception;
-  
+    throws Exception;
+
   /**
    * Returns the concept subsets.
    *
@@ -133,7 +134,7 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public SubsetList getConceptSubsets(String terminology, String version)
-      throws Exception;
+    throws Exception;
 
   /**
    * Returns the atom subset members for the specified subset.
@@ -145,9 +146,9 @@ public interface ContentService extends RootService {
    * @param pfs the pfs
    * @return the subset members
    */
-  public SubsetMemberList findAtomSubsetMembers(String subsetId, String terminology,
-    String version, String branch, PfsParameter pfs);
-  
+  public SubsetMemberList findAtomSubsetMembers(String subsetId,
+    String terminology, String version, String branch, PfsParameter pfs);
+
   /**
    * Returns the concept subset members.
    *
@@ -158,8 +159,8 @@ public interface ContentService extends RootService {
    * @param pfs the pfs
    * @return the concept subset members
    */
-  public SubsetMemberList findConceptSubsetMembers(String subsetId, String terminology,
-    String version, String branch, PfsParameter pfs);
+  public SubsetMemberList findConceptSubsetMembers(String subsetId,
+    String terminology, String version, String branch, PfsParameter pfs);
 
   /**
    * Returns the atom subset members for the specified atom.
@@ -488,6 +489,20 @@ public interface ContentService extends RootService {
     throws Exception;
 
   /**
+   * Find concept tree positions.
+   *
+   * @param concept the concept
+   * @param childrenOnly the children only
+   * @param pfsParameter the pfs parameter
+   * @param branch the branch
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findConceptTreePositions(Concept concept,
+    PfsParameter pfsParameter, String branch)
+    throws Exception;
+
+  /**
    * Find descendant descriptors.
    *
    * @param descriptor the descriptor
@@ -516,6 +531,19 @@ public interface ContentService extends RootService {
     throws Exception;
 
   /**
+   * Find descriptor tree positions.
+   *
+   * @param descriptor the descriptor
+   * @param pfsParameter the pfs parameter
+   * @param branch the branch
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findDescriptorTreePositions(Descriptor descriptor,
+     PfsParameter pfsParameter, String branch)
+    throws Exception;
+
+  /**
    * Find descendant descriptors.
    *
    * @param code the code
@@ -540,6 +568,19 @@ public interface ContentService extends RootService {
    */
   public CodeList findAncestorCodes(Code code, boolean childrenOnly,
     PfsParameter pfsParameter, String branch) throws Exception;
+
+  /**
+   * Find code tree positions.
+   *
+   * @param code the code
+   * @param pfsParameter the pfs parameter
+   * @param branch the branch
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findCodeTreePositions(Code code,
+     PfsParameter pfsParameter, String branch)
+    throws Exception;
 
   /**
    * Returns the atom.
@@ -728,9 +769,9 @@ public interface ContentService extends RootService {
    *
    * @param terminology the terminology
    * @param version the version
+   * @param branch the branch
    * @param query the query
    * @param pfs the pfs
-   * @param branch the branch
    * @return the search result list
    * @throws Exception the exception
    */

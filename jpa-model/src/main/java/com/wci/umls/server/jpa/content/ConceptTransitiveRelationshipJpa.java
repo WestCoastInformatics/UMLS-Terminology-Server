@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.content;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -30,12 +31,12 @@ public class ConceptTransitiveRelationshipJpa extends
     ConceptTransitiveRelationship {
 
   /** The super type. */
-  @ManyToOne(targetEntity = ConceptJpa.class, optional = false)
+  @ManyToOne(targetEntity = ConceptJpa.class, fetch = FetchType.EAGER, optional = false)
   @JoinColumn(nullable = false)
   private Concept superType;
 
   /** The sub type. */
-  @ManyToOne(targetEntity = ConceptJpa.class, optional = false)
+  @ManyToOne(targetEntity = ConceptJpa.class, fetch = FetchType.EAGER, optional = false)
   @JoinColumn(nullable = false)
   private Concept subType;
 

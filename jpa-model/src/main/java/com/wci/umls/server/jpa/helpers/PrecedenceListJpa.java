@@ -182,7 +182,7 @@ public class PrecedenceListJpa implements PrecedenceList {
     for (int i = 0; i < termTypes.size(); i++) {
       final KeyValuePair pair = new KeyValuePair();
       pair.setKey(terminologies.get(i));
-      pair.setValue(terminologies.get(i));
+      pair.setValue(termTypes.get(i));
       precedence.addKeyValuePair(pair);
     }
     return precedence;

@@ -45,6 +45,7 @@ import com.wci.umls.server.helpers.content.LexicalClassList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
 import com.wci.umls.server.jpa.content.AbstractSubset;
@@ -70,6 +71,7 @@ import com.wci.umls.server.jpa.helpers.content.LexicalClassListJpa;
 import com.wci.umls.server.jpa.helpers.content.StringClassListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
+import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -1756,6 +1758,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
+  @Override
+  public TreePositionList findConceptTreePositions(Concept concept,
+    PfsParameter pfsParameter, String branch) throws Exception {
+    return this.findTreePositionsHelper(concept, pfsParameter, branch,
+        "Concept");
+  }
+
   /**
    * Find descenants helper.
    *
@@ -1861,6 +1870,53 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   }
 
   /**
+   * Find tree positions helper.
+   *
+   * @param atomClass the atom class
+   * @param pfsParameter the pfs parameter
+   * @param branch the branch
+   * @param tableString the table string
+   * @return the list
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  private TreePositionList findTreePositionsHelper(AtomClass atomClass,
+    PfsParameter pfsParameter, String branch, String tableString)
+    throws Exception {
+    if (pfsParameter != null && pfsParameter.getQueryRestriction() != null) {
+      throw new IllegalArgumentException(
+          "Query restriction is not implemented for this call: "
+              + pfsParameter.getQueryRestriction());
+    }
+    String queryStr =
+        "select tr from " + tableString + "TreePositionJpa tr, " + tableString
+            + "Jpa a " + " where a.terminologyVersion = :version "
+            + " and a.terminology = :terminology "
+            + " and a.terminologyId = :terminologyId" + " and tr.node = a ";
+    javax.persistence.Query query = applyPfsToQuery(queryStr, pfsParameter);
+
+    // TODO: need to handle "branch" parameter
+    javax.persistence.Query ctQuery =
+        manager.createQuery("select count(*) from " + tableString
+            + "TreePositionJpa tr, " + tableString + "Jpa a "
+            + " where a.terminologyVersion = :version "
+            + " and a.terminology = :terminology "
+            + " and a.terminologyId = :terminologyId" + " and tr.node = a ");
+    TreePositionList list = new TreePositionListJpa();
+    ctQuery.setParameter("terminology", atomClass.getTerminology());
+    ctQuery.setParameter("version", atomClass.getTerminologyVersion());
+    ctQuery.setParameter("terminologyId", atomClass.getTerminologyId());
+    list.setTotalCount(((Long) ctQuery.getSingleResult()).intValue());
+
+    query.setParameter("terminology", atomClass.getTerminology());
+    query.setParameter("version", atomClass.getTerminologyVersion());
+    query.setParameter("terminologyId", atomClass.getTerminologyId());
+
+    list.setObjects(query.getResultList());
+    return list;
+  }
+
+  /**
    * Apply pfs to query.
    *
    * @param queryStr the query str
@@ -1931,6 +1987,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
+  @Override
+  public TreePositionList findDescriptorTreePositions(Descriptor descriptor,
+    PfsParameter pfsParameter, String branch) throws Exception {
+    return this.findTreePositionsHelper(descriptor, pfsParameter, branch,
+        "Descriptor");
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -1977,6 +2040,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
     return list;
+  }
+
+  @Override
+  public TreePositionList findCodeTreePositions(Code code,
+    PfsParameter pfsParameter, String branch) throws Exception {
+    return this.findTreePositionsHelper(code, pfsParameter, branch, "Code");
   }
 
   /*

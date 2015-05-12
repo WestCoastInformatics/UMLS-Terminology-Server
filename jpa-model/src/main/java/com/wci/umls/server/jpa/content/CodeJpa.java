@@ -33,7 +33,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
 
   /** The relationships. */
   @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = CodeRelationshipJpa.class)
-  private List<CodeRelationship> relationships = new ArrayList<>();
+  private List<CodeRelationship> relationships = new ArrayList<>(1);
 
   /**
    * Instantiates an empty {@link CodeJpa}.
@@ -66,7 +66,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   @Override
   public List<CodeRelationship> getRelationships() {
     if (relationships == null) {
-      relationships = new ArrayList<>();
+      relationships = new ArrayList<>(1);
     }
     return relationships;
   }
@@ -90,7 +90,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   @Override
   public void addRelationship(CodeRelationship relationship) {
     if (relationships == null) {
-      relationships = new ArrayList<>();
+      relationships = new ArrayList<>(1);
     }
     relationships.add(relationship);
   }
@@ -103,7 +103,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   @Override
   public void removeRelationship(CodeRelationship relationship) {
     if (relationships == null) {
-      relationships = new ArrayList<>();
+      relationships = new ArrayList<>(1);
     }
     relationships.remove(relationship);
   }

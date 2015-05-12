@@ -252,7 +252,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
   @Override
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
+      alternateTerminologyIds = new HashMap<>(2);
     }
     return alternateTerminologyIds;
   }
@@ -278,7 +278,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
   @Override
   public void putAlternateTerminologyId(String terminology, String terminologyId) {
     if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
+      alternateTerminologyIds = new HashMap<>(2);
     }
     alternateTerminologyIds.put(terminology, terminologyId);
   }
@@ -292,7 +292,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
   @Override
   public void removeAlternateTerminologyId(String terminology) {
     if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
+      alternateTerminologyIds = new HashMap<>(2);
     }
     alternateTerminologyIds.remove(terminology);
 

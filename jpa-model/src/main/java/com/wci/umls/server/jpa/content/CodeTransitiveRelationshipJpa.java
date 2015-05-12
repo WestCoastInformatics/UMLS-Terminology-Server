@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.content;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -29,12 +30,12 @@ public class CodeTransitiveRelationshipJpa extends
     AbstractTransitiveRelationship<Code> implements CodeTransitiveRelationship {
 
   /** The super type. */
-  @ManyToOne(targetEntity = CodeJpa.class, optional = false)
+  @ManyToOne(targetEntity = CodeJpa.class, fetch = FetchType.EAGER, optional = false)
   @JoinColumn(nullable = false)
   private Code superType;
 
   /** The sub type. */
-  @ManyToOne(targetEntity = CodeJpa.class, optional = false)
+  @ManyToOne(targetEntity = CodeJpa.class, fetch = FetchType.EAGER, optional = false)
   @JoinColumn(nullable = false)
   private Code subType;
 

@@ -318,20 +318,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // Compute tree positions
       // Refresh caches after metadata has changed in loader
-      // for (Terminology t :
-      // metadataService.getTerminologyLatestVersions().getObjects()) {
-      // // Only compute for organizing class types
-      // if (t.getOrganizingClassType() != null) {
-      // TreePositionAlgorithm algo = new TreePositionAlgorithm();
-      // algo.setTerminology(t.getTerminology());
-      // algo.setTerminologyVersion(t.getTerminologyVersion());
-      // algo.setIdType(t.getOrganizingClassType());
-      // // some terminologies may have cycles, allow these for now.
-      // algo.setCycleTolerant(true);
-      // algo.compute();
-      // algo.close();
-      // }
-      // }
+      for (Terminology t : metadataService.getTerminologyLatestVersions()
+          .getObjects()) {
+        // Only compute for organizing class types
+        if (t.getOrganizingClassType() != null) {
+          TreePositionAlgorithm algo = new TreePositionAlgorithm();
+          algo.setTerminology(t.getTerminology());
+          algo.setTerminologyVersion(t.getTerminologyVersion());
+          algo.setIdType(t.getOrganizingClassType());
+          // some terminologies may have cycles, allow these for now.
+          algo.setCycleTolerant(true);
+          algo.compute();
+          algo.close();
+        }
+      }
 
       // Clean-up
       // readers.closeReaders();

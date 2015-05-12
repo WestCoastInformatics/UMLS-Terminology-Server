@@ -8,15 +8,17 @@ import javax.persistence.MappedSuperclass;
 
 import org.hibernate.envers.Audited;
 
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
  * Abstract JPA-enabled implementation of {@link TreePosition}.
+ * @param <T> the type
  */
 @Audited
 @MappedSuperclass
-public abstract class AbstractTreePosition extends
-    AbstractComponentHasAttributes implements TreePosition {
+public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndName>
+    extends AbstractComponentHasAttributes implements TreePosition<T> {
 
   /** The additional relationship type. */
   @Column(nullable = true)
@@ -26,15 +28,11 @@ public abstract class AbstractTreePosition extends
   @Column(nullable = true, length = 4000)
   private String ancestorPath;
 
-  /** The name. */
-  @Column(nullable = true, length = 4000)
-  private String name;
-
-  /**  The child ct. */
+  /** The child ct. */
   @Column(nullable = false)
   private int childCt;
-  
-  /**  The descendant ct. */
+
+  /** The descendant ct. */
   @Column(nullable = false)
   private int descendantCt;
 
@@ -51,8 +49,12 @@ public abstract class AbstractTreePosition extends
    * @param treepos the treepos
    * @param deepCopy the deep copy
    */
-  public AbstractTreePosition(TreePosition treepos, boolean deepCopy) {
+  public AbstractTreePosition(TreePosition<T> treepos, boolean deepCopy) {
     super(treepos, deepCopy);
+    additionalRelationshipType = treepos.getAdditionalRelationshipType();
+    ancestorPath = treepos.getAncestorPath();
+    childCt = treepos.getChildCt();
+    descendantCt = treepos.getDescendantCt();
   }
 
   /*
@@ -104,28 +106,6 @@ public abstract class AbstractTreePosition extends
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.model.content.TreePosition#getName()
-   */
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TreePosition#setName(
-   * java.lang.String)
-   */
-  @Override
-  public void setName(String name) {
-    this.name = name;
-  }
-
-
-  /* (non-Javadoc)
    * @see com.wci.umls.server.model.content.TreePosition#getChildCt()
    */
   @Override
@@ -133,7 +113,9 @@ public abstract class AbstractTreePosition extends
     return childCt;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.content.TreePosition#setChildCt(int)
    */
   @Override
@@ -141,7 +123,9 @@ public abstract class AbstractTreePosition extends
     this.childCt = childCt;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.content.TreePosition#getDescendantCt()
    */
   @Override
@@ -149,15 +133,19 @@ public abstract class AbstractTreePosition extends
     return descendantCt;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.content.TreePosition#setDescendantCt(int)
    */
   @Override
   public void setDescendantCt(int descendantCt) {
     this.descendantCt = descendantCt;
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
    */
   @Override
@@ -176,9 +164,13 @@ public abstract class AbstractTreePosition extends
     return result;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
    */
+  @SuppressWarnings("rawtypes")
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -206,16 +198,16 @@ public abstract class AbstractTreePosition extends
     return true;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
    */
   @Override
   public String toString() {
     return "AbstractTreePosition [additionalRelationshipType="
         + additionalRelationshipType + ", ancestorPath=" + ancestorPath
-        + ", name=" + name + ", childCt="
-        + childCt + ", descendantCt=" + descendantCt + "]";
+        + ", childCt=" + childCt + ", descendantCt=" + descendantCt + "]";
   }
-
 
 }

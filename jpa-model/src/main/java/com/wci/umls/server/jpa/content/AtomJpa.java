@@ -51,11 +51,11 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /** The definitions. */
   @OneToMany(orphanRemoval = true, targetEntity = DefinitionJpa.class)
   @IndexedEmbedded
-  private List<Definition> definitions = new ArrayList<>();
+  private List<Definition> definitions = null;
 
   /** The relationships. */
-  @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = AtomRelationshipJpa.class)
-  private List<AtomRelationship> relationships = new ArrayList<>();
+  @OneToMany(mappedBy = "from", targetEntity = AtomRelationshipJpa.class)
+  private List<AtomRelationship> relationships = null;
 
   /** The concept terminology id map. */
   @ElementCollection
@@ -160,7 +160,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @XmlElement(type = DefinitionJpa.class, name = "definition")
   public List<Definition> getDefinitions() {
     if (definitions == null) {
-      definitions = new ArrayList<>();
+      definitions = new ArrayList<>(1);
     }
     return definitions;
   }
@@ -185,7 +185,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   public List<AtomRelationship> getRelationships() {
     if (relationships == null) {
-      relationships = new ArrayList<>();
+      relationships = new ArrayList<>(1);
     }
     return relationships;
   }
@@ -212,7 +212,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Field(name = "conceptTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public Map<String, String> getConceptTerminologyIds() {
     if (conceptTerminologyIds == null) {
-      conceptTerminologyIds = new HashMap<>();
+      conceptTerminologyIds = new HashMap<>(2);
     }
     return conceptTerminologyIds;
   }
@@ -238,7 +238,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   public void putConceptTerminologyId(String terminology, String terminologyId) {
     if (conceptTerminologyIds == null) {
-      conceptTerminologyIds = new HashMap<>();
+      conceptTerminologyIds = new HashMap<>(2);
     }
     conceptTerminologyIds.put(terminology, terminologyId);
   }
@@ -253,7 +253,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   public void removeConceptTerminologyId(String terminology) {
     if (conceptTerminologyIds == null) {
-      conceptTerminologyIds = new HashMap<>();
+      conceptTerminologyIds = new HashMap<>(2);
     }
     conceptTerminologyIds.remove(terminology);
   }
@@ -467,7 +467,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   public void addDefinition(Definition definition) {
     if (definitions == null) {
-      definitions = new ArrayList<>();
+      definitions = new ArrayList<>(1);
     }
     definitions.add(definition);
   }
@@ -482,7 +482,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   public void removeDefinition(Definition definition) {
     if (definitions == null) {
-      definitions = new ArrayList<>();
+      definitions = new ArrayList<>(1);
     }
     definitions.remove(definition);
   }
@@ -497,7 +497,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   public void addRelationship(AtomRelationship relationship) {
     if (relationships == null) {
-      relationships = new ArrayList<>();
+      relationships = new ArrayList<>(1);
     }
     relationships.add(relationship);
   }
@@ -512,7 +512,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   public void removeRelationship(AtomRelationship relationship) {
     if (relationships == null) {
-      relationships = new ArrayList<>();
+      relationships = new ArrayList<>(1);
     }
     relationships.remove(relationship);
   }
@@ -528,7 +528,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
+      alternateTerminologyIds = new HashMap<>(2);
     }
     return alternateTerminologyIds;
   }
@@ -556,7 +556,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   public void putAlternateTerminologyId(String terminology, String terminologyId) {
     if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
+      alternateTerminologyIds = new HashMap<>(2);
     }
     alternateTerminologyIds.put(terminology, terminologyId);
   }
@@ -571,7 +571,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   public void removeAlternateTerminologyId(String terminology) {
     if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
+      alternateTerminologyIds = new HashMap<>(2);
     }
     alternateTerminologyIds.remove(terminology);
 

@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.algo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,15 +15,23 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
+import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.CodeTreePosition;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptTreePosition;
+import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.DescriptorTreePosition;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
@@ -179,7 +188,8 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
                     + "terminologyVersion = :terminologyVersion and terminology = :terminology "
                     + "and relationshipType = :relationshipType and obsolete = 0 "
                     + "and r.from in (select o from " + tableName2
-                    + " o where obsolete = 0)").setParameter("relationshipType", chdRel)
+                    + " o where obsolete = 0)")
+            .setParameter("relationshipType", chdRel)
             .setParameter("terminology", terminology)
             .setParameter("terminologyVersion", terminologyVersion)
             .getResultList();
@@ -211,31 +221,29 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     for (Long par : parChd.keySet()) {
       // things with no children
       if (!chdPar.containsKey(par)) {
-        Logger.getLogger(this.getClass()).info("    rootId = " + par);
         rootIds.add(par);
       }
     }
     chdPar = null;
 
-    Map<Long, String> names = new HashMap<>();
-    for (Concept concept : getAllConcepts(terminology, terminologyVersion,
-        Branch.ROOT).getObjects()) {
-      names.put(concept.getId(),
-          concept.getName());
-    }
-
     setTransactionPerOperation(false);
+    beginTransaction();
+
     objectCt = 0;
 
     for (Long rootId : rootIds) {
       Logger.getLogger(getClass()).info(
           "  Compute tree positions for root " + rootId);
       ValidationResult result = new ValidationResultJpa();
-      computeTreePositions(rootId, "", parChd, result, names);
+      computeTreePositions(rootId, "", parChd, result, new Date());
       if (!result.isValid()) {
         Logger.getLogger(getClass()).error("  validation result = " + result);
         throw new Exception("Validation failed");
       }
+      // Commit
+      commit();
+      clear();
+      beginTransaction();
     }
   }
 
@@ -246,24 +254,23 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
    * @param ancestorPath the ancestor path
    * @param parChd the par chd
    * @param validationResult the validation result
-   * @param names the names
+   * @param startDate the start date
    * @return the sets the
-   * @throws Exception
+   * @throws Exception the exception
    */
   public Set<Long> computeTreePositions(Long id, String ancestorPath,
     Map<Long, Set<Long>> parChd, ValidationResult validationResult,
-    Map<Long, String> names) throws Exception {
+    Date startDate) throws Exception {
 
+    Logger.getLogger(getClass()).info(
+        "    compute for " + id + ", " + ancestorPath);
     final Set<Long> descConceptIds = new HashSet<>();
 
-    // extract the ancestor terminology ids
+    // Check for cycles
     Set<String> ancestors = new HashSet<>();
     for (String ancestor : ancestorPath.split("~")) {
       ancestors.add(ancestor);
     }
-
-    // if ancestor path contains this terminology id, a child/ancestor cycle
-    // exists
     if (ancestors.contains(id.toString())) {
 
       if (cycleTolerant) {
@@ -278,22 +285,41 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
       return descConceptIds;
     }
 
-    // instantiate the tree position
-    TreePosition tp = null;
+    // Instantiate the tree position
+    TreePosition<? extends ComponentHasAttributesAndName> tp = null;
     if (idType == IdType.CONCEPT) {
-      tp = new ConceptTreePositionJpa();
+      ConceptTreePosition ctp = new ConceptTreePositionJpa();
+      Concept concept = new ConceptJpa();
+      concept.setId(id);
+      ctp.setNode(concept);
+      tp = ctp;
     } else if (idType == IdType.DESCRIPTOR) {
-      tp = new DescriptorTreePositionJpa();
+      DescriptorTreePosition dtp = new DescriptorTreePositionJpa();
+      Descriptor descriptor = new DescriptorJpa();
+      descriptor.setId(id);
+      dtp.setNode(descriptor);
+      tp = dtp;
     } else if (idType == IdType.CODE) {
-      tp = new CodeTreePositionJpa();
+      CodeTreePosition ctp = new CodeTreePositionJpa();
+      Code code = new CodeJpa();
+      code.setId(id);
+      ctp.setNode(code);
+      tp = ctp;
+    } else {
+      throw new Exception("Unsupported id type: " + idType);
     }
-
+    tp.setTimestamp(startDate);
+    tp.setLastModified(startDate);
+    tp.setLastModifiedBy("admin");
+    tp.setObsolete(false);
+    tp.setSuppressible(false);
+    tp.setPublishable(true);
+    tp.setPublished(false);
     tp.setAncestorPath(ancestorPath);
     tp.setTerminology(terminology);
     tp.setTerminologyVersion(terminologyVersion);
     // No ids if computing - only if loading
     tp.setTerminologyId("");
-    tp.setName(names.get(id));
 
     // persist the tree position
     manager.persist(tp);
@@ -316,7 +342,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
         // add the results to the local descendant set
         final Set<Long> desc =
             computeTreePositions(childConceptId, conceptPath, parChd,
-                validationResult, names);
+                validationResult, startDate);
         descConceptIds.addAll(desc);
       }
     }
