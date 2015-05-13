@@ -159,6 +159,7 @@ public class ModelUnit048Test {
   public void testXmlTransient048() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient048");
 
+    object.setNode(code1);
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<nodeId>"));
     assertTrue(xml.contains("<nodeName>"));

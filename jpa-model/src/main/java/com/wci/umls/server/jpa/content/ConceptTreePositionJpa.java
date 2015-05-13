@@ -65,15 +65,13 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
     return node;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TreePosition#setNode(com.wci.umls.server
-   * .model.content.ComponentHasAttributesAndName)
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.TreePosition#setNode(com.wci.umls.server.model.content.ComponentHasAttributesAndName)
    */
   @Override
   public void setNode(Concept concept) {
+    System.out.println("setNode " + concept);
     this.node = concept;
   }
 
@@ -84,7 +82,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    */
   @XmlElement
   public Long getNodeId() {
-    return node == null ? 0 : node.getId();
+    return node == null ? null : node.getId();
   }
 
   /**
@@ -105,7 +103,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    * @return the node name
    */
   public String getNodeName() {
-    return node == null ? "" : node.getName();
+    return node == null ? null : node.getName();
   }
 
   /**
@@ -126,7 +124,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    * @return the node terminology id
    */
   public String getNodeTerminologyId() {
-    return node == null ? "" : node.getTerminologyId();
+    return node == null ? null : node.getTerminologyId();
   }
 
   /**

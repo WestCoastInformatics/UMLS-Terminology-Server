@@ -5,7 +5,9 @@ package com.wci.umls.server.helpers;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Breaks character deliminted strings into constituent fields. Unlike the
@@ -13,23 +15,25 @@ import java.util.List;
  * using a pipe character '|' as a delimiter, it would tokenize the string
  * "a||b" into three tokens "a", "", "b". Following is an example of how to use
  * this class.
- *
+ * 
  * <pre>
  * FieldedStringTokenizer tokenizer = new FieldedStringTokenizer(&quot;a|b||c&quot;, &quot;|&quot;);
  * int i = 1;
  * while (tokenizer.hasMoreTokens()) {
- *   Logger.getLogger(getClass()).info(&quot;Token &quot; + i + &quot; is: &quot; + tokenizer.nextToken());
+ *   System.out.println(&quot;Token &quot; + i + &quot; is: &quot; + tokenizer.nextToken());
  * }
  * </pre>
- *
+ * 
  * This class can also be used in a static way to split a line on a particular
  * character delmiter and have a <code>String[]</code> passed back. For example,
- *
+ * 
  * <pre>
  * String[] tokens = FieldedStringTokenizer.split(&quot;a|b|c|d&quot;, &quot;|&quot;);
  * </pre>
- *
+ * 
  * This code will produce the string array <code>{"a","b","c","d"}</code>.
+ * 
+ * @author Brian Carlsen (brian.a.carlsen@lmco.com)
  */
 public class FieldedStringTokenizer implements Enumeration<Object> {
 
@@ -37,10 +41,14 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
   // Fields
   //
 
-  /** The tokens. */
+  /**
+   * Token list
+   */
   private ArrayList<String> tokens = null;
 
-  /** The ct. */
+  /**
+   * Token count
+   */
   private int ct = 0;
 
   //
@@ -100,14 +108,14 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
     //
     int old_index = 0;
     int new_index = 0;
+    final char[] chars = line.toCharArray();
     do {
 
       //
       // Find next index of any delim character
-      //
       new_index = -1;
-      for (int i = old_index; i < line.length(); i++) {
-        if (delim.indexOf(line.charAt(i)) != -1) {
+      for (int i = old_index; i < chars.length; i++) {
+        if (delim.indexOf(chars[i]) != -1) {
           new_index = i;
           break;
         }
@@ -134,6 +142,20 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
     } while (new_index != -1);
 
     return tokens.toArray(new String[0]);
+  }
+
+  /**
+   * Splits a line on delimiter characters and returns a {@link String}
+   * <code>[]</code> of the tokens.
+   * @param line a {@link String} to be split
+   * @param delim a {@link String} containing delimiter characters
+   * @return a <code>String []</code> containing tokens from the string
+   */
+  public static Set<String> splitAsSet(String line, String delim) {
+    Set<String> tokens = new HashSet<String>();
+    for (String s : split(line, delim))
+      tokens.add(s);
+    return tokens;
   }
 
   /**
@@ -166,14 +188,15 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
     int old_index = 0;
     int new_index = 0;
     int i = 0;
+    final char[] chars = line.toCharArray();
     do {
 
       //
       // Find next index of any delim character
       //
       new_index = -1;
-      for (i = old_index; i < line.length(); i++) {
-        if (delim.indexOf(line.charAt(i)) != -1) {
+      for (i = old_index; i < chars.length; i++) {
+        if (delim.indexOf(chars[i]) != -1) {
           new_index = i;
           break;
         }
@@ -207,12 +230,11 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
    * advance and populates the specified String[].
    * @param line a {@link String} to be split
    * @param delim a {@link String} containing delimiter characters
-   * @param field_ct <code>int</code> indicates the max number of fields to
-   *          split
+   * @param fieldCt <code>int</code> indicates the max number of fields to split
    * @param tokens a {@link String}[] of the right number of tokens.
    */
-  public static void split(final String line, final String delim, int field_ct,
-    final String[] tokens) {
+  public static void split(final String line, final String delim,
+    final int fieldCt, final String[] tokens) {
     // return line.split("[" + delim + "]", field_ct);
 
     //
@@ -230,6 +252,7 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
     int new_index = 0;
     int i = 0;
     final int len = line.length();
+    final char[] chars = line.toCharArray();
     do {
 
       //
@@ -237,7 +260,7 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
       //
       new_index = -1;
       for (i = old_index; i < len; i++) {
-        if (delim.indexOf(line.charAt(i)) != -1) {
+        if (delim.indexOf(chars[i]) != -1) {
           new_index = i;
           break;
         }
@@ -254,13 +277,14 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
         //
         if (old_index < len) {
           tokens[ct] = line.substring(old_index);
+
         }
       } else {
         tokens[ct++] = line.substring(old_index, new_index);
         old_index = new_index + 1;
       }
 
-    } while (new_index != -1);
+    } while (new_index != -1 && ct < fieldCt);
 
     // return tokens;
 
@@ -286,7 +310,6 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
    * @return <code>true</code> if there are more tokens; <code>false</code>
    *         otherwise
    */
-  @Override
   public boolean hasMoreElements() {
     return hasMoreTokens();
   }
@@ -308,7 +331,6 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
    * exists so that this class can implement the {@link Enumeration} interface.
    * @return An object {@link String} representation of the next token
    */
-  @Override
   public Object nextElement() {
     return nextToken();
   }
@@ -320,6 +342,38 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
   public String nextToken() {
     String token = tokens.get(ct++);
     return token;
+  }
+
+  /**
+   * Join a list of strings into a single string.
+   * @param strs the strings to join
+   * @param delim the delimiter
+   * @return a joined string
+   */
+  public static String join(List<String> strs, String delim) {
+    StringBuilder sb = new StringBuilder(100);
+    int i = 0;
+    for (String str : strs)
+      sb.append(str).append((++i == strs.size() ? "" : delim));
+    return sb.toString();
+  }
+
+  /**
+   * Join a list of strings into a single string.
+   * @param strs the strings to join
+   * @param delim the delimiter
+   * @return a joined string
+   */
+  public static String join(String[] strs, String delim) {
+    StringBuilder sb = new StringBuilder(100);
+    for (int i = 0; i < strs.length; i++) {
+      final String str = strs[i];
+      if (i < strs.length - 1 || str != null) {
+        sb.append(str);
+        sb.append((i == strs.length ? "" : delim));
+      }
+    }
+    return sb.toString();
   }
 
 }

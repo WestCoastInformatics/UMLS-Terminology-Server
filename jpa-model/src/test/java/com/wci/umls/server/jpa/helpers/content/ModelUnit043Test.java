@@ -173,6 +173,8 @@ public class ModelUnit043Test {
   public void testXmlTransient043() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient043");
 
+    object.setMember(atom1);
+    object.setSubset(subset1);
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<subsetId>"));
     assertTrue(xml.contains("<subsetTerminologyId>"));

@@ -89,7 +89,7 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
    * @return the member id
    */
   public Long getMemberId() {
-    return member == null ? 0 : member.getId();
+    return member == null ? null : member.getId();
   }
 
   /**
@@ -110,7 +110,7 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
    * @return the member terminology id
    */
   public String getMemberTerminologyId() {
-    return member == null ? "" : member.getTerminologyId();
+    return member == null ? null : member.getTerminologyId();
   }
 
   /**
@@ -131,7 +131,7 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
    * @return the member name
    */
   public String getMemberName() {
-    return member == null ? "" : member.getName();
+    return member == null ? null : member.getName();
   }
 
   /**
@@ -175,7 +175,7 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
    * @return the subset id
    */
   public Long getSubsetId() {
-    return subset == null ? 0 : subset.getId();
+    return subset == null ? null : subset.getId();
   }
 
   /**
@@ -196,7 +196,7 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
    * @return the subset terminology id
    */
   public String getSubsetTerminologyId() {
-    return subset == null ? "" : subset.getTerminologyId();
+    return subset == null ? null : subset.getTerminologyId();
   }
 
   /**
@@ -217,7 +217,7 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
    * @return the subset name
    */
   public String getSubsetName() {
-    return subset == null ? "" : subset.getName();
+    return subset == null ? null : subset.getName();
   }
 
   /**

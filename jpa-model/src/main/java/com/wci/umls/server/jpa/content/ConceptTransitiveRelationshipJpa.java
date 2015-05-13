@@ -201,7 +201,7 @@ public class ConceptTransitiveRelationshipJpa extends
    * @return the sub type terminology id
    */
   public String getSubTypeTerminologyId() {
-    return subType == null ? "" : subType.getTerminologyId();
+    return subType == null ? null : subType.getTerminologyId();
   }
 
   /**

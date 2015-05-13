@@ -70,6 +70,14 @@
       <groupId>cglib</groupId>
       <artifactId>cglib</artifactId>
     </dependency>
+
+    <!-- Trove -->
+    <dependency>
+      <groupId>net.sf.trove4j</groupId>
+      <artifactId>trove4j</artifactId>
+    </dependency>
+
+
     <!-- JUnit -->
     <dependency>
       <groupId>junit</groupId>

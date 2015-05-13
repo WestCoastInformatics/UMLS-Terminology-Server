@@ -6,10 +6,12 @@ package com.wci.umls.server.jpa.helpers.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 import com.wci.umls.server.helpers.content.Tree;
+import com.wci.umls.server.jpa.content.AbstractTreePosition;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
@@ -27,10 +29,10 @@ import com.wci.umls.server.model.content.TreePosition;
 public class TreeJpa implements Tree {
 
   /** The self. */
-  public TreePosition<? extends ComponentHasAttributesAndName> self;
+  private TreePosition<? extends ComponentHasAttributesAndName> self;
 
   /** The children. */
-  public List<Tree> children;
+  private List<Tree> children = null;
 
   /**
    * Instantiates an empty {@link TreeJpa}.
@@ -55,6 +57,7 @@ public class TreeJpa implements Tree {
    * @see com.wci.umls.server.helpers.content.Tree#getSelf()
    */
   @Override
+  @XmlElement(type = AbstractTreePosition.class)
   public TreePosition<? extends ComponentHasAttributesAndName> getSelf() {
     return self;
   }
@@ -78,6 +81,7 @@ public class TreeJpa implements Tree {
    * @see com.wci.umls.server.helpers.content.Tree#getChildren()
    */
   @Override
+  @XmlElement(type = TreeJpa.class, name = "child")
   public List<Tree> getChildren() {
     if (children == null) {
       children = new ArrayList<>();
@@ -93,6 +97,51 @@ public class TreeJpa implements Tree {
   @Override
   public void setChildren(List<Tree> children) {
     this.children = children;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return "TreeJpa [self=" + self + ", children=" + children + "]";
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((self == null) ? 0 : self.hashCode());
+    return result;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    TreeJpa other = (TreeJpa) obj;
+    if (self == null) {
+      if (other.self != null)
+        return false;
+    } else if (!self.equals(other.self))
+      return false;
+    return true;
   }
 
 }
