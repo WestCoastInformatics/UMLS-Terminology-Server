@@ -14,12 +14,14 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -1167,6 +1169,21 @@ public class ContentClientRest implements ContentServiceRest {
     } else {
       throw new Exception("Unexpected status " + response.getStatus());
     }
+  }
+
+  @Override
+  public TreeList getTreePositionsForQuery(String terminology, String version,
+    String query, SearchCriteria searchCriteria, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public StringList autocompleteConceptQuery(String terminology,
+    String version, String query, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

@@ -6,6 +6,7 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;

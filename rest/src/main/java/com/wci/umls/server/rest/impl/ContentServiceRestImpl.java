@@ -37,6 +37,7 @@ import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.TreeList;
+import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2FileSorter;
@@ -48,7 +49,6 @@ import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
@@ -1341,26 +1341,29 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-  
+
   @Override
   @POST
   @Consumes(MediaType.TEXT_PLAIN)
   @Path("/cui/autocomplete/{terminology}/{version}")
   public StringList autocompleteConceptQuery(
-    @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology")String terminology,
+    @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Search term to check, e.g. 'sulf'", required = true) String searchTerm,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization")String authToken) throws Exception {
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/autocomplete" + terminology + "/" + version + "/" + searchTerm);
-    
+        "RESTful call (Content): /cui/autocomplete" + terminology + "/"
+            + version + "/" + searchTerm);
+
     ContentService contentService = new ContentServiceJpa();
-    
+
     try {
       authenticate(securityService, authToken,
           "autocompleting a concept query", UserRole.VIEWER);
-      
-      StringList strings = contentService.autocompleteConcepts(terminology, version, searchTerm);
+
+      StringList strings =
+          contentService.autocompleteConcepts(terminology, version, searchTerm);
       return strings;
     } catch (Exception e) {
       handleException(e, "autocompleting a concept query");
@@ -1390,40 +1393,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "RF2 input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-  @Override
-  @POST
-  @Path("/treepos/{terminology}/{version}/query/{query}")
-  @ApiOperation(value = "Retrieves tree positions for query", notes = "Retrieves tree positions for a terminology, given a query and search criteria restrictions")
-  public TreeList getTreePositionsForQuery(
-    @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Lexical query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
-    @ApiParam(value = "Semantic search criteria object (optional)", required = false) SearchCriteria searchCriteria,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /treepos/" + terminology + "/" + version + "/query/" + query);
-    ContentService contentService = new ContentServiceJpa();
-    MetadataService metadataService = new MetadataServiceJpa();
-    
-    try {
-      authenticate(securityService, authToken,
-          "retrieving tree positions for a query", UserRole.VIEWER);
-      
-      Terminology term = metadataService.getTerminology(terminology, version);
-      
-      TreeList treeList = new TreeListJpa();
-      switch (term.getOrganizingClassType()) {
-        case CODE:
-          break;
-        case CONCEPT:
-          break;
-        case DESCRIPTOR:
-          break;
-        default:
-          break;
-        
-      }
 
     Logger.getLogger(getClass()).info(
         "RESTful POST call (ContentChange): /terminology/load/rf2/delta/"
@@ -1836,15 +1805,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-    } catch (Exception e) {
-      handleException(e, "retrieving tree positions for a query");
-      return null;
-    } finally {
-      contentService.close();
-      securityService.close();
-    }
-    
-    
+  @Override
+  public TreeList getTreePositionsForQuery(String terminology, String version,
+    String query, SearchCriteria searchCriteria, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
     return null;
   }
 
