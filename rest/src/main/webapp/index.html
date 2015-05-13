@@ -146,26 +146,34 @@
 				<!-- Content displayed after log in -->
 				<div ng-show="authToken != null">
 
+					Autocomplete: {{autocompleteUrl}}
+
 					<tabset> <tab heading="Concepts"> <!-- Search field is all columns -->
 					<div>
 						<table class="table">
 							<tr>
-								<td>Select terminology</td>
-								<td><select ng-model="terminology"
+								<td width="15%;">Select terminology</td>
+								<td width="85%;"><select ng-model="terminology"
 									ng-change="setTerminology(terminology)"
 									ng-options="terminology as terminology.terminology + ', ' + terminology.terminologyVersion
           for terminology in terminologies"></select></td>
 							<tr>
 								<td>Enter search terms</td>
-								<td><form>
-										<input ng-model="conceptQuery">
-										<button class="btn btn-small btn-primary" type="submit"
-											ng-click="findConcepts(terminology, conceptQuery)">Search</button>
-										<button class="btn btn-small btn-warning" type="cancel"
-											ng-click="conceptQuery = null">Clear</button>
-										<br> <em>Searchable terms include concept names,
-											e.g. ossification, and concept ids, e.g. 728.1 (for ICD9CM),
-											102276005 (for SNOMEDCT)</em>
+								<td><form width="100%">
+										
+										<div class="tags-wrapper">
+										
+											<input placeholder="Enter search terms" ng-model="conceptQuery"
+												ng-change="autocomplete(terminology, conceptQuery)">
+											<button class="btn btn-small btn-primary" type="submit"
+												ng-click="findConcepts(terminology, conceptQuery)">Search</button>
+											<button class="btn btn-small btn-warning"
+												ng-click="clearQuery()">Clear</button>
+											<ul class="suggestions-list">
+												<li class="blockspan" ng-repeat="suggestion in suggestions" ng-click="findConcepts(terminology, suggestion)">{{suggestion}}</li>
+											</ul>
+											{{suggestions[0]}}, {{suggestions[1]}}, ...
+										</div>
 									</form></td>
 							</tr>
 						</table>
@@ -217,8 +225,7 @@
 
 
 							<!--  Semantic types -->
-							<div
-								ng-show="component.semanticType.length > 0">
+							<div ng-show="component.semanticType.length > 0">
 								<h4>Semantic Types</h4>
 								<ul>
 									<li class="cr-list" ng-repeat="item in component.semanticType"

@@ -37,6 +37,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchCriteriaList;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -51,6 +52,8 @@ import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.helpers.content.Tree;
+import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
@@ -79,6 +82,8 @@ import com.wci.umls.server.jpa.helpers.content.RelationshipListJpa;
 import com.wci.umls.server.jpa.helpers.content.StringClassListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
+import com.wci.umls.server.jpa.helpers.content.TreeJpa;
+import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.model.content.Atom;
@@ -99,6 +104,7 @@ import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
+import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
@@ -1585,7 +1591,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     List<Concept> descendants =
-        this.findDescenantsHelper(concept, parentsOnly, pfsParameter, branch,
+        this.findDescendantsHelper(concept, parentsOnly, pfsParameter, branch,
             "Concept", totalCt);
     ConceptList list = new ConceptListJpa();
     list.setObjects(descendants);
@@ -1638,7 +1644,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @throws Exception the exception
    */
   @SuppressWarnings("rawtypes")
-  private List findDescenantsHelper(AtomClass atomClass, boolean parentsOnly,
+  private List findDescendantsHelper(AtomClass atomClass, boolean parentsOnly,
     PfsParameter pfsParameter, String branch, String tableString, long[] totalCt)
     throws Exception {
     if (pfsParameter != null && pfsParameter.getQueryRestriction() != null) {
@@ -1811,7 +1817,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     List<Descriptor> descendants =
-        this.findDescenantsHelper(descriptor, parentsOnly, pfsParameter,
+        this.findDescendantsHelper(descriptor, parentsOnly, pfsParameter,
             branch, "Descriptor", totalCt);
     DescriptorList list = new DescriptorListJpa();
     list.setObjects(descendants);
@@ -1867,7 +1873,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     List<Code> descendants =
-        this.findDescenantsHelper(code, parentsOnly, pfsParameter, branch,
+        this.findDescendantsHelper(code, parentsOnly, pfsParameter, branch,
             "Code", totalCt);
     CodeList list = new CodeListJpa();
     list.setObjects(descendants);
@@ -2671,6 +2677,63 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  public TreeList getConceptTreePositionsForQuery(String terminology,
+    String version, String query, SearchCriteria searchCriteria,
+    boolean computeRootTrees) throws Exception {
+
+    // TODO: Decide behavior of searchCriteria vs pfsParameter
+    SearchResultList results =
+        findConceptsForQuery(terminology, version, null, query, null);
+
+    TreeList treeList = new TreeListJpa();
+
+    for (SearchResult r : results.getObjects()) {
+      ConceptList concepts =
+          this.getConcepts(r.getTerminologyId(), r.getTerminology(),
+              r.getTerminologyVersion());
+
+      // search results must exist from query results
+      assert concepts.getCount() != 0;
+
+      // retrieve the first concept
+      Concept concept = concepts.getObjects().get(0);
+
+      // get the tree positions for this concept
+      TreePositionList treePositions =
+          this.findConceptTreePositions(concept, null, concept.getBranch());
+
+      // add
+
+    }
+
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Tree convertTreePositionToTree(TreePosition treePosition,
+    boolean computeRootTree) {
+
+    Tree tree = null;
+
+    if (computeRootTree == true) {
+      for (String ancestorId : treePosition.getAncestorPath().split("~")) {
+
+      }
+    } else {
+      tree = new TreeJpa();
+      // set tree position self to passed tree position
+      tree.setSelf(treePosition);
+    }
+
+    return tree;
+
+  }
+
+  private TreeList mergeTrees(TreeList treeList, TreeList treesToMerge) {
+
+    return treeList;
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -2849,15 +2912,18 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     booleanQuery.add(term1, BooleanClause.Occur.MUST);
     booleanQuery.add(term2, BooleanClause.Occur.MUST);
     booleanQuery.add(query, BooleanClause.Occur.MUST);
-    
+
     FullTextQuery fullTextQuery =
         fullTextEntityManager.createFullTextQuery(booleanQuery, clazz);
+
     fullTextQuery.setMaxResults(20);
 
     @SuppressWarnings("unchecked")
     List<AtomClass> results = fullTextQuery.getResultList();
     StringList list = new StringList();
     for (AtomClass result : results) {
+      // exclude duplicates
+      if (!list.contains(result.getName()))
       list.addObject(result.getName());
     }
     return list;

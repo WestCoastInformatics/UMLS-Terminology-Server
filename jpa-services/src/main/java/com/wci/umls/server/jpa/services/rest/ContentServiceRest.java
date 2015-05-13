@@ -12,6 +12,7 @@ import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
@@ -427,5 +428,34 @@ public interface ContentServiceRest {
    */
   public void removeTerminology(String terminology, String version,
     String authToken) throws Exception;
+
+  /**
+   * Gets the tree positions for a concept/code/descriptor given search criteria.
+   *
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param query the query the lexical search query string
+   * @param searchCriteria the search criteria containing semantic search information
+   * @param authToken the auth token
+   * @return the tree positions for query and search criteria
+   * @throws Exception the exception
+   */
+  public TreeList getTreePositionsForQuery(String terminology, String version,
+    String query, SearchCriteria searchCriteria, String authToken)
+    throws Exception;
+
+  /**
+   * Autocomplete concept query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param authToken the auth token
+   * @return the string list
+   * @throws Exception the exception
+   */
+  public StringList autocompleteConceptQuery(String terminology, String version, String query, String authToken) throws Exception;
+
+ 
 
 }

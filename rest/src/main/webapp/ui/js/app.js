@@ -12,42 +12,39 @@ var tsApp = angular.module('tsApp', [ 'ui.bootstrap' ]).config(function() {
 })
 
 tsApp.run(function($http) {
-
+	// nothing yet -- may want to put metadata retrieval here
 })
 
-// currently unused
-tsApp.directive('conceptReport', function() {
-	 return {
-		    replace : false,
-		    restrict : 'AE',
-		    templateUrl : 'ui/partials/conceptReport.html',
-		    scope : {
-		      concept : '=', // two-way binding in anticipation of editing
-		      terminology : '@', // isolate scope as terminology will not change
-		      showSuppressible : '=',  // two way binding for showing Suppressible control
-		      showObsolete : '=', // two way binding for showing Obsolete control
-		      changeConcept : '&' // method link for following concept links
-		   
-		    },
-		    link : function(scope, element, attrs) {
-		    	
-		    	scope.showItem = function(item) {
-		    		
-		    		if (scope.showSuppressible == false && item.suppressible == true)
-		    			return false;
-		    		
-		    		if (scope.showObsolete == false && item.obsolete == true)
-		    			return false;
-		    		
-		    		return true;
-		    	}
-		    
-		    }
-	 }
+tsApp.directive('autoComplete',['$http',function($http){
+    return {
+        restrict:'AE',
+        scope:{
+        	url:'=',
+            selectedTags:'=model'
+        },
+        templateUrl:'ui/partials/autocomplete-template.html',
+        link:function(scope,elem,attrs){
+        	
+        	scope.suggestions=[];
 
-});
+        	scope.selectedTags=[];
 
-// currently unused
+        	scope.selectedIndex=-1; //currently selected suggestion index
+       
+        	scope.search=function(){
+        		// console.debug(scope.url);
+        	     $http.get(scope.url+'/'+scope.searchText).success(function(data){
+        	         if(data.indexOf(scope.searchText)===-1){
+        	             data.unshift(scope.searchText);
+        	         }
+        	         scope.suggestions=data;
+        	         scope.selectedIndex=-1;
+        	     });
+        	}
+        }
+    }
+}]);
+
 tsApp
   .controller(
     'tsIndexCtrl',
@@ -58,12 +55,17 @@ tsApp
       function($scope, $http, $q) {
 
         $scope.$watch('component', function() {
-          // console.debug("Component changed to ",
+          // // console.debug("Component changed to ",
           // $scope.component);
         });
         
         // the viewed terminology
         $scope.terminology = null;
+        
+        // autocomplete settings
+        $scope.conceptQuery = null;
+        $scope.autocompleteUrl = null; // set on terminology change
+        $scope.suggestions = null;
 
         // initialize the search results
         $scope.searchResult = [];
@@ -97,14 +99,17 @@ tsApp
       
         $scope.$watch('terminology', function() {
           
-          console.debug("terminology changed: ", $scope.terminology);
+          // console.debug("terminology changed: ", $scope.terminology);
 
           if ($scope.terminology == null) {
-            console.debug("Returning")
+            // console.debug("Returning")
             return;
           }
           
-          console.debug("Retrieving metadata");
+          // set the autocomplete url
+          $scope.autocompleteUrl = contentUrl + getTypePrefix($scope.terminology) + '/autocomplete/' + $scope.terminology.terminology + '/' + $scope.terminology.terminologyVersion;
+          
+          // console.debug("Retrieving metadata");
 
           $scope.glassPane++;
           $http(
@@ -138,7 +143,7 @@ tsApp
 
           // login
           $scope.glassPane++;
-          console.debug("Login called - " + securityUrl + 'authenticate/' + name);
+          // console.debug("Login called - " + securityUrl + 'authenticate/' + name);
           $http({
             url : securityUrl + 'authenticate/' + name,
             dataType : "text",
@@ -149,6 +154,9 @@ tsApp
             }
           }).success(function(data) {
         	  console.log(name + " = " + data);
+        	  
+        	  $scope.clearError();
+        	  
             $scope.userName = name;
             $scope.authToken = data;
             $scope.password = "";
@@ -197,6 +205,37 @@ tsApp
             $scope.handleError(data, status, headers, config);
             $scope.glassPane--;
           });
+        }
+        
+        $scope.autocomplete = function(terminology, searchTerms) {
+        	
+        	
+        	// console.debug("Autocomplete with: ", terminology, searchTerms);
+        	// clear the current suggestions
+        	$scope.querySuggestions = null;
+        	
+        	// only process if length is > 2
+        	if (searchTerms == null || searchTerms == undefined || searchTerms.length < 3) {
+        		return;
+        	}
+        	
+        	console.debug("Autocomplete with: ", terminology, searchTerms);
+        	
+	    	// NO GLASS PANE
+	    	$http({
+	             url : $scope.autocompleteUrl,
+	             method : "POST",
+	             data: searchTerms,
+	             headers : {
+	               "Content-Type" : "text/plain"
+	             }
+	        }).success(function(data) {
+	           	
+	           	$scope.suggestions = data.string;
+	        }).error(function(data, status, headers, config) {
+	            // console.debug('Autocomplete error: ', data);
+	              
+	        });
         }
         
         $scope.getTerminology = function(name, version) {
@@ -256,19 +295,19 @@ tsApp
               
              
               var terminologyObj = $scope.getTerminology(pair['key'], pair['value']);
-              console.debug("Retrievig terminology" + pair['key'] + ", " + pair['value']);
+              // console.debug("Retrievig terminology" + pair['key'] + ", " + pair['value']);
               terminologyObj.then(function(terminology) {
-            	  console.debug("  Retrieved", terminology.terminology);
+            	  // console.debug("  Retrieved", terminology.terminology);
             	  
             	  // add result to the list of terminologies
             	  if (terminology.terminology != 'MTH' && terminology.terminology != 'SRC') {
             		  $scope.terminologies.push(terminology);
             	  
-            	  if (terminology.terminology === 'SNOMEDCT-US') {
-                      console.debug('SNOMEDCT found');
+            	  if (terminology.terminology === 'SNOMEDCT_US') {
+                      // console.debug('SNOMEDCT found');
                       $scope.setTerminology(terminology);
                   }
-            	  console.debug("Current terminologies", $scope.terminologies);
+            	  // console.debug("Current terminologies", $scope.terminologies);
             	  }
               } , function(reason) {
             	  // do error message here
@@ -298,7 +337,7 @@ tsApp
             }).success(function(data) {
             $scope.concept = data;
 
-            console.debug("Retrieved concept:", $scope.concept);
+            // console.debug("Retrieved concept:", $scope.concept);
 
             setActiveRow(terminologyId);
             $scope.setComponent($scope.concept, 'Concept');
@@ -313,6 +352,11 @@ tsApp
             $scope.glassPane--;
           });
         }
+        
+        $scope.clearQuery = function() {
+        	$scope.suggestions = null;
+        	$scope.conceptQuery = null;
+        }
 
         $scope.findConcepts = function(terminology, queryStr) {
 
@@ -321,8 +365,15 @@ tsApp
             alert("You must use at least three characters to search");
             return;
           }
+          
+          // console.debug("Finding concepts for ", terminology, queryStr);
 
+          // clear concept and suggestions
+          $scope.suggestions = null;
           $scope.concept = null;
+          
+          // force the search box to sync with query string
+          $scope.conceptQuery = queryStr;
 
           var pfs = {
             startIndex : -1,
@@ -344,7 +395,7 @@ tsApp
                 "Content-Type" : "application/json"
               }
             }).success(function(data) {
-            console.debug("Retrieved concepts:", data);
+            // console.debug("Retrieved concepts:", data);
             $scope.searchResults = data.searchResult;
            
             $scope.glassPane--;
@@ -356,7 +407,7 @@ tsApp
         }
 
         $scope.setComponent = function(component, componentType) {
-          // console.debug("Setting component",
+          // // console.debug("Setting component",
           // componentType, component);
           $scope.component = component;
           $scope.componentType = componentType;
