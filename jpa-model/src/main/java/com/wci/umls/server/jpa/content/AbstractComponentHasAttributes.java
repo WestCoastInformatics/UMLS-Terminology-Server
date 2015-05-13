@@ -108,4 +108,22 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
     attributes.remove(attribute);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasAttributes#getAttributeByName(java.lang.
+   * String)
+   */
+  @Override
+  public Attribute getAttributeByName(String name) {
+    for (Attribute attribute : getAttributes()) {
+      // If there are more than one, this just returns the first.
+      if (attribute.getName().equals(name)) {
+        return attribute;
+      }
+    }
+    return null;
+  }
+
 }

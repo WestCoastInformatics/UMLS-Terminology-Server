@@ -30,13 +30,11 @@
       <artifactId>term-server-jpa-services</artifactId>
     </dependency>
 
-    <!-- LVG 2014 -->
-    <!-- LVG - This involves downloading/installing LVG and loading into your local 
-      repository: mvn install:install-file -Dfile=lvg2014dist.jar -DgroupId=gov.nih.nlm.lvg 
-      -DartifactId=lvgdist -Dversion=2014 -Dpackaging=jar -->
-
-    <!-- commented out for now <dependency> <groupId>gov.nih.nlm.lvg</groupId> <artifactId>lvgdist</artifactId> 
-      <version>2014</version> </dependency> -->
+    <!-- LVG -->
+    <dependency>
+      <groupId>gov.nih.nlm.nls.lvg</groupId>
+      <artifactId>lvgdist</artifactId>
+    </dependency>
 
     <!-- Logging -->
     <dependency>

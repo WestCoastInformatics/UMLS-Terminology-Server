@@ -6,6 +6,7 @@ package com.wci.umls.server.model.content;
 import java.util.List;
 
 import com.wci.umls.server.helpers.HasDefinitions;
+import com.wci.umls.server.helpers.HasMembers;
 import com.wci.umls.server.helpers.HasRelationships;
 
 /**
@@ -14,7 +15,8 @@ import com.wci.umls.server.helpers.HasRelationships;
  * CUI, or an RXCUI).
  */
 public interface Concept extends AtomClass, HasDefinitions,
-    HasRelationships<ConceptRelationship> {
+    HasRelationships<ConceptRelationship>,
+    HasMembers<ConceptSubsetMember>{
 
   /**
    * Indicates whether or not the concept is fully defined. This is always false

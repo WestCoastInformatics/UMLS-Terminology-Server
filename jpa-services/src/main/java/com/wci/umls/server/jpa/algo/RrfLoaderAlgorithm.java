@@ -112,6 +112,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** The terminology version. */
   private String terminologyVersion;
 
+  /** The single mode. */
+  private boolean singleMode = false;
+
   /** The release version. */
   private String releaseVersion;
 
@@ -242,6 +245,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   }
 
   /**
+   * Sets the single mode.
+   *
+   * @param singleMode the single mode
+   */
+  public void setSingleMode(boolean singleMode) {
+    this.singleMode = singleMode;
+  }
+
+  /**
    * Sets the readers.
    *
    * @param readers the readers
@@ -261,6 +273,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       Logger.getLogger(getClass()).info("Start loading RRF");
       Logger.getLogger(getClass()).info("  terminology = " + terminology);
       Logger.getLogger(getClass()).info("  version = " + terminologyVersion);
+      Logger.getLogger(getClass()).info("  single mode = " + singleMode);
       Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
       releaseVersionDate =
           ConfigUtility.DATE_FORMAT.parse(releaseVersion.substring(0, 4)
@@ -304,8 +317,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // Definitions
       loadMrdef();
 
-      // Semantic Types
-      loadMrsty();
+      // Semantic Types (skip in single mode)
+      if (!singleMode) {
+        loadMrsty();
+      }
 
       // Relationships
       loadMrrel();
@@ -698,6 +713,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 25, fields);
 
+      // Skip non-matching in single mode
+      if (singleMode && !fields[3].equals(terminology)) {
+        continue;
+      }
+
       // Field Description
       // 0 VCUI
       // 1 RCUI
@@ -761,7 +781,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       term.setLastModified(releaseVersionDate);
       term.setLastModifiedBy(loader);
       term.setTerminology(fields[3]);
-      if (fields[6].equals(""))
+      if (singleMode || fields[6].equals(""))
         term.setTerminologyVersion(terminologyVersion);
       else
         term.setTerminologyVersion(fields[6]);
@@ -797,32 +817,35 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
 
     // Add the terminology for this load, e.g. "UMLS"
-    Terminology term = new TerminologyJpa();
-    term.setAssertsRelDirection(false);
-    term.setCurrent(true);
-    term.setOrganizingClassType(IdType.CONCEPT);
-    term.setPreferredName(terminology);
-    term.setTimestamp(releaseVersionDate);
-    term.setLastModified(releaseVersionDate);
-    term.setLastModifiedBy(loader);
-    term.setTerminology(terminology);
-    term.setTerminologyVersion(terminologyVersion);
-    term.setDescriptionLogicTerminology(false);
-    terminologies.put(terminology, term);
+    // Skip in single mode
+    if (!singleMode) {
+      Terminology term = new TerminologyJpa();
+      term.setAssertsRelDirection(false);
+      term.setCurrent(true);
+      term.setOrganizingClassType(IdType.CONCEPT);
+      term.setPreferredName(terminology);
+      term.setTimestamp(releaseVersionDate);
+      term.setLastModified(releaseVersionDate);
+      term.setLastModifiedBy(loader);
+      term.setTerminology(terminology);
+      term.setTerminologyVersion(terminologyVersion);
+      term.setDescriptionLogicTerminology(false);
+      terminologies.put(terminology, term);
 
-    RootTerminology root = new RootTerminologyJpa();
-    root.setFamily(terminology);
-    root.setPreferredName(terminology);
-    root.setRestrictionLevel(-1);
-    root.setTerminology(terminology);
-    root.setTimestamp(releaseVersionDate);
-    root.setLastModified(releaseVersionDate);
-    root.setLastModifiedBy(loader);
-    addRootTerminology(root);
-    rootTerminologies.put(terminology, root);
-    term.setRootTerminology(root);
-    addTerminology(term);
-    loadedTerminologies.put(term.getTerminology(), term);
+      RootTerminology root = new RootTerminologyJpa();
+      root.setFamily(terminology);
+      root.setPreferredName(terminology);
+      root.setRestrictionLevel(-1);
+      root.setTerminology(terminology);
+      root.setTimestamp(releaseVersionDate);
+      root.setLastModified(releaseVersionDate);
+      root.setLastModifiedBy(loader);
+      addRootTerminology(root);
+      rootTerminologies.put(terminology, root);
+      term.setRootTerminology(root);
+      addTerminology(term);
+      loadedTerminologies.put(term.getTerminology(), term);
+    }
   }
 
   /**
@@ -892,6 +915,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 8, fields);
 
+      // Skip non-matching in single mode
+      if (singleMode && !fields[4].equals(terminology)) {
+        continue;
+      }
+
       // Field Description
       // 0 CUI Unique identifier for concept
       // 1 AUI Unique identifier for atom - variable length field, 8 or 9
@@ -936,7 +964,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       def.setPublished(true);
       def.setPublishable(true);
 
-      def.putAlternateTerminologyId(terminology, fields[2]);
+      if (!singleMode) {
+        def.putAlternateTerminologyId(terminology, fields[2]);
+      }
       def.setTerminologyId(fields[3]);
 
       def.setTerminology(fields[4].intern());
@@ -992,6 +1022,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 13, fields);
 
+      // Skip non-matching in single mode
+      if (singleMode && !fields[9].equals(terminology)
+          && !fields[9].equals("SAB")) {
+        continue;
+      }
+
       // Field Description
       // 0 CUI Unique identifier for concept (if METAUI is a relationship
       // identifier, this will be CUI1 for that relationship)
@@ -1042,7 +1078,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       att.setPublished(true);
       att.setPublishable(true);
       // fields[5] CODE not used - redundant
-      att.putAlternateTerminologyId(terminology, fields[6]);
+      if (!singleMode) {
+        att.putAlternateTerminologyId(terminology, fields[6]);
+      }
       att.setTerminologyId(fields[7]);
       att.setTerminology(fields[9].intern());
       if (loadedTerminologies.get(fields[9]) == null) {
@@ -1225,6 +1263,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // commit
     commitClearBegin();
 
+    // TODO: connect atoms/concepts to their subset members.
+    
     // Insert subsets, subset members now (attributes already inserted)
     Logger.getLogger(getClass()).info(
         "  Insert atom subsets and subset members");
@@ -1290,6 +1330,13 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 16, fields);
+
+      // Skip non-matching in single mode
+      if (singleMode && !fields[10].equals(terminology)
+          && !fields[10].equals("SAB")) {
+        continue;
+      }
+
       /*
        * 0 CUI 1 Unique identifier of first concept 1 AUI1 Unique identifier of
        * first atom 2 STYPE1 The name of the column in MRCONSO.RRF that contains
@@ -1446,7 +1493,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     relationship.setRelationshipType(fields[3]);
     relationship.setAdditionalRelationshipType(fields[7]);
 
-    relationship.putAlternateTerminologyId(terminology, fields[8]);
+    if (!singleMode) {
+      relationship.putAlternateTerminologyId(terminology, fields[8]);
+    }
     relationship.setTerminologyId(fields[9]);
     relationship.setTerminology(fields[10].intern());
     if (loadedTerminologies.get(fields[10]) == null) {
@@ -1555,6 +1604,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 18, fields);
 
+      // Skip non-matching in single mode
+      if (singleMode && !fields[11].equals(terminology)) {
+        continue;
+      }
+
       // Field Description
       // 0 CUI
       // 1 LAT
@@ -1596,7 +1650,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       atom.setTerminologyVersion(loadedTerminologies.get(fields[11])
           .getTerminologyVersion().intern());
-      atom.putAlternateTerminologyId(terminology, fields[7]);
+      // skip in single mode
+      if (!singleMode) {
+        atom.putAlternateTerminologyId(terminology, fields[7]);
+      }
       atom.setTerminologyId(fields[8]);
       atom.setTermType(fields[12].intern());
       atom.setWorkflowStatus(published);
@@ -1604,6 +1661,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setCodeId(fields[13]);
       atom.setDescriptorId(fields[10]);
       atom.setConceptId(fields[9]);
+
       atom.setStringClassId(fields[5]);
       atom.setLexicalClassId(fields[3]);
       atom.setCodeId(fields[13]);
@@ -1652,30 +1710,35 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         termIdTypeMap.put(atom.getTerminology(), IdType.CONCEPT);
       } // OTHERWISE it remains "CODE"
 
-      atom.putConceptTerminologyId(terminology, fields[0]);
+      // skip in single mode
+      if (!singleMode) {
+        atom.putConceptTerminologyId(terminology, fields[0]);
+      }
 
       atomMap.put(fields[7], atom);
 
-      // CUI
-      Concept cui = null;
-      if (conceptMap.containsKey(fields[0] + terminology)) {
-        cui = conceptMap.get(fields[0] + terminology);
-      } else if (!fields[0].equals("")) {
-        cui = new ConceptJpa();
-        cui.setTimestamp(releaseVersionDate);
-        cui.setLastModified(releaseVersionDate);
-        cui.setLastModifiedBy(loader);
-        cui.setPublished(true);
-        cui.setPublishable(true);
-        cui.setTerminology(terminology.intern());
-        cui.setTerminologyId(fields[0]);
-        cui.setTerminologyVersion(terminologyVersion);
-        cui.setWorkflowStatus(published);
-        cui.setName("TBD");
-        conceptMap.put(cui.getTerminologyId() + terminology, cui);
-      }
-      if (cui != null) {
-        cui.addAtom(atom);
+      // CUI - skip in single mode
+      if (!singleMode) {
+        Concept cui = null;
+        if (conceptMap.containsKey(fields[0] + terminology)) {
+          cui = conceptMap.get(fields[0] + terminology);
+        } else if (!fields[0].equals("")) {
+          cui = new ConceptJpa();
+          cui.setTimestamp(releaseVersionDate);
+          cui.setLastModified(releaseVersionDate);
+          cui.setLastModifiedBy(loader);
+          cui.setPublished(true);
+          cui.setPublishable(true);
+          cui.setTerminology(terminology.intern());
+          cui.setTerminologyId(fields[0]);
+          cui.setTerminologyVersion(terminologyVersion);
+          cui.setWorkflowStatus(published);
+          cui.setName("TBD");
+          conceptMap.put(cui.getTerminologyId() + terminology, cui);
+        }
+        if (cui != null) {
+          cui.addAtom(atom);
+        }
       }
 
       // SCUI

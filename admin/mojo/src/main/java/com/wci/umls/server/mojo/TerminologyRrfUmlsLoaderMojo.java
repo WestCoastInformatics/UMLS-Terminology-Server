@@ -104,15 +104,16 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
         getLog().info("Running directly");
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService.loadTerminologyRrf(terminology, version, inputDir,
-            authToken);
+        contentService.loadTerminologyRrf(terminology, version, false,
+            inputDir, authToken);
 
       } else {
         getLog().info("Running against server");
 
         // invoke the client
         ContentClientRest client = new ContentClientRest(properties);
-        client.loadTerminologyRrf(terminology, version, inputDir, authToken);
+        client.loadTerminologyRrf(terminology, version, false, inputDir,
+            authToken);
       }
 
     } catch (Exception e) {

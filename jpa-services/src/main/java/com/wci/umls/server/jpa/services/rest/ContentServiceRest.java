@@ -6,27 +6,22 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
-
 
 /**
  * Represents a content available via a REST service.
  */
 public interface ContentServiceRest {
-
 
   /**
    * Returns the concept.
@@ -87,7 +82,7 @@ public interface ContentServiceRest {
   public ConceptList findDescendantConcepts(String terminologyId,
     String terminology, String version, boolean parentsOnly,
     PfsParameterJpa pfsParameter, String authToken) throws Exception;
-  
+
   /**
    * Returns the descriptor.
    *
@@ -111,9 +106,9 @@ public interface ContentServiceRest {
    * @return the subset members for atom
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembersForAtom(String atomId, String terminology,
-    String version, String authToken) throws Exception;
-  
+  public SubsetMemberList getSubsetMembersForAtom(String atomId,
+    String terminology, String version, String authToken) throws Exception;
+
   /**
    * Gets the subset member for concept.
    *
@@ -124,9 +119,9 @@ public interface ContentServiceRest {
    * @return the subset members for concept
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembersForConcept(String conceptId, String terminology,
-    String version, String authToken) throws Exception;
-  
+  public SubsetMemberList getSubsetMembersForConcept(String conceptId,
+    String terminology, String version, String authToken) throws Exception;
+
   /**
    * Find descriptorss for query.
    *
@@ -173,7 +168,7 @@ public interface ContentServiceRest {
   public DescriptorList findDescendantDescriptors(String terminologyId,
     String terminology, String version, boolean parentsOnly,
     PfsParameterJpa pfsParameter, String authToken) throws Exception;
-  
+
   /**
    * Returns the code.
    *
@@ -184,8 +179,8 @@ public interface ContentServiceRest {
    * @return the code
    * @throws Exception the exception
    */
-  public Code getCode(String terminologyId, String terminology,
-    String version, String authToken) throws Exception;
+  public Code getCode(String terminologyId, String terminology, String version,
+    String authToken) throws Exception;
 
   /**
    * Find codes for query.
@@ -198,9 +193,8 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findCodesForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public SearchResultList findCodesForQuery(String terminology, String version,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find ancestor codes.
@@ -214,9 +208,9 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public CodeList findAncestorCodes(String terminologyId,
-    String terminology, String version, boolean childrenOnly,
-    PfsParameterJpa pfsParameter, String authToken) throws Exception;
+  public CodeList findAncestorCodes(String terminologyId, String terminology,
+    String version, boolean childrenOnly, PfsParameterJpa pfsParameter,
+    String authToken) throws Exception;
 
   /**
    * Find descendant codes.
@@ -230,10 +224,10 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public CodeList findDescendantCodes(String terminologyId,
-    String terminology, String version, boolean parentsOnly,
-    PfsParameterJpa pfsParameter, String authToken) throws Exception;
-  
+  public CodeList findDescendantCodes(String terminologyId, String terminology,
+    String version, boolean parentsOnly, PfsParameterJpa pfsParameter,
+    String authToken) throws Exception;
+
   /**
    * Returns the lexical class.
    *
@@ -290,7 +284,6 @@ public interface ContentServiceRest {
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
 
-  
   /**
    * Recomputes lucene indexes for the specified objects as a comma-separated
    * string list.
@@ -325,7 +318,21 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
-   * Load terminology from RRF directory.
+   * Load all termionlogies from an RRF directory.
+   *
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param singleMode the single mode
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologyRrf(String terminology, String version,
+    boolean singleMode, String inputDir, String authToken) throws Exception;
+
+
+  /**
+   * Load terminology snapshot from RF2 directory.
    *
    * @param terminology the terminology
    * @param version the terminology version
@@ -333,9 +340,45 @@ public interface ContentServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void loadTerminologyRrf(String terminology, String version,
+  public void loadTerminologyRf2Snapshot(String terminology, String version,
     String inputDir, String authToken) throws Exception;
 
+  /**
+   * Load terminology full from RF2 directory.
+   *
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologyRf2Full(String terminology, String version,
+    String inputDir, String authToken) throws Exception;
+
+  /**
+   * Load terminology delta from RF2 directory.
+   *
+   * @param terminology the terminology
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologyRf2Delta(String terminology, String inputDir,
+    String authToken) throws Exception;
+
+  /**
+   * Load terminology from ClaML file.
+   *
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param inputFile the input file
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologyClaml(String terminology, String version,
+    String inputFile, String authToken) throws Exception;
+
+  
   /**
    * Removes the terminology.
    *

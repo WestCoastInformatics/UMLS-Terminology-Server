@@ -602,26 +602,25 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * lang.String, java.lang.String, java.lang.String, java.lang.String,
    * com.wci.umls.server.helpers.PfsParameter)
    */
+  @SuppressWarnings("unchecked")
   @Override
   public SubsetMemberList findAtomSubsetMembers(String subsetId,
     String terminology, String version, String branch, PfsParameter pfs) {
     Logger.getLogger(getClass()).debug(
-        "Content Service - find atom subset members " + subsetId
-            + "/" + terminology + "/" + version);
+        "Content Service - find atom subset members " + subsetId + "/"
+            + terminology + "/" + version);
     javax.persistence.Query query =
         applyPfsToQuery("select a from AtomSubsetMemberJpa a "
             + "where terminologyId = :subsetId "
             + "and terminologyVersion = :version "
             + "and terminology = :terminology", pfs);
     javax.persistence.Query ctQuery =
-        manager
-            .createQuery("select count(a) ct from AtomSubsetMemberJpa a "
-                + "where terminologyId = :subsetId "
-                + "and terminologyVersion = :version "
-                + "and terminology = :terminology");
+        manager.createQuery("select count(a) ct from AtomSubsetMemberJpa a "
+            + "where terminologyId = :subsetId "
+            + "and terminologyVersion = :version "
+            + "and terminology = :terminology");
     try {
-      SubsetMemberList list =
-          new SubsetMemberListJpa();
+      SubsetMemberList list = new SubsetMemberListJpa();
 
       // execute count query
       ctQuery.setParameter("terminologyId", subsetId);
@@ -650,26 +649,25 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * .lang.String, java.lang.String, java.lang.String, java.lang.String,
    * com.wci.umls.server.helpers.PfsParameter)
    */
+  @SuppressWarnings("unchecked")
   @Override
   public SubsetMemberList findConceptSubsetMembers(String subsetId,
     String terminology, String version, String branch, PfsParameter pfs) {
     Logger.getLogger(getClass()).debug(
-        "Content Service - find concept subset members " + subsetId
-            + "/" + terminology + "/" + version);
+        "Content Service - find concept subset members " + subsetId + "/"
+            + terminology + "/" + version);
     javax.persistence.Query query =
         applyPfsToQuery("select a from ConceptSubsetMemberJpa a "
             + "where terminologyId = :subsetId "
             + "and terminologyVersion = :version "
             + "and terminology = :terminology", pfs);
     javax.persistence.Query ctQuery =
-        manager
-            .createQuery("select count(a) ct from ConceptSubsetMemberJpa a "
-                + "where terminologyId = :subsetId "
-                + "and terminologyVersion = :version "
-                + "and terminology = :terminology");
+        manager.createQuery("select count(a) ct from ConceptSubsetMemberJpa a "
+            + "where terminologyId = :subsetId "
+            + "and terminologyVersion = :version "
+            + "and terminology = :terminology");
     try {
-      SubsetMemberList list =
-          new SubsetMemberListJpa();
+      SubsetMemberList list = new SubsetMemberListJpa();
 
       // execute count query
       ctQuery.setParameter("terminologyId", subsetId);
@@ -697,22 +695,21 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * com.wci.umls.server.services.ContentService#getAtomSubsetMembers(java.lang
    * .String, java.lang.String, java.lang.String, java.lang.String)
    */
+  @SuppressWarnings("unchecked")
   @Override
   public SubsetMemberList getSubsetMembersForAtom(String atomId,
     String terminology, String version, String branch) {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get subset members for atom "
-            + atomId + "/" + terminology + "/" + version);
+        "Content Service - get subset members for atom " + atomId + "/"
+            + terminology + "/" + version);
     javax.persistence.Query query =
-        manager
-            .createQuery("select a from SubsetMemberJpa s, "
-                + " AtomJpa a where a.terminologyId = :atomId "
-                + "and a.terminologyVersion = :version "
-                + "and a.terminology = :terminology and s.atom = a");
+        manager.createQuery("select a from SubsetMemberJpa s, "
+            + " AtomJpa a where a.terminologyId = :atomId "
+            + "and a.terminologyVersion = :version "
+            + "and a.terminology = :terminology and s.atom = a");
 
     try {
-      SubsetMemberList list =
-          new SubsetMemberListJpa();
+      SubsetMemberList list = new SubsetMemberListJpa();
 
       query.setParameter("terminologyId", atomId);
       query.setParameter("terminology", terminology);
@@ -732,22 +729,21 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * com.wci.umls.server.services.ContentService#getConceptSubsetMembers(java
    * .lang.String, java.lang.String, java.lang.String, java.lang.String)
    */
+  @SuppressWarnings("unchecked")
   @Override
   public SubsetMemberList getSubsetMembersForConcept(String conceptId,
     String terminology, String version, String branch) {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get subset members for concept "
-            + conceptId + "/" + terminology + "/" + version);
+        "Content Service - get subset members for concept " + conceptId + "/"
+            + terminology + "/" + version);
     javax.persistence.Query query =
-        manager
-            .createQuery("select a from SubsetMemberJpa s, "
-                + " ConceptJpa c where c.terminologyId = :conceptId "
-                + "and c.terminologyVersion = :version "
-                + "and c.terminology = :terminology and s.concept = c");
+        manager.createQuery("select a from SubsetMemberJpa s, "
+            + " ConceptJpa c where c.terminologyId = :conceptId "
+            + "and c.terminologyVersion = :version "
+            + "and c.terminology = :terminology and s.concept = c");
 
     try {
-      SubsetMemberList list =
-          new SubsetMemberListJpa();
+      SubsetMemberList list = new SubsetMemberListJpa();
 
       query.setParameter("terminologyId", conceptId);
       query.setParameter("terminology", terminology);

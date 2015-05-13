@@ -20,6 +20,7 @@ import org.hibernate.search.annotations.IndexedEmbedded;
 
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 
@@ -47,6 +48,10 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @IndexedEmbedded
   @OneToMany(targetEntity = SemanticTypeComponentJpa.class)
   private List<SemanticTypeComponent> semanticTypes = null;
+
+  /** The members. */
+  @OneToMany(orphanRemoval = true, targetEntity = ConceptSubsetMemberJpa.class)
+  private List<ConceptSubsetMember> members = null;
 
   /** The fully defined. */
   @Column(nullable = false)
@@ -327,6 +332,59 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Override
   public void setUsesRelationshipUnion(boolean usesRelationshipUnion) {
     this.usesRelationshipUnion = usesRelationshipUnion;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasMembers#getMembers()
+   */
+  @Override
+  public List<ConceptSubsetMember> getMembers() {
+    if (members == null) {
+      members = new ArrayList<ConceptSubsetMember>();
+    }
+    return members;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasMembers#setMembers(java.util.List)
+   */
+  @Override
+  public void setMembers(List<ConceptSubsetMember> members) {
+    this.members = members;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMembers#addMember(com.wci.umls.server.model
+   * .content.SubsetMember)
+   */
+  @Override
+  public void addMember(ConceptSubsetMember member) {
+    if (members == null) {
+      members = new ArrayList<ConceptSubsetMember>();
+    }
+    members.add(member);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMembers#removeMember(com.wci.umls.server
+   * .model.content.SubsetMember)
+   */
+  @Override
+  public void removeMember(ConceptSubsetMember member) {
+    if (members == null) {
+      members = new ArrayList<ConceptSubsetMember>();
+    }
+    members.remove(member);
   }
 
   /*
