@@ -83,6 +83,7 @@ import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Component;
@@ -659,19 +660,27 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - get subset members for atom " + atomId + "/"
             + terminology + "/" + version);
     javax.persistence.Query query =
-        manager.createQuery("select a from SubsetMemberJpa s, "
+        manager
+            .createQuery("select s from AtomSubsetMemberJpa s, "
             + " AtomJpa a where a.terminologyId = :atomId "
             + "and a.terminologyVersion = :version "
-            + "and a.terminology = :terminology and s.atom = a");
+                + "and a.terminology = :terminology and s.member = a");
 
     try {
       SubsetMemberList list = new SubsetMemberListJpa();
 
-      query.setParameter("terminologyId", atomId);
+      query.setParameter("atomId", atomId);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       list.setObjects(query.getResultList());
       list.setTotalCount(list.getObjects().size());
+      
+      // account for lazy initialization
+      for (SubsetMember s : list.getObjects()) {
+        if (s.getAttributes() != null)
+          s.getAttributes().size();
+      }
+      
       return list;
     } catch (NoResultException e) {
       return null;
@@ -693,19 +702,26 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - get subset members for concept " + conceptId + "/"
             + terminology + "/" + version);
     javax.persistence.Query query =
-        manager.createQuery("select a from SubsetMemberJpa s, "
+        manager
+            .createQuery("select s from ConceptSubsetMemberJpa s, "
             + " ConceptJpa c where c.terminologyId = :conceptId "
             + "and c.terminologyVersion = :version "
-            + "and c.terminology = :terminology and s.concept = c");
+                + "and c.terminology = :terminology and s.member = c");
 
     try {
       SubsetMemberList list = new SubsetMemberListJpa();
 
-      query.setParameter("terminologyId", conceptId);
+      query.setParameter("conceptId", conceptId);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       list.setObjects(query.getResultList());
       list.setTotalCount(list.getObjects().size());
+      
+      // account for lazy initialization
+      for (SubsetMember s : list.getObjects()) {
+        if (s.getAttributes() != null)
+          s.getAttributes().size();
+      }
       return list;
     } catch (NoResultException e) {
       return null;
