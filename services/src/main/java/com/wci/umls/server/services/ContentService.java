@@ -611,8 +611,8 @@ public interface ContentService extends RootService {
    * @return the atom
    * @throws Exception the exception
    */
-  public AtomList getAtoms(String terminologyId, String terminology, String version)
-    throws Exception;
+  public AtomList getAtoms(String terminologyId, String terminology,
+    String version) throws Exception;
 
   /**
    * Returns the atom matching the specified parameters.
@@ -783,11 +783,14 @@ public interface ContentService extends RootService {
   /**
    * Autocomplete concepts.
    *
+   * @param terminology the terminology
+   * @param version the version
    * @param searchTerm the search term
    * @return the string list
    * @throws Exception the exception
    */
-  public StringList autocompleteConcepts(String searchTerm) throws Exception;
+  public StringList autocompleteConcepts(String terminology, String version,
+    String searchTerm) throws Exception;
 
   /**
    * Find descriptors for query.
@@ -807,11 +810,14 @@ public interface ContentService extends RootService {
   /**
    * Autocomplete descriptors.
    *
+   * @param terminology the terminology
+   * @param version the version
    * @param searchTerm the search term
    * @return the string list
    * @throws Exception the exception
    */
-  public StringList autocompleteDescriptors(String searchTerm) throws Exception;
+  public StringList autocompleteDescriptors(String terminology, String version,
+    String searchTerm) throws Exception;
 
   /**
    * Find codes for query.
@@ -830,11 +836,14 @@ public interface ContentService extends RootService {
   /**
    * Autocomplete codes.
    *
+   * @param terminology the terminology
+   * @param version the version
    * @param searchTerm the search term
    * @return the string list
    * @throws Exception the exception
    */
-  public StringList autocompleteCodes(String searchTerm) throws Exception;
+  public StringList autocompleteCodes(String terminology, String version,
+    String searchTerm) throws Exception;
 
   /**
    * Find lexical classes for query.

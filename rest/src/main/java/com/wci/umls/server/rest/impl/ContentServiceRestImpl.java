@@ -30,6 +30,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
@@ -511,6 +512,44 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    * (non-Javadoc)
    * 
    * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#autocompleteConcepts
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  @GET
+  @Path("/cui/{terminology}/{version}/autocomplete/{searchTerm}")
+  @ApiOperation(value = "Find autocomplete matches for concept searches.", notes = "Gets a list of search autocomplete matches for the specified search term.", response = StringList.class)
+  public StringList autocompleteConcepts(
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Search term, e.g. 'sul'", required = true) @PathParam("searchTerm") String searchTerm,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/" + terminology + "/" + version
+            + "/autocomplete/" + searchTerm);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find concepts by query",
+          UserRole.VIEWER);
+
+      return contentService.autocompleteConcepts(terminology, version,
+          searchTerm);
+
+    } catch (Exception e) {
+      handleException(e, "trying to autocomplete for concepts");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getDescriptor(
    * java.lang.String, java.lang.String, java.lang.String, java.lang.String)
    */
@@ -606,6 +645,44 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /*
    * (non-Javadoc)
    * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * autocompleteDescriptors(java.lang.String, java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  @GET
+  @Path("/dui/{terminology}/{version}/autocomplete/{searchTerm}")
+  @ApiOperation(value = "Find autocomplete matches for descriptor searches.", notes = "Gets a list of search autocomplete matches for the specified search term.", response = StringList.class)
+  public StringList autocompleteDescriptors(
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Search term, e.g. 'sul'", required = true) @PathParam("searchTerm") String searchTerm,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /dui/" + terminology + "/" + version
+            + "/autocomplete/" + searchTerm);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find descriptors by query",
+          UserRole.VIEWER);
+
+      return contentService.autocompleteDescriptors(terminology, version,
+          searchTerm);
+
+    } catch (Exception e) {
+      handleException(e, "trying to autocomplete for descriptors");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getCode(java.lang
    * .String, java.lang.String, java.lang.String, java.lang.String)
@@ -689,6 +766,43 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     } catch (Exception e) {
       handleException(e, "trying to find the codes by query");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#autocompleteCodes
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  @GET
+  @Path("/code/{terminology}/{version}/autocomplete/{searchTerm}")
+  @ApiOperation(value = "Find autocomplete matches for code searches.", notes = "Gets a list of search autocomplete matches for the specified search term.", response = StringList.class)
+  public StringList autocompleteCodes(
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Search term, e.g. 'sul'", required = true) @PathParam("searchTerm") String searchTerm,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /code/" + terminology + "/" + version
+            + "/autocomplete/" + searchTerm);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find code by query",
+          UserRole.VIEWER);
+
+      return contentService.autocompleteCodes(terminology, version, searchTerm);
+
+    } catch (Exception e) {
+      handleException(e, "trying to autocomplete for codes");
       return null;
     } finally {
       contentService.close();
@@ -924,8 +1038,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#findDescendantConcepts(java.lang.String, java.lang.String, java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findDescendantConcepts
+   * (java.lang.String, java.lang.String, java.lang.String, boolean,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
   @POST
@@ -964,8 +1083,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorDescriptors(java.lang.String, java.lang.String, java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findAncestorDescriptors(java.lang.String, java.lang.String,
+   * java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
    */
   @Override
   @POST
@@ -1004,8 +1128,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#findDescendantDescriptors(java.lang.String, java.lang.String, java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findDescendantDescriptors(java.lang.String, java.lang.String,
+   * java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
    */
   @Override
   @POST
@@ -1044,8 +1173,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorCodes(java.lang.String, java.lang.String, java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorCodes
+   * (java.lang.String, java.lang.String, java.lang.String, boolean,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
   @POST
@@ -1084,8 +1218,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#findDescendantCodes(java.lang.String, java.lang.String, java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findDescendantCodes
+   * (java.lang.String, java.lang.String, java.lang.String, boolean,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
   @POST
@@ -1200,10 +1339,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-  
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyRf2Delta(java.lang.String, java.lang.String, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * loadTerminologyRf2Delta(java.lang.String, java.lang.String,
+   * java.lang.String)
    */
   @Override
   @PUT
@@ -1295,9 +1437,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyRf2Full(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyRf2Full
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
    */
   @SuppressWarnings("resource")
   @Override
@@ -1471,9 +1616,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
- 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyRf2Snapshot(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * loadTerminologyRf2Snapshot(java.lang.String, java.lang.String,
+   * java.lang.String, java.lang.String)
    */
   @Override
   @PUT
@@ -1560,8 +1708,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyClaml(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyClaml
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
   @PUT

@@ -7,6 +7,7 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
@@ -50,6 +51,19 @@ public interface ContentServiceRest {
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
+
+  /**
+   * Autocomplete concepts.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param searchTerm the search term
+   * @param authToken the auth token
+   * @return the string list
+   * @throws Exception the exception
+   */
+  public StringList autocompleteConcepts(String terminology, String version,
+    String searchTerm, String authToken) throws Exception;
 
   /**
    * Find ancestor concepts.
@@ -138,6 +152,19 @@ public interface ContentServiceRest {
     throws Exception;
 
   /**
+   * Autocomplete descriptors.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param searchTerm the search term
+   * @param authToken the auth token
+   * @return the string list
+   * @throws Exception the exception
+   */
+  public StringList autocompleteDescriptors(String terminology, String version,
+    String searchTerm, String authToken) throws Exception;
+
+  /**
    * Find ancestor descriptors.
    *
    * @param terminologyId the terminology id
@@ -195,6 +222,19 @@ public interface ContentServiceRest {
    */
   public SearchResultList findCodesForQuery(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Autocomplete codes.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param searchTerm the search term
+   * @param authToken the auth token
+   * @return the string list
+   * @throws Exception the exception
+   */
+  public StringList autocompleteCodes(String terminology, String version,
+    String searchTerm, String authToken) throws Exception;
 
   /**
    * Find ancestor codes.
@@ -330,7 +370,6 @@ public interface ContentServiceRest {
   public void loadTerminologyRrf(String terminology, String version,
     boolean singleMode, String inputDir, String authToken) throws Exception;
 
-
   /**
    * Load terminology snapshot from RF2 directory.
    *
@@ -378,7 +417,6 @@ public interface ContentServiceRest {
   public void loadTerminologyClaml(String terminology, String version,
     String inputFile, String authToken) throws Exception;
 
-  
   /**
    * Removes the terminology.
    *

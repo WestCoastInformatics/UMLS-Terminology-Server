@@ -15,6 +15,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
@@ -225,7 +226,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -261,7 +262,6 @@ public class ContentClientRest implements ContentServiceRest {
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
-    Logger.getLogger(getClass()).debug(pfsString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -270,7 +270,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -279,6 +279,44 @@ public class ContentClientRest implements ContentServiceRest {
     SearchResultListJpa list =
         (SearchResultListJpa) ConfigUtility.getGraphForString(resultString,
             SearchResultListJpa.class);
+    return list;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#autocompleteConcepts
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public StringList autocompleteConcepts(String terminology, String version,
+    String searchTerm, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - autocomplete concepts " + terminology + ", "
+            + version + ", " + searchTerm);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/cui/"
+            + terminology + "/" + version + "/autocomplete/" + searchTerm);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .get(ClientResponse.class);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    StringList list =
+        (StringList) ConfigUtility.getGraphForString(resultString,
+            StringList.class);
     return list;
   }
 
@@ -305,7 +343,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -340,7 +378,6 @@ public class ContentClientRest implements ContentServiceRest {
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
-    Logger.getLogger(getClass()).debug(pfsString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -349,7 +386,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -358,6 +395,44 @@ public class ContentClientRest implements ContentServiceRest {
     SearchResultListJpa list =
         (SearchResultListJpa) ConfigUtility.getGraphForString(resultString,
             SearchResultListJpa.class);
+    return list;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * autocompleteDescriptors(java.lang.String, java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  public StringList autocompleteDescriptors(String terminology, String version,
+    String searchTerm, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - autocomplete descriptors " + terminology + ", "
+            + version + ", " + searchTerm);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/dui/"
+            + terminology + "/" + version + "/autocomplete/" + searchTerm);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .get(ClientResponse.class);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    StringList list =
+        (StringList) ConfigUtility.getGraphForString(resultString,
+            StringList.class);
     return list;
   }
 
@@ -384,7 +459,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -417,7 +492,6 @@ public class ContentClientRest implements ContentServiceRest {
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
-    Logger.getLogger(getClass()).debug(pfsString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -426,7 +500,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -435,6 +509,44 @@ public class ContentClientRest implements ContentServiceRest {
     SearchResultListJpa list =
         (SearchResultListJpa) ConfigUtility.getGraphForString(resultString,
             SearchResultListJpa.class);
+    return list;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#autocompleteCodes
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public StringList autocompleteCodes(String terminology, String version,
+    String searchTerm, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - autocomplete codes " + terminology + ", " + version
+            + ", " + searchTerm);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/code/"
+            + terminology + "/" + version + "/autocomplete/" + searchTerm);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .get(ClientResponse.class);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    StringList list =
+        (StringList) ConfigUtility.getGraphForString(resultString,
+            StringList.class);
     return list;
   }
 
@@ -461,7 +573,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -496,7 +608,6 @@ public class ContentClientRest implements ContentServiceRest {
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
-    Logger.getLogger(getClass()).debug(pfsString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -505,7 +616,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -540,7 +651,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -575,7 +686,6 @@ public class ContentClientRest implements ContentServiceRest {
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
-    Logger.getLogger(getClass()).debug(pfsString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -584,7 +694,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -620,7 +730,6 @@ public class ContentClientRest implements ContentServiceRest {
     String pfsString =
         ConfigUtility.getStringForGraph(pfsParameter == null
             ? new PfsParameterJpa() : pfsParameter);
-    Logger.getLogger(getClass()).debug(pfsString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -629,7 +738,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -666,7 +775,6 @@ public class ContentClientRest implements ContentServiceRest {
     String pfsString =
         ConfigUtility.getStringForGraph(pfsParameter == null
             ? new PfsParameterJpa() : pfsParameter);
-    Logger.getLogger(getClass()).debug(pfsString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -675,7 +783,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -711,7 +819,6 @@ public class ContentClientRest implements ContentServiceRest {
     String pfsString =
         ConfigUtility.getStringForGraph(pfsParameter == null
             ? new PfsParameterJpa() : pfsParameter);
-    Logger.getLogger(getClass()).debug(pfsString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -720,7 +827,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -757,7 +864,6 @@ public class ContentClientRest implements ContentServiceRest {
     String pfsString =
         ConfigUtility.getStringForGraph(pfsParameter == null
             ? new PfsParameterJpa() : pfsParameter);
-    Logger.getLogger(getClass()).debug(pfsString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -766,7 +872,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -802,7 +908,6 @@ public class ContentClientRest implements ContentServiceRest {
     String pfsString =
         ConfigUtility.getStringForGraph(pfsParameter == null
             ? new PfsParameterJpa() : pfsParameter);
-    Logger.getLogger(getClass()).debug(pfsString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -811,7 +916,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -848,7 +953,6 @@ public class ContentClientRest implements ContentServiceRest {
     String pfsString =
         ConfigUtility.getStringForGraph(pfsParameter == null
             ? new PfsParameterJpa() : pfsParameter);
-    Logger.getLogger(getClass()).debug(pfsString);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -857,7 +961,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -892,7 +996,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }
@@ -927,7 +1031,7 @@ public class ContentClientRest implements ContentServiceRest {
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      Logger.getLogger(getClass()).debug(resultString);
+      // n/a
     } else {
       throw new Exception(response.toString());
     }

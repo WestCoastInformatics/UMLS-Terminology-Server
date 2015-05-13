@@ -1265,12 +1265,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (members.size() == 0) {
         continue;
       }
+      subset.setMembers(new ArrayList<AtomSubsetMember>());
       addSubset(subset);
       for (final AtomSubsetMember member : members) {
         addSubsetMember(member);
+        subset.addMember(member);
         // add member
         logAndCommit(++objectCt);
       }
+      logAndCommit(++objectCt);
     }
 
     // commit
@@ -1285,12 +1288,14 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (members.size() == 0) {
         continue;
       }
+      subset.setMembers(new ArrayList<ConceptSubsetMember>());
       addSubset(subset);
       for (final ConceptSubsetMember member : members) {
         addSubsetMember(member);
         // add member
         logAndCommit(++objectCt);
       }
+      logAndCommit(++objectCt);
     }
 
     // final commit

@@ -16,12 +16,16 @@ import javax.persistence.NoResultException;
 import javax.persistence.metamodel.EntityType;
 
 import org.apache.log4j.Logger;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
 import org.hibernate.search.SearchFactory;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.jpa.FullTextEntityManager;
@@ -2675,13 +2679,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * 
    * @see
    * com.wci.umls.server.services.ContentService#autocompleteConcepts(java.lang
-   * .String)
+   * .String, java.lang.String, java.lang.String)
    */
   @Override
-  public StringList autocompleteConcepts(String searchTerm) throws Exception {
+  public StringList autocompleteConcepts(String terminology, String version,
+    String searchTerm) throws Exception {
     Logger.getLogger(getClass()).info(
-        "Content Service - autocomplete concepts " + searchTerm);
-    return autocompleteHelper(searchTerm, ConceptJpa.class);
+        "Content Service - autocomplete concepts " + terminology + ", "
+            + version + ", " + searchTerm);
+    return autocompleteHelper(terminology, version, searchTerm, ConceptJpa.class);
   }
 
   /*
@@ -2708,13 +2714,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * 
    * @see
    * com.wci.umls.server.services.ContentService#autocompleteDescriptors(java
-   * .lang.String)
+   * .lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public StringList autocompleteDescriptors(String searchTerm) throws Exception {
+  public StringList autocompleteDescriptors(String terminology, String version,
+    String searchTerm) throws Exception {
     Logger.getLogger(getClass()).info(
-        "Content Service - autocomplete descriptors " + searchTerm);
-    return autocompleteHelper(searchTerm, DescriptorJpa.class);
+        "Content Service - autocomplete descriptors " + terminology + ", "
+            + version + ", " + searchTerm);
+    return autocompleteHelper(terminology, version, searchTerm, DescriptorJpa.class);
   }
 
   /**
@@ -2794,14 +2802,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /**
    * Autocomplete helper.
    *
+   * @param terminology the terminology
+   * @param version the version
    * @param searchTerm the search term
    * @param clazz the clazz
    * @return the string list
    * @throws Exception the exception
    */
-  private StringList autocompleteHelper(String searchTerm, Class<?> clazz)
-    throws Exception {
-
+  private StringList autocompleteHelper(String terminology, String version,
+    String searchTerm, Class<?> clazz)
+  throws Exception {
+    
     final String TITLE_EDGE_NGRAM_INDEX = "atoms.edgeNGramName";
     final String TITLE_NGRAM_INDEX = "atoms.nGramName";
 
@@ -2815,15 +2826,22 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         titleQB.phrase().withSlop(2).onField(TITLE_NGRAM_INDEX)
             .andField(TITLE_EDGE_NGRAM_INDEX).boostedTo(5)
             .sentence(searchTerm.toLowerCase()).createQuery();
-
+    
+    Query term1 = new TermQuery(new Term("terminology", terminology));
+    Query term2 = new TermQuery(new Term("terminologyVersion", version));
+    BooleanQuery booleanQuery = new BooleanQuery();
+    booleanQuery.add(term1, BooleanClause.Occur.MUST);
+    booleanQuery.add(term2, BooleanClause.Occur.MUST);
+    booleanQuery.add(query, BooleanClause.Occur.MUST);
+    
     FullTextQuery fullTextQuery =
-        fullTextEntityManager.createFullTextQuery(query, clazz);
+        fullTextEntityManager.createFullTextQuery(booleanQuery, clazz);
     fullTextQuery.setMaxResults(20);
 
     @SuppressWarnings("unchecked")
-    List<Concept> results = fullTextQuery.getResultList();
+    List<AtomClass> results = fullTextQuery.getResultList();
     StringList list = new StringList();
-    for (Concept result : results) {
+    for (AtomClass result : results) {
       list.addObject(result.getName());
     }
     return list;
@@ -2959,13 +2977,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * 
    * @see
    * com.wci.umls.server.services.ContentService#autocompleteCodes(java.lang
-   * .String)
+   * .String, java.lang.String, java.lang.String)
    */
   @Override
-  public StringList autocompleteCodes(String searchTerm) throws Exception {
+  public StringList autocompleteCodes(String terminology, String version,
+    String searchTerm) throws Exception {
     Logger.getLogger(getClass()).info(
-        "Content Service - autocomplete codes " + searchTerm);
-    return autocompleteHelper(searchTerm, CodeJpa.class);
+        "Content Service - autocomplete codes " + terminology + ", " + version
+            + ", " + searchTerm);
+    return autocompleteHelper(terminology, version, searchTerm, CodeJpa.class);
   }
 
   /*
