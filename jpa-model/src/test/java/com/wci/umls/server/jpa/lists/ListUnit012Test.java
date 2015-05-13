@@ -20,7 +20,7 @@ import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
@@ -30,7 +30,7 @@ import com.wci.umls.server.model.content.SubsetMember;
  * Unit testing for {@link SubsetMemberList}.
  */
 public class ListUnit012Test extends
-    AbstractListUnit<SubsetMember<? extends ComponentHasAttributes>> {
+    AbstractListUnit<SubsetMember<? extends ComponentHasAttributesAndName>> {
 
   /** The list test fixture . */
   private SubsetMemberList list;

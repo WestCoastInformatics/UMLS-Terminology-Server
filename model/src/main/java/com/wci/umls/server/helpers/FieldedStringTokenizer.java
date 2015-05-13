@@ -310,6 +310,7 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
    * @return <code>true</code> if there are more tokens; <code>false</code>
    *         otherwise
    */
+  @Override
   public boolean hasMoreElements() {
     return hasMoreTokens();
   }
@@ -331,6 +332,7 @@ public class FieldedStringTokenizer implements Enumeration<Object> {
    * exists so that this class can implement the {@link Enumeration} interface.
    * @return An object {@link String} representation of the next token
    */
+  @Override
   public Object nextElement() {
     return nextToken();
   }

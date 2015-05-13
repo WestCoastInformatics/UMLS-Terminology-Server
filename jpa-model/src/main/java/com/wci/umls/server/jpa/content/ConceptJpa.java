@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -50,7 +51,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   private List<SemanticTypeComponent> semanticTypes = null;
 
   /** The members. */
-  @OneToMany(orphanRemoval = true, targetEntity = ConceptSubsetMemberJpa.class)
+  @OneToMany(mappedBy = "member", targetEntity = ConceptSubsetMemberJpa.class)
   private List<ConceptSubsetMember> members = null;
 
   /** The fully defined. */
@@ -93,6 +94,9 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       }
       for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
         addSemanticType(new SemanticTypeComponentJpa(sty));
+      }
+      for (ConceptSubsetMember member : concept.getMembers()) {
+        addMember(new ConceptSubsetMemberJpa(member, deepCopy));
       }
     }
   }
@@ -339,6 +343,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    * 
    * @see com.wci.umls.server.helpers.HasMembers#getMembers()
    */
+  @XmlElement(type = ConceptSubsetMemberJpa.class, name = "member")
   @Override
   public List<ConceptSubsetMember> getMembers() {
     if (members == null) {

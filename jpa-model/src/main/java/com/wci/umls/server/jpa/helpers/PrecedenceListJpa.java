@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -64,12 +65,14 @@ public class PrecedenceListJpa implements PrecedenceList {
 
   /** The terminology list. */
   @ElementCollection
-  @JoinColumn(nullable = false, name="precedence_list_terminologies")
+  @CollectionTable(name = "precedence_list_terminologies")
+  @JoinColumn(nullable = false)
   private List<String> terminologies;
 
   /** The term types. */
   @ElementCollection
-  @JoinColumn(nullable = false, name="precedence_list_term_types")
+  @CollectionTable(name = "precedence_list_term_types")
+  @JoinColumn(nullable = false)
   private List<String> termTypes;
 
   /**

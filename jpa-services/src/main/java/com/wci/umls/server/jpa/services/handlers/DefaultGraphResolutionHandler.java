@@ -9,12 +9,14 @@ import java.util.Set;
 
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
+import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
@@ -54,6 +56,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     throws Exception {
     if (concept != null) {
       boolean nullId = concept.getId() == null;
+      concept.setMembers(new ArrayList<ConceptSubsetMember>());
 
       // Attributes
       resolveAttributes(concept, nullId);
@@ -108,6 +111,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     concept.setDefinitions(new ArrayList<Definition>());
     concept.setAttributes(new ArrayList<Attribute>());
     concept.setRelationships(new ArrayList<ConceptRelationship>());
+    concept.setMembers(new ArrayList<ConceptSubsetMember>());
   }
 
   /*
@@ -154,7 +158,8 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       atom.getName();
       atom.getConceptTerminologyIds().keySet();
       atom.getAlternateTerminologyIds().keySet();
-
+      atom.setMembers(new ArrayList<AtomSubsetMember>());
+      
       // Attributes
       resolveAttributes(atom, nullId);
 

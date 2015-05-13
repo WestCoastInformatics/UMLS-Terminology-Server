@@ -50,12 +50,12 @@ import com.wci.umls.server.model.content.Definition;
 public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /** The definitions. */
-  @OneToMany(orphanRemoval = true, targetEntity = DefinitionJpa.class)
+  @OneToMany(targetEntity = DefinitionJpa.class)
   @IndexedEmbedded
   private List<Definition> definitions = null;
 
   /** The members. */
-  @OneToMany(orphanRemoval = true, targetEntity = AtomSubsetMemberJpa.class)
+  @OneToMany(mappedBy = "member", targetEntity = AtomSubsetMemberJpa.class)
   private List<AtomSubsetMember> members = null;
 
   /** The relationships. */
@@ -152,6 +152,9 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
       }
       for (AtomRelationship relationship : atom.getRelationships()) {
         addRelationship(new AtomRelationshipJpa(relationship, deepCopy));
+      }
+      for (AtomSubsetMember member : atom.getMembers()) {
+        addMember(new AtomSubsetMemberJpa(member, deepCopy));
       }
     }
   }
@@ -708,6 +711,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @see com.wci.umls.server.helpers.HasMembers#getMembers()
    */
   @Override
+  @XmlElement(type = AtomSubsetMemberJpa.class, name = "member")
   public List<AtomSubsetMember> getMembers() {
     if (members == null) {
       members = new ArrayList<AtomSubsetMember>();

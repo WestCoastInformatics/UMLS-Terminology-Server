@@ -349,7 +349,6 @@ public class UmlsMetadataServiceJpaHelper extends
   @Override
   public RelationshipTypeList getHierarchicalRelationshipTypes(
     String terminology, String version) throws Exception {
-    Logger.getLogger(getClass()).info("  childRel = " + chdRel);
     // cache and check for the CHD rel
     if (chdRel == null) {
       RelationshipTypeList list = getRelationshipTypes(terminology, version);

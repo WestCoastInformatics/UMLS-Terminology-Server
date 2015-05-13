@@ -399,7 +399,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.ADMINISTRATOR);
 
       metadataService.clearMetadata(terminology, version);
-      contentService.clearConcepts(terminology, version);
+      contentService.clearContent(terminology, version);
 
       // Final logging messages
       Logger.getLogger(getClass()).info(

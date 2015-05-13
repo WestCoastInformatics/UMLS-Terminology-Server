@@ -3,6 +3,9 @@
  */
 package com.wci.umls.server.jpa.algo;
 
+import gnu.trove.map.hash.TCustomHashMap;
+import gnu.trove.strategy.HashingStrategy;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -131,61 +134,78 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private final String published = "PUBLISHED";
 
   /** The loaded terminologies. */
-  private Map<String, Terminology> loadedTerminologies = new HashMap<>();
+  private Map<String, Terminology> loadedTerminologies = new TCustomHashMap<>(
+      new StandardStrategy());
 
   /** The loaded term types. */
-  private Map<String, TermType> loadedTermTypes = new HashMap<>();
+  private Map<String, TermType> loadedTermTypes = new TCustomHashMap<>(
+      new StandardStrategy());
 
   /** The term id type map. */
-  private Map<String, IdType> termIdTypeMap = new HashMap<>();
+  private Map<String, IdType> termIdTypeMap = new TCustomHashMap<>(
+      new StandardStrategy());
 
   /** The code map. */
-  private Map<String, Code> codeMap = new HashMap<>();
+  private Map<String, Long> codeIdMap = new TCustomHashMap<>(
+      new StandardStrategy());
 
   /** The concept map. */
-  private Map<String, Concept> conceptMap = new HashMap<>();
+  private Map<String, Long> conceptIdMap = new TCustomHashMap<>(
+      new StandardStrategy());
 
   /** The descriptor map. */
-  private Map<String, Descriptor> descriptorMap = new HashMap<>();
-
-  /** The lexical class map. */
-  private Map<String, LexicalClass> lexicalClassMap = new HashMap<>();
-
-  /** The string class map. */
-  private Map<String, StringClass> stringClassMap = new HashMap<>();
+  private Map<String, Long> descriptorIdMap = new TCustomHashMap<>(
+      new StandardStrategy());
 
   /** The atom map. */
-  private Map<String, Atom> atomMap = new HashMap<>();
+  private Map<String, Long> atomIdMap = new TCustomHashMap<>(
+      new StandardStrategy());
+
+  /** The atom concept id map. */
+  private Map<String, String> atomConceptIdMap = new TCustomHashMap<>(
+      new StandardStrategy());
+
+  /** The atom code id map. */
+  private Map<String, String> atomCodeIdMap = new TCustomHashMap<>(
+      new StandardStrategy());
+
+  /** The atom descriptor id map. */
+  private Map<String, String> atomDescriptorIdMap = new TCustomHashMap<>(
+      new StandardStrategy());
 
   /** The relationship map. */
   private Map<String, Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipMap =
-      new HashMap<>();
+      new TCustomHashMap<>(new StandardStrategy());
 
   /** The cui aui atom subset map. */
-  private Map<String, AtomSubset> cuiAuiAtomSubsetMap = new HashMap<>();
+  private Map<String, AtomSubset> cuiAuiAtomSubsetMap = new TCustomHashMap<>(
+      new StandardStrategy());
 
   /** The cui auiconcept subset map. */
-  private Map<String, ConceptSubset> cuiAuiConceptSubsetMap = new HashMap<>();
+  private Map<String, ConceptSubset> cuiAuiConceptSubsetMap =
+      new TCustomHashMap<>(new StandardStrategy());
 
   /** The id atom subset map. */
-  private Map<String, AtomSubset> idTerminologyAtomSubsetMap = new HashMap<>();
+  private Map<String, AtomSubset> idTerminologyAtomSubsetMap =
+      new TCustomHashMap<>(new StandardStrategy());
 
   /** The id auiconcept subset map. */
   private Map<String, ConceptSubset> idTerminologyConceptSubsetMap =
-      new HashMap<>();
+      new TCustomHashMap<>(new StandardStrategy());
 
   /** The atom subset member map. */
-  private Map<String, AtomSubsetMember> atomSubsetMemberMap = new HashMap<>();
+  private Map<String, AtomSubsetMember> atomSubsetMemberMap =
+      new TCustomHashMap<>(new StandardStrategy());
 
   /** The atom subset member map. */
   private Map<String, ConceptSubsetMember> conceptSubsetMemberMap =
-      new HashMap<>();
+      new TCustomHashMap<>(new StandardStrategy());
 
   /** The lat code map. */
   private static Map<String, String> latCodeMap = new HashMap<>();
+
   static {
     // from http://www.nationsonline.org/oneworld/country_code_list.htm
-
     latCodeMap.put("BAQ", "eu");
     latCodeMap.put("CZE", "cz");
     latCodeMap.put("DAN", "dk");
@@ -331,24 +351,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // Commit
       commitClearBegin();
 
-      // Clear memory
-      for (final Atom atom : atomMap.values()) {
-        atom.setAttributes(new ArrayList<Attribute>());
-      }
-      for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : this.relationshipMap
-          .values()) {
-        r.setAttributes(new ArrayList<Attribute>());
-      }
-      for (final Concept concept : conceptMap.values()) {
-        concept.setAttributes(new ArrayList<Attribute>());
-      }
-      for (final Code code : codeMap.values()) {
-        code.setAttributes(new ArrayList<Attribute>());
-      }
-      for (final Descriptor d : descriptorMap.values()) {
-        d.setAttributes(new ArrayList<Attribute>());
-      }
-
       // Add release info for individual terminology
       for (Terminology terminology : getTerminologyLatestVersions()
           .getObjects()) {
@@ -483,11 +485,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Load MRDOC abbreviation types");
     String line = null;
     Set<String> atnSeen = new HashSet<>();
-    Map<String, RelationshipType> relMap = new HashMap<>();
-    Map<String, String> inverseRelMap = new HashMap<>();
-    Map<String, AdditionalRelationshipType> relaMap = new HashMap<>();
-    Map<String, String> inverseRelaMap = new HashMap<>();
-    Map<String, TermType> ttyMap = new HashMap<>();
+    Map<String, RelationshipType> relMap =
+        new TCustomHashMap<>(new StandardStrategy());
+    Map<String, String> inverseRelMap =
+        new TCustomHashMap<>(new StandardStrategy());
+    Map<String, AdditionalRelationshipType> relaMap =
+        new TCustomHashMap<>(new StandardStrategy());
+    Map<String, String> inverseRelaMap =
+        new TCustomHashMap<>(new StandardStrategy());
+    Map<String, TermType> ttyMap = new TCustomHashMap<>(new StandardStrategy());
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDOC);
     int objectCt = 0;
     final String fields[] = new String[4];
@@ -704,8 +710,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private void loadMrsab() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRSAB data");
     String line = null;
-    Map<String, RootTerminology> rootTerminologies = new HashMap<>();
-    Map<String, Terminology> terminologies = new HashMap<>();
+    Map<String, RootTerminology> rootTerminologies =
+        new TCustomHashMap<>(new StandardStrategy());
+    Map<String, Terminology> terminologies =
+        new TCustomHashMap<>(new StandardStrategy());
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAB);
     final String fields[] = new String[25];
     while ((line = reader.readLine()) != null) {
@@ -921,20 +929,14 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
       // Field Description
-      // 0 CUI Unique identifier for concept
-      // 1 AUI Unique identifier for atom - variable length field, 8 or 9
-      // characters
-      // 2 ATUI Unique identifier for attribute
-      // 3 SATUI Source asserted attribute identifier [optional-present if it
-      // exists]
-      // 4 SAB Abbreviated source name (SAB) of the source of the definition
-      // 5 DEF Definition
-      // 6 SUPPRESS Suppressible flag. Values = O, E, Y, or N. Reflects the
-      // suppressible status of the attribute; not yet in use. See also SUPPRESS
-      // in MRCONSO.RRF, MRREL.RRF, and MRSAT.RRF.
-      // 7 CVF Content View Flag. Bit field used to flag rows included in
-      // Content View. This field is a varchar field to maximize the number of
-      // bits available for use.
+      // 0 CUI
+      // 1 AUI
+      // 2 ATUI
+      // 3 SATUI
+      // 4 SAB
+      // 5 DEF
+      // 6 SUPPRESS
+      // 7 CVF
       //
       // e.g.
       // C0001175|A0019180|AT38139119||MSH|An acquired defect of cellular
@@ -952,7 +954,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       final Definition def = new DefinitionJpa();
 
-      final Atom atom = atomMap.get(fields[1]);
+      final Atom atom = getAtom(atomIdMap.get(fields[1]));
+
       atom.addDefinition(def);
       modifiedAtoms.add(atom);
 
@@ -987,6 +990,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     // call updateAtom on all of the modified atoms
     // Needed because definition is not linked to atom.
+    Logger.getLogger(getClass()).info("  Update atoms");
     objectCt = 0;
     for (final Atom a : modifiedAtoms) {
       updateAtom(a);
@@ -1029,38 +1033,20 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
       // Field Description
-      // 0 CUI Unique identifier for concept (if METAUI is a relationship
-      // identifier, this will be CUI1 for that relationship)
-      // 1 LUI Unique identifier for term (optional - present for atom
-      // attributes, but not for relationship attributes)
-      // 2 SUI Unique identifier for string (optional - present for atom
-      // attributes, but not for relationship attributes)
-      // 3 METAUI Metathesaurus atom identifier (will have a leading A) or
-      // Metathesaurus relationship identifier (will have a leading R) or blank
-      // if it is a concept attribute.
-      // 4 STYPE The name of the column in MRCONSO.RRF or MRREL.RRF that
-      // contains the identifier to which the attribute is attached, i.e. AUI,
-      // CODE, CUI, RUI, SCUI, SDUI.
-      // 5 CODE Most useful source asserted identifier (if the source vocabulary
-      // contains more than one) or a Metathesaurus-generated source entry
-      // identifier (if the source vocabulary has none). Optional - present if
-      // METAUI is an AUI.
-      // 6 ATUI Unique identifier for attribute
-      // 7 SATUI Source asserted attribute identifier (optional - present if it
-      // exists)
-      // 8 ATN Attribute name. Possible values appear in MRDOC.RRF and are
-      // described on the Attribute Names page.
-      // 9 SAB Abbreviated source name (SAB).
-      // 10 ATV Attribute value described under specific attribute name on the
-      // Attributes Names page. A few attribute values exceed 1,000 characters.
-      // Many of the abbreviations used in attribute values are explained in
-      // MRDOC.RRF and included on the Abbreviations Used in Data Elements page.
-      // 11 SUPPRESS Suppressible flag. Values = O, E, Y, or N. Reflects the
-      // suppressible status of the attribute. See also SUPPRESS in MRCONSO.RRF,
-      // MRDEF.RRF, and MRREL.RRF.
-      // 12 CVF Content View Flag. Bit field used to flag rows included in
-      // Content View. This field is a varchar field to maximize the number of
-      // bits available for use.
+      // 0 CUI
+      // 1 LUI
+      // 2 SUI
+      // 3 METAUI
+      // 4 STYPE
+      // 5 CODE
+      // 6 ATUI
+      // 7 SATUI
+      // 8 ATN
+      // 9 SAB
+      // 10 ATV
+      // 11 SUPPRESS
+      // 12 CVF
+      //
       // e.g.
       // C0001175|L0001175|S0010339|A0019180|SDUI|D000163|AT38209082||FX|MSH|D015492|N||
       // C0001175|L0001175|S0354232|A2922342|AUI|62479008|AT24600515||DESCRIPTIONSTATUS|SNOMEDCT|0|N||
@@ -1114,8 +1100,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         if (atomSubsetMemberMap.containsKey(subsetMemberIdKey)) {
           member = atomSubsetMemberMap.get(subsetMemberIdKey);
           found = true;
-        } else if (atomSubsetMemberMap.containsKey(subsetMemberIdKey)) {
-          member = atomSubsetMemberMap.get(subsetMemberIdKey);
+        } else if (conceptSubsetMemberMap.containsKey(subsetMemberIdKey)) {
+          member = conceptSubsetMemberMap.get(subsetMemberIdKey);
           found = true;
         }
 
@@ -1126,7 +1112,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
                 idTerminologyAtomSubsetMap.get(subsetIdKey);
             final AtomSubsetMember atomMember = new AtomSubsetMemberJpa();
             atomSubset.addMember(atomMember);
-            atomMember.setMember(atomMap.get(fields[3]));
+            Atom atom = new AtomJpa();
+            atom.setId(atomIdMap.get(fields[3]));
+            atomMember.setMember(atom);
             atomMember.setSubset(atomSubset);
             atomSubsetMemberMap.put(subsetMemberIdKey, atomMember);
             idTerminologyConceptSubsetMap.remove(subsetIdKey);
@@ -1138,8 +1126,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             final ConceptSubsetMember conceptMember =
                 new ConceptSubsetMemberJpa();
             conceptSubset.addMember(conceptMember);
-            conceptMember.setMember(conceptMap.get(atomMap.get(fields[3])
-                .getConceptId() + fields[9]));
+            // Get the concept for the terminology and the conceptId of the atom
+            Concept concept = new ConceptJpa();
+            concept.setId(conceptIdMap.get(fields[9]
+                + atomConceptIdMap.get(fields[3])));
+            conceptMember.setMember(concept);
             conceptMember.setSubset(conceptSubset);
             conceptSubsetMemberMap.put(subsetMemberIdKey, conceptMember);
             idTerminologyAtomSubsetMap.remove(subsetIdKey);
@@ -1185,7 +1176,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           memberAtt.setName(atvFields[1]);
           memberAtt.setValue(atvFields[2]);
           addAttribute(memberAtt);
-          logAndCommit(++objectCt);
+          objectCt++;
 
           if (member != null) {
             member.addAttribute(memberAtt);
@@ -1196,30 +1187,63 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
         continue;
       } else if (fields[4].equals("AUI")) {
-        Atom atom = atomMap.get(fields[3]);
+        // Get the concept for the AUI
+        Atom atom = getAtom(atomIdMap.get(fields[3]));
         atom.addAttribute(att);
       } else if (fields[4].equals("RUI")) {
+        // Get the relationship for the RUI
         Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship =
             relationshipMap.get(fields[3]);
         relationship.addAttribute(att);
       } else if (fields[4].equals("CODE")) {
-        Code code = codeMap.get(atomMap.get(fields[3]).getCodeId() + fields[9]);
+        // Get the code for the terminology and CODE of the AUI
+        Code code =
+            getCode(codeIdMap.get(fields[9] + atomCodeIdMap.get(fields[3])));
         code.addAttribute(att);
       } else if (fields[4].equals("CUI")) {
-        Concept concept = conceptMap.get(fields[0] + terminology);
+        // Get the concept for the terminology and CUI
+        Concept concept = getConcept(conceptIdMap.get(terminology + fields[0]));
         concept.addAttribute(att);
       } else if (fields[4].equals("SDUI")) {
+        // Get the descriptor for the terminology and SDUI of the AUI
         Descriptor descriptor =
-            descriptorMap.get(atomMap.get(fields[3]).getDescriptorId()
-                + fields[9]);
+            getDescriptor(descriptorIdMap.get(fields[9]
+                + atomDescriptorIdMap.get(fields[3])));
         descriptor.addAttribute(att);
       } else if (fields[4].equals("SCUI")) {
+        // Get the concept for the terminology and SCUI of the AUI
         Concept concept =
-            conceptMap.get(atomMap.get(fields[3]).getConceptId() + fields[9]);
+            getConcept(conceptIdMap.get(fields[9]
+                + atomConceptIdMap.get(fields[3])));
         concept.addAttribute(att);
       }
 
       addAttribute(att);
+      // Update objects before commit
+      if (objectCt % commitCt == 0) {
+        // Update objects with new attributes
+        for (final Concept c : modifiedConcepts) {
+          updateConcept(c);
+        }
+        modifiedConcepts.clear();
+        for (final Atom a : modifiedAtoms) {
+          updateAtom(a);
+        }
+        modifiedAtoms.clear();
+        for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : modifiedRelationships) {
+          updateRelationship(r);
+        }
+        modifiedRelationships.clear();
+        for (final Code code : modifiedCodes) {
+          updateCode(code);
+        }
+        modifiedCodes.clear();
+        for (final Descriptor d : modifiedDescriptors) {
+          updateDescriptor(d);
+        }
+        modifiedDescriptors.clear();
+      }
+      // log and commit
       logAndCommit(++objectCt);
 
       //
@@ -1228,43 +1252,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     }
 
-    // Update objects with new attributes
-    objectCt = 0;
-    Logger.getLogger(getClass()).info("  Update concepts");
-    for (final Concept c : modifiedConcepts) {
-      updateConcept(c);
-      logAndCommit(++objectCt);
-    }
-    Logger.getLogger(getClass()).info("  Update atoms");
-    objectCt = 0;
-    for (final Atom a : modifiedAtoms) {
-      updateAtom(a);
-      logAndCommit(++objectCt);
-    }
-    Logger.getLogger(getClass()).info("  Update relationships");
-    objectCt = 0;
-    for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : modifiedRelationships) {
-      updateRelationship(r);
-      logAndCommit(++objectCt);
-    }
-    Logger.getLogger(getClass()).info("  Update codes");
-    objectCt = 0;
-    for (final Code code : modifiedCodes) {
-      updateCode(code);
-      logAndCommit(++objectCt);
-    }
-    Logger.getLogger(getClass()).info("  Update descriptors");
-    objectCt = 0;
-    for (final Descriptor d : modifiedDescriptors) {
-      updateDescriptor(d);
-      logAndCommit(++objectCt);
-    }
-
     // commit
     commitClearBegin();
 
-    // TODO: connect atoms/concepts to their subset members.
-    
     // Insert subsets, subset members now (attributes already inserted)
     Logger.getLogger(getClass()).info(
         "  Insert atom subsets and subset members");
@@ -1275,7 +1265,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (members.size() == 0) {
         continue;
       }
-      subset.setMembers(new ArrayList<AtomSubsetMember>());
       addSubset(subset);
       for (final AtomSubsetMember member : members) {
         addSubsetMember(member);
@@ -1296,7 +1285,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (members.size() == 0) {
         continue;
       }
-      subset.setMembers(new ArrayList<ConceptSubsetMember>());
       addSubset(subset);
       for (final ConceptSubsetMember member : members) {
         addSubsetMember(member);
@@ -1321,10 +1309,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     int objectCt = 0;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRREL);
-    Set<Atom> modifiedAtoms = new HashSet<>();
-    Set<Code> modifiedCodes = new HashSet<>();
-    Set<Descriptor> modifiedDescriptors = new HashSet<>();
-    Set<Concept> modifiedConcepts = new HashSet<>();
     final String fields[] = new String[16];
     while ((line = reader.readLine()) != null) {
 
@@ -1337,35 +1321,31 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         continue;
       }
 
-      /*
-       * 0 CUI 1 Unique identifier of first concept 1 AUI1 Unique identifier of
-       * first atom 2 STYPE1 The name of the column in MRCONSO.RRF that contains
-       * the identifier used for the first element in the relationship, i.e.
-       * AUI, CODE, CUI, SCUI, SDUI. 3 REL Relationship of second concept or
-       * atom to first concept or atom 4 CUI2 Unique identifier of second
-       * concept 5 AUI2 Unique identifier of second atom 6 STYPE2 The name of
-       * the column in MRCONSO.RRF that contains the identifier used for the
-       * second element in the relationship, i.e. AUI, CODE, CUI, SCUI, SDUI. 7
-       * RELA Additional (more specific) relationship label (optional) 8 RUI
-       * Unique identifier of relationship 9 SRUI Source asserted relationship
-       * identifier, if present 10 SAB Abbreviated source name of the source of
-       * relationship. Maximum field length is 20 alphanumeric characters. Two
-       * source abbreviations are assigned: 11 SL Source of relationship labels
-       * 12 RG Relationship group. Used to indicate that a set of relationships
-       * should be looked at in conjunction. 13 DIR Source asserted
-       * directionality flag. Y indicates that this is the direction of the
-       * relationship in its source; N indicates that it is not; a blank
-       * indicates that it is not important or has not yet been determined. 14
-       * SUPPRESS Suppressible flag. Reflects the suppressible status of the
-       * relationship. See also SUPPRESS in MRCONSO.RRF, MRDEF.RRF, and
-       * MRSAT.RRF. 15 CVF Content View Flag. Bit field used to flag rows
-       * included in Content View. This field is a varchar field to maximize the
-       * number of bits available for use.
-       * 
-       * e.g. C0002372|A0021548|AUI|SY|C0002372|A16796726|AUI||R112184262||
-       * RXNORM|RXNORM|||N|| C0002372|A0022283|AUI|RO|C2241537|A14211642|AUI
-       * |has_ingredient|R91984327||MMSL|MMSL|||N||
-       */
+      // Field description
+      // 0 CUI1
+      // 1 AUI1
+      // 2 STYPE1
+      // 3 REL
+      // 4 CUI2
+      // 5 AUI2
+      // 6 STYPE2
+      // 7 RELA
+      // 8 RUI
+      // 9 SRUI
+      // 10 SAB
+      // 11 SL
+      // 12 RG
+      // 13 DIR
+      // 14 SUPPRESS
+      // 15 CVF
+      //
+      // e.g. C0002372|A0021548|AUI|SY|C0002372|A16796726|AUI||R112184262||
+      // RXNORM|RXNORM|||N|| C0002372|A0022283|AUI|RO|C2241537|A14211642|AUI
+      // |has_ingredient|R91984327||MMSL|MMSL|||N||
+
+      // No need to update things rels are connected to because setting "from"
+      // handles this in the DB. This also means, all we really need is an empty
+      // container for the object with the id set.
 
       // Skip SIB rels
       if (fields[3].equals("SIB")) {
@@ -1375,12 +1355,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       else if (fields[2].equals("AUI") && fields[6].equals("AUI")) {
         final AtomRelationship aRel = new AtomRelationshipJpa();
 
-        Atom fromAtom = atomMap.get(fields[5]);
+        Atom fromAtom = new AtomJpa();
+        fromAtom.setId(atomIdMap.get(fields[5]));
         aRel.setFrom(fromAtom);
-        fromAtom.addRelationship(aRel);
-        modifiedAtoms.add(fromAtom);
 
-        Atom toAtom = atomMap.get(fields[1]);
+        Atom toAtom = new AtomJpa();
+        toAtom.setId(atomIdMap.get(fields[1]));
         aRel.setTo(toAtom);
 
         setRelationshipFields(fields, aRel);
@@ -1390,12 +1370,13 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (fields[2].equals("CUI") && fields[6].equals("CUI")) {
         final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
 
-        Concept fromConcept = conceptMap.get(fields[4] + terminology);
+        // Get the concept for the terminology and CUI
+        Concept fromConcept = new ConceptJpa();
+        fromConcept.setId(conceptIdMap.get(terminology + fields[4]));
         conceptRel.setFrom(fromConcept);
-        fromConcept.addRelationship(conceptRel);
-        modifiedConcepts.add(fromConcept);
 
-        Concept toConcept = conceptMap.get(fields[0] + terminology);
+        Concept toConcept = new ConceptJpa();
+        toConcept.setId(conceptIdMap.get(terminology + fields[0]));
         conceptRel.setTo(toConcept);
 
         setRelationshipFields(fields, conceptRel);
@@ -1405,14 +1386,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (fields[2].equals("SCUI") && fields[6].equals("SCUI")) {
         final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
 
-        Concept fromConcept =
-            conceptMap.get(atomMap.get(fields[5]).getConceptId() + fields[10]);
+        // Get the concept for the terminology and SCUI of the AUI (METAUI)
+        Concept fromConcept = new ConceptJpa();
+        fromConcept.setId(conceptIdMap.get(fields[10]
+            + atomConceptIdMap.get(fields[5])));
         conceptRel.setFrom(fromConcept);
-        fromConcept.addRelationship(conceptRel);
-        modifiedConcepts.add(fromConcept);
 
-        Concept toConcept =
-            conceptMap.get(atomMap.get(fields[1]).getConceptId() + fields[10]);
+        Concept toConcept = new ConceptJpa();
+        toConcept.setId(conceptIdMap.get(fields[10]
+            + atomConceptIdMap.get(fields[1])));
         conceptRel.setTo(toConcept);
 
         setRelationshipFields(fields, conceptRel);
@@ -1423,16 +1405,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         final DescriptorRelationship descriptorRel =
             new DescriptorRelationshipJpa();
 
-        Descriptor fromDescriptor =
-            descriptorMap.get(atomMap.get(fields[5]).getDescriptorId()
-                + fields[10]);
+        // Get the descriptor for the terminology and SDUI of the AUI (METAUI)
+        Descriptor fromDescriptor = new DescriptorJpa();
+        fromDescriptor.setId(descriptorIdMap.get(fields[10]
+            + atomDescriptorIdMap.get(fields[5])));
         descriptorRel.setFrom(fromDescriptor);
-        fromDescriptor.addRelationship(descriptorRel);
-        modifiedDescriptors.add(fromDescriptor);
 
-        Descriptor toDescriptor =
-            descriptorMap.get(atomMap.get(fields[1]).getDescriptorId()
-                + fields[10]);
+        Descriptor toDescriptor = new DescriptorJpa();
+        toDescriptor.setId(descriptorIdMap.get(fields[10]
+            + atomDescriptorIdMap.get(fields[1])));
         descriptorRel.setTo(toDescriptor);
 
         setRelationshipFields(fields, descriptorRel);
@@ -1442,14 +1423,14 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (fields[2].equals("CODE") && fields[6].equals("CODE")) {
         final CodeRelationship codeRel = new CodeRelationshipJpa();
 
-        Code fromCode =
-            codeMap.get(atomMap.get(fields[5]).getCodeId() + fields[10]);
+        // Get the code for the terminology and CODE of the AUI (METAUI)
+        Code fromCode = new CodeJpa();
+        fromCode
+            .setId(codeIdMap.get(fields[10] + atomCodeIdMap.get(fields[5])));
         codeRel.setFrom(fromCode);
-        fromCode.addRelationship(codeRel);
-        modifiedCodes.add(fromCode);
 
-        Code toCode =
-            codeMap.get(atomMap.get(fields[1]).getCodeId() + fields[10]);
+        Code toCode = new CodeJpa();
+        toCode.setId(codeIdMap.get(fields[10] + atomCodeIdMap.get(fields[1])));
         codeRel.setTo(toCode);
 
         setRelationshipFields(fields, codeRel);
@@ -1551,7 +1532,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // C0001175|T047|B2.2.1.2.1|Disease or Syndrome|AT17683839|3840|
 
       final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
-      final Concept concept = conceptMap.get(fields[0] + terminology);
+      final Concept concept =
+          getConcept(conceptIdMap.get(terminology + fields[0]));
       concept.addSemanticType(sty);
       modifiedConcepts.add(concept);
 
@@ -1593,6 +1575,17 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    */
   private void loadMrconso() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRCONSO");
+
+    // Set up maps
+    Map<String, Concept> conceptMap =
+        new TCustomHashMap<>(new StandardStrategy());
+    Map<String, Code> codeMap = new TCustomHashMap<>(new StandardStrategy());
+    Map<String, Descriptor> descriptorMap =
+        new TCustomHashMap<>(new StandardStrategy());
+    Map<String, LexicalClass> lexicalClassMap =
+        new TCustomHashMap<>(new StandardStrategy());
+    Map<String, StringClass> stringClassMap =
+        new TCustomHashMap<>(new StandardStrategy());
 
     String line = null;
 
@@ -1715,7 +1708,13 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         atom.putConceptTerminologyId(terminology, fields[0]);
       }
 
-      atomMap.put(fields[7], atom);
+      // Add atoms and commit periodically
+      addAtom(atom);
+      logAndCommit(++objectCt);
+      atomIdMap.put(fields[7], atom.getId());
+      atomConceptIdMap.put(fields[7], atom.getConceptId());
+      atomCodeIdMap.put(fields[7], atom.getCodeId());
+      atomDescriptorIdMap.put(fields[7], atom.getDescriptorId());
 
       // CUI - skip in single mode
       if (!singleMode) {
@@ -1729,7 +1728,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           cui.setLastModifiedBy(loader);
           cui.setPublished(true);
           cui.setPublishable(true);
-          cui.setTerminology(terminology.intern());
+          cui.setTerminology(terminology);
           cui.setTerminologyId(fields[0]);
           cui.setTerminologyVersion(terminologyVersion);
           cui.setWorkflowStatus(published);
@@ -1854,10 +1853,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         sui.addAtom(atom);
       }
 
-      // Add atoms and commit periodically
-      addAtom(atom);
-      logAndCommit(++objectCt);
-
       // Handle Subset
       // C3539934|ENG|S|L11195730|PF|S13913746|N|A23460885||900000000000538005||SNOMEDCT_US|SB|900000000000538005|Description
       // format|9|N|256|
@@ -1893,20 +1888,30 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     for (final Concept concept : conceptMap.values()) {
       concept.setName(getComputedPreferredName(concept));
       addConcept(concept);
+      conceptIdMap.put(concept.getTerminology() + concept.getTerminologyId(),
+          concept.getId());
       logAndCommit(++objectCt);
     }
+    conceptMap = null;
     Logger.getLogger(getClass()).info("  Add descriptors");
     for (final Descriptor descriptor : descriptorMap.values()) {
       descriptor.setName(getComputedPreferredName(descriptor));
       addDescriptor(descriptor);
+      descriptorIdMap.put(
+          descriptor.getTerminology() + descriptor.getTerminologyId(),
+          descriptor.getId());
       logAndCommit(++objectCt);
     }
+    descriptorMap = null;
     Logger.getLogger(getClass()).info("  Add codes");
     for (final Code code : codeMap.values()) {
       code.setName(getComputedPreferredName(code));
       addCode(code);
+      codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
+          code.getId());
       logAndCommit(++objectCt);
     }
+    codeMap = null;
     Logger.getLogger(getClass()).info("  Add lexical classes");
     for (final LexicalClass lui : lexicalClassMap.values()) {
       lui.setName(getComputedPreferredName(lui));
@@ -2090,4 +2095,39 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
   }
 
+  /**
+   * Standard hashing strategy.
+   */
+  @SuppressWarnings("serial")
+  public class StandardStrategy implements HashingStrategy<String> {
+
+    /**
+     * Instantiates an empty {@link StandardStrategy}.
+     */
+    public StandardStrategy() {
+      // n/a
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see gnu.trove.strategy.HashingStrategy#computeHashCode(java.lang.Object)
+     */
+    @Override
+    public int computeHashCode(String object) {
+      return object.hashCode();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see gnu.trove.strategy.HashingStrategy#equals(java.lang.Object,
+     * java.lang.Object)
+     */
+    @Override
+    public boolean equals(String o1, String o2) {
+      return o1.equals(o2);
+    }
+
+  }
 }

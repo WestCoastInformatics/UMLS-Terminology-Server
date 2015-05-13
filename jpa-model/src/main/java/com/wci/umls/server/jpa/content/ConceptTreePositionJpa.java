@@ -71,7 +71,6 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    */
   @Override
   public void setNode(Concept concept) {
-    System.out.println("setNode " + concept);
     this.node = concept;
   }
 
