@@ -761,7 +761,7 @@ public interface ContentService extends RootService {
    * @return the string list
    * @throws Exception the exception
    */
-  public StringList autocompleteConcepts(String searchTerm) throws Exception;
+  public StringList autocompleteConcepts(String terminology, String version, String searchTerm) throws Exception;
 
   /**
    * Find descriptors for query.
@@ -785,7 +785,7 @@ public interface ContentService extends RootService {
    * @return the string list
    * @throws Exception the exception
    */
-  public StringList autocompleteDescriptors(String searchTerm) throws Exception;
+  public StringList autocompleteDescriptors(String terminology, String terminologyVersion, String searchTerm) throws Exception;
 
   /**
    * Find codes for query.
@@ -808,7 +808,7 @@ public interface ContentService extends RootService {
    * @return the string list
    * @throws Exception the exception
    */
-  public StringList autocompleteCodes(String searchTerm) throws Exception;
+  public StringList autocompleteCodes(String terminology, String terminologyVersion, String searchTerm) throws Exception;
 
   /**
    * Find lexical classes for query.

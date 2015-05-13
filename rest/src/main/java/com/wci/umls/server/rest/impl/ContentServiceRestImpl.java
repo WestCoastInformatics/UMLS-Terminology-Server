@@ -21,11 +21,14 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.RrfFileSorter;
 import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
@@ -33,6 +36,7 @@ import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -276,8 +280,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Logger.getLogger(getClass()).info("  Sort RRF Files");
       RrfFileSorter sorter = new RrfFileSorter();
       sorter.setRequireAllFiles(true);
-      //File outputDir = new File(inputDirFile, "/RRF-sorted-temp/");
-      //sorter.sortFiles(inputDirFile, outputDir);
+      // File outputDir = new File(inputDirFile, "/RRF-sorted-temp/");
+      // sorter.sortFiles(inputDirFile, outputDir);
       String releaseVersion = sorter.getFileVersion(inputDirFile);
       Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
 
@@ -528,7 +532,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                     descriptor.getTerminology(),
                     descriptor.getTerminologyVersion()));
         descriptor.setAtoms(contentService.getComputePreferredNameHandler(
-            descriptor.getTerminology()).sortByPreference(descriptor.getAtoms()));
+            descriptor.getTerminology())
+            .sortByPreference(descriptor.getAtoms()));
 
       }
       return descriptor;
@@ -712,7 +717,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         contentService.getGraphResolutionHandler(terminology).resolve(
             lexicalClass);
         lexicalClass.setAtoms(contentService.getComputePreferredNameHandler(
-            lexicalClass.getTerminology()).sortByPreference(lexicalClass.getAtoms()));
+            lexicalClass.getTerminology()).sortByPreference(
+            lexicalClass.getAtoms()));
 
       }
       return lexicalClass;
@@ -803,7 +809,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         contentService.getGraphResolutionHandler(terminology).resolve(
             stringClass);
         stringClass.setAtoms(contentService.getComputePreferredNameHandler(
-            stringClass.getTerminology()).sortByPreference(stringClass.getAtoms()));
+            stringClass.getTerminology()).sortByPreference(
+            stringClass.getAtoms()));
       }
       return stringClass;
     } catch (Exception e) {
@@ -859,9 +866,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorConcepts(java.lang.String, java.lang.String, java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorConcepts
+   * (java.lang.String, java.lang.String, java.lang.String, boolean,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
   @POST
@@ -878,7 +889,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version
-             + terminologyId + " with PFS parameter "
+            + terminologyId + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -888,7 +899,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Concept concept =
           contentService.getConcept(terminologyId, terminology, version,
               Branch.ROOT);
-      return contentService.findAncestorConcepts(concept, childrenOnly, pfs, Branch.ROOT);
+      return contentService.findAncestorConcepts(concept, childrenOnly, pfs,
+          Branch.ROOT);
 
     } catch (Exception e) {
       handleException(e, "trying to find the ancestor concepts");
@@ -898,8 +910,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-
-
 
   @Override
   @POST
@@ -916,7 +926,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version
-             + terminologyId + " with PFS parameter "
+            + terminologyId + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -926,7 +936,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Concept concept =
           contentService.getConcept(terminologyId, terminology, version,
               Branch.ROOT);
-      return contentService.findDescendantConcepts(concept, childrenOnly, pfs, Branch.ROOT);
+      return contentService.findDescendantConcepts(concept, childrenOnly, pfs,
+          Branch.ROOT);
 
     } catch (Exception e) {
       handleException(e, "trying to find the descendant concepts");
@@ -936,7 +947,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-
 
   @Override
   @POST
@@ -953,7 +963,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version
-             + terminologyId + " with PFS parameter "
+            + terminologyId + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -963,7 +973,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Descriptor descriptor =
           contentService.getDescriptor(terminologyId, terminology, version,
               Branch.ROOT);
-      return contentService.findAncestorDescriptors(descriptor, childrenOnly, pfs, Branch.ROOT);
+      return contentService.findAncestorDescriptors(descriptor, childrenOnly,
+          pfs, Branch.ROOT);
 
     } catch (Exception e) {
       handleException(e, "trying to find the ancestor descriptors");
@@ -989,7 +1000,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version
-             + terminologyId + " with PFS parameter "
+            + terminologyId + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -999,7 +1010,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Descriptor descriptor =
           contentService.getDescriptor(terminologyId, terminology, version,
               Branch.ROOT);
-      return contentService.findDescendantDescriptors(descriptor, childrenOnly, pfs, Branch.ROOT);
+      return contentService.findDescendantDescriptors(descriptor, childrenOnly,
+          pfs, Branch.ROOT);
 
     } catch (Exception e) {
       handleException(e, "trying to find the descendant descriptors");
@@ -1009,7 +1021,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-
 
   @Override
   @POST
@@ -1026,7 +1037,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version
-             + terminologyId + " with PFS parameter "
+            + terminologyId + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1036,7 +1047,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Code code =
           contentService.getCode(terminologyId, terminology, version,
               Branch.ROOT);
-      return contentService.findAncestorCodes(code, childrenOnly, pfs, Branch.ROOT);
+      return contentService.findAncestorCodes(code, childrenOnly, pfs,
+          Branch.ROOT);
 
     } catch (Exception e) {
       handleException(e, "trying to find the ancestor codes");
@@ -1062,7 +1074,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version
-             + terminologyId + " with PFS parameter "
+            + terminologyId + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1072,7 +1084,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Code code =
           contentService.getCode(terminologyId, terminology, version,
               Branch.ROOT);
-      return contentService.findDescendantCodes(code, childrenOnly, pfs, Branch.ROOT);
+      return contentService.findDescendantCodes(code, childrenOnly, pfs,
+          Branch.ROOT);
 
     } catch (Exception e) {
       handleException(e, "trying to find the descendant codes");
@@ -1159,6 +1172,82 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
+  
+  @Override
+  @POST
+  @Consumes(MediaType.TEXT_PLAIN)
+  @Path("/cui/autocomplete/{terminology}/{version}")
+  public StringList autocompleteConceptQuery(
+    @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology")String terminology,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Search term to check, e.g. 'sulf'", required = true) String searchTerm,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization")String authToken) throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/autocomplete" + terminology + "/" + version + "/" + searchTerm);
+    
+    ContentService contentService = new ContentServiceJpa();
+    
+    try {
+      authenticate(securityService, authToken,
+          "autocompleting a concept query", UserRole.VIEWER);
+      
+      StringList strings = contentService.autocompleteConcepts(terminology, version, searchTerm);
+      return strings;
+    } catch (Exception e) {
+      handleException(e, "autocompleting a concept query");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
 
+  @Override
+  @POST
+  @Path("/treepos/{terminology}/{version}/query/{query}")
+  @ApiOperation(value = "Retrieves tree positions for query", notes = "Retrieves tree positions for a terminology, given a query and search criteria restrictions")
+  public TreeList getTreePositionsForQuery(
+    @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Lexical query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Semantic search criteria object (optional)", required = false) SearchCriteria searchCriteria,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /treepos/" + terminology + "/" + version + "/query/" + query);
+    ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
+    
+    try {
+      authenticate(securityService, authToken,
+          "retrieving tree positions for a query", UserRole.VIEWER);
+      
+      Terminology term = metadataService.getTerminology(terminology, version);
+      
+      TreeList treeList = new TreeListJpa();
+      switch (term.getOrganizingClassType()) {
+        case CODE:
+          break;
+        case CONCEPT:
+          break;
+        case DESCRIPTOR:
+          break;
+        default:
+          break;
+        
+      }
+
+
+    } catch (Exception e) {
+      handleException(e, "retrieving tree positions for a query");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+    
+    
+    return null;
+  }
 
 }

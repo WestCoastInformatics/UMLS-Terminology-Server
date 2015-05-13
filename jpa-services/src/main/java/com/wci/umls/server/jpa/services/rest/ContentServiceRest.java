@@ -6,27 +6,26 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-
+import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
-
 
 /**
  * Represents a content available via a REST service.
  */
 public interface ContentServiceRest {
-
 
   /**
    * Returns the concept.
@@ -87,7 +86,7 @@ public interface ContentServiceRest {
   public ConceptList findDescendantConcepts(String terminologyId,
     String terminology, String version, boolean parentsOnly,
     PfsParameterJpa pfsParameter, String authToken) throws Exception;
-  
+
   /**
    * Returns the descriptor.
    *
@@ -111,9 +110,9 @@ public interface ContentServiceRest {
    * @return the subset members for atom
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembersForAtom(String atomId, String terminology,
-    String version, String authToken) throws Exception;
-  
+  public SubsetMemberList getSubsetMembersForAtom(String atomId,
+    String terminology, String version, String authToken) throws Exception;
+
   /**
    * Gets the subset member for concept.
    *
@@ -124,9 +123,9 @@ public interface ContentServiceRest {
    * @return the subset members for concept
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembersForConcept(String conceptId, String terminology,
-    String version, String authToken) throws Exception;
-  
+  public SubsetMemberList getSubsetMembersForConcept(String conceptId,
+    String terminology, String version, String authToken) throws Exception;
+
   /**
    * Find descriptorss for query.
    *
@@ -173,7 +172,7 @@ public interface ContentServiceRest {
   public DescriptorList findDescendantDescriptors(String terminologyId,
     String terminology, String version, boolean parentsOnly,
     PfsParameterJpa pfsParameter, String authToken) throws Exception;
-  
+
   /**
    * Returns the code.
    *
@@ -184,8 +183,8 @@ public interface ContentServiceRest {
    * @return the code
    * @throws Exception the exception
    */
-  public Code getCode(String terminologyId, String terminology,
-    String version, String authToken) throws Exception;
+  public Code getCode(String terminologyId, String terminology, String version,
+    String authToken) throws Exception;
 
   /**
    * Find codes for query.
@@ -198,9 +197,8 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findCodesForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public SearchResultList findCodesForQuery(String terminology, String version,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find ancestor codes.
@@ -214,9 +212,9 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public CodeList findAncestorCodes(String terminologyId,
-    String terminology, String version, boolean childrenOnly,
-    PfsParameterJpa pfsParameter, String authToken) throws Exception;
+  public CodeList findAncestorCodes(String terminologyId, String terminology,
+    String version, boolean childrenOnly, PfsParameterJpa pfsParameter,
+    String authToken) throws Exception;
 
   /**
    * Find descendant codes.
@@ -230,10 +228,10 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public CodeList findDescendantCodes(String terminologyId,
-    String terminology, String version, boolean parentsOnly,
-    PfsParameterJpa pfsParameter, String authToken) throws Exception;
-  
+  public CodeList findDescendantCodes(String terminologyId, String terminology,
+    String version, boolean parentsOnly, PfsParameterJpa pfsParameter,
+    String authToken) throws Exception;
+
   /**
    * Returns the lexical class.
    *
@@ -290,7 +288,6 @@ public interface ContentServiceRest {
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
 
-  
   /**
    * Recomputes lucene indexes for the specified objects as a comma-separated
    * string list.
@@ -346,5 +343,34 @@ public interface ContentServiceRest {
    */
   public void removeTerminology(String terminology, String version,
     String authToken) throws Exception;
+
+  /**
+   * Gets the tree positions for a concept/code/descriptor given search criteria.
+   *
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param query the query the lexical search query string
+   * @param searchCriteria the search criteria containing semantic search information
+   * @param authToken the auth token
+   * @return the tree positions for query and search criteria
+   * @throws Exception the exception
+   */
+  public TreeList getTreePositionsForQuery(String terminology, String version,
+    String query, SearchCriteria searchCriteria, String authToken)
+    throws Exception;
+
+  /**
+   * Autocomplete concept query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param authToken the auth token
+   * @return the string list
+   * @throws Exception the exception
+   */
+  public StringList autocompleteConceptQuery(String terminology, String version, String query, String authToken) throws Exception;
+
+ 
 
 }
