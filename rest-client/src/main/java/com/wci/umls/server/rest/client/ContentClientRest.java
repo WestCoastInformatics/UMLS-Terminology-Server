@@ -870,7 +870,7 @@ public class ContentClientRest implements ContentServiceRest {
             + terminology + ", " + version);
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/csm/"
+        client.resource(config.getProperty("base.url") + "/content/asm/"
             + terminology + "/" + version + "/" + atomId);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
