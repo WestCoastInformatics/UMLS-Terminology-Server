@@ -35,6 +35,7 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
@@ -1811,6 +1812,38 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  @Override
+  @GET
+  @Path("/rel/{terminology}/{version}/{conceptId}")
+  @ApiOperation(value = "Get relationships with this conceptId", notes = "Get the relationships with the given concept id.", response = RelationshipList.class)
+  public RelationshipList getRelationshipsForConcept(
+    @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("conceptId") String conceptId,
+    @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /rel/" + terminology + "/" + version + "/"
+            + conceptId);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve relationships for the concept", UserRole.VIEWER);
+
+      return contentService.getRelationshipsForConcept(conceptId, terminology,
+          version, Branch.ROOT);
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve relationships for a concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
   }
 
 }

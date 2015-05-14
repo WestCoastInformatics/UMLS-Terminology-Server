@@ -201,6 +201,18 @@ public interface ContentService extends RootService {
     String terminology, String version, String branch);
 
   /**
+   * Gets the relationships for concept.
+   *
+   * @param conceptId the concept id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the relationships for concept
+   */
+  public RelationshipList getRelationshipsForConcept(String conceptId,
+    String terminology, String version, String branch);
+
+  /**
    * Returns the descriptor.
    * 
    * @param id the id
