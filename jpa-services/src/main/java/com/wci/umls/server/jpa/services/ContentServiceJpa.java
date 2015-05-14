@@ -1660,7 +1660,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " where super.terminologyVersion = :version "
             + " and super.terminology = :terminology "
             + " and super.terminologyId = :terminologyId"
-            + " and tr.superType = super" + " and tr.subType = a ";
+            + " and tr.superType = super" + " and tr.subType = a "
+            + " and tr.superType != tr.subType";
     javax.persistence.Query query = applyPfsToQuery(queryStr, pfsParameter);
 
     javax.persistence.Query ctQuery =
@@ -1670,7 +1671,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " where super.terminologyVersion = :version "
             + " and super.terminology = :terminology "
             + " and super.terminologyId = :terminologyId"
-            + " and tr.superType = super" + " and tr.subType = a ");
+            + " and tr.superType = super" + " and tr.subType = a "
+            + " and tr.superType != tr.subType");
 
     ctQuery.setParameter("terminology", atomClass.getTerminology());
     ctQuery.setParameter("version", atomClass.getTerminologyVersion());
@@ -1711,7 +1713,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " where sub.terminologyVersion = :version "
             + " and sub.terminology = :terminology "
             + " and sub.terminologyId = :terminologyId"
-            + " and tr.subType = sub and tr.superType = a ";
+            + " and tr.subType = sub and tr.superType = a "
+            + " and tr.superType != tr.subType ";
     javax.persistence.Query query = applyPfsToQuery(queryStr, pfsParameter);
 
     javax.persistence.Query ctQuery =
@@ -1721,7 +1724,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " where sub.terminologyVersion = :version "
             + " and sub.terminology = :terminology "
             + " and sub.terminologyId = :terminologyId"
-            + " and tr.subType = sub and tr.superType = a ");
+            + " and tr.subType = sub and tr.superType = a "
+            + " and tr.superType != tr.subType ");
 
     ctQuery.setParameter("terminology", atomClass.getTerminology());
     ctQuery.setParameter("version", atomClass.getTerminologyVersion());
@@ -3051,10 +3055,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       terminologyId = criteria.getRelationshipFromId();
 
       if (criteria.getRelationshipDescendantsFlag()) {
-        // TODO: this handles "descendant" but not "self and descendant"
-        // consider putting "self" entries into transitive relationships as a
-        // subtype
-        // (maybe marked as "self")
         relBuilder.append("SELECT DISTINCT a.to FROM "
             + clazz.getName().replace("Jpa", "RelationshipJpa")
             + " a, "
