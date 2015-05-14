@@ -3,8 +3,12 @@
  */
 package com.wci.umls.server.jpa.services;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,7 +42,6 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteria;
-import com.wci.umls.server.helpers.SearchCriteriaList;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
@@ -88,7 +91,6 @@ import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
-import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Component;
@@ -666,11 +668,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - get subset members for atom " + atomId + "/"
             + terminology + "/" + version);
     javax.persistence.Query query =
-        manager
-            .createQuery("select s from AtomSubsetMemberJpa s, "
+        manager.createQuery("select s from AtomSubsetMemberJpa s, "
             + " AtomJpa a where a.terminologyId = :atomId "
             + "and a.terminologyVersion = :version "
-                + "and a.terminology = :terminology and s.member = a");
+            + "and a.terminology = :terminology and s.member = a");
 
     try {
       SubsetMemberList list = new SubsetMemberListJpa();
@@ -680,13 +681,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       query.setParameter("version", version);
       list.setObjects(query.getResultList());
       list.setTotalCount(list.getObjects().size());
-      
+
       // account for lazy initialization
-      for (SubsetMember s : list.getObjects()) {
+      for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
+          .getObjects()) {
         if (s.getAttributes() != null)
           s.getAttributes().size();
       }
-      
+
       return list;
     } catch (NoResultException e) {
       return null;
@@ -708,11 +710,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - get subset members for concept " + conceptId + "/"
             + terminology + "/" + version);
     javax.persistence.Query query =
-        manager
-            .createQuery("select s from ConceptSubsetMemberJpa s, "
+        manager.createQuery("select s from ConceptSubsetMemberJpa s, "
             + " ConceptJpa c where c.terminologyId = :conceptId "
             + "and c.terminologyVersion = :version "
-                + "and c.terminology = :terminology and s.member = c");
+            + "and c.terminology = :terminology and s.member = c");
 
     try {
       SubsetMemberList list = new SubsetMemberListJpa();
@@ -722,9 +723,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       query.setParameter("version", version);
       list.setObjects(query.getResultList());
       list.setTotalCount(list.getObjects().size());
-      
+
       // account for lazy initialization
-      for (SubsetMember s : list.getObjects()) {
+      for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
+          .getObjects()) {
         if (s.getAttributes() != null)
           s.getAttributes().size();
       }
@@ -2766,7 +2768,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Content Service - autocomplete concepts " + terminology + ", "
             + version + ", " + searchTerm);
-    return autocompleteHelper(terminology, version, searchTerm, ConceptJpa.class);
+    return autocompleteHelper(terminology, version, searchTerm,
+        ConceptJpa.class);
   }
 
   /*
@@ -2801,7 +2804,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Content Service - autocomplete descriptors " + terminology + ", "
             + version + ", " + searchTerm);
-    return autocompleteHelper(terminology, version, searchTerm, DescriptorJpa.class);
+    return autocompleteHelper(terminology, version, searchTerm,
+        DescriptorJpa.class);
   }
 
   /**
@@ -2822,7 +2826,133 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String[] fieldNames, Class<?> clazz) throws Exception {
     // Prepare results
     SearchResultList results = new SearchResultListJpa();
+    List<AtomClass> classes = null;
+    int totalCt[] = new int[1];
 
+    // Perform Lucene search
+    List<AtomClass> queryClasses = new ArrayList<>();
+    boolean queryFlag = false;
+    if (query != null && !query.equals("")) {
+      queryClasses =
+          getQueryResults(terminology, version, branch, query, fieldNames,
+              clazz, pfs, totalCt);
+      queryFlag = true;
+    }
+
+    boolean criteriaFlag = false;
+    List<AtomClass> criteriaClasses = new ArrayList<>();
+    if (pfs != null) {
+      boolean init = false;
+      for (SearchCriteria criteria : pfs.getSearchCriteria()) {
+        criteriaFlag = true;
+        if (!init) {
+          criteriaClasses =
+              getSearchCriteriaResults(terminology, version, criteria, clazz);
+          init = true;
+        } else {
+          // Perform intersection operation (presume "AND" semantic between
+          // multiple search criteria)
+          criteriaClasses.retainAll(getSearchCriteriaResults(terminology,
+              version, criteria, clazz));
+        }
+      }
+    }
+
+    // Determine whether both query and criteria were used, or just one or the
+    // other
+
+    // Start with query results if they exist
+    if (queryFlag) {
+      classes = queryClasses;
+    }
+
+    if (criteriaFlag) {
+
+      if (queryFlag) {
+        // Intersect the lucene and HQL results
+        classes.retainAll(criteriaClasses);
+      } else {
+        // Otherwise, just use criteria classes
+        classes = criteriaClasses;
+      }
+
+      // Here we know the total size
+      totalCt[0] = classes.size();
+
+      // Apply PFS sorting manually
+      final Field sortField = clazz.getField(pfs.getSortField());
+      if (sortField.getType().isAssignableFrom(Comparable.class)) {
+        throw new Exception("Referenced sort field is not comparable");
+      }
+      sortField.setAccessible(true);
+      Collections.sort(classes, new Comparator<AtomClass>() {
+        @SuppressWarnings({
+            "rawtypes", "unchecked"
+        })
+        @Override
+        public int compare(AtomClass o1, AtomClass o2) {
+          try {
+            Comparable f1 = (Comparable) sortField.get(o1);
+            Comparable f2 = (Comparable) sortField.get(o2);
+            return f1.compareTo(f2);
+          } catch (Exception e) {
+            // do nothing
+          }
+          return 0;
+        }
+      });
+
+      // Apply PFS paging manually
+      if (pfs != null && pfs.getStartIndex() != -1) {
+        int startIndex = pfs.getStartIndex();
+        int toIndex = classes.size();
+        toIndex = Math.min(toIndex, startIndex + pfs.getMaxResults());
+        classes = classes.subList(startIndex, toIndex);
+      }
+
+    } else {
+      // If criteria flag wasn't triggered, then PFS was already handled
+      // by the query mechanism - which only applies PFS if criteria isn't
+      // also used. Therefore, we are ready to go.
+
+      // Manual PFS handling is in the section above.
+    }
+
+    // Some result has been found, even if empty
+    assert classes != null;
+
+    // construct the search results
+    for (AtomClass atomClass : classes) {
+      SearchResult sr = new SearchResultJpa();
+      sr.setId(atomClass.getId());
+      sr.setTerminologyId(atomClass.getTerminologyId());
+      sr.setTerminology(atomClass.getTerminology());
+      sr.setTerminologyVersion(atomClass.getTerminologyVersion());
+      sr.setValue(atomClass.getName());
+      results.addObject(sr);
+    }
+
+    return results;
+
+  }
+
+  /**
+   * Returns the query results.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param fieldNames the field names
+   * @param clazz the clazz
+   * @param pfs the pfs
+   * @param totalCt the total ct
+   * @return the query results
+   * @throws Exception the exception
+   */
+  private List<AtomClass> getQueryResults(String terminology, String version,
+    String branch, String query, String[] fieldNames, Class<?> clazz,
+    PfsParameter pfs, int[] totalCt) throws Exception {
     // Prepare the query string
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query);
@@ -2852,29 +2982,158 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     FullTextQuery fullTextQuery =
         fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
 
-    results.setTotalCount(fullTextQuery.getResultSize());
-
-    // Apply paging and sorting parameters
-    applyPfsToLuceneQuery(clazz, fullTextQuery, pfs);
+    // Apply paging and sorting parameters - if no search criteria
+    if (pfs.getSearchCriteria().isEmpty()) {
+      applyPfsToLuceneQuery(clazz, fullTextQuery, pfs);
+      // Get result size if we know it.
+      totalCt[0] = fullTextQuery.getResultSize();
+    }
 
     // execute the query
     @SuppressWarnings("unchecked")
     List<AtomClass> classes = fullTextQuery.getResultList();
-    // construct the search results
-    for (AtomClass atomClass : classes) {
-      SearchResult sr = new SearchResultJpa();
-      sr.setId(atomClass.getId());
-      sr.setTerminologyId(atomClass.getTerminologyId());
-      sr.setTerminology(atomClass.getTerminology());
-      sr.setTerminologyVersion(atomClass.getTerminologyVersion());
-      sr.setValue(atomClass.getName());
-      results.addObject(sr);
-    }
     fullTextEntityManager.close();
     // closing fullTextEntityManager closes manager as well, recreate
     manager = factory.createEntityManager();
+    return classes;
+  }
 
-    return results;
+  /**
+   * Returns the search critera results.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param criteria the criteria
+   * @param clazz the clazz
+   * @return the search critera results
+   * @throws Exception
+   */
+  @SuppressWarnings("unchecked")
+  private List<AtomClass> getSearchCriteriaResults(String terminology,
+    String version, SearchCriteria criteria, Class<?> clazz) throws Exception {
+    StringBuilder builder = new StringBuilder();
+    builder.append("SELECT c FROM " + clazz.getName() + " c "
+        + "WHERE terminology = :terminology "
+        + "AND terminololgyVersion = :version ");
+
+    String terminologyId = null;
+
+    // findActiveOnly
+    if (criteria.getActiveOnly()) {
+      builder.append("AND obsolete = 0 ");
+    }
+
+    // findInactiveOnly
+    if (criteria.getInactiveOnly()) {
+      builder.append("AND obsolete = 1 ");
+    }
+
+    // findDefinedOnly (applies to Concept only)
+    if (criteria.getDefinedOnly()) {
+      if (clazz == ConceptJpa.class) {
+        builder.append("AND fullyDefined = 1 ");
+      }
+    }
+
+    // findPrimitiveOnly (applies to Concept only)
+    if (criteria.getPrimitiveOnly()) {
+      if (clazz == ConceptJpa.class) {
+        builder.append("AND fullyDefined = 0 ");
+      }
+    }
+
+    // Find "to" end of a relationship
+    // with a "from" id and optionally a "type"
+    // and optionally find descendants of those things
+    String relType = null;
+    if (criteria.getRelationshipFromId() != null) {
+      StringBuilder relBuilder = new StringBuilder();
+      terminologyId = criteria.getRelationshipFromId();
+
+      if (criteria.getRelationshipDescendantsFlag()) {
+        // TODO: this handles "descendant" but not "self and descendant"
+        // consider putting "self" entries into transitive relationships as a
+        // subtype
+        // (maybe marked as "self")
+        relBuilder.append("SELECT DISTINCT a.to FROM "
+            + clazz.getName().replace("Jpa", "RelationshipJpa")
+            + " a, "
+            + clazz.getName().replace("Jpa",
+                "TransitiveRelationshipJpa" + " b, ") + clazz.getName() + " c "
+            + "WHERE a.from = b.subType " + "AND b.superType = c "
+            + "AND c.terminology = :terminology "
+            + "AND c.terminologyVersion = :version "
+            + "AND c.terminologyId = :terminologyId))");
+      } else {
+        relBuilder.append("SELECT to FROM "
+            + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
+            + clazz.getName() + " b " + "WHERE a.from = b"
+            + "AND b.terminology = :terminology "
+            + "AND b.terminologyVersion = :version "
+            + "AND b.terminologyId = :terminologyId");
+      }
+
+      if (criteria.getRelationshipType() != null) {
+        relType = criteria.getRelationshipType();
+        relBuilder.append(" AND relationshipType = :relationshipType");
+      }
+
+      builder.append("AND c IN (").append(relBuilder.toString()).append(")");
+    }
+
+    // Find "from" end of a relationship
+    // with a "to" id and optionally a "type"
+    // and optionally find descendants of those things
+    if (criteria.getRelationshipToId() != null) {
+
+      if (criteria.getRelationshipType() != null) {
+        // TBD - borrow from above section
+      }
+
+      if (criteria.getRelationshipDescendantsFlag()) {
+        // TBD - borrow from above section
+      }
+    }
+
+    // findDescendants
+    if (criteria.getFindDescendants()) {
+      StringBuilder descBuilder = new StringBuilder();
+      descBuilder
+          .append(
+              "SELECT subType FROM "
+                  + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
+                  + " WHERE superType IN (").append(builder.toString())
+          .append(")");
+
+      if (!criteria.getFindSelf()) {
+        // Not self.
+        descBuilder.append(" AND superType != subType ");
+      }
+
+      builder = descBuilder;
+    }
+
+    // findByRelationshipTypeId on its own
+    if (criteria.getRelationshipType() != null && relType != null) {
+      throw new Exception(
+          "Unexpected use of relationship type criteria without "
+              + "specifying a from or to relationship id");
+    }
+
+    // Run the final query
+    Logger.getLogger(getClass()).debug("  QUERY = " + builder);
+    javax.persistence.Query query = manager.createQuery(builder.toString());
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    if (terminologyId != null) {
+      query.setParameter("terminologyId", terminologyId);
+    }
+    if (relType != null) {
+      query.setParameter("relationshipType", relType);
+    }
+    List<AtomClass> classes = query.getResultList();
+
+    return classes;
 
   }
 
@@ -2889,9 +3148,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @throws Exception the exception
    */
   private StringList autocompleteHelper(String terminology, String version,
-    String searchTerm, Class<?> clazz)
-  throws Exception {
-    
+    String searchTerm, Class<?> clazz) throws Exception {
+
     final String TITLE_EDGE_NGRAM_INDEX = "atoms.edgeNGramName";
     final String TITLE_NGRAM_INDEX = "atoms.nGramName";
 
@@ -2905,7 +3163,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         titleQB.phrase().withSlop(2).onField(TITLE_NGRAM_INDEX)
             .andField(TITLE_EDGE_NGRAM_INDEX).boostedTo(5)
             .sentence(searchTerm.toLowerCase()).createQuery();
-    
+
     Query term1 = new TermQuery(new Term("terminology", terminology));
     Query term2 = new TermQuery(new Term("terminologyVersion", version));
     BooleanQuery booleanQuery = new BooleanQuery();
@@ -2924,7 +3182,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     for (AtomClass result : results) {
       // exclude duplicates
       if (!list.contains(result.getName()))
-      list.addObject(result.getName());
+        list.addObject(result.getName());
     }
     return list;
   }
@@ -3106,91 +3364,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + "/" + query);
     return findForQueryHelper(terminology, version, branch, query, pfs,
         stringClassFieldNames, StringClassJpa.class);
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findConceptsForSearchCriteria
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.SearchCriteriaList,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
-  @Override
-  public SearchResultList findConceptsForSearchCriteria(String terminology,
-    String version, String branch, String query, SearchCriteriaList criteria,
-    PfsParameter pfs) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findDescriptorsForSearchCriteria
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.SearchCriteriaList,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
-  @Override
-  public SearchResultList findDescriptorsForSearchCriteria(String terminology,
-    String version, String branch, String query, SearchCriteriaList criteria,
-    PfsParameter pfs) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findCodesForSearchCriteria(
-   * java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.SearchCriteriaList,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
-  @Override
-  public SearchResultList findCodesForSearchCriteria(String terminology,
-    String version, String branch, String query, SearchCriteriaList criteria,
-    PfsParameter pfs) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findLexicalClassesForSearchCriteria
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.SearchCriteriaList,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
-  @Override
-  public SearchResultList findLexicalClassesForSearchCriteria(
-    String terminology, String version, String branch, String query,
-    SearchCriteriaList criteria, PfsParameter pfs) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findStringClassesForSearchCriteria
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.SearchCriteriaList,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
-  @Override
-  public SearchResultList findStringClassesForSearchCriteria(
-    String terminology, String version, String branch, String query,
-    SearchCriteriaList criteria, PfsParameter pfs) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
   }
 
   /*

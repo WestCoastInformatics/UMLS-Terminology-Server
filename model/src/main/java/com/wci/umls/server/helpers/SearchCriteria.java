@@ -9,61 +9,34 @@ package com.wci.umls.server.helpers;
  */
 public interface SearchCriteria {
 
-  /**
-   * Returns the id.
-   *
-   * @return the id
-   */
-  public Long getId();
-  
-  /**
-   * Sets the id.
-   *
-   * @param id the id
-   */
-  public void setId(Long id);
 
   /**
    * Indicates whether to find only active content.
    *
    * @return the find active only
    */
-  public boolean getFindActiveOnly();
+  public boolean getActiveOnly();
 
   /**
    * Sets the find active only flag.
    *
    * @param activeOnly the find active only
    */
-  public void setFindActiveOnly(boolean activeOnly);
+  public void setActiveOnly(boolean activeOnly);
 
   /**
    * Indicates whether to find only inactive content.
    *
    * @return the find inactive only
    */
-  public boolean getFindInactiveOnly();
+  public boolean getInactiveOnly();
 
   /**
    * Sets the find inactive only flag.
    *
    * @param inactiveOnly the find inactive only
    */
-  public void setFindInactiveOnly(boolean inactiveOnly);
-
-  /**
-   * Returns the find module id.
-   *
-   * @return the find by module id
-   */
-  public String getFindByModuleId();
-
-  /**
-   * Sets the find by module id.
-   *
-   * @param moduleId the find by module id
-   */
-  public void setFindByModuleId(String moduleId);
+  public void setInactiveOnly(boolean inactiveOnly);
 
   /**
    * Indicates whether to find descendants of matches.
@@ -81,7 +54,7 @@ public interface SearchCriteria {
 
   /**
    * Indicates whether to find matches themselves (vs only descendants)
-   *
+   * This flag only  makes sense in the context of the descendants flag.
    * @return the find self
    */
   public boolean getFindSelf();
@@ -98,83 +71,83 @@ public interface SearchCriteria {
    *
    * @return the find primitive only
    */
-  public boolean getFindPrimitiveOnly();
+  public boolean getPrimitiveOnly();
 
   /**
    * Sets the find primitive only flag.
    *
    * @param primitiveOnly the find primitive only
    */
-  public void setFindPrimitiveOnly(boolean primitiveOnly);
+  public void setPrimitiveOnly(boolean primitiveOnly);
 
   /**
    * Indicates whether to find only fully defined content.
    *
    * @return the find fully defined only
    */
-  public boolean getFindDefinedOnly();
+  public boolean getDefinedOnly();
 
   /**
    * Sets the find fully defined only flag.
    *
    * @param fullyDefinedOnly the find fully defined only
    */
-  public void setFindDefinedOnly(boolean fullyDefinedOnly);
+  public void setDefinedOnly(boolean fullyDefinedOnly);
 
   /**
-   * Returns the source id of relationships for which matches among destination
+   * Returns the from id of relationships for which matches among to
    * ids will be included.
    *
-   * @return the find by relationship source id
+   * @return the find by relationship from id
    */
-  public String getFindBySourceId();
+  public String getRelationshipFromId();
 
   /**
-   * Returns the type id of relationships for which matches among source or
-   * destination ids will be included.
+   * Returns the type id of relationships for which matches among from or
+   * to ids will be included.
    *
-   * @return the find by relationship type id
+   * @return the find by relationship type
    */
-  public String getFindByRelationshipTypeId();
+  public String getRelationshipType();
 
   /**
-   * Returns the destination id of relationships for which matches among source ids
+   * Returns the to id of relationships for which matches among from ids
    * will be included.
    *
-   * @return the find by relationship destination id
+   * @return the find by relationship to id
    */
-  public String getFindByDestinationId();
+  public String getRelationshipToId();
 
   /**
-   * Indicates whether the specified source or destination id of a relationship
+   * Indicates whether the specified from or to id of a relationship
    * criteria should be searched for just that id or also its descendats.
    *
    * @return the find by relationship descendants
    */
-  public boolean getFindByRelationshipDescendants();
+  public boolean getRelationshipDescendantsFlag();
 
   /**
-   * Indicates that the search should return source concepts connected by the
-   * specified type id to the specified destination id and (optionally) all of
+   * Indicates that the search should return from concepts connected by the
+   * specified type id to the specified to id and (optionally) all of
    * its descendants.
    *
-   * @param typeId the type id
-   * @param destinationId the destination id
+   * @param type the type id
+   * @param toId the to id
    * @param descendants the descendants
    */
-  public void setFindSourceOfRelationship(String typeId, String destinationId,
+  public void setFindFromByRelationshipTypeAndTo(String type, String toId,
     boolean descendants);
 
   /**
-   * Indicates that the search should return destination concepts connected by
-   * the specified type id to the specified source id and (optionally) all of
+   * Indicates that the search should return to concepts connected by
+   * the specified type id to the specified from id and (optionally) all of
    * its descendants.
    *
-   * @param typeId the type id
-   * @param sourceId the source id
+   * @param type the type id
+   * @param fromId the from id
    * @param descendants the descendants
    */
-  public void setFindDestinationOfRelationship(String typeId, String sourceId,
+  public void setFindToByRelationshipFromAndType(String type, String fromId,
     boolean descendants);
 
 }

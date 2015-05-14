@@ -9,7 +9,6 @@ package com.wci.umls.server.services;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.helpers.SearchCriteriaList;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.AtomList;
@@ -874,86 +873,6 @@ public interface ContentService extends RootService {
   public SearchResultList findStringClassesForQuery(String terminology,
     String version, String branch, String query, PfsParameter pfs)
     throws Exception;
-
-  /**
-   * Find concepts for search criteria.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param criteria the criteria
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
-  public SearchResultList findConceptsForSearchCriteria(String terminology,
-    String version, String branch, String query, SearchCriteriaList criteria,
-    PfsParameter pfs) throws Exception;
-
-  /**
-   * Find descriptors for search criteria.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param criteria the criteria
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
-  public SearchResultList findDescriptorsForSearchCriteria(String terminology,
-    String version, String branch, String query, SearchCriteriaList criteria,
-    PfsParameter pfs) throws Exception;
-
-  /**
-   * Find codes for search criteria.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param criteria the criteria
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
-  public SearchResultList findCodesForSearchCriteria(String terminology,
-    String version, String branch, String query, SearchCriteriaList criteria,
-    PfsParameter pfs) throws Exception;
-
-  /**
-   * Find lexical classes for search criteria.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param criteria the criteria
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
-  public SearchResultList findLexicalClassesForSearchCriteria(
-    String terminology, String version, String branch, String query,
-    SearchCriteriaList criteria, PfsParameter pfs) throws Exception;
-
-  /**
-   * Find string classes for search criteria.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param criteria the criteria
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
-  public SearchResultList findStringClassesForSearchCriteria(
-    String terminology, String version, String branch, String query,
-    SearchCriteriaList criteria, PfsParameter pfs) throws Exception;
 
   /**
    * Gets the all concepts.

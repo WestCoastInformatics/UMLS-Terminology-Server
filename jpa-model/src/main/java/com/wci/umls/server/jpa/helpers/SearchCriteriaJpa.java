@@ -3,8 +3,6 @@
  */
 package com.wci.umls.server.jpa.helpers;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.SearchCriteria;
@@ -15,40 +13,32 @@ import com.wci.umls.server.helpers.SearchCriteria;
 @XmlRootElement(name = "searchCriteria")
 public class SearchCriteriaJpa implements SearchCriteria {
 
-  /** The id. */
-  @Id
-  @GeneratedValue
-  private Long id;
-
   /** The active only. */
-  private boolean findActiveOnly;
+  private boolean activeOnly;
 
   /** The destination id. */
-  private String findByDestinationId;
-
-  /** The module id. */
-  private String findByModuleId;
+  private String relationshipToId;
 
   /** The relationship descendants. */
-  private boolean findByRelationshipDescendants;
+  private boolean relationshipDescendantsFlag;
 
   /** The relationship type id. */
-  private String findByRelationshipTypeId;
+  private String relationshipType;
 
   /** The source id. */
-  private String findBySourceId;
+  private String relationshipFromId;
 
   /** The descendants. */
   private boolean findDescendants;
 
   /** The defined only. */
-  private boolean findDefinedOnly;
+  private boolean definedOnly;
 
   /** The inactive only. */
-  private boolean findInactiveOnly;
+  private boolean inactiveOnly;
 
   /** The primitive only. */
-  private boolean findPrimitiveOnly;
+  private boolean primitiveOnly;
 
   /** The self. */
   private boolean findSelf;
@@ -66,106 +56,63 @@ public class SearchCriteriaJpa implements SearchCriteria {
    * @param searchCriteria the search criteria
    */
   public SearchCriteriaJpa(SearchCriteria searchCriteria) {
-    findActiveOnly = searchCriteria.getFindActiveOnly();
-    findByDestinationId = searchCriteria.getFindByDestinationId();
-    findByModuleId = searchCriteria.getFindByModuleId();
-    findByRelationshipDescendants =
-        searchCriteria.getFindByRelationshipDescendants();
-    findByRelationshipTypeId = searchCriteria.getFindByRelationshipTypeId();
-    findBySourceId = searchCriteria.getFindBySourceId();
-    findDefinedOnly = searchCriteria.getFindDefinedOnly();
+    activeOnly = searchCriteria.getActiveOnly();
+    relationshipToId = searchCriteria.getRelationshipToId();
+    relationshipDescendantsFlag =
+        searchCriteria.getRelationshipDescendantsFlag();
+    relationshipType = searchCriteria.getRelationshipType();
+    relationshipFromId = searchCriteria.getRelationshipFromId();
+    definedOnly = searchCriteria.getDefinedOnly();
     findDescendants = searchCriteria.getFindDescendants();
-    findInactiveOnly = searchCriteria.getFindInactiveOnly();
-    findPrimitiveOnly = searchCriteria.getFindPrimitiveOnly();
+    inactiveOnly = searchCriteria.getInactiveOnly();
+    primitiveOnly = searchCriteria.getPrimitiveOnly();
     findSelf = searchCriteria.getFindSelf();
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#getId()
+   * @see com.wci.umls.server.helpers.SearchCriteria#getActiveOnly()
    */
   @Override
-  public Long getId() {
-    return id;
+  public boolean getActiveOnly() {
+    return activeOnly;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#setId(java.lang.Long)
+   * @see com.wci.umls.server.helpers.SearchCriteria#setActiveOnly(boolean)
    */
   @Override
-  public void setId(Long id) {
-    this.id = id;
+  public void setActiveOnly(boolean activeOnly) {
+    this.activeOnly = activeOnly;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#getFindActiveOnly()
+   * @see com.wci.umls.server.helpers.SearchCriteria#getInactiveOnly()
    */
   @Override
-  public boolean getFindActiveOnly() {
-    return findActiveOnly;
+  public boolean getInactiveOnly() {
+    return inactiveOnly;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#setFindActiveOnly(boolean)
+   * @see com.wci.umls.server.helpers.SearchCriteria#setInactiveOnly(boolean)
    */
   @Override
-  public void setFindActiveOnly(boolean activeOnly) {
-    this.findActiveOnly = activeOnly;
+  public void setInactiveOnly(boolean inactiveOnly) {
+    this.inactiveOnly = inactiveOnly;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#getFindInactiveOnly()
-   */
-  @Override
-  public boolean getFindInactiveOnly() {
-    return findInactiveOnly;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#setFindInactiveOnly(boolean)
-   */
-  @Override
-  public void setFindInactiveOnly(boolean inactiveOnly) {
-    this.findInactiveOnly = inactiveOnly;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#getFindByModuleId()
-   */
-  @Override
-  public String getFindByModuleId() {
-    return findByModuleId;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.helpers.SearchCriteria#setFindByModuleId(java.lang.String
-   * )
-   */
-  @Override
-  public void setFindByModuleId(String moduleId) {
-    this.findByModuleId = moduleId;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#getFindDescendants()
+   * @see com.wci.umls.server.helpers.SearchCriteria#getFindDescendants()
    */
   @Override
   public boolean getFindDescendants() {
@@ -175,7 +122,7 @@ public class SearchCriteriaJpa implements SearchCriteria {
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#setFindDescendants(boolean)
+   * @see com.wci.umls.server.helpers.SearchCriteria#setFindDescendants(boolean)
    */
   @Override
   public void setFindDescendants(boolean descendants) {
@@ -185,7 +132,7 @@ public class SearchCriteriaJpa implements SearchCriteria {
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#getFindSelf()
+   * @see com.wci.umls.server.helpers.SearchCriteria#getFindSelf()
    */
   @Override
   public boolean getFindSelf() {
@@ -195,7 +142,7 @@ public class SearchCriteriaJpa implements SearchCriteria {
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#setFindSelf(boolean)
+   * @see com.wci.umls.server.helpers.SearchCriteria#setFindSelf(boolean)
    */
   @Override
   public void setFindSelf(boolean self) {
@@ -205,154 +152,138 @@ public class SearchCriteriaJpa implements SearchCriteria {
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#getFindPrimitiveOnly()
+   * @see com.wci.umls.server.helpers.SearchCriteria#getPrimitiveOnly()
    */
   @Override
-  public boolean getFindPrimitiveOnly() {
-    return findPrimitiveOnly;
+  public boolean getPrimitiveOnly() {
+    return primitiveOnly;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#setFindPrimitiveOnly(boolean)
+   * @see com.wci.umls.server.helpers.SearchCriteria#setPrimitiveOnly(boolean)
    */
   @Override
-  public void setFindPrimitiveOnly(boolean primitiveOnly) {
-    this.findPrimitiveOnly = primitiveOnly;
+  public void setPrimitiveOnly(boolean primitiveOnly) {
+    this.primitiveOnly = primitiveOnly;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#getFindDefinedOnly()
+   * @see com.wci.umls.server.helpers.SearchCriteria#getDefinedOnly()
    */
   @Override
-  public boolean getFindDefinedOnly() {
-    return findDefinedOnly;
+  public boolean getDefinedOnly() {
+    return definedOnly;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#setFindDefinedOnly(boolean)
+   * @see com.wci.umls.server.helpers.SearchCriteria#setDefinedOnly(boolean)
    */
   @Override
-  public void setFindDefinedOnly(boolean definedOnly) {
-    this.findDefinedOnly = definedOnly;
+  public void setDefinedOnly(boolean definedOnly) {
+    this.definedOnly = definedOnly;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#getFindBySourceId()
+   * @see com.wci.umls.server.helpers.SearchCriteria#getRelationshipFromId()
    */
   @Override
-  public String getFindBySourceId() {
-    return findBySourceId;
+  public String getRelationshipFromId() {
+    return relationshipFromId;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#getFindByRelationshipTypeId()
+   * @see com.wci.umls.server.helpers.SearchCriteria#getRelationshipType()
    */
   @Override
-  public String getFindByRelationshipTypeId() {
-    return findByRelationshipTypeId;
+  public String getRelationshipType() {
+    return relationshipType;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.SearchCriteria#getFindByDestinationId()
+   * @see com.wci.umls.server.helpers.SearchCriteria#getRelationshipToId()
    */
   @Override
-  public String getFindByDestinationId() {
-    return findByDestinationId;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.helpers.SearchCriteria#getFindByRelationshipDescendants()
-   */
-  @Override
-  public boolean getFindByRelationshipDescendants() {
-    return findByRelationshipDescendants;
+  public String getRelationshipToId() {
+    return relationshipToId;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * org.ihtsdo.otf.ts.helpers.SearchCriteria#setFindSourceOfRelationship(java
-   * .lang.String, java.lang.String, boolean)
+   * com.wci.umls.server.helpers.SearchCriteria#getRelationshipDescendantsFlag()
    */
   @Override
-  public void setFindSourceOfRelationship(String typeId, String destinationId,
-    boolean descendants) {
-    this.findByRelationshipTypeId = typeId;
-    this.findByDestinationId = destinationId;
-    this.findByRelationshipDescendants = descendants;
+  public boolean getRelationshipDescendantsFlag() {
+    return relationshipDescendantsFlag;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * org.ihtsdo.otf.ts.helpers.SearchCriteria#setFindDestinationOfRelationship
+   * com.wci.umls.server.helpers.SearchCriteria#setFindFromByRelationshipTypeAndTo
    * (java.lang.String, java.lang.String, boolean)
    */
   @Override
-  public void setFindDestinationOfRelationship(String typeId, String sourceId,
-    boolean descendants) {
-    this.findByRelationshipTypeId = typeId;
-    this.findBySourceId = sourceId;
-    this.findByRelationshipDescendants = descendants;
+  public void setFindFromByRelationshipTypeAndTo(String type,
+    String destinationId, boolean descendants) {
+    this.relationshipType = type;
+    this.relationshipToId = destinationId;
+    this.relationshipDescendantsFlag = descendants;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see java.lang.Object#hashCode()
+   * @see
+   * com.wci.umls.server.helpers.SearchCriteria#setFindToByRelationshipFromAndType
+   * (java.lang.String, java.lang.String, boolean)
    */
+  @Override
+  public void setFindToByRelationshipFromAndType(String type, String sourceId,
+    boolean descendants) {
+    this.relationshipType = type;
+    this.relationshipFromId = sourceId;
+    this.relationshipDescendantsFlag = descendants;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (findActiveOnly ? 1231 : 1237);
-    result = prime * result + (findDefinedOnly ? 1231 : 1237);
+    result = prime * result + (activeOnly ? 1231 : 1237);
+    result = prime * result + (definedOnly ? 1231 : 1237);
     result = prime * result + (findDescendants ? 1231 : 1237);
-    result =
-        prime
-            * result
-            + ((findByDestinationId == null) ? 0 : findByDestinationId
-                .hashCode());
-    result = prime * result + (findInactiveOnly ? 1231 : 1237);
-    result =
-        prime * result
-            + ((findByModuleId == null) ? 0 : findByModuleId.hashCode());
-    result = prime * result + (findPrimitiveOnly ? 1231 : 1237);
-    result = prime * result + (findByRelationshipDescendants ? 1231 : 1237);
-    result =
-        prime
-            * result
-            + ((findByRelationshipTypeId == null) ? 0
-                : findByRelationshipTypeId.hashCode());
     result = prime * result + (findSelf ? 1231 : 1237);
+    result = prime * result + (inactiveOnly ? 1231 : 1237);
+    result = prime * result + (primitiveOnly ? 1231 : 1237);
+    result = prime * result + (relationshipDescendantsFlag ? 1231 : 1237);
+    result =
+        prime
+            * result
+            + ((relationshipFromId == null) ? 0 : relationshipFromId.hashCode());
     result =
         prime * result
-            + ((findBySourceId == null) ? 0 : findBySourceId.hashCode());
+            + ((relationshipToId == null) ? 0 : relationshipToId.hashCode());
+    result =
+        prime * result
+            + ((relationshipType == null) ? 0 : relationshipType.hashCode());
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -362,39 +293,34 @@ public class SearchCriteriaJpa implements SearchCriteria {
     if (getClass() != obj.getClass())
       return false;
     SearchCriteriaJpa other = (SearchCriteriaJpa) obj;
-    if (findActiveOnly != other.findActiveOnly)
+    if (activeOnly != other.activeOnly)
       return false;
-    if (findDefinedOnly != other.findDefinedOnly)
+    if (definedOnly != other.definedOnly)
       return false;
     if (findDescendants != other.findDescendants)
       return false;
-    if (findByDestinationId == null) {
-      if (other.findByDestinationId != null)
-        return false;
-    } else if (!findByDestinationId.equals(other.findByDestinationId))
-      return false;
-    if (findInactiveOnly != other.findInactiveOnly)
-      return false;
-    if (findByModuleId == null) {
-      if (other.findByModuleId != null)
-        return false;
-    } else if (!findByModuleId.equals(other.findByModuleId))
-      return false;
-    if (findPrimitiveOnly != other.findPrimitiveOnly)
-      return false;
-    if (findByRelationshipDescendants != other.findByRelationshipDescendants)
-      return false;
-    if (findByRelationshipTypeId == null) {
-      if (other.findByRelationshipTypeId != null)
-        return false;
-    } else if (!findByRelationshipTypeId.equals(other.findByRelationshipTypeId))
-      return false;
     if (findSelf != other.findSelf)
       return false;
-    if (findBySourceId == null) {
-      if (other.findBySourceId != null)
+    if (inactiveOnly != other.inactiveOnly)
+      return false;
+    if (primitiveOnly != other.primitiveOnly)
+      return false;
+    if (relationshipDescendantsFlag != other.relationshipDescendantsFlag)
+      return false;
+    if (relationshipFromId == null) {
+      if (other.relationshipFromId != null)
         return false;
-    } else if (!findBySourceId.equals(other.findBySourceId))
+    } else if (!relationshipFromId.equals(other.relationshipFromId))
+      return false;
+    if (relationshipToId == null) {
+      if (other.relationshipToId != null)
+        return false;
+    } else if (!relationshipToId.equals(other.relationshipToId))
+      return false;
+    if (relationshipType == null) {
+      if (other.relationshipType != null)
+        return false;
+    } else if (!relationshipType.equals(other.relationshipType))
       return false;
     return true;
   }
@@ -405,7 +331,7 @@ public class SearchCriteriaJpa implements SearchCriteria {
    * @param findByDestinationId the find by destination id
    */
   public void setFindByDestinationId(String findByDestinationId) {
-    this.findByDestinationId = findByDestinationId;
+    this.relationshipToId = findByDestinationId;
   }
 
   /**
@@ -415,7 +341,7 @@ public class SearchCriteriaJpa implements SearchCriteria {
    */
   public void setFindByRelationshipDescendants(
     boolean findByRelationshipDescendants) {
-    this.findByRelationshipDescendants = findByRelationshipDescendants;
+    this.relationshipDescendantsFlag = findByRelationshipDescendants;
   }
 
   /**
@@ -424,7 +350,7 @@ public class SearchCriteriaJpa implements SearchCriteria {
    * @param findByRelationshipTypeId the find by relationship type id
    */
   public void setFindByRelationshipTypeId(String findByRelationshipTypeId) {
-    this.findByRelationshipTypeId = findByRelationshipTypeId;
+    this.relationshipType = findByRelationshipTypeId;
   }
 
   /**
@@ -433,7 +359,18 @@ public class SearchCriteriaJpa implements SearchCriteria {
    * @param findBySourceId the find by source id
    */
   public void setFindBySourceId(String findBySourceId) {
-    this.findBySourceId = findBySourceId;
+    this.relationshipFromId = findBySourceId;
+  }
+
+  @Override
+  public String toString() {
+    return "SearchCriteriaJpa [activeOnly=" + activeOnly
+        + ", relationshipToId=" + relationshipToId
+        + ", relationshipDescendantsFlag=" + relationshipDescendantsFlag
+        + ", relationshipType=" + relationshipType + ", relationshipFromId="
+        + relationshipFromId + ", findDescendants=" + findDescendants
+        + ", definedOnly=" + definedOnly + ", inactiveOnly=" + inactiveOnly
+        + ", primitiveOnly=" + primitiveOnly + ", findSelf=" + findSelf + "]";
   }
 
 }

@@ -64,17 +64,17 @@ public class ModelUnit006Test {
   public void testModelEqualsHashcode006() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode006");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("findActiveOnly");
-    tester.include("findDefinedOnly");
+    tester.include("activeOnly");
+    tester.include("definedOnly");
     tester.include("findDescendants");
-    tester.include("findByDestinationId");
-    tester.include("findInactiveOnly");
-    tester.include("findByModuleId");
-    tester.include("findPrimitiveOnly");
-    tester.include("findByRelationshipDescendants");
-    tester.include("findByRelationshipTypeId");
+    tester.include("inactiveOnly");
+    tester.include("primitiveOnly");
     tester.include("findSelf");
-    tester.include("findBySourceId");
+    // no set methods for these things:
+    //tester.include("relationshipToId");
+    //tester.include("relationshipDescendantsFlag");
+    //tester.include("relationshipType");
+    //tester.include("relationshipFromId");
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
@@ -93,6 +93,7 @@ public class ModelUnit006Test {
   public void testModelCopy006() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelCopy006");
     CopyConstructorTester tester = new CopyConstructorTester(object);
+
     assertTrue(tester.testCopyConstructor(SearchCriteria.class));
   }
 
@@ -105,6 +106,7 @@ public class ModelUnit006Test {
   public void testModelXmlSerialization006() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient006");
     XmlSerializationTester tester = new XmlSerializationTester(object);
+
     assertTrue(tester.testXmlSerialization());
   }
 

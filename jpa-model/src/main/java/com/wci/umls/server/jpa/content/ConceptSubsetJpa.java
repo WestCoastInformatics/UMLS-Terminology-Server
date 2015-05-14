@@ -32,7 +32,7 @@ import com.wci.umls.server.model.content.Subset;
 public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
 
   /** The members. */
-  @OneToMany(orphanRemoval = true, targetEntity = ConceptSubsetMemberJpa.class)
+  @OneToMany(mappedBy = "subset", targetEntity = ConceptSubsetMemberJpa.class)
   private List<ConceptSubsetMember> members = null;
 
   /**
