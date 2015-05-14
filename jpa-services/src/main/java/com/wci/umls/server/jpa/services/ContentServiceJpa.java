@@ -58,6 +58,7 @@ import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
+import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
 import com.wci.umls.server.jpa.content.AbstractSubset;
@@ -107,6 +108,8 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
+import com.wci.umls.server.model.meta.RootTerminology;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
@@ -3614,29 +3617,42 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public void clearContent(String terminology, String version) {
+
+    Logger.getLogger(getClass()).info("Metadata service - clear metadata");
     try {
       if (getTransactionPerOperation()) {
+        // remove simple ref set member
         tx.begin();
       }
 
-      String[] types =
-          new String[] {
-              "ConceptJpa", "DescriptorJpa", "CodeJpa", "AtomJpa",
-              "AttributeJpa", "DefinitionJpa", "SemanticTypeComponentJpa",
-              "AbstractRelationship", "AbstractSubset", "AbstractSubsetMember"
-          };
+      for (EntityType<?> type : manager.getMetamodel().getEntities()) {
+        String jpaTable = type.getName();
+        // Skip audit trail tables
+        if (jpaTable.toUpperCase().indexOf("_AUD") != -1) {
+          continue;
+        }
+        // skip all abstract abbreviations and terminology classes
+        if (!AbstractAbbreviation.class.isAssignableFrom(type
+            .getBindableJavaType())
+            && !Terminology.class.isAssignableFrom(type.getBindableJavaType())
+            && !RootTerminology.class.isAssignableFrom(type
+                .getBindableJavaType())) {
+          continue;
+        }
+        Logger.getLogger(getClass()).info("  Remove " + jpaTable);
+        javax.persistence.Query query = null;
 
-      for (String type : types) {
-        Logger.getLogger(getClass()).info("  Remove " + type);
-        javax.persistence.Query query =
-            manager.createQuery("DELETE FROM " + type
+        query =
+            manager.createQuery("DELETE FROM " + jpaTable
                 + " WHERE terminology = :terminology "
                 + " AND terminologyVersion = :version");
         query.setParameter("terminology", terminology);
         query.setParameter("version", version);
+
         int deleteRecords = query.executeUpdate();
         Logger.getLogger(getClass()).info(
-            "    " + type + " records deleted: " + deleteRecords);
+            "    " + jpaTable + " records deleted: " + deleteRecords);
+
       }
 
       if (getTransactionPerOperation()) {

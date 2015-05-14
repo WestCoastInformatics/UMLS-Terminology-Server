@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.content;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.hibernate.envers.Audited;
 
@@ -19,6 +20,10 @@ import com.wci.umls.server.model.content.Relationship;
  */
 @Audited
 @MappedSuperclass
+@XmlSeeAlso({
+    CodeRelationshipJpa.class, ConceptRelationshipJpa.class,
+    DescriptorRelationshipJpa.class, AtomRelationshipJpa.class
+})
 public abstract class AbstractRelationship<S extends ComponentHasAttributes, T extends ComponentHasAttributes>
     extends AbstractComponentHasAttributes implements Relationship<S, T> {
 
@@ -59,8 +64,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
    * @param relationship the relationship
    * @param deepCopy the deep copy
    */
-  public AbstractRelationship(Relationship<S, T> relationship,
-      boolean deepCopy) {
+  public AbstractRelationship(Relationship<S, T> relationship, boolean deepCopy) {
     super(relationship, deepCopy);
     relationshipType = relationship.getRelationshipType();
     additionalRelationshipType = relationship.getAdditionalRelationshipType();
