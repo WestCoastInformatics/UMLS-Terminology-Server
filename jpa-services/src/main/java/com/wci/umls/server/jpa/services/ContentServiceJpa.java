@@ -4047,4 +4047,38 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  @Override
+  public RelationshipList getRelationshipsForConcept(String conceptId,
+    String terminology, String version, String branch) {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get relationships for concept " + conceptId + "/"
+            + terminology + "/" + version);
+    javax.persistence.Query query =
+        manager.createQuery("select s from ConceptRelationshipJpa s, "
+            + " ConceptJpa c where c.terminologyId = :conceptId "
+            + "and c.terminologyVersion = :version "
+            + "and c.terminology = :terminology and s.from = c");
+
+    try {
+      RelationshipList list = new RelationshipListJpa();
+
+      query.setParameter("conceptId", conceptId);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      list.setObjects(query.getResultList());
+      list.setTotalCount(list.getObjects().size());
+
+      // account for lazy initialization
+      for (Relationship s : list
+          .getObjects()) {
+        if (s.getAttributes() != null)
+          s.getAttributes().size();
+
+      }
+      return list;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+
 }

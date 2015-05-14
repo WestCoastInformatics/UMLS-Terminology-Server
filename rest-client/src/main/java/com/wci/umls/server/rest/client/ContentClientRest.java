@@ -20,11 +20,13 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
@@ -34,6 +36,7 @@ import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
 import com.wci.umls.server.jpa.helpers.content.DescriptorListJpa;
+import com.wci.umls.server.jpa.helpers.content.RelationshipListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.Code;
@@ -1004,10 +1007,10 @@ public class ContentClientRest implements ContentServiceRest {
     }
 
     // converting to object
-    SubsetMemberListJpa concept =
+    SubsetMemberListJpa subsetMemberList =
         (SubsetMemberListJpa) ConfigUtility.getGraphForString(resultString,
             ConceptSubsetMemberJpa.class);
-    return concept;
+    return subsetMemberList;
   }
 
   /*
@@ -1184,6 +1187,37 @@ public class ContentClientRest implements ContentServiceRest {
     String version, String query, String authToken) throws Exception {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#getRelationshipsForConcept(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public RelationshipList getRelationshipsForConcept(String conceptId,
+    String terminology, String version, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get relationships for concept " + conceptId + ", "
+            + terminology + ", " + version);
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/rel/"
+            + terminology + "/" + version + "/" + conceptId);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get(ClientResponse.class);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    RelationshipListJpa relList =
+        (RelationshipListJpa) ConfigUtility.getGraphForString(resultString,
+            ConceptRelationshipJpa.class);
+    return relList;
   }
 
 }

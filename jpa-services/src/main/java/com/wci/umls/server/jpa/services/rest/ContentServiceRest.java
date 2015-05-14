@@ -12,6 +12,7 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -138,6 +139,19 @@ public interface ContentServiceRest {
   public SubsetMemberList getSubsetMembersForConcept(String conceptId,
     String terminology, String version, String authToken) throws Exception;
 
+  /**
+   * Gets the relationships for concept.
+   *
+   * @param conceptId the concept id
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the relationships for concept
+   * @throws Exception the exception
+   */
+  public RelationshipList getRelationshipsForConcept(String conceptId,
+    String terminology, String version, String authToken) throws Exception;
+  
   /**
    * Find descriptorss for query.
    *
