@@ -112,5 +112,13 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     }
     members.remove(member);
   }
+  
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.Subset#clearMembers()
+   */
+  public void clearMembers() {
+    members = new ArrayList<>();
+  }
+
 
 }

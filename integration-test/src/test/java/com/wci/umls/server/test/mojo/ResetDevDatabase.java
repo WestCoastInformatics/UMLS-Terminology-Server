@@ -117,7 +117,7 @@ public class ResetDevDatabase {
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
-    p.setProperty("name", "Sample project.");
+    p.setProperty("name", "Sample project");
     p.setProperty("description", "Sample project.");
     p.setProperty("terminology", "UMLS");
     p.setProperty("version", "latest");
