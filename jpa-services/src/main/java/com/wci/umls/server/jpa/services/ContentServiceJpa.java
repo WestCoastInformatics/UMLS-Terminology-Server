@@ -459,23 +459,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return getComponent(id, AbstractSubset.class);
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public SubsetList getSubsets(String terminologyId, String terminology,
-    String version) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - get subsets " + terminologyId + "/" + terminology
-            + "/" + version);
-    List<Subset> subsets =
-        getComponents(terminologyId, terminology, version, AbstractSubset.class);
-    if (subsets == null) {
-      return null;
-    }
-    SubsetList list = new SubsetListJpa();
-    list.setTotalCount(subsets.size());
-    list.setObjects(subsets);
-    return list;
-  }
 
   /*
    * (non-Javadoc)
@@ -508,7 +491,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - get atom subsets " + terminology + "/" + version);
     javax.persistence.Query query =
         manager.createQuery("select s from AtomSubsetJpa s where "
-            + "terminologyId = :terminologyId and " + ""
             + "terminologyVersion = :version and terminology = :terminology");
 
     // Try to retrieve the single expected result If zero or more than one
@@ -521,6 +503,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       SubsetListJpa subsetList = new SubsetListJpa();
       subsetList.setObjects(m);
       subsetList.setTotalCount(m.size());
+      
       return subsetList;
 
     } catch (NoResultException e) {
@@ -542,7 +525,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - get concept subsets " + terminology + "/" + version);
     javax.persistence.Query query =
         manager.createQuery("select s from ConceptSubsetJpa s where "
-            + "terminologyId = :terminologyId and " + ""
             + "terminologyVersion = :version and terminology = :terminology");
 
     // Try to retrieve the single expected result If zero or more than one
@@ -686,11 +668,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       list.setTotalCount(list.getObjects().size());
 
       // account for lazy initialization
-      for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
+      /*for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
           .getObjects()) {
         if (s.getAttributes() != null)
           s.getAttributes().size();
-      }
+      }*/
 
       return list;
     } catch (NoResultException e) {
@@ -728,11 +710,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       list.setTotalCount(list.getObjects().size());
 
       // account for lazy initialization
-      for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
+      /*for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
           .getObjects()) {
         if (s.getAttributes() != null)
           s.getAttributes().size();
-      }
+      }*/
       return list;
     } catch (NoResultException e) {
       return null;
@@ -2839,7 +2821,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Perform Lucene search
     List<AtomClass> queryClasses = new ArrayList<>();
     boolean queryFlag = false;
-    if (query != null && !query.equals("")) {
+    if (query != null && !query.equals("") && !query.equals("null")) {
       queryClasses =
           getQueryResults(terminology, version, branch, query, fieldNames,
               clazz, pfs, totalCt);
@@ -2887,27 +2869,29 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       totalCt[0] = classes.size();
 
       // Apply PFS sorting manually
-      final Field sortField = clazz.getField(pfs.getSortField());
-      if (sortField.getType().isAssignableFrom(Comparable.class)) {
-        throw new Exception("Referenced sort field is not comparable");
-      }
-      sortField.setAccessible(true);
-      Collections.sort(classes, new Comparator<AtomClass>() {
-        @SuppressWarnings({
-            "rawtypes", "unchecked"
-        })
-        @Override
-        public int compare(AtomClass o1, AtomClass o2) {
-          try {
-            Comparable f1 = (Comparable) sortField.get(o1);
-            Comparable f2 = (Comparable) sortField.get(o2);
-            return f1.compareTo(f2);
-          } catch (Exception e) {
-            // do nothing
-          }
-          return 0;
+      if (pfs != null && pfs.getSortField() != null) {
+        final Field sortField = clazz.getField(pfs.getSortField());
+        if (sortField.getType().isAssignableFrom(Comparable.class)) {
+          throw new Exception("Referenced sort field is not comparable");
         }
-      });
+        sortField.setAccessible(true);
+        Collections.sort(classes, new Comparator<AtomClass>() {
+          @SuppressWarnings({
+              "rawtypes", "unchecked"
+          })
+          @Override
+          public int compare(AtomClass o1, AtomClass o2) {
+            try {
+              Comparable f1 = (Comparable) sortField.get(o1);
+              Comparable f2 = (Comparable) sortField.get(o2);
+              return f1.compareTo(f2);
+            } catch (Exception e) {
+              // do nothing
+            }
+            return 0;
+          }
+        });
+      }
 
       // Apply PFS paging manually
       if (pfs != null && pfs.getStartIndex() != -1) {
@@ -2939,6 +2923,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       results.addObject(sr);
     }
 
+    results.setTotalCount(totalCt[0]);
     return results;
 
   }
@@ -3021,7 +3006,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     StringBuilder builder = new StringBuilder();
     builder.append("SELECT c FROM " + clazz.getName() + " c "
         + "WHERE terminology = :terminology "
-        + "AND terminololgyVersion = :version ");
+        + "AND terminologyVersion = :version ");
 
     String terminologyId = null;
 

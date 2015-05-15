@@ -103,17 +103,6 @@ public interface ContentService extends RootService {
    */
   public Subset getSubset(Long id) throws Exception;
 
-  /**
-   * Returns the subsets.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the subsets
-   * @throws Exception the exception
-   */
-  public SubsetList getSubsets(String terminologyId, String terminology,
-    String version) throws Exception;
 
   /**
    * Returns the subset.
