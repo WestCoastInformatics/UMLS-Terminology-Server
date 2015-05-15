@@ -282,11 +282,45 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
         fireProgressEvent((int) ((progress * .92) + 8),
             "Creating transitive closure relationships");
       }
+      
+      // Create a "self" transitive relationship
+      TransitiveRelationship<? extends ComponentHasAttributes> tr = null;
+      if (idType == IdType.CONCEPT) {
+        final ConceptTransitiveRelationship ctr =
+            new ConceptTransitiveRelationshipJpa();
+        ctr.setSuperType((Concept) componentMap.get(code));
+        ctr.setSubType(ctr.getSuperType());
+        tr = ctr;
+      } else if (idType == IdType.DESCRIPTOR) {
+        final DescriptorTransitiveRelationship dtr =
+            new DescriptorTransitiveRelationshipJpa();
+        dtr.setSuperType((Descriptor) componentMap.get(code));
+        dtr.setSubType(dtr.getSuperType());
+        tr = dtr;
+      } else if (idType == IdType.CODE) {
+        final CodeTransitiveRelationship ctr =
+            new CodeTransitiveRelationshipJpa();
+        ctr.setSuperType((Code) componentMap.get(code));
+        ctr.setSubType(ctr.getSuperType());
+        tr = ctr;
+      } 
+
+      tr.setObsolete(false);
+      tr.setTimestamp(startDate);
+      tr.setLastModified(startDate);
+      tr.setLastModifiedBy("admin");
+      tr.setPublishable(true);
+      tr.setPublished(false);
+      tr.setTerminologyId("");
+      tr.setTerminology(terminology);
+      tr.setTerminologyVersion(version);
+      addTransitiveRelationship(tr);      
+      
       List<Long> ancPath = new ArrayList<>();
       ancPath.add(code);
       final Set<Long> descs = getDescendants(code, parChd, ancPath);
       for (final Long desc : descs) {
-        TransitiveRelationship<? extends ComponentHasAttributes> tr = null;
+        tr = null;
         if (idType == IdType.CONCEPT) {
           final ConceptTransitiveRelationship ctr =
               new ConceptTransitiveRelationshipJpa();
@@ -294,11 +328,11 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
           ctr.setSubType((Concept) componentMap.get(desc));
           tr = ctr;
         } else if (idType == IdType.DESCRIPTOR) {
-          final DescriptorTransitiveRelationship ctr =
+          final DescriptorTransitiveRelationship dtr =
               new DescriptorTransitiveRelationshipJpa();
-          ctr.setSuperType((Descriptor) componentMap.get(code));
-          ctr.setSubType((Descriptor) componentMap.get(desc));
-          tr = ctr;
+          dtr.setSuperType((Descriptor) componentMap.get(code));
+          dtr.setSubType((Descriptor) componentMap.get(desc));
+          tr = dtr;
         } else if (idType == IdType.CODE) {
           final CodeTransitiveRelationship ctr =
               new CodeTransitiveRelationshipJpa();

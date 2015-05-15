@@ -7,40 +7,11 @@
  *************************************************************/
 package com.wci.umls.server.model.content;
 
-import java.util.List;
-
+import com.wci.umls.server.helpers.HasMembers;
 
 /**
  * Represents a subset of {@link Atom}s asserted by a terminology.
  */
-public interface AtomSubset extends Subset {
-
-  /**
-   * Returns the members.
-   * 
-   * @return the members
-   */
-  public List<AtomSubsetMember> getMembers();
-
-  /**
-   * Sets the members.
-   * 
-   * @param members the members
-   */
-  public void setMembers(List<AtomSubsetMember> members);
-
-  /**
-   * Adds a member.
-   * 
-   * @param member the member
-   */
-  public void addMember(AtomSubsetMember member);
-
-  /**
-   * Removes the member.
-   *
-   * @param member the member
-   */
-  public void removeMember(AtomSubsetMember member);
-
+public interface AtomSubset extends Subset, HasMembers<AtomSubsetMember> {
+  // n/a
 }

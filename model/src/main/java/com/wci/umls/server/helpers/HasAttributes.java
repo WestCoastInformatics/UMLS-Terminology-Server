@@ -40,4 +40,11 @@ public interface HasAttributes  {
    */
   public void removeAttribute(Attribute attribute);
 
+  /**
+   * Returns the attribute by name.
+   *
+   * @param name the name
+   * @return the attribute by name
+   */
+  public Attribute getAttributeByName(String name);
 }

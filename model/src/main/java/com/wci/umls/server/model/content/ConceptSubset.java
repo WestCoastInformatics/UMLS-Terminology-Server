@@ -7,40 +7,11 @@
  *************************************************************/
 package com.wci.umls.server.model.content;
 
-import java.util.List;
-
+import com.wci.umls.server.helpers.HasMembers;
 
 /**
  * Represents a subset of {@link Concept}s asserted by a terminology.
  */
-public interface ConceptSubset extends Subset {
-
-  /**
-   * Returns the members.
-   * 
-   * @return the members
-   */
-  public List<ConceptSubsetMember> getMembers();
-
-  /**
-   * Sets the members.
-   * 
-   * @param members the members
-   */
-  public void setMembers(List<ConceptSubsetMember> members);
-
-  /**
-   * Adds a member.
-   * 
-   * @param member the member
-   */
-  public void addMember(ConceptSubsetMember member);
-
-  /**
-   * Removes the member.
-   *
-   * @param member the member
-   */
-  public void removeMember(ConceptSubsetMember member);
-
+public interface ConceptSubset extends Subset, HasMembers<ConceptSubsetMember> {
+  // n/a
 }

@@ -1,5 +1,8 @@
-/**
+/*
  * Copyright 2015 West Coast Informatics, LLC
+ */
+/*
+ * 
  */
 package com.wci.umls.server.mojo;
 
@@ -15,32 +18,27 @@ import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
 import com.wci.umls.server.services.SecurityService;
 
 /**
- * Goal which loads a set of RRF into a database.
+ * Goal which loads an RF2 Delta of SNOMED CT data
  * 
  * See admin/loader/pom.xml for sample usage
  * 
- * @goal load-rrf-umls
+ * @goal load-rf2-delta
  * 
  * @phase package
  */
-public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
+public class TerminologyRf2DeltaLoader extends AbstractMojo {
 
   /**
    * Name of terminology to be loaded.
+   * 
    * @parameter
    * @required
    */
   private String terminology;
 
   /**
-   * The terminology version.
-   * @parameter
-   * @required
-   */
-  private String version;
-
-  /**
-   * Input directory.
+   * The input directory
+   * 
    * @parameter
    * @required
    */
@@ -52,15 +50,6 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
    */
   private boolean server = false;
 
-  /**
-   * Instantiates a {@link TerminologyRrfUmlsLoaderMojo} from the specified
-   * parameters.
-   * 
-   */
-  public TerminologyRrfUmlsLoaderMojo() {
-    // do nothing
-  }
-
   /*
    * (non-Javadoc)
    * 
@@ -68,11 +57,9 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
    */
   @Override
   public void execute() throws MojoFailureException {
-
     try {
-      getLog().info("RRF UMLS Terminology Loader called via mojo.");
+      getLog().info("RF2 Snapshot Terminology Loader called via mojo.");
       getLog().info("  Terminology        : " + terminology);
-      getLog().info("  Terminology Version: " + version);
       getLog().info("  Input directory    : " + inputDir);
       getLog().info("  Expect server up   : " + server);
 
@@ -104,16 +91,14 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
         getLog().info("Running directly");
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService.loadTerminologyRrf(terminology, version, false,
-            inputDir, authToken);
-
+        contentService
+            .loadTerminologyRf2Delta(terminology, inputDir, authToken);
       } else {
         getLog().info("Running against server");
 
         // invoke the client
         ContentClientRest client = new ContentClientRest(properties);
-        client.loadTerminologyRrf(terminology, version, false, inputDir,
-            authToken);
+        client.loadTerminologyRf2Delta(terminology, inputDir, authToken);
       }
 
     } catch (Exception e) {
@@ -121,4 +106,5 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
       throw new MojoFailureException("Unexpected exception:", e);
     }
   }
+
 }

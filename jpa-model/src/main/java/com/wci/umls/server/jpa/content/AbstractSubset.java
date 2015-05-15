@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.content;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.hibernate.envers.Audited;
 
@@ -15,6 +16,9 @@ import com.wci.umls.server.model.content.Subset;
  */
 @Audited
 @MappedSuperclass
+@XmlSeeAlso({
+    AtomSubsetJpa.class, ConceptSubsetJpa.class
+})
 public abstract class AbstractSubset extends AbstractComponentHasAttributes
     implements Subset {
 
@@ -30,7 +34,7 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
   @Column(nullable = false)
   private boolean disjointSubset = false;
 
-  /**  The branched to. */
+  /** The branched to. */
   @Column(nullable = true)
   private String branchedTo;
 

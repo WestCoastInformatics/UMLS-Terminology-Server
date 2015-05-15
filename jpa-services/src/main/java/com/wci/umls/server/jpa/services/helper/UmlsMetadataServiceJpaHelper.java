@@ -83,8 +83,6 @@ public class UmlsMetadataServiceJpaHelper extends
         "get relationship types - " + terminology + ", " + version);
     // Cache relationship types map
     if (relationshipTypesMap.isEmpty()) {
-      Logger.getLogger(getClass()).info(
-          "  rel types map is empty");
       javax.persistence.Query query =
           manager
               .createQuery("select distinct a.terminology, a.terminologyVersion, t.abbreviation "
@@ -96,9 +94,6 @@ public class UmlsMetadataServiceJpaHelper extends
           relationshipTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
         }
-        Logger.getLogger(getClass()).info(
-            "  add concept rel type: " + result[0].toString() + result[1] + ","
-                + result[2]);
         relationshipTypesMap.get(result[0].toString() + result[1]).add(
             result[2].toString());
       }
@@ -113,9 +108,6 @@ public class UmlsMetadataServiceJpaHelper extends
           relationshipTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
         }
-        Logger.getLogger(getClass()).info(
-            "  add descriptor rel type: " + result[0].toString() + result[1]
-                + "," + result[2]);
         relationshipTypesMap.get(result[0].toString() + result[1]).add(
             result[2].toString());
       }
@@ -130,18 +122,11 @@ public class UmlsMetadataServiceJpaHelper extends
           relationshipTypesMap.put(result[0].toString() + result[1],
               new HashSet<String>());
         }
-        Logger.getLogger(getClass()).info(
-            "  add code rel type: " + result[0].toString() + result[1] + ","
-                + result[2]);
         relationshipTypesMap.get(result[0].toString() + result[1]).add(
             result[2].toString());
       }
 
-    } else {
-      Logger.getLogger(getClass()).info(
-          "  rel types map is NOT empty");
-
-    }
+    } 
     javax.persistence.Query query =
         manager.createQuery("SELECT t from RelationshipTypeJpa t "
             + " where terminology = :terminology "
@@ -150,9 +135,7 @@ public class UmlsMetadataServiceJpaHelper extends
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
     query.setParameter("list", relationshipTypesMap.get(terminology + version));
-    Logger.getLogger(getClass()).info(
-        "  " + umlsTerminology + umlsVersion + ", "
-            + relationshipTypesMap.get(terminology + version));
+
     RelationshipTypeList types = new RelationshipTypeListJpa();
     types.setObjects(query.getResultList());
     types.setTotalCount(types.getObjects().size());
@@ -366,7 +349,6 @@ public class UmlsMetadataServiceJpaHelper extends
   @Override
   public RelationshipTypeList getHierarchicalRelationshipTypes(
     String terminology, String version) throws Exception {
-    Logger.getLogger(getClass()).info("  childRel = " + chdRel);
     // cache and check for the CHD rel
     if (chdRel == null) {
       RelationshipTypeList list = getRelationshipTypes(terminology, version);

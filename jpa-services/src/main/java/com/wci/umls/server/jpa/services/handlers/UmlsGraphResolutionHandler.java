@@ -98,6 +98,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
         resolveDefinition(def, nullId);
       }
 
+      // skip relationships
       atom.setRelationships(new ArrayList<AtomRelationship>());
 
     } else if (atom == null) {

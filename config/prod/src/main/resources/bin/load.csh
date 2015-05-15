@@ -37,7 +37,7 @@ endif
 
 echo "    Load UMLS ...`/bin/date`"
 cd $UMLS_CODE/admin/loader
-mvn install -PRF2-full -Drun.config.umls=$UMLS_CONFIG -Dserver=$SERVER -Dterminology=UMLS -Dversion=latest -Dinput.dir=$UMLS_DATA/SCTMSH_2014AB >&! mvn.log
+mvn install -PRRF-umls -Drun.config.umls=$UMLS_CONFIG -Dserver=$SERVER -Dterminology=UMLS -Dversion=latest -Dinput.dir=$UMLS_DATA/SCTMSH_2014AB >&! mvn.log
 if ($status != 0) then
     echo "ERROR loading UMLS"
     cat mvn.log

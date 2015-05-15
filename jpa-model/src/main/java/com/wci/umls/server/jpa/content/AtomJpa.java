@@ -33,6 +33,7 @@ import org.hibernate.search.annotations.Store;
 import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
+import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 
 /**
@@ -49,9 +50,13 @@ import com.wci.umls.server.model.content.Definition;
 public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /** The definitions. */
-  @OneToMany(orphanRemoval = true, targetEntity = DefinitionJpa.class)
+  @OneToMany(targetEntity = DefinitionJpa.class)
   @IndexedEmbedded
   private List<Definition> definitions = null;
+
+  /** The members. */
+  @OneToMany(mappedBy = "member", targetEntity = AtomSubsetMemberJpa.class)
+  private List<AtomSubsetMember> members = null;
 
   /** The relationships. */
   @OneToMany(mappedBy = "from", targetEntity = AtomRelationshipJpa.class)
@@ -147,6 +152,9 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
       }
       for (AtomRelationship relationship : atom.getRelationships()) {
         addRelationship(new AtomRelationshipJpa(relationship, deepCopy));
+      }
+      for (AtomSubsetMember member : atom.getMembers()) {
+        addMember(new AtomSubsetMemberJpa(member, deepCopy));
       }
     }
   }
@@ -695,6 +703,60 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
         + lexicalClassId + ", stringClassId=" + stringClassId + ", name="
         + name + ", termType=" + termType + ", workflowStatus="
         + workflowStatus + "] - " + super.toString();
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasMembers#getMembers()
+   */
+  @Override
+  @XmlElement(type = AtomSubsetMemberJpa.class, name = "member")
+  public List<AtomSubsetMember> getMembers() {
+    if (members == null) {
+      members = new ArrayList<AtomSubsetMember>();
+    }
+    return members;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasMembers#setMembers(java.util.List)
+   */
+  @Override
+  public void setMembers(List<AtomSubsetMember> members) {
+    this.members = members;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMembers#addMember(com.wci.umls.server.model
+   * .content.SubsetMember)
+   */
+  @Override
+  public void addMember(AtomSubsetMember member) {
+    if (members == null) {
+      members = new ArrayList<AtomSubsetMember>();
+    }
+    members.add(member);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMembers#removeMember(com.wci.umls.server
+   * .model.content.SubsetMember)
+   */
+  @Override
+  public void removeMember(AtomSubsetMember member) {
+    if (members == null) {
+      members = new ArrayList<AtomSubsetMember>();
+    }
+    members.remove(member);
   }
 
 }

@@ -151,6 +151,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
         .info(
             "  Get hierarchical rel for " + terminology + ", "
                 + terminologyVersion);
+    fireProgressEvent(0, "Starting...");
     MetadataService service = new MetadataServiceJpa();
     if (service
         .getHierarchicalRelationshipTypes(terminology, terminologyVersion)
@@ -217,6 +218,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     Logger.getLogger(this.getClass()).info("    count = " + ct);
 
     // Find roots
+    fireProgressEvent(5, "Find roots");
     Set<Long> rootIds = new HashSet<>();
     for (Long par : parChd.keySet()) {
       // things with no children
@@ -230,10 +232,14 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     beginTransaction();
 
     objectCt = 0;
-
+    fireProgressEvent(10, "Find roots");
+    int i = 0;
     for (Long rootId : rootIds) {
+      i++;
       Logger.getLogger(getClass()).info(
           "  Compute tree positions for root " + rootId);
+      fireProgressEvent((int) (10 + (i * 90.0 / rootIds.size())),
+          "Compute tree positions for root " + rootId);
       ValidationResult result = new ValidationResultJpa();
       computeTreePositions(rootId, "", parChd, result, new Date());
       if (!result.isValid()) {
@@ -245,6 +251,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
       clear();
       beginTransaction();
     }
+    fireProgressEvent(100, "Finished.");
   }
 
   /**

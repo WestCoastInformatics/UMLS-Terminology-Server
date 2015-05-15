@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.helpers;
 
+import java.util.List;
+
 import com.wci.umls.server.model.content.Concept;
 
 /**
@@ -104,4 +106,18 @@ public interface PfsParameter {
    * @param branch the branch
    */
   public void setBranch(String branch);
+  
+  /**
+   * Returns the search criteria.
+   *
+   * @return the search criteria
+   */
+  public List<SearchCriteria> getSearchCriteria();
+  
+  /**
+   * Sets the search criteria.
+   *
+   * @param searchCriteria the search criteria
+   */
+  public void setSearchCriteria(List<SearchCriteria> searchCriteria);
 }

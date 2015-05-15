@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -85,7 +86,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
 
   /** The short name. */
   @ElementCollection
-  @Column(nullable = true, name = "root_terminology_sy_names")
+  @CollectionTable(name = "root_termionlogy_sy_names")
   private List<String> synonymousNames = new ArrayList<>();
 
   /**

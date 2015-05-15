@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
 import com.wci.umls.server.helpers.HasDefinitions;
+import com.wci.umls.server.helpers.HasMembers;
 import com.wci.umls.server.helpers.HasRelationships;
 
 /**
@@ -14,7 +15,8 @@ import com.wci.umls.server.helpers.HasRelationships;
  * with associated identifiers.
  */
 public interface Atom extends ComponentHasAttributesAndName, HasDefinitions,
-    HasRelationships<AtomRelationship>, HasAlternateTerminologyIds {
+    HasRelationships<AtomRelationship>, HasAlternateTerminologyIds,
+    HasMembers<AtomSubsetMember> {
 
   /**
    * Returns the string class id.

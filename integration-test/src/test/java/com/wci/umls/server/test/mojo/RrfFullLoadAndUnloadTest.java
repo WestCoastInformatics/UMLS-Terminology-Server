@@ -62,7 +62,7 @@ public class RrfFullLoadAndUnloadTest {
    *   TEST: verify there is a concepts table with no contents
    * Run Reindex mojo to clear the indexes
    *   TEST: verify there is a ConceptJpa index with no contents.
-   * Run the RRF-umls mojo against the sample config/src/resources/data/SAMPLE_2014AB" data.
+   * Run the RRF-umls mojo against the sample config/src/resources/data/SCTMTH_2014AB" data.
    *   TEST: verify each content table exists with the expected number of entries.
    * Create a "UMLS" project (name="Sample Project" description="Sample project." terminology=UMLS version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
    *   TEST: verify there is a project with the expected name
@@ -110,22 +110,22 @@ public class RrfFullLoadAndUnloadTest {
     // Verify no contents
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0, 
-        service.getAllConcepts("UMLS", "2014AB", Branch.ROOT).getCount());
+        service.getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
     
     // Load RF2 full
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
-    request.setProfiles(Arrays.asList("RFR-umls"));
+    request.setProfiles(Arrays.asList("RRF-umls"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     p.setProperty("terminology", "UMLS");
-    p.setProperty("version", "2014AB");
+    p.setProperty("version", "latest");
     p.setProperty("input.dir",
-        "../../config/src/main/resources/data/SAMPLE_2014AB");
+        "../../config/src/main/resources/data/SAMPLE_latest");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
@@ -135,17 +135,17 @@ public class RrfFullLoadAndUnloadTest {
 
     // Verify expected contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(10293,
-        service.getAllConcepts("UMLS", "2014AB", Branch.ROOT).getCount());
+    Assert.assertEquals(2120,
+        service.getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
     // Test a non-UMLS terminology too
-    Assert.assertEquals(10293,
+    Assert.assertEquals(3902,
         service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 
     // Verify release info
     HistoryService historyService = new HistoryServiceJpa();
-    Assert.assertNotNull(historyService.getReleaseInfo("UMLS", "2014AB"));
+    Assert.assertNotNull(historyService.getReleaseInfo("UMLS", "latest"));
     // also, release infos should exist for other SABs.
     Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US", "2014_09_01"));
     historyService.close();
@@ -162,8 +162,8 @@ public class RrfFullLoadAndUnloadTest {
     p.setProperty("name", "Sample project.");
     p.setProperty("description", "Sample project.");
     p.setProperty("terminology", "UMLS");
-    p.setProperty("version", "2014AB");
-    // TODO: p.setProperty("scope.concepts", "");
+    p.setProperty("version", "latest");
+    // scope ignored for now
     p.setProperty("scope.descendants.flag", "true");
     p.setProperty("admin.user", "admin");
     request.setProperties(p);
@@ -181,8 +181,8 @@ public class RrfFullLoadAndUnloadTest {
           && project.getDescription().equals("Sample project.")
           && project.getScopeDescendantsFlag()
           && project.getTerminology().equals("UMLS")
-          && project.getTerminologyVersion().equals("2014AB")) {
-// TODO  && project.getScopeConcepts().iterator().next().equals("138875005")) {
+          && project.getTerminologyVersion().equals("latest")) {
+        // Scope ignored for now -  && project.getScopeConcepts().iterator().next().equals("138875005")) {
         found = true;
       }
     }
@@ -208,7 +208,7 @@ public class RrfFullLoadAndUnloadTest {
     p.setProperty("server", server);
     p.setProperty("release.version", "2015AA");
     p.setProperty("terminology", "UMLS");
-    p.setProperty("version", "2014AB");
+    p.setProperty("version", "latest");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
@@ -236,7 +236,7 @@ public class RrfFullLoadAndUnloadTest {
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     p.setProperty("terminology", "UMLS");
-    p.setProperty("version", "2014AB");
+    p.setProperty("version", "latest");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
@@ -246,7 +246,7 @@ public class RrfFullLoadAndUnloadTest {
 
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(0, service.getAllConcepts("UMLS", "2014AB", Branch.ROOT).getCount());
+    Assert.assertEquals(0, service.getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 
@@ -270,7 +270,7 @@ public class RrfFullLoadAndUnloadTest {
 
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(0, service.getAllConcepts("UMLS", "2014AB", Branch.ROOT).getCount());
+    Assert.assertEquals(0, service.getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
     

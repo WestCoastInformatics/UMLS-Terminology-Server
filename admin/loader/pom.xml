@@ -99,6 +99,123 @@
       </build>
     </profile>
 
+
+    <!-- Load RF2 full, specify -Drun.config.umls=... -Dterminology=... -->
+    <profile>
+      <id>RF2-full</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.ihtsdo.otf.term-server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>load-rf2-full</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>load-rf2-full</goal>
+                </goals>
+                <configuration>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                  <inputDir>${input.dir}</inputDir>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Load RF2 snapshot, specify -Drun.config.umls=... -Dterminology=... -->
+    <profile>
+      <id>RF2-snapshot</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.ihtsdo.otf.term-server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>load-rf2-snapshot</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>load-rf2-snapshot</goal>
+                </goals>
+                <configuration>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                  <inputDir>${input.dir}</inputDir>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    
+    <!-- Load RF2 delta, specify -Drun.config.umls=... -Dterminology=... -->
+    <profile>
+      <id>RF2-delta</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.ihtsdo.otf.term-server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>load-rf2-delta</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>load-rf2-delta</goal>
+                </goals>
+                <configuration>
+                  <terminology>${terminology}</terminology>
+                  <inputDir>${input.dir}</inputDir>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Load ClaML, specify -Drun.config.umls=... -Dterminology=... -->
+    <profile>
+      <id>ClaML</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.ihtsdo.otf.term-server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>load-claml</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>load-claml</goal>
+                </goals>
+                <configuration>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                  <inputFile>${input.file}</inputFile>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <!-- Compute transitive closure, specify -Drun.config=... -Dterminology=... -->
     <profile>
       <id>TransitiveClosure</id>

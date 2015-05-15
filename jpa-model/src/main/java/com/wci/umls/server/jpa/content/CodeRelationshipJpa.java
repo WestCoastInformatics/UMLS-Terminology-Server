@@ -373,8 +373,8 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
    */
   @Override
   public String toString() {
-    return "CodeRelationshipJpa [from=" + from.getTerminologyId() + ", to="
-        + to.getTerminologyId() + "]";
+    return "CodeRelationshipJpa [from=" + from + ", to="
+        + to + "]";
   }
 
 }

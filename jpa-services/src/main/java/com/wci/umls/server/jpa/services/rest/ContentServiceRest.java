@@ -6,13 +6,13 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -54,6 +54,19 @@ public interface ContentServiceRest {
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
+
+  /**
+   * Autocomplete concepts.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param searchTerm the search term
+   * @param authToken the auth token
+   * @return the string list
+   * @throws Exception the exception
+   */
+  public StringList autocompleteConcepts(String terminology, String version,
+    String searchTerm, String authToken) throws Exception;
 
   /**
    * Find ancestor concepts.
@@ -127,6 +140,19 @@ public interface ContentServiceRest {
     String terminology, String version, String authToken) throws Exception;
 
   /**
+   * Gets the relationships for concept.
+   *
+   * @param conceptId the concept id
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the relationships for concept
+   * @throws Exception the exception
+   */
+  public RelationshipList getRelationshipsForConcept(String conceptId,
+    String terminology, String version, String authToken) throws Exception;
+  
+  /**
    * Find descriptorss for query.
    *
    * @param terminology the terminology
@@ -140,6 +166,19 @@ public interface ContentServiceRest {
   public SearchResultList findDescriptorsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
+
+  /**
+   * Autocomplete descriptors.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param searchTerm the search term
+   * @param authToken the auth token
+   * @return the string list
+   * @throws Exception the exception
+   */
+  public StringList autocompleteDescriptors(String terminology, String version,
+    String searchTerm, String authToken) throws Exception;
 
   /**
    * Find ancestor descriptors.
@@ -199,6 +238,19 @@ public interface ContentServiceRest {
    */
   public SearchResultList findCodesForQuery(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Autocomplete codes.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param searchTerm the search term
+   * @param authToken the auth token
+   * @return the string list
+   * @throws Exception the exception
+   */
+  public StringList autocompleteCodes(String terminology, String version,
+    String searchTerm, String authToken) throws Exception;
 
   /**
    * Find ancestor codes.
@@ -322,7 +374,20 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
-   * Load terminology from RRF directory.
+   * Load all termionlogies from an RRF directory.
+   *
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param singleMode the single mode
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologyRrf(String terminology, String version,
+    boolean singleMode, String inputDir, String authToken) throws Exception;
+
+  /**
+   * Load terminology snapshot from RF2 directory.
    *
    * @param terminology the terminology
    * @param version the terminology version
@@ -330,8 +395,43 @@ public interface ContentServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void loadTerminologyRrf(String terminology, String version,
+  public void loadTerminologyRf2Snapshot(String terminology, String version,
     String inputDir, String authToken) throws Exception;
+
+  /**
+   * Load terminology full from RF2 directory.
+   *
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologyRf2Full(String terminology, String version,
+    String inputDir, String authToken) throws Exception;
+
+  /**
+   * Load terminology delta from RF2 directory.
+   *
+   * @param terminology the terminology
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologyRf2Delta(String terminology, String inputDir,
+    String authToken) throws Exception;
+
+  /**
+   * Load terminology from ClaML file.
+   *
+   * @param terminology the terminology
+   * @param version the terminology version
+   * @param inputFile the input file
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologyClaml(String terminology, String version,
+    String inputFile, String authToken) throws Exception;
 
   /**
    * Removes the terminology.

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -78,7 +79,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
 
   /** The synonymous names. */
   @ElementCollection
-  @Column(nullable = true, name = "terminology_sy_names")
+  @CollectionTable(name = "termionlogy_sy_names")
   private List<String> synonymousNames = new ArrayList<>();
 
   /** The terminology version. */

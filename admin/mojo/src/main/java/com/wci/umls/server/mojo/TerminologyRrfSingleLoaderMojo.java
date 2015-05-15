@@ -19,11 +19,11 @@ import com.wci.umls.server.services.SecurityService;
  * 
  * See admin/loader/pom.xml for sample usage
  * 
- * @goal load-rrf-umls
+ * @goal load-rrf-single
  * 
  * @phase package
  */
-public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
+public class TerminologyRrfSingleLoaderMojo extends AbstractMojo {
 
   /**
    * Name of terminology to be loaded.
@@ -53,11 +53,11 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
   private boolean server = false;
 
   /**
-   * Instantiates a {@link TerminologyRrfUmlsLoaderMojo} from the specified
+   * Instantiates a {@link TerminologyRrfSingleLoaderMojo} from the specified
    * parameters.
    * 
    */
-  public TerminologyRrfUmlsLoaderMojo() {
+  public TerminologyRrfSingleLoaderMojo() {
     // do nothing
   }
 
@@ -70,7 +70,7 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
   public void execute() throws MojoFailureException {
 
     try {
-      getLog().info("RRF UMLS Terminology Loader called via mojo.");
+      getLog().info("RRF Single Terminology Loader called via mojo.");
       getLog().info("  Terminology        : " + terminology);
       getLog().info("  Terminology Version: " + version);
       getLog().info("  Input directory    : " + inputDir);
@@ -104,15 +104,15 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
         getLog().info("Running directly");
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService.loadTerminologyRrf(terminology, version, false,
-            inputDir, authToken);
+        contentService.loadTerminologyRrf(terminology, version, true, inputDir,
+            authToken);
 
       } else {
         getLog().info("Running against server");
 
         // invoke the client
         ContentClientRest client = new ContentClientRest(properties);
-        client.loadTerminologyRrf(terminology, version, false, inputDir,
+        client.loadTerminologyRrf(terminology, version, true, inputDir,
             authToken);
       }
 

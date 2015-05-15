@@ -14,7 +14,7 @@ import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.content.AbstractSubsetMember;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.SubsetMember;
     AtomSubsetMemberJpa.class, ConceptSubsetMemberJpa.class
 })
 public class SubsetMemberListJpa extends
-    AbstractResultList<SubsetMember<? extends ComponentHasAttributes>>
+    AbstractResultList<SubsetMember<? extends ComponentHasAttributesAndName>>
     implements SubsetMemberList {
 
   /*
@@ -35,7 +35,7 @@ public class SubsetMemberListJpa extends
    */
   @Override
   @XmlElement(type = AbstractSubsetMember.class, name = "subsetMember")
-  public List<SubsetMember<? extends ComponentHasAttributes>> getObjects() {
+  public List<SubsetMember<? extends ComponentHasAttributesAndName>> getObjects() {
     return super.getObjects();
   }
 

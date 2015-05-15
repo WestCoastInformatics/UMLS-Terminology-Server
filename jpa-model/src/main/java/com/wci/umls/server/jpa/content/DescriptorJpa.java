@@ -169,7 +169,9 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
     relationships.remove(relationship);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
    */
   @Override

@@ -5,6 +5,9 @@ package com.wci.umls.server.jpa.helpers.content;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -16,8 +19,11 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.ProxyTester;
+import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.SearchCriteriaJpa;
 
 /**
  * Unit testing for {@link PfsParameterJpa}.
@@ -26,6 +32,18 @@ public class ModelUnit024Test {
 
   /** The model object to test. */
   private PfsParameterJpa object;
+
+  /** test fixture */
+  private SearchCriteria sc1;
+
+  /** test fixture */
+  private SearchCriteria sc2;
+
+  /** test fixture */
+  private List<SearchCriteria> list1;
+
+  /** test fixture */
+  private List<SearchCriteria> list2;
 
   /**
    * Setup class.
@@ -37,10 +55,18 @@ public class ModelUnit024Test {
 
   /**
    * Setup.
+   * @throws Exception
    */
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     object = new PfsParameterJpa();
+    ProxyTester tester = new ProxyTester(new SearchCriteriaJpa());
+    sc1 = (SearchCriteria) tester.createObject(1);
+    sc2 = (SearchCriteria) tester.createObject(2);
+    list1 = new ArrayList<>();
+    list1.add(sc1);
+    list2 = new ArrayList<>();
+    list2.add(sc2);
   }
 
   /**
@@ -70,6 +96,10 @@ public class ModelUnit024Test {
     tester.include("sortField");
     tester.include("ascending");
     tester.include("branch");
+    tester.include("searchCriteria");
+
+    tester.proxy(List.class, 1, list1);
+    tester.proxy(List.class, 2, list2);
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
@@ -100,9 +130,12 @@ public class ModelUnit024Test {
   public void testModelXmlSerialization024() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient024");
     XmlSerializationTester tester = new XmlSerializationTester(object);
+    SearchCriteria c = new SearchCriteriaJpa();
+    List<SearchCriteria> list = new ArrayList<>();
+    list.add(c);
+    object.setSearchCriteria(list);
     assertTrue(tester.testXmlSerialization());
   }
-  
 
   /**
    * Test not null fields.

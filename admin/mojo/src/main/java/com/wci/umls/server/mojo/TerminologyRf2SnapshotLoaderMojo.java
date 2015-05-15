@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.mojo;
@@ -15,15 +15,15 @@ import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
 import com.wci.umls.server.services.SecurityService;
 
 /**
- * Goal which loads a set of RRF into a database.
+ * Goal which loads an RF2 Snapshot of SNOMED CT data into a database.
  * 
  * See admin/loader/pom.xml for sample usage
  * 
- * @goal load-rrf-umls
+ * @goal load-rf2-snapshot
  * 
  * @phase package
  */
-public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
+public class TerminologyRf2SnapshotLoaderMojo extends AbstractMojo {
 
   /**
    * Name of terminology to be loaded.
@@ -53,11 +53,11 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
   private boolean server = false;
 
   /**
-   * Instantiates a {@link TerminologyRrfUmlsLoaderMojo} from the specified
+   * Instantiates a {@link TerminologyRf2SnapshotLoaderMojo} from the specified
    * parameters.
    * 
    */
-  public TerminologyRrfUmlsLoaderMojo() {
+  public TerminologyRf2SnapshotLoaderMojo() {
     // do nothing
   }
 
@@ -70,7 +70,7 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
   public void execute() throws MojoFailureException {
 
     try {
-      getLog().info("RRF UMLS Terminology Loader called via mojo.");
+      getLog().info("RF2 Snapshot Terminology Loader called via mojo.");
       getLog().info("  Terminology        : " + terminology);
       getLog().info("  Terminology Version: " + version);
       getLog().info("  Input directory    : " + inputDir);
@@ -104,7 +104,7 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
         getLog().info("Running directly");
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService.loadTerminologyRrf(terminology, version, false,
+        contentService.loadTerminologyRf2Snapshot(terminology, version,
             inputDir, authToken);
 
       } else {
@@ -112,7 +112,7 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
 
         // invoke the client
         ContentClientRest client = new ContentClientRest(properties);
-        client.loadTerminologyRrf(terminology, version, false, inputDir,
+        client.loadTerminologyRf2Snapshot(terminology, version, inputDir,
             authToken);
       }
 

@@ -29,6 +29,7 @@
     <maven.invoker.version>2.2</maven.invoker.version>
 
     <!-- Set third-party dependency versions -->
+    <lvg.version>2015</lvg.version>
     <trove.version>3.0.3</trove.version>
     <hibernate.version>4.3.9.Final</hibernate.version>
     <hibernate.em.version>4.3.9.Final</hibernate.em.version>
@@ -229,6 +230,13 @@
         <artifactId>javax.servlet-api</artifactId>
         <version>3.1.0</version>
         <scope>provided</scope>
+      </dependency>
+
+      <!-- LVG -->
+      <dependency>
+        <groupId>gov.nih.nlm.nls.lvg</groupId>
+        <artifactId>lvgdist</artifactId>
+        <version>${lvg.version}</version>
       </dependency>
 
       <!-- Trove -->

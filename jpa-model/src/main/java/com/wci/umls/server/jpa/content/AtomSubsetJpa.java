@@ -32,7 +32,7 @@ import com.wci.umls.server.model.content.Subset;
 public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
 
   /** The members. */
-  @OneToMany(orphanRemoval = true, targetEntity = AtomSubsetMemberJpa.class)
+  @OneToMany(mappedBy = "subset", targetEntity = AtomSubsetMemberJpa.class)
   private List<AtomSubsetMember> members = null;
 
   /**
@@ -53,7 +53,6 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
 
     if (deepCopy) {
       for (AtomSubsetMember member : subset.getMembers()) {
-        System.out.println("add member " + member);
         addMember(new AtomSubsetMemberJpa(member, deepCopy));
       }
     }
