@@ -7,22 +7,16 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 
 import com.wci.umls.server.helpers.AbstractResultList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.jpa.content.AbstractSubset;
-import com.wci.umls.server.jpa.content.AtomSubsetJpa;
-import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.model.content.Subset;
 
 /**
  * JAXB enabled implementation of {@link SubsetList}.
  */
 @XmlRootElement(name = "subsetList")
-@XmlSeeAlso({
-    AtomSubsetJpa.class, ConceptSubsetJpa.class
-})
 public class SubsetListJpa extends AbstractResultList<Subset> implements
     SubsetList {
 

@@ -168,7 +168,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     Logger.getLogger(getClass()).info("  Get projects");
     ProjectList projectList = projectService.getProjects(viewerAuthToken);
     Assert.assertEquals(1, projectList.getCount());
-    Assert.assertEquals("Sample Project", projectList.getObjects().get(0)
+    Assert.assertEquals("Sample Project.", projectList.getObjects().get(0)
         .getName());
 
     Set<String> scopeConcepts =

@@ -14,6 +14,7 @@ import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
@@ -24,6 +25,8 @@ import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.content.Subset;
+import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
 /**
@@ -159,7 +162,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       atom.getConceptTerminologyIds().keySet();
       atom.getAlternateTerminologyIds().keySet();
       atom.setMembers(new ArrayList<AtomSubsetMember>());
-      
+
       // Attributes
       resolveAttributes(atom, nullId);
 
@@ -363,6 +366,42 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
   }
 
+  @Override
+  public void resolve(Subset subset) throws Exception {
+    if (subset != null) {
+      boolean nullId = subset.getId() == null;
+      subset.getName();
+
+      // Attributes
+      resolveAttributes(subset, nullId);
+
+      // skip members
+      subset.clearMembers();
+
+    } else if (subset == null) {
+      throw new Exception("Cannot resolve a null subset.");
+    }
+  }
+
+  @Override
+  public void resolve(
+    SubsetMember<? extends ComponentHasAttributesAndName> member)
+    throws Exception {
+    if (member != null) {
+      boolean nullId = member.getId() == null;
+      member.getTerminology();
+
+      // Attributes
+      resolveAttributes(member, nullId);
+
+      // Resolve underlying entity
+      member.getMember().getName();
+
+    } else if (member == null) {
+      throw new Exception("Cannot resolve a null member.");
+    }
+  }
+
   /**
    * Resolve attributes.
    *
@@ -396,4 +435,5 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
     resolveAttributes(definition, nullId);
   }
+
 }

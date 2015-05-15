@@ -84,13 +84,12 @@ public class ListUnit012Test extends
     s1.setTerminologyId("1");
     s1.setMember(atom);
     ((AtomSubsetMember)s1).setSubset(atomSubset);
-    System.out.println("s1:" + s1);
+
     s2 = new AtomSubsetMemberJpa();
     s2.setId(2L);
     s2.setTerminologyId("2");
     s2.setMember(atom);
     ((AtomSubsetMember)s2).setSubset(atomSubset);
-    System.out.println("s2:" + s2);
 
     Concept concept = new ConceptJpa();
     concept.setId(1L);
