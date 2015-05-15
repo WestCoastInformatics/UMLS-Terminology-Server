@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 /**
  * Abstract implementation of {@link ResultList}.
  *
@@ -94,6 +96,7 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
    * @see org.ihtsdo.otf.ts.helpers.ResultList#getObjects()
    */
   @Override
+  @XmlTransient
   public List<T> getObjects() {
     return objects;
   }

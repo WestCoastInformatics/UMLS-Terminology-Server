@@ -203,7 +203,7 @@ public class AbstractListUnit<T> {
     list.addObject(object1);
 
     xml = ConfigUtility.getStringForGraph(list);
-
+System.out.println(xml);
     ResultList<T> list3 =
         (ResultList<T>) ConfigUtility.getGraphForString(xml, list.getClass());
 

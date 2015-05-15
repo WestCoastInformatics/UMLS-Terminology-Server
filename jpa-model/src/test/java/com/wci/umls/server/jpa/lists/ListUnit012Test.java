@@ -84,7 +84,6 @@ public class ListUnit012Test extends
     s1.setTerminologyId("1");
     s1.setMember(atom);
     ((AtomSubsetMember)s1).setSubset(atomSubset);
-    list.addObject(s1);
 
     s2 = new AtomSubsetMemberJpa();
     s2.setId(2L);
