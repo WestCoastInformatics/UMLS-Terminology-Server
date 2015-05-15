@@ -116,14 +116,7 @@ public interface GraphResolutionHandler extends Configurable {
    */
   public void resolve(ConceptSubset subset) throws Exception;
   
-  /**
-   * Resolve.
-   *
-   * @param subsetMember the subset member
-   * @throws Exception the exception
-   */
-  public void resolve(SubsetMember subsetMember) throws Exception;
-  
+ 
   /**
    * Resolve atoms.
    *

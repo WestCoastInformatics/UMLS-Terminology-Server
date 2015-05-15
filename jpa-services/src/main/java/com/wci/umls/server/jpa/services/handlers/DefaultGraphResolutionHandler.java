@@ -520,23 +520,6 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
   }
   
-  @Override
-  public void resolve(SubsetMember subsetMember) throws Exception {
-    if (subsetMember != null) {
-      boolean nullId = subsetMember.getId() == null;
 
-      if (subsetMember.getMember() != null)
-        subsetMember.getMember().getName();
-      
-      // Attributes
-      resolveAttributes(subsetMember, nullId);
-
-
-    } else if (subsetMember == null) {
-      throw new Exception("Cannot resolve a null subset.");
-    }
-
-    
-  }
 
 }
