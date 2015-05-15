@@ -15,36 +15,6 @@ tsApp.run(function($http) {
 	// nothing yet -- may want to put metadata retrieval here
 })
 
-tsApp.directive('autoComplete',['$http',function($http){
-    return {
-        restrict:'AE',
-        scope:{
-        	url:'=',
-            selectedTags:'=model'
-        },
-        templateUrl:'ui/partials/autocomplete-template.html',
-        link:function(scope,elem,attrs){
-        	
-        	scope.suggestions=[];
-
-        	scope.selectedTags=[];
-
-        	scope.selectedIndex=-1; //currently selected suggestion index
-       
-        	scope.search=function(){
-        		// console.debug(scope.url);
-        	     $http.get(scope.url+'/'+scope.searchText).success(function(data){
-        	         if(data.indexOf(scope.searchText)===-1){
-        	             data.unshift(scope.searchText);
-        	         }
-        	         scope.suggestions=data;
-        	         scope.selectedIndex=-1;
-        	     });
-        	}
-        }
-    }
-}]);
-
 tsApp
   .controller(
     'tsIndexCtrl',
@@ -65,7 +35,6 @@ tsApp
         // autocomplete settings
         $scope.conceptQuery = null;
         $scope.autocompleteUrl = null; // set on terminology change
-        $scope.suggestions = null;
 
         // initialize the search results
         $scope.searchResult = [];
@@ -84,7 +53,15 @@ tsApp
         $scope.authToken = null;
         $scope.error = "";
         $scope.glassPane = 0;
-
+        
+        // pagination variables
+        $scope.pagedSearchResults = null;	
+        $scope.pagedSemanticTypes = null;
+        $scope.pagedDescriptions = null;
+        $scope.pagedRelationships = null;
+        $scope.pagedAtoms = null;
+        $scope.pageSize = 10;
+        
         $scope.handleError = function(data, status, headers, config) {
           $scope.error = data.replace(/"/g, '');
         }
@@ -208,18 +185,12 @@ tsApp
         }
         
         $scope.autocomplete = function(terminology, searchTerms) {
-        	
-        	
-        	// console.debug("Autocomplete with: ", terminology, searchTerms);
-        	// clear the current suggestions
-        	$scope.querySuggestions = null;
-        	
-        	// only process if length is > 2
+        	// if invalid search terms, return empty array
         	if (searchTerms == null || searchTerms == undefined || searchTerms.length < 3) {
-        		return;
+        		return new Array();
         	}
         	
-        	console.debug("Autocomplete with: ", terminology, searchTerms);
+        	var deferred = $q.defer();
         	
 	    	// NO GLASS PANE
 	    	$http({
@@ -230,12 +201,13 @@ tsApp
 	               "Content-Type" : "text/plain"
 	             }
 	        }).success(function(data) {
-	           	
-	           	$scope.suggestions = data.string;
+	           	deferred.resolve(data.string);
 	        }).error(function(data, status, headers, config) {
-	            // console.debug('Autocomplete error: ', data);
+	            deferred.resolve(null); // hide errors
 	              
 	        });
+	    	
+	    	return deferred.promise;
         }
         
         $scope.getTerminology = function(name, version) {
@@ -397,6 +369,7 @@ tsApp
             }).success(function(data) {
             // console.debug("Retrieved concepts:", data);
             $scope.searchResults = data.searchResult;
+            $scope.pagedSearchResults = $scope.getPagedArray($scope.searchResults, 1, false, null);
            
             $scope.glassPane--;
 
@@ -411,8 +384,67 @@ tsApp
           // componentType, component);
           $scope.component = component;
           $scope.componentType = componentType;
+          
+          // apply the initial paging
+          applyInitialPaging();
         }
         
+        //////////////////////////////////////////
+        // Suppressible/Obsolete Functions
+        /////////////////////////////////////////
+        
+        // default: show all
+        $scope.showObsolete = true;
+        $scope.showSuppressible = true;
+        
+        /** Determine if an item has obsolete elements
+         *  in its child arrays
+         */
+        $scope.hasBooleanFieldTrue = function(object, fieldToCheck) {
+        	
+        	// check for proper arguments
+        	if (object == null || object == undefined)
+        		return false;
+        	
+        	// cycle over all properties
+        	for (var prop in object) {
+        		var value = object[prop];
+        		 		
+        		// if null or undefined, skip
+        		if (value == null || value == undefined) { 
+        			// do nothing
+        		}
+        			
+        		
+        		// if an array, check the array's objects
+        		else if (Array.isArray(value) == true) {
+        			for (var i = 0; i < value.length; i++) {
+        				if (value[i][fieldToCheck] == true) {
+        					return true;
+        				}
+        			}
+        		}
+        		
+        		// if not an array, check the object itself
+        		else if (value.hasOwnProperty(fieldToCheck) && value[fieldToCheck] == true) {
+        			return true;
+        		}
+        			
+        	}
+        	
+        	// default is false
+        	return false;
+        }
+        
+        /**
+         * Helper function to determine whether an item
+         * should be shown based on obsolete/suppressed
+         * 
+         * Array:  The containing array, with showSuppressible/showObsolete flag set
+         * e.g. component.atom
+         * 
+         * Item:  The item in the containing array being evaluated
+         */
         $scope.showItem = function(item) {
         
         	if ($scope.showSuppressible == false && item.suppressible == true)
@@ -424,22 +456,35 @@ tsApp
     		return true;
     	}
         
-        $scope.toggleSuppressible = function() {
-        	if ($scope.showSuppressible == null || $scope.showSuppressible == undefined) {
-        		$scope.showSuppressible = false;
-        	} else {
-        		$scope.showSuppressible = !$scope.showSuppressible;
-        	}
-        }
-        
-        $scope.toggleObsolete = function() {
+        /** Functions to flip (and/or initialize) a toggle variable */
+        $scope.toggleObsolete= function() {
         	if ($scope.showObsolete == null || $scope.showObsolete == undefined) {
         		$scope.showObsolete = false;
         	} else {
         		$scope.showObsolete = !$scope.showObsolete;
         	}
+        	
+        	applyInitialPaging();
+        	
         }
-
+        
+        $scope.toggleSuppressible= function() {
+        	if ($scope.showSuppressible == null || $scope.showSuppressible == undefined) {
+        		$scope.showSuppressible = false;
+        	} else {
+        		$scope.showSuppressible = !$scope.showSuppressible;
+        	}
+        	
+        	applyInitialPaging();
+        }
+        
+     
+        ///////////////////////////////
+        // Misc helper functions
+        ///////////////////////////////
+        
+        
+        /** Set selected item to active row (for formatting purposes */
         function setActiveRow(terminologyId) {
           for (var i = 0; i < $scope.searchResults.length; i++) {
             if ($scope.searchResults[i].terminologyId === terminologyId) {
@@ -450,6 +495,7 @@ tsApp
           }
         }
 
+        /** Construct a default PFS object */
         function getPfs() {
           return {
             startIndex : -1,
@@ -459,6 +505,7 @@ tsApp
           };
         }
         
+        /** Get the Type Prefix for HTML calls, e.g. for /code, /cui, /dui */
         function getTypePrefix(terminology) {
           switch (terminology.organizingClassType) {
           case 'CODE':
@@ -471,5 +518,80 @@ tsApp
               return null;
           }
         }
+        
+        ////////////////////////////////////
+        // Pagination functions
+        ////////////////////////////////////
+        
+        function applyInitialPaging() {
+
+        	$scope.pagedAtoms = $scope.getPagedArray($scope.component.atom, $scope.atomPage, true, false);
+        	$scope.pagedRelationships = $scope.getPagedArray($scope.component.relationship, $scope.relationshipPage, true, false);
+        	// TODO Add others
+        }
+        
+        
+        $scope.getPagedArray = function(array, page, applyFlags, filterStr) {
+        	
+        	var newArray = new Array();
+        	
+        	// if array blank or not an array, return blank list
+        	if (array == null || array == undefined || Array.isArray(array) == false)
+        		return newArray;
+        	
+        	// apply page 1 if not supplied
+        	if (!page)
+        		page = 1;
+        	
+        	newArray = array;
+        	
+        	// apply flags
+        	if (applyFlags == true) {
+        		newArray = getArrayByFlags(newArray);
+        	}
+        	
+        	// apply filter
+        	if (filterStr) {
+        		newArray = getArrayByFilter(filterStr);
+        	}
+
+        	// slice the flagged/filtered results
+        	var fromIndex = (page-1)*$scope.pageSize;
+        	var toIndex = Math.min(fromIndex + $scope.pageSize, array.length);
+        	
+        	console.debug("  results", fromIndex, toIndex, array.slice(fromIndex, toIndex));
+
+        	return newArray.slice(fromIndex, toIndex);
+        }
+        
+        /** Get array with suppressed/obsolete flags applied */
+        function getArrayByFlags(array) {
+        	
+        	var newArray = new Array();
+        	
+        	// if array blank or not an array, return blank list
+        	if (array == null || array == undefined || Array.isArray(array) == false)
+        		return newArray;
+        	
+        	// apply obsolete and suppressible flags
+        	for (var i = 0; i < array.length; i++) {
+        		if ($scope.showItem(array[i]) == true) {
+        			newArray.push(array[i]);
+        		}
+        	}
+        	
+        	return newArray;
+        }
+        
+        /** Get array by filter text matching terminologyId or name */
+        function getArrayByFilterText(array, filter) {
+        	var newArray = array;
+        	
+        	return newArray;
+        	
+        	// TODO
+        }
+        
+       
 
       } ]);

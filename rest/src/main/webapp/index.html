@@ -20,7 +20,7 @@
 <script type="text/javascript"
 	src="ui/components/angular-bootstrap/ui-bootstrap.js"></script>
 <script type="text/javascript"
-	src="ui/components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+	src="ui/components/angular-bootstrap/ui-bootstrap-tpls-0.13.0.min.js"></script>
 
 <!-- Terminology server Angular application -->
 <script src="ui/js/app.js"></script>
@@ -146,7 +146,6 @@
 				<!-- Content displayed after log in -->
 				<div ng-show="authToken != null">
 
-					Autocomplete: {{autocompleteUrl}}
 
 					<tabset> <tab heading="Concepts"> <!-- Search field is all columns -->
 					<div>
@@ -160,20 +159,22 @@
 							<tr>
 								<td>Enter search terms</td>
 								<td><form width="100%">
-										
-										<div class="tags-wrapper">
-										
-											<input placeholder="Enter search terms" ng-model="conceptQuery"
-												ng-change="autocomplete(terminology, conceptQuery)">
-											<button class="btn btn-small btn-primary" type="submit"
-												ng-click="findConcepts(terminology, conceptQuery)">Search</button>
-											<button class="btn btn-small btn-warning"
-												ng-click="clearQuery()">Clear</button>
-											<ul class="suggestions-list">
-												<li class="blockspan" ng-repeat="suggestion in suggestions" ng-click="findConcepts(terminology, suggestion)">{{suggestion}}</li>
-											</ul>
-											{{suggestions[0]}}, {{suggestions[1]}}, ...
-										</div>
+
+
+
+										<input type="text" ng-model="conceptQuery"
+											placeholder="Enter search terms"
+											typeahead="suggestion for suggestion in autocomplete(terminology, conceptQuery)"
+											typeahead-loading="loadingSuggestions"
+											typeahead-focus-first="false"
+											typeahead-on-select="findConcepts(terminology, suggestion)"
+											typeahead-editable="true">
+
+										<button class="btn btn-small btn-primary" type="submit"
+											ng-click="findConcepts(terminology, conceptQuery)">Search</button>
+										<button class="btn btn-small btn-warning"
+											ng-click="clearQuery()">Clear</button>
+
 									</form></td>
 							</tr>
 						</table>
@@ -190,11 +191,18 @@
 								ng-show="searchResults.length == 0">Search returned no
 								results.</div>
 
+							<pagination max-size="5" boundary-links="true"
+								class="pagination-sm" previous-text="&lsaquo;"
+								next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+								ng-show="searchResults.length > pageSize"
+								total-items="searchResults.length" ng-model="searchResultsPage"
+								ng-change="pagedSearchResults = getPagedArray(searchResults, searchResultsPage, false, null)"></pagination>
+
 							<table class="table table-hover"
 								ng-show="searchResults.length > 0">
 
 								<tbody>
-									<tr ng-repeat="searchResult in searchResults"
+									<tr ng-repeat="searchResult in pagedSearchResults"
 										ng-class="searchResult.rowClass"
 										ng-click="getConcept(terminology, searchResult.terminologyId)">
 										<td>{{searchResult.terminologyId}}</a></td>
@@ -208,25 +216,27 @@
 						<div class="col-md-8 col-xs-12" ng-show="component != null">
 							<div class="alert alert-info">{{terminology.organizingClassType}}
 								Report</div>
-							<h3>ID# {{component.terminologyId}}
-								{{component.defaultPreferredName}}</h3>
-							<button ng-click="toggleSuppressible()"
-								class="btn btn-sm btn-primary">
+							<h3>ID# {{component.terminologyId}} {{component.name}}</h3>
+
+
+							<button ng-show="hasBooleanFieldTrue(component, 'suppressible')"
+								ng-click="toggleSuppressible()" class="btn btn-xs btn-primary">
 								<span ng-show="showSuppressible == true">Hide
-									Suppressible</span> <span ng-show="showSuppressible == false">Show
+									Suppressible</span> <span ng-show="showSuppressible != true">Show
 									Suppressible</span>
 							</button>
-							<button ng-click="toggleObsolete()"
-								class="btn btn-sm btn-primary">
+							<button ng-show="hasBooleanFieldTrue(component, 'obsolete')"
+								ng-click="toggleObsolete()" class="btn btn-xs btn-primary">
 								<span ng-show="showObsolete == true">Hide Obsolete</span> <span
-									ng-show="showObsolete == false">Show Obsolete</span>
+									ng-show="showObsolete != true">Show Obsolete</span>
 							</button>
+
 
 
 
 							<!--  Semantic types -->
 							<div ng-show="component.semanticType.length > 0">
-								<h4>Semantic Types</h4>
+								<h4>Semantic Types ({{component.semanticType.length}})</h4>
 								<ul>
 									<li class="cr-list" ng-repeat="item in component.semanticType"
 										ng-show="showItem(item)"><span class="label label-info"
@@ -240,11 +250,10 @@
 							<!--  Definitions -->
 							<div ng-show="type!='CODE' && component.definition.length > 0">
 								<h4>
-									Definitions
+									Definitions ({{component.definition.length}})
 									<h4>
 										<ul>
-											<li class="cr-list"
-												ng-repeat="item in component.semanticType"
+											<li class="cr-list" ng-repeat="item in component.definition"
 												ng-show="showItem(item)"><span class="label label-info"
 												ng-show="item.suppressible == true">Suppressible</span> <span
 												class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
@@ -254,13 +263,22 @@
 
 							<!-- Atoms -->
 							<div ng-show="component.atom.length > 0">
-								<h4>Atoms</h4>
+								<h4>Atoms ({{component.atom.length}})</h4>
+
+								<pagination max-size="5" boundary-links="true"
+									class="pagination-sm" previous-text="&lsaquo;"
+									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+									ng-show="component.atom.length > pageSize"
+									total-items="component.atom.length" ng-model="atomPage"
+									ng-change="pagedAtoms = getPagedArray(component.atom, atomPage, true, null)"></pagination>
+
+
 								<ul>
-									<li class="cr-list" ng-repeat="item in component.atom"
+									<li class="cr-list" ng-repeat="item in pagedAtoms"
 										ng-show="showItem(item)"><span class="label label-info"
 										ng-show="item.suppressible == true">Suppressible</span> <span
 										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
-										{{item.term}}
+										{{item.name}}
 										[{{item.terminology}}/{{item.termType}}/{{item.codeId}}]
 										{{item.componentId}} {{item.descriptorId}}</li>
 								</ul>
@@ -268,7 +286,7 @@
 
 							<!--  Attributes -->
 							<div ng-show="component.attribute.length > 0">
-								<h4>Attributes</h4>
+								<h4>Attributes ({{component.attribute.length}})</h4>
 								<ul>
 									<li class="cr-list" ng-repeat="item in component.attribute"
 										ng-show="showItem(item)"><span class="label label-info"
@@ -280,7 +298,7 @@
 
 							<!-- Relationships -->
 							<div ng-show="component.relationship.length> 0">
-								<h4>Relationships</h4>
+								<h4>Relationships ({{component.relationship.length}})</h4>
 								<ul>
 									<li class="cr-list" ng-repeat="item in component.relationship"
 										ng-show="showItem(item)"><span class="label label-info"
@@ -288,7 +306,7 @@
 										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
 										{{item.relationshipType}} {{item.additionalRelationshipType}}
 										<a ng-click="getConcept(terminology, item.toTerminologyId)">{{item.toTerminologyId}}</a>
-										{{item.toDefaultPreferredName}}</li>
+										{{item.toName}}</li>
 								</ul>
 
 							</div>
