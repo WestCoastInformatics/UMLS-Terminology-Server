@@ -36,6 +36,7 @@ import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.RelationshipList;
+import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
@@ -56,11 +57,15 @@ import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
+import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.content.Subset;
+import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.HistoryService;
@@ -1292,9 +1297,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken,
           "retrieve subset members for the concept", UserRole.VIEWER);
 
-      return contentService.getSubsetMembersForConcept(conceptId, terminology,
+      SubsetMemberList list = contentService.getSubsetMembersForConcept(conceptId, terminology,
           version, Branch.ROOT);
 
+      for (SubsetMember member : list.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(member);   
+      }
+      return list;
+      
     } catch (Exception e) {
       handleException(e, "trying to retrieve subset members for a concept");
       return null;
@@ -1331,8 +1341,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken,
           "retrieve subset members for the atom", UserRole.VIEWER);
 
-      return contentService.getSubsetMembersForAtom(atomId, terminology,
+      SubsetMemberList list = contentService.getSubsetMembersForAtom(atomId, terminology,
           version, Branch.ROOT);
+      
+      for (SubsetMember member : list.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(member);   
+      }
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve subset members for a atom");
@@ -1844,6 +1859,73 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
 
+  }
+
+  @Override
+  @GET
+  @Path("/as/{terminology}/{version}")
+  @ApiOperation(value = "Get atom subsets", notes = "Get the atom level subsets.", response = SubsetList.class)
+  public SubsetList getAtomSubsets(
+    @ApiParam(value = "Atom terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Atom terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /as/" + terminology + "/" + version);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve atom subsets", UserRole.VIEWER);
+
+      SubsetList list = contentService.getAtomSubsets(terminology,
+          version);
+      for (int i= 0; i<list.getCount(); i++) {
+        contentService.getGraphResolutionHandler(terminology).resolve(
+          (AtomSubset)list.getObjects().get(i));
+      }
+      return list;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve atom subsets");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  
+  @Override
+  @GET
+  @Path("/cs/{terminology}/{version}")
+  @ApiOperation(value = "Get concept subsets", notes = "Get the concept level subsets.", response = SubsetList.class)
+  public SubsetList getConceptSubsets(
+    @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cs/" + terminology + "/" + version);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve concept subsets", UserRole.VIEWER);
+
+      SubsetList list = contentService.getConceptSubsets(terminology,
+          version);
+      for (int i= 0; i<list.getCount(); i++) {
+        contentService.getGraphResolutionHandler(terminology).resolve(
+          (ConceptSubset)list.getObjects().get(i));
+      }
+      return list;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve concept subsets");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
   }
 
 }

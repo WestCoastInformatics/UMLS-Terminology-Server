@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
+import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -16,6 +17,7 @@ import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -24,6 +26,7 @@ import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
 /**
@@ -382,6 +385,42 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   }
 
   /**
+   * Resolve atom subset members.
+   *
+   * @param subset the subset
+   * @param nullId the null id
+   */
+  private void resolveAtomSubsetMembers(AtomSubset subset,
+    boolean nullId) {
+    for (AtomSubsetMember member : subset.getMembers()) {
+      member.getMember();
+      if (member.getAttributes() != null)
+        member.getAttributes().size();
+      if (nullId) {
+        member.setId(null);
+      }
+    }
+  }
+  
+  /**
+   * Resolve concept subset members.
+   *
+   * @param subset the subset
+   * @param nullId the null id
+   */
+  private void resolveConceptSubsetMembers(ConceptSubset subset,
+    boolean nullId) {
+    for (ConceptSubsetMember member : subset.getMembers()) {
+      member.getMember();
+      if (member.getAttributes() != null)
+        member.getAttributes().size();
+      if (nullId) {
+        member.setId(null);
+      }
+    }
+  }  
+
+  /**
    * Resolve definition.
    *
    * @param definition the definition
@@ -395,5 +434,70 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
 
     resolveAttributes(definition, nullId);
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com.wci.umls.server.model.content.AtomSubset)
+   */
+  @Override
+  public void resolve(AtomSubset subset) throws Exception {
+    if (subset != null) {
+      boolean nullId = subset.getId() == null;
+
+      subset.getName();
+      
+      // Attributes
+      resolveAttributes(subset, nullId);
+      
+      // AtomSubsetMembers
+      resolveAtomSubsetMembers(subset, nullId);
+
+
+    } else if (subset == null) {
+      throw new Exception("Cannot resolve a null subset.");
+    }
+
+  }
+  
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com.wci.umls.server.model.content.ConceptSubset)
+   */
+  @Override
+  public void resolve(ConceptSubset subset) throws Exception {
+    if (subset != null) {
+      boolean nullId = subset.getId() == null;
+
+      subset.getName();
+      
+      // Attributes
+      resolveAttributes(subset, nullId);
+      
+      // ConceptSubsetMembers
+      resolveConceptSubsetMembers(subset, nullId);
+
+
+    } else if (subset == null) {
+      throw new Exception("Cannot resolve a null subset.");
+    }
+
+  }
+  
+  @Override
+  public void resolve(SubsetMember subsetMember) throws Exception {
+    if (subsetMember != null) {
+      boolean nullId = subsetMember.getId() == null;
+
+      if (subsetMember.getMember() != null)
+        subsetMember.getMember().getName();
+      
+      // Attributes
+      resolveAttributes(subsetMember, nullId);
+
+
+    } else if (subsetMember == null) {
+      throw new Exception("Cannot resolve a null subset.");
+    }
+
+    
   }
 }
