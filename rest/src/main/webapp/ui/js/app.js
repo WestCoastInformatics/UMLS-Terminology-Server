@@ -24,6 +24,8 @@ tsApp
       '$q',
       function($scope, $http, $q) {
     	  
+    	  $scope.test = ["1", "2", "3"];
+    	  
     	// the default viewed terminology, if available
         var defaultTerminology = 'SNOMEDCT_US';
 
@@ -34,6 +36,8 @@ tsApp
         
         // the currently viewed terminology (set by default or user)
         $scope.terminology = null;
+        
+      
         
         // query autocomplete variables
         $scope.conceptQuery = null;
@@ -78,7 +82,12 @@ tsApp
           
           // clear the search result list and current component
           $scope.component = null;
+          $scope.componentError = null;
           $scope.searchResults = null;
+          
+          // reset the history
+          $scope.conceptHistory = [];
+          $scope.conceptHistoryIndex = -1;
 
           // if no terminology specified, stop
           if ($scope.terminology == null) {
@@ -187,7 +196,7 @@ tsApp
         
         $scope.autocomplete = function(terminology, searchTerms) {
         	// if invalid search terms, return empty array
-        	if (searchTerms == null || searchTerms == undefined || searchTerms.length < 3) {
+        	if (searchTerms == null || searchTerms == undefined || searchTerms.length < 2) {
         		return new Array();
         	}
         	
@@ -305,7 +314,11 @@ tsApp
          */
         $scope.getConcept = function(terminology, terminologyId) {
         	
-        	var localTerminology = terminology;
+        	// clear existing component
+        	$scope.component = null;
+        	$scope.componentError = null;
+        	
+        	var localTerminology = null;
         	
         	// check for full terminology object by comparing to selected terminology
         	if (terminology != $scope.terminology) {
@@ -318,26 +331,36 @@ tsApp
         		}
         	}
         	
+        	if (!localTerminology) {
+        		$scope.componentError = "Requested terminology " + terminology + " not found";
+        		return;
+        	}
+        	
             // get single concept
             $scope.glassPane++;
             $http(
             {
-              url : contentUrl + getTypePrefix(localTerminology) + "/" + localTerminology.terminology + "/" + localTerminology.terminologyVersion + "/"
+              url : contentUrl + getTypePrefix(localTerminology.terminology, terminologyId) + "/" + localTerminology.terminology + "/" + localTerminology.terminologyVersion + "/"
                 + terminologyId,
               method : "GET",
 
             }).success(function(data) {
-            $scope.concept = data;
-
+            	
+            if (!data) {
+            	$scope.componentError = "Could not retrieve data for " + terminology + "/" + terminologyId;
+            	return;
+            }
+            
             // if local terminology matches passed terminology, attempt to set active row
             if (terminology === localTerminology)
             	setActiveRow(terminologyId);
             
             // set the component
-            $scope.setComponent($scope.concept, 'Concept');
+            $scope.setComponent(data);
            
-
-            
+            // update history
+            $scope.addConceptToHistory(data.terminology, data.terminologyId);
+               
             $scope.glassPane--;
 
           }).error(function(data, status, headers, config) {
@@ -370,7 +393,10 @@ tsApp
 
           // clear concept and suggestions
           $scope.suggestions = null;
-          $scope.concept = null;
+          $scope.component = null;
+          $scope.componentError = null;
+          $scope.conceptHistory = [];
+          $scope.conceptHistoryIndex = -1;
           
           // force the search box to sync with query string
           $scope.conceptQuery = queryStr;
@@ -535,17 +561,79 @@ tsApp
         }
         
         /** Get the Type Prefix for HTML calls, e.g. for /code, /cui, /dui */
-        function getTypePrefix(terminology) {
-          switch (terminology.organizingClassType) {
-          case 'CODE':
-        	  return 'code';
-          case 'CONCEPT':
+        function getTypePrefix(terminology, terminologyId) {
+          console.debug('getTypePrefix', terminology, terminologyId);
+          switch (terminology) {
+          case 'SNOMEDCT_US':
         	  return 'cui';
-          case 'DESCRIPTOR':
+          case 'UMLS':
+        	  if (terminologyId.indexOf("D") == 0)
+        		  return 'dui';
+        	  if (terminologyId.indexOf("C") == 0)
+        		  return 'cui';
+        	  return 'code';
+        	  
+        	  return 'cui';
+          case 'MSH':
         	  return 'dui';
           default:
-              return null;
+              return 'cui';
           }
+        }
+        
+        //////////////////////////////////////
+        // History Functions
+        //////////////////////////////////////
+        
+        // concept navigation variables
+        $scope.conceptHistory = [];
+        $scope.conceptHistoryIndex = -1;  // index is the actual array index (e.g. 0:n-1)
+        
+        $scope.addConceptToHistory = function(terminology, terminologyId) {
+        	
+        	// if history exists
+        	if ($scope.conceptHistoryIndex != -1) {
+        		
+        		// if this concept is the current historical concept, do not add
+        		if ($scope.conceptHistory[$scope.conceptHistoryIndex].terminology === terminology 
+        				&& $scope.conceptHistory[$scope.conceptHistoryIndex].terminologyId === terminologyId)
+        			return;
+        	}
+        	
+        	// delete further future history if in middle of history
+        	if ($scope.conceptHistoryIndex != $scope.conceptHistory.length -1) {
+        		
+        		// slice from beginning to current item
+        		$scope.conceptHistory = $scope.conceptHistory.slice(0, $scope.conceptHistoryIndex + 1);
+        	}
+        	
+        	// add item and increment index
+        	$scope.conceptHistory.push({'terminology':terminology, 'terminologyId':terminologyId});
+        	$scope.conceptHistoryIndex++;
+        }
+        
+        $scope.getPreviousConcept = function() {
+        	
+        	// decrement the counter and get the concept
+        	$scope.conceptHistoryIndex--;
+        	$scope.getConcept(
+        			$scope.conceptHistory[$scope.conceptHistoryIndex].terminology, 
+        			$scope.conceptHistory[$scope.conceptHistoryIndex].terminologyId)
+        	
+        }
+        
+        $scope.getPreviousConceptStr = function() {
+        	return $scope.conceptHistory[$scope.conceptHistoryIndex-1].terminology + "/" + $scope.conceptHistory[$scope.conceptHistoryIndex-1].terminologyId;
+        }
+        
+        $scope.getNextConcept = function() {
+        	
+        	// increment the counter and get the concept
+        	$scope.conceptHistoryIndex++;
+        	$scope.getConcept(
+        			$scope.conceptHistory[$scope.conceptHistoryIndex].terminology,
+        			$scope.conceptHistory[$scope.conceptHistoryIndex].terminologyId)
+        	
         }
         
         ////////////////////////////////////
@@ -571,8 +659,11 @@ tsApp
         
         function applyPaging() {
 
-        	$scope.pagedAtoms = $scope.getPagedArray($scope.component.atom, $scope.atomPage, true, false);
-        	$scope.pagedRelationships = $scope.getPagedArray($scope.component.relationship, $scope.relationshipPage, true, false);
+        	if ($scope.component.hasOwnProperty('atom'))
+        		$scope.pagedAtoms = $scope.getPagedArray($scope.component.atom, $scope.atomPage, true, false);
+        	
+        	if ($scope.component.hasOwnProperty('relationship'))
+        		$scope.pagedRelationships = $scope.getPagedArray($scope.component.relationship, $scope.relationshipPage, true, false);
         	// TODO Add others
         }
         
@@ -638,6 +729,14 @@ tsApp
         	// TODO
         }
         
+        /** Helper function to get properties for ng-repeat */
+        function convertObjectToJsonArray() {
+        	var newArray = new Array();
+        	for (var prop in object) {
+        		var obj = { key:prop, value:object[prop]};
+        		newArray.push(obj);
+        	}
+        }
        
 
       } ]);

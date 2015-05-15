@@ -4,6 +4,10 @@ body {
 	padding-bottom: 100px;
 }
 
+a {
+	cursor: pointer;
+}
+
 .loginField {
 	margin: 5px;
 }

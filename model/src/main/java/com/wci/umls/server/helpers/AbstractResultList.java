@@ -96,7 +96,7 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
    * @see org.ihtsdo.otf.ts.helpers.ResultList#getObjects()
    */
   @Override
-  @XmlTransient
+ // @XmlTransient
   public List<T> getObjects() {
     return objects;
   }
