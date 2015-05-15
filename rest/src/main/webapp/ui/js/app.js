@@ -572,8 +572,6 @@ tsApp
         	  if (terminologyId.indexOf("C") == 0)
         		  return 'cui';
         	  return 'code';
-        	  
-        	  return 'cui';
           case 'MSH':
         	  return 'dui';
           default:
