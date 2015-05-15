@@ -9,12 +9,15 @@ import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.content.Subset;
+import com.wci.umls.server.model.content.SubsetMember;
 
 /**
  * Generically represents an algorithm for reading objects to a certain depth
@@ -50,7 +53,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @throws Exception the exception
    */
   public void resolveEmpty(Descriptor descriptor) throws Exception;
-  
+
   /**
    * Resolve empty.
    *
@@ -121,5 +124,22 @@ public interface GraphResolutionHandler extends Configurable {
    */
   public void resolve(SemanticTypeComponent sty) throws Exception;
 
-  // at some point, other data structures may be useful here
+  /**
+   * Resolve.
+   *
+   * @param subset the subset
+   * @throws Exception the exception
+   */
+  public void resolve(Subset subset) throws Exception;
+
+  /**
+   * Resolve.
+   *
+   * @param member the member
+   * @throws Exception the exception
+   */
+  public void resolve(
+    SubsetMember<? extends ComponentHasAttributesAndName> member)
+    throws Exception;
+
 }

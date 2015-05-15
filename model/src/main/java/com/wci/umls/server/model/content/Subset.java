@@ -65,4 +65,9 @@ public interface Subset extends
    * @param branchedTo the branched to
    */
   public void setBranchedTo(String branchedTo);
+  
+  /**
+   * Clear members.
+   */
+  public void clearMembers();
 }
