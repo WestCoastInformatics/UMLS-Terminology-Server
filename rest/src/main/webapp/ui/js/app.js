@@ -23,26 +23,24 @@ tsApp
       '$http',
       '$q',
       function($scope, $http, $q) {
+    	  
+    	// the default viewed terminology, if available
+        var defaultTerminology = 'SNOMEDCT_US';
 
         $scope.$watch('component', function() {
           // // console.debug("Component changed to ",
           // $scope.component);
         });
         
-        // the viewed terminology
+        // the currently viewed terminology (set by default or user)
         $scope.terminology = null;
         
-        // autocomplete settings
+        // query autocomplete variables
         $scope.conceptQuery = null;
         $scope.autocompleteUrl = null; // set on terminology change
-
-        // initialize the search results
-        $scope.searchResult = [];
-        $scope.resultsPage = 1;
         
         // the displayed component
         $scope.component = null;
-        $scope.componentType = null;
 
         // whether to show suppressible/obsolete component elements
         $scope.showSuppressible = true;
@@ -54,13 +52,8 @@ tsApp
         $scope.error = "";
         $scope.glassPane = 0;
         
-        // pagination variables
-        $scope.pagedSearchResults = null;	
-        $scope.pagedSemanticTypes = null;
-        $scope.pagedDescriptions = null;
-        $scope.pagedRelationships = null;
-        $scope.pagedAtoms = null;
-        $scope.pageSize = 10;
+        // full variable arrays
+        $scope.searchResults = null;
         
         $scope.handleError = function(data, status, headers, config) {
           $scope.error = data.replace(/"/g, '');
@@ -74,10 +67,20 @@ tsApp
           $scope.terminology = terminology;
         }
       
+        /**
+         * Watch selected terminology and perform necessary operations
+         */
         $scope.$watch('terminology', function() {
           
-          // console.debug("terminology changed: ", $scope.terminology);
+          // clear the terminology-specific variables
+          $scope.autoCompleteUrl = null;
+          $scope.metadata = null;
+          
+          // clear the search result list and current component
+          $scope.component = null;
+          $scope.searchResults = null;
 
+          // if no terminology specified, stop
           if ($scope.terminology == null) {
             // console.debug("Returning")
             return;
@@ -85,9 +88,7 @@ tsApp
           
           // set the autocomplete url
           $scope.autocompleteUrl = contentUrl + getTypePrefix($scope.terminology) + '/autocomplete/' + $scope.terminology.terminology + '/' + $scope.terminology.terminologyVersion;
-          
-          // console.debug("Retrieving metadata");
-
+       
           $scope.glassPane++;
           $http(
             {
@@ -235,6 +236,9 @@ tsApp
         	 return deferred.promise;
         }
 
+        /**
+         * Get all available terminologies and store in scope.terminologies
+         */
         $scope.getTerminologies = function() {
 
           // reset terminologies
@@ -255,8 +259,7 @@ tsApp
             // "Retrieved terminologies:",
             // data.keyValuePairList);
 
-            // construct objects from
-            // returned data structure
+            // results are in pair list, want full terminologies
             for (var i = 0; i < data.keyValuePairList.length; i++) {
               var pair = data.keyValuePairList[i].keyValuePair[0];
 
@@ -264,19 +267,17 @@ tsApp
                 name : pair['key'],
                 version : pair['value']
               };
-              
              
+              // call helper function to get the full terminology object
               var terminologyObj = $scope.getTerminology(pair['key'], pair['value']);
-              // console.debug("Retrievig terminology" + pair['key'] + ", " + pair['value']);
+            
               terminologyObj.then(function(terminology) {
-            	  // console.debug("  Retrieved", terminology.terminology);
             	  
             	  // add result to the list of terminologies
             	  if (terminology.terminology != 'MTH' && terminology.terminology != 'SRC') {
             		  $scope.terminologies.push(terminology);
             	  
-            	  if (terminology.terminology === 'SNOMEDCT_US') {
-                      // console.debug('SNOMEDCT found');
+            	  if (terminology.terminology === defaultTerminology) {
                       $scope.setTerminology(terminology);
                   }
             	  // console.debug("Current terminologies", $scope.terminologies);
@@ -297,24 +298,44 @@ tsApp
           });
         }
 
+        /** 
+         * Function to get a concept based on terminology.  Two modes:
+         * (1) Full terminology object passed
+         * (2) Only terminology name passed, must be in list of available terminologies
+         */
         $scope.getConcept = function(terminology, terminologyId) {
-          // get single concept
+        	
+        	var localTerminology = terminology;
+        	
+        	// check for full terminology object by comparing to selected terminology
+        	if (terminology != $scope.terminology) {
+        		
+        		// cycle over available terminologies for match
+        		for (var i = 0; i < $scope.terminologies.length; i++) {
+        			if ($scope.terminologies[i].terminology === terminology) {
+        				localTerminology = $scope.terminologies[i];
+        			}
+        		}
+        	}
+        	
+            // get single concept
             $scope.glassPane++;
-          $http(
+            $http(
             {
-              url : contentUrl + getTypePrefix(terminology) + "/" + terminology.terminology + "/" + terminology.terminologyVersion + "/"
+              url : contentUrl + getTypePrefix(localTerminology) + "/" + localTerminology.terminology + "/" + localTerminology.terminologyVersion + "/"
                 + terminologyId,
               method : "GET",
 
             }).success(function(data) {
             $scope.concept = data;
 
-            // console.debug("Retrieved concept:", $scope.concept);
-
-            setActiveRow(terminologyId);
-            $scope.setComponent($scope.concept, 'Concept');
+            // if local terminology matches passed terminology, attempt to set active row
+            if (terminology === localTerminology)
+            	setActiveRow(terminologyId);
             
-           // $scope.getParentAndChildConcepts($scope.concept);
+            // set the component
+            $scope.setComponent($scope.concept, 'Concept');
+           
 
             
             $scope.glassPane--;
@@ -325,11 +346,18 @@ tsApp
           });
         }
         
+        /**
+         * Clear the search box and perform any additional operations required
+         */
         $scope.clearQuery = function() {
         	$scope.suggestions = null;
         	$scope.conceptQuery = null;
         }
 
+        /**
+         * Find concepts based on terminology and queryStr
+         * Does not currently use any p/f/s settings
+         */
         $scope.findConcepts = function(terminology, queryStr) {
 
           // ensure query string has minimum length
@@ -379,14 +407,15 @@ tsApp
           });
         }
 
+        /**
+         * Sets the component and performs any operations required
+         */
         $scope.setComponent = function(component, componentType) {
-          // // console.debug("Setting component",
-          // componentType, component);
+          // set the component
           $scope.component = component;
-          $scope.componentType = componentType;
           
           // apply the initial paging
-          applyInitialPaging();
+          applyPaging();
         }
         
         //////////////////////////////////////////
@@ -464,7 +493,7 @@ tsApp
         		$scope.showObsolete = !$scope.showObsolete;
         	}
         	
-        	applyInitialPaging();
+        	applyPaging();
         	
         }
         
@@ -475,7 +504,7 @@ tsApp
         		$scope.showSuppressible = !$scope.showSuppressible;
         	}
         	
-        	applyInitialPaging();
+        	applyPaging();
         }
         
      
@@ -522,8 +551,25 @@ tsApp
         ////////////////////////////////////
         // Pagination functions
         ////////////////////////////////////
+       
+        // paged variable lists
+        $scope.pagedSearchResults = null;	
+        $scope.pagedSemanticTypes = null;
+        $scope.pagedDescriptions = null;
+        $scope.pagedRelationships = null;
+        $scope.pagedAtoms = null;
         
-        function applyInitialPaging() {
+        // variable page numbers
+        $scope.searchResultsPage = 1;
+        $scope.semanticTypesPage = 1;
+        $scope.descriptionsPage = 1;
+        $scope.relationshipsPage = 1;
+        $scope.atomsPage = 1;
+        
+        // default page size
+        $scope.pageSize = 10;
+        
+        function applyPaging() {
 
         	$scope.pagedAtoms = $scope.getPagedArray($scope.component.atom, $scope.atomPage, true, false);
         	$scope.pagedRelationships = $scope.getPagedArray($scope.component.relationship, $scope.relationshipPage, true, false);
