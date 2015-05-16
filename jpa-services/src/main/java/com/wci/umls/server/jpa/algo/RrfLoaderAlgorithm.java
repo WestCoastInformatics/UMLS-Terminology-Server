@@ -1890,33 +1890,47 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     objectCt = 0;
     Logger.getLogger(getClass()).info("  Add concepts");
     // Set names
-    for (final Concept concept : conceptMap.values()) {
+    Set<Concept> concepts = new HashSet<>(conceptMap.values());
+    System.out.println("CONEPT ct = " + concepts.size());
+    for (final Concept concept : concepts) {
       concept.setName(getComputedPreferredName(concept));
       addConcept(concept);
       conceptIdMap.put(concept.getTerminology() + concept.getTerminologyId(),
           concept.getId());
       logAndCommit(++objectCt);
+      conceptMap.remove(concept.getTerminology() + concept.getTerminologyId());
     }
+    concepts = null;
     conceptMap = null;
+
     Logger.getLogger(getClass()).info("  Add descriptors");
-    for (final Descriptor descriptor : descriptorMap.values()) {
+    Set<Descriptor> descriptors = new HashSet<>(descriptorMap.values());
+    for (final Descriptor descriptor : descriptors) {
       descriptor.setName(getComputedPreferredName(descriptor));
       addDescriptor(descriptor);
       descriptorIdMap.put(
           descriptor.getTerminology() + descriptor.getTerminologyId(),
           descriptor.getId());
       logAndCommit(++objectCt);
+      descriptorMap.remove(descriptor.getTerminology()
+          + descriptor.getTerminologyId());
     }
+    descriptors = null;
     descriptorMap = null;
+
     Logger.getLogger(getClass()).info("  Add codes");
-    for (final Code code : codeMap.values()) {
+    Set<Code> codes = new HashSet<>(codeMap.values());
+    for (final Code code : codes) {
       code.setName(getComputedPreferredName(code));
       addCode(code);
       codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
           code.getId());
       logAndCommit(++objectCt);
+      codeMap.remove(code.getTerminology() + code.getTerminologyId());
     }
+    codes = null;
     codeMap = null;
+    
     Logger.getLogger(getClass()).info("  Add lexical classes");
     for (final LexicalClass lui : lexicalClassMap.values()) {
       lui.setName(getComputedPreferredName(lui));
