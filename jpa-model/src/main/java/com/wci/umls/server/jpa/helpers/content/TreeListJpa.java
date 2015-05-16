@@ -26,7 +26,7 @@ public class TreeListJpa extends AbstractResultList<Tree> implements TreeList {
   @Override
   @XmlElement(type = TreeJpa.class, name = "tree")
   public List<Tree> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

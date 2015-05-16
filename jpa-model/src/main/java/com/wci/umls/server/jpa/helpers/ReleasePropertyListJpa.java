@@ -28,7 +28,7 @@ public class ReleasePropertyListJpa extends AbstractResultList<ReleaseProperty>
   @Override
   @XmlElement(type = ReleasePropertyJpa.class, name = "releaseProperty")
   public List<ReleaseProperty> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
   /*

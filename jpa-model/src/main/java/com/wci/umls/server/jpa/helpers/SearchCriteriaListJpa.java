@@ -27,7 +27,7 @@ public class SearchCriteriaListJpa extends AbstractResultList<SearchCriteria>
   @Override
   @XmlElement(type = SearchCriteriaJpa.class, name = "criteria")
   public List<SearchCriteria> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

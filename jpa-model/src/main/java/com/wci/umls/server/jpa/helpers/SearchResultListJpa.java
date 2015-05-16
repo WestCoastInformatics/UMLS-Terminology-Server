@@ -27,7 +27,7 @@ public class SearchResultListJpa extends AbstractResultList<SearchResult>
   @Override
   @XmlElement(type = SearchResultJpa.class, name = "searchResult")
   public List<SearchResult> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
   /*

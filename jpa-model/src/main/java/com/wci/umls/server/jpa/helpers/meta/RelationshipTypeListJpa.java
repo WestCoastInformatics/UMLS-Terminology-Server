@@ -28,7 +28,7 @@ public class RelationshipTypeListJpa extends
   @Override
   @XmlElement(type = RelationshipTypeJpa.class, name = "type")
   public List<RelationshipType> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

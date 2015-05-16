@@ -25,7 +25,7 @@ public class CodeListJpa extends AbstractResultList<Code> implements CodeList {
   @Override
   @XmlElement(type = CodeJpa.class, name = "code")
   public List<Code> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }
