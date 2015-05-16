@@ -28,7 +28,7 @@ public class TermTypeListJpa extends AbstractResultList<TermType> implements
   @Override
   @XmlElement(type = TermTypeJpa.class, name = "type")
   public List<TermType> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

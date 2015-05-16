@@ -199,11 +199,11 @@ public class AbstractListUnit<T> {
 
     // test serializing an empty list (e.g. no exception)
     String xml = ConfigUtility.getStringForGraph(list);
-
     // Add contents
     list.addObject(object1);
 
     xml = ConfigUtility.getStringForGraph(list);
+
     ResultList<T> list3 =
         (ResultList<T>) ConfigUtility.getGraphForString(xml, list.getClass());
 

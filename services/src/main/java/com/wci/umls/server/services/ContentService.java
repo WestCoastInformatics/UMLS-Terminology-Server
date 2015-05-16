@@ -103,17 +103,6 @@ public interface ContentService extends RootService {
    */
   public Subset getSubset(Long id) throws Exception;
 
-  /**
-   * Returns the subsets.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the subsets
-   * @throws Exception the exception
-   */
-  public SubsetList getSubsets(String terminologyId, String terminology,
-    String version) throws Exception;
 
   /**
    * Returns the subset.
@@ -198,6 +187,18 @@ public interface ContentService extends RootService {
    * @return the concept subset members
    */
   public SubsetMemberList getSubsetMembersForConcept(String conceptId,
+    String terminology, String version, String branch);
+
+  /**
+   * Gets the relationships for concept.
+   *
+   * @param conceptId the concept id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the relationships for concept
+   */
+  public RelationshipList getRelationshipsForConcept(String conceptId,
     String terminology, String version, String branch);
 
   /**

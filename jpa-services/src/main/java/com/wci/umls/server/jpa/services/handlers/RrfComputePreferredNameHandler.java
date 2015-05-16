@@ -100,6 +100,9 @@ public class RrfComputePreferredNameHandler implements
    */
   @Override
   public List<Atom> sortByPreference(Collection<Atom> atoms) throws Exception {
+    if (list == null) {
+      cacheList();
+    }
     List<Atom> sortedAtoms = new ArrayList<>(atoms);
     // Get each atom rank
     final Map<Atom, String> atomRanks = new HashMap<>();
@@ -125,11 +128,14 @@ public class RrfComputePreferredNameHandler implements
    * @return the rank
    */
   private String getRank(Atom atom) {
-    return ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType())
+    String rank = (atom.isObsolete() ? 0 : 1 ) + 
+        (atom.isSuppressible() ? 0 : 1 ) + 
+        ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType())
         + (10000000000L - Long.parseLong(atom.getStringClassId().substring(1)))
         + (atom.getAlternateTerminologyIds().isEmpty() ? ""
             : +(10000000000L - Long.parseLong(atom.getAlternateTerminologyIds()
                 .get(terminology).substring(1))));
+    return rank;
   }
 
   /**

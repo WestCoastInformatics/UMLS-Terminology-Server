@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.content;
 
 import javax.persistence.MappedSuperclass;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.hibernate.envers.Audited;
 
@@ -17,6 +18,9 @@ import com.wci.umls.server.model.content.SubsetMember;
  */
 @Audited
 @MappedSuperclass
+@XmlSeeAlso({
+    AtomSubsetMemberJpa.class, ConceptSubsetMemberJpa.class
+})
 public abstract class AbstractSubsetMember<T extends ComponentHasAttributesAndName>
     extends AbstractComponentHasAttributes implements SubsetMember<T> {
 

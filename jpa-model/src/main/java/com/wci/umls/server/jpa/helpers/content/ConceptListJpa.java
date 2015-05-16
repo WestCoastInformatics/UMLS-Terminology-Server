@@ -27,7 +27,7 @@ public class ConceptListJpa extends AbstractResultList<Concept> implements
   @Override
   @XmlElement(type = ConceptJpa.class, name = "concept")
   public List<Concept> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

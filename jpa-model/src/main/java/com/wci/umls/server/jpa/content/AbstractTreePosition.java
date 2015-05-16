@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.content;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.hibernate.envers.Audited;
 
@@ -17,6 +18,10 @@ import com.wci.umls.server.model.content.TreePosition;
  */
 @Audited
 @MappedSuperclass
+@XmlSeeAlso({
+    CodeTreePositionJpa.class, ConceptTreePositionJpa.class,
+    DescriptorTreePositionJpa.class
+})
 public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndName>
     extends AbstractComponentHasAttributes implements TreePosition<T> {
 

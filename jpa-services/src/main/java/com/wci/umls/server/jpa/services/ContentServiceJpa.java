@@ -58,6 +58,7 @@ import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
+import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
 import com.wci.umls.server.jpa.content.AbstractSubset;
@@ -107,6 +108,8 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
+import com.wci.umls.server.model.meta.RootTerminology;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
@@ -456,23 +459,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return getComponent(id, AbstractSubset.class);
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public SubsetList getSubsets(String terminologyId, String terminology,
-    String version) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - get subsets " + terminologyId + "/" + terminology
-            + "/" + version);
-    List<Subset> subsets =
-        getComponents(terminologyId, terminology, version, AbstractSubset.class);
-    if (subsets == null) {
-      return null;
-    }
-    SubsetList list = new SubsetListJpa();
-    list.setTotalCount(subsets.size());
-    list.setObjects(subsets);
-    return list;
-  }
 
   /*
    * (non-Javadoc)
@@ -505,7 +491,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - get atom subsets " + terminology + "/" + version);
     javax.persistence.Query query =
         manager.createQuery("select s from AtomSubsetJpa s where "
-            + "terminologyId = :terminologyId and " + ""
             + "terminologyVersion = :version and terminology = :terminology");
 
     // Try to retrieve the single expected result If zero or more than one
@@ -518,6 +503,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       SubsetListJpa subsetList = new SubsetListJpa();
       subsetList.setObjects(m);
       subsetList.setTotalCount(m.size());
+      
       return subsetList;
 
     } catch (NoResultException e) {
@@ -539,7 +525,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - get concept subsets " + terminology + "/" + version);
     javax.persistence.Query query =
         manager.createQuery("select s from ConceptSubsetJpa s where "
-            + "terminologyId = :terminologyId and " + ""
             + "terminologyVersion = :version and terminology = :terminology");
 
     // Try to retrieve the single expected result If zero or more than one
@@ -683,11 +668,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       list.setTotalCount(list.getObjects().size());
 
       // account for lazy initialization
-      for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
+      /*for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
           .getObjects()) {
         if (s.getAttributes() != null)
           s.getAttributes().size();
-      }
+      }*/
 
       return list;
     } catch (NoResultException e) {
@@ -725,11 +710,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       list.setTotalCount(list.getObjects().size());
 
       // account for lazy initialization
-      for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
+      /*for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
           .getObjects()) {
         if (s.getAttributes() != null)
           s.getAttributes().size();
-      }
+      }*/
       return list;
     } catch (NoResultException e) {
       return null;
@@ -1660,7 +1645,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " where super.terminologyVersion = :version "
             + " and super.terminology = :terminology "
             + " and super.terminologyId = :terminologyId"
-            + " and tr.superType = super" + " and tr.subType = a ";
+            + " and tr.superType = super" + " and tr.subType = a "
+            + " and tr.superType != tr.subType";
     javax.persistence.Query query = applyPfsToQuery(queryStr, pfsParameter);
 
     javax.persistence.Query ctQuery =
@@ -1670,7 +1656,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " where super.terminologyVersion = :version "
             + " and super.terminology = :terminology "
             + " and super.terminologyId = :terminologyId"
-            + " and tr.superType = super" + " and tr.subType = a ");
+            + " and tr.superType = super" + " and tr.subType = a "
+            + " and tr.superType != tr.subType");
 
     ctQuery.setParameter("terminology", atomClass.getTerminology());
     ctQuery.setParameter("version", atomClass.getTerminologyVersion());
@@ -1711,7 +1698,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " where sub.terminologyVersion = :version "
             + " and sub.terminology = :terminology "
             + " and sub.terminologyId = :terminologyId"
-            + " and tr.subType = sub and tr.superType = a ";
+            + " and tr.subType = sub and tr.superType = a "
+            + " and tr.superType != tr.subType ";
     javax.persistence.Query query = applyPfsToQuery(queryStr, pfsParameter);
 
     javax.persistence.Query ctQuery =
@@ -1721,7 +1709,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " where sub.terminologyVersion = :version "
             + " and sub.terminology = :terminology "
             + " and sub.terminologyId = :terminologyId"
-            + " and tr.subType = sub and tr.superType = a ");
+            + " and tr.subType = sub and tr.superType = a "
+            + " and tr.superType != tr.subType ");
 
     ctQuery.setParameter("terminology", atomClass.getTerminology());
     ctQuery.setParameter("version", atomClass.getTerminologyVersion());
@@ -2832,7 +2821,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Perform Lucene search
     List<AtomClass> queryClasses = new ArrayList<>();
     boolean queryFlag = false;
-    if (query != null && !query.equals("")) {
+    if (query != null && !query.equals("") && !query.equals("null")) {
       queryClasses =
           getQueryResults(terminology, version, branch, query, fieldNames,
               clazz, pfs, totalCt);
@@ -2880,27 +2869,29 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       totalCt[0] = classes.size();
 
       // Apply PFS sorting manually
-      final Field sortField = clazz.getField(pfs.getSortField());
-      if (sortField.getType().isAssignableFrom(Comparable.class)) {
-        throw new Exception("Referenced sort field is not comparable");
-      }
-      sortField.setAccessible(true);
-      Collections.sort(classes, new Comparator<AtomClass>() {
-        @SuppressWarnings({
-            "rawtypes", "unchecked"
-        })
-        @Override
-        public int compare(AtomClass o1, AtomClass o2) {
-          try {
-            Comparable f1 = (Comparable) sortField.get(o1);
-            Comparable f2 = (Comparable) sortField.get(o2);
-            return f1.compareTo(f2);
-          } catch (Exception e) {
-            // do nothing
-          }
-          return 0;
+      if (pfs != null && pfs.getSortField() != null) {
+        final Field sortField = clazz.getField(pfs.getSortField());
+        if (sortField.getType().isAssignableFrom(Comparable.class)) {
+          throw new Exception("Referenced sort field is not comparable");
         }
-      });
+        sortField.setAccessible(true);
+        Collections.sort(classes, new Comparator<AtomClass>() {
+          @SuppressWarnings({
+              "rawtypes", "unchecked"
+          })
+          @Override
+          public int compare(AtomClass o1, AtomClass o2) {
+            try {
+              Comparable f1 = (Comparable) sortField.get(o1);
+              Comparable f2 = (Comparable) sortField.get(o2);
+              return f1.compareTo(f2);
+            } catch (Exception e) {
+              // do nothing
+            }
+            return 0;
+          }
+        });
+      }
 
       // Apply PFS paging manually
       if (pfs != null && pfs.getStartIndex() != -1) {
@@ -2932,6 +2923,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       results.addObject(sr);
     }
 
+    results.setTotalCount(totalCt[0]);
     return results;
 
   }
@@ -3014,7 +3006,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     StringBuilder builder = new StringBuilder();
     builder.append("SELECT c FROM " + clazz.getName() + " c "
         + "WHERE terminology = :terminology "
-        + "AND terminololgyVersion = :version ");
+        + "AND terminologyVersion = :version ");
 
     String terminologyId = null;
 
@@ -3051,10 +3043,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       terminologyId = criteria.getRelationshipFromId();
 
       if (criteria.getRelationshipDescendantsFlag()) {
-        // TODO: this handles "descendant" but not "self and descendant"
-        // consider putting "self" entries into transitive relationships as a
-        // subtype
-        // (maybe marked as "self")
         relBuilder.append("SELECT DISTINCT a.to FROM "
             + clazz.getName().replace("Jpa", "RelationshipJpa")
             + " a, "
@@ -3614,29 +3602,42 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public void clearContent(String terminology, String version) {
+
+    Logger.getLogger(getClass()).info("Metadata service - clear metadata");
     try {
       if (getTransactionPerOperation()) {
+        // remove simple ref set member
         tx.begin();
       }
 
-      String[] types =
-          new String[] {
-              "ConceptJpa", "DescriptorJpa", "CodeJpa", "AtomJpa",
-              "AttributeJpa", "DefinitionJpa", "SemanticTypeComponentJpa",
-              "AbstractRelationship", "AbstractSubset", "AbstractSubsetMember"
-          };
+      for (EntityType<?> type : manager.getMetamodel().getEntities()) {
+        String jpaTable = type.getName();
+        // Skip audit trail tables
+        if (jpaTable.toUpperCase().indexOf("_AUD") != -1) {
+          continue;
+        }
+        // skip all abstract abbreviations and terminology classes
+        if (!AbstractAbbreviation.class.isAssignableFrom(type
+            .getBindableJavaType())
+            && !Terminology.class.isAssignableFrom(type.getBindableJavaType())
+            && !RootTerminology.class.isAssignableFrom(type
+                .getBindableJavaType())) {
+          continue;
+        }
+        Logger.getLogger(getClass()).info("  Remove " + jpaTable);
+        javax.persistence.Query query = null;
 
-      for (String type : types) {
-        Logger.getLogger(getClass()).info("  Remove " + type);
-        javax.persistence.Query query =
-            manager.createQuery("DELETE FROM " + type
+        query =
+            manager.createQuery("DELETE FROM " + jpaTable
                 + " WHERE terminology = :terminology "
                 + " AND terminologyVersion = :version");
         query.setParameter("terminology", terminology);
         query.setParameter("version", version);
+
         int deleteRecords = query.executeUpdate();
         Logger.getLogger(getClass()).info(
-            "    " + type + " records deleted: " + deleteRecords);
+            "    " + jpaTable + " records deleted: " + deleteRecords);
+
       }
 
       if (getTransactionPerOperation()) {
@@ -4044,6 +4045,40 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         tx.rollback();
       }
       throw e;
+    }
+  }
+
+  @Override
+  public RelationshipList getRelationshipsForConcept(String conceptId,
+    String terminology, String version, String branch) {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get relationships for concept " + conceptId + "/"
+            + terminology + "/" + version);
+    javax.persistence.Query query =
+        manager.createQuery("select s from ConceptRelationshipJpa s, "
+            + " ConceptJpa c where c.terminologyId = :conceptId "
+            + "and c.terminologyVersion = :version "
+            + "and c.terminology = :terminology and s.from = c");
+
+    try {
+      RelationshipList list = new RelationshipListJpa();
+
+      query.setParameter("conceptId", conceptId);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      list.setObjects(query.getResultList());
+      list.setTotalCount(list.getObjects().size());
+
+      // account for lazy initialization
+      for (Relationship s : list
+          .getObjects()) {
+        if (s.getAttributes() != null)
+          s.getAttributes().size();
+
+      }
+      return list;
+    } catch (NoResultException e) {
+      return null;
     }
   }
 
