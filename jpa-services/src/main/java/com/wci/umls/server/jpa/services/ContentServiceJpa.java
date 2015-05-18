@@ -459,7 +459,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return getComponent(id, AbstractSubset.class);
   }
 
-
   /*
    * (non-Javadoc)
    * 
@@ -503,7 +502,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       SubsetListJpa subsetList = new SubsetListJpa();
       subsetList.setObjects(m);
       subsetList.setTotalCount(m.size());
-      
+
       return subsetList;
 
     } catch (NoResultException e) {
@@ -668,11 +667,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       list.setTotalCount(list.getObjects().size());
 
       // account for lazy initialization
-      /*for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
-          .getObjects()) {
-        if (s.getAttributes() != null)
-          s.getAttributes().size();
-      }*/
+      /*
+       * for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
+       * .getObjects()) { if (s.getAttributes() != null)
+       * s.getAttributes().size(); }
+       */
 
       return list;
     } catch (NoResultException e) {
@@ -710,11 +709,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       list.setTotalCount(list.getObjects().size());
 
       // account for lazy initialization
-      /*for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
-          .getObjects()) {
-        if (s.getAttributes() != null)
-          s.getAttributes().size();
-      }*/
+      /*
+       * for (SubsetMember<? extends ComponentHasAttributesAndName> s : list
+       * .getObjects()) { if (s.getAttributes() != null)
+       * s.getAttributes().size(); }
+       */
       return list;
     } catch (NoResultException e) {
       return null;
@@ -2668,6 +2667,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /**
+   * Returns the concept tree positions for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param searchCriteria the search criteria
+   * @param computeRootTrees the compute root trees
+   * @return the concept tree positions for query
+   * @throws Exception the exception
+   */
   public TreeList getConceptTreePositionsForQuery(String terminology,
     String version, String query, SearchCriteria searchCriteria,
     boolean computeRootTrees) throws Exception {
@@ -2700,15 +2710,24 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return null;
   }
 
-  @SuppressWarnings("unchecked")
-  private Tree convertTreePositionToTree(TreePosition treePosition,
-    boolean computeRootTree) {
+  /**
+   * Convert tree position to tree.
+   *
+   * @param treePosition the tree position
+   * @param computeRootTree the compute root tree
+   * @return the tree
+   */
+  @SuppressWarnings({
+      "unused", "static-method"
+  })
+  private Tree convertTreePositionToTree(
+    TreePosition<? extends AtomClass> treePosition, boolean computeRootTree) {
 
     Tree tree = null;
 
     if (computeRootTree == true) {
       for (String ancestorId : treePosition.getAncestorPath().split("~")) {
-
+        // n/a
       }
     } else {
       tree = new TreeJpa();
@@ -3617,11 +3636,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           continue;
         }
         // skip all abstract abbreviations and terminology classes
-        if (!AbstractAbbreviation.class.isAssignableFrom(type
-            .getBindableJavaType())
-            && !Terminology.class.isAssignableFrom(type.getBindableJavaType())
-            && !RootTerminology.class.isAssignableFrom(type
-                .getBindableJavaType())) {
+        if (!AbstractComponent.class.isAssignableFrom(type
+            .getBindableJavaType())) {
           continue;
         }
         Logger.getLogger(getClass()).info("  Remove " + jpaTable);
@@ -4048,6 +4064,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getRelationshipsForConcept(
+   * java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @SuppressWarnings("unchecked")
   @Override
   public RelationshipList getRelationshipsForConcept(String conceptId,
     String terminology, String version, String branch) {
@@ -4070,7 +4094,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       list.setTotalCount(list.getObjects().size());
 
       // account for lazy initialization
-      for (Relationship s : list
+      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> s : list
           .getObjects()) {
         if (s.getAttributes() != null)
           s.getAttributes().size();
@@ -4081,5 +4105,4 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       return null;
     }
   }
-
 }

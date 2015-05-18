@@ -92,12 +92,13 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     this.objects = objects;
   }
 
-  /* (non-Javadoc)
-   * @see org.ihtsdo.otf.ts.helpers.ResultList#getObjects()
+  /**
+   * Returns the but in an XML transient way.
+   *
+   * @return the objects transient
    */
-  @Override
- // @XmlTransient
-  public List<T> getObjects() {
+  @XmlTransient
+  protected List<T> getObjectsTransient() {
     return objects;
   }
   

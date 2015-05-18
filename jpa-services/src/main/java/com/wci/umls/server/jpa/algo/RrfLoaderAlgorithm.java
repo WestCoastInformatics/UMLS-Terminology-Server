@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.algo;
 
-import gnu.trove.map.hash.TCustomHashMap;
 import gnu.trove.strategy.HashingStrategy;
 
 import java.util.ArrayList;
@@ -133,73 +132,60 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** The published. */
   private final String published = "PUBLISHED";
 
+  // TODO: reconsider this: new TCustomHashMap<>(new StandardStrategy())
   /** The loaded terminologies. */
-  private Map<String, Terminology> loadedTerminologies = new TCustomHashMap<>(
-      new StandardStrategy());
+  private Map<String, Terminology> loadedTerminologies = new HashMap<>();
 
   /** The loaded term types. */
-  private Map<String, TermType> loadedTermTypes = new TCustomHashMap<>(
-      new StandardStrategy());
+  private Map<String, TermType> loadedTermTypes = new HashMap<>();
 
   /** The term id type map. */
-  private Map<String, IdType> termIdTypeMap = new TCustomHashMap<>(
-      new StandardStrategy());
+  private Map<String, IdType> termIdTypeMap = new HashMap<>();
 
   /** The code map. */
-  private Map<String, Long> codeIdMap = new TCustomHashMap<>(
-      new StandardStrategy());
+  private Map<String, Long> codeIdMap = new HashMap<>();
 
   /** The concept map. */
-  private Map<String, Long> conceptIdMap = new TCustomHashMap<>(
-      new StandardStrategy());
+  private Map<String, Long> conceptIdMap = new HashMap<>();
 
   /** The descriptor map. */
-  private Map<String, Long> descriptorIdMap = new TCustomHashMap<>(
-      new StandardStrategy());
+  private Map<String, Long> descriptorIdMap = new HashMap<>();
 
   /** The atom map. */
-  private Map<String, Long> atomIdMap = new TCustomHashMap<>(
-      new StandardStrategy());
+  private Map<String, Long> atomIdMap = new HashMap<>();
 
   /** The atom concept id map. */
-  private Map<String, String> atomConceptIdMap = new TCustomHashMap<>(
-      new StandardStrategy());
+  private Map<String, String> atomConceptIdMap = new HashMap<>();
 
   /** The atom code id map. */
-  private Map<String, String> atomCodeIdMap = new TCustomHashMap<>(
-      new StandardStrategy());
+  private Map<String, String> atomCodeIdMap = new HashMap<>();
 
   /** The atom descriptor id map. */
-  private Map<String, String> atomDescriptorIdMap = new TCustomHashMap<>(
-      new StandardStrategy());
+  private Map<String, String> atomDescriptorIdMap = new HashMap<>();
 
   /** The relationship map. */
   private Map<String, Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipMap =
-      new TCustomHashMap<>(new StandardStrategy());
+      new HashMap<>();
 
   /** The cui aui atom subset map. */
-  private Map<String, AtomSubset> cuiAuiAtomSubsetMap = new TCustomHashMap<>(
-      new StandardStrategy());
+  private Map<String, AtomSubset> cuiAuiAtomSubsetMap = new HashMap<>();
 
   /** The cui auiconcept subset map. */
-  private Map<String, ConceptSubset> cuiAuiConceptSubsetMap =
-      new TCustomHashMap<>(new StandardStrategy());
+  private Map<String, ConceptSubset> cuiAuiConceptSubsetMap = new HashMap<>();
 
   /** The id atom subset map. */
-  private Map<String, AtomSubset> idTerminologyAtomSubsetMap =
-      new TCustomHashMap<>(new StandardStrategy());
+  private Map<String, AtomSubset> idTerminologyAtomSubsetMap = new HashMap<>();
 
   /** The id auiconcept subset map. */
   private Map<String, ConceptSubset> idTerminologyConceptSubsetMap =
-      new TCustomHashMap<>(new StandardStrategy());
+      new HashMap<>();
 
   /** The atom subset member map. */
-  private Map<String, AtomSubsetMember> atomSubsetMemberMap =
-      new TCustomHashMap<>(new StandardStrategy());
+  private Map<String, AtomSubsetMember> atomSubsetMemberMap = new HashMap<>();
 
   /** The atom subset member map. */
   private Map<String, ConceptSubsetMember> conceptSubsetMemberMap =
-      new TCustomHashMap<>(new StandardStrategy());
+      new HashMap<>();
 
   /** The lat code map. */
   private static Map<String, String> latCodeMap = new HashMap<>();
@@ -485,15 +471,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Load MRDOC abbreviation types");
     String line = null;
     Set<String> atnSeen = new HashSet<>();
-    Map<String, RelationshipType> relMap =
-        new TCustomHashMap<>(new StandardStrategy());
-    Map<String, String> inverseRelMap =
-        new TCustomHashMap<>(new StandardStrategy());
-    Map<String, AdditionalRelationshipType> relaMap =
-        new TCustomHashMap<>(new StandardStrategy());
-    Map<String, String> inverseRelaMap =
-        new TCustomHashMap<>(new StandardStrategy());
-    Map<String, TermType> ttyMap = new TCustomHashMap<>(new StandardStrategy());
+    Map<String, RelationshipType> relMap = new HashMap<>();
+    Map<String, String> inverseRelMap = new HashMap<>();
+    Map<String, AdditionalRelationshipType> relaMap = new HashMap<>();
+    Map<String, String> inverseRelaMap = new HashMap<>();
+    Map<String, TermType> ttyMap = new HashMap<>();
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDOC);
     int objectCt = 0;
     final String fields[] = new String[4];
@@ -710,10 +692,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private void loadMrsab() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRSAB data");
     String line = null;
-    Map<String, RootTerminology> rootTerminologies =
-        new TCustomHashMap<>(new StandardStrategy());
-    Map<String, Terminology> terminologies =
-        new TCustomHashMap<>(new StandardStrategy());
+    Map<String, RootTerminology> rootTerminologies = new HashMap<>();
+    Map<String, Terminology> terminologies = new HashMap<>();
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAB);
     final String fields[] = new String[25];
     while ((line = reader.readLine()) != null) {
@@ -1176,7 +1156,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           memberAtt.setName(atvFields[1]);
           memberAtt.setValue(atvFields[2]);
           addAttribute(memberAtt);
-          objectCt++;
+          logAndCommit(++objectCt);
 
           if (member != null) {
             member.addAttribute(memberAtt);
@@ -1582,15 +1562,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Load MRCONSO");
 
     // Set up maps
-    Map<String, Concept> conceptMap =
-        new TCustomHashMap<>(new StandardStrategy());
-    Map<String, Code> codeMap = new TCustomHashMap<>(new StandardStrategy());
-    Map<String, Descriptor> descriptorMap =
-        new TCustomHashMap<>(new StandardStrategy());
-    Map<String, LexicalClass> lexicalClassMap =
-        new TCustomHashMap<>(new StandardStrategy());
-    Map<String, StringClass> stringClassMap =
-        new TCustomHashMap<>(new StandardStrategy());
+    Map<String, Concept> conceptMap = new HashMap<>();
+    Map<String, Code> codeMap = new HashMap<>();
+    Map<String, Descriptor> descriptorMap = new HashMap<>();
+    Map<String, LexicalClass> lexicalClassMap = new HashMap<>();
+    Map<String, StringClass> stringClassMap = new HashMap<>();
 
     String line = null;
 
@@ -2091,6 +2067,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @throws Exception the exception
    */
   private void logAndCommit(int objectCt) throws Exception {
+
     // log at regular intervals
     if (objectCt % logCt == 0) {
       Logger.getLogger(getClass()).info("    count = " + objectCt);

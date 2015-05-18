@@ -27,7 +27,7 @@ public class DefinitionListJpa extends AbstractResultList<Definition> implements
   @Override
   @XmlElement(type = DefinitionJpa.class, name = "definition")
   public List<Definition> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

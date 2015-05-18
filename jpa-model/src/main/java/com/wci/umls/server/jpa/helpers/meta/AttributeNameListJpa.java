@@ -28,7 +28,7 @@ public class AttributeNameListJpa extends AbstractResultList<AttributeName>
   @Override
   @XmlElement(type = AttributeNameJpa.class, name = "name")
   public List<AttributeName> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

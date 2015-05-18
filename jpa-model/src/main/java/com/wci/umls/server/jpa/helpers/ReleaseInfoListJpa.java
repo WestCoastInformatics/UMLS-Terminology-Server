@@ -28,7 +28,7 @@ public class ReleaseInfoListJpa extends AbstractResultList<ReleaseInfo>
   @Override
   @XmlElement(type = ReleaseInfoJpa.class, name = "releaseInfo")
   public List<ReleaseInfo> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
   /*
