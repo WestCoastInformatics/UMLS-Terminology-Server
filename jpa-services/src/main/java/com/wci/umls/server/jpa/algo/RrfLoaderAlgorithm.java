@@ -1697,6 +1697,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atomCodeIdMap.put(fields[7], atom.getCodeId());
       atomDescriptorIdMap.put(fields[7], atom.getDescriptorId());
 
+      // Make placeholder atom for attaching and computing preferred name
+      // If this uses too much memory, then simply load the atoms when setting
+      // preferred names
+      Atom placeholderAtom = new AtomJpa();
+      placeholderAtom.setId(atom.getId());
+      
       // CUI - skip in single mode
       if (!singleMode) {
         Concept cui = null;
@@ -1717,7 +1723,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           conceptMap.put(cui.getTerminologyId() + terminology, cui);
         }
         if (cui != null) {
-          cui.addAtom(atom);
+          cui.addAtom(placeholderAtom);
         }
       }
 
@@ -1741,7 +1747,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         conceptMap.put(scui.getTerminologyId() + fields[11], scui);
       }
       if (scui != null) {
-        scui.addAtom(atom);
+        scui.addAtom(placeholderAtom);
       }
 
       // SDUI
@@ -1764,7 +1770,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         descriptorMap.put(sdui.getTerminologyId() + fields[11], sdui);
       }
       if (sdui != null) {
-        sdui.addAtom(atom);
+        sdui.addAtom(placeholderAtom);
       }
 
       // CODE
@@ -1787,7 +1793,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         codeMap.put(fields[13] + fields[11], code);
       }
       if (code != null) {
-        code.addAtom(atom);
+        code.addAtom(placeholderAtom);
       }
 
       LexicalClass lui = null;
@@ -1809,7 +1815,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         lui.setName("TBD");
       }
       if (lui != null) {
-        lui.addAtom(atom);
+        lui.addAtom(placeholderAtom);
       }
 
       StringClass sui = null;
@@ -1831,7 +1837,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         sui.setName(fields[14]);
       }
       if (sui != null) {
-        sui.addAtom(atom);
+        sui.addAtom(placeholderAtom);
       }
 
       // Handle Subset
@@ -1906,7 +1912,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
     codes = null;
     codeMap = null;
-    
+
     Logger.getLogger(getClass()).info("  Add lexical classes");
     for (final LexicalClass lui : lexicalClassMap.values()) {
       lui.setName(getComputedPreferredName(lui));
@@ -1924,6 +1930,23 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // commit
     commitClearBegin();
 
+  }
+
+  /**
+   * Load atoms before computing.
+   *
+   * @param atomClass the atom class
+   * @return the computed preferred name
+   * @throws Exception the exception
+   */
+  @Override
+  public String getComputedPreferredName(AtomClass atomClass) throws Exception {
+    final List<Atom> atoms = new ArrayList<>();
+    for (Atom atom : atomClass.getAtoms()) {
+      atoms.add(getAtom(atom.getId()));
+    }
+    atomClass.setAtoms(atoms);
+    return super.getComputedPreferredName(atomClass);
   }
 
   /**
