@@ -106,7 +106,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private final static int logCt = 2000;
 
   /** The commit count. */
-  private final static int commitCt = 500;
+  private final static int commitCt = 5000;
 
   /** The terminology. */
   private String terminology;
@@ -1156,7 +1156,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           memberAtt.setName(atvFields[1]);
           memberAtt.setValue(atvFields[2]);
           addAttribute(memberAtt);
-          objectCt++;
+          logAndCommit(++objectCt);
 
           if (member != null) {
             member.addAttribute(memberAtt);

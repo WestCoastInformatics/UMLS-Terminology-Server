@@ -428,6 +428,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
    * @param subset the subset
    * @param nullId the null id
    */
+  @SuppressWarnings("static-method")
   private void resolveAtomSubsetMembers(AtomSubset subset,
     boolean nullId) {
     for (AtomSubsetMember member : subset.getMembers()) {
@@ -446,6 +447,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
    * @param subset the subset
    * @param nullId the null id
    */
+  @SuppressWarnings("static-method")
   private void resolveConceptSubsetMembers(ConceptSubset subset,
     boolean nullId) {
     for (ConceptSubsetMember member : subset.getMembers()) {
