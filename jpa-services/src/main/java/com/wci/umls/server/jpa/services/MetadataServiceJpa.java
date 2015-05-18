@@ -26,7 +26,6 @@ import com.wci.umls.server.helpers.meta.RootTerminologyList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TermTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
-import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
@@ -37,6 +36,7 @@ import com.wci.umls.server.jpa.helpers.meta.RootTerminologyListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TerminologyListJpa;
+import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
@@ -703,10 +703,14 @@ public class MetadataServiceJpa extends RootServiceJpa implements
           continue;
         }
         // remove all abstract abbreviations
-        if (!AbstractComponent.class.isAssignableFrom(type
-            .getBindableJavaType())) {
+        if (!AbstractAbbreviation.class.isAssignableFrom(type
+            .getBindableJavaType())
+            && !Terminology.class.isAssignableFrom(type.getBindableJavaType())
+            && !RootTerminology.class.isAssignableFrom(type
+                .getBindableJavaType())) {
           continue;
         }
+
         Logger.getLogger(getClass()).info("  Remove " + jpaTable);
         javax.persistence.Query query = null;
 
