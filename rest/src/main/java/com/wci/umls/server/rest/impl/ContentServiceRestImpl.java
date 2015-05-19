@@ -59,12 +59,12 @@ import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
-import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
@@ -1300,7 +1300,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       SubsetMemberList list = contentService.getSubsetMembersForConcept(conceptId, terminology,
           version, Branch.ROOT);
 
-      for (SubsetMember member : list.getObjects()) {
+      for (SubsetMember<? extends ComponentHasAttributesAndName> member : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);   
       }
       return list;
@@ -1344,7 +1344,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       SubsetMemberList list = contentService.getSubsetMembersForAtom(atomId, terminology,
           version, Branch.ROOT);
       
-      for (SubsetMember member : list.getObjects()) {
+      for (SubsetMember<? extends ComponentHasAttributesAndName> member : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);   
       }
       return list;

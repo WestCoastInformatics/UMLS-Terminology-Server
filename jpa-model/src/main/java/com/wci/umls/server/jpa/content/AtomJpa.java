@@ -63,7 +63,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private List<AtomRelationship> relationships = null;
 
   /** The concept terminology id map. */
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "concept_terminology_ids", joinColumns = @JoinColumn(name = "atom_id"))
   @Column(nullable = false)
   Map<String, String> conceptTerminologyIds;
