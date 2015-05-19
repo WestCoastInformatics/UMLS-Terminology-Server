@@ -181,8 +181,9 @@
 
 						<!-- search results field is 3 columns -->
 						<div class="col-md-4 col-xs-12">
-							
-							<div class="alert alert-success" ng-show="searchResults.length > 0">{{searchResults.length}}
+
+							<div class="alert alert-success"
+								ng-show="searchResults.length > 0">{{searchResults.length}}
 								Results (Click a row for details)</div>
 							<div class="alert alert-danger"
 								ng-show="searchResults && searchResults.length == 0">Search
@@ -200,8 +201,7 @@
 
 								<tbody>
 									<tr ng-repeat="searchResult in pagedSearchResults"
-										
-										ng-click="getConcept(terminology.terminology, searchResult.terminologyId)">
+										ng-click="getComponent(terminology.terminology, searchResult.terminologyId)">
 										<td>{{searchResult.terminologyId}}</a></td>
 										<td>{{searchResult.value}}</td>
 									</tr>
@@ -249,6 +249,12 @@
 								<span ng-show="showObsolete == true">Hide Obsolete</span> <span
 									ng-show="showObsolete != true">Show Obsolete</span>
 							</button>
+							<button ng-show="hasBooleanFieldTrue(component, 'atomElement')"
+								ng-click="toggleAtomElement()" class="btn btn-xs btn-primary">
+								<span ng-show="showAtomElement == true">Hide Atom
+									Elements</span> <span ng-show="showAtomElement != true">Show
+									Atom Elements</span>
+							</button>
 
 
 
@@ -268,9 +274,9 @@
 
 								<ul>
 									<li class="cr-list" ng-repeat="item in component.semanticType"
-										ng-show="showItem(item)"><span class="label label-info"
-										ng-show="item.suppressible == true">Suppressible</span> <span
-										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
+										ng-show="showItem(item)"><span class="label label-warning"
+										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span> <span
+										class="label label-default" ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
 										{{item.semanticType}}</li>
 								</ul>
 
@@ -279,24 +285,28 @@
 							<!--  Definitions -->
 							<div ng-show="type!='CODE' && component.definition.length > 0">
 								<h4>
-									Definitions ({{component.definition.length}})
-									<h4>
+									Definitions (<span
+										ng-show="component.definition.length != pagedDefinitions.totalCt">{{pagedDefinitions.totalCt}}
+										shown of </span>{{component.definition.length}}</span>)
+								</h4>
 
-										<pagination max-size="5" boundary-links="true"
-											class="pagination-sm" previous-text="&lsaquo;"
-											next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-											ng-show="component.description.length > pageSize"
-											total-items="component.description.length"
-											ng-model="descriptionsPage"
-											ng-change="pagedDescriptions = getPagedArray(component.description, descriptionPage, true, null)"></pagination>
+								<pagination max-size="5" boundary-links="true"
+									class="pagination-sm" previous-text="&lsaquo;"
+									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+									ng-show="pagedDescriptions.totalCt > pageSize"
+									total-items="pagedDescriptions.totalCt"
+									ng-model="descriptionsPage"
+									ng-change="getPagedDescriptions(descriptionsPage)"></pagination>
 
-										<ul>
-											<li class="cr-list" ng-repeat="item in component.definition"
-												ng-show="showItem(item)"><span class="label label-info"
-												ng-show="item.suppressible == true">Suppressible</span> <span
-												class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
-												{{item}}</li>
-										</ul>
+								<ul>
+									<li class="cr-list" ng-repeat="item in component.definition"
+										ng-show="showItem(item)"><span tooltip="Definition found on atom: {{item.atomElementStr}}"
+										class="label label-info" ng-show="item.atomElement == true">Atom</span>
+										<span class="label label-warning"
+										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span> <span
+										class="label label-default" ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
+										{{item.value}}</li>
+								</ul>
 							</div>
 
 							<!-- Atoms -->
@@ -316,9 +326,9 @@
 
 								<ul>
 									<li class="cr-list" ng-repeat="item in pagedAtoms"
-										ng-show="showItem(item)"><span class="label label-info"
-										ng-show="item.suppressible == true">Suppressible</span> <span
-										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
+										ng-show="showItem(item)"><span class="label label-warning"
+										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span> <span
+										class="label label-default" ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
 
 										<!--  Format:  name [terminology/termType] codeId componentId descriptorId conceptTerminologyIds
 											  NOTE: codeId, componentId, descriptorId automatically shown if of differing terminology, 
@@ -364,9 +374,9 @@
 
 								<ul>
 									<li class="cr-list" ng-repeat="item in component.attribute"
-										ng-show="showItem(item)"><span class="label label-info"
-										ng-show="item.suppressible == true">Suppressible</span> <span
-										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
+										ng-show="showItem(item)"><span class="label label-warning"
+										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span> <span
+										class="label label-default" ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
 										{{item.name}} = {{item.value}}
 								</ul>
 							</div>
@@ -382,15 +392,15 @@
 								<pagination max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-									ng-show="component.relationship.length > pageSize"
+									ng-show="pagedRelationships.totalCt > pageSize"
 									total-items="pagedRelationships.totalCt"
 									ng-model="relationshipsPage"
 									ng-change="getPagedRelationships(relationshipsPage)"></pagination>
 								<ul>
 									<li class="cr-list" ng-repeat="item in pagedRelationships"
-										ng-show="showItem(item)"><span class="label label-info"
-										ng-show="item.suppressible == true">Suppressible</span> <span
-										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
+										ng-show="showItem(item)"><span class="label label-warning"
+										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span> <span
+										class="label label-default" ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
 										{{item.relationshipType}} {{item.additionalRelationshipType}}
 										<a
 										ng-click="getComponent(component.terminology, item.toTerminologyId)"

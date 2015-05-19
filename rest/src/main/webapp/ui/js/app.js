@@ -44,9 +44,6 @@ tsApp
         // the displayed component
         $scope.component = null;
 
-        // whether to show suppressible/obsolete component elements
-        $scope.showSuppressible = true;
-        $scope.showObsolete = true;
         
         // basic scope variables
         $scope.userName = null;
@@ -400,6 +397,8 @@ tsApp
          * - terminologyObj:  the full terminology object from getTerminology()
          * - terminologyId:   the terminology id of the component
          * - typePrefix:      the url prefix denoting object type (cui/dui/code)
+         * 
+         * TODO:  Add definitions from all atoms to the top level component 
          */
         function getComponentHelper(terminologyObj, terminologyId, typePrefix) {
         	
@@ -437,6 +436,24 @@ tsApp
 	            // if local terminology matches passed terminology, attempt to set active row
 	            if ($scope.terminology === terminologyObj)
 	            	setActiveRow(terminologyId);
+	            
+	            // cycle over all atoms looking for definitions
+	            for (var i = 0; i < data.atom.length; i++) {
+	            	for (var j = 0; j < data.atom[i].definition.length; j++) {
+	            		var definition = data.atom[i].definition[j];
+	            		
+	            		// set the atom element flag
+	            		definition.atomElement = true;
+	            		
+	            		// add the atom information for tooltip display
+	            		// TODO: This is kind of clunky/hackish, consider further
+	            		// Format:  name [terminology/termType]			
+	            		definition.atomElementStr = data.atom[i].name + " [" + data.atom[i].terminology + "/" + data.atom[i].termType + "]";
+	            		
+	            		// add the definition to the top level component
+	            		data.definition.push(definition);
+	            	}
+	            }
 	            
 	            // set the component
 	            $scope.setComponent(data);
@@ -526,15 +543,17 @@ tsApp
           applyPaging();
         }
         
-        //////////////////////////////////////////
-        // Suppressible/Obsolete Functions
-        /////////////////////////////////////////
+        ///////////////////////////////
+        // Show/Hide List Elements
+        ///////////////////////////////
         
-        // default: show all
-        $scope.showObsolete = true;
+        // variables for showing/hiding elements based on boolean fields
         $scope.showSuppressible = true;
+        $scope.showObsolete = true;
+        $scope.showAtomElement = true;
+
         
-        /** Determine if an item has obsolete elements
+        /** Determine if an item has boolean fields set to true
          *  in its child arrays
          */
         $scope.hasBooleanFieldTrue = function(object, fieldToCheck) {
@@ -573,31 +592,30 @@ tsApp
         	return false;
         }
         
-        ///////////////////////////////
-        // Show/Hide List Elements
-        ///////////////////////////////
+      
         
         /**
          * Helper function to determine whether an item
          * should be shown based on obsolete/suppressed
-         * 
-         * Array:  The containing array, with showSuppressible/showObsolete flag set
-         * e.g. component.atom
-         * 
-         * Item:  The item in the containing array being evaluated
          */
         $scope.showItem = function(item) {
         
+        	// trigger on suppressible (model data)
         	if ($scope.showSuppressible == false && item.suppressible == true)
     			return false;
     		
+        	// trigger on obsolete (model data)
     		if ($scope.showObsolete == false && item.obsolete == true)
+    			return false;
+    		
+    		// trigger on applied showAtomElement flag
+    		if ($scope.showAtomElement == false && item.atomElement == true)
     			return false;
     		
     		return true;
     	}
         
-        /** Functions to flip (and/or initialize) a toggle variable */
+        /** Function to toggle obsolete flag and apply paging */
         $scope.toggleObsolete= function() {
         	if ($scope.showObsolete == null || $scope.showObsolete == undefined) {
         		$scope.showObsolete = false;
@@ -609,11 +627,23 @@ tsApp
         	
         }
         
+        /** Function to toggle suppressible flag and apply paging */
         $scope.toggleSuppressible= function() {
         	if ($scope.showSuppressible == null || $scope.showSuppressible == undefined) {
         		$scope.showSuppressible = false;
         	} else {
         		$scope.showSuppressible = !$scope.showSuppressible;
+        	}
+        	
+        	applyPaging();
+        }
+        
+        /** Function to toggle atom element flag and apply paging */    
+        $scope.toggleAtomElement= function() {
+        	if ($scope.showAtomElement == null || $scope.showAtomElement == undefined) {
+        		$scope.showAtomElement = false;
+        	} else {
+        		$scope.showAtomElement = !$scope.showAtomElement;
         	}
         	
         	applyPaging();
@@ -646,8 +676,7 @@ tsApp
           };
         }
         
-        /** 
-         * Helper function to get the proper html prefix based on class type  */
+        /**  Helper function to get the proper html prefix based on class type  */
         function getUrlPrefix(classType) {
         	
         	switch(classType) {
@@ -660,8 +689,16 @@ tsApp
         	default:
         		return 'prefixErrorDetected';
         	}
-        	
-         
+
+        }
+           
+        /** Helper function to get properties for ng-repeat */
+        function convertObjectToJsonArray() {
+        	var newArray = new Array();
+        	for (var prop in object) {
+        		var obj = { key:prop, value:object[prop]};
+        		newArray.push(obj);
+        	}
         }
         
         //////////////////////////////////////
@@ -773,34 +810,47 @@ tsApp
         // apply paging to all elements
         function applyPaging() {
         	
+        	// call each get function without paging (use current paging info)
         	$scope.getPagedAtoms();
         	$scope.getPagedRelationships();
+        	$scope.getPagedDefinitions();
         	
         	// TODO add others
         }
         
-        // functions to page individual elements
+        /**
+         * Functions to page individual elements
+         */ 
         $scope.getPagedAtoms = function(page) {
         	
         	// set the page if supplied, otherwise use the current value
-        	if (page) $scope.atomPage = page;
+        	if (page) $scope.atomsPage = page;
         	
         	// get the paged array, with flags and filter (TODO: Support filtering)
-        	$scope.pagedAtoms = $scope.getPagedArray($scope.component.atom, $scope.atomPage, true, null);
+        	$scope.pagedAtoms = $scope.getPagedArray($scope.component.atom, $scope.atomsPage, true, null);
         }
         
         $scope.getPagedRelationships = function(page) {
         	
         	// set the page if supplied, otherwise use the current value
-        	if (page) $scope.relationshipPage = page;
+        	if (page) $scope.relationshipsPage = page;
         	
         	// get the paged array, with flags and filter (TODO: Support filtering)
-        	$scope.pagedRelationships = $scope.getPagedArray($scope.component.relationship, $scope.relationshipPage, true, null);
+        	$scope.pagedRelationships = $scope.getPagedArray($scope.component.relationship, $scope.relationshipsPage, true, null);
         }
         
-        // TODO add other paging functions
+        $scope.getPagedDefinitions = function(page) {
+        	
+        	// set the page if supplied, otherwise use the current value
+        	if (page) $scope.definitionsPage = page;
+        	
+        	// get the paged array, with flags and filter (TODO: Support filtering)
+        	$scope.pagedDefinitions = $scope.getPagedArray($scope.component.definition, $scope.definitionsPage, true, null);
+        }
         
-        // get a paged array with show/hide flags (ENABLED) and filtered by query string (NOT ENABLED)
+        /**
+         * Get a paged array with show/hide flags (ENABLED) and filtered by query string (NOT ENABLED)
+         */
         $scope.getPagedArray = function(array, page, applyFlags, filterStr) {
         		
         	var newArray = new Array();
@@ -840,7 +890,7 @@ tsApp
         	return results;
         }
         
-        /** Get array with suppressed/obsolete flags applied */
+        /** Filter array by show/hide flags */
         function getArrayByFlags(array) {
         	
         	var newArray = new Array();
@@ -849,7 +899,7 @@ tsApp
         	if (array == null || array == undefined || Array.isArray(array) == false)
         		return newArray;
         	
-        	// apply obsolete and suppressible flags
+        	// apply show/hide flags via showItem() function
         	for (var i = 0; i < array.length; i++) {
         		if ($scope.showItem(array[i]) == true) {
         			newArray.push(array[i]);
@@ -863,19 +913,13 @@ tsApp
         function getArrayByFilterText(array, filter) {
         	var newArray = array;
         	
+        	// TODO
+        	
         	return newArray;
         	
-        	// TODO
+        	
         }
-        
-        /** Helper function to get properties for ng-repeat */
-        function convertObjectToJsonArray() {
-        	var newArray = new Array();
-        	for (var prop in object) {
-        		var obj = { key:prop, value:object[prop]};
-        		newArray.push(obj);
-        	}
-        }
+    
        
 
       } ]);
