@@ -91,7 +91,7 @@ public interface PfsParameter {
    *
    * @param ascending the ascending
    */
-  public void setAscending(boolean ascending);
+  public void setAscending(boolean ascending);  
   
   /**
    * Returns the branch.

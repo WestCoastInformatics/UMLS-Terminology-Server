@@ -103,7 +103,6 @@ public interface ContentService extends RootService {
    */
   public Subset getSubset(Long id) throws Exception;
 
-
   /**
    * Returns the subset.
    *
@@ -196,10 +195,50 @@ public interface ContentService extends RootService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param pfs the pfs
    * @return the relationships for concept
    */
-  public RelationshipList getRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch);
+  public RelationshipList findRelationshipsForConcept(String conceptId,
+    String terminology, String version, String branch, PfsParameter pfs);
+
+  /**
+   * Returns the relationships for descriptor.
+   *
+   * @param descriptorId the descriptor id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param pfs the pfs
+   * @return the relationships for descriptor
+   */
+  public RelationshipList findRelationshipsForDescriptor(String descriptorId,
+    String terminology, String version, String branch, PfsParameter pfs);
+
+  /**
+   * Returns the relationships for code.
+   *
+   * @param codeId the code id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param pfs the pfs
+   * @return the relationships for code
+   */
+  public RelationshipList findRelationshipsForCode(String codeId,
+    String terminology, String version, String branch, PfsParameter pfs);
+
+  /**
+   * Returns the relationships for atom.
+   *
+   * @param conceptId the concept id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param pfs the pfs
+   * @return the relationships for atom
+   */
+  public RelationshipList findRelationshipsForAtom(String conceptId,
+    String terminology, String version, String branch, PfsParameter pfs);
 
   /**
    * Returns the descriptor.
@@ -478,120 +517,167 @@ public interface ContentService extends RootService {
   /**
    * Find descendant concepts.
    *
-   * @param concept the concept
-   * @param parentsOnly the parents only flag
-   * @param pfsParameter the pfs parameter
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param childrenOnly the parents only flag
    * @param branch the branch
+   * @param pfs the pfs parameter
    * @return the concept list
    * @throws Exception the exception
    */
-  public ConceptList findDescendantConcepts(Concept concept,
-    boolean parentsOnly, PfsParameter pfsParameter, String branch)
-    throws Exception;
+  public ConceptList findDescendantConcepts(String terminologyId,
+    String terminology, String version, boolean childrenOnly, String branch,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find ancestor concepts.
    *
-   * @param concept the concept
-   * @param childrenOnly the children only flag
-   * @param pfsParameter the pfs parameter
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param parentsOnly the children only flag
    * @param branch the branch
+   * @param pfs the pfs parameter
    * @return the concept list
    * @throws Exception the exception
    */
-  public ConceptList findAncestorConcepts(Concept concept,
-    boolean childrenOnly, PfsParameter pfsParameter, String branch)
-    throws Exception;
+  public ConceptList findAncestorConcepts(String terminologyId,
+    String terminology, String version, boolean parentsOnly, String branch,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find concept tree positions.
    *
-   * @param concept the concept
-   * @param pfsParameter the pfs parameter
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs parameter
    * @param branch the branch
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findConceptTreePositions(Concept concept,
-    PfsParameter pfsParameter, String branch) throws Exception;
+  public TreePositionList findTreePositionsForConcept(String terminologyId,
+    String terminology, String version, PfsParameter pfs, String branch)
+    throws Exception;
+
+  /**
+   * Find tree positions for descriptor.
+   *
+   * @param descriptorId the descriptor id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs parameter
+   * @param branch the branch
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findTreePositionsForDescriptor(String descriptorId,
+    String terminology, String version, PfsParameter pfs, String branch)
+    throws Exception;
+
+  /**
+   * Find tree positions for code.
+   *
+   * @param codeId the code id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs parameter
+   * @param branch the branch
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findTreePositionsForCode(String codeId,
+    String terminology, String version, PfsParameter pfs, String branch)
+    throws Exception;
 
   /**
    * Find descendant descriptors.
    *
-   * @param descriptor the descriptor
-   * @param parentsOnly the parents only
-   * @param pfsParameter the pfs parameter
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param childrenOnly the parents only
    * @param branch the branch
+   * @param pfs the pfs parameter
    * @return the descriptor list
    * @throws Exception the exception
    */
-  public DescriptorList findDescendantDescriptors(Descriptor descriptor,
-    boolean parentsOnly, PfsParameter pfsParameter, String branch)
-    throws Exception;
+  public DescriptorList findDescendantDescriptors(String terminologyId,
+    String terminology, String version, boolean childrenOnly, String branch,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find ancestor concepts.
    *
-   * @param descriptor the descriptor
-   * @param childrenOnly the children only
-   * @param pfsParameter the pfs parameter
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param parentsOnly the children only
    * @param branch the branch
+   * @param pfs the pfs parameter
    * @return the descriptor list
    * @throws Exception the exception
    */
-  public DescriptorList findAncestorDescriptors(Descriptor descriptor,
-    boolean childrenOnly, PfsParameter pfsParameter, String branch)
-    throws Exception;
+  public DescriptorList findAncestorDescriptors(String terminologyId,
+    String terminology, String version, boolean parentsOnly, String branch,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find descriptor tree positions.
    *
    * @param descriptor the descriptor
-   * @param pfsParameter the pfs parameter
    * @param branch the branch
+   * @param pfs the pfs parameter
    * @return the tree position list
    * @throws Exception the exception
    */
   public TreePositionList findDescriptorTreePositions(Descriptor descriptor,
-    PfsParameter pfsParameter, String branch) throws Exception;
+    String branch, PfsParameter pfs) throws Exception;
 
   /**
    * Find descendant descriptors.
    *
-   * @param code the code
-   * @param parentsOnly the parents only
-   * @param pfsParameter the pfs parameter
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param childrenOnly the parents only
    * @param branch the branch
+   * @param pfs the pfs parameter
    * @return the code list
    * @throws Exception the exception
    */
-  public CodeList findDescendantCodes(Code code, boolean parentsOnly,
-    PfsParameter pfsParameter, String branch) throws Exception;
+  public CodeList findDescendantCodes(String terminologyId, String terminology,
+    String version, boolean childrenOnly, String branch, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find ancestor concepts.
    *
-   * @param code the code
-   * @param childrenOnly the children only
-   * @param pfsParameter the pfs parameter
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param parentsOnly the children only
    * @param branch the branch
+   * @param pfs the pfs parameter
    * @return the code list
    * @throws Exception the exception
    */
-  public CodeList findAncestorCodes(Code code, boolean childrenOnly,
-    PfsParameter pfsParameter, String branch) throws Exception;
+  public CodeList findAncestorCodes(String terminologyId, String terminology,
+    String version, boolean parentsOnly, String branch, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find code tree positions.
    *
    * @param code the code
-   * @param pfsParameter the pfs parameter
+   * @param pfs the pfs parameter
    * @param branch the branch
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findCodeTreePositions(Code code,
-    PfsParameter pfsParameter, String branch) throws Exception;
+  public TreePositionList findCodeTreePositions(Code code, String branch, PfsParameter pfs
+    ) throws Exception;
 
   /**
    * Returns the atom.
@@ -844,36 +930,6 @@ public interface ContentService extends RootService {
    */
   public StringList autocompleteCodes(String terminology, String version,
     String searchTerm) throws Exception;
-
-  /**
-   * Find lexical classes for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
-  public SearchResultList findLexicalClassesForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Find string classes for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
-  public SearchResultList findStringClassesForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception;
 
   /**
    * Gets the all concepts.
