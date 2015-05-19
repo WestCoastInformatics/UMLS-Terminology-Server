@@ -327,6 +327,7 @@ tsApp
         
         /**
          * Function to get a component of the terminology's organizing class type.
+         * TODO:  Get rid of this and have conceptTErminologyIds retrieved by getConcept
          */
         $scope.getComponent = function(terminologyName, terminologyId) {
         	
