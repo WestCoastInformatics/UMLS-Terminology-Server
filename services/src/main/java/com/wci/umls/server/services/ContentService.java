@@ -932,36 +932,6 @@ public interface ContentService extends RootService {
     String searchTerm) throws Exception;
 
   /**
-   * Find lexical classes for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
-  public SearchResultList findLexicalClassesForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Find string classes for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
-  public SearchResultList findStringClassesForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception;
-
-  /**
    * Gets the all concepts.
    *
    * @param terminology the terminology

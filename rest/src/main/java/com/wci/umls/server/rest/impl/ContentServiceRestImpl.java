@@ -109,7 +109,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   throws Exception {
     Logger.getLogger(getClass()).info("test");
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (ContentChange): /reindex "
+        "RESTful POST call (Content): /reindex "
             + (indexedObjects == null ? "with no objects specified"
                 : "with specified objects " + indexedObjects));
 
@@ -155,7 +155,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (ContentChange): /terminology/closure/compute/"
+        "RESTful POST call (Content): /terminology/closure/compute/"
             + terminology + "/" + version);
 
     // Track system level information
@@ -210,7 +210,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (ContentChange): /terminology/treepos/compute/"
+        "RESTful POST call (Content): /terminology/treepos/compute/"
             + terminology + "/" + version);
 
     // Track system level information
@@ -256,9 +256,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/terminology/load/rrf/{singleMode}/{terminology}/{version}")
-  @Consumes({
-    MediaType.TEXT_PLAIN
-  })
+  @Consumes(MediaType.TEXT_PLAIN)
   @ApiOperation(value = "Load all terminologies from an RRF directory", notes = "Loads terminologies from an RRF directory for specified terminology and version")
   public void loadTerminologyRrf(
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
@@ -270,7 +268,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass())
         .info(
-            "RESTful POST call (ContentChange): /terminology/load/rrf/umls/"
+            "RESTful POST call (Content): /terminology/load/rrf/umls/"
                 + terminology + "/" + version + " from input directory "
                 + inputDir);
 
@@ -377,9 +375,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/terminology/load/rf2/delta/{terminology}")
-  @Consumes({
-    MediaType.TEXT_PLAIN
-  })
+  @Consumes(MediaType.TEXT_PLAIN)
   @ApiOperation(value = "Loads terminology RF2 delta from directory", notes = "Loads terminology RF2 delta from directory for specified terminology and version")
   public void loadTerminologyRf2Delta(
     @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
@@ -388,7 +384,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (ContentChange): /terminology/load/rf2/delta/"
+        "RESTful POST call (Content): /terminology/load/rf2/delta/"
             + terminology + " from input directory " + inputDir);
 
     // Track system level information
@@ -487,7 +483,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass())
         .info(
-            "RESTful POST call (ContentChange): /terminology/load/rf2/snapshot/"
+            "RESTful POST call (Content): /terminology/load/rf2/snapshot/"
                 + terminology + "/" + version + " from input directory "
                 + inputDir);
 
@@ -578,8 +574,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (ContentChange): /terminology/load/claml/"
-            + terminology + "/" + version + " from input file " + inputFile);
+        "RESTful POST call (Content): /terminology/load/claml/" + terminology
+            + "/" + version + " from input file " + inputFile);
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
@@ -637,8 +633,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (ContentChange): /terminology/remove/" + terminology
-            + "/" + version);
+        "RESTful POST call (Content): /terminology/remove/" + terminology + "/"
+            + version);
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
@@ -1112,49 +1108,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findLexicalClasssForQuery (java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
-  @Override
-  @POST
-  @Path("/lui/{terminology}/{version}/query/{query}")
-  @ApiOperation(value = "Find lexical class matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
-  public SearchResultList findLexicalClassesForQuery(
-    @ApiParam(value = "Lexical class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Lexical class terminology version, e.g. latest", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
-    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /lui/" + terminology + "/" + version
-            + "/query/" + query + " with PFS parameter "
-            + (pfs == null ? "empty" : pfs.toString()));
-    ContentService contentService = new ContentServiceJpa();
-    try {
-      authenticate(securityService, authToken, "find lexical class by query",
-          UserRole.VIEWER);
-
-      SearchResultList sr =
-          contentService.findLexicalClassesForQuery(terminology, version,
-              Branch.ROOT, query, pfs);
-      return sr;
-
-    } catch (Exception e) {
-      handleException(e, "trying to find the lexicalClasses by query");
-      return null;
-    } finally {
-      contentService.close();
-      securityService.close();
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
    * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getStringClass
    * (java.lang .String, java.lang.String, java.lang.String, java.lang.String)
@@ -1203,49 +1156,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findStringClasssForQuery (java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
-  @Override
-  @POST
-  @Path("/sui/{terminology}/{version}/query/{query}")
-  @ApiOperation(value = "Find string class matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
-  public SearchResultList findStringClassesForQuery(
-    @ApiParam(value = "String class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "String class terminology version, e.g. latest", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
-    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /sui/" + terminology + "/" + version
-            + "/query/" + query + " with PFS parameter "
-            + (pfs == null ? "empty" : pfs.toString()));
-    ContentService contentService = new ContentServiceJpa();
-    try {
-      authenticate(securityService, authToken, "find string class by query",
-          UserRole.VIEWER);
-
-      SearchResultList sr =
-          contentService.findStringClassesForQuery(terminology, version,
-              Branch.ROOT, query, pfs);
-      return sr;
-
-    } catch (Exception e) {
-      handleException(e, "trying to find the stringClasses by query");
-      return null;
-    } finally {
-      contentService.close();
-      securityService.close();
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
    * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorConcepts
    * (java.lang.String, java.lang.String, java.lang.String, boolean,
@@ -1266,7 +1176,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version
-            + terminologyId + " with PFS parameter "
+            + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1308,7 +1218,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version
-            + terminologyId + " with PFS parameter "
+            + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1350,7 +1260,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version
-            + terminologyId + " with PFS parameter "
+            + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1392,7 +1302,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version
-            + terminologyId + " with PFS parameter "
+            + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1434,7 +1344,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version
-            + terminologyId + " with PFS parameter "
+            + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1476,7 +1386,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version
-            + terminologyId + " with PFS parameter "
+            + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1514,8 +1424,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /csm/" + terminology + "/" + version + "/"
-            + terminologyId);
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+            + terminologyId + "/members");
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
@@ -1560,8 +1470,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /asm/" + terminology + "/" + version + "/"
-            + terminologyId);
+        "RESTful call (Content): /aui/" + terminology + "/" + version + "/"
+            + terminologyId + "/members");
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
@@ -1599,8 +1509,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /rel/" + terminology + "/" + version + "/"
-            + terminologyId);
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+            + terminologyId + "/relationships");
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
@@ -1632,8 +1542,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /rel/" + terminology + "/" + version + "/"
-            + terminologyId);
+        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+            + terminologyId + "/relationships");
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
@@ -1665,8 +1575,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /rel/" + terminology + "/" + version + "/"
-            + terminologyId);
+        "RESTful call (Content): /code/" + terminology + "/" + version + "/"
+            + terminologyId + "/relationships");
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
@@ -1696,7 +1606,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /as/" + terminology + "/" + version);
+        "RESTful call (Content): /aui/" + terminology + "/" + version
+            + "/subsets");
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "retrieve atom subsets",
@@ -1728,7 +1639,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cs/" + terminology + "/" + version);
+        "RESTful call (Content): /cui/" + terminology + "/" + version
+            + "/subsets");
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "retrieve concept subsets",
@@ -1749,12 +1661,37 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findRelationshipsForAtom(java.lang.String, java.lang.String,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
+   */
   @Override
   public RelationshipList findRelationshipsForAtom(String terminologyId,
     String terminology, String version, PfsParameterJpa pfs, String authToken)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Atom): /aui/" + terminology + "/" + version + "/"
+            + terminologyId + "/relationships");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve relationships for the atom", UserRole.VIEWER);
+
+      return contentService.findRelationshipsForAtom(terminologyId,
+          terminology, version, Branch.ROOT, pfs);
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve relationships for a atom");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
   }
 
   @SuppressWarnings("unused")
@@ -1771,16 +1708,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /rel/" + terminology + "/" + version + "/"
-            + terminologyId);
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+            + terminologyId + "/trees");
     ContentService contentService = new ContentServiceJpa();
     try {
-      authenticate(securityService, authToken, "retrieve trees for the concept ",
-          UserRole.VIEWER);
+      authenticate(securityService, authToken,
+          "retrieve trees for the concept ", UserRole.VIEWER);
 
       TreePositionList list =
-          contentService.findTreePositionsForConcept(terminologyId, terminology,
-              version, pfs, Branch.ROOT);
+          contentService.findTreePositionsForConcept(terminologyId,
+              terminology, version, pfs, Branch.ROOT);
       // TODO: do something to form a tree
       return null;
 
@@ -1808,16 +1745,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /rel/" + terminology + "/" + version + "/"
-            + terminologyId);
+        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+            + terminologyId + "/trees");
     ContentService contentService = new ContentServiceJpa();
     try {
-      authenticate(securityService, authToken, "retrieve trees for the descriptor ",
-          UserRole.VIEWER);
+      authenticate(securityService, authToken,
+          "retrieve trees for the descriptor ", UserRole.VIEWER);
 
       TreePositionList list =
-          contentService.findTreePositionsForDescriptor(terminologyId, terminology,
-              version, pfs, Branch.ROOT);
+          contentService.findTreePositionsForDescriptor(terminologyId,
+              terminology, version, pfs, Branch.ROOT);
       // TODO: do something to form a tree
       return null;
 
@@ -1845,8 +1782,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /rel/" + terminology + "/" + version + "/"
-            + terminologyId);
+        "RESTful call (Content): /code/" + terminology + "/" + version + "/"
+            + terminologyId + "/trees");
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "retrieve trees for the code",

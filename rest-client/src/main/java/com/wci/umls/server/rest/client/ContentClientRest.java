@@ -590,48 +590,6 @@ public class ContentClientRest implements ContentServiceRest {
     return lexicalClass;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findLexicalClassesForQuery(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
-  @Override
-  public SearchResultList findLexicalClassesForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find lexical classes " + terminology + ", " + version
-            + ", " + query + ", " + pfs);
-
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/lui/"
-            + terminology + "/" + version + "/query/" + query);
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .post(ClientResponse.class, pfsString);
-
-    String resultString = response.getEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    SearchResultListJpa list =
-        (SearchResultListJpa) ConfigUtility.getGraphForString(resultString,
-            SearchResultListJpa.class);
-    return list;
-  }
 
   /*
    * (non-Javadoc)
@@ -666,49 +624,6 @@ public class ContentClientRest implements ContentServiceRest {
         (StringClassJpa) ConfigUtility.getGraphForString(resultString,
             StringClassJpa.class);
     return stringClass;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findStringClassesForQuery(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
-  @Override
-  public SearchResultList findStringClassesForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find string classes " + terminology + ", " + version
-            + ", " + query + ", " + pfs);
-
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/sui/"
-            + terminology + "/" + version + "/query/" + query);
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .post(ClientResponse.class, pfsString);
-
-    String resultString = response.getEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    SearchResultListJpa list =
-        (SearchResultListJpa) ConfigUtility.getGraphForString(resultString,
-            SearchResultListJpa.class);
-    return list;
   }
 
   /*

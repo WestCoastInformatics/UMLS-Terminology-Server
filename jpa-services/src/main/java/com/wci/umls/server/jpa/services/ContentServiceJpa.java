@@ -227,11 +227,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /** The code field names. */
   private static String[] codeFieldNames = {};
 
-  /** The lexical class field names. */
-  private static String[] lexicalClassFieldNames = {};
-
-  /** The string class field names. */
-  private static String[] stringClassFieldNames = {};
   static {
 
     try {
@@ -244,12 +239,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       codeFieldNames =
           IndexUtility.getIndexedStringFieldNames(CodeJpa.class).toArray(
               new String[] {});
-      lexicalClassFieldNames =
-          IndexUtility.getIndexedStringFieldNames(LexicalClassJpa.class)
-              .toArray(new String[] {});
-      stringClassFieldNames =
-          IndexUtility.getIndexedStringFieldNames(StringClassJpa.class)
-              .toArray(new String[] {});
     } catch (Exception e) {
       e.printStackTrace();
       conceptFieldNames = null;
@@ -3306,45 +3295,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + ", " + searchTerm);
     return autocompleteHelper(terminology, version, searchTerm, CodeJpa.class);
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findLexicalClassesForQuery(
-   * java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
-  @Override
-  public SearchResultList findLexicalClassesForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Content Service - find lexical classes " + terminology + "/" + version
-            + "/" + query);
-    return findForQueryHelper(terminology, version, branch, query, pfs,
-        lexicalClassFieldNames, LexicalClassJpa.class);
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findStringClassesForQuery(java
-   * .lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
-  @Override
-  public SearchResultList findStringClassesForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Content Service - find string classes " + terminology + "/" + version
-            + "/" + query);
-    return findForQueryHelper(terminology, version, branch, query, pfs,
-        stringClassFieldNames, StringClassJpa.class);
-  }
-
+ 
   /*
    * (non-Javadoc)
    * 

@@ -345,21 +345,6 @@ public interface ContentServiceRest {
     String version, String authToken) throws Exception;
 
   /**
-   * Find lexical classes for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the search result list
-   * @throws Exception the exception
-   */
-  public SearchResultList findLexicalClassesForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception;
-
-  /**
    * Returns the string class.
    *
    * @param terminologyId the terminology id
@@ -371,21 +356,6 @@ public interface ContentServiceRest {
    */
   public StringClass getStringClass(String terminologyId, String terminology,
     String version, String authToken) throws Exception;
-
-  /**
-   * Find string classes for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the search result list
-   * @throws Exception the exception
-   */
-  public SearchResultList findStringClassesForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception;
 
   /**
    * Recomputes lucene indexes for the specified objects as a comma-separated
