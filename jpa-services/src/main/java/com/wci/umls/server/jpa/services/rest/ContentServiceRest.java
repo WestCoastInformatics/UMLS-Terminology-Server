@@ -463,19 +463,6 @@ public interface ContentServiceRest {
     throws Exception;
 
   /**
-   * Autocomplete concept query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param authToken the auth token
-   * @return the string list
-   * @throws Exception the exception
-   */
-  public StringList autocompleteConceptQuery(String terminology,
-    String version, String query, String authToken) throws Exception;
-
-  /**
    * Gets the atom subsets.
    *
    * @param terminology the terminology

@@ -1358,38 +1358,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  @Override
-  @POST
-  @Consumes(MediaType.TEXT_PLAIN)
-  @Path("/cui/autocomplete/{terminology}/{version}")
-  public StringList autocompleteConceptQuery(
-    @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Search term to check, e.g. 'sulf'", required = true) String searchTerm,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/autocomplete" + terminology + "/"
-            + version + "/" + searchTerm);
-
-    ContentService contentService = new ContentServiceJpa();
-
-    try {
-      authenticate(securityService, authToken,
-          "autocompleting a concept query", UserRole.VIEWER);
-
-      StringList strings =
-          contentService.autocompleteConcepts(terminology, version, searchTerm);
-      return strings;
-    } catch (Exception e) {
-      handleException(e, "autocompleting a concept query");
-      return null;
-    } finally {
-      contentService.close();
-      securityService.close();
-    }
-  }
-
   /*
    * (non-Javadoc)
    * 
