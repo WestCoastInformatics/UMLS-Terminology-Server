@@ -90,12 +90,14 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
 
       // Relationships
-      for (ConceptRelationship rel : concept.getRelationships()) {
-        if (nullId) {
-          rel.setId(null);
-        }
-        resolve(rel);
-      }
+//      for (ConceptRelationship rel : concept.getRelationships()) {
+//        if (nullId) {
+//          rel.setId(null);
+//        }
+//        resolve(rel);
+//      }
+      // skip rels
+      concept.setRelationships(new ArrayList<ConceptRelationship>());
 
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");

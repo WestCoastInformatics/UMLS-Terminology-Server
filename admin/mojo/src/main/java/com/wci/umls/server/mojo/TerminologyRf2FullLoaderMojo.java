@@ -66,6 +66,7 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
    * 
    * @see org.apache.maven.plugin.Mojo#execute()
    */
+  @SuppressWarnings("unused")
   @Override
   public void execute() throws MojoFailureException {
 
@@ -104,16 +105,17 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
         getLog().info("Running directly");
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService.loadTerminologyRf2Full(terminology, version, inputDir,
-            authToken);
+        // TODO:
+        //contentService.loadTerminologyRf2Full(terminology, version, inputDir,
+          //  authToken);
 
       } else {
         getLog().info("Running against server");
 
         // invoke the client
         ContentClientRest client = new ContentClientRest(properties);
-        client
-            .loadTerminologyRf2Full(terminology, version, inputDir, authToken);
+        //client
+          //  .loadTerminologyRf2Full(terminology, version, inputDir, authToken);
       }
 
     } catch (Exception e) {

@@ -6,7 +6,6 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -75,14 +74,14 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
-   * @param childrenOnly the children only
+   * @param parentsOnly the children only
    * @param pfsParameter the pfs parameter
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
   public ConceptList findAncestorConcepts(String terminologyId,
-    String terminology, String version, boolean childrenOnly,
+    String terminology, String version, boolean parentsOnly,
     PfsParameterJpa pfsParameter, String authToken) throws Exception;
 
   /**
@@ -91,14 +90,14 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
-   * @param parentsOnly the parents only
+   * @param childrenOnly the children only
    * @param pfsParameter the pfs parameter
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
   public ConceptList findDescendantConcepts(String terminologyId,
-    String terminology, String version, boolean parentsOnly,
+    String terminology, String version, boolean childrenOnly,
     PfsParameterJpa pfsParameter, String authToken) throws Exception;
 
   /**
@@ -117,41 +116,88 @@ public interface ContentServiceRest {
   /**
    * Gets the subset member for atom.
    *
-   * @param atomId the atom id
+   * @param terminologyId the atom id
    * @param terminology the terminology
    * @param version the version
    * @param authToken the auth token
    * @return the subset members for atom
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembersForAtom(String atomId,
+  public SubsetMemberList getSubsetMembersForAtom(String terminologyId,
     String terminology, String version, String authToken) throws Exception;
 
   /**
    * Gets the subset member for concept.
    *
-   * @param conceptId the concept id
+   * @param terminologyId the concept id
    * @param terminology the terminology
    * @param version the version
    * @param authToken the auth token
    * @return the subset members for concept
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembersForConcept(String conceptId,
+  public SubsetMemberList getSubsetMembersForConcept(String terminologyId,
     String terminology, String version, String authToken) throws Exception;
 
   /**
    * Gets the relationships for concept.
    *
-   * @param conceptId the concept id
+   * @param terminologyId the concept id
    * @param terminology the terminology
    * @param version the version
+   * @param pfs the pfs
    * @param authToken the auth token
    * @return the relationships for concept
    * @throws Exception the exception
    */
-  public RelationshipList getRelationshipsForConcept(String conceptId,
-    String terminology, String version, String authToken) throws Exception;
+  public RelationshipList findRelationshipsForConcept(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the relationships for atom.
+   *
+   * @param terminologyId the atom id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationships for atom
+   * @throws Exception the exception
+   */
+  public RelationshipList findRelationshipsForAtom(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the relationships for descriptor.
+   *
+   * @param terminologyId the descriptor id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationships for descriptor
+   * @throws Exception the exception
+   */
+  public RelationshipList findRelationshipsForDescriptor(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the relationships for code.
+   *
+   * @param terminologyId the code id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationships for code
+   * @throws Exception the exception
+   */
+  public RelationshipList findRelationshipsForCode(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception;
 
   /**
    * Find descriptorss for query.
@@ -187,14 +233,14 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
-   * @param childrenOnly the children only
+   * @param parentsOnly the parents only
    * @param pfsParameter the pfs parameter
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
   public DescriptorList findAncestorDescriptors(String terminologyId,
-    String terminology, String version, boolean childrenOnly,
+    String terminology, String version, boolean parentsOnly,
     PfsParameterJpa pfsParameter, String authToken) throws Exception;
 
   /**
@@ -203,14 +249,14 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
-   * @param parentsOnly the parents only
+   * @param childrenOnly the children only
    * @param pfsParameter the pfs parameter
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
   public DescriptorList findDescendantDescriptors(String terminologyId,
-    String terminology, String version, boolean parentsOnly,
+    String terminology, String version, boolean childrenOnly,
     PfsParameterJpa pfsParameter, String authToken) throws Exception;
 
   /**
@@ -259,14 +305,14 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
-   * @param childrenOnly the children only
+   * @param parentsOnly the children only
    * @param pfsParameter the pfs parameter
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
   public CodeList findAncestorCodes(String terminologyId, String terminology,
-    String version, boolean childrenOnly, PfsParameterJpa pfsParameter,
+    String version, boolean parentsOnly, PfsParameterJpa pfsParameter,
     String authToken) throws Exception;
 
   /**
@@ -275,14 +321,14 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
-   * @param parentsOnly the parents only
+   * @param childrenOnly the children only
    * @param pfsParameter the pfs parameter
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
   public CodeList findDescendantCodes(String terminologyId, String terminology,
-    String version, boolean parentsOnly, PfsParameterJpa pfsParameter,
+    String version, boolean childrenOnly, PfsParameterJpa pfsParameter,
     String authToken) throws Exception;
 
   /**
@@ -400,18 +446,6 @@ public interface ContentServiceRest {
     String inputDir, String authToken) throws Exception;
 
   /**
-   * Load terminology full from RF2 directory.
-   *
-   * @param terminology the terminology
-   * @param version the terminology version
-   * @param inputDir the input dir
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
-  public void loadTerminologyRf2Full(String terminology, String version,
-    String inputDir, String authToken) throws Exception;
-
-  /**
    * Load terminology delta from RF2 directory.
    *
    * @param terminology the terminology
@@ -446,34 +480,47 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
-   * Gets the tree positions for a concept/code/descriptor given search
-   * criteria.
+   * Returns the tree positions for concept.
    *
+   * @param terminologyId the terminology id
    * @param terminology the terminology
-   * @param version the terminology version
-   * @param query the query the lexical search query string
-   * @param searchCriteria the search criteria containing semantic search
-   *          information
+   * @param version the version
+   * @param pfs the pfs
    * @param authToken the auth token
-   * @return the tree positions for query and search criteria
+   * @return the tree positions for concept
    * @throws Exception the exception
    */
-  public TreeList getTreePositionsForQuery(String terminology, String version,
-    String query, SearchCriteria searchCriteria, String authToken)
+  public TreeList findTreesForConcept(String terminologyId, String terminology,
+    String version, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Returns the tree positions for descriptor.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree positions for descriptor
+   * @throws Exception the exception
+   */
+  public TreeList findTreesForDescriptor(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
     throws Exception;
 
   /**
-   * Autocomplete concept query.
+   * Returns the tree positions for code.
    *
+   * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
-   * @param query the query
+   * @param pfs the pfs
    * @param authToken the auth token
-   * @return the string list
+   * @return the tree positions for code
    * @throws Exception the exception
    */
-  public StringList autocompleteConceptQuery(String terminology,
-    String version, String query, String authToken) throws Exception;
+  public TreeList findTreesForCode(String terminologyId, String terminology,
+    String version, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Gets the atom subsets.
