@@ -203,7 +203,7 @@
 									<tr ng-repeat="searchResult in pagedSearchResults"
 										ng-click="getComponent(terminology.terminology, searchResult.terminologyId)">
 										<td>{{searchResult.terminologyId}}</a></td>
-										<td>{{searchResult.value}}</td>
+										<td style="word-wrap: break-word;">{{searchResult.value}}</td>
 									</tr>
 								</tbody>
 							</table>
@@ -229,14 +229,14 @@
 									ng-show="conceptHistoryIndex > 0"
 									tooltip="{{getPreviousConceptStr()}}"></a> <span
 									ng-show="component.terminology != terminology.terminology">{{component.terminology}}</span>
-								{{terminology.organizingClassType}} Report <a
+								{{getOrganizingClassType(component.terminology)}} Report <a
 									class="glyphicon glyphicon-step-forward"
 									ng-click="getNextConcept()"
 									ng-show="conceptHistory.length > conceptHistoryIndex + 1 && conceptHistory.length > 0"
 									tooltip="{{getNextConceptStr()}}"></a>
 
 							</div>
-							<h3>ID# {{component.terminologyId}} {{component.name}}</h3>
+							<h3>{{component.terminologyId}} {{component.name}}</h3>
 
 							<button ng-show="hasBooleanFieldTrue(component, 'suppressible')"
 								ng-click="toggleSuppressible()" class="btn btn-xs btn-primary">
@@ -369,13 +369,13 @@
 								<pagination max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-									ng-show="component.attribute.length > pageSize"
-									total-items="component.attribute.length"
+									ng-show="pagedAttributes.totalCt > pageSize"
+									total-items="pagedAttributes.totalCt"
 									ng-model="attributesPage"
-									ng-change="pagedAttributes = getPagedArray(component.attribute, attributesPage, true, null)"></pagination>
+									ng-change="getPagedAttributes(attributesPage)"></pagination>
 
 								<ul>
-									<li class="cr-list" ng-repeat="item in component.attribute"
+									<li class="cr-list" ng-repeat="item in pagedAttribute"
 										ng-show="showItem(item)"><span class="label label-warning"
 										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span> <span
 										class="label label-default" ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
@@ -418,7 +418,7 @@
 					<div class="container-fluid"">
 
 						<div class="row">
-							<h3>Metadata</h3>
+							<h3>Metadata for {{terminology.terminology}}/{{terminology.terminologyVersion}}</h3>
 							<ul>
 								<li class="col-md-12 col-xs-12" ng-repeat="item in metadata"
 									ng-show="item.keyValuePair.length > 0"><b>{{item.name}}</b>

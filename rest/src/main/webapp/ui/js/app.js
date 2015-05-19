@@ -701,6 +701,16 @@ tsApp
         	}
         }
         
+        /** Get the organizing class type from a terminology name */
+        $scope.getOrganizingClassType = function(terminologyName) {
+        	
+        	var terminology = getTerminologyFromName(terminologyName);
+        	if (!terminology) {
+        		return "ClassTypeUnknown";
+        	}
+        	return terminology.organizingClassType;
+        }
+        
         //////////////////////////////////////
         // Navigation History
         //////////////////////////////////////
@@ -814,6 +824,7 @@ tsApp
         	$scope.getPagedAtoms();
         	$scope.getPagedRelationships();
         	$scope.getPagedDefinitions();
+        	$scope.getPagedAttributes();
         	
         	// TODO add others
         }
@@ -846,6 +857,15 @@ tsApp
         	
         	// get the paged array, with flags and filter (TODO: Support filtering)
         	$scope.pagedDefinitions = $scope.getPagedArray($scope.component.definition, $scope.definitionsPage, true, null);
+        }
+        
+        $scope.getPagedAttributes = function(page) {
+        	
+        	// set the page if supplied, otherwise use the current value
+        	if (page) $scope.attributesPage = page;
+        	
+        	// get the paged array, with flags and filter (TODO: Support filtering)
+        	$scope.pagedAttributes = $scope.getPagedArray($scope.component.attribute, $scope.attributesPage, true, null);
         }
         
         /**
