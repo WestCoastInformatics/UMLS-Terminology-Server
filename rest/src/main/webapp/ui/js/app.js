@@ -27,7 +27,7 @@ tsApp
     	  $scope.test = ["1", "2", "3"];
     	  
     	// the default viewed terminology, if available
-        var defaultTerminology = 'SNOMEDCT_US';
+        var defaultTerminology = 'UMLS';
 
         $scope.$watch('component', function() {
           // // console.debug("Component changed to ",
@@ -36,9 +36,7 @@ tsApp
         
         // the currently viewed terminology (set by default or user)
         $scope.terminology = null;
-        
-      
-        
+
         // query autocomplete variables
         $scope.conceptQuery = null;
         $scope.autocompleteUrl = null; // set on terminology change
@@ -46,9 +44,6 @@ tsApp
         // the displayed component
         $scope.component = null;
 
-        // whether to show suppressible/obsolete component elements
-        $scope.showSuppressible = true;
-        $scope.showObsolete = true;
         
         // basic scope variables
         $scope.userName = null;
@@ -96,7 +91,7 @@ tsApp
           }
           
           // set the autocomplete url
-          $scope.autocompleteUrl = contentUrl + getTypePrefix($scope.terminology) + '/autocomplete/' + $scope.terminology.terminology + '/' + $scope.terminology.terminologyVersion;
+          $scope.autocompleteUrl = contentUrl + getUrlPrefix($scope.terminology.organizingClassType) + '/autocomplete/' + $scope.terminology.terminology + '/' + $scope.terminology.terminologyVersion;
        
           $scope.glassPane++;
           $http(
@@ -194,7 +189,7 @@ tsApp
           });
         }
         
-        $scope.autocomplete = function(terminology, searchTerms) {
+        $scope.autocomplete = function(searchTerms) {
         	// if invalid search terms, return empty array
         	if (searchTerms == null || searchTerms == undefined || searchTerms.length < 2) {
         		return new Array();
@@ -282,15 +277,15 @@ tsApp
             
               terminologyObj.then(function(terminology) {
             	  
+            	  terminology.hidden = (terminology.terminology === 'MTH' || terminology.terminology === 'SRC');
+           	  
             	  // add result to the list of terminologies
-            	  if (terminology.terminology != 'MTH' && terminology.terminology != 'SRC') {
-            		  $scope.terminologies.push(terminology);
+            	  $scope.terminologies.push(terminology);
             	  
             	  if (terminology.terminology === defaultTerminology) {
                       $scope.setTerminology(terminology);
                   }
-            	  // console.debug("Current terminologies", $scope.terminologies);
-            	  }
+            	
               } , function(reason) {
             	  // do error message here
               });
@@ -306,33 +301,116 @@ tsApp
             $scope.glassPane--;
           });
         }
-
-        /** 
-         * Function to get a concept based on terminology.  Two modes:
-         * (1) Full terminology object passed
-         * (2) Only terminology name passed, must be in list of available terminologies
+        
+        /**
+         * Helper function to get full terminology object given terminology name
          */
-        $scope.getConcept = function(terminology, terminologyId) {
-        	
-        	// clear existing component
-        	$scope.component = null;
-        	$scope.componentError = null;
-        	
-        	var localTerminology = null;
-        	
+        function getTerminologyFromName(terminologyName) {
         	// check for full terminology object by comparing to selected terminology
-        	if (terminology != $scope.terminology) {
+        	if (terminologyName != $scope.terminology.terminology) {
         		
         		// cycle over available terminologies for match
         		for (var i = 0; i < $scope.terminologies.length; i++) {
-        			if ($scope.terminologies[i].terminology === terminology) {
-        				localTerminology = $scope.terminologies[i];
+        			if ($scope.terminologies[i].terminology === terminologyName) {
+        				return $scope.terminologies[i];
         			}
         		}
+        	} else {
+        		return $scope.terminology;
         	}
         	
-        	if (!localTerminology) {
-        		$scope.componentError = "Requested terminology " + terminology + " not found";
+        	
+        }
+        
+        /**
+         * Function to get a component of the terminology's organizing class type.
+         * TODO:  Get rid of this and have conceptTErminologyIds retrieved by getConcept
+         */
+        $scope.getComponent = function(terminologyName, terminologyId) {
+        	
+        	console.debug('getComponent', terminologyName, terminologyId);
+        	
+        	// if terminology matches scope terminology
+        	if (terminologyName === $scope.terminology.terminology) {
+        		getComponentHelper($scope.terminology, terminologyId, getUrlPrefix($scope.terminology.organizingClassType));
+        	
+        	// otherwise get the terminology first
+        	} else {
+        		var localTerminology = getTerminologyFromName(terminologyName);
+        		getComponentHelper(localTerminology, terminologyId, getUrlPrefix(localTerminology.organizingClassType));
+        	}
+        }
+
+        /** 
+         * Function to get a concept for a terminology.  Does not trigger on terminology class type.
+         */
+        $scope.getConcept = function(terminologyName, terminologyId) {
+        	
+        	console.debug('getConcept', terminologyName, terminologyId);
+        	
+        	// if terminology matches scope terminology
+        	if (terminologyName === $scope.terminology.terminology) {
+        		getComponentHelper($scope.terminology, terminologyId, getUrlPrefix('CONCEPT'));
+        	
+        	// otherwise get the terminology first
+        	} else {
+        		var localTerminology = getTerminologyFromName(terminologyName);
+        		getComponentHelper(localTerminology, terminologyId, getUrlPrefix('CONCEPT'));
+        	}
+        }
+        
+        /**
+         * Function to get a descriptor for a terminology.  Does not trigger on terminology class type.
+         */
+        $scope.getDescriptor = function(terminologyName, terminologyId) {
+        	
+        	console.debug('getDescriptor', terminologyName, terminologyId);
+        	
+        	// if terminology matches scope terminology
+        	if (terminologyName === $scope.terminology.terminology) {
+        		getComponentHelper($scope.terminology, terminologyId, getUrlPrefix('DESCRIPTOR'));
+        	} else {
+        		var localTerminology = getTerminologyFromName(terminologyName);
+        		getComponentHelper(localTerminology, terminologyId, getUrlPrefix('DESCRIPTOR'));
+        	}
+        	
+        }
+        
+        /**
+         * Function to get a code for a terminology.  Does not trigger on terminology class type;
+         */
+        $scope.getCode = function(terminologyName, terminologyId) {
+        	
+        	console.debug('getCode', terminologyName, terminologyId);
+        	
+        	// if terminology matches scope terminology
+        	if (terminologyName === $scope.terminology.terminology) {
+        		getComponentHelper($scope.terminology, terminologyId, getUrlPrefix('CODE'));
+        	} else {
+        		var localTerminology = getTerminologyFromName(terminologyName);
+        		getComponentHelper(localTerminology, terminologyId, getUrlPrefix('CODE'));
+        	}
+        }
+        
+        /**
+         * Helper function called by getConcept, getDescriptor, and getCode
+         * - terminologyObj:  the full terminology object from getTerminology()
+         * - terminologyId:   the terminology id of the component
+         * - typePrefix:      the url prefix denoting object type (cui/dui/code)
+         * 
+         * TODO:  Add definitions from all atoms to the top level component 
+         */
+        function getComponentHelper(terminologyObj, terminologyId, typePrefix) {
+        	
+        	console.debug('getComponentHelper', terminologyObj, terminologyId, typePrefix);
+        	
+        	// clear existing component and paging
+        	$scope.component = null;
+        	$scope.componentError = null;
+        	clearPaging();
+        	
+        	if (!terminologyObj || !terminologyId || !typePrefix) {
+        		$scope.componentError = "An unexpected display error occurred.<p>Click a concept or perform a new search to continue";
         		return;
         	}
         	
@@ -340,28 +418,47 @@ tsApp
             $scope.glassPane++;
             $http(
             {
-              url : contentUrl + getTypePrefix(localTerminology.terminology, terminologyId) + "/" + localTerminology.terminology + "/" + localTerminology.terminologyVersion + "/"
+              url : contentUrl + typePrefix + "/" + terminologyObj.terminology + "/" + terminologyObj.terminologyVersion + "/"
                 + terminologyId,
               method : "GET",
 
             }).success(function(data) {
             	
-            if (!data) {
-            	$scope.componentError = "Could not retrieve data for " + terminology + "/" + terminologyId;
-            	return;
-            }
-            
-            // if local terminology matches passed terminology, attempt to set active row
-            if (terminology === localTerminology)
-            	setActiveRow(terminologyId);
-            
-            // set the component
-            $scope.setComponent(data);
-           
-            // update history
-            $scope.addConceptToHistory(data.terminology, data.terminologyId);
-               
-            $scope.glassPane--;
+            	// update history
+                $scope.addConceptToHistory(data.terminology, data.terminologyId);
+            	
+	            if (!data) {
+	            	$scope.componentError = "Could not retrieve " + typePrefix + " data for " + terminologyObj.terminology + "/" + terminologyId;
+	            	$scope.glassPane--;
+	            	return;
+	            }
+	            
+	            // if local terminology matches passed terminology, attempt to set active row
+	            if ($scope.terminology === terminologyObj)
+	            	setActiveRow(terminologyId);
+	            
+	            // cycle over all atoms looking for definitions
+	            for (var i = 0; i < data.atom.length; i++) {
+	            	for (var j = 0; j < data.atom[i].definition.length; j++) {
+	            		var definition = data.atom[i].definition[j];
+	            		
+	            		// set the atom element flag
+	            		definition.atomElement = true;
+	            		
+	            		// add the atom information for tooltip display
+	            		// TODO: This is kind of clunky/hackish, consider further
+	            		// Format:  name [terminology/termType]			
+	            		definition.atomElementStr = data.atom[i].name + " [" + data.atom[i].terminology + "/" + data.atom[i].termType + "]";
+	            		
+	            		// add the definition to the top level component
+	            		data.definition.push(definition);
+	            	}
+	            }
+	            
+	            // set the component
+	            $scope.setComponent(data);
+
+	            $scope.glassPane--;
 
           }).error(function(data, status, headers, config) {
             $scope.handleError(data, status, headers, config);
@@ -380,23 +477,25 @@ tsApp
         /**
          * Find concepts based on terminology and queryStr
          * Does not currently use any p/f/s settings
+         * NOTE: Always uses the selected terminology
          */
-        $scope.findConcepts = function(terminology, queryStr) {
+        $scope.findConcepts = function(queryStr) {
+        	
+        	console.debug('find concepts', queryStr);
 
           // ensure query string has minimum length
           if (queryStr == null || queryStr.length < 3) {
             alert("You must use at least three characters to search");
             return;
           }
-          
-          // console.debug("Finding concepts for ", terminology, queryStr);
-
-          // clear concept and suggestions
+    
+          // clear concept, history, suggestions, and paging data
           $scope.suggestions = null;
           $scope.component = null;
           $scope.componentError = null;
           $scope.conceptHistory = [];
           $scope.conceptHistoryIndex = -1;
+          clearPaging();
           
           // force the search box to sync with query string
           $scope.conceptQuery = queryStr;
@@ -412,8 +511,8 @@ tsApp
           $scope.glassPane++;
           $http(
             {
-              url : contentUrl + getTypePrefix(terminology) + "/" + terminology.terminology + "/"
-                + terminology.terminologyVersion + "/query/" + queryStr,
+              url : contentUrl + getUrlPrefix($scope.terminology.organizingClassType) + "/" + $scope.terminology.terminology + "/"
+                + $scope.terminology.terminologyVersion + "/query/" + queryStr,
               method : "POST",
               dataType : "json",
               data : pfs,
@@ -444,15 +543,17 @@ tsApp
           applyPaging();
         }
         
-        //////////////////////////////////////////
-        // Suppressible/Obsolete Functions
-        /////////////////////////////////////////
+        ///////////////////////////////
+        // Show/Hide List Elements
+        ///////////////////////////////
         
-        // default: show all
-        $scope.showObsolete = true;
+        // variables for showing/hiding elements based on boolean fields
         $scope.showSuppressible = true;
+        $scope.showObsolete = true;
+        $scope.showAtomElement = true;
+
         
-        /** Determine if an item has obsolete elements
+        /** Determine if an item has boolean fields set to true
          *  in its child arrays
          */
         $scope.hasBooleanFieldTrue = function(object, fieldToCheck) {
@@ -491,27 +592,30 @@ tsApp
         	return false;
         }
         
+      
+        
         /**
          * Helper function to determine whether an item
          * should be shown based on obsolete/suppressed
-         * 
-         * Array:  The containing array, with showSuppressible/showObsolete flag set
-         * e.g. component.atom
-         * 
-         * Item:  The item in the containing array being evaluated
          */
         $scope.showItem = function(item) {
         
+        	// trigger on suppressible (model data)
         	if ($scope.showSuppressible == false && item.suppressible == true)
     			return false;
     		
+        	// trigger on obsolete (model data)
     		if ($scope.showObsolete == false && item.obsolete == true)
+    			return false;
+    		
+    		// trigger on applied showAtomElement flag
+    		if ($scope.showAtomElement == false && item.atomElement == true)
     			return false;
     		
     		return true;
     	}
         
-        /** Functions to flip (and/or initialize) a toggle variable */
+        /** Function to toggle obsolete flag and apply paging */
         $scope.toggleObsolete= function() {
         	if ($scope.showObsolete == null || $scope.showObsolete == undefined) {
         		$scope.showObsolete = false;
@@ -523,11 +627,23 @@ tsApp
         	
         }
         
+        /** Function to toggle suppressible flag and apply paging */
         $scope.toggleSuppressible= function() {
         	if ($scope.showSuppressible == null || $scope.showSuppressible == undefined) {
         		$scope.showSuppressible = false;
         	} else {
         		$scope.showSuppressible = !$scope.showSuppressible;
+        	}
+        	
+        	applyPaging();
+        }
+        
+        /** Function to toggle atom element flag and apply paging */    
+        $scope.toggleAtomElement= function() {
+        	if ($scope.showAtomElement == null || $scope.showAtomElement == undefined) {
+        		$scope.showAtomElement = false;
+        	} else {
+        		$scope.showAtomElement = !$scope.showAtomElement;
         	}
         	
         	applyPaging();
@@ -560,34 +676,43 @@ tsApp
           };
         }
         
-        /** Get the Type Prefix for HTML calls, e.g. for /code, /cui, /dui */
-        function getTypePrefix(terminology, terminologyId) {
-          console.debug('getTypePrefix', terminology, terminologyId);
-          switch (terminology) {
-          case 'SNOMEDCT_US':
-        	  return 'cui';
-          case 'UMLS':
-        	  if (terminologyId.indexOf("D") == 0)
-        		  return 'dui';
-        	  if (terminologyId.indexOf("C") == 0)
-        		  return 'cui';
-        	  return 'code';
-          case 'MSH':
-        	  return 'dui';
-          default:
-              return 'cui';
-          }
+        /**  Helper function to get the proper html prefix based on class type  */
+        function getUrlPrefix(classType) {
+        	
+        	switch(classType) {
+        	case 'CONCEPT':
+        		return 'cui';
+        	case 'DESCRIPTOR':
+        		return 'dui';
+        	case 'CODE':
+        		return 'code';
+        	default:
+        		return 'prefixErrorDetected';
+        	}
+
+        }
+           
+        /** Helper function to get properties for ng-repeat */
+        function convertObjectToJsonArray() {
+        	var newArray = new Array();
+        	for (var prop in object) {
+        		var obj = { key:prop, value:object[prop]};
+        		newArray.push(obj);
+        	}
         }
         
         //////////////////////////////////////
-        // History Functions
+        // Navigation History
         //////////////////////////////////////
         
         // concept navigation variables
         $scope.conceptHistory = [];
         $scope.conceptHistoryIndex = -1;  // index is the actual array index (e.g. 0:n-1)
         
+        // add a terminology/terminologyId pair to the history stack
         $scope.addConceptToHistory = function(terminology, terminologyId) {
+        	
+        	console.debug("Adding concept to history", terminology, terminologyId);
         	
         	// if history exists
         	if ($scope.conceptHistoryIndex != -1) {
@@ -610,6 +735,7 @@ tsApp
         	$scope.conceptHistoryIndex++;
         }
         
+        // get and display the previous concept
         $scope.getPreviousConcept = function() {
         	
         	// decrement the counter and get the concept
@@ -620,10 +746,16 @@ tsApp
         	
         }
         
+        // get a string representing the previous concept
         $scope.getPreviousConceptStr = function() {
+        	
+        	if(!$scope.conceptHistory[$scope.conceptHistoryIndex-1])
+        		return null;
+        	
         	return $scope.conceptHistory[$scope.conceptHistoryIndex-1].terminology + "/" + $scope.conceptHistory[$scope.conceptHistoryIndex-1].terminologyId;
         }
         
+        // get and display the next concept
         $scope.getNextConcept = function() {
         	
         	// increment the counter and get the concept
@@ -634,8 +766,17 @@ tsApp
         	
         }
         
+        // get a string representing the next concept
+        $scope.getNextConceptStr = function() {
+        	
+        	if(!$scope.conceptHistory[$scope.conceptHistoryIndex+1])
+        		return null;
+        	
+        	return $scope.conceptHistory[$scope.conceptHistoryIndex+1].terminology + "/" + $scope.conceptHistory[$scope.conceptHistoryIndex+1].terminologyId;
+        }
+        
         ////////////////////////////////////
-        // Pagination functions
+        // Pagination
         ////////////////////////////////////
        
         // paged variable lists
@@ -655,19 +796,63 @@ tsApp
         // default page size
         $scope.pageSize = 10;
         
-        function applyPaging() {
+        // reset all paginator pages
+        function clearPaging() {
+        	$scope.searchResultsPage = 1;
+            $scope.semanticTypesPage = 1;
+            $scope.descriptionsPage = 1;
+            $scope.relationshipsPage = 1;
+            $scope.atomsPage = 1;
 
-        	if ($scope.component.hasOwnProperty('atom'))
-        		$scope.pagedAtoms = $scope.getPagedArray($scope.component.atom, $scope.atomPage, true, false);
-        	
-        	if ($scope.component.hasOwnProperty('relationship'))
-        		$scope.pagedRelationships = $scope.getPagedArray($scope.component.relationship, $scope.relationshipPage, true, false);
-        	// TODO Add others
+            // TODO Add others
         }
         
-        
-        $scope.getPagedArray = function(array, page, applyFlags, filterStr) {
+        // apply paging to all elements
+        function applyPaging() {
         	
+        	// call each get function without paging (use current paging info)
+        	$scope.getPagedAtoms();
+        	$scope.getPagedRelationships();
+        	$scope.getPagedDefinitions();
+        	
+        	// TODO add others
+        }
+        
+        /**
+         * Functions to page individual elements
+         */ 
+        $scope.getPagedAtoms = function(page) {
+        	
+        	// set the page if supplied, otherwise use the current value
+        	if (page) $scope.atomsPage = page;
+        	
+        	// get the paged array, with flags and filter (TODO: Support filtering)
+        	$scope.pagedAtoms = $scope.getPagedArray($scope.component.atom, $scope.atomsPage, true, null);
+        }
+        
+        $scope.getPagedRelationships = function(page) {
+        	
+        	// set the page if supplied, otherwise use the current value
+        	if (page) $scope.relationshipsPage = page;
+        	
+        	// get the paged array, with flags and filter (TODO: Support filtering)
+        	$scope.pagedRelationships = $scope.getPagedArray($scope.component.relationship, $scope.relationshipsPage, true, null);
+        }
+        
+        $scope.getPagedDefinitions = function(page) {
+        	
+        	// set the page if supplied, otherwise use the current value
+        	if (page) $scope.definitionsPage = page;
+        	
+        	// get the paged array, with flags and filter (TODO: Support filtering)
+        	$scope.pagedDefinitions = $scope.getPagedArray($scope.component.definition, $scope.definitionsPage, true, null);
+        }
+        
+        /**
+         * Get a paged array with show/hide flags (ENABLED) and filtered by query string (NOT ENABLED)
+         */
+        $scope.getPagedArray = function(array, page, applyFlags, filterStr) {
+        		
         	var newArray = new Array();
         	
         	// if array blank or not an array, return blank list
@@ -681,7 +866,7 @@ tsApp
         	newArray = array;
         	
         	// apply flags
-        	if (applyFlags == true) {
+        	if (applyFlags) {
         		newArray = getArrayByFlags(newArray);
         	}
         	
@@ -689,17 +874,23 @@ tsApp
         	if (filterStr) {
         		newArray = getArrayByFilter(filterStr);
         	}
-
-        	// slice the flagged/filtered results
+        	   	
+        	// get the page indices
         	var fromIndex = (page-1)*$scope.pageSize;
         	var toIndex = Math.min(fromIndex + $scope.pageSize, array.length);
         	
-        	console.debug("  results", fromIndex, toIndex, array.slice(fromIndex, toIndex));
+        	// slice the array
+        	var results = newArray.slice(fromIndex, toIndex);
+        	
+        	// add the total count before slicing
+        	results.totalCt = newArray.length;
+        	
+        	//console.debug("  results", results.totalCt, fromIndex, toIndex, results);
 
-        	return newArray.slice(fromIndex, toIndex);
+        	return results;
         }
         
-        /** Get array with suppressed/obsolete flags applied */
+        /** Filter array by show/hide flags */
         function getArrayByFlags(array) {
         	
         	var newArray = new Array();
@@ -708,7 +899,7 @@ tsApp
         	if (array == null || array == undefined || Array.isArray(array) == false)
         		return newArray;
         	
-        	// apply obsolete and suppressible flags
+        	// apply show/hide flags via showItem() function
         	for (var i = 0; i < array.length; i++) {
         		if ($scope.showItem(array[i]) == true) {
         			newArray.push(array[i]);
@@ -722,19 +913,13 @@ tsApp
         function getArrayByFilterText(array, filter) {
         	var newArray = array;
         	
+        	// TODO
+        	
         	return newArray;
         	
-        	// TODO
+        	
         }
-        
-        /** Helper function to get properties for ng-repeat */
-        function convertObjectToJsonArray() {
-        	var newArray = new Array();
-        	for (var prop in object) {
-        		var obj = { key:prop, value:object[prop]};
-        		newArray.push(obj);
-        	}
-        }
+    
        
 
       } ]);

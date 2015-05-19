@@ -14,7 +14,8 @@
 <link href="ui/css/tsMobile.css" rel="stylesheet">
 
 <!-- Angular core  -->
-<script type="text/javascript" src="./ui/components/angular/angular.min.js"></script>
+<script type="text/javascript"
+	src="./ui/components/angular/angular.min.js"></script>
 
 <!-- Angular/Boostrap UI Components -->
 <script type="text/javascript"
@@ -152,28 +153,24 @@
 					<div>
 						<table class="table">
 							<tr>
-								<td width="15%;">Select terminology</td>
+								<td width="15%;">Terminology</td>
 								<td width="85%;"><select ng-model="terminology"
 									ng-change="setTerminology(terminology)"
 									ng-options="terminology as terminology.terminology for terminology in terminologies"></select></td>
 							<tr>
-								<td>Enter search terms</td>
+								<td>Query</td>
 								<td><form width="100%">
-
-
 
 										<input type="text" ng-model="conceptQuery"
 											placeholder="Enter search terms"
-											typeahead="suggestion for suggestion in autocomplete(terminology, conceptQuery)"
+											typeahead="suggestion for suggestion in autocomplete(conceptQuery)"
 											typeahead-loading="loadingSuggestions"
 											typeahead-focus-first="false"
-											typeahead-on-select="findConcepts(terminology, conceptQuery)"
+											typeahead-on-select="findConcepts(conceptQuery)"
 											typeahead-editable="true">
 
 										<button class="btn btn-small btn-primary" type="submit"
-											ng-click="findConcepts(terminology, conceptQuery)">Search</button>
-										<button class="btn btn-small btn-warning"
-											ng-click="clearQuery()">Clear</button>
+											ng-click="findConcepts(conceptQuery)">Search</button>
 
 									</form></td>
 							</tr>
@@ -183,13 +180,14 @@
 					<div class="row">
 
 						<!-- search results field is 3 columns -->
-						<div class="col-md-3 col-xs-4">
+						<div class="col-md-4 col-xs-12">
+
 							<div class="alert alert-success"
 								ng-show="searchResults.length > 0">{{searchResults.length}}
 								Results (Click a row for details)</div>
 							<div class="alert alert-danger"
-								ng-show="searchResults && searchResults.length == 0">Search returned no
-								results.</div>
+								ng-show="searchResults && searchResults.length == 0">Search
+								returned no results.</div>
 
 							<pagination max-size="5" boundary-links="true"
 								class="pagination-sm" previous-text="&lsaquo;"
@@ -203,38 +201,42 @@
 
 								<tbody>
 									<tr ng-repeat="searchResult in pagedSearchResults"
-										ng-class="searchResult.rowClass"
-										ng-click="getConcept(terminology.terminology, searchResult.terminologyId)">
+										ng-click="getComponent(terminology.terminology, searchResult.terminologyId)">
 										<td>{{searchResult.terminologyId}}</a></td>
 										<td>{{searchResult.value}}</td>
+									</tr>
 								</tbody>
 							</table>
 						</div>
-						
+
 						<div class="col-md-8 col-xs-12" ng-show="componentError != null">
 							<div class="alert alert-warning">{{componentError}}</div>
+							<button class="btn btn-xs btn-primary"
+								ng-click="getPreviousConcept()"
+								tooltip="{{getPreviousConceptStr()}}">Back</button>
+
+
+							<br> {{$scope.conceptHistoryIndex}}<br>
+							{{$scope.conceptHistory}}
 						</div>
 
 						<!-- Component display is 4 -->
 						<div class="col-md-8 col-xs-12" ng-show="component != null">
 							<div class="alert alert-info">
-							
-							<a class="glyphicon glyphicon-step-backward" 
-							ng-click="getPreviousConcept()" 
-							ng-show="conceptHistoryIndex > 0"
-							tooltip="getPreviousConceptStr()"></a>
-							
-							<span ng-show="component.terminology != terminology.terminology">{{component.terminology}}</span>
-							{{terminology.organizingClassType}}
-								Report
-								
-							<a class="glyphicon glyphicon-step-forward" 
-							ng-click="getNextConcept()" 
-							ng-show="conceptHistory.length > conceptHistoryIndex + 1 && conceptHistory.length > 0"
-							tooltip="getNextConceptStr()"></a>
-							
+
+								<a class="glyphicon glyphicon-step-backward"
+									ng-click="getPreviousConcept()"
+									ng-show="conceptHistoryIndex > 0"
+									tooltip="{{getPreviousConceptStr()}}"></a> <span
+									ng-show="component.terminology != terminology.terminology">{{component.terminology}}</span>
+								{{terminology.organizingClassType}} Report <a
+									class="glyphicon glyphicon-step-forward"
+									ng-click="getNextConcept()"
+									ng-show="conceptHistory.length > conceptHistoryIndex + 1 && conceptHistory.length > 0"
+									tooltip="{{getNextConceptStr()}}"></a>
+
 							</div>
-							<h3>ID# {{component.terminologyId}} {{component.name}}</h3>							
+							<h3>ID# {{component.terminologyId}} {{component.name}}</h3>
 
 							<button ng-show="hasBooleanFieldTrue(component, 'suppressible')"
 								ng-click="toggleSuppressible()" class="btn btn-xs btn-primary">
@@ -247,6 +249,12 @@
 								<span ng-show="showObsolete == true">Hide Obsolete</span> <span
 									ng-show="showObsolete != true">Show Obsolete</span>
 							</button>
+							<button ng-show="hasBooleanFieldTrue(component, 'atomElement')"
+								ng-click="toggleAtomElement()" class="btn btn-xs btn-primary">
+								<span ng-show="showAtomElement == true">Hide Atom
+									Elements</span> <span ng-show="showAtomElement != true">Show
+									Atom Elements</span>
+							</button>
 
 
 
@@ -254,20 +262,21 @@
 							<!--  Semantic types -->
 							<div ng-show="component.semanticType.length > 0">
 								<h4>Semantic Types ({{component.semanticType.length}})</h4>
-								
-								
+
+
 								<pagination max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
 									ng-show="component.semanticType.length > pageSize"
-									total-items="component.semanticType.length" ng-model="semanticTypesPage"
+									total-items="component.semanticType.length"
+									ng-model="semanticTypesPage"
 									ng-change="pagedSemanticTypes = getPagedArray(component.semanticType, semanticTypesPage, true, null)"></pagination>
-								
+
 								<ul>
 									<li class="cr-list" ng-repeat="item in component.semanticType"
-										ng-show="showItem(item)"><span class="label label-info"
-										ng-show="item.suppressible == true">Suppressible</span> <span
-										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
+										ng-show="showItem(item)"><span class="label label-warning"
+										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span> <span
+										class="label label-default" ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
 										{{item.semanticType}}</li>
 								</ul>
 
@@ -276,116 +285,128 @@
 							<!--  Definitions -->
 							<div ng-show="type!='CODE' && component.definition.length > 0">
 								<h4>
-									Definitions ({{component.definition.length}})
-									<h4>
+									Definitions (<span
+										ng-show="component.definition.length != pagedDefinitions.totalCt">{{pagedDefinitions.totalCt}}
+										shown of </span>{{component.definition.length}}</span>)
+								</h4>
 
-										<pagination max-size="5" boundary-links="true"
-											class="pagination-sm" previous-text="&lsaquo;"
-											next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-											ng-show="component.description.length > pageSize"
-											total-items="component.description.length" ng-model="descriptionsPage"
-											ng-change="pagedDescriptions = getPagedArray(component.description, descriptionPage, true, null)"></pagination>
+								<pagination max-size="5" boundary-links="true"
+									class="pagination-sm" previous-text="&lsaquo;"
+									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+									ng-show="pagedDescriptions.totalCt > pageSize"
+									total-items="pagedDescriptions.totalCt"
+									ng-model="descriptionsPage"
+									ng-change="getPagedDescriptions(descriptionsPage)"></pagination>
 
-										<ul>
-											<li class="cr-list" ng-repeat="item in component.definition"
-												ng-show="showItem(item)"><span class="label label-info"
-												ng-show="item.suppressible == true">Suppressible</span> <span
-												class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
-												{{item}}</li>
-										</ul>
+								<ul>
+									<li class="cr-list" ng-repeat="item in component.definition"
+										ng-show="showItem(item)"><span tooltip="Definition found on atom: {{item.atomElementStr}}"
+										class="label label-info" ng-show="item.atomElement == true">Atom</span>
+										<span class="label label-warning"
+										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span> <span
+										class="label label-default" ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
+										{{item.value}}</li>
+								</ul>
 							</div>
 
 							<!-- Atoms -->
 							<div ng-show="component.atom.length > 0">
-								<h4>Atoms ({{component.atom.length}})</h4>
+								<h4>
+									Atoms (<span
+										ng-show="component.atom.length != pagedAtoms.totalCt">{{pagedAtoms.totalCt}}
+										shown of </span>{{component.atom.length}}</span>)
+								</h4>
 
 								<pagination max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
 									ng-show="component.atom.length > pageSize"
-									total-items="component.atom.length" ng-model="atomsPage"
-									ng-change="pagedAtoms = getPagedArray(component.atom, atomsPage, true, null)"></pagination>
-
+									total-items="pagedAtoms.totalCt" ng-model="atomsPage"
+									ng-change="getPagedAtoms(atomsPage)"></pagination>
 
 								<ul>
 									<li class="cr-list" ng-repeat="item in pagedAtoms"
-										ng-show="showItem(item)"><span class="label label-info"
-										ng-show="item.suppressible == true">Suppressible</span> <span
-										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
-						
-										<!--  Format:  name [terminology/termType/codeId] componentId descriptorId conceptTerminologyIds -->
-										{{item.name}}
-							
-										<!-- 
-											 Do not show terminology if same as component terminology
-											 Do not show codeId if same as component terminology id or descriptorId
-										 -->
-										[
-										<span ng-show="item.terminology != component.terminology">{{item.terminology}} /</span>
-										{{item.termType}}
-										<span ng-show="item.codeId != component.terminologyId && item.codeId != item.descriptorId" tooltip="{{item.terminology}}">/ 
-											<a ng-click="getConcept(item.terminology, item.codeId)">{{item.codeId}}</a></span>
-										]
-										
-										<!-- If same terminology, only show componentIds differing from component terminologyId -->
-										<span ng-show="item.terminology == component.terminology && item.componentId != component.terminologyId" tooltip = "{{item.terminology}}">
-											<a ng-click="getConcept(component.terminology, item.componentId)">{{item.componentId}}</a></span>
+										ng-show="showItem(item)"><span class="label label-warning"
+										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span> <span
+										class="label label-default" ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
 
-										<!-- Show descriptorId  -->
-										<span ng-show="item.descriptorId != component.terminologyId" tooltip="Descriptor"> 
-											<a ng-click="getConcept(component.terminology, item.descriptorId)">{{item.descriptorId}}</a></span>
-			
-										<!-- Show any referenced concepts in other terminologies -->
+										<!--  Format:  name [terminology/termType] codeId componentId descriptorId conceptTerminologyIds
+											  NOTE: codeId, componentId, descriptorId automatically shown if of differing terminology, 
+											  see each type below for additional rules
+										 --> {{item.name}} <!--  Terminology and term type --> [ <!--  Do not show terminology if same as component terminology -->
+										<span ng-show="item.terminology != component.terminology">{{item.terminology}}
+											/</span> {{item.termType}} ] 
+											
+										<!--  For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
+										<span
+										ng-show="item.codeId != component.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
+										tooltip="{{item.terminology}} code"> <a ng-show="item.codeId != 'NOCODE'"
+											ng-click="getCode(item.terminology, item.codeId)">{{item.codeId}}</a><span ng-show="item.codeId==='NOCODE'">NOCODE</span></span>
+
+										<!-- For concept id, do not show if identical to component id -->
+										<span
+										ng-show="item.terminology != component.terminology || item.conceptId != component.terminologyId"
+										tooltip="{{item.terminology}} concept"> <a
+											ng-click="getConcept(item.terminology, item.conceptId)">{{item.conceptId}}</a></span>
+
+										<!-- For descriptor id, do not show if identical to component id -->
+										<span ng-show="item.terminology != component.terminology || item.descriptorId != component.terminologyId"
+										tooltip="{{item.terminology}} descriptor"> <a
+											ng-click="getDescriptor(item.terminology, item.descriptorId)">{{item.descriptorId}}</a></span>
+
+										<!-- Show any referenced components in the concept terminology id list -->
 										<span ng-repeat="(key, value) in item.conceptTerminologyIds">
-											<a ng-show="key != component.terminology || value != component.terminologyId" tooltip="{{key}}" ng-click="getConcept(key, value)">{{value}}</a>
-										</span>
-										
-									
-										</li>
+											<a
+											ng-show="key != component.terminology || value != component.terminologyId"
+											tooltip="{{key}} concept" ng-click="getComponent(key, value)">{{value}}</a>
+									</span></li>
 								</ul>
 							</div>
 
 							<!--  Attributes -->
 							<div ng-show="component.attribute.length > 0">
-								<h4>Attributes ({{component.attribute.length}})
-								
-								
-								</h4>
+								<h4>Attributes ({{component.attribute.length}})</h4>
 								<pagination max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
 									ng-show="component.attribute.length > pageSize"
-									total-items="component.attribute.length" ng-model="attributesPage"
+									total-items="component.attribute.length"
+									ng-model="attributesPage"
 									ng-change="pagedAttributes = getPagedArray(component.attribute, attributesPage, true, null)"></pagination>
-								
+
 								<ul>
 									<li class="cr-list" ng-repeat="item in component.attribute"
-										ng-show="showItem(item)"><span class="label label-info"
-										ng-show="item.suppressible == true">Suppressible</span> <span
-										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
+										ng-show="showItem(item)"><span class="label label-warning"
+										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span> <span
+										class="label label-default" ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
 										{{item.name}} = {{item.value}}
 								</ul>
 							</div>
 
 							<!-- Relationships -->
 							<div ng-show="component.relationship.length> 0">
-								<h4>Relationships ({{component.relationship.length}})</h4>
-								
-								
+								<h4>
+									Relationships (<span
+										ng-show="component.relationship.length != pagedRelationships.totalCt">{{pagedRelationships.totalCt}}
+										shown of </span>{{component.relationship.length}}</span>)
+								</h4>
+
 								<pagination max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-									ng-show="component.relationship.length > pageSize"
-									total-items="component.relationship.length" ng-model="relationshipsPage"
-									ng-change="pagedRelationships = getPagedArray(component.relationship, relationshipsPage, true, null)"></pagination>
-								
+									ng-show="pagedRelationships.totalCt > pageSize"
+									total-items="pagedRelationships.totalCt"
+									ng-model="relationshipsPage"
+									ng-change="getPagedRelationships(relationshipsPage)"></pagination>
 								<ul>
 									<li class="cr-list" ng-repeat="item in pagedRelationships"
-										ng-show="showItem(item)"><span class="label label-info"
-										ng-show="item.suppressible == true">Suppressible</span> <span
-										class="label label-default" ng-show="item.obsolete == true">Obsolete</span>
+										ng-show="showItem(item)"><span class="label label-warning"
+										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span> <span
+										class="label label-default" ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
 										{{item.relationshipType}} {{item.additionalRelationshipType}}
-										<a ng-click="getConcept(component.terminology, item.toTerminologyId)">{{item.toTerminologyId}}</a>
+										<a
+										ng-click="getComponent(component.terminology, item.toTerminologyId)"
+										tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toTerminologyId}}</a>
 										{{item.toName}}</li>
 								</ul>
 
