@@ -1765,7 +1765,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     Logger.getLogger(getClass()).info("  Add concepts");
     objectCt = 0;
-    int offset = 0;
     Query query =
         manager
             .createQuery("select a.id from AtomJpa a order by terminology, conceptId");
