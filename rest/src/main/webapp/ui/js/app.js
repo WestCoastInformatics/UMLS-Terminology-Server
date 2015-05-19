@@ -90,8 +90,8 @@ tsApp
             return;
           }
           
-          // set the autocomplete url
-          $scope.autocompleteUrl = contentUrl + getUrlPrefix($scope.terminology.organizingClassType) + '/autocomplete/' + $scope.terminology.terminology + '/' + $scope.terminology.terminologyVersion;
+          // set the autocomplete url, with pattern: /type/{terminology}/{version}/autocomplete/{searchTerm}
+          $scope.autocompleteUrl = contentUrl + getUrlPrefix($scope.terminology.organizingClassType) + '/' + $scope.terminology.terminology + '/' + $scope.terminology.terminologyVersion + "/autocomplete/";
        
           $scope.glassPane++;
           $http(
@@ -190,8 +190,9 @@ tsApp
         }
         
         $scope.autocomplete = function(searchTerms) {
+        	console.debug('autocomplete', searchTerms);
         	// if invalid search terms, return empty array
-        	if (searchTerms == null || searchTerms == undefined || searchTerms.length < 2) {
+        	if (searchTerms == null || searchTerms == undefined || searchTerms.length < 3) {
         		return new Array();
         	}
         	
@@ -199,9 +200,8 @@ tsApp
         	
 	    	// NO GLASS PANE
 	    	$http({
-	             url : $scope.autocompleteUrl,
-	             method : "POST",
-	             data: searchTerms,
+	             url : $scope.autocompleteUrl + searchTerms,
+	             method : "GET",
 	             headers : {
 	               "Content-Type" : "text/plain"
 	             }
@@ -441,6 +441,8 @@ tsApp
 	            for (var i = 0; i < data.atom.length; i++) {
 	            	for (var j = 0; j < data.atom[i].definition.length; j++) {
 	            		var definition = data.atom[i].definition[j];
+	            		
+	            		console.debug("Definition found on atom " + i);
 	            		
 	            		// set the atom element flag
 	            		definition.atomElement = true;
@@ -701,6 +703,19 @@ tsApp
         	}
         }
         
+        /** Get the organizing class type from a terminology name */
+        $scope.getOrganizingClassType = function(terminologyName) {
+        	
+        	if (!terminologyName)
+        		return null;
+        	
+        	var terminology = getTerminologyFromName(terminologyName);
+        	if (!terminology) {
+        		return "ClassTypeUnknown";
+        	}
+        	return terminology.organizingClassType;
+        }
+        
         //////////////////////////////////////
         // Navigation History
         //////////////////////////////////////
@@ -789,7 +804,7 @@ tsApp
         // variable page numbers
         $scope.searchResultsPage = 1;
         $scope.semanticTypesPage = 1;
-        $scope.descriptionsPage = 1;
+        $scope.definitionsPage = 1;
         $scope.relationshipsPage = 1;
         $scope.atomsPage = 1;
         
@@ -800,7 +815,7 @@ tsApp
         function clearPaging() {
         	$scope.searchResultsPage = 1;
             $scope.semanticTypesPage = 1;
-            $scope.descriptionsPage = 1;
+            $scope.definitionsPage = 1;
             $scope.relationshipsPage = 1;
             $scope.atomsPage = 1;
 
@@ -814,8 +829,9 @@ tsApp
         	$scope.getPagedAtoms();
         	$scope.getPagedRelationships();
         	$scope.getPagedDefinitions();
+        	$scope.getPagedAttributes();
+        	$scope.getPagedSemanticTypes();
         	
-        	// TODO add others
         }
         
         /**
@@ -841,11 +857,33 @@ tsApp
         
         $scope.getPagedDefinitions = function(page) {
         	
+        	console.debug('paged definitions', page, $scope.definitionsPage);
+        	
         	// set the page if supplied, otherwise use the current value
         	if (page) $scope.definitionsPage = page;
         	
         	// get the paged array, with flags and filter (TODO: Support filtering)
         	$scope.pagedDefinitions = $scope.getPagedArray($scope.component.definition, $scope.definitionsPage, true, null);
+        
+        	console.debug($scope.pagedDefinitions);
+        }
+        
+        $scope.getPagedAttributes = function(page) {
+        	
+        	// set the page if supplied, otherwise use the current value
+        	if (page) $scope.attributesPage = page;
+        	
+        	// get the paged array, with flags and filter (TODO: Support filtering)
+        	$scope.pagedAttributes = $scope.getPagedArray($scope.component.attribute, $scope.attributesPage, true, null);
+        }
+        
+        $scope.getPagedSemanticTypes = function(page) {
+        	
+        	// set the page if supplied, otherwise use the current value
+        	if (page) $scope.semanticTypesPage = page;
+        	
+        	// get the paged array, with flags and filter (TODO: Support filtering)
+        	$scope.pagedSemanticTypes = $scope.getPagedArray($scope.component.semanticType, $scope.semanticTypesPage, true, null);
         }
         
         /**

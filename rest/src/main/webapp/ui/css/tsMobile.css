@@ -52,5 +52,9 @@ a {
 	background-color: #FFFFFF;
 }
 
+.ul {
+	word-wrap: break-word;
+}
+
 
 
