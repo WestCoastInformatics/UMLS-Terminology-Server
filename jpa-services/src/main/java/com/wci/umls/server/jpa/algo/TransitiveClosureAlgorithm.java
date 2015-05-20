@@ -14,10 +14,12 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.algo.Algorithm;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
@@ -28,7 +30,6 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptTransitiveRelationship;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.ContentService;
@@ -181,7 +182,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     MetadataService service = new MetadataServiceJpa();
     if (service.getHierarchicalRelationshipTypes(terminology, version)
         .getObjects().size() == 0) {
-      fireProgressEvent(100,"NO hierarchical rels, exiting...");
+      fireProgressEvent(100, "NO hierarchical rels, exiting...");
       Logger.getLogger(getClass()).info("  NO hierarchical rels, exiting...");
       return;
     }
@@ -202,7 +203,8 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     javax.persistence.Query query =
         manager
             .createQuery(
-                "select r from " + tableName + " r where obsolete = 0 "
+                "select r.from.id, r.to.id from " + tableName
+                    + " r where obsolete = 0 "
                     + "and terminology = :terminology "
                     + "and terminologyVersion = :version "
                     + "and relationshipType = :relationshipType")
@@ -211,13 +213,12 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
             .setParameter("relationshipType", chdRel);
 
     @SuppressWarnings("unchecked")
-    List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> rels =
-        query.getResultList();
+    List<Long[]> rels = query.getResultList();
     Map<Long, Set<Long>> parChd = new HashMap<>();
     int ct = 0;
-    for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : rels) {
-      final Long chd = rel.getFrom().getId();
-      final Long par = rel.getTo().getId();
+    for (final Long[] rel : rels) {
+      final Long chd = rel[0];
+      final Long par = rel[1];
       if (!parChd.containsKey(par)) {
         parChd.put(par, new HashSet<Long>());
       }
@@ -230,31 +231,6 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
       }
     }
     Logger.getLogger(getClass()).info("    ct = " + ct);
-
-    // Initialize concepts
-    fireProgressEvent(5, "Initialize concepts");
-    Logger.getLogger(getClass())
-        .info("  Initialize concepts ... " + new Date());
-    Map<Long, ComponentHasAttributes> componentMap = new HashMap<>();
-    if (idType == IdType.CONCEPT) {
-      for (Concept concept : getAllConcepts(terminology, version, Branch.ROOT)
-          .getObjects()) {
-        getGraphResolutionHandler(terminology).resolveEmpty(concept);
-        componentMap.put(concept.getId(), concept);
-      }
-    } else if (idType == IdType.DESCRIPTOR) {
-      for (Descriptor descriptor : getAllDescriptors(terminology, version, Branch.ROOT)
-          .getObjects()) {
-        componentMap.put(descriptor.getId(), descriptor);
-      }
-    } else if (idType == IdType.CODE) {
-      for (Code code : getAllCodes(terminology, version, Branch.ROOT).getObjects()) {
-        componentMap.put(code.getId(), code);
-      }
-    }
-
-    // detatch concepts
-    manager.clear();
     fireProgressEvent(8, "Start creating transitive closure relationships");
 
     //
@@ -282,28 +258,33 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
         fireProgressEvent((int) ((progress * .92) + 8),
             "Creating transitive closure relationships");
       }
-      
+
       // Create a "self" transitive relationship
       TransitiveRelationship<? extends ComponentHasAttributes> tr = null;
       if (idType == IdType.CONCEPT) {
         final ConceptTransitiveRelationship ctr =
             new ConceptTransitiveRelationshipJpa();
-        ctr.setSuperType((Concept) componentMap.get(code));
+        Concept superType = new ConceptJpa();
+        superType.setId(code);
         ctr.setSubType(ctr.getSuperType());
         tr = ctr;
       } else if (idType == IdType.DESCRIPTOR) {
         final DescriptorTransitiveRelationship dtr =
             new DescriptorTransitiveRelationshipJpa();
-        dtr.setSuperType((Descriptor) componentMap.get(code));
+        Descriptor superType = new DescriptorJpa();
+        superType.setId(code);
+        dtr.setSuperType(superType);
         dtr.setSubType(dtr.getSuperType());
         tr = dtr;
       } else if (idType == IdType.CODE) {
         final CodeTransitiveRelationship ctr =
             new CodeTransitiveRelationshipJpa();
-        ctr.setSuperType((Code) componentMap.get(code));
+        Code superType = new CodeJpa();
+        superType.setId(code);
+        ctr.setSuperType(superType);
         ctr.setSubType(ctr.getSuperType());
         tr = ctr;
-      } 
+      }
 
       tr.setObsolete(false);
       tr.setTimestamp(startDate);
@@ -314,8 +295,8 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
       tr.setTerminologyId("");
       tr.setTerminology(terminology);
       tr.setTerminologyVersion(version);
-      addTransitiveRelationship(tr);      
-      
+      addTransitiveRelationship(tr);
+
       List<Long> ancPath = new ArrayList<>();
       ancPath.add(code);
       final Set<Long> descs = getDescendants(code, parChd, ancPath);
@@ -324,20 +305,32 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
         if (idType == IdType.CONCEPT) {
           final ConceptTransitiveRelationship ctr =
               new ConceptTransitiveRelationshipJpa();
-          ctr.setSuperType((Concept) componentMap.get(code));
-          ctr.setSubType((Concept) componentMap.get(desc));
+          Concept superType = new ConceptJpa();
+          superType.setId(code);
+          Concept subType = new ConceptJpa();
+          subType.setId(desc);
+          ctr.setSuperType(superType);
+          ctr.setSubType(subType);
           tr = ctr;
         } else if (idType == IdType.DESCRIPTOR) {
           final DescriptorTransitiveRelationship dtr =
               new DescriptorTransitiveRelationshipJpa();
-          dtr.setSuperType((Descriptor) componentMap.get(code));
-          dtr.setSubType((Descriptor) componentMap.get(desc));
+          Descriptor superType = new DescriptorJpa();
+          superType.setId(code);
+          Descriptor subType = new DescriptorJpa();
+          subType.setId(desc);
+          dtr.setSuperType(superType);
+          dtr.setSubType(subType);
           tr = dtr;
         } else if (idType == IdType.CODE) {
           final CodeTransitiveRelationship ctr =
               new CodeTransitiveRelationshipJpa();
-          ctr.setSuperType((Code) componentMap.get(code));
-          ctr.setSubType((Code) componentMap.get(desc));
+          Code superType = new CodeJpa();
+          superType.setId(code);
+          Code subType = new CodeJpa();
+          subType.setId(desc);
+          ctr.setSuperType(superType);
+          ctr.setSubType(subType);
           tr = ctr;
         } else {
           throw new Exception("Illegal id type: " + idType);

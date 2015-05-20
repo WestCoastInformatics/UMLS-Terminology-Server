@@ -159,6 +159,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** The atom concept id map. */
   private Map<String, String> atomConceptIdMap = new HashMap<>();
 
+  /** The atom terminology map. */
+  private Map<String, String> atomTerminologyMap = new HashMap<>();
+
   /** The atom code id map. */
   private Map<String, String> atomCodeIdMap = new HashMap<>();
 
@@ -1111,7 +1114,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             conceptSubset.addMember(conceptMember);
             // Get the concept for the terminology and the conceptId of the atom
             Concept concept = new ConceptJpa();
-            concept.setId(conceptIdMap.get(fields[9]
+            concept.setId(conceptIdMap.get(atomTerminologyMap.get(fields[3])
                 + atomConceptIdMap.get(fields[3])));
             conceptMember.setMember(concept);
             conceptMember.setSubset(conceptSubset);
@@ -1181,7 +1184,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (fields[4].equals("CODE")) {
         // Get the code for the terminology and CODE of the AUI
         Code code =
-            getCode(codeIdMap.get(fields[9] + atomCodeIdMap.get(fields[3])));
+            getCode(codeIdMap.get(atomTerminologyMap.get(fields[3]) + atomCodeIdMap.get(fields[3])));
         code.addAttribute(att);
       } else if (fields[4].equals("CUI")) {
         // Get the concept for the terminology and CUI
@@ -1190,13 +1193,13 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (fields[4].equals("SDUI")) {
         // Get the descriptor for the terminology and SDUI of the AUI
         Descriptor descriptor =
-            getDescriptor(descriptorIdMap.get(fields[9]
+            getDescriptor(descriptorIdMap.get(atomTerminologyMap.get(fields[3])
                 + atomDescriptorIdMap.get(fields[3])));
         descriptor.addAttribute(att);
       } else if (fields[4].equals("SCUI")) {
         // Get the concept for the terminology and SCUI of the AUI
         Concept concept =
-            getConcept(conceptIdMap.get(fields[9]
+            getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[3])
                 + atomConceptIdMap.get(fields[3])));
         concept.addAttribute(att);
       }
@@ -1376,14 +1379,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
         // Get the concept for the terminology and SCUI of the AUI (METAUI)
         Concept fromConcept = new ConceptJpa();
-        fromConcept.setId(conceptIdMap.get(fields[10]
+        fromConcept.setId(conceptIdMap.get(atomTerminologyMap.get(fields[5])
             + atomConceptIdMap.get(fields[5])));
         conceptRel.setFrom(fromConcept);
 
         Concept toConcept = new ConceptJpa();
-        toConcept.setId(conceptIdMap.get(fields[10]
+        toConcept.setId(conceptIdMap.get(atomTerminologyMap.get(fields[1])
             + atomConceptIdMap.get(fields[1])));
         conceptRel.setTo(toConcept);
+
         setRelationshipFields(fields, conceptRel);
         addRelationship(conceptRel);
         relationshipMap.put(fields[8], conceptRel);
@@ -1394,12 +1398,14 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
         // Get the descriptor for the terminology and SDUI of the AUI (METAUI)
         Descriptor fromDescriptor = new DescriptorJpa();
-        fromDescriptor.setId(descriptorIdMap.get(fields[10]
+        fromDescriptor.setId(descriptorIdMap.get(
+        atomTerminologyMap.get(fields[5])
             + atomDescriptorIdMap.get(fields[5])));
         descriptorRel.setFrom(fromDescriptor);
 
         Descriptor toDescriptor = new DescriptorJpa();
-        toDescriptor.setId(descriptorIdMap.get(fields[10]
+        toDescriptor.setId(descriptorIdMap.get(
+        atomTerminologyMap.get(fields[1])
             + atomDescriptorIdMap.get(fields[1])));
         descriptorRel.setTo(toDescriptor);
 
@@ -1413,11 +1419,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         // Get the code for the terminology and CODE of the AUI (METAUI)
         Code fromCode = new CodeJpa();
         fromCode
-            .setId(codeIdMap.get(fields[10] + atomCodeIdMap.get(fields[5])));
+            .setId(codeIdMap.get(atomTerminologyMap.get(fields[5]) + atomCodeIdMap.get(fields[5])));
         codeRel.setFrom(fromCode);
 
         Code toCode = new CodeJpa();
-        toCode.setId(codeIdMap.get(fields[10] + atomCodeIdMap.get(fields[1])));
+        toCode.setId(codeIdMap.get(atomTerminologyMap.get(fields[1]) + atomCodeIdMap.get(fields[1])));
         codeRel.setTo(toCode);
 
         setRelationshipFields(fields, codeRel);
@@ -1647,7 +1653,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (fields[11].equals("SRC") && fields[12].equals("SSN")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
-          Logger.getLogger(getClass()).error("  Null root " + t);
+          Logger.getLogger(getClass()).error("  Null root " + line);
         } else {
           t.getRootTerminology().setShortName(fields[14]);
         }
@@ -1655,7 +1661,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (fields[11].equals("SRC") && fields[12].equals("RHT")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
-          Logger.getLogger(getClass()).error("  Null root " + t);
+          Logger.getLogger(getClass()).error("  Null root " + line);
         } else {
           t.getRootTerminology().setHierarchicalName(fields[14]);
         }
@@ -1678,8 +1684,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         if (t == null || t.getRootTerminology() == null) {
           Logger.getLogger(getClass()).error("  Null root " + line);
         } else {
-          List<String> syNames =
-              t.getRootTerminology().getSynonymousNames();
+          List<String> syNames = t.getRootTerminology().getSynonymousNames();
           syNames.add(fields[14]);
         }
       }
@@ -1700,6 +1705,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       addAtom(atom);
       logAndCommit(++objectCt);
       atomIdMap.put(fields[7], atom.getId());
+      atomTerminologyMap.put(fields[7], atom.getTerminology());
       atomConceptIdMap.put(fields[7], atom.getConceptId());
       atomCodeIdMap.put(fields[7], atom.getCodeId());
       atomDescriptorIdMap.put(fields[7], atom.getDescriptorId());
