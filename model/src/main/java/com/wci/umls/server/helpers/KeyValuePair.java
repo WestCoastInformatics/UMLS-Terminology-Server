@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Container for key value pairs.
  */
 @XmlRootElement(name = "keyValuePair")
-public class KeyValuePair {
+public class KeyValuePair implements Comparable<KeyValuePair> {
 
   /** The key. */
   private String key;
@@ -123,5 +123,13 @@ public class KeyValuePair {
   @Override
   public String toString() {
     return "(" + key + ", " + value + ")";
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  @Override
+  public int compareTo(KeyValuePair o) {
+    return getKey().compareTo(o.getKey());
   }
 }

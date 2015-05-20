@@ -114,12 +114,12 @@
 								<p class="introText">This demonstration app is loaded with
 									data from these terminologies.</p>
 								<ul>
-									<li>UMLS, latest</li>
+									<li>UMLS, 2014AB</li>
 									<li>MSH, 2015_2014_09_08</li>
 									<li>SNOMEDCT_US, 2014_09_01</li>
 								</ul>
-								<p class="introText">The mini version of SNOMED contains
-									about 10K concepts. Due to the use of IP restricted content, we
+								<p class="introText">The mini version of the UMLS contains
+									about 2,000 concepts. Due to the use of IP restricted content, we
 									require users to authenticate with an NLM UTS account to ensure
 									they have agreed to the UMLS License. We are a UMLS authorized
 									content distributor.</p>
@@ -128,7 +128,7 @@
 								</p>
 								<p class="introText">
 									Disclaimer: this is not an official <a
-										href="http://www.ihtsdo.org">IHTSDO</a> site.
+										href="http://www.ihtsdo.org">NLM</a> site.
 								</p>
 								<p class="introText">
 									For complete documentation, see the <a
@@ -249,13 +249,14 @@
 								<span ng-show="showObsolete == true">Hide Obsolete</span> <span
 									ng-show="showObsolete != true">Show Obsolete</span>
 							</button>
+<!-- no use case for removing atom info 
 							<button ng-show="hasBooleanFieldTrue(component, 'atomElement')"
 								ng-click="toggleAtomElement()" class="btn btn-xs btn-primary">
 								<span ng-show="showAtomElement == true">Hide Atom
 									Elements</span> <span ng-show="showAtomElement != true">Show
 									Atom Elements</span>
 							</button>
-
+ -->
 							<!--  Semantic types -->
 							<div ng-show="component.semanticType.length > 0">
 								<h4>
@@ -278,9 +279,9 @@
 									<li class="cr-list" ng-repeat="item in pagedSemanticTypes"
 										ng-show="showItem(item)"><span
 										class="label label-warning"
-										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span>
+										ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
 										<span class="label label-default"
-										ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
+										ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
 										{{item.semanticType}}</li>
 								</ul>
 
@@ -307,11 +308,11 @@
 								<ul>
 									<li class="cr-list" ng-repeat="item in pagedDefinitions"
 										ng-show="showItem(item)">
-										<span class="label label-info" ng-show="item.atomElement == true" tooltip="item.atomElementStr">Atom</span><span
+										<span class="label label-info" ng-show="item.atomElement == true" tooltip="{{item.atomElementStr}}">*</span><span
 										class="label label-warning"
-										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span>
+										ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
 										<span class="label label-default"
-										ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
+										ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
 										{{item.value}}</li>
 								</ul>
 								
@@ -338,9 +339,9 @@
 									<li class="cr-list" ng-repeat="item in pagedAtoms"
 										ng-show="showItem(item)"><span
 										class="label label-warning"
-										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span>
+										ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
 										<span class="label label-default"
-										ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
+										ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
 
 										<!--  Format:  name [terminology/termType] codeId componentId descriptorId conceptTerminologyIds
 											  NOTE: codeId, componentId, descriptorId automatically shown if of differing terminology, 
@@ -392,9 +393,9 @@
 									<li class="cr-list" ng-repeat="item in pagedAttributes"
 										ng-show="showItem(item)"><span
 										class="label label-warning"
-										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span>
+										ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
 										<span class="label label-default"
-										ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
+										ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
 										{{item.name}} = {{item.value}}
 								</ul>
 							</div>
@@ -418,9 +419,9 @@
 									<li class="cr-list" ng-repeat="item in pagedRelationships"
 										ng-show="showItem(item)"><span
 										class="label label-warning"
-										ng-show="item.suppressible == true" tooltip="Suppressible">Sup</span>
+										ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
 										<span class="label label-default"
-										ng-show="item.obsolete == true" tooltip="Obsolete">Obs</span>
+										ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
 										{{item.relationshipType}} {{item.additionalRelationshipType}}
 										<a
 										ng-click="getComponent(component.terminology, item.toTerminologyId)"
@@ -436,16 +437,18 @@
 					<div class="container-fluid"">
 
 						<div class="row">
+                          <div class="col-md-12 col-xs-12" >
 							<h3>Metadata for
-								{{terminology.terminology}}/{{terminology.terminologyVersion}}</h3>
+								{{terminology.terminology}} {{terminology.terminologyVersion}}</h3>
 							<ul>
-								<li class="col-md-12 col-xs-12" ng-repeat="item in metadata"
+								<li ng-repeat="item in metadata"
 									ng-show="item.keyValuePair.length > 0"><b>{{item.name}}</b>
 									<ul>
 										<li ng-repeat="pair in item.keyValuePair">
-											{{pair.key}}&nbsp;{{pair.value}}</li>
+											<span class="label label-info">{{pair.key}}</span>&nbsp;{{pair.value}}</li>
 									</ul></li>
 							</ul>
+                          </div>
 						</div>
 					</div>
 					</tab> </tabset>
