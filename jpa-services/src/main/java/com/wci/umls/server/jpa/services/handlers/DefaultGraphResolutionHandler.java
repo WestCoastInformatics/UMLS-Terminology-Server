@@ -523,7 +523,5 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
 
   }
-  
-
 
 }

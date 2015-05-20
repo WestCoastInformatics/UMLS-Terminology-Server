@@ -240,34 +240,15 @@ public class DescriptorTransitiveRelationshipJpa extends
     subType.setName(term);
   }
 
-  /**
-   * CUSTOM hashcode method for sub/super types.
-   *
-   * @return true, if successfulo
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((superType == null || superType.getTerminologyId() == null) ? 0
-                : superType.getTerminologyId().hashCode());
-    result =
-        prime
-            * result
-            + ((subType == null || subType.getTerminologyId() == null) ? 0
-                : subType.getTerminologyId().hashCode());
+    result = prime * result + ((subType == null) ? 0 : subType.hashCode());
+    result = prime * result + ((superType == null) ? 0 : superType.hashCode());
     return result;
   }
 
-  /**
-   * CUSTOM equals method for sub/superType.getTerminologyId
-   *
-   * @param obj the obj
-   * @return true, if successful
-   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -281,33 +262,20 @@ public class DescriptorTransitiveRelationshipJpa extends
     if (subType == null) {
       if (other.subType != null)
         return false;
-    } else if (subType.getTerminologyId() == null) {
-      if (other.subType != null && other.subType.getTerminologyId() != null)
-        return false;
-    } else if (!subType.getTerminologyId().equals(
-        other.subType.getTerminologyId()))
+    } else if (!subType.equals(other.subType))
       return false;
     if (superType == null) {
       if (other.superType != null)
         return false;
-    } else if (superType.getTerminologyId() == null) {
-      if (other.superType != null && other.superType.getTerminologyId() != null)
-        return false;
-    } else if (!superType.getTerminologyId().equals(
-        other.superType.getTerminologyId()))
+    } else if (!superType.equals(other.superType))
       return false;
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
   @Override
   public String toString() {
-    return "DescriptorTransitiveRelationshipJpa [superType=" + superType.getTerminologyId()
-        + ", subType=" + subType.getTerminologyId() + "]";
+    return "DescriptorTransitiveRelationshipJpa [superType=" + superType
+        + ", subType=" + subType + "]";
   }
 
 }

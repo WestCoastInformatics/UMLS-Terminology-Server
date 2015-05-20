@@ -174,28 +174,6 @@ public class CodeTransitiveRelationshipJpa extends
   }
 
   /**
-   * CUSTOM hashcode method for sub/superType.getTerminologyId
-   *
-   * @return true, if successful
-   */
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((superType == null || superType.getTerminologyId() == null) ? 0
-                : superType.getTerminologyId().hashCode());
-    result =
-        prime
-            * result
-            + ((subType == null || subType.getTerminologyId() == null) ? 0
-                : subType.getTerminologyId().hashCode());
-    return result;
-  }
-
-  /**
    * Returns the sub type id. For JAXB.
    *
    * @return the sub type id
@@ -257,13 +235,15 @@ public class CodeTransitiveRelationshipJpa extends
     }
     subType.setName(term);
   }
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((subType == null) ? 0 : subType.hashCode());
+    result = prime * result + ((superType == null) ? 0 : superType.hashCode());
+    return result;
+  }
 
-  /**
-   * CUSTOM equals method for to/from.getTerminologyId
-   *
-   * @param obj the obj
-   * @return true, if successful
-   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -272,37 +252,25 @@ public class CodeTransitiveRelationshipJpa extends
       return false;
     if (getClass() != obj.getClass())
       return false;
-    CodeTransitiveRelationshipJpa other = (CodeTransitiveRelationshipJpa) obj;
+    CodeTransitiveRelationshipJpa other =
+        (CodeTransitiveRelationshipJpa) obj;
     if (subType == null) {
       if (other.subType != null)
         return false;
-    } else if (subType.getTerminologyId() == null) {
-      if (other.subType != null && other.subType.getTerminologyId() != null)
-        return false;
-    } else if (!subType.getTerminologyId().equals(
-        other.subType.getTerminologyId()))
+    } else if (!subType.equals(other.subType))
       return false;
     if (superType == null) {
       if (other.superType != null)
         return false;
-    } else if (superType.getTerminologyId() == null) {
-      if (other.superType != null && other.superType.getTerminologyId() != null)
-        return false;
-    } else if (!superType.getTerminologyId().equals(
-        other.superType.getTerminologyId()))
+    } else if (!superType.equals(other.superType))
       return false;
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
   @Override
   public String toString() {
-    return "CodeTransitiveRelationshipJpa [superType=" + superType.getTerminologyId()
-        + ", subType=" + subType.getTerminologyId() + "]";
+    return "CodeTransitiveRelationshipJpa [superType=" + superType
+        + ", subType=" + subType + "]";
   }
 
 }

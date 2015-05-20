@@ -213,12 +213,12 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
             .setParameter("relationshipType", chdRel);
 
     @SuppressWarnings("unchecked")
-    List<Long[]> rels = query.getResultList();
+    List<Object[]> rels = query.getResultList();
     Map<Long, Set<Long>> parChd = new HashMap<>();
     int ct = 0;
-    for (final Long[] rel : rels) {
-      final Long chd = rel[0];
-      final Long par = rel[1];
+    for (final Object[] rel : rels) {
+      final Long chd = Long.parseLong(rel[0].toString());
+      final Long par = Long.parseLong(rel[1].toString());
       if (!parChd.containsKey(par)) {
         parChd.put(par, new HashSet<Long>());
       }
@@ -266,6 +266,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
             new ConceptTransitiveRelationshipJpa();
         Concept superType = new ConceptJpa();
         superType.setId(code);
+        ctr.setSuperType(superType);
         ctr.setSubType(ctr.getSuperType());
         tr = ctr;
       } else if (idType == IdType.DESCRIPTOR) {
