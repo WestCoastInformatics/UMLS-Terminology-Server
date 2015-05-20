@@ -1664,7 +1664,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           && !fields[14].equals("")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
-          Logger.getLogger(getClass()).error("  Null root " + t);
+          Logger.getLogger(getClass()).error("  Null root " + line);
         } else {
           List<String> syNames = t.getRootTerminology().getSynonymousNames();
           syNames.add(fields[14]);
@@ -1674,10 +1674,14 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // Handle terminology sy names
       if (fields[11].equals("SRC") && fields[12].equals("VSY")
           && !fields[14].equals("")) {
-        List<String> syNames =
-            loadedTerminologies.get(fields[13].substring(2))
-                .getSynonymousNames();
-        syNames.add(fields[14]);
+        final Terminology t = loadedTerminologies.get(fields[13].substring(2));
+        if (t == null || t.getRootTerminology() == null) {
+          Logger.getLogger(getClass()).error("  Null root " + line);
+        } else {
+          List<String> syNames =
+              t.getRootTerminology().getSynonymousNames();
+          syNames.add(fields[14]);
+        }
       }
 
       // Determine organizing class type for terminology
