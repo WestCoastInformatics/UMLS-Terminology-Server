@@ -637,7 +637,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         manager.createQuery("select a from AtomSubsetMemberJpa a, "
             + " AtomJpa b where b.terminologyId = :atomId "
             + "and b.terminologyVersion = :version "
-            + "and b.terminology = :terminology and s.member = b");
+            + "and b.terminology = :terminology and a.member = b");
 
     try {
       SubsetMemberList list = new SubsetMemberListJpa();
@@ -1771,6 +1771,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (pfs != null && pfs.getSortField() != null) {
       localQueryStr += " order by a." + pfs.getSortField();
     }
+
+    Logger.getLogger(getClass()).info(
+        "localQueryStr: " + localQueryStr);
     javax.persistence.Query query = manager.createQuery(localQueryStr);
     if (pfs != null && pfs.getStartIndex() > -1 && pfs.getMaxResults() > -1) {
       query.setFirstResult(pfs.getStartIndex());
@@ -2984,7 +2987,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private List<AtomClass> getSearchCriteriaResults(String terminology,
     String version, SearchCriteria criteria, Class<?> clazz) throws Exception {
     StringBuilder builder = new StringBuilder();
-    builder.append("SELECT a FROM " + clazz.getName() + " a "
+    builder.append("SELECT c FROM " + clazz.getName() + " c "
         + "WHERE terminology = :terminology "
         + "AND terminologyVersion = :version ");
 

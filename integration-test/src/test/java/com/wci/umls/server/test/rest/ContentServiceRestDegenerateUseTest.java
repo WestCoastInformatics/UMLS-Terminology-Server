@@ -14,11 +14,21 @@ import static org.junit.Assert.assertTrue;
 
 
 
+
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.wci.umls.server.helpers.SearchCriteria;
+import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.SearchCriteriaJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.test.helpers.DegenerateUseMethodTestHelper;
