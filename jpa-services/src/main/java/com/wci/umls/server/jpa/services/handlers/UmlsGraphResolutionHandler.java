@@ -69,8 +69,13 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
         resolve(atom);
       }
 
-      // skip relationships (for UMLS concept)
-      concept.setRelationships(new ArrayList<ConceptRelationship>());
+      // Relationships
+      for (ConceptRelationship rel : concept.getRelationships()) {
+        if (nullId) {
+          rel.setId(null);
+        }
+        resolve(rel);
+      }
 
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");
