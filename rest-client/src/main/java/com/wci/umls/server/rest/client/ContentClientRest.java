@@ -379,6 +379,8 @@ public class ContentClientRest implements ContentServiceRest {
             + ", " + query + ", " + pfs);
 
     Client client = Client.create();
+    if (query.equals(""))
+      query = null;
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
             + terminology + "/" + version + "/query/" + query);

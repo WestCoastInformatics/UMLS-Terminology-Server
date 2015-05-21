@@ -184,6 +184,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
         atom.setAttributes(new ArrayList<Attribute>());
         atom.setDefinitions(new ArrayList<Definition>());
         atom.setRelationships(new ArrayList<AtomRelationship>());
+        atom.setMembers(new ArrayList<AtomSubsetMember>());
       }
 
     } else if (lexicalClass == null) {
@@ -218,6 +219,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
         atom.setAttributes(new ArrayList<Attribute>());
         atom.setDefinitions(new ArrayList<Definition>());
         atom.setRelationships(new ArrayList<AtomRelationship>());
+        atom.setMembers(new ArrayList<AtomSubsetMember>());
       }
 
     } else if (stringClass == null) {

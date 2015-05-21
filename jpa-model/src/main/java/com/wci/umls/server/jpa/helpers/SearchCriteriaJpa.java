@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.helpers;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.SearchCriteria;
@@ -371,6 +372,29 @@ public class SearchCriteriaJpa implements SearchCriteria {
         + relationshipFromId + ", findDescendants=" + findDescendants
         + ", definedOnly=" + definedOnly + ", inactiveOnly=" + inactiveOnly
         + ", primitiveOnly=" + primitiveOnly + ", findSelf=" + findSelf + "]";
+  }
+
+  @XmlElement
+  @Override
+  public void setRelationshipFromId(String relationshipFromId) {
+    this.relationshipFromId = relationshipFromId;    
+  }
+
+  @XmlElement
+  @Override
+  public void setRelationshipType(String relationshipType) {
+    this.relationshipType = relationshipType;    
+  }
+
+  @XmlElement
+  @Override
+  public void setRelationshipToId(String relationshipToId) {
+    this.relationshipToId = relationshipToId;
+  }
+
+  @Override
+  public void setRelationshipDescendantsFlag(boolean descendants) {
+    this.relationshipDescendantsFlag = descendants;
   }
 
 }
