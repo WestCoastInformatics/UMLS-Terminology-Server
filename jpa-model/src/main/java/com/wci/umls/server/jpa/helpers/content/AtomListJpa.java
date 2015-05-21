@@ -27,7 +27,7 @@ public class AtomListJpa extends AbstractResultList<Atom> implements AtomList {
   @Override
   @XmlElement(type = AtomJpa.class, name = "atom")
   public List<Atom> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

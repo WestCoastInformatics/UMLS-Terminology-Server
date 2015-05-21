@@ -207,6 +207,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
         }
         keyValuePairLists.addKeyValuePairList(keyValuePairList);
       }
+      keyValuePairLists.sort();
       return keyValuePairLists;
     } catch (Exception e) {
       throw e;

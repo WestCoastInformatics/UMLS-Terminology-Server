@@ -166,6 +166,7 @@ public class ModelUnit011Test {
     tester.include("terminologyId");
     tester.include("terminology");
     tester.include("terminologyVersion");
+    tester.include("fullyDefined");
     tester.include("nameSort");
     tester.include("workflowStatus");
     tester.include("branch");

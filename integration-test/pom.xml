@@ -74,7 +74,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <includes>
-                <include>**/com/wci/umls/server/test/rest/Project*Test.java</include>
+                <include>**/com/wci/umls/server/test/rest/*Test.java</include>
               </includes>
               <additionalClasspathElements>
                 <additionalClasspathElement>src/main/resources</additionalClasspathElement>
@@ -122,6 +122,10 @@
               <includes>
                 <include>**/com/wci/umls/server/test/mojo/*Test.java</include>
               </includes>
+              <excludes>
+                <exclude>**/com/wci/umls/server/test/mojo/ResetDevDatabase.java
+                </exclude>
+              </excludes>
               <additionalClasspathElements>
                 <additionalClasspathElement>src/main/resources</additionalClasspathElement>
               </additionalClasspathElements>

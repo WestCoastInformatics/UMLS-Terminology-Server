@@ -31,7 +31,7 @@ public class TreePositionListJpa
   @Override
   @XmlElement(type = AbstractTreePosition.class, name = "treepos")
   public List<TreePosition<? extends ComponentHasAttributesAndName>> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

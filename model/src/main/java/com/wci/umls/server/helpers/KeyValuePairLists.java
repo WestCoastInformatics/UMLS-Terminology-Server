@@ -4,6 +4,8 @@
 package com.wci.umls.server.helpers;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -33,8 +35,7 @@ public class KeyValuePairLists {
   public KeyValuePairLists(KeyValuePairLists lists) {
     keyValuePairLists = lists.getKeyValuePairLists();
   }
-  
-  
+
   /**
    * Returns the key value pair lists.
    * 
@@ -82,6 +83,22 @@ public class KeyValuePairLists {
   public void removeKeyValuePairList(KeyValuePairList keyValuePairList) {
     keyValuePairLists.remove(keyValuePairList);
 
+  }
+
+  /**
+   * Sort the elements.
+   */
+  public void sort() {
+    for (KeyValuePairList list : getKeyValuePairLists()) {
+      Collections.sort(list.getKeyValuePairList());
+    }
+    Collections.sort(getKeyValuePairLists(),
+        new Comparator<KeyValuePairList>() {
+          @Override
+          public int compare(KeyValuePairList o1, KeyValuePairList o2) {
+            return o1.getName().compareTo(o2.getName());
+          }
+        });
   }
 
   @Override

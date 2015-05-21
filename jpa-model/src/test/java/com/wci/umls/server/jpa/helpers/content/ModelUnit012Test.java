@@ -272,7 +272,7 @@ public class ModelUnit012Test {
     tester.include("to");
     assertTrue(tester.testNotNullFields());
   }
-
+  
   /**
    * Teardown.
    */

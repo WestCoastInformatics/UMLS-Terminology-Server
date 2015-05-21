@@ -22,9 +22,13 @@ import com.wci.umls.server.model.content.CodeTreePosition;
  * JPA-enabled implementation of {@link CodeTreePosition}.
  */
 @Entity
-@Table(name = "code_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
-}))
+@Table(name = "code_tree_positions", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {
+        "terminologyId", "terminology", "terminologyVersion", "id"
+    }), @UniqueConstraint(columnNames = {
+        "ancestorPath", "terminologyId"
+    })
+})
 @Audited
 @XmlRootElement(name = "codeTreePosition")
 public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
@@ -126,7 +130,7 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
       node = new CodeJpa();
     }
     node.setTerminologyId(terminologyId);
-  } 
+  }
 
   /*
    * (non-Javadoc)
@@ -152,8 +156,8 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
     result =
         prime
             * result
-            + ((node == null || node.getTerminologyId() == null) ? 0 : node.getTerminologyId()
-                .hashCode());
+            + ((node == null || node.getTerminologyId() == null) ? 0 : node
+                .getTerminologyId().hashCode());
     return result;
   }
 

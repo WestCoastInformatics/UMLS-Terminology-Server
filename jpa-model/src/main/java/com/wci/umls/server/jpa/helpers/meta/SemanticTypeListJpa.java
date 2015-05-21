@@ -28,7 +28,7 @@ public class SemanticTypeListJpa extends AbstractResultList<SemanticType>
   @Override
   @XmlElement(type = SemanticTypeJpa.class, name = "type")
   public List<SemanticType> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

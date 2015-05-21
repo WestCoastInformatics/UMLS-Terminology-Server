@@ -30,7 +30,7 @@ public class SubsetMemberListJpa extends
   @Override
   @XmlElement(type = AbstractSubsetMember.class, name = "subsetMember")
   public List<SubsetMember<? extends ComponentHasAttributesAndName>> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

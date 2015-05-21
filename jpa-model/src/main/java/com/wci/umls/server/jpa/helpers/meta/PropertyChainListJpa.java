@@ -28,7 +28,7 @@ public class PropertyChainListJpa extends
   @Override
   @XmlElement(type = PropertyChainJpa.class, name = "type")
   public List<PropertyChain> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

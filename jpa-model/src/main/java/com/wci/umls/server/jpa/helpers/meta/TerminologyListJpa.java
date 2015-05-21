@@ -28,7 +28,7 @@ public class TerminologyListJpa extends AbstractResultList<Terminology>
   @Override
   @XmlElement(type = TerminologyJpa.class, name = "terminology")
   public List<Terminology> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

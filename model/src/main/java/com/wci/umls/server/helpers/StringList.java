@@ -28,7 +28,7 @@ public class StringList extends AbstractResultList<String> {
   @Override
   @XmlElement(type = String.class, name = "string")
   public List<String> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

@@ -26,13 +26,11 @@ import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTreePosition;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorTreePosition;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.ContentService;
@@ -180,10 +178,10 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
       tableName2 = "CodeJpa";
     }
     @SuppressWarnings("unchecked")
-    List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationships =
+    List<Object[]> relationships =
         manager
             .createQuery(
-                "select r from "
+                "select r.from.id, r.to.id from "
                     + tableName
                     + " r where "
                     + "terminologyVersion = :terminologyVersion and terminology = :terminology "
@@ -198,25 +196,30 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     int ct = 0;
     Map<Long, Set<Long>> parChd = new HashMap<>();
     Map<Long, Set<Long>> chdPar = new HashMap<>();
-    for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : relationships) {
+    for (Object[] r : relationships) {
       ct++;
-      final ComponentHasAttributes from = r.getFrom();
-      final ComponentHasAttributes to = r.getTo();
+      long fromId = Long.parseLong(r[0].toString());
+      long toId = Long.parseLong(r[1].toString());
 
-      if (!parChd.containsKey(to.getId())) {
-        parChd.put(to.getId(), new HashSet<Long>());
+      if (!parChd.containsKey(toId)) {
+        parChd.put(toId, new HashSet<Long>());
       }
-      Set<Long> children = parChd.get(to.getId());
-      children.add(from.getId());
+      Set<Long> children = parChd.get(toId);
+      children.add(fromId);
 
-      if (!chdPar.containsKey(from.getId())) {
-        chdPar.put(from.getId(), new HashSet<Long>());
+      if (!chdPar.containsKey(fromId)) {
+        chdPar.put(fromId, new HashSet<Long>());
       }
-      Set<Long> parents = chdPar.get(from.getId());
-      parents.add(to.getId());
+      Set<Long> parents = chdPar.get(fromId);
+      parents.add(toId);
     }
     Logger.getLogger(this.getClass()).info("    count = " + ct);
 
+    if (ct == 0) {
+      Logger.getLogger(this.getClass()).info("    NO TREE POSITIONS");
+      fireProgressEvent(100, "Finished.");
+      return;
+    }
     // Find roots
     fireProgressEvent(5, "Find roots");
     Set<Long> rootIds = new HashSet<>();

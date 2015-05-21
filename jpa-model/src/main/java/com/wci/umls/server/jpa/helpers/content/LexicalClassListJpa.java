@@ -26,7 +26,7 @@ public class LexicalClassListJpa extends AbstractResultList<LexicalClass>
   @Override
   @XmlElement(type = LexicalClassJpa.class, name = "lexicalClass")
   public List<LexicalClass> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }

@@ -41,10 +41,11 @@
                       <name>Validate active concept default preferred names -
                         SNOMEDCT</name>
                       <value>
-                        SELECT terminologyId, defaultPreferredName
+                        SELECT terminologyId, name
                         FROM
                         concepts a
-                        WHERE a.active = 1 AND terminology =
+                        WHERE
+                        a.active = 1 AND terminology =
                         'SNOMEDCT' AND NOT EXISTS
                         (SELECT * FROM descriptions b,
                         language_refset_members c
@@ -60,8 +61,8 @@
                         '900000000000509007'
                         AND c.acceptabilityId =
                         '900000000000548007'
-                        AND a.defaultPreferredName =
-                        b.term);
+                        AND a.name =
+                        b.name);
                       </value>
                     </property>
 
@@ -69,13 +70,16 @@
                       <name>Validate concept default preferred names - not
                         SNOMEDCT</name>
                       <value>
-                        SELECT terminologyId, defaultPreferredName
+                        SELECT terminologyId, name
                         FROM
                         concepts a
-                        WHERE terminology != 'SNOMEDCT' AND NOT EXISTS
-                        (SELECT * FROM descriptions b
+                        WHERE
+                        terminology != 'SNOMEDCT' AND NOT EXISTS
+                        (SELECT * FROM
+                        descriptions b
                         WHERE a.id = b.concept_id
-                        AND a.defaultPreferredName = b.term);
+                        AND a.name =
+                        b.term);
                       </value>
                     </property>
 
@@ -261,58 +265,90 @@
                     </property>
 
                     <property>
-                      <name>Concept referential integrity - defaultPreferredName</name>
+                      <name>Concept referential integrity - name</name>
                       <value>
-                        SELECT defaultPreferredName FROM concepts a
+                        SELECT name FROM concepts a
                         WHERE
                         NOT EXISTS
-                        (SELECT * FROM atoms b, atom_concept_map c
+                        (SELECT *
+                        FROM atoms b, atom_concept_map c
                         WHERE b.id = c.atom_id
-                        AND c.conceptTerminologyIdMap = a.terminologyId);
+                        AND c.conceptTerminologyIdMap =
+                        a.terminologyId);
                       </value>
                     </property>
 
                     <property>
-                      <name>Code referential integrity - defaultPreferredName</name>
+                      <name>Code referential integrity - name</name>
                       <value>
-                        SELECT defaultPreferredName FROM codes a
+                        SELECT name FROM codes a
                         WHERE NOT
                         EXISTS
-                        (SELECT * FROM atoms b
-                        WHERE b.codeId = a.terminologyId);
+                        (SELECT *
+                        FROM atoms b
+                        WHERE b.codeId =
+                        a.terminologyId);
                       </value>
                     </property>
                     <property>
                       <name>Descriptor referential integrity -
-                        defaultPreferredName</name>
+                        name</name>
                       <value>
-                        SELECT defaultPreferredName FROM descriptors a
+                        SELECT name FROM descriptors a
                         WHERE NOT EXISTS
                         (SELECT * FROM atoms b
-                        WHERE b.descriptorId = a.terminologyId);
+                        WHERE
+                        b.descriptorId =
+                        a.terminologyId);
                       </value>
                     </property>
                     <property>
                       <name>Lexical class referential integrity -
-                        defaultPreferredName</name>
+                        name</name>
                       <value>
-                        SELECT defaultPreferredName FROM lexical_classes a
+                        SELECT name FROM lexical_classes a
                         WHERE NOT EXISTS
                         (SELECT * FROM atoms b
-                        WHERE b.lexicalClassId = a.terminologyId);
+                        WHERE
+                        b.lexicalClassId =
+                        a.terminologyId);
                       </value>
                     </property>
                     <property>
                       <name>String class referential integrity -
-                        defaultPreferredName</name>
+                        name</name>
                       <value>
-                        SELECT defaultPreferredName FROM string_classes a
+                        SELECT name FROM string_classes a
                         WHERE NOT EXISTS
                         (SELECT * FROM atoms b
-                        WHERE b.stringClassId = a.terminologyId);
+                        WHERE
+                        b.stringClassId =
+                        a.terminologyId);
                       </value>
                     </property>
 
+                    <property>
+                      <name>Missing string class</name>
+                      <value>
+                        SELECT id, name FROM atoms a
+                        WHERE not exists
+                        (SELECT * FROM string_classes b
+                        WHERE a.stringClassId =
+                        b.terminologyId);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Missing lexical class</name>
+                      <value>
+                        SELECT id, name FROM atoms a
+                        WHERE not exists
+                        (SELECT * FROM lexical_classes b
+                        WHERE a.lexicalClassId =
+                        b.terminologyId);
+                      </value>
+                    </property>
+                    
                     <property>
                       <name>Relationship type without inverse</name>
                       <value>
@@ -329,6 +365,7 @@
                         WHERE inverse IS NULL;
                       </value>
                     </property>
+
 
                     <!-- Validate projects -->
                     <!-- Validate release info -->

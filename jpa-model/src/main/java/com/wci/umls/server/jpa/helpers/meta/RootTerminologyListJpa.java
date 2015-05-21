@@ -28,7 +28,7 @@ public class RootTerminologyListJpa extends AbstractResultList<RootTerminology>
   @Override
   @XmlElement(type = RootTerminologyJpa.class, name = "rootTerminology")
   public List<RootTerminology> getObjects() {
-    return super.getObjects();
+    return super.getObjectsTransient();
   }
 
 }
