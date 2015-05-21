@@ -302,29 +302,9 @@ tsApp
           });
         }
         
-        /**
-         * Helper function to get full terminology object given terminology name
-         */
-        function getTerminologyFromName(terminologyName) {
-        	// check for full terminology object by comparing to selected terminology
-        	if (terminologyName != $scope.terminology.terminology) {
-        		
-        		// cycle over available terminologies for match
-        		for (var i = 0; i < $scope.terminologies.length; i++) {
-        			if ($scope.terminologies[i].terminology === terminologyName) {
-        				return $scope.terminologies[i];
-        			}
-        		}
-        	} else {
-        		return $scope.terminology;
-        	}
-        	
-        	
-        }
         
         /**
          * Function to get a component of the terminology's organizing class type.
-         * TODO:  Get rid of this and have conceptTErminologyIds retrieved by getConcept
          */
         $scope.getComponent = function(terminologyName, terminologyId) {
         	
@@ -714,6 +694,40 @@ tsApp
         		return "ClassTypeUnknown";
         	}
         	return terminology.organizingClassType;
+        }
+        
+        /**
+         * Function to filter viewable terminologies for picklist
+         */
+        $scope.getViewableTerminologies = function() {
+        	var viewableTerminologies = new Array();
+        	if (!$scope.terminologies) {
+        		return viewableTerminologies;
+        	}
+        	for (var i = 0; i < $scope.terminologies.length; i++) {
+        		// exclude MTH and SRC
+        		if ($scope.terminologies[i].terminology != 'MTH' && $scope.terminologies[i].terminology != 'SRC')
+        			viewableTerminologies.push($scope.terminologies[i])
+        	}
+        	return viewableTerminologies;
+        }
+        
+        /**
+         * Helper function to get full terminology object given terminology name
+         */
+        function getTerminologyFromName(terminologyName) {
+        	// check for full terminology object by comparing to selected terminology
+        	if (terminologyName != $scope.terminology.terminology) {
+        		
+        		// cycle over available terminologies for match
+        		for (var i = 0; i < $scope.terminologies.length; i++) {
+        			if ($scope.terminologies[i].terminology === terminologyName) {
+        				return $scope.terminologies[i];
+        			}
+        		}
+        	} else {
+        		return $scope.terminology;
+        	}	
         }
         
         //////////////////////////////////////

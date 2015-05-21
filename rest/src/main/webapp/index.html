@@ -156,7 +156,7 @@
 								<td width="15%;">Terminology</td>
 								<td width="85%;"><select ng-model="terminology"
 									ng-change="setTerminology(terminology)"
-									ng-options="terminology as terminology.terminology for terminology in terminologies"></select></td>
+									ng-options="terminology as terminology.terminology for terminology in getAvailableTerminologies() | sortBy:'terminology.terminology'"></select></td>
 							<tr>
 								<td>Query</td>
 								<td><form width="100%">
