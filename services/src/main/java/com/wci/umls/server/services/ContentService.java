@@ -29,6 +29,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
@@ -195,11 +196,31 @@ public interface ContentService extends RootService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for concept
    */
   public RelationshipList findRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch, PfsParameter pfs);
+    String terminology, String version, String branch, boolean inverseFlag,
+    PfsParameter pfs);
+
+  /**
+   * Find relationships for concept or any part of its graph and push them all up to the same level.
+   * For example a UMLS concept may return the CUI relationships, the atom relationships,
+   * the SCUI, SDUI, and CODE relationships - all represented as {@link ConceptRelationship}.
+   *
+   * @param conceptId the concept id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param inverseFlag the inverse flag
+   * @param pfs the pfs
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  public RelationshipList findDeepRelationshipsForConcept(String conceptId,
+    String terminology, String version, String branch, boolean inverseFlag,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the relationships for descriptor.
@@ -208,11 +229,13 @@ public interface ContentService extends RootService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for descriptor
    */
   public RelationshipList findRelationshipsForDescriptor(String descriptorId,
-    String terminology, String version, String branch, PfsParameter pfs);
+    String terminology, String version, String branch, boolean inverseFlag,
+    PfsParameter pfs);
 
   /**
    * Returns the relationships for code.
@@ -221,11 +244,13 @@ public interface ContentService extends RootService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for code
    */
   public RelationshipList findRelationshipsForCode(String codeId,
-    String terminology, String version, String branch, PfsParameter pfs);
+    String terminology, String version, String branch, boolean inverseFlag,
+    PfsParameter pfs);
 
   /**
    * Returns the relationships for atom.
@@ -234,11 +259,13 @@ public interface ContentService extends RootService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for atom
    */
   public RelationshipList findRelationshipsForAtom(String conceptId,
-    String terminology, String version, String branch, PfsParameter pfs);
+    String terminology, String version, String branch, boolean inverseFlag,
+    PfsParameter pfs);
 
   /**
    * Returns the descriptor.
@@ -676,8 +703,8 @@ public interface ContentService extends RootService {
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findCodeTreePositions(Code code, String branch, PfsParameter pfs
-    ) throws Exception;
+  public TreePositionList findCodeTreePositions(Code code, String branch,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the atom.

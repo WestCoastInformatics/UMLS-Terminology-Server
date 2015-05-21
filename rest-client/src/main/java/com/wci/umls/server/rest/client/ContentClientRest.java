@@ -1064,13 +1064,47 @@ public class ContentClientRest implements ContentServiceRest {
     String terminology, String version, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - get relationships for concept " + terminologyId
+        "Content Client - find relationships for concept " + terminologyId
             + ", " + terminology + ", " + version + ", " + pfs);
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
             + terminology + "/" + version + "/" + terminologyId
             + "/relationships");
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    RelationshipListJpa relList =
+        (RelationshipListJpa) ConfigUtility.getGraphForString(resultString,
+            RelationshipListJpa.class);
+    return relList;
+  }
+
+  @Override
+  public RelationshipList findDeepRelationshipsForConcept(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find deep relationships for concept " + terminologyId
+            + ", " + terminology + ", " + version + ", " + pfs);
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/cui/"
+            + terminology + "/" + version + "/" + terminologyId
+            + "/relationships/deep");
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1106,7 +1140,7 @@ public class ContentClientRest implements ContentServiceRest {
     String terminology, String version, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - get relationships for descriptor " + terminologyId
+        "Content Client - find relationships for descriptor " + terminologyId
             + ", " + terminology + ", " + version + ", " + pfs);
     Client client = Client.create();
     WebResource resource =
@@ -1148,7 +1182,7 @@ public class ContentClientRest implements ContentServiceRest {
     String terminology, String version, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - get relationships for code " + terminologyId + ", "
+        "Content Client - find relationships for code " + terminologyId + ", "
             + terminology + ", " + version + ", " + pfs);
     Client client = Client.create();
     WebResource resource =
@@ -1258,7 +1292,7 @@ public class ContentClientRest implements ContentServiceRest {
     String terminology, String version, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - get relationships for atom " + terminologyId + ", "
+        "Content Client - find relationships for atom " + terminologyId + ", "
             + terminology + ", " + version + ", " + pfs);
     Client client = Client.create();
     WebResource resource =

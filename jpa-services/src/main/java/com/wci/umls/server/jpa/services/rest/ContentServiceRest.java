@@ -18,6 +18,7 @@ import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
@@ -151,6 +152,23 @@ public interface ContentServiceRest {
    * @throws Exception the exception
    */
   public RelationshipList findRelationshipsForConcept(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Find relationships for concept or any part of its graph and push them all up to the same level.
+   * For example a UMLS concept may return the CUI relationships, the atom relationships,
+   * the SCUI, SDUI, and CODE relationships - all represented as {@link ConceptRelationship}.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  public RelationshipList findDeepRelationshipsForConcept(String terminologyId,
     String terminology, String version, PfsParameterJpa pfs, String authToken)
     throws Exception;
 

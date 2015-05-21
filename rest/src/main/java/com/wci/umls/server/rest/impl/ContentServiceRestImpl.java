@@ -1517,10 +1517,43 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve relationships for the concept", UserRole.VIEWER);
 
       return contentService.findRelationshipsForConcept(terminologyId,
-          terminology, version, Branch.ROOT, pfs);
+          terminology, version, Branch.ROOT, false, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @Override
+  @POST
+  @Path("/cui/{terminology}/{version}/{terminologyId}/relationships/deep")
+  @ApiOperation(value = "Get deep relationships with this terminologyId", notes = "Get the relationships for the concept and also for any other atoms, concepts, descirptors, or codes in its graph for the specified concept id.", response = RelationshipList.class)
+  public RelationshipList findDeepRelationshipsForConcept(
+    @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+            + terminologyId + "/relationships/deep");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve deep relationships for the concept", UserRole.VIEWER);
+
+      return contentService.findDeepRelationshipsForConcept(terminologyId,
+          terminology, version, Branch.ROOT, false, pfs);
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve deep relationships for a concept");
       return null;
     } finally {
       contentService.close();
@@ -1550,7 +1583,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve relationships for the descriptor", UserRole.VIEWER);
 
       return contentService.findRelationshipsForDescriptor(terminologyId,
-          terminology, version, Branch.ROOT, pfs);
+          terminology, version, Branch.ROOT, false, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a descriptor");
@@ -1583,7 +1616,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve relationships for the code", UserRole.VIEWER);
 
       return contentService.findRelationshipsForCode(terminologyId,
-          terminology, version, Branch.ROOT, pfs);
+          terminology, version, Branch.ROOT, false, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a code");
@@ -1683,7 +1716,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve relationships for the atom", UserRole.VIEWER);
 
       return contentService.findRelationshipsForAtom(terminologyId,
-          terminology, version, Branch.ROOT, pfs);
+          terminology, version, Branch.ROOT, false, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a atom");

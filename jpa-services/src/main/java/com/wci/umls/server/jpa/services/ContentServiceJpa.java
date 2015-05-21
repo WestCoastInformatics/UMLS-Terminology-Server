@@ -66,6 +66,7 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
@@ -94,6 +95,7 @@ import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
@@ -2061,7 +2063,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
     Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get relationship " + id);
+        "Content Service - find relationship " + id);
     return getComponent(id, AbstractRelationship.class);
   }
 
@@ -2077,7 +2079,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public RelationshipList getRelationships(String terminologyId,
     String terminology, String version) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get relationships " + terminologyId + "/"
+        "Content Service - find relationships " + terminologyId + "/"
             + terminology + "/" + version);
     List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationships =
         getComponents(terminologyId, terminology, version,
@@ -2104,7 +2106,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String terminologyId, String terminology, String version, String branch)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get relationship " + terminologyId + "/"
+        "Content Service - find relationship " + terminologyId + "/"
             + terminology + "/" + version + "/" + branch);
     return getComponent(terminologyId, terminology, version, branch,
         AbstractRelationship.class);
@@ -3295,7 +3297,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + ", " + searchTerm);
     return autocompleteHelper(terminology, version, searchTerm, CodeJpa.class);
   }
- 
+
   /*
    * (non-Javadoc)
    * 
@@ -3999,16 +4001,183 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @see
    * com.wci.umls.server.services.ContentService#findRelationshipsForConcept
    * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
+   * boolean, com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
   public RelationshipList findRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch, PfsParameter pfs) {
+    String terminology, String version, String branch, boolean inverseFlag,
+    PfsParameter pfs) {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get relationships for concept " + conceptId + "/"
+        "Content Service - find relationships for concept " + conceptId + "/"
             + terminology + "/" + version);
     return findRelationshipsHelper(conceptId, terminology, version, branch,
-        pfs, ConceptJpa.class);
+        inverseFlag, pfs, ConceptJpa.class);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findDeepRelationshipsForConcept
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * boolean, com.wci.umls.server.helpers.PfsParameter)
+   */
+  @SuppressWarnings({
+      "rawtypes", "unchecked"
+  })
+  @Override
+  public RelationshipList findDeepRelationshipsForConcept(String conceptId,
+    String terminology, String version, String branch, boolean inverseFlag,
+    PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - find deep relationships for concept " + conceptId
+            + "/" + terminology + "/" + version);
+    try {
+
+      Concept concept = getConcept(conceptId, terminology, version, branch);
+
+      List<Object[]> results = new ArrayList<>();
+      String queryStr =
+          "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
+              + "a.relationshipType, a.additionalRelationshipType, a.to.terminologyId "
+              + "from ConceptRelationshipJpa a " + "where "
+              + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId ";
+      javax.persistence.Query query = manager.createQuery(queryStr);
+      query.setParameter("conceptId", concept.getId());
+      results.addAll(query.getResultList());
+
+      queryStr =
+          "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2) "
+              + "from AtomRelationshipJpa a join a.to.conceptTerminologyIds cui2 "
+              + "where key(cui2) = '" + concept.getTerminology() + "' and "
+              + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds) ";
+      query = manager.createQuery(queryStr);
+      final Set<Long> atomIds = new HashSet<>();
+      for (final Atom atom : concept.getAtoms()) {
+        atomIds.add(atom.getId());
+      }
+      query.setParameter("atomIds", atomIds);
+      results.addAll(query.getResultList());
+
+      queryStr =
+          "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2) "
+              + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
+              + "DescriptorJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
+              + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
+              + "and b.terminologyId = c.descriptorId "
+              + "and b.terminology = c.terminology "
+              + "and b.terminologyVersion = c.terminologyVersion "
+              + "and b.name = c.name and c.id in (:atomIds) " + "and a."
+              + (inverseFlag ? "from" : "to") + ".id = d.id "
+              + "and d.terminologyId = e.descriptorId "
+              + "and d.terminology = e.terminology "
+              + "and d.terminologyVersion = e.terminologyVersion "
+              + "and d.name = e.name ";
+      query = manager.createQuery(queryStr);
+      query.setParameter("atomIds", atomIds);
+      results.addAll(query.getResultList());
+
+      queryStr =
+          "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2) "
+              + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
+              + "ConceptJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
+              + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
+              + "and b.terminologyId = c.conceptId "
+              + "and b.terminology = c.terminology "
+              + "and b.terminologyVersion = c.terminologyVersion "
+              + "and b.name = c.name and c.id in (:atomIds) " + "and a."
+              + (inverseFlag ? "from" : "to") + ".id = d.id "
+              + "and d.terminologyId = e.conceptId "
+              + "and d.terminology = e.terminology "
+              + "and d.terminologyVersion = e.terminologyVersion "
+              + "and d.name = e.name ";
+      query = manager.createQuery(queryStr);
+      query.setParameter("atomIds", atomIds);
+      results.addAll(query.getResultList());
+
+      queryStr =
+          "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2) "
+              + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
+              + "CodeJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
+              + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
+              + "and b.terminologyId = c.codeId "
+              + "and b.terminology = c.terminology "
+              + "and b.terminologyVersion = c.terminologyVersion "
+              + "and b.name = c.name and c.id in (:atomIds) " + "and a."
+              + (inverseFlag ? "from" : "to") + ".id = d.id "
+              + "and d.terminologyId = e.codeId "
+              + "and d.terminology = e.terminology "
+              + "and d.terminologyVersion = e.terminologyVersion "
+              + "and d.name = e.name ";
+      query = manager.createQuery(queryStr);
+      query.setParameter("atomIds", atomIds);
+      results.addAll(query.getResultList());
+
+      List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> conceptRels =
+          new ArrayList<>();
+      for (final Object[] result : results) {
+        final ConceptRelationship relationship = new ConceptRelationshipJpa();
+        final Concept toConcept = new ConceptJpa();
+        toConcept.setTerminology(concept.getTerminology());
+        toConcept.setTerminologyVersion(concept.getTerminologyVersion());
+        toConcept.setTerminologyId(result[6].toString());
+        relationship.setId(Long.parseLong(result[0].toString()));
+        relationship.setFrom(concept);
+        relationship.setTerminologyId(result[1].toString());
+        relationship.setTerminology(result[2].toString());
+        relationship.setTerminologyVersion(result[3].toString());
+        relationship.setRelationshipType(result[4].toString());
+        relationship.setAdditionalRelationshipType(result[5].toString());
+        relationship.setTo(toConcept);
+        conceptRels.add(relationship);
+      }
+
+      // Apply PFS
+      // Apply PFS sorting manually
+      if (pfs != null && pfs.getSortField() != null) {
+        final Field sortField =
+            ConceptRelationshipJpa.class.getField(pfs.getSortField());
+        if (sortField.getType().isAssignableFrom(Comparable.class)) {
+          throw new Exception("Referenced sort field is not comparable");
+        }
+        sortField.setAccessible(true);
+        Collections.sort(conceptRels, new Comparator<Relationship>() {
+          @Override
+          public int compare(Relationship o1, Relationship o2) {
+            try {
+              Comparable f1 = (Comparable) sortField.get(o1);
+              Comparable f2 = (Comparable) sortField.get(o2);
+              return f1.compareTo(f2);
+            } catch (Exception e) {
+              // do nothing
+            }
+            return 0;
+          }
+        });
+      }
+
+      // Apply PFS paging manually
+      if (pfs != null && pfs.getStartIndex() != -1) {
+        int startIndex = pfs.getStartIndex();
+        int toIndex = conceptRels.size();
+        toIndex = Math.min(toIndex, startIndex + pfs.getMaxResults());
+        conceptRels = conceptRels.subList(startIndex, toIndex);
+      }
+
+      RelationshipList list = new RelationshipListJpa();
+      list.setTotalCount(results.size());
+      list.setObjects(conceptRels);
+
+      return null;
+    } catch (Throwable e) {
+      System.err.println(e.getMessage());
+      e.printStackTrace();
+      return null;
+    }
   }
 
   /*
@@ -4017,16 +4186,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @see
    * com.wci.umls.server.services.ContentService#findRelationshipsForDescriptor
    * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
+   * boolean, com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
   public RelationshipList findRelationshipsForDescriptor(String descriptorId,
-    String terminology, String version, String branch, PfsParameter pfs) {
+    String terminology, String version, String branch, boolean inverseFlag,
+    PfsParameter pfs) {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get relationships for descriptor " + descriptorId
+        "Content Service - find relationships for descriptor " + descriptorId
             + "/" + terminology + "/" + version);
     return findRelationshipsHelper(descriptorId, terminology, version, branch,
-        pfs, DescriptorJpa.class);
+        inverseFlag, pfs, DescriptorJpa.class);
   }
 
   /*
@@ -4035,16 +4205,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @see
    * com.wci.umls.server.services.ContentService#findRelationshipsForCode(java
    * .lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
+   * boolean, com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
   public RelationshipList findRelationshipsForCode(String codeId,
-    String terminology, String version, String branch, PfsParameter pfs) {
+    String terminology, String version, String branch, boolean inverseFlag,
+    PfsParameter pfs) {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get relationships for code " + codeId + "/"
+        "Content Service - find relationships for code " + codeId + "/"
             + terminology + "/" + version);
-    return findRelationshipsHelper(codeId, terminology, version, branch, pfs,
-        CodeJpa.class);
+    return findRelationshipsHelper(codeId, terminology, version, branch,
+        inverseFlag, pfs, CodeJpa.class);
   }
 
   /*
@@ -4053,16 +4224,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @see
    * com.wci.umls.server.services.ContentService#findRelationshipsForAtom(java
    * .lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
+   * boolean, com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
   public RelationshipList findRelationshipsForAtom(String atomId,
-    String terminology, String version, String branch, PfsParameter pfs) {
+    String terminology, String version, String branch, boolean inverseFlag,
+    PfsParameter pfs) {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get relationships for atom " + atomId + "/"
+        "Content Service - find relationships for atom " + atomId + "/"
             + terminology + "/" + version);
-    return findRelationshipsHelper(atomId, terminology, version, branch, pfs,
-        AtomJpa.class);
+    return findRelationshipsHelper(atomId, terminology, version, branch,
+        inverseFlag, pfs, AtomJpa.class);
   }
 
   /**
@@ -4072,14 +4244,16 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @param clazz the clazz
    * @return the relationship list
    */
   @SuppressWarnings("unchecked")
   private RelationshipList findRelationshipsHelper(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs,
-    Class<?> clazz) {
+    String terminology, String version, String branch, boolean inverseFlag,
+    PfsParameter pfs, Class<?> clazz) {
+    // Match "to" for inverseFlag, "from" otherwise
     javax.persistence.Query query =
         applyPfsToQuery(
             "select a from "
@@ -4087,13 +4261,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
                 + clazz.getName()
                 + " b where b.terminologyId = :terminologyId "
                 + "and b.terminologyVersion = :version "
-                + "and b.terminology = :terminology and a.from = b ", pfs);
+                + "and b.terminology = :terminology and a."
+                + (inverseFlag ? "to" : "from") + " = b ", pfs);
     javax.persistence.Query ctQuery =
         manager.createQuery("select count(*) from "
             + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
             + clazz.getName() + " b where b.terminologyId = :terminologyId "
             + "and b.terminologyVersion = :version "
-            + "and b.terminology = :terminology and a.from = b");
+            + "and b.terminology = :terminology and a."
+            + (inverseFlag ? "to" : "from") + " = b");
     try {
       RelationshipList list = new RelationshipListJpa();
 
@@ -4129,7 +4305,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String terminology, String version, PfsParameter pfs, String branch)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get relationships for concept " + terminologyId
+        "Content Service - find relationships for concept " + terminologyId
             + "/" + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
         pfs, ConceptJpa.class);
@@ -4148,7 +4324,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String terminology, String version, PfsParameter pfs, String branch)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get relationships for descriptor " + terminologyId
+        "Content Service - find relationships for descriptor " + terminologyId
             + "/" + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
         pfs, DescriptorJpa.class);
@@ -4167,7 +4343,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String terminology, String version, PfsParameter pfs, String branch)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - get relationships for code " + terminologyId + "/"
+        "Content Service - find relationships for code " + terminologyId + "/"
             + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
         pfs, CodeJpa.class);
