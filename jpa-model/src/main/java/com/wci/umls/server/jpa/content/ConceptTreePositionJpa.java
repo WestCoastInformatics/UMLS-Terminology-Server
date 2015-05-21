@@ -22,9 +22,13 @@ import com.wci.umls.server.model.content.ConceptTreePosition;
  * JPA-enabled implementation of {@link ConceptTreePosition}.
  */
 @Entity
-@Table(name = "concept_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
-}))
+@Table(name = "concept_tree_positions", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {
+        "terminologyId", "terminology", "terminologyVersion", "id"
+    }), @UniqueConstraint(columnNames = {
+        "ancestorPath", "terminologyId"
+    })
+})
 @Audited
 @XmlRootElement(name = "conceptTreePosition")
 public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
@@ -65,9 +69,12 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
     return node;
   }
 
-
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.content.TreePosition#setNode(com.wci.umls.server.model.content.ComponentHasAttributesAndName)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.TreePosition#setNode(com.wci.umls.server
+   * .model.content.ComponentHasAttributesAndName)
    */
   @Override
   public void setNode(Concept concept) {
@@ -115,7 +122,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
       node = new ConceptJpa();
     }
     node.setName(name);
-  }  
+  }
 
   /**
    * Returns the node terminology id. For JAXB.
@@ -136,7 +143,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
       node = new ConceptJpa();
     }
     node.setTerminologyId(terminologyId);
-  }  
+  }
 
   /*
    * (non-Javadoc)

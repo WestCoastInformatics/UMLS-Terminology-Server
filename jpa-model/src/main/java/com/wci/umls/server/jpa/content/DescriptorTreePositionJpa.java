@@ -22,9 +22,13 @@ import com.wci.umls.server.model.content.DescriptorTreePosition;
  * JPA-enabled implementation of {@link DescriptorTreePosition}.
  */
 @Entity
-@Table(name = "descriptor_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
-}))
+@Table(name = "descriptor_tree_positions", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {
+        "terminologyId", "terminology", "terminologyVersion", "id"
+    }), @UniqueConstraint(columnNames = {
+        "ancestorPath", "terminologyId"
+    })
+})
 @Audited
 @XmlRootElement(name = "descriptorTreePosition")
 public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
@@ -65,7 +69,6 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
   public Descriptor getNode() {
     return node;
   }
-  
 
   /**
    * Returns the node id. For JAXB.
@@ -76,7 +79,7 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
   public Long getNodeId() {
     return node == null ? null : node.getId();
   }
-  
+
   /**
    * Sets the node id. For JAXB.
    *
@@ -88,8 +91,7 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
     }
     node.setId(id);
   }
-  
-  
+
   /**
    * Returns the node name. For JAXB.
    *
@@ -111,7 +113,6 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
     node.setName(name);
   }
 
-
   /**
    * Returns the node terminology id. For JAXB.
    *
@@ -131,7 +132,8 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
       node = new DescriptorJpa();
     }
     node.setTerminologyId(terminologyId);
-  } 
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -156,8 +158,8 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
     result =
         prime
             * result
-            + ((node == null || node.getTerminologyId() == null) ? 0
-                : node.getTerminologyId().hashCode());
+            + ((node == null || node.getTerminologyId() == null) ? 0 : node
+                .getTerminologyId().hashCode());
     return result;
   }
 

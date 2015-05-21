@@ -3,14 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -25,11 +18,9 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
-import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -39,6 +30,7 @@ import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.TreeList;
+import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
@@ -52,23 +44,21 @@ import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
-import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.HistoryService;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
@@ -119,7 +109,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   throws Exception {
     Logger.getLogger(getClass()).info("test");
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (ContentChange): /reindex "
+        "RESTful POST call (Content): /reindex "
             + (indexedObjects == null ? "with no objects specified"
                 : "with specified objects " + indexedObjects));
 
@@ -165,7 +155,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (ContentChange): /terminology/closure/compute/"
+        "RESTful POST call (Content): /terminology/closure/compute/"
             + terminology + "/" + version);
 
     // Track system level information
@@ -220,7 +210,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (ContentChange): /terminology/treepos/compute/"
+        "RESTful POST call (Content): /terminology/treepos/compute/"
             + terminology + "/" + version);
 
     // Track system level information
@@ -266,9 +256,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/terminology/load/rrf/{singleMode}/{terminology}/{version}")
-  @Consumes({
-    MediaType.TEXT_PLAIN
-  })
+  @Consumes(MediaType.TEXT_PLAIN)
   @ApiOperation(value = "Load all terminologies from an RRF directory", notes = "Loads terminologies from an RRF directory for specified terminology and version")
   public void loadTerminologyRrf(
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
@@ -280,7 +268,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass())
         .info(
-            "RESTful POST call (ContentChange): /terminology/load/rrf/umls/"
+            "RESTful POST call (Content): /terminology/load/rrf/umls/"
                 + terminology + "/" + version + " from input directory "
                 + inputDir);
 
@@ -380,6 +368,256 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /*
    * (non-Javadoc)
    * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * loadTerminologyRf2Delta(java.lang.String, java.lang.String,
+   * java.lang.String)
+   */
+  @Override
+  @PUT
+  @Path("/terminology/load/rf2/delta/{terminology}")
+  @Consumes(MediaType.TEXT_PLAIN)
+  @ApiOperation(value = "Loads terminology RF2 delta from directory", notes = "Loads terminology RF2 delta from directory for specified terminology and version")
+  public void loadTerminologyRf2Delta(
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "RF2 input directory", required = true) String inputDir,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Content): /terminology/load/rf2/delta/"
+            + terminology + " from input directory " + inputDir);
+
+    // Track system level information
+    long startTimeOrig = System.nanoTime();
+
+    try {
+      authenticate(securityService, authToken, "start editing cycle",
+          UserRole.ADMINISTRATOR);
+
+      Logger.getLogger(getClass()).info("Starting RF2 delta loader");
+      Logger.getLogger(getClass()).info("  terminology = " + terminology);
+      Logger.getLogger(getClass()).info("  inputDir = " + inputDir);
+
+      // Check the input directory
+      File inputDirFile = new File(inputDir);
+      if (!inputDirFile.exists()) {
+        throw new Exception("Specified input directory does not exist");
+      }
+
+      // Previous computation of terminology version is based on file name
+      // but for delta/daily build files, this is not the current version
+      // look up the current version instead
+      MetadataService metadataService = new MetadataServiceJpa();
+      final String version = metadataService.getLatestVersion(terminology);
+      metadataService.close();
+      if (version == null) {
+        throw new Exception("Unable to determine terminology version.");
+      }
+
+      // Sort files
+      Logger.getLogger(getClass()).info("  Sort RF2 Files");
+      Rf2FileSorter sorter = new Rf2FileSorter();
+      sorter.setSortByEffectiveTime(false);
+      sorter.setRequireAllFiles(false);
+      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
+      sorter.sortFiles(inputDirFile, outputDir);
+
+      // Open readers
+      Rf2Readers readers = new Rf2Readers(outputDir);
+      readers.openReaders();
+
+      // Load delta
+      Rf2DeltaLoaderAlgorithm algorithm = new Rf2DeltaLoaderAlgorithm();
+      algorithm.setTerminology(terminology);
+      algorithm.setTerminologyVersion(version);
+      algorithm.setReleaseVersion(sorter.getFileVersion());
+      algorithm.setReaders(readers);
+      algorithm.compute();
+      algorithm.close();
+
+      // Compute transitive closure
+      Logger.getLogger(getClass()).info(
+          "  Compute transitive closure from  " + terminology + "/" + version);
+      TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+      algo.setTerminology(terminology);
+      algo.setTerminologyVersion(version);
+      algo.reset();
+      algo.compute();
+
+      // Clean-up
+      readers.closeReaders();
+      Logger.getLogger(getClass()).info("...done");
+
+      // Final logging messages
+      Logger.getLogger(getClass()).info(
+          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+      Logger.getLogger(getClass()).info("done ...");
+
+    } catch (Exception e) {
+      handleException(e, "trying to load terminology delta from RF2 directory");
+    } finally {
+      securityService.close();
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * loadTerminologyRf2Snapshot(java.lang.String, java.lang.String,
+   * java.lang.String, java.lang.String)
+   */
+  @Override
+  @PUT
+  @Path("/terminology/load/rf2/snapshot/{terminology}/{version}")
+  @Consumes({
+    MediaType.TEXT_PLAIN
+  })
+  @ApiOperation(value = "Loads terminology RF2 snapshot from directory", notes = "Loads terminology RF2 snapshot from directory for specified terminology and version")
+  public void loadTerminologyRf2Snapshot(
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 20140731", required = true) @PathParam("version") String version,
+    @ApiParam(value = "RF2 input directory", required = true) String inputDir,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info(
+            "RESTful POST call (Content): /terminology/load/rf2/snapshot/"
+                + terminology + "/" + version + " from input directory "
+                + inputDir);
+
+    // Track system level information
+    long startTimeOrig = System.nanoTime();
+
+    try {
+      authenticate(securityService, authToken, "start editing cycle",
+          UserRole.ADMINISTRATOR);
+
+      // Check the input directory
+      File inputDirFile = new File(inputDir);
+      if (!inputDirFile.exists()) {
+        throw new Exception("Specified input directory does not exist");
+      }
+
+      // Sort files
+      Logger.getLogger(getClass()).info("  Sort RF2 Files");
+      Rf2FileSorter sorter = new Rf2FileSorter();
+      sorter.setSortByEffectiveTime(false);
+      sorter.setRequireAllFiles(true);
+      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
+      sorter.sortFiles(inputDirFile, outputDir);
+      String releaseVersion = sorter.getFileVersion();
+      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
+
+      // Open readers
+      Rf2Readers readers = new Rf2Readers(outputDir);
+      readers.openReaders();
+
+      // Load snapshot
+      Rf2SnapshotLoaderAlgorithm algorithm = new Rf2SnapshotLoaderAlgorithm();
+      algorithm.setTerminology(terminology);
+      algorithm.setTerminologyVersion(version);
+      algorithm.setReleaseVersion(releaseVersion);
+      algorithm.setReaders(readers);
+      algorithm.compute();
+      algorithm.close();
+      algorithm = null;
+
+      // Compute transitive closure
+      Logger.getLogger(getClass()).info(
+          "  Compute transitive closure from  " + terminology + "/" + version);
+      TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+      algo.setTerminology(terminology);
+      algo.setTerminologyVersion(version);
+      algo.reset();
+      algo.compute();
+
+      // Clean-up
+      readers.closeReaders();
+      ConfigUtility
+          .deleteDirectory(new File(inputDirFile, "/RF2-sorted-temp/"));
+
+      // Final logging messages
+      Logger.getLogger(getClass()).info(
+          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+      Logger.getLogger(getClass()).info("done ...");
+
+    } catch (Exception e) {
+      handleException(e,
+          "trying to load terminology snapshot from RF2 directory");
+    } finally {
+      securityService.close();
+    }
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyClaml
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  @PUT
+  @Path("/terminology/load/claml/{terminology}/{version}")
+  @Consumes({
+    MediaType.TEXT_PLAIN
+  })
+  @ApiOperation(value = "Loads ClaML terminology from file", notes = "Loads terminology from ClaML file, assigning specified version")
+  public void loadTerminologyClaml(
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 20140731", required = true) @PathParam("version") String version,
+    @ApiParam(value = "ClaML input file", required = true) String inputFile,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Content): /terminology/load/claml/" + terminology
+            + "/" + version + " from input file " + inputFile);
+
+    // Track system level information
+    long startTimeOrig = System.nanoTime();
+
+    ClamlLoaderAlgorithm clamlAlgorithm = new ClamlLoaderAlgorithm();
+    TransitiveClosureAlgorithm transitiveClosureAlgorithm =
+        new TransitiveClosureAlgorithm();
+    try {
+      authenticate(securityService, authToken, "start editing cycle",
+          UserRole.ADMINISTRATOR);
+
+      // Load snapshot
+      Logger.getLogger(getClass()).info("Load ClaML data from " + inputFile);
+      clamlAlgorithm.setTerminology(terminology);
+      clamlAlgorithm.setTerminologyVersion(version);
+      clamlAlgorithm.setInputFile(inputFile);
+      clamlAlgorithm.compute();
+
+      // Let service begin its own transaction
+      Logger.getLogger(getClass()).info("Start computing transtive closure");
+      transitiveClosureAlgorithm.setTerminology(terminology);
+      transitiveClosureAlgorithm.setTerminologyVersion(version);
+      transitiveClosureAlgorithm.reset();
+      transitiveClosureAlgorithm.compute();
+
+      // Final logging messages
+      Logger.getLogger(getClass()).info(
+          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+      Logger.getLogger(getClass()).info("done ...");
+
+    } catch (Exception e) {
+      handleException(e, "trying to load terminology from ClaML file");
+    } finally {
+      clamlAlgorithm.close();
+      transitiveClosureAlgorithm.close();
+      securityService.close();
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#removeTerminology
    * (java.lang.String, java.lang.String, java.lang.String)
@@ -395,8 +633,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (ContentChange): /terminology/remove/" + terminology
-            + "/" + version);
+        "RESTful POST call (Content): /terminology/remove/" + terminology + "/"
+            + version);
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
@@ -870,49 +1108,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findLexicalClasssForQuery (java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
-  @Override
-  @POST
-  @Path("/lui/{terminology}/{version}/query/{query}")
-  @ApiOperation(value = "Find lexical class matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
-  public SearchResultList findLexicalClassesForQuery(
-    @ApiParam(value = "Lexical class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Lexical class terminology version, e.g. latest", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
-    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /lui/" + terminology + "/" + version
-            + "/query/" + query + " with PFS parameter "
-            + (pfs == null ? "empty" : pfs.toString()));
-    ContentService contentService = new ContentServiceJpa();
-    try {
-      authenticate(securityService, authToken, "find lexical class by query",
-          UserRole.VIEWER);
-
-      SearchResultList sr =
-          contentService.findLexicalClassesForQuery(terminology, version,
-              Branch.ROOT, query, pfs);
-      return sr;
-
-    } catch (Exception e) {
-      handleException(e, "trying to find the lexicalClasses by query");
-      return null;
-    } finally {
-      contentService.close();
-      securityService.close();
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
    * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getStringClass
    * (java.lang .String, java.lang.String, java.lang.String, java.lang.String)
@@ -961,49 +1156,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findStringClasssForQuery (java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
-  @Override
-  @POST
-  @Path("/sui/{terminology}/{version}/query/{query}")
-  @ApiOperation(value = "Find string class matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
-  public SearchResultList findStringClassesForQuery(
-    @ApiParam(value = "String class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "String class terminology version, e.g. latest", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
-    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /sui/" + terminology + "/" + version
-            + "/query/" + query + " with PFS parameter "
-            + (pfs == null ? "empty" : pfs.toString()));
-    ContentService contentService = new ContentServiceJpa();
-    try {
-      authenticate(securityService, authToken, "find string class by query",
-          UserRole.VIEWER);
-
-      SearchResultList sr =
-          contentService.findStringClassesForQuery(terminology, version,
-              Branch.ROOT, query, pfs);
-      return sr;
-
-    } catch (Exception e) {
-      handleException(e, "trying to find the stringClasses by query");
-      return null;
-    } finally {
-      contentService.close();
-      securityService.close();
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
    * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorConcepts
    * (java.lang.String, java.lang.String, java.lang.String, boolean,
@@ -1017,25 +1169,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version
-            + terminologyId + " with PFS parameter "
+            + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find ancestor concepts",
           UserRole.VIEWER);
 
-      Concept concept =
-          contentService.getConcept(terminologyId, terminology, version,
-              Branch.ROOT);
-      return contentService.findAncestorConcepts(concept, childrenOnly, pfs,
-          Branch.ROOT);
+      return contentService.findAncestorConcepts(terminologyId, terminology,
+          version, parentsOnly, Branch.ROOT, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to find the ancestor concepts");
@@ -1062,25 +1211,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version
-            + terminologyId + " with PFS parameter "
+            + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find descendant concepts",
           UserRole.VIEWER);
 
-      Concept concept =
-          contentService.getConcept(terminologyId, terminology, version,
-              Branch.ROOT);
-      return contentService.findDescendantConcepts(concept, childrenOnly, pfs,
-          Branch.ROOT);
+      return contentService.findDescendantConcepts(terminologyId, terminology,
+          version, parentsOnly, Branch.ROOT, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to find the descendant concepts");
@@ -1107,25 +1253,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version
-            + terminologyId + " with PFS parameter "
+            + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find ancestor descriptors",
           UserRole.VIEWER);
 
-      Descriptor descriptor =
-          contentService.getDescriptor(terminologyId, terminology, version,
-              Branch.ROOT);
-      return contentService.findAncestorDescriptors(descriptor, childrenOnly,
-          pfs, Branch.ROOT);
+      return contentService.findAncestorDescriptors(terminologyId, terminology,
+          version, parentsOnly, Branch.ROOT, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to find the ancestor descriptors");
@@ -1152,25 +1295,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version
-            + terminologyId + " with PFS parameter "
+            + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find descendant descriptors",
           UserRole.VIEWER);
 
-      Descriptor descriptor =
-          contentService.getDescriptor(terminologyId, terminology, version,
-              Branch.ROOT);
-      return contentService.findDescendantDescriptors(descriptor, childrenOnly,
-          pfs, Branch.ROOT);
+      return contentService.findDescendantDescriptors(terminologyId,
+          terminology, version, parentsOnly, Branch.ROOT, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to find the descendant descriptors");
@@ -1197,25 +1337,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version
-            + terminologyId + " with PFS parameter "
+            + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find ancestor codes",
           UserRole.VIEWER);
 
-      Code code =
-          contentService.getCode(terminologyId, terminology, version,
-              Branch.ROOT);
-      return contentService.findAncestorCodes(code, childrenOnly, pfs,
-          Branch.ROOT);
+      return contentService.findAncestorCodes(terminologyId, terminology,
+          version, parentsOnly, Branch.ROOT, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to find the ancestor codes");
@@ -1242,25 +1379,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version
-            + terminologyId + " with PFS parameter "
+            + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find descendant codes",
           UserRole.VIEWER);
 
-      Code code =
-          contentService.getCode(terminologyId, terminology, version,
-              Branch.ROOT);
-      return contentService.findDescendantCodes(code, childrenOnly, pfs,
-          Branch.ROOT);
+      return contentService.findDescendantCodes(terminologyId, terminology,
+          version, parentsOnly, Branch.ROOT, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to find the descendant codes");
@@ -1280,31 +1414,33 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @GET
-  @Path("/csm/{terminology}/{version}/{conceptId}")
-  @ApiOperation(value = "Get subset members with this conceptId", notes = "Get the subset members with the given concept id.", response = SubsetMemberList.class)
+  @Path("/cui/{terminology}/{version}/{terminologyId}/members")
+  @ApiOperation(value = "Get subset members with this terminologyId", notes = "Get the subset members with the given concept id.", response = SubsetMemberList.class)
   public SubsetMemberList getSubsetMembersForConcept(
-    @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("conceptId") String conceptId,
+    @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /csm/" + terminology + "/" + version + "/"
-            + conceptId);
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+            + terminologyId + "/members");
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
           "retrieve subset members for the concept", UserRole.VIEWER);
 
-      SubsetMemberList list = contentService.getSubsetMembersForConcept(conceptId, terminology,
-          version, Branch.ROOT);
+      SubsetMemberList list =
+          contentService.getSubsetMembersForConcept(terminologyId, terminology,
+              version, Branch.ROOT);
 
-      for (SubsetMember member : list.getObjects()) {
-        contentService.getGraphResolutionHandler(terminology).resolve(member);   
+      for (SubsetMember<? extends ComponentHasAttributesAndName> member : list
+          .getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
       return list;
-      
+
     } catch (Exception e) {
       handleException(e, "trying to retrieve subset members for a concept");
       return null;
@@ -1324,28 +1460,30 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @GET
-  @Path("/asm/{terminology}/{version}/{atomId}")
-  @ApiOperation(value = "Get subset members with this atomId", notes = "Get the subset members with the given atom id.", response = SubsetMemberList.class)
+  @Path("/aui/{terminology}/{version}/{terminologyId}/members")
+  @ApiOperation(value = "Get subset members with this terminologyId", notes = "Get the subset members with the given atom id.", response = SubsetMemberList.class)
   public SubsetMemberList getSubsetMembersForAtom(
-    @ApiParam(value = "Atom terminology id, e.g. 102751005", required = true) @PathParam("atomId") String atomId,
+    @ApiParam(value = "Atom terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Atom terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Atom terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /asm/" + terminology + "/" + version + "/"
-            + atomId);
+        "RESTful call (Content): /aui/" + terminology + "/" + version + "/"
+            + terminologyId + "/members");
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
           "retrieve subset members for the atom", UserRole.VIEWER);
 
-      SubsetMemberList list = contentService.getSubsetMembersForAtom(atomId, terminology,
-          version, Branch.ROOT);
-      
-      for (SubsetMember member : list.getObjects()) {
-        contentService.getGraphResolutionHandler(terminology).resolve(member);   
+      SubsetMemberList list =
+          contentService.getSubsetMembersForAtom(terminologyId, terminology,
+              version, Branch.ROOT);
+
+      for (SubsetMember<? extends ComponentHasAttributesAndName> member : list
+          .getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
       return list;
 
@@ -1358,466 +1496,28 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * loadTerminologyRf2Delta(java.lang.String, java.lang.String,
-   * java.lang.String)
-   */
   @Override
-  @PUT
-  @Path("/terminology/load/rf2/delta/{terminology}")
-  @Consumes({
-    MediaType.TEXT_PLAIN
-  })
-  @ApiOperation(value = "Loads terminology RF2 delta from directory", notes = "Loads terminology RF2 delta from directory for specified terminology and version")
-  public void loadTerminologyRf2Delta(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "RF2 input directory", required = true) String inputDir,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-
-    Logger.getLogger(getClass()).info(
-        "RESTful POST call (ContentChange): /terminology/load/rf2/delta/"
-            + terminology + " from input directory " + inputDir);
-
-    // Track system level information
-    long startTimeOrig = System.nanoTime();
-
-    try {
-      authenticate(securityService, authToken, "start editing cycle",
-          UserRole.ADMINISTRATOR);
-
-      Logger.getLogger(getClass()).info("Starting RF2 delta loader");
-      Logger.getLogger(getClass()).info("  terminology = " + terminology);
-      Logger.getLogger(getClass()).info("  inputDir = " + inputDir);
-
-      // Check the input directory
-      File inputDirFile = new File(inputDir);
-      if (!inputDirFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
-      }
-
-      // Previous computation of terminology version is based on file name
-      // but for delta/daily build files, this is not the current version
-      // look up the current version instead
-      MetadataService metadataService = new MetadataServiceJpa();
-      final String version = metadataService.getLatestVersion(terminology);
-      metadataService.close();
-      if (version == null) {
-        throw new Exception("Unable to determine terminology version.");
-      }
-
-      // Sort files
-      Logger.getLogger(getClass()).info("  Sort RF2 Files");
-      Rf2FileSorter sorter = new Rf2FileSorter();
-      sorter.setSortByEffectiveTime(false);
-      sorter.setRequireAllFiles(false);
-      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
-      sorter.sortFiles(inputDirFile, outputDir);
-
-      // Open readers
-      Rf2Readers readers = new Rf2Readers(outputDir);
-      readers.openReaders();
-
-      // Load delta
-      Rf2DeltaLoaderAlgorithm algorithm = new Rf2DeltaLoaderAlgorithm();
-      algorithm.setTerminology(terminology);
-      algorithm.setTerminologyVersion(version);
-      algorithm.setReleaseVersion(sorter.getFileVersion());
-      algorithm.setReaders(readers);
-      algorithm.compute();
-      algorithm.close();
-
-      // Compute transitive closure
-      Logger.getLogger(getClass()).info(
-          "  Compute transitive closure from  " + terminology + "/" + version);
-      TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-      algo.setTerminology(terminology);
-      algo.setTerminologyVersion(version);
-      algo.reset();
-      algo.compute();
-
-      // Clean-up
-      readers.closeReaders();
-      Logger.getLogger(getClass()).info("...done");
-
-      // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
-
-    } catch (Exception e) {
-      handleException(e, "trying to load terminology delta from RF2 directory");
-    } finally {
-      securityService.close();
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyRf2Full
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
-  @SuppressWarnings("resource")
-  @Override
-  @PUT
-  @Path("/terminology/load/rf2/full/{terminology}/{version}")
-  @Consumes({
-    MediaType.TEXT_PLAIN
-  })
-  @ApiOperation(value = "Loads terminology RF2 full from directory", notes = "Loads terminology RF2 full from directory for specified terminology and version")
-  public void loadTerminologyRf2Full(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. 20140731", required = true) @PathParam("version") String version,
-    @ApiParam(value = "RF2 input directory", required = true) String inputDir,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-
-    Logger.getLogger(getClass()).info(
-        "RESTful POST call (ContentChange): /terminology/load/rf2/full/"
-            + terminology + "/" + version + " from input file " + inputDir);
-
-    // Track system level information
-    long startTimeOrig = System.nanoTime();
-
-    try {
-      authenticate(securityService, authToken, "start editing cycle",
-          UserRole.ADMINISTRATOR);
-
-      // Check the input directory
-      File inputDirFile = new File(inputDir);
-      if (!inputDirFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
-      }
-
-      // Get the release versions (need to look in complex map too for October
-      // releases)
-      Logger.getLogger(getClass()).info("  Get release versions");
-      Rf2FileSorter sorter = new Rf2FileSorter();
-      File conceptsFile =
-          sorter.findFile(new File(inputDir, "Terminology"), "sct2_Concept");
-      Set<String> releaseSet = new HashSet<>();
-      BufferedReader reader = new BufferedReader(new FileReader(conceptsFile));
-      String line;
-      while ((line = reader.readLine()) != null) {
-        final String fields[] = line.split("\t");
-        if (!fields[1].equals("effectiveTime")) {
-          try {
-            ConfigUtility.DATE_FORMAT.parse(fields[1]);
-          } catch (Exception e) {
-            throw new Exception("Improperly formatted date found: " + fields[1]);
-          }
-          releaseSet.add(fields[1]);
-        }
-      }
-      reader.close();
-      File complexMapFile =
-          sorter.findFile(new File(inputDir, "Refset/Map"),
-              "der2_iissscRefset_ComplexMap");
-      reader = new BufferedReader(new FileReader(complexMapFile));
-      while ((line = reader.readLine()) != null) {
-        final String fields[] = line.split("\t");
-        if (!fields[1].equals("effectiveTime")) {
-          try {
-            ConfigUtility.DATE_FORMAT.parse(fields[1]);
-          } catch (Exception e) {
-            throw new Exception("Improperly formatted date found: " + fields[1]);
-          }
-          releaseSet.add(fields[1]);
-        }
-      }
-      File extendedMapFile =
-          sorter.findFile(new File(inputDir, "Refset/Map"),
-              "der2_iisssccRefset_ExtendedMap");
-      reader = new BufferedReader(new FileReader(extendedMapFile));
-      while ((line = reader.readLine()) != null) {
-        final String fields[] = line.split("\t");
-        if (!fields[1].equals("effectiveTime")) {
-          try {
-            ConfigUtility.DATE_FORMAT.parse(fields[1]);
-          } catch (Exception e) {
-            throw new Exception("Improperly formatted date found: " + fields[1]);
-          }
-          releaseSet.add(fields[1]);
-        }
-      }
-
-      reader.close();
-      List<String> releases = new ArrayList<>(releaseSet);
-      Collections.sort(releases);
-
-      // check that release info does not already exist
-      HistoryService historyService = new HistoryServiceJpa();
-      Logger.getLogger(getClass()).info("  Releases to process");
-      for (String release : releases) {
-        Logger.getLogger(getClass()).info("    release = " + release);
-
-        ReleaseInfo releaseInfo =
-            historyService.getReleaseInfo(terminology, release);
-        if (releaseInfo != null) {
-          throw new Exception("A release info already exists for " + release);
-        }
-      }
-      historyService.close();
-
-      // Sort files
-      Logger.getLogger(getClass()).info("  Sort RF2 Files");
-      sorter = new Rf2FileSorter();
-      sorter.setSortByEffectiveTime(true);
-      sorter.setRequireAllFiles(true);
-      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
-      sorter.sortFiles(inputDirFile, outputDir);
-
-      // Open readers
-      Rf2Readers readers = new Rf2Readers(outputDir);
-      readers.openReaders();
-
-      // Load initial snapshot - first release version
-      Rf2SnapshotLoaderAlgorithm algorithm = new Rf2SnapshotLoaderAlgorithm();
-      algorithm.setTerminology(terminology);
-      algorithm.setTerminologyVersion(version);
-      algorithm.setReleaseVersion(releases.get(0));
-      algorithm.setReaders(readers);
-      algorithm.compute();
-      algorithm.close();
-      algorithm = null;
-
-      // Load deltas
-      for (String release : releases) {
-        if (release.equals(releases.get(0))) {
-          continue;
-        }
-
-        Rf2DeltaLoaderAlgorithm algorithm2 = new Rf2DeltaLoaderAlgorithm();
-        algorithm2.setTerminology(terminology);
-        algorithm2.setTerminologyVersion(version);
-        algorithm2.setReleaseVersion(release);
-        algorithm2.setReaders(readers);
-        algorithm2.compute();
-        algorithm2.close();
-        algorithm2 = null;
-
-      }
-
-      // Compute transitive closure
-      Logger.getLogger(getClass()).info(
-          "  Compute transitive closure from  " + terminology + "/" + version);
-      TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-      algo.setTerminology(terminology);
-      algo.setTerminologyVersion(version);
-      algo.reset();
-      algo.compute();
-
-      //
-      // Individual release infos will already be created by
-      // snapshot and delta processes, so it is not needed here
-      //
-
-      // Clean-up
-      readers.closeReaders();
-      ConfigUtility
-          .deleteDirectory(new File(inputDirFile, "/RF2-sorted-temp/"));
-
-      // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
-
-    } catch (Exception e) {
-      handleException(e, "trying to load full terminology from RF2 directory");
-    } finally {
-      securityService.close();
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * loadTerminologyRf2Snapshot(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
-  @Override
-  @PUT
-  @Path("/terminology/load/rf2/snapshot/{terminology}/{version}")
-  @Consumes({
-    MediaType.TEXT_PLAIN
-  })
-  @ApiOperation(value = "Loads terminology RF2 snapshot from directory", notes = "Loads terminology RF2 snapshot from directory for specified terminology and version")
-  public void loadTerminologyRf2Snapshot(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. 20140731", required = true) @PathParam("version") String version,
-    @ApiParam(value = "RF2 input directory", required = true) String inputDir,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-
-    Logger.getLogger(getClass())
-        .info(
-            "RESTful POST call (ContentChange): /terminology/load/rf2/snapshot/"
-                + terminology + "/" + version + " from input directory "
-                + inputDir);
-
-    // Track system level information
-    long startTimeOrig = System.nanoTime();
-
-    try {
-      authenticate(securityService, authToken, "start editing cycle",
-          UserRole.ADMINISTRATOR);
-
-      // Check the input directory
-      File inputDirFile = new File(inputDir);
-      if (!inputDirFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
-      }
-
-      // Sort files
-      Logger.getLogger(getClass()).info("  Sort RF2 Files");
-      Rf2FileSorter sorter = new Rf2FileSorter();
-      sorter.setSortByEffectiveTime(false);
-      sorter.setRequireAllFiles(true);
-      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
-      sorter.sortFiles(inputDirFile, outputDir);
-      String releaseVersion = sorter.getFileVersion();
-      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
-
-      // Open readers
-      Rf2Readers readers = new Rf2Readers(outputDir);
-      readers.openReaders();
-
-      // Load snapshot
-      Rf2SnapshotLoaderAlgorithm algorithm = new Rf2SnapshotLoaderAlgorithm();
-      algorithm.setTerminology(terminology);
-      algorithm.setTerminologyVersion(version);
-      algorithm.setReleaseVersion(releaseVersion);
-      algorithm.setReaders(readers);
-      algorithm.compute();
-      algorithm.close();
-      algorithm = null;
-
-      // Compute transitive closure
-      Logger.getLogger(getClass()).info(
-          "  Compute transitive closure from  " + terminology + "/" + version);
-      TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-      algo.setTerminology(terminology);
-      algo.setTerminologyVersion(version);
-      algo.reset();
-      algo.compute();
-
-      // Clean-up
-      readers.closeReaders();
-      ConfigUtility
-          .deleteDirectory(new File(inputDirFile, "/RF2-sorted-temp/"));
-
-      // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
-
-    } catch (Exception e) {
-      handleException(e,
-          "trying to load terminology snapshot from RF2 directory");
-    } finally {
-      securityService.close();
-    }
-
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyClaml
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
-  @Override
-  @PUT
-  @Path("/terminology/load/claml/{terminology}/{version}")
-  @Consumes({
-    MediaType.TEXT_PLAIN
-  })
-  @ApiOperation(value = "Loads ClaML terminology from file", notes = "Loads terminology from ClaML file, assigning specified version")
-  public void loadTerminologyClaml(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. 20140731", required = true) @PathParam("version") String version,
-    @ApiParam(value = "ClaML input file", required = true) String inputFile,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-
-    Logger.getLogger(getClass()).info(
-        "RESTful POST call (ContentChange): /terminology/load/claml/"
-            + terminology + "/" + version + " from input file " + inputFile);
-
-    // Track system level information
-    long startTimeOrig = System.nanoTime();
-
-    ClamlLoaderAlgorithm clamlAlgorithm = new ClamlLoaderAlgorithm();
-    TransitiveClosureAlgorithm transitiveClosureAlgorithm =
-        new TransitiveClosureAlgorithm();
-    try {
-      authenticate(securityService, authToken, "start editing cycle",
-          UserRole.ADMINISTRATOR);
-
-      // Load snapshot
-      Logger.getLogger(getClass()).info("Load ClaML data from " + inputFile);
-      clamlAlgorithm.setTerminology(terminology);
-      clamlAlgorithm.setTerminologyVersion(version);
-      clamlAlgorithm.setInputFile(inputFile);
-      clamlAlgorithm.compute();
-
-      // Let service begin its own transaction
-      Logger.getLogger(getClass()).info("Start computing transtive closure");
-      transitiveClosureAlgorithm.setTerminology(terminology);
-      transitiveClosureAlgorithm.setTerminologyVersion(version);
-      transitiveClosureAlgorithm.reset();
-      transitiveClosureAlgorithm.compute();
-
-      // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
-
-    } catch (Exception e) {
-      handleException(e, "trying to load terminology from ClaML file");
-    } finally {
-      clamlAlgorithm.close();
-      transitiveClosureAlgorithm.close();
-      securityService.close();
-    }
-  }
-
-  @Override
-  public TreeList getTreePositionsForQuery(String terminology, String version,
-    String query, SearchCriteria searchCriteria, String authToken)
-    throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  @GET
-  @Path("/rel/{terminology}/{version}/{conceptId}")
-  @ApiOperation(value = "Get relationships with this conceptId", notes = "Get the relationships with the given concept id.", response = RelationshipList.class)
-  public RelationshipList getRelationshipsForConcept(
-    @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("conceptId") String conceptId,
+  @POST
+  @Path("/cui/{terminology}/{version}/{terminologyId}/relationships")
+  @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given concept id.", response = RelationshipList.class)
+  public RelationshipList findRelationshipsForConcept(
+    @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /rel/" + terminology + "/" + version + "/"
-            + conceptId);
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+            + terminologyId + "/relationships");
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
           "retrieve relationships for the concept", UserRole.VIEWER);
 
-      return contentService.getRelationshipsForConcept(conceptId, terminology,
-          version, Branch.ROOT);
+      return contentService.findRelationshipsForConcept(terminologyId,
+          terminology, version, Branch.ROOT, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a concept");
@@ -1830,8 +1530,74 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   @Override
+  @POST
+  @Path("/dui/{terminology}/{version}/{terminologyId}/relationships")
+  @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given descriptor id.", response = RelationshipList.class)
+  public RelationshipList findRelationshipsForDescriptor(
+    @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Descriptor terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+            + terminologyId + "/relationships");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve relationships for the descriptor", UserRole.VIEWER);
+
+      return contentService.findRelationshipsForDescriptor(terminologyId,
+          terminology, version, Branch.ROOT, pfs);
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve relationships for a descriptor");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @Override
+  @POST
+  @Path("/code/{terminology}/{version}/{terminologyId}/relationships")
+  @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given code id.", response = RelationshipList.class)
+  public RelationshipList findRelationshipsForCode(
+    @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Code terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /code/" + terminology + "/" + version + "/"
+            + terminologyId + "/relationships");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve relationships for the code", UserRole.VIEWER);
+
+      return contentService.findRelationshipsForCode(terminologyId,
+          terminology, version, Branch.ROOT, pfs);
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve relationships for a code");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @Override
   @GET
-  @Path("/as/{terminology}/{version}")
+  @Path("/aui/{terminology}/{version}/subsets")
   @ApiOperation(value = "Get atom subsets", notes = "Get the atom level subsets.", response = SubsetList.class)
   public SubsetList getAtomSubsets(
     @ApiParam(value = "Atom terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -1840,17 +1606,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /as/" + terminology + "/" + version);
+        "RESTful call (Content): /aui/" + terminology + "/" + version
+            + "/subsets");
     ContentService contentService = new ContentServiceJpa();
     try {
-      authenticate(securityService, authToken,
-          "retrieve atom subsets", UserRole.VIEWER);
+      authenticate(securityService, authToken, "retrieve atom subsets",
+          UserRole.VIEWER);
 
-      SubsetList list = contentService.getAtomSubsets(terminology,
-          version);
-      for (int i= 0; i<list.getCount(); i++) {
+      SubsetList list = contentService.getAtomSubsets(terminology, version);
+      for (int i = 0; i < list.getCount(); i++) {
         contentService.getGraphResolutionHandler(terminology).resolve(
-          (AtomSubset)list.getObjects().get(i));
+            (AtomSubset) list.getObjects().get(i));
       }
       return list;
     } catch (Exception e) {
@@ -1862,10 +1628,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  
   @Override
   @GET
-  @Path("/cs/{terminology}/{version}")
+  @Path("/cui/{terminology}/{version}/subsets")
   @ApiOperation(value = "Get concept subsets", notes = "Get the concept level subsets.", response = SubsetList.class)
   public SubsetList getConceptSubsets(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -1874,17 +1639,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cs/" + terminology + "/" + version);
+        "RESTful call (Content): /cui/" + terminology + "/" + version
+            + "/subsets");
     ContentService contentService = new ContentServiceJpa();
     try {
-      authenticate(securityService, authToken,
-          "retrieve concept subsets", UserRole.VIEWER);
+      authenticate(securityService, authToken, "retrieve concept subsets",
+          UserRole.VIEWER);
 
-      SubsetList list = contentService.getConceptSubsets(terminology,
-          version);
-      for (int i= 0; i<list.getCount(); i++) {
+      SubsetList list = contentService.getConceptSubsets(terminology, version);
+      for (int i = 0; i < list.getCount(); i++) {
         contentService.getGraphResolutionHandler(terminology).resolve(
-          (ConceptSubset)list.getObjects().get(i));
+            (ConceptSubset) list.getObjects().get(i));
       }
       return list;
     } catch (Exception e) {
@@ -1896,4 +1661,147 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findRelationshipsForAtom(java.lang.String, java.lang.String,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
+   */
+  @Override
+  public RelationshipList findRelationshipsForAtom(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Atom): /aui/" + terminology + "/" + version + "/"
+            + terminologyId + "/relationships");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve relationships for the atom", UserRole.VIEWER);
+
+      return contentService.findRelationshipsForAtom(terminologyId,
+          terminology, version, Branch.ROOT, pfs);
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve relationships for a atom");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  @SuppressWarnings("unused")
+  @Override
+  @POST
+  @Path("/cui/{terminology}/{version}/{terminologyId}/trees")
+  @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given concept id.", response = TreeList.class)
+  public TreeList findTreesForConcept(
+    @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+            + terminologyId + "/trees");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve trees for the concept ", UserRole.VIEWER);
+
+      TreePositionList list =
+          contentService.findTreePositionsForConcept(terminologyId,
+              terminology, version, pfs, Branch.ROOT);
+      // TODO: do something to form a tree
+      return null;
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve relationships for a concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @SuppressWarnings("unused")
+  @Override
+  @POST
+  @Path("/dui/{terminology}/{version}/{terminologyId}/trees")
+  @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given descriptor id.", response = TreeList.class)
+  public TreeList findTreesForDescriptor(
+    @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Descriptor terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+            + terminologyId + "/trees");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve trees for the descriptor ", UserRole.VIEWER);
+
+      TreePositionList list =
+          contentService.findTreePositionsForDescriptor(terminologyId,
+              terminology, version, pfs, Branch.ROOT);
+      // TODO: do something to form a tree
+      return null;
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve relationships for a descriptor");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @SuppressWarnings("unused")
+  @Override
+  @POST
+  @Path("/code/{terminology}/{version}/{terminologyId}/trees")
+  @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given code id.", response = TreeList.class)
+  public TreeList findTreesForCode(
+    @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Code terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /code/" + terminology + "/" + version + "/"
+            + terminologyId + "/trees");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "retrieve trees for the code",
+          UserRole.VIEWER);
+
+      TreePositionList list =
+          contentService.findTreePositionsForCode(terminologyId, terminology,
+              version, pfs, Branch.ROOT);
+      // TODO: do something to form a tree
+      return null;
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve relationships for a code");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
 }

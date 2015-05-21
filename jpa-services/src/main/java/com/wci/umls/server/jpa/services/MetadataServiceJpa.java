@@ -187,6 +187,8 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Metadata service - get all metadata " + terminology + ", " + version);
 
+    // TODO: need to sort the results.
+    
     Map<String, Map<String, String>> abbrMapList = new HashMap<>();
 
     Map<String, String> additionalRelTypeMap =
@@ -231,7 +233,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       abbrMapList.put(MetadataKeys.Hierarchical_Relationship_Types.toString(),
           hierRelTypeMap);
     }
-
     return abbrMapList;
   }
 

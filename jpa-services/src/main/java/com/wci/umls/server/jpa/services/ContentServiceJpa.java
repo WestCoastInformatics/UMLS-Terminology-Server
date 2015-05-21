@@ -55,8 +55,6 @@ import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
-import com.wci.umls.server.helpers.content.Tree;
-import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
@@ -86,8 +84,6 @@ import com.wci.umls.server.jpa.helpers.content.RelationshipListJpa;
 import com.wci.umls.server.jpa.helpers.content.StringClassListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
-import com.wci.umls.server.jpa.helpers.content.TreeJpa;
-import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.model.content.Atom;
@@ -107,9 +103,6 @@ import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
-import com.wci.umls.server.model.content.TreePosition;
-import com.wci.umls.server.model.meta.RootTerminology;
-import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
@@ -234,11 +227,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /** The code field names. */
   private static String[] codeFieldNames = {};
 
-  /** The lexical class field names. */
-  private static String[] lexicalClassFieldNames = {};
-
-  /** The string class field names. */
-  private static String[] stringClassFieldNames = {};
   static {
 
     try {
@@ -251,12 +239,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       codeFieldNames =
           IndexUtility.getIndexedStringFieldNames(CodeJpa.class).toArray(
               new String[] {});
-      lexicalClassFieldNames =
-          IndexUtility.getIndexedStringFieldNames(LexicalClassJpa.class)
-              .toArray(new String[] {});
-      stringClassFieldNames =
-          IndexUtility.getIndexedStringFieldNames(StringClassJpa.class)
-              .toArray(new String[] {});
     } catch (Exception e) {
       e.printStackTrace();
       conceptFieldNames = null;
@@ -489,7 +471,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - get atom subsets " + terminology + "/" + version);
     javax.persistence.Query query =
-        manager.createQuery("select s from AtomSubsetJpa s where "
+        manager.createQuery("select a from AtomSubsetJpa a where "
             + "terminologyVersion = :version and terminology = :terminology");
 
     // Try to retrieve the single expected result If zero or more than one
@@ -523,7 +505,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - get concept subsets " + terminology + "/" + version);
     javax.persistence.Query query =
-        manager.createQuery("select s from ConceptSubsetJpa s where "
+        manager.createQuery("select a from ConceptSubsetJpa a where "
             + "terminologyVersion = :version and terminology = :terminology");
 
     // Try to retrieve the single expected result If zero or more than one
@@ -641,8 +623,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getAtomSubsetMembers(java.lang
-   * .String, java.lang.String, java.lang.String, java.lang.String)
+   * com.wci.umls.server.services.ContentService#getSubsetMembersForAtom(java
+   * .lang.String, java.lang.String, java.lang.String, java.lang.String)
    */
   @SuppressWarnings("unchecked")
   @Override
@@ -652,10 +634,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - get subset members for atom " + atomId + "/"
             + terminology + "/" + version);
     javax.persistence.Query query =
-        manager.createQuery("select s from AtomSubsetMemberJpa s, "
-            + " AtomJpa a where a.terminologyId = :atomId "
-            + "and a.terminologyVersion = :version "
-            + "and a.terminology = :terminology and s.member = a");
+        manager.createQuery("select a from AtomSubsetMemberJpa a, "
+            + " AtomJpa b where b.terminologyId = :atomId "
+            + "and b.terminologyVersion = :version "
+            + "and b.terminology = :terminology and s.member = b");
 
     try {
       SubsetMemberList list = new SubsetMemberListJpa();
@@ -683,8 +665,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getConceptSubsetMembers(java
-   * .lang.String, java.lang.String, java.lang.String, java.lang.String)
+   * com.wci.umls.server.services.ContentService#getSubsetMembersForConcept(
+   * java.lang.String, java.lang.String, java.lang.String, java.lang.String)
    */
   @SuppressWarnings("unchecked")
   @Override
@@ -694,10 +676,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - get subset members for concept " + conceptId + "/"
             + terminology + "/" + version);
     javax.persistence.Query query =
-        manager.createQuery("select s from ConceptSubsetMemberJpa s, "
-            + " ConceptJpa c where c.terminologyId = :conceptId "
-            + "and c.terminologyVersion = :version "
-            + "and c.terminology = :terminology and s.member = c");
+        manager.createQuery("select a from ConceptSubsetMemberJpa a, "
+            + " ConceptJpa b where b.terminologyId = :conceptId "
+            + "and b.terminologyVersion = :version "
+            + "and b.terminology = :terminology and s.member = b");
 
     try {
       SubsetMemberList list = new SubsetMemberListJpa();
@@ -737,7 +719,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     try {
       javax.persistence.Query query =
-          manager.createQuery("select s from AbstractSubset s "
+          manager.createQuery("select a from AbstractSubset a "
               + "where terminologyVersion = :version "
               + "and terminology = :terminology "
               + "and (branch = :branch or branchedTo not like :branchMatch)");
@@ -761,7 +743,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * 
    * @see
    * com.wci.umls.server.services.ContentService#addDefinition(com.wci.umls.
-   * server .model.content.Definition)
+   * server.model.content.Definition)
    */
   @Override
   public Definition addDefinition(Definition definition) throws Exception {
@@ -795,8 +777,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#updateDefinition(com.wci.umls.
-   * server.model.content.Definition)
+   * com.wci.umls.server.services.ContentService#updateDefinition(com.wci.umls
+   * .server.model.content.Definition)
    */
   @Override
   public void updateDefinition(Definition definition) throws Exception {
@@ -857,7 +839,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * 
    * @see
    * com.wci.umls.server.services.ContentService#addSemanticTypeComponent(com
-   * .wci.umls.server .model.content.SemanticTypeComponent)
+   * .wci.umls.server.model.content.SemanticTypeComponent)
    */
   @Override
   public SemanticTypeComponent addSemanticTypeComponent(
@@ -896,7 +878,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * 
    * @see
    * com.wci.umls.server.services.ContentService#updateSemanticTypeComponent
-   * (com.wci.umls. server.model.content.SemanticTypeComponent)
+   * (com.wci.umls.server.model.content.SemanticTypeComponent)
    */
   @Override
   public void updateSemanticTypeComponent(
@@ -1268,8 +1250,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getLexicalClasss(java.lang.
-   * String, java.lang.String, java.lang.String)
+   * com.wci.umls.server.services.ContentService#getLexicalClasses(java.lang
+   * .String, java.lang.String, java.lang.String)
    */
   @SuppressWarnings("unchecked")
   @Override
@@ -1424,8 +1406,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getStringClasss(java.lang.String
-   * , java.lang.String, java.lang.String)
+   * com.wci.umls.server.services.ContentService#getStringClasses(java.lang.
+   * String, java.lang.String, java.lang.String)
    */
   @SuppressWarnings("unchecked")
   @Override
@@ -1564,21 +1546,22 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#findDescendantConcepts(com.
-   * wci.umls.server.model.content.Concept, boolean,
-   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
+   * com.wci.umls.server.services.ContentService#findDescendantConcepts(java
+   * .lang.String, java.lang.String, java.lang.String, boolean,
+   * java.lang.String, com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
-  public ConceptList findDescendantConcepts(Concept concept,
-    boolean parentsOnly, PfsParameter pfsParameter, String branch)
-    throws Exception {
+  public ConceptList findDescendantConcepts(String terminologyId,
+    String terminology, String version, boolean childrenOnly, String branch,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - find descendant concepts " + concept);
+        "Content Service - find descendant concepts " + terminologyId + ", "
+            + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     List<Concept> descendants =
-        this.findDescendantsHelper(concept, parentsOnly, pfsParameter, branch,
-            "Concept", totalCt);
+        this.findDescendantsHelper(terminologyId, terminology, version,
+            childrenOnly, branch, pfs, ConceptJpa.class, totalCt);
     ConceptList list = new ConceptListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
@@ -1589,83 +1572,83 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#findAncestorConcepts(com.wci
-   * .umls.server.model.content.Concept, boolean,
-   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
+   * com.wci.umls.server.services.ContentService#findAncestorConcepts(java.lang
+   * .String, java.lang.String, java.lang.String, boolean, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
-  public ConceptList findAncestorConcepts(Concept concept,
-    boolean childrenOnly, PfsParameter pfsParameter, String branch)
-    throws Exception {
+  public ConceptList findAncestorConcepts(String terminologyId,
+    String terminology, String version, boolean parentsOnly, String branch,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - find ancestor concepts " + concept);
+        "Content Service - find ancestor concepts " + terminologyId + ", "
+            + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     List<Concept> descendants =
-        this.findAncestorsHelper(concept, childrenOnly, pfsParameter, branch,
-            "Concept", totalCt);
+        this.findAncestorsHelper(terminologyId, terminology, version,
+            parentsOnly, branch, pfs, ConceptJpa.class, totalCt);
     ConceptList list = new ConceptListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
     return list;
   }
 
-  @Override
-  public TreePositionList findConceptTreePositions(Concept concept,
-    PfsParameter pfsParameter, String branch) throws Exception {
-    return this.findTreePositionsHelper(concept, pfsParameter, branch,
-        "Concept");
-  }
-
   /**
-   * Find descenants helper.
+   * Find descendants helper.
    *
-   * @param atomClass the atom class
-   * @param parentsOnly the parents only
-   * @param pfsParameter the pfs parameter
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param childrenOnly the children only
    * @param branch the branch
-   * @param tableString the table string
+   * @param pfs the pfs
+   * @param clazz the clazz
    * @param totalCt the total ct
    * @return the list
    * @throws Exception the exception
    */
   @SuppressWarnings("rawtypes")
-  private List findDescendantsHelper(AtomClass atomClass, boolean parentsOnly,
-    PfsParameter pfsParameter, String branch, String tableString, long[] totalCt)
-    throws Exception {
-    if (pfsParameter != null && pfsParameter.getQueryRestriction() != null) {
+  private List findDescendantsHelper(String terminologyId, String terminology,
+    String version, boolean childrenOnly, String branch, PfsParameter pfs,
+    Class<?> clazz, long[] totalCt) throws Exception {
+
+    // TODO: implement "children only" flag
+
+    if (pfs != null && pfs.getQueryRestriction() != null) {
       throw new IllegalArgumentException(
           "Query restriction is not implemented for this call: "
-              + pfsParameter.getQueryRestriction());
+              + pfs.getQueryRestriction());
     }
     String queryStr =
-        "select a from " + tableString + "TransitiveRelationshipJpa tr, "
-            + tableString + "Jpa super, " + tableString + "Jpa a "
+        "select a from "
+            + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
+            + " tr, " + clazz.getName() + " super, " + clazz.getName() + " a "
             + " where super.terminologyVersion = :version "
             + " and super.terminology = :terminology "
             + " and super.terminologyId = :terminologyId"
             + " and tr.superType = super" + " and tr.subType = a "
             + " and tr.superType != tr.subType";
-    javax.persistence.Query query = applyPfsToQuery(queryStr, pfsParameter);
+    javax.persistence.Query query = applyPfsToQuery(queryStr, pfs);
 
     javax.persistence.Query ctQuery =
-        manager.createQuery("select count(*) from " + tableString
-            + "TransitiveRelationshipJpa tr, " + tableString + "Jpa super, "
-            + tableString + "Jpa a "
+        manager.createQuery("select count(*) from "
+            + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
+            + " tr, " + clazz.getName() + " super, " + clazz.getName() + " a "
             + " where super.terminologyVersion = :version "
             + " and super.terminology = :terminology "
             + " and super.terminologyId = :terminologyId"
             + " and tr.superType = super" + " and tr.subType = a "
             + " and tr.superType != tr.subType");
 
-    ctQuery.setParameter("terminology", atomClass.getTerminology());
-    ctQuery.setParameter("version", atomClass.getTerminologyVersion());
-    ctQuery.setParameter("terminologyId", atomClass.getTerminologyId());
+    ctQuery.setParameter("terminology", terminology);
+    ctQuery.setParameter("version", version);
+    ctQuery.setParameter("terminologyId", terminologyId);
     totalCt[0] = ((Long) ctQuery.getSingleResult()).intValue();
 
-    query.setParameter("terminology", atomClass.getTerminology());
-    query.setParameter("version", atomClass.getTerminologyVersion());
-    query.setParameter("terminologyId", atomClass.getTerminologyId());
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    query.setParameter("terminologyId", terminologyId);
 
     return query.getResultList();
   }
@@ -1673,52 +1656,56 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /**
    * Find ancestors helper.
    *
-   * @param atomClass the atom class
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
    * @param parentsOnly the parents only
-   * @param pfsParameter the pfs parameter
    * @param branch the branch
-   * @param tableString the table string
+   * @param pfs the pfs
+   * @param clazz the clazz
    * @param totalCt the total ct
    * @return the list
    * @throws Exception the exception
    */
   @SuppressWarnings("rawtypes")
-  private List findAncestorsHelper(AtomClass atomClass, boolean parentsOnly,
-    PfsParameter pfsParameter, String branch, String tableString, long[] totalCt)
-    throws Exception {
-    if (pfsParameter != null && pfsParameter.getQueryRestriction() != null) {
+  private List findAncestorsHelper(String terminologyId, String terminology,
+    String version, boolean parentsOnly, String branch, PfsParameter pfs,
+    Class<?> clazz, long[] totalCt) throws Exception {
+    // TODO: implement "parents only" flag
+    if (pfs != null && pfs.getQueryRestriction() != null) {
       throw new IllegalArgumentException(
           "Query restriction is not implemented for this call: "
-              + pfsParameter.getQueryRestriction());
+              + pfs.getQueryRestriction());
     }
     String queryStr =
-        "select a from " + tableString + "TransitiveRelationshipJpa tr, "
-            + tableString + "Jpa sub, " + tableString + "Jpa a "
+        "select a from "
+            + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
+            + " tr, " + clazz.getName() + " sub, " + clazz.getName() + " a "
             + " where sub.terminologyVersion = :version "
             + " and sub.terminology = :terminology "
             + " and sub.terminologyId = :terminologyId"
             + " and tr.subType = sub and tr.superType = a "
             + " and tr.superType != tr.subType ";
-    javax.persistence.Query query = applyPfsToQuery(queryStr, pfsParameter);
+    javax.persistence.Query query = applyPfsToQuery(queryStr, pfs);
 
     javax.persistence.Query ctQuery =
-        manager.createQuery("select count(*) from " + tableString
-            + "TransitiveRelationshipJpa tr, " + tableString + "Jpa sub, "
-            + tableString + "Jpa a "
+        manager.createQuery("select count(*) from "
+            + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
+            + " tr, " + clazz.getName() + " sub, " + clazz.getName() + " a "
             + " where sub.terminologyVersion = :version "
             + " and sub.terminology = :terminology "
             + " and sub.terminologyId = :terminologyId"
             + " and tr.subType = sub and tr.superType = a "
             + " and tr.superType != tr.subType ");
 
-    ctQuery.setParameter("terminology", atomClass.getTerminology());
-    ctQuery.setParameter("version", atomClass.getTerminologyVersion());
-    ctQuery.setParameter("terminologyId", atomClass.getTerminologyId());
+    ctQuery.setParameter("terminology", terminology);
+    ctQuery.setParameter("version", version);
+    ctQuery.setParameter("terminologyId", terminologyId);
     totalCt[0] = ((Long) ctQuery.getSingleResult()).intValue();
 
-    query.setParameter("terminology", atomClass.getTerminology());
-    query.setParameter("version", atomClass.getTerminologyVersion());
-    query.setParameter("terminologyId", atomClass.getTerminologyId());
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    query.setParameter("terminologyId", terminologyId);
 
     return query.getResultList();
   }
@@ -1727,31 +1714,33 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * Find tree positions helper.
    *
    * @param atomClass the atom class
-   * @param pfsParameter the pfs parameter
+   * @param pfs the pfs
    * @param branch the branch
-   * @param tableString the table string
-   * @return the list
+   * @param clazz the clazz
+   * @return the tree position list
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
   private TreePositionList findTreePositionsHelper(AtomClass atomClass,
-    PfsParameter pfsParameter, String branch, String tableString)
-    throws Exception {
-    if (pfsParameter != null && pfsParameter.getQueryRestriction() != null) {
+    PfsParameter pfs, String branch, Class<?> clazz) throws Exception {
+    if (pfs != null && pfs.getQueryRestriction() != null) {
       throw new IllegalArgumentException(
           "Query restriction is not implemented for this call: "
-              + pfsParameter.getQueryRestriction());
+              + pfs.getQueryRestriction());
     }
     String queryStr =
-        "select tr from " + tableString + "TreePositionJpa tr, " + tableString
-            + "Jpa a " + " where a.terminologyVersion = :version "
+        "select tr from " + clazz.getName().replace("Jpa", "TreePositionJpa")
+            + " tr, " + clazz.getName()
+
+            + " a " + " where a.terminologyVersion = :version "
             + " and a.terminology = :terminology "
             + " and a.terminologyId = :terminologyId" + " and tr.node = a ";
-    javax.persistence.Query query = applyPfsToQuery(queryStr, pfsParameter);
+    javax.persistence.Query query = applyPfsToQuery(queryStr, pfs);
 
     javax.persistence.Query ctQuery =
-        manager.createQuery("select count(*) from " + tableString
-            + "TreePositionJpa tr, " + tableString + "Jpa a "
+        manager.createQuery("select count(*) from "
+            + clazz.getName().replace("Jpa", "TreePositionJpa") + " tr, "
+            + clazz.getName() + " a "
             + " where a.terminologyVersion = :version "
             + " and a.terminology = :terminology "
             + " and a.terminologyId = :terminologyId" + " and tr.node = a ");
@@ -1794,21 +1783,22 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#findDescendantDescriptors(com
-   * .wci.umls.server.model.content.Descriptor, boolean,
-   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
+   * com.wci.umls.server.services.ContentService#findDescendantDescriptors(java
+   * .lang.String, java.lang.String, java.lang.String, boolean,
+   * java.lang.String, com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
-  public DescriptorList findDescendantDescriptors(Descriptor descriptor,
-    boolean parentsOnly, PfsParameter pfsParameter, String branch)
-    throws Exception {
+  public DescriptorList findDescendantDescriptors(String terminologyId,
+    String terminology, String version, boolean childrenOnly, String branch,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - find descendant descriptors " + descriptor);
+        "Content Service - find descendant descriptors " + terminologyId + ", "
+            + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     List<Descriptor> descendants =
-        this.findDescendantsHelper(descriptor, parentsOnly, pfsParameter,
-            branch, "Descriptor", totalCt);
+        this.findDescendantsHelper(terminologyId, terminology, version,
+            childrenOnly, branch, pfs, DescriptorJpa.class, totalCt);
     DescriptorList list = new DescriptorListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
@@ -1819,52 +1809,63 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#findAncestorDescriptors(com
-   * .wci.umls.server.model.content.Descriptor, boolean,
-   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
+   * com.wci.umls.server.services.ContentService#findAncestorDescriptors(java
+   * .lang.String, java.lang.String, java.lang.String, boolean,
+   * java.lang.String, com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
-  public DescriptorList findAncestorDescriptors(Descriptor descriptor,
-    boolean childrenOnly, PfsParameter pfsParameter, String branch)
-    throws Exception {
+  public DescriptorList findAncestorDescriptors(String terminologyId,
+    String terminology, String version, boolean childrenOnly, String branch,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - find ancestor descriptors " + descriptor);
+        "Content Service - find ancestor descriptors " + terminologyId + ", "
+            + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     List<Descriptor> descendants =
-        this.findAncestorsHelper(descriptor, childrenOnly, pfsParameter,
-            branch, "Descriptor", totalCt);
+        this.findAncestorsHelper(terminologyId, terminology, version,
+            childrenOnly, branch, pfs, DescriptorJpa.class, totalCt);
     DescriptorList list = new DescriptorListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
     return list;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findDescriptorTreePositions
+   * (com.wci.umls.server.model.content.Descriptor, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
   public TreePositionList findDescriptorTreePositions(Descriptor descriptor,
-    PfsParameter pfsParameter, String branch) throws Exception {
-    return this.findTreePositionsHelper(descriptor, pfsParameter, branch,
-        "Descriptor");
+    String branch, PfsParameter pfs) throws Exception {
+    return this.findTreePositionsHelper(descriptor, pfs, branch,
+        DescriptorJpa.class);
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#findDescendantCodes(com.wci
-   * .umls.server.model.content.Code, boolean,
-   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
+   * com.wci.umls.server.services.ContentService#findDescendantCodes(java.lang
+   * .String, java.lang.String, java.lang.String, boolean, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
-  public CodeList findDescendantCodes(Code code, boolean parentsOnly,
-    PfsParameter pfsParameter, String branch) throws Exception {
+  public CodeList findDescendantCodes(String terminologyId, String terminology,
+    String version, boolean childrenOnly, String branch, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - find descendant codes " + code);
+        "Content Service - find descendant codes " + terminologyId + ", "
+            + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     List<Code> descendants =
-        this.findDescendantsHelper(code, parentsOnly, pfsParameter, branch,
-            "Code", totalCt);
+        this.findDescendantsHelper(terminologyId, terminology, version,
+            childrenOnly, branch, pfs, CodeJpa.class, totalCt);
     CodeList list = new CodeListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
@@ -1875,30 +1876,40 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#findAncestorCodes(com.wci.umls
-   * .server.model.content.Code, boolean,
-   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
+   * com.wci.umls.server.services.ContentService#findAncestorCodes(java.lang
+   * .String, java.lang.String, java.lang.String, boolean, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
-  public CodeList findAncestorCodes(Code code, boolean childrenOnly,
-    PfsParameter pfsParameter, String branch) throws Exception {
+  public CodeList findAncestorCodes(String terminologyId, String terminology,
+    String version, boolean parentsOnly, String branch, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - find ancestor codes " + code);
+        "Content Service - find ancestor codes " + terminologyId + ", "
+            + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
     List<Code> descendants =
-        this.findAncestorsHelper(code, childrenOnly, pfsParameter, branch,
-            "Code", totalCt);
+        this.findAncestorsHelper(terminologyId, terminology, version,
+            parentsOnly, branch, pfs, CodeJpa.class, totalCt);
     CodeList list = new CodeListJpa();
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
     return list;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findCodeTreePositions(com.wci
+   * .umls.server.model.content.Code, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
-  public TreePositionList findCodeTreePositions(Code code,
-    PfsParameter pfsParameter, String branch) throws Exception {
-    return this.findTreePositionsHelper(code, pfsParameter, branch, "Code");
+  public TreePositionList findCodeTreePositions(Code code, String branch,
+    PfsParameter pfs) throws Exception {
+    return this.findTreePositionsHelper(code, pfs, branch, CodeJpa.class);
   }
 
   /*
@@ -1992,8 +2003,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.mapping.services.ContentService#updateAtom(org.ihtsdo
-   * .otf.mapping.rf2.Atom)
+   * @see
+   * com.wci.umls.server.services.ContentService#updateAtom(com.wci.umls.server
+   * .model.content.Atom)
    */
   @Override
   public void updateAtom(Atom atom) throws Exception {
@@ -2023,8 +2035,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.mapping.services.ContentService#removeAtom(java.lang
-   * .String)
+   * @see com.wci.umls.server.services.ContentService#removeAtom(java.lang.Long)
    */
   @Override
   public void removeAtom(Long id) throws Exception {
@@ -2039,6 +2050,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getRelationship(java.lang.Long)
+   */
   @SuppressWarnings("unchecked")
   @Override
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
@@ -2376,6 +2393,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getSubsetMember(java.lang.Long)
+   */
   @SuppressWarnings("unchecked")
   @Override
   public SubsetMember<? extends ComponentHasAttributesAndName> getSubsetMember(
@@ -2385,6 +2408,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return getComponent(id, AbstractSubsetMember.class);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getSubsetMembers(java.lang.
+   * String, java.lang.String, java.lang.String)
+   */
   @SuppressWarnings("unchecked")
   @Override
   public SubsetMemberList getSubsetMembers(String terminologyId,
@@ -2404,6 +2434,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#getSubsetMember(java.lang.String
+   * , java.lang.String, java.lang.String, java.lang.String)
+   */
   @SuppressWarnings("unchecked")
   @Override
   public SubsetMember<? extends ComponentHasAttributesAndName> getSubsetMember(
@@ -2499,8 +2536,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.services.ContentService#removeSubsetMember<?
-   * extends ComponentHasAttributes>(java.lang.Long)
+   * @see
+   * com.wci.umls.server.services.ContentService#removeSubsetMember(java.lang
+   * .Long)
    */
   @Override
   public void removeSubsetMember(Long id) throws Exception {
@@ -2612,8 +2650,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#updateAttribute(com.wci.umls.
-   * server.model.content.Attribute)
+   * com.wci.umls.server.services.ContentService#updateAttribute(com.wci.umls
+   * .server.model.content.Attribute)
    */
   @Override
   public void updateAttribute(Attribute attribute) throws Exception {
@@ -2665,83 +2703,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         listener.attributeChanged(attribute, WorkflowListener.Action.REMOVE);
       }
     }
-  }
-
-  /**
-   * Returns the concept tree positions for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param searchCriteria the search criteria
-   * @param computeRootTrees the compute root trees
-   * @return the concept tree positions for query
-   * @throws Exception the exception
-   */
-  public TreeList getConceptTreePositionsForQuery(String terminology,
-    String version, String query, SearchCriteria searchCriteria,
-    boolean computeRootTrees) throws Exception {
-
-    // TODO: Decide behavior of searchCriteria vs pfsParameter
-    SearchResultList results =
-        findConceptsForQuery(terminology, version, null, query, null);
-
-    TreeList treeList = new TreeListJpa();
-
-    for (SearchResult r : results.getObjects()) {
-      ConceptList concepts =
-          this.getConcepts(r.getTerminologyId(), r.getTerminology(),
-              r.getTerminologyVersion());
-
-      // search results must exist from query results
-      assert concepts.getCount() != 0;
-
-      // retrieve the first concept
-      Concept concept = concepts.getObjects().get(0);
-
-      // get the tree positions for this concept
-      TreePositionList treePositions =
-          this.findConceptTreePositions(concept, null, concept.getBranch());
-
-      // add
-
-    }
-
-    return null;
-  }
-
-  /**
-   * Convert tree position to tree.
-   *
-   * @param treePosition the tree position
-   * @param computeRootTree the compute root tree
-   * @return the tree
-   */
-  @SuppressWarnings({
-      "unused", "static-method"
-  })
-  private Tree convertTreePositionToTree(
-    TreePosition<? extends AtomClass> treePosition, boolean computeRootTree) {
-
-    Tree tree = null;
-
-    if (computeRootTree == true) {
-      for (String ancestorId : treePosition.getAncestorPath().split("~")) {
-        // n/a
-      }
-    } else {
-      tree = new TreeJpa();
-      // set tree position self to passed tree position
-      tree.setSelf(treePosition);
-    }
-
-    return tree;
-
-  }
-
-  private TreeList mergeTrees(TreeList treeList, TreeList treesToMerge) {
-
-    return treeList;
   }
 
   /*
@@ -3010,20 +2971,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   }
 
   /**
-   * Returns the search critera results.
+   * Returns the search criteria results.
    *
    * @param terminology the terminology
    * @param version the version
    * @param criteria the criteria
    * @param clazz the clazz
-   * @return the search critera results
-   * @throws Exception
+   * @return the search criteria results
+   * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
   private List<AtomClass> getSearchCriteriaResults(String terminology,
     String version, SearchCriteria criteria, Class<?> clazz) throws Exception {
     StringBuilder builder = new StringBuilder();
-    builder.append("SELECT c FROM " + clazz.getName() + " c "
+    builder.append("SELECT a FROM " + clazz.getName() + " a "
         + "WHERE terminology = :terminology "
         + "AND terminologyVersion = :version ");
 
@@ -3109,7 +3070,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           .append(
               "SELECT subType FROM "
                   + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
-                  + " WHERE superType IN (").append(builder.toString())
+                  + " a WHERE superType IN (").append(builder.toString())
           .append(")");
 
       if (!criteria.getFindSelf()) {
@@ -3334,51 +3295,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + ", " + searchTerm);
     return autocompleteHelper(terminology, version, searchTerm, CodeJpa.class);
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findLexicalClassesForQuery(
-   * java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
-  @Override
-  public SearchResultList findLexicalClassesForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Content Service - find lexical classes " + terminology + "/" + version
-            + "/" + query);
-    return findForQueryHelper(terminology, version, branch, query, pfs,
-        lexicalClassFieldNames, LexicalClassJpa.class);
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findStringClassesForQuery(java
-   * .lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
-  @Override
-  public SearchResultList findStringClassesForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Content Service - find string classes " + terminology + "/" + version
-            + "/" + query);
-    return findForQueryHelper(terminology, version, branch, query, pfs,
-        stringClassFieldNames, StringClassJpa.class);
-  }
-
+ 
   /*
    * (non-Javadoc)
    * 
    * @see
    * com.wci.umls.server.services.ContentService#getAllConcepts(java.lang.String
-   * , java.lang.String)
+   * , java.lang.String, java.lang.String)
    */
   @Override
   public ConceptList getAllConcepts(String terminology, String version,
@@ -3390,7 +3313,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     try {
       javax.persistence.Query query =
-          manager.createQuery("select c from ConceptJpa c "
+          manager.createQuery("select a from ConceptJpa a "
               + "where terminologyVersion = :version "
               + "and terminology = :terminology "
               + "and (branch = :branch or branchedTo not like :branchMatch)");
@@ -3426,7 +3349,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     try {
       javax.persistence.Query query =
-          manager.createQuery("select c from DescriptorJpa c "
+          manager.createQuery("select a from DescriptorJpa a "
               + "where terminologyVersion = :version "
               + "and terminology = :terminology "
               + "and (branch = :branch or branchedTo not like :branchMatch)");
@@ -3462,7 +3385,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     try {
       javax.persistence.Query query =
-          manager.createQuery("select c from CodeJpa c "
+          manager.createQuery("select a from CodeJpa a "
               + "where terminologyVersion = :version "
               + "and terminology = :terminology "
               + "and (branch = :branch or branchedTo not like :branchMatch)");
@@ -3616,7 +3539,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#clearConcepts(java.lang.String,
+   * com.wci.umls.server.services.ContentService#clearContent(java.lang.String,
    * java.lang.String)
    */
   @Override
@@ -3677,7 +3600,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public void clearBranch(String branch) {
-    // TODO:
+    // TODO: part of implementing branching
   }
 
   /*
@@ -3734,7 +3657,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * 
    * @see
    * com.wci.umls.server.services.ContentService#getComputedPreferredName(com
-   * .wci.umls.server.model.content.Concept)
+   * .wci.umls.server.model.content.AtomClass)
    */
   @Override
   public String getComputedPreferredName(AtomClass atomClass) throws Exception {
@@ -3777,6 +3700,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * 
    * @see org.ihtsdo.otf.ts.services.ContentService#isLastModifiedFlag()
    */
+  /**
+   * Indicates whether or not last modified flag is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
   @Override
   public boolean isLastModifiedFlag() {
     return lastModifiedFlag;
@@ -3785,7 +3713,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.services.ContentService#setLastModifiedFlag(boolean)
+   * @see
+   * com.wci.umls.server.jpa.services.MetadataServiceJpa#setLastModifiedFlag
+   * (boolean)
    */
   @Override
   public void setLastModifiedFlag(boolean lastModifiedFlag) {
@@ -3796,7 +3726,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * org.ihtsdo.otf.ts.services.ContentService#setAssignIdentifiersFlag(boolean)
+   * com.wci.umls.server.services.ContentService#setAssignIdentifiersFlag(boolean
+   * )
    */
   @Override
   public void setAssignIdentifiersFlag(boolean assignIdentifiersFlag) {
@@ -3807,8 +3738,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * org.ihtsdo.otf.ts.services.ContentService#getContentStats(java.lang.String,
-   * java.lang.String)
+   * com.wci.umls.server.services.ContentService#getComponentStats(java.lang
+   * .String, java.lang.String, java.lang.String)
    */
   @Override
   public Map<String, Integer> getComponentStats(String terminology,
@@ -3876,17 +3807,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @param clazz the clazz
    * @return the components
    */
-  @SuppressWarnings({
-    "rawtypes"
-  })
+  @SuppressWarnings("rawtypes")
   private <T extends Component> List getComponents(String terminologyId,
     String terminology, String version, Class<T> clazz) {
     try {
       javax.persistence.Query query =
           manager
-              .createQuery("select o from "
+              .createQuery("select a from "
                   + clazz.getName()
-                  + " o where terminologyId = :terminologyId and terminologyVersion = :version and terminology = :terminology");
+                  + " a where terminologyId = :terminologyId and terminologyVersion = :version and terminology = :terminology");
       query.setParameter("terminologyId", terminologyId);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -3932,7 +3861,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /**
    * Update component.
    *
-   * @param <T> the generic type
+   * @param <T> the
    * @param component the component
    * @throws Exception the exception
    */
@@ -4020,10 +3949,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /**
    * Removes the component.
    *
-   * @param <T> the generic type
+   * @param <T> the
    * @param id the id
    * @param clazz the clazz
-   * @return the component
+   * @return the t
    * @throws Exception the exception
    */
   private <T extends Component> T removeComponent(Long id, Class<T> clazz)
@@ -4068,41 +3997,233 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#getRelationshipsForConcept(
-   * java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   * com.wci.umls.server.services.ContentService#findRelationshipsForConcept
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
    */
-  @SuppressWarnings("unchecked")
   @Override
-  public RelationshipList getRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch) {
+  public RelationshipList findRelationshipsForConcept(String conceptId,
+    String terminology, String version, String branch, PfsParameter pfs) {
     Logger.getLogger(getClass()).debug(
         "Content Service - get relationships for concept " + conceptId + "/"
             + terminology + "/" + version);
-    javax.persistence.Query query =
-        manager.createQuery("select s from ConceptRelationshipJpa s, "
-            + " ConceptJpa c where c.terminologyId = :conceptId "
-            + "and c.terminologyVersion = :version "
-            + "and c.terminology = :terminology and s.from = c");
+    return findRelationshipsHelper(conceptId, terminology, version, branch,
+        pfs, ConceptJpa.class);
+  }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findRelationshipsForDescriptor
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public RelationshipList findRelationshipsForDescriptor(String descriptorId,
+    String terminology, String version, String branch, PfsParameter pfs) {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get relationships for descriptor " + descriptorId
+            + "/" + terminology + "/" + version);
+    return findRelationshipsHelper(descriptorId, terminology, version, branch,
+        pfs, DescriptorJpa.class);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findRelationshipsForCode(java
+   * .lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public RelationshipList findRelationshipsForCode(String codeId,
+    String terminology, String version, String branch, PfsParameter pfs) {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get relationships for code " + codeId + "/"
+            + terminology + "/" + version);
+    return findRelationshipsHelper(codeId, terminology, version, branch, pfs,
+        CodeJpa.class);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findRelationshipsForAtom(java
+   * .lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public RelationshipList findRelationshipsForAtom(String atomId,
+    String terminology, String version, String branch, PfsParameter pfs) {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get relationships for atom " + atomId + "/"
+            + terminology + "/" + version);
+    return findRelationshipsHelper(atomId, terminology, version, branch, pfs,
+        AtomJpa.class);
+  }
+
+  /**
+   * Find relationships helper.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param pfs the pfs
+   * @param clazz the clazz
+   * @return the relationship list
+   */
+  @SuppressWarnings("unchecked")
+  private RelationshipList findRelationshipsHelper(String terminologyId,
+    String terminology, String version, String branch, PfsParameter pfs,
+    Class<?> clazz) {
+    javax.persistence.Query query =
+        applyPfsToQuery(
+            "select a from "
+                + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
+                + clazz.getName()
+                + " b where b.terminologyId = :terminologyId "
+                + "and b.terminologyVersion = :version "
+                + "and b.terminology = :terminology and a.from = b ", pfs);
+    javax.persistence.Query ctQuery =
+        manager.createQuery("select count(*) from "
+            + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
+            + clazz.getName() + " b where b.terminologyId = :terminologyId "
+            + "and b.terminologyVersion = :version "
+            + "and b.terminology = :terminology and a.from = b");
     try {
       RelationshipList list = new RelationshipListJpa();
 
-      query.setParameter("conceptId", conceptId);
+      // execute count query
+      ctQuery.setParameter("terminologyId", terminologyId);
+      ctQuery.setParameter("terminology", terminology);
+      ctQuery.setParameter("version", version);
+      list.setTotalCount(((BigDecimal) ctQuery.getResultList().get(0))
+          .intValue());
+
+      query.setParameter("terminologyId", terminologyId);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       list.setObjects(query.getResultList());
       list.setTotalCount(list.getObjects().size());
 
-      // account for lazy initialization
-      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> s : list
-          .getObjects()) {
-        if (s.getAttributes() != null)
-          s.getAttributes().size();
-
-      }
       return list;
     } catch (NoResultException e) {
       return null;
     }
   }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findTreePositionsForConcept
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
+   */
+  @Override
+  public TreePositionList findTreePositionsForConcept(String terminologyId,
+    String terminology, String version, PfsParameter pfs, String branch)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get relationships for concept " + terminologyId
+            + "/" + terminology + "/" + version);
+    return findTreePositionsHelper(terminologyId, terminology, version, branch,
+        pfs, ConceptJpa.class);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findTreePositionsForDescriptor
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
+   */
+  @Override
+  public TreePositionList findTreePositionsForDescriptor(String terminologyId,
+    String terminology, String version, PfsParameter pfs, String branch)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get relationships for descriptor " + terminologyId
+            + "/" + terminology + "/" + version);
+    return findTreePositionsHelper(terminologyId, terminology, version, branch,
+        pfs, DescriptorJpa.class);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findTreePositionsForCode(java
+   * .lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
+   */
+  @Override
+  public TreePositionList findTreePositionsForCode(String terminologyId,
+    String terminology, String version, PfsParameter pfs, String branch)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get relationships for code " + terminologyId + "/"
+            + terminology + "/" + version);
+    return findTreePositionsHelper(terminologyId, terminology, version, branch,
+        pfs, CodeJpa.class);
+
+  }
+
+  /**
+   * Find tree positions helper.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param pfs the pfs
+   * @param clazz the clazz
+   * @return the tree position list
+   */
+  @SuppressWarnings("unchecked")
+  private TreePositionList findTreePositionsHelper(String terminologyId,
+    String terminology, String version, String branch, PfsParameter pfs,
+    Class<?> clazz) {
+    javax.persistence.Query query =
+        applyPfsToQuery(
+            "select a from "
+                + clazz.getName().replace("Jpa", "TreePositionJpa") + " a, "
+                + clazz.getName()
+                + " b where b.terminologyId = :terminologyId "
+                + "and b.terminologyVersion = :version "
+                + "and b.terminology = :terminology and a.node = b ", pfs);
+    javax.persistence.Query ctQuery =
+        manager.createQuery("select count(*) from "
+            + clazz.getName().replace("Jpa", "TreePositionJpa") + " a, "
+            + clazz.getName() + " b where b.terminologyId = :terminologyId "
+            + "and b.terminologyVersion = :version "
+            + "and b.terminology = :terminology and a.node = b");
+    try {
+      TreePositionList list = new TreePositionListJpa();
+
+      // execute count query
+      ctQuery.setParameter("terminologyId", terminologyId);
+      ctQuery.setParameter("terminology", terminology);
+      ctQuery.setParameter("version", version);
+      list.setTotalCount(((BigDecimal) ctQuery.getResultList().get(0))
+          .intValue());
+
+      query.setParameter("terminologyId", terminologyId);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      list.setObjects(query.getResultList());
+      list.setTotalCount(list.getObjects().size());
+
+      return list;
+    } catch (NoResultException e) {
+      return null;
+    }
+
+  }
+
 }

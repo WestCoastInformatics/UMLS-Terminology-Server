@@ -33,9 +33,6 @@ public class RrfComputePreferredNameHandler implements
   /** The tty rank map. */
   private Map<String, String> ttyRankMap = new HashMap<>();
 
-  /** The terminology. */
-  private String terminology = "UMLS";
-
   /**
    * Instantiates an empty {@link RrfComputePreferredNameHandler}.
    *
@@ -54,9 +51,7 @@ public class RrfComputePreferredNameHandler implements
    */
   @Override
   public void setProperties(Properties p) throws Exception {
-    if (p.containsKey("terminology")) {
-      terminology = p.getProperty("terminology");
-    }
+    // n/a
   }
 
   /*
@@ -132,9 +127,7 @@ public class RrfComputePreferredNameHandler implements
         (atom.isSuppressible() ? 0 : 1 ) + 
         ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType())
         + (10000000000L - Long.parseLong(atom.getStringClassId().substring(1)))
-        + (atom.getAlternateTerminologyIds().isEmpty() ? ""
-            : +(10000000000L - Long.parseLong(atom.getAlternateTerminologyIds()
-                .get(terminology).substring(1))));
+        + (100000000000L - atom.getId());
     return rank;
   }
 
