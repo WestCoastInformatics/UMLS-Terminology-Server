@@ -4135,11 +4135,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     try {
 
       Concept concept = getConcept(conceptId, terminology, version, branch);
-
       List<Object[]> results = new ArrayList<>();
       String queryStr =
           "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
-              + "a.relationshipType, a.additionalRelationshipType, a.to.terminologyId "
+              + "a.relationshipType, a.additionalRelationshipType, a.to.terminologyId, "
+              + "a.obsolete, a.suppressible, a.published, a.publishable "
               + "from ConceptRelationshipJpa a " + "where "
               + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId ";
       javax.persistence.Query query = manager.createQuery(queryStr);
@@ -4148,7 +4148,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
       queryStr =
           "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
-              + "a.relationshipType, a.additionalRelationshipType, value(cui2) "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+              + "a.obsolete, a.suppressible, a.published, a.publishable "
               + "from AtomRelationshipJpa a join a.to.conceptTerminologyIds cui2 "
               + "where key(cui2) = '" + concept.getTerminology() + "' and "
               + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds) ";
@@ -4162,7 +4163,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
       queryStr =
           "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
-              + "a.relationshipType, a.additionalRelationshipType, value(cui2) "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+              + "a.obsolete, a.suppressible, a.published, a.publishable "
               + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
               + "DescriptorJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
               + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4181,7 +4183,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
       queryStr =
           "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
-              + "a.relationshipType, a.additionalRelationshipType, value(cui2) "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+              + "a.obsolete, a.suppressible, a.published, a.publishable "
               + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
               + "ConceptJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
               + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4200,7 +4203,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
       queryStr =
           "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
-              + "a.relationshipType, a.additionalRelationshipType, value(cui2) "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+              + "a.obsolete, a.suppressible, a.published, a.publishable "
               + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
               + "CodeJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
               + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4210,7 +4214,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
               + "and b.name = c.name and c.id in (:atomIds) " + "and a."
               + (inverseFlag ? "from" : "to") + ".id = d.id "
               + "and d.terminologyId = e.codeId "
-              + "and d.terminology = e.terminology "
+              + "and d.terminology = e.terminolog"
               + "and d.terminologyVersion = e.terminologyVersion "
               + "and d.name = e.name ";
       query = manager.createQuery(queryStr);
@@ -4232,6 +4236,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         relationship.setTerminologyVersion(result[3].toString());
         relationship.setRelationshipType(result[4].toString());
         relationship.setAdditionalRelationshipType(result[5].toString());
+        relationship.setObsolete(result[7].toString().equals("1"));
+        relationship.setSuppressible(result[8].toString().equals("1"));
+        relationship.setPublished(result[9].toString().equals("1"));
+        relationship.setPublishable(result[10].toString().equals("1"));
         relationship.setTo(toConcept);
         conceptRels.add(relationship);
       }
