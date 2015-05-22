@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import org.hibernate.envers.Audited;
 
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
+import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
@@ -21,8 +22,8 @@ import com.wci.umls.server.model.content.SubsetMember;
 @XmlSeeAlso({
     AtomSubsetMemberJpa.class, ConceptSubsetMemberJpa.class
 })
-public abstract class AbstractSubsetMember<T extends ComponentHasAttributesAndName>
-    extends AbstractComponentHasAttributes implements SubsetMember<T> {
+public abstract class AbstractSubsetMember<T extends ComponentHasAttributesAndName, S extends Subset>
+    extends AbstractComponentHasAttributes implements SubsetMember<T, S> {
 
   /**
    * Instantiates an empty {@link AbstractSubsetMember}.
@@ -37,7 +38,7 @@ public abstract class AbstractSubsetMember<T extends ComponentHasAttributesAndNa
    * @param member the subset
    * @param deepCopy the deep copy
    */
-  public AbstractSubsetMember(SubsetMember<T> member, boolean deepCopy) {
+  public AbstractSubsetMember(SubsetMember<T, S> member, boolean deepCopy) {
     super(member, deepCopy);
   }
 

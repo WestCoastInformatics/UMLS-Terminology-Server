@@ -14,6 +14,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptTreePosition;
@@ -30,6 +36,7 @@ import com.wci.umls.server.model.content.ConceptTreePosition;
     })
 })
 @Audited
+@Indexed
 @XmlRootElement(name = "conceptTreePosition")
 public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
     implements ConceptTreePosition {
@@ -87,6 +94,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    * @return the node id
    */
   @XmlElement
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getNodeId() {
     return node == null ? null : node.getId();
   }
@@ -108,6 +116,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    *
    * @return the node name
    */
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"))
   public String getNodeName() {
     return node == null ? null : node.getName();
   }
@@ -129,6 +138,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    *
    * @return the node terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getNodeTerminologyId() {
     return node == null ? null : node.getTerminologyId();
   }

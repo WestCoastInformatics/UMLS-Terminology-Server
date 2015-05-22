@@ -5,18 +5,16 @@ package com.wci.umls.server.model.content;
 
 import java.util.List;
 
-import com.wci.umls.server.helpers.HasDefinitions;
 import com.wci.umls.server.helpers.HasMembers;
-import com.wci.umls.server.helpers.HasRelationships;
 
 /**
  * Represents a conceptual meaning. This can be a concept in a terminology (like
  * SNOMED CT or ICD10CM), or it could be a concept in a metathesaurus (like a
  * CUI, or an RXCUI).
  */
-public interface Concept extends AtomClass, HasDefinitions,
-    HasRelationships<ConceptRelationship>,
-    HasMembers<ConceptSubsetMember>{
+public interface Concept extends AtomClass, ComponentHasDefinitions,
+    ComponentHasRelationships<ConceptRelationship>,
+    HasMembers<ConceptSubsetMember> {
 
   /**
    * Indicates whether or not the concept is fully defined. This is always false
@@ -53,7 +51,7 @@ public interface Concept extends AtomClass, HasDefinitions,
    * @param semanticType the semantic type
    */
   public void addSemanticType(SemanticTypeComponent semanticType);
-  
+
   /**
    * Removes the semantic type.
    *

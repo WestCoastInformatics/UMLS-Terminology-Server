@@ -24,13 +24,15 @@ import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
+import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
  * Unit testing for {@link SubsetMemberList}.
  */
-public class ListUnit012Test extends
-    AbstractListUnit<SubsetMember<? extends ComponentHasAttributesAndName>> {
+public class ListUnit012Test
+    extends
+    AbstractListUnit<SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> {
 
   /** The list test fixture . */
   private SubsetMemberList list;
@@ -78,18 +80,18 @@ public class ListUnit012Test extends
     atomSubset.setId(1L);
     atomSubset.setTerminologyId("1");
     atomSubset.setName("1");
-    
+
     s1 = new AtomSubsetMemberJpa();
     s1.setId(1L);
     s1.setTerminologyId("1");
     s1.setMember(atom);
-    ((AtomSubsetMember)s1).setSubset(atomSubset);
+    ((AtomSubsetMember) s1).setSubset(atomSubset);
 
     s2 = new AtomSubsetMemberJpa();
     s2.setId(2L);
     s2.setTerminologyId("2");
     s2.setMember(atom);
-    ((AtomSubsetMember)s2).setSubset(atomSubset);
+    ((AtomSubsetMember) s2).setSubset(atomSubset);
 
     Concept concept = new ConceptJpa();
     concept.setId(1L);
@@ -99,17 +101,17 @@ public class ListUnit012Test extends
     conceptSubset.setId(1L);
     conceptSubset.setTerminologyId("1");
     conceptSubset.setName("1");
-    
+
     s3 = new ConceptSubsetMemberJpa();
     s3.setId(1L);
     s3.setTerminologyId("1");
     s3.setMember(concept);
-    ((ConceptSubsetMember)s3).setSubset(conceptSubset);
+    ((ConceptSubsetMember) s3).setSubset(conceptSubset);
     s4 = new ConceptSubsetMemberJpa();
     s4.setId(2L);
     s4.setTerminologyId("2");
     s4.setMember(concept);
-    ((ConceptSubsetMember)s4).setSubset(conceptSubset);
+    ((ConceptSubsetMember) s4).setSubset(conceptSubset);
 
   }
 

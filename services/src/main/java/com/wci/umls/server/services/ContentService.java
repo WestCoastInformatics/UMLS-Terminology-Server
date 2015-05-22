@@ -28,6 +28,7 @@ import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
+import com.wci.umls.server.model.content.ComponentHasDefinitions;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
@@ -39,6 +40,7 @@ import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
+import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
@@ -146,11 +148,13 @@ public interface ContentService extends RootService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param query the query
    * @param pfs the pfs
    * @return the subset members
+   * @throws Exception 
    */
   public SubsetMemberList findAtomSubsetMembers(String subsetId,
-    String terminology, String version, String branch, PfsParameter pfs);
+    String terminology, String version, String branch, String query, PfsParameter pfs) throws Exception;
 
   /**
    * Returns the concept subset members.
@@ -159,11 +163,12 @@ public interface ContentService extends RootService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param query the query
    * @param pfs the pfs
    * @return the concept subset members
    */
   public SubsetMemberList findConceptSubsetMembers(String subsetId,
-    String terminology, String version, String branch, PfsParameter pfs);
+    String terminology, String version, String branch, String query, PfsParameter pfs) throws Exception;
 
   /**
    * Returns the atom subset members for the specified atom.
@@ -205,9 +210,10 @@ public interface ContentService extends RootService {
     PfsParameter pfs);
 
   /**
-   * Find relationships for concept or any part of its graph and push them all up to the same level.
-   * For example a UMLS concept may return the CUI relationships, the atom relationships,
-   * the SCUI, SDUI, and CODE relationships - all represented as {@link ConceptRelationship}.
+   * Find relationships for concept or any part of its graph and push them all
+   * up to the same level. For example a UMLS concept may return the CUI
+   * relationships, the atom relationships, the SCUI, SDUI, and CODE
+   * relationships - all represented as {@link ConceptRelationship}.
    *
    * @param conceptId the concept id
    * @param terminology the terminology
@@ -824,6 +830,35 @@ public interface ContentService extends RootService {
   public void removeTransitiveRelationship(Long id) throws Exception;
 
   /**
+   * Adds the tree position.
+   *
+   * @param treepos the treepos
+   * @return the tree position<? extends component has attributes and name>
+   * @throws Exception the exception
+   */
+  public TreePosition<? extends ComponentHasAttributesAndName> addTreePosition(
+    TreePosition<? extends ComponentHasAttributesAndName> treepos)
+    throws Exception;
+
+  /**
+   * Update tree position.
+   *
+   * @param treepos the treepos
+   * @throws Exception the exception
+   */
+  public void updateTreePosition(
+    TreePosition<? extends ComponentHasAttributesAndName> treepos)
+    throws Exception;
+
+  /**
+   * Removes the tree position.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeTreePosition(Long id) throws Exception;
+
+  /**
    * Adds the subset.
    * 
    * @param subset the subset
@@ -855,8 +890,8 @@ public interface ContentService extends RootService {
    * @return the subset member
    * @throws Exception the exception
    */
-  public SubsetMember<? extends ComponentHasAttributesAndName> addSubsetMember(
-    SubsetMember<? extends ComponentHasAttributesAndName> member)
+  public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> addSubsetMember(
+    SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member)
     throws Exception;
 
   /**
@@ -866,7 +901,7 @@ public interface ContentService extends RootService {
    * @throws Exception the exception
    */
   public void updateSubsetMember(
-    SubsetMember<? extends ComponentHasAttributesAndName> member)
+    SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member)
     throws Exception;
 
   /**
@@ -1131,18 +1166,22 @@ public interface ContentService extends RootService {
    * Update definition.
    *
    * @param definition the definition
+   * @param component the component
    * @throws Exception the exception
    */
-  public void updateDefinition(Definition definition) throws Exception;
+  public void updateDefinition(Definition definition,
+    ComponentHasDefinitions component) throws Exception;
 
   /**
    * Adds the definition.
    *
    * @param definition the definition
+   * @param component the component
    * @return the definition
    * @throws Exception the exception
    */
-  public Definition addDefinition(Definition definition) throws Exception;
+  public Definition addDefinition(Definition definition,
+    ComponentHasDefinitions component) throws Exception;
 
   /**
    * Removes the semantic type component.
@@ -1156,20 +1195,22 @@ public interface ContentService extends RootService {
    * Update semantic type component.
    *
    * @param sty the sty
+   * @param concept the concept
    * @throws Exception the exception
    */
-  public void updateSemanticTypeComponent(SemanticTypeComponent sty)
-    throws Exception;
+  public void updateSemanticTypeComponent(SemanticTypeComponent sty,
+    Concept concept) throws Exception;
 
   /**
    * Adds the semantic type component.
    *
    * @param sty the sty
+   * @param concept the concept
    * @return the semantic type component
    * @throws Exception the exception
    */
   public SemanticTypeComponent addSemanticTypeComponent(
-    SemanticTypeComponent sty) throws Exception;
+    SemanticTypeComponent sty, Concept concept) throws Exception;
 
   /**
    * Removes the attribute.
@@ -1185,16 +1226,19 @@ public interface ContentService extends RootService {
    * @param attribute the attribute
    * @throws Exception the exception
    */
-  public void updateAttribute(Attribute attribute) throws Exception;
+  public void updateAttribute(Attribute attribute,
+    ComponentHasAttributes component) throws Exception;
 
   /**
    * Adds the attribute.
    *
    * @param attribute the attribute
+   * @param component the component
    * @return the attribute
    * @throws Exception the exception
    */
-  public Attribute addAttribute(Attribute attribute) throws Exception;
+  public Attribute addAttribute(Attribute attribute,
+    ComponentHasAttributes component) throws Exception;
 
   /**
    * Gets the attribute.
@@ -1276,7 +1320,7 @@ public interface ContentService extends RootService {
    * @return the subset member
    * @throws Exception the exception
    */
-  public SubsetMember<? extends ComponentHasAttributesAndName> getSubsetMember(
+  public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
     String terminologyId, String terminology, String version, String branch)
     throws Exception;
 
@@ -1299,7 +1343,7 @@ public interface ContentService extends RootService {
    * @return the subset member
    * @throws Exception the exception
    */
-  public SubsetMember<? extends ComponentHasAttributesAndName> getSubsetMember(
+  public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
     Long id) throws Exception;
 
 }

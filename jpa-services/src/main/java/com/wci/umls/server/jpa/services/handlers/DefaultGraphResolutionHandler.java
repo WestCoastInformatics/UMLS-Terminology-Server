@@ -387,7 +387,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
   @Override
   public void resolve(
-    SubsetMember<? extends ComponentHasAttributesAndName> member)
+    SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member)
     throws Exception {
     if (member != null) {
       boolean nullId = member.getId() == null;
@@ -429,8 +429,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
    * @param nullId the null id
    */
   @SuppressWarnings("static-method")
-  private void resolveAtomSubsetMembers(AtomSubset subset,
-    boolean nullId) {
+  private void resolveAtomSubsetMembers(AtomSubset subset, boolean nullId) {
     for (AtomSubsetMember member : subset.getMembers()) {
       member.getMember();
       if (member.getAttributes() != null)
@@ -440,7 +439,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
     }
   }
-  
+
   /**
    * Resolve concept subset members.
    *
@@ -448,8 +447,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
    * @param nullId the null id
    */
   @SuppressWarnings("static-method")
-  private void resolveConceptSubsetMembers(ConceptSubset subset,
-    boolean nullId) {
+  private void resolveConceptSubsetMembers(ConceptSubset subset, boolean nullId) {
     for (ConceptSubsetMember member : subset.getMembers()) {
       member.getMember();
       if (member.getAttributes() != null)
@@ -458,7 +456,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         member.setId(null);
       }
     }
-  }  
+  }
 
   /**
    * Resolve definition.
@@ -476,8 +474,12 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     resolveAttributes(definition, nullId);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com.wci.umls.server.model.content.AtomSubset)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.content.AtomSubset)
    */
   @Override
   public void resolve(AtomSubset subset) throws Exception {
@@ -485,22 +487,25 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       boolean nullId = subset.getId() == null;
 
       subset.getName();
-      
+
       // Attributes
       resolveAttributes(subset, nullId);
-      
+
       // AtomSubsetMembers
       resolveAtomSubsetMembers(subset, nullId);
-
 
     } else if (subset == null) {
       throw new Exception("Cannot resolve a null subset.");
     }
 
   }
-  
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com.wci.umls.server.model.content.ConceptSubset)
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.content.ConceptSubset)
    */
   @Override
   public void resolve(ConceptSubset subset) throws Exception {
@@ -508,13 +513,12 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       boolean nullId = subset.getId() == null;
 
       subset.getName();
-      
+
       // Attributes
       resolveAttributes(subset, nullId);
-      
+
       // ConceptSubsetMembers
       resolveConceptSubsetMembers(subset, nullId);
-
 
     } else if (subset == null) {
       throw new Exception("Cannot resolve a null subset.");

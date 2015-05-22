@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.hibernate.envers.Audited;
 
-import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
@@ -22,8 +22,8 @@ import com.wci.umls.server.model.content.TreePosition;
     CodeTreePositionJpa.class, ConceptTreePositionJpa.class,
     DescriptorTreePositionJpa.class
 })
-public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndName>
-    extends AbstractComponentHasAttributes implements TreePosition<T> {
+public abstract class AbstractTreePosition<T extends AtomClass> extends
+    AbstractComponentHasAttributes implements TreePosition<T> {
 
   /** The additional relationship type. */
   @Column(nullable = true)

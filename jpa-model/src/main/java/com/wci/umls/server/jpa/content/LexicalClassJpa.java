@@ -34,7 +34,7 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
 
   /** The normalized string. */
   @Column(nullable = true, length = 4000)
-  private String normalizedString;
+  private String normalizedName;
 
   /**
    * Instantiates an empty {@link LexicalClassJpa}.
@@ -51,7 +51,7 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
    */
   public LexicalClassJpa(LexicalClass lexicalClass, boolean deepCopy) {
     super(lexicalClass, deepCopy);
-    normalizedString = lexicalClass.getNormalizedString();
+    normalizedName = lexicalClass.getNormalizedName();
   }
 
   /**
@@ -62,21 +62,21 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
   @Override
   @Fields({
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
-      @Field(name = "normalizedStringSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+      @Field(name = "normalizedNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
   @Analyzer(definition = "noStopWord")
-  public String getNormalizedString() {
-    return normalizedString;
+  public String getNormalizedName() {
+    return normalizedName;
   }
 
   /**
    * Sets the normalized string.
    *
-   * @param normalizedString the normalized string
+   * @param normalizedName the normalized string
    */
   @Override
-  public void setNormalizedString(String normalizedString) {
-    this.normalizedString = normalizedString;
+  public void setNormalizedName(String normalizedName) {
+    this.normalizedName = normalizedName;
   }
 
   /*
@@ -90,7 +90,7 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
     int result = super.hashCode();
     result =
         prime * result
-            + ((normalizedString == null) ? 0 : normalizedString.hashCode());
+            + ((normalizedName == null) ? 0 : normalizedName.hashCode());
     return result;
   }
 
@@ -109,10 +109,10 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
     if (getClass() != obj.getClass())
       return false;
     LexicalClassJpa other = (LexicalClassJpa) obj;
-    if (normalizedString == null) {
-      if (other.normalizedString != null)
+    if (normalizedName == null) {
+      if (other.normalizedName != null)
         return false;
-    } else if (!normalizedString.equals(other.normalizedString))
+    } else if (!normalizedName.equals(other.normalizedName))
       return false;
     return true;
   }

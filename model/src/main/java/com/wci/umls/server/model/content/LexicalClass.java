@@ -14,12 +14,12 @@ public interface LexicalClass extends AtomClass {
    *
    * @return the normalized string
    */
-  public String getNormalizedString();
+  public String getNormalizedName();
   
   /**
    * Sets the normalized string.
    *
    * @param normalizedString the normalized string
    */
-  public void setNormalizedString(String normalizedString);
+  public void setNormalizedName(String normalizedString);
 }

@@ -14,6 +14,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTreePosition;
@@ -30,6 +36,7 @@ import com.wci.umls.server.model.content.CodeTreePosition;
     })
 })
 @Audited
+@Indexed
 @XmlRootElement(name = "codeTreePosition")
 public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
     CodeTreePosition {
@@ -74,6 +81,7 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
    * @return the node id
    */
   @XmlElement
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getNodeId() {
     return node == null ? null : node.getId();
   }
@@ -95,6 +103,7 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
    *
    * @return the node name
    */
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"))
   public String getNodeName() {
     return node == null ? null : node.getName();
   }
@@ -116,6 +125,7 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
    *
    * @return the node terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getNodeTerminologyId() {
     return node == null ? null : node.getTerminologyId();
   }

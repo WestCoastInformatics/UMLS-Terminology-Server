@@ -107,7 +107,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @throws Exception the exception
    */
   public void resolve(AtomSubset subset) throws Exception;
-  
+
   /**
    * Resolve.
    *
@@ -115,8 +115,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @throws Exception the exception
    */
   public void resolve(ConceptSubset subset) throws Exception;
-  
- 
+
   /**
    * Resolve atoms.
    *
@@ -158,7 +157,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @throws Exception the exception
    */
   public void resolve(
-    SubsetMember<? extends ComponentHasAttributesAndName> member)
+    SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member)
     throws Exception;
 
 }

@@ -332,7 +332,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     tp.setTerminologyId("");
 
     // persist the tree position
-    manager.persist(tp);
+    this.addTreePosition(tp);
 
     // construct the ancestor path terminating at this concept
     final String conceptPath =

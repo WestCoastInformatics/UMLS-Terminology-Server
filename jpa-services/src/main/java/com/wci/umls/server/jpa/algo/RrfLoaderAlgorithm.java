@@ -14,9 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.Query;
-
 import org.apache.log4j.Logger;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
 
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.algo.Algorithm;
@@ -40,9 +41,7 @@ import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
-import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
-import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
@@ -72,10 +71,8 @@ import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
-import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
-import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
@@ -968,7 +965,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       def.setValue(fields[5]);
 
-      addDefinition(def);
+      addDefinition(def, atom);
       // Whenever we are going to commit, update atoms too.
       if (++objectCt % commitCt == 0) {
         for (final Atom a : modifiedAtoms) {
@@ -1079,7 +1076,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         FieldedStringTokenizer.split(fields[10], "~", 3, atvFields);
         final String subsetIdKey = atvFields[0] + fields[9];
         final String subsetMemberIdKey = fields[7] + fields[9];
-        SubsetMember<? extends ComponentHasAttributes> member = null;
+        SubsetMember<? extends ComponentHasAttributes, ? extends Subset> member =
+            null;
 
         // First see if member already exists
         boolean found = false;
@@ -1161,7 +1159,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           memberAtt.setPublished(true);
           memberAtt.setName(atvFields[1]);
           memberAtt.setValue(atvFields[2]);
-          addAttribute(memberAtt);
+          addAttribute(memberAtt, member);
           logAndCommit(++objectCt);
 
           if (member != null) {
@@ -1176,35 +1174,41 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         // Get the concept for the AUI
         Atom atom = getAtom(atomIdMap.get(fields[3]));
         atom.addAttribute(att);
+        addAttribute(att, atom);
       } else if (fields[4].equals("RUI")) {
         // Get the relationship for the RUI
         Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship =
             relationshipMap.get(fields[3]);
         relationship.addAttribute(att);
+        addAttribute(att, relationship);
       } else if (fields[4].equals("CODE")) {
         // Get the code for the terminology and CODE of the AUI
         Code code =
-            getCode(codeIdMap.get(atomTerminologyMap.get(fields[3]) + atomCodeIdMap.get(fields[3])));
+            getCode(codeIdMap.get(atomTerminologyMap.get(fields[3])
+                + atomCodeIdMap.get(fields[3])));
         code.addAttribute(att);
+        addAttribute(att, code);
       } else if (fields[4].equals("CUI")) {
         // Get the concept for the terminology and CUI
         Concept concept = getConcept(conceptIdMap.get(terminology + fields[0]));
         concept.addAttribute(att);
+        addAttribute(att, concept);
       } else if (fields[4].equals("SDUI")) {
         // Get the descriptor for the terminology and SDUI of the AUI
         Descriptor descriptor =
             getDescriptor(descriptorIdMap.get(atomTerminologyMap.get(fields[3])
                 + atomDescriptorIdMap.get(fields[3])));
         descriptor.addAttribute(att);
+        addAttribute(att, descriptor);
       } else if (fields[4].equals("SCUI")) {
         // Get the concept for the terminology and SCUI of the AUI
         Concept concept =
             getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[3])
                 + atomConceptIdMap.get(fields[3])));
         concept.addAttribute(att);
+        addAttribute(att, concept);
       }
 
-      addAttribute(att);
       // Update objects before commit
       if (objectCt % commitCt == 0) {
         // Update objects with new attributes
@@ -1254,6 +1258,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       subset.setMembers(new ArrayList<AtomSubsetMember>());
       addSubset(subset);
       for (final AtomSubsetMember member : members) {
+        member.setMember(getAtom(member.getMember().getId()));
         addSubsetMember(member);
         subset.addMember(member);
         // add member
@@ -1277,6 +1282,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       subset.setMembers(new ArrayList<ConceptSubsetMember>());
       addSubset(subset);
       for (final ConceptSubsetMember member : members) {
+        member.setMember(getConcept(member.getMember().getId()));
         addSubsetMember(member);
         // add member
         logAndCommit(++objectCt);
@@ -1398,15 +1404,13 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
         // Get the descriptor for the terminology and SDUI of the AUI (METAUI)
         Descriptor fromDescriptor = new DescriptorJpa();
-        fromDescriptor.setId(descriptorIdMap.get(
-        atomTerminologyMap.get(fields[5])
-            + atomDescriptorIdMap.get(fields[5])));
+        fromDescriptor.setId(descriptorIdMap.get(atomTerminologyMap
+            .get(fields[5]) + atomDescriptorIdMap.get(fields[5])));
         descriptorRel.setFrom(fromDescriptor);
 
         Descriptor toDescriptor = new DescriptorJpa();
-        toDescriptor.setId(descriptorIdMap.get(
-        atomTerminologyMap.get(fields[1])
-            + atomDescriptorIdMap.get(fields[1])));
+        toDescriptor.setId(descriptorIdMap.get(atomTerminologyMap
+            .get(fields[1]) + atomDescriptorIdMap.get(fields[1])));
         descriptorRel.setTo(toDescriptor);
 
         setRelationshipFields(fields, descriptorRel);
@@ -1418,12 +1422,13 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
         // Get the code for the terminology and CODE of the AUI (METAUI)
         Code fromCode = new CodeJpa();
-        fromCode
-            .setId(codeIdMap.get(atomTerminologyMap.get(fields[5]) + atomCodeIdMap.get(fields[5])));
+        fromCode.setId(codeIdMap.get(atomTerminologyMap.get(fields[5])
+            + atomCodeIdMap.get(fields[5])));
         codeRel.setFrom(fromCode);
 
         Code toCode = new CodeJpa();
-        toCode.setId(codeIdMap.get(atomTerminologyMap.get(fields[1]) + atomCodeIdMap.get(fields[1])));
+        toCode.setId(codeIdMap.get(atomTerminologyMap.get(fields[1])
+            + atomCodeIdMap.get(fields[1])));
         codeRel.setTo(toCode);
 
         setRelationshipFields(fields, codeRel);
@@ -1544,7 +1549,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       sty.setTerminology(terminology);
       sty.setTerminologyVersion(terminologyVersion);
 
-      addSemanticTypeComponent(sty);
+      addSemanticTypeComponent(sty, concept);
       // Whenever we are going to commit, update atoms too.
       if (++objectCt % commitCt == 0) {
         for (final Concept c : modifiedConcepts) {
@@ -1569,7 +1574,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("unchecked")
   private void loadMrconso() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRCONSO");
     Logger.getLogger(getClass()).info("  Insert atoms and concepts ");
@@ -1775,13 +1779,18 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     Logger.getLogger(getClass()).info("  Add concepts");
     objectCt = 0;
-    Query query =
-        manager
-            .createQuery("select a.id from AtomJpa a order by terminology, conceptId");
+    // NOTE: Hibernate-specific to support iterating
+    Session session = manager.unwrap(Session.class);
+    org.hibernate.Query hQuery =
+        session
+            .createQuery(
+                "select a from AtomJpa a order by terminology, conceptId")
+            .setReadOnly(true).setFetchSize(1000);
+    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     prevCui = null;
     cui = null;
-    for (final Long id : (List<Long>) query.getResultList()) {
-      final Atom atom = getAtom(id);
+    while (results.next()) {
+      final Atom atom = (Atom) results.get()[0];
       if (atom.getConceptId() == null || atom.getConceptId().isEmpty()) {
         continue;
       }
@@ -1818,13 +1827,18 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     Logger.getLogger(getClass()).info("  Add descriptors");
     objectCt = 0;
-    query =
-        manager
-            .createQuery("select a.id from AtomJpa a order by terminology, descriptorId");
+
+    // NOTE: Hibernate-specific to support iterating
+    hQuery =
+        session
+            .createQuery(
+                "select a from AtomJpa a order by terminology, descriptorId")
+            .setReadOnly(true).setFetchSize(1000);
+    results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     String prevDui = null;
     Descriptor dui = null;
-    for (final Long id : (List<Long>) query.getResultList()) {
-      final Atom atom = getAtom(id);
+    while (results.next()) {
+      final Atom atom = (Atom) results.get()[0];
       if (atom.getDescriptorId() == null || atom.getDescriptorId().isEmpty()) {
         continue;
       }
@@ -1861,13 +1875,16 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     Logger.getLogger(getClass()).info("  Add codes");
     objectCt = 0;
-    query =
-        manager
-            .createQuery("select a.id from AtomJpa a order by terminology, codeId");
+    // NOTE: Hibernate-specific to support iterating
+    hQuery =
+        session
+            .createQuery("select a from AtomJpa a order by terminology, codeId")
+            .setReadOnly(true).setFetchSize(1000);
+    results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     String prevCode = null;
     Code code = null;
-    for (final Long id : (List<Long>) query.getResultList()) {
-      final Atom atom = getAtom(id);
+    while (results.next()) {
+      final Atom atom = (Atom) results.get()[0];
       if (atom.getCodeId() == null || atom.getCodeId().isEmpty()) {
         continue;
       }
@@ -1902,75 +1919,78 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       logAndCommit(++objectCt);
     }
 
-    // NOTE: atoms are not connected to lexical classes as there are
-    // currently no known uses for this.
-    Logger.getLogger(getClass()).info("  Add lexical classes");
-    objectCt = 0;
-    query =
-        manager
-            .createQuery("select a.id from AtomJpa a order by lexicalClassId");
-    String prevLui = null;
-    LexicalClass lui = null;
-    LexicalClass atoms = null;
-    for (final Long id : (List<Long>) query.getResultList()) {
-      final Atom atom = getAtom(id);
-      if (atom.getLexicalClassId() == null
-          || atom.getLexicalClassId().isEmpty()) {
-        continue;
-      }
-      if (prevLui == null || !prevLui.equals(atom.getLexicalClassId())) {
-        if (lui != null) {
-          // compute preferred name
-          lui.setName(getComputedPreferredName(atoms));
-          addLexicalClass(lui);
-          logAndCommit(++objectCt);
-        }
-        // just used to hold atoms, enver saved.
-        atoms = new LexicalClassJpa();
-        lui = new LexicalClassJpa();
-        lui.setTimestamp(releaseVersionDate);
-        lui.setLastModified(releaseVersionDate);
-        lui.setLastModifiedBy(loader);
-        lui.setPublished(true);
-        lui.setPublishable(true);
-        lui.setTerminology(terminology);
-        lui.setTerminologyId(atom.getLexicalClassId());
-        lui.setTerminologyVersion(terminologyVersion);
-        lui.setWorkflowStatus(published);
-        lui.setNormalizedString(getNormalizedString(atom.getName()));
-      }
-      atoms.addAtom(atom);
-      prevLui = atom.getLexicalClassId();
-    }
-    if (lui != null) {
-      lui.setName(getComputedPreferredName(atoms));
-      addLexicalClass(lui);
-      logAndCommit(++objectCt);
-    }
+    // NOTE: for efficiency and lack of use cases, we've temporarily
+    // suspended the loading of LexicalClass and StringClass objects
 
-    // NOTE: currently atoms are not loaded for string classes
-    // We simply load the objects themselves ( for SUI maintenance)
-    // There are no known use cases for having the atoms here.
-    Logger.getLogger(getClass()).info("  Add string classes");
-    objectCt = 0;
-    query =
-        manager
-            .createQuery("select distinct stringClassId, name from AtomJpa a");
-    for (final Object[] suiFields : (List<Object[]>) query.getResultList()) {
-      final StringClass sui = new StringClassJpa();
-      sui.setTimestamp(releaseVersionDate);
-      sui.setLastModified(releaseVersionDate);
-      sui.setLastModifiedBy(loader);
-      sui.setPublished(true);
-      sui.setPublishable(true);
-      sui.setTerminology(terminology);
-      sui.setTerminologyId(suiFields[0].toString());
-      sui.setTerminologyVersion(terminologyVersion);
-      sui.setWorkflowStatus(published);
-      sui.setName(suiFields[1].toString());
-      addStringClass(sui);
-      logAndCommit(++objectCt);
-    }
+    // // NOTE: atoms are not connected to lexical classes as there are
+    // // currently no known uses for this.
+    // Logger.getLogger(getClass()).info("  Add lexical classes");
+    // objectCt = 0;
+    // query =
+    // manager
+    // .createQuery("select a.id from AtomJpa a order by lexicalClassId");
+    // String prevLui = null;
+    // LexicalClass lui = null;
+    // LexicalClass atoms = null;
+    // for (final Long id : (List<Long>) query.getResultList()) {
+    // final Atom atom = getAtom(id);
+    // if (atom.getLexicalClassId() == null
+    // || atom.getLexicalClassId().isEmpty()) {
+    // continue;
+    // }
+    // if (prevLui == null || !prevLui.equals(atom.getLexicalClassId())) {
+    // if (lui != null) {
+    // // compute preferred name
+    // lui.setName(getComputedPreferredName(atoms));
+    // addLexicalClass(lui);
+    // logAndCommit(++objectCt);
+    // }
+    // // just used to hold atoms, enver saved.
+    // atoms = new LexicalClassJpa();
+    // lui = new LexicalClassJpa();
+    // lui.setTimestamp(releaseVersionDate);
+    // lui.setLastModified(releaseVersionDate);
+    // lui.setLastModifiedBy(loader);
+    // lui.setPublished(true);
+    // lui.setPublishable(true);
+    // lui.setTerminology(terminology);
+    // lui.setTerminologyId(atom.getLexicalClassId());
+    // lui.setTerminologyVersion(terminologyVersion);
+    // lui.setWorkflowStatus(published);
+    // lui.setNormalizedString(getNormalizedString(atom.getName()));
+    // }
+    // atoms.addAtom(atom);
+    // prevLui = atom.getLexicalClassId();
+    // }
+    // if (lui != null) {
+    // lui.setName(getComputedPreferredName(atoms));
+    // addLexicalClass(lui);
+    // logAndCommit(++objectCt);
+    // }
+    //
+    // // NOTE: currently atoms are not loaded for string classes
+    // // We simply load the objects themselves ( for SUI maintenance)
+    // // There are no known use cases for having the atoms here.
+    // Logger.getLogger(getClass()).info("  Add string classes");
+    // objectCt = 0;
+    // query =
+    // manager
+    // .createQuery("select distinct stringClassId, name from AtomJpa a");
+    // for (final Object[] suiFields : (List<Object[]>) query.getResultList()) {
+    // final StringClass sui = new StringClassJpa();
+    // sui.setTimestamp(releaseVersionDate);
+    // sui.setLastModified(releaseVersionDate);
+    // sui.setLastModifiedBy(loader);
+    // sui.setPublished(true);
+    // sui.setPublishable(true);
+    // sui.setTerminology(terminology);
+    // sui.setTerminologyId(suiFields[0].toString());
+    // sui.setTerminologyVersion(terminologyVersion);
+    // sui.setWorkflowStatus(published);
+    // sui.setName(suiFields[1].toString());
+    // addStringClass(sui);
+    // logAndCommit(++objectCt);
+    // }
 
     // commit
     commitClearBegin();

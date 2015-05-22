@@ -6,17 +6,15 @@ package com.wci.umls.server.model.content;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
-import com.wci.umls.server.helpers.HasDefinitions;
 import com.wci.umls.server.helpers.HasMembers;
-import com.wci.umls.server.helpers.HasRelationships;
 
 /**
  * Represents a single atomic unit of meaning. It's a name from a vocabulary
  * with associated identifiers.
  */
-public interface Atom extends ComponentHasAttributesAndName, HasDefinitions,
-    HasRelationships<AtomRelationship>, HasAlternateTerminologyIds,
-    HasMembers<AtomSubsetMember> {
+public interface Atom extends ComponentHasAttributesAndName,
+    ComponentHasDefinitions, ComponentHasRelationships<AtomRelationship>,
+    HasAlternateTerminologyIds, HasMembers<AtomSubsetMember> {
 
   /**
    * Returns the string class id.

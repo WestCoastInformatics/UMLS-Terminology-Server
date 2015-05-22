@@ -12,6 +12,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
@@ -26,9 +32,10 @@ import com.wci.umls.server.model.content.SubsetMember;
     "terminologyId", "terminology", "terminologyVersion", "id"
 }))
 @Audited
+@Indexed
 @XmlRootElement(name = "atomMember")
-public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom> implements
-    AtomSubsetMember {
+public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
+    implements AtomSubsetMember {
 
   /** The member. */
   @ManyToOne(targetEntity = AtomJpa.class, optional = false)
@@ -86,6 +93,7 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom> implements
    *
    * @return the member id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getMemberId() {
     return member == null ? null : member.getId();
   }
@@ -107,6 +115,7 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom> implements
    *
    * @return the member terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getMemberTerminologyId() {
     return member == null ? null : member.getTerminologyId();
   }
@@ -122,12 +131,13 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom> implements
     }
     member.setTerminologyId(terminologyId);
   }
-  
+
   /**
    * Returns the member name. For JAXB.
    *
    * @return the member name
    */
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"))
   public String getMemberName() {
     return member == null ? null : member.getName();
   }
@@ -172,6 +182,7 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom> implements
    *
    * @return the subset id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getSubsetId() {
     return subset == null ? null : subset.getId();
   }
@@ -193,6 +204,7 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom> implements
    *
    * @return the subset terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getSubsetTerminologyId() {
     return subset == null ? null : subset.getTerminologyId();
   }
@@ -214,6 +226,7 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom> implements
    *
    * @return the subset name
    */
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"))
   public String getSubsetName() {
     return subset == null ? null : subset.getName();
   }
@@ -294,7 +307,8 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom> implements
    */
   @Override
   public String toString() {
-    return "AtomSubsetMemberJpa [" + super.toString() + ", member=" + member + ", subset=" + subset + "]";
+    return "AtomSubsetMemberJpa [" + super.toString() + ", member=" + member
+        + ", subset=" + subset + "]";
   }
 
 }

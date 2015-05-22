@@ -33,7 +33,6 @@ import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.services.helpers.ConceptReportHelper;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
@@ -534,14 +533,14 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
         newConcept.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, newConcept);
 
         Attribute attribute2 = new AttributeJpa();
         setCommonFields(attribute2);
         attribute2.setName("definitionStatusId");
         attribute2.setValue(fields[4].intern());
         newConcept.addAttribute(attribute2);
-        addAttribute(attribute2);
+        addAttribute(attribute2, newConcept);
 
         // If concept is new, add it
         if (concept == null) {
@@ -653,14 +652,14 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           attribute.setName("moduleId");
           attribute.setValue(fields[3].intern());
           newAtom.addAttribute(attribute);
-          addAttribute(attribute);
+          addAttribute(attribute, newAtom);
 
           Attribute attribute2 = new AttributeJpa();
           setCommonFields(attribute2);
           attribute2.setName("caseSignificanceId");
           attribute2.setValue(fields[8].intern());
           newAtom.addAttribute(attribute2);
-          addAttribute(attribute2);
+          addAttribute(attribute2, newAtom);
 
           // If atom is new, add it
           if (atom == null) {
@@ -781,7 +780,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("acceptabilityId");
         attribute.setValue(fields[6].intern());
         member.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, newMember);
 
         if (!atomSubsetMap.containsKey(fields[4])) {
           AtomSubset subset =

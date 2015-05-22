@@ -8,6 +8,8 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
+import com.wci.umls.server.model.content.ComponentHasDefinitions;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -18,6 +20,7 @@ import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
+import com.wci.umls.server.model.content.TreePosition;
 
 /**
  * Generically represents an algorithm for assigning identifiers.
@@ -82,19 +85,23 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * Returns the terminology id.
    *
    * @param attribute the attribute
+   * @param component the component
    * @return the string
    * @throws Exception the exception
    */
-  public String getTerminologyId(Attribute attribute) throws Exception;
+  public String getTerminologyId(Attribute attribute,
+    ComponentHasAttributes component) throws Exception;
 
   /**
    * Returns the terminology id.
    *
    * @param definition the definition
+   * @param component the component
    * @return the string
    * @throws Exception the exception
    */
-  public String getTerminologyId(Definition definition) throws Exception;
+  public String getTerminologyId(Definition definition,
+    ComponentHasDefinitions component) throws Exception;
 
   /**
    * Returns the terminology id.
@@ -118,6 +125,17 @@ public interface IdentifierAssignmentHandler extends Configurable {
     TransitiveRelationship<? extends ComponentHasAttributes> relationship)
     throws Exception;
 
+  /**
+   * Returns the terminology id.
+   *
+   * @param treepos the treepos
+   * @return the terminology id
+   * @throws Exception the exception
+   */
+  public String getTerminologyId(
+    TreePosition<? extends ComponentHasAttributesAndName> treepos)
+    throws Exception;
+
   // editing of maps is not currently supported
 
   /**
@@ -137,7 +155,7 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @throws Exception the exception
    */
   public String getTerminologyId(
-    SubsetMember<? extends ComponentHasAttributes> subsetMember)
+    SubsetMember<? extends ComponentHasAttributes, ? extends Subset> subsetMember)
     throws Exception;
 
   /**
@@ -147,8 +165,8 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @return the terminology id
    * @throws Exception the exception
    */
-  public String getTerminologyId(SemanticTypeComponent semanticTypeComponent)
-    throws Exception;
+  public String getTerminologyId(SemanticTypeComponent semanticTypeComponent,
+    Concept concept) throws Exception;
 
   /**
    * Indicates whether this algorithm allows identifiers to change on an update.
