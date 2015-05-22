@@ -55,6 +55,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
@@ -1176,7 +1177,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
             + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
@@ -1184,8 +1185,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find ancestor concepts",
           UserRole.VIEWER);
 
-      return contentService.findAncestorConcepts(terminologyId, terminology,
+      ConceptList list =  contentService.findAncestorConcepts(terminologyId, terminology,
           version, parentsOnly, Branch.ROOT, pfs);
+      
+      for (Concept concept : list.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(
+          concept,
+          TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
+              concept.getTerminologyVersion()));
+      }
+      
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to find the ancestor concepts");
@@ -1218,7 +1228,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
             + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
@@ -1226,8 +1236,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find descendant concepts",
           UserRole.VIEWER);
 
-      return contentService.findDescendantConcepts(terminologyId, terminology,
+      ConceptList list = contentService.findDescendantConcepts(terminologyId, terminology,
           version, parentsOnly, Branch.ROOT, pfs);
+      
+      for (Concept concept : list.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(
+          concept,
+          TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
+              concept.getTerminologyVersion()));
+      }
+      
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to find the descendant concepts");
@@ -1517,8 +1536,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken,
           "retrieve relationships for the concept", UserRole.VIEWER);
 
-      return contentService.findRelationshipsForConcept(terminologyId,
+      RelationshipList list = contentService.findRelationshipsForConcept(terminologyId,
           terminology, version, Branch.ROOT, false, pfs);
+      
+      for (Relationship rel : list.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(rel);
+      }
+      
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a concept");

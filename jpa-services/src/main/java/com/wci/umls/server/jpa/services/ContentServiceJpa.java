@@ -679,7 +679,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         manager.createQuery("select a from AtomSubsetMemberJpa a, "
             + " AtomJpa b where b.terminologyId = :atomId "
             + "and b.terminologyVersion = :version "
-            + "and b.terminology = :terminology and s.member = b");
+            + "and b.terminology = :terminology and a.member = b");
 
     try {
       SubsetMemberList list = new SubsetMemberListJpa();
@@ -1790,6 +1790,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (pfs != null && pfs.getSortField() != null) {
       localQueryStr += " order by a." + pfs.getSortField();
     }
+
+    Logger.getLogger(getClass()).info(
+        "localQueryStr: " + localQueryStr);
     javax.persistence.Query query = manager.createQuery(localQueryStr);
     if (pfs != null && pfs.getStartIndex() > -1 && pfs.getMaxResults() > -1) {
       query.setFirstResult(pfs.getStartIndex());
@@ -3059,7 +3062,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private List<AtomClass> getSearchCriteriaResults(String terminology,
     String version, SearchCriteria criteria, Class<?> clazz) throws Exception {
     StringBuilder builder = new StringBuilder();
-    builder.append("SELECT a FROM " + clazz.getName() + " a "
+    builder.append("SELECT c FROM " + clazz.getName() + " c "
         + "WHERE terminology = :terminology "
         + "AND terminologyVersion = :version ");
 
@@ -3077,14 +3080,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     // findDefinedOnly (applies to Concept only)
     if (criteria.getDefinedOnly()) {
-      if (clazz == ConceptJpa.class) {
+      if (ConceptJpa.class.isAssignableFrom(clazz)) {
         builder.append("AND fullyDefined = 1 ");
       }
     }
 
     // findPrimitiveOnly (applies to Concept only)
     if (criteria.getPrimitiveOnly()) {
-      if (clazz == ConceptJpa.class) {
+      if (ConceptJpa.class.isAssignableFrom(clazz)) {
         builder.append("AND fullyDefined = 0 ");
       }
     }
@@ -3104,13 +3107,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + clazz.getName().replace("Jpa",
                 "TransitiveRelationshipJpa" + " b, ") + clazz.getName() + " c "
             + "WHERE a.from = b.subType " + "AND b.superType = c "
+            + "AND a.obsolete = 0 "
             + "AND c.terminology = :terminology "
             + "AND c.terminologyVersion = :version "
-            + "AND c.terminologyId = :terminologyId))");
+            + "AND c.terminologyId = :terminologyId");
       } else {
-        relBuilder.append("SELECT to FROM "
+        relBuilder.append("SELECT a.to FROM "
             + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
-            + clazz.getName() + " b " + "WHERE a.from = b"
+            + clazz.getName() + " b " + "WHERE a.from = b "
+            + "AND a.obsolete = 0 "
             + "AND b.terminology = :terminology "
             + "AND b.terminologyVersion = :version "
             + "AND b.terminologyId = :terminologyId");
@@ -3118,7 +3123,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
       if (criteria.getRelationshipType() != null) {
         relType = criteria.getRelationshipType();
-        relBuilder.append(" AND relationshipType = :relationshipType");
+        relBuilder.append(" AND additionalRelationshipType = :type");
       }
 
       builder.append("AND c IN (").append(relBuilder.toString()).append(")");
@@ -3128,36 +3133,58 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // with a "to" id and optionally a "type"
     // and optionally find descendants of those things
     if (criteria.getRelationshipToId() != null) {
-
-      if (criteria.getRelationshipType() != null) {
-        // TBD - borrow from above section
-      }
+      StringBuilder relBuilder = new StringBuilder();
+      terminologyId = criteria.getRelationshipToId();
 
       if (criteria.getRelationshipDescendantsFlag()) {
-        // TBD - borrow from above section
+        relBuilder.append("SELECT DISTINCT a.from FROM "
+            + clazz.getName().replace("Jpa", "RelationshipJpa")
+            + " a, "
+            + clazz.getName().replace("Jpa",
+                "TransitiveRelationshipJpa" + " b, ") + clazz.getName() + " c "
+            + "WHERE a.to = b.subType " + "AND b.superType = c "
+            + "AND a.obsolete = 0 "
+            + "AND c.terminology = :terminology "
+            + "AND c.terminologyVersion = :version "
+            + "AND c.terminologyId = :terminologyId");
+      } else {
+        relBuilder.append("SELECT a.from FROM "
+            + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
+            + clazz.getName() + " b " + "WHERE a.to = b "
+            + "AND a.obsolete = 0 "
+            + "AND b.terminology = :terminology "
+            + "AND b.terminologyVersion = :version "
+            + "AND b.terminologyId = :terminologyId");
       }
+
+      if (criteria.getRelationshipType() != null) {
+        relType = criteria.getRelationshipType();
+        relBuilder.append(" AND additionalRelationshipType = :type");
+      }
+
+      builder.append("AND c IN (").append(relBuilder.toString()).append(")");
     }
 
-    // findDescendants
+    // wrapper around query to findDescendants of results and self (unless specified)
     if (criteria.getFindDescendants()) {
       StringBuilder descBuilder = new StringBuilder();
       descBuilder
           .append(
-              "SELECT subType FROM "
-                  + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
-                  + " a WHERE superType IN (").append(builder.toString())
+              "SELECT t.subType FROM "
+                  + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa") + " t "
+                  + " WHERE t.superType IN (").append(builder.toString())
           .append(")");
 
       if (!criteria.getFindSelf()) {
         // Not self.
-        descBuilder.append(" AND superType != subType ");
+        descBuilder.append(" AND t.superType != t.subType ");
       }
 
       builder = descBuilder;
     }
 
     // findByRelationshipTypeId on its own
-    if (criteria.getRelationshipType() != null && relType != null) {
+    if (criteria.getRelationshipType() != null && relType == null) {
       throw new Exception(
           "Unexpected use of relationship type criteria without "
               + "specifying a from or to relationship id");
@@ -3172,7 +3199,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       query.setParameter("terminologyId", terminologyId);
     }
     if (relType != null) {
-      query.setParameter("relationshipType", relType);
+      query.setParameter("type", relType);
     }
     List<AtomClass> classes = query.getResultList();
 
