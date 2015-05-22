@@ -166,9 +166,11 @@ public interface ContentService extends RootService {
    * @param query the query
    * @param pfs the pfs
    * @return the concept subset members
+   * @throws Exception the exception
    */
   public SubsetMemberList findConceptSubsetMembers(String subsetId,
-    String terminology, String version, String branch, String query, PfsParameter pfs) throws Exception;
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the atom subset members for the specified atom.
@@ -1224,6 +1226,7 @@ public interface ContentService extends RootService {
    * Update attribute.
    *
    * @param attribute the attribute
+   * @param component the component
    * @throws Exception the exception
    */
   public void updateAttribute(Attribute attribute,

@@ -12,9 +12,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -27,23 +25,16 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetList;
-import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
-import com.wci.umls.server.jpa.content.LexicalClassJpa;
-import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchCriteriaJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
-import com.wci.umls.server.model.content.LexicalClass;
-import com.wci.umls.server.model.content.Relationship;
-import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.services.helpers.ConceptReportHelper;
 import com.wci.umls.server.test.helpers.PfsParameterForComponentTest;
-import com.wci.umls.server.test.helpers.PfsParameterForConceptTest;
 
 /**
  * Implementation of the "Content Service REST Normal Use" Test Cases.
@@ -52,9 +43,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
   /**  The auth token. */
   private static String authToken;
-
-  /** The Constant sctIsaRel. */
-  private final static String sctIsaRel = "116680003";
 
   /**
    * Create test fixtures per test.

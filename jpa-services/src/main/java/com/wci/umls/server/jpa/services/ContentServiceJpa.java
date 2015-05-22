@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.services;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.persistence.NoResultException;
 import javax.persistence.metamodel.EntityType;
@@ -236,12 +236,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private static String[] codeFieldNames = {};
 
   /** The relationship field names. */
+  @SuppressWarnings("unused")
   private static String[] relationshipFieldNames = {};
 
   /** The subset member field names. */
   private static String[] subsetMemberFieldNames = {};
 
   /** The tree position field names. */
+  @SuppressWarnings("unused")
   private static String[] treePositionFieldNames = {};
 
   static {
@@ -1791,8 +1793,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       localQueryStr += " order by a." + pfs.getSortField();
     }
 
-    Logger.getLogger(getClass()).info(
-        "localQueryStr: " + localQueryStr);
+    Logger.getLogger(getClass()).info("localQueryStr: " + localQueryStr);
     javax.persistence.Query query = manager.createQuery(localQueryStr);
     if (pfs != null && pfs.getStartIndex() > -1 && pfs.getMaxResults() > -1) {
       query.setFirstResult(pfs.getStartIndex());
@@ -2928,11 +2929,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
       // Apply PFS sorting manually
       if (pfs != null && pfs.getSortField() != null) {
-        final Field sortField = clazz.getField(pfs.getSortField());
-        if (sortField.getType().isAssignableFrom(Comparable.class)) {
+        final Method getMethod =
+            clazz.getMethod(
+                "get" + pfs.getSortField().substring(0,1).toUpperCase() +
+                pfs.getSortField().substring(1));
+        if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
           throw new Exception("Referenced sort field is not comparable");
         }
-        sortField.setAccessible(true);
         Collections.sort(classes, new Comparator<AtomClass>() {
           @SuppressWarnings({
               "rawtypes", "unchecked"
@@ -2940,15 +2943,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           @Override
           public int compare(AtomClass o1, AtomClass o2) {
             try {
-              Comparable f1 = (Comparable) sortField.get(o1);
-              Comparable f2 = (Comparable) sortField.get(o2);
+              Comparable f1 = (Comparable) getMethod.invoke(o1, new Object[]{});
+              Comparable f2 = (Comparable) getMethod.invoke(o2, new Object[]{});
               return f1.compareTo(f2);
             } catch (Exception e) {
               // do nothing
             }
             return 0;
           }
-        });
+        });        
       }
 
       // Apply PFS paging manually
@@ -3107,16 +3110,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + clazz.getName().replace("Jpa",
                 "TransitiveRelationshipJpa" + " b, ") + clazz.getName() + " c "
             + "WHERE a.from = b.subType " + "AND b.superType = c "
-            + "AND a.obsolete = 0 "
-            + "AND c.terminology = :terminology "
+            + "AND a.obsolete = 0 " + "AND c.terminology = :terminology "
             + "AND c.terminologyVersion = :version "
             + "AND c.terminologyId = :terminologyId");
       } else {
         relBuilder.append("SELECT a.to FROM "
             + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
             + clazz.getName() + " b " + "WHERE a.from = b "
-            + "AND a.obsolete = 0 "
-            + "AND b.terminology = :terminology "
+            + "AND a.obsolete = 0 " + "AND b.terminology = :terminology "
             + "AND b.terminologyVersion = :version "
             + "AND b.terminologyId = :terminologyId");
       }
@@ -3143,16 +3144,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + clazz.getName().replace("Jpa",
                 "TransitiveRelationshipJpa" + " b, ") + clazz.getName() + " c "
             + "WHERE a.to = b.subType " + "AND b.superType = c "
-            + "AND a.obsolete = 0 "
-            + "AND c.terminology = :terminology "
+            + "AND a.obsolete = 0 " + "AND c.terminology = :terminology "
             + "AND c.terminologyVersion = :version "
             + "AND c.terminologyId = :terminologyId");
       } else {
         relBuilder.append("SELECT a.from FROM "
             + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
             + clazz.getName() + " b " + "WHERE a.to = b "
-            + "AND a.obsolete = 0 "
-            + "AND b.terminology = :terminology "
+            + "AND a.obsolete = 0 " + "AND b.terminology = :terminology "
             + "AND b.terminologyVersion = :version "
             + "AND b.terminologyId = :terminologyId");
       }
@@ -3165,15 +3164,16 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       builder.append("AND c IN (").append(relBuilder.toString()).append(")");
     }
 
-    // wrapper around query to findDescendants of results and self (unless specified)
+    // wrapper around query to findDescendants of results and self (unless
+    // specified)
     if (criteria.getFindDescendants()) {
       StringBuilder descBuilder = new StringBuilder();
       descBuilder
           .append(
               "SELECT t.subType FROM "
-                  + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa") + " t "
-                  + " WHERE t.superType IN (").append(builder.toString())
-          .append(")");
+                  + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
+                  + " t " + " WHERE t.superType IN (")
+          .append(builder.toString()).append(")");
 
       if (!criteria.getFindSelf()) {
         // Not self.
@@ -3848,7 +3848,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String version, String branch) throws Exception {
     Logger.getLogger(getClass()).info("Content Service - getComponentStats");
     assert branch != null;
-    Map<String, Integer> stats = new HashMap<>();
+    Map<String, Integer> stats = new TreeMap<>();
     for (EntityType<?> type : manager.getMetamodel().getEntities()) {
       String jpaTable = type.getName();
       // Logger.getLogger(getClass()).debug("  jpaTable = " + jpaTable);
@@ -3858,7 +3858,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
       if (!AbstractAbbreviation.class.isAssignableFrom(type
           .getBindableJavaType())
-          && !AbstractComponentHasAttributes.class.isAssignableFrom(type
+          && !AbstractComponent.class.isAssignableFrom(type
               .getBindableJavaType())) {
         continue;
       }
@@ -3879,7 +3879,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       stats.put("Total " + jpaTable, ct);
 
       // Only compute active counts for components
-      if (AbstractComponentHasAttributes.class.isAssignableFrom(type
+      if (AbstractComponent.class.isAssignableFrom(type
           .getBindableJavaType())) {
         if (terminology != null) {
 
@@ -4214,7 +4214,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
               + "and b.name = c.name and c.id in (:atomIds) " + "and a."
               + (inverseFlag ? "from" : "to") + ".id = d.id "
               + "and d.terminologyId = e.codeId "
-              + "and d.terminology = e.terminolog"
+              + "and d.terminology = e.terminology "
               + "and d.terminologyVersion = e.terminologyVersion "
               + "and d.name = e.name ";
       query = manager.createQuery(queryStr);
@@ -4244,21 +4244,21 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         conceptRels.add(relationship);
       }
 
-      // Apply PFS
       // Apply PFS sorting manually
       if (pfs != null && pfs.getSortField() != null) {
-        final Field sortField =
-            ConceptRelationshipJpa.class.getField(pfs.getSortField());
-        if (sortField.getType().isAssignableFrom(Comparable.class)) {
+        final Method getMethod =
+            ConceptRelationshipJpa.class.getMethod(
+                "get" + pfs.getSortField().substring(0,1).toUpperCase() +
+                pfs.getSortField().substring(1));
+        if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
           throw new Exception("Referenced sort field is not comparable");
         }
-        sortField.setAccessible(true);
         Collections.sort(conceptRels, new Comparator<Relationship>() {
           @Override
           public int compare(Relationship o1, Relationship o2) {
             try {
-              Comparable f1 = (Comparable) sortField.get(o1);
-              Comparable f2 = (Comparable) sortField.get(o2);
+              Comparable f1 = (Comparable) getMethod.invoke(o1, new Object[]{});
+              Comparable f2 = (Comparable) getMethod.invoke(o2, new Object[]{});
               return f1.compareTo(f2);
             } catch (Exception e) {
               // do nothing
@@ -4280,10 +4280,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       list.setTotalCount(results.size());
       list.setObjects(conceptRels);
 
-      return null;
-    } catch (Throwable e) {
-      System.err.println(e.getMessage());
-      e.printStackTrace();
+      return list;
+    } catch (NoResultException e) {
       return null;
     }
   }
