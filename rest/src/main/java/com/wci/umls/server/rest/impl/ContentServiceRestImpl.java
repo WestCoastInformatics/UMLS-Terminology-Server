@@ -761,6 +761,76 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  @Override
+  @POST
+  @Path("/cui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
+  @ApiOperation(value = "Find concepts matching a lucene or hql search query.", notes = "Gets a list of search results that match the lucene or hql query for the root branch.", response = SearchResultList.class)
+  public SearchResultList findConceptsForQuery(
+    @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
+    @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/" 
+            + "/luceneQuery/" + luceneQuery
+            + "/hqlQuery/" + hqlQuery + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find concepts by query",
+          UserRole.VIEWER);
+
+      SearchResultList sr =
+          contentService.findConceptsForQuery(luceneQuery, hqlQuery,
+              Branch.ROOT, pfs);
+      return sr;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find the concepts by query");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  @Override
+  @POST
+  @Path("/code/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
+  @ApiOperation(value = "Find codes matching a lucene or hql search query.", notes = "Gets a list of search results that match the lucene or hql query for the root branch.", response = SearchResultList.class)
+  public SearchResultList findCodesForQuery(
+    @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
+    @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /code/" 
+            + "/luceneQuery/" + luceneQuery
+            + "/hqlQuery/" + hqlQuery + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find codes by query",
+          UserRole.VIEWER);
+
+      SearchResultList sr =
+          contentService.findCodesForQuery(luceneQuery, hqlQuery,
+              Branch.ROOT, pfs);
+      return sr;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find the codes by query");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+  
   /*
    * (non-Javadoc)
    * 
@@ -895,6 +965,41 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  @Override
+  @POST
+  @Path("/dui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
+  @ApiOperation(value = "Find descriptors matching a lucene or hql search query.", notes = "Gets a list of search results that match the lucene or hql query for the root branch.", response = SearchResultList.class)
+  public SearchResultList findDescriptorsForQuery(
+    @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
+    @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /dui/" 
+            + "/luceneQuery/" + luceneQuery
+            + "/hqlQuery/" + hqlQuery + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find concepts by query",
+          UserRole.VIEWER);
+
+      SearchResultList sr =
+          contentService.findDescriptorsForQuery(luceneQuery, hqlQuery,
+              Branch.ROOT, pfs);
+      return sr;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find the concepts by query");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+  
   /*
    * (non-Javadoc)
    * 

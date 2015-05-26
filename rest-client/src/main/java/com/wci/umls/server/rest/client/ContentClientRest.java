@@ -293,6 +293,53 @@ public class ContentClientRest implements ContentServiceRest {
    * (non-Javadoc)
    * 
    * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findConceptsForQuery
+   * (java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  public SearchResultList findConceptsForQuery(String luceneQuery,
+    String hqlQuery, PfsParameterJpa pfs, String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find concepts " + luceneQuery + ", " 
+            + hqlQuery + ", " + pfs);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/cui"
+           + "/luceneQuery/"
+            + (luceneQuery == null ? "" : luceneQuery)
+            + "/hqlQuery/"
+            + (hqlQuery == null ? "" : hqlQuery));
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    SearchResultListJpa list =
+        (SearchResultListJpa) ConfigUtility.getGraphForString(resultString,
+            SearchResultListJpa.class);
+    return list;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#autocompleteConcepts
    * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
    */
@@ -410,6 +457,51 @@ public class ContentClientRest implements ContentServiceRest {
    * (non-Javadoc)
    * 
    * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findDescriptorsForQuery(java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  public SearchResultList findDescriptorsForQuery(String luceneQuery,
+    String hqlQuery, PfsParameterJpa pfs, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find descriptors " + luceneQuery 
+            + ", " + hqlQuery + ", " + pfs);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/dui/"
+            + "/luceneQuery/"
+            + (luceneQuery == null ? "" : luceneQuery)
+            + "/hqlQuery/"
+            + (hqlQuery == null ? "" : hqlQuery));
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    SearchResultListJpa list =
+        (SearchResultListJpa) ConfigUtility.getGraphForString(resultString,
+            SearchResultListJpa.class);
+    return list;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
    * autocompleteDescriptors(java.lang.String, java.lang.String,
    * java.lang.String, java.lang.String)
    */
@@ -498,6 +590,51 @@ public class ContentClientRest implements ContentServiceRest {
         client.resource(config.getProperty("base.url") + "/content/code/"
             + terminology + "/" + version + "/query/"
             + (query == null ? "" : query));
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    SearchResultListJpa list =
+        (SearchResultListJpa) ConfigUtility.getGraphForString(resultString,
+            SearchResultListJpa.class);
+    return list;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findCodesForQuery
+   * (java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  public SearchResultList findCodesForQuery(String luceneQuery, String hqlQuery,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find codes " + luceneQuery + ", " + hqlQuery + ", "
+             + pfs);
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/code/"
+            + "/luceneQuery/"
+            + (luceneQuery == null ? "" : luceneQuery)
+            + "/hqlQuery/"
+            + (hqlQuery == null ? "" : hqlQuery));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);

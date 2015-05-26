@@ -55,6 +55,19 @@ public interface ContentServiceRest {
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
+  
+  /**
+   * Find concepts for query.
+   *
+   * @param luceneQuery the lucene query
+   * @param hqlQuery the hql query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findConceptsForQuery(String luceneQuery,
+    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Autocomplete concepts.
@@ -232,6 +245,19 @@ public interface ContentServiceRest {
   public SearchResultList findDescriptorsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
+  
+  /**
+   * Find descriptors for query.
+   *
+   * @param luceneQuery the lucene query
+   * @param hqlQuery the hql query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findDescriptorsForQuery(String luceneQuery,
+    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Autocomplete descriptors.
@@ -304,6 +330,19 @@ public interface ContentServiceRest {
    */
   public SearchResultList findCodesForQuery(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Find codes for query.
+   *
+   * @param luceneQuery the lucene query
+   * @param hqlQuery the hql query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findCodesForQuery(String luceneQuery,
+    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Autocomplete codes.

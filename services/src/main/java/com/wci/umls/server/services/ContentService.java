@@ -1404,4 +1404,43 @@ public interface ContentService extends RootService {
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
+  /**
+   * Find codes for query.
+   *
+   * @param luceneQuery the lucene query
+   * @param hqlQuery the hql query
+   * @param rOOT the r oot
+   * @param pfs the pfs
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findCodesForQuery(String luceneQuery,
+    String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+
+  /**
+   * Find concepts for query.
+   *
+   * @param luceneQuery the lucene query
+   * @param hqlQuery the hql query
+   * @param rOOT the r oot
+   * @param pfs the pfs
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findConceptsForQuery(String luceneQuery,
+    String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+
+  /**
+   * Find descriptors for query.
+   *
+   * @param luceneQuery the lucene query
+   * @param hqlQuery the hql query
+   * @param rOOT the r oot
+   * @param pfs the pfs
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findDescriptorsForQuery(String luceneQuery,
+    String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+
 }
