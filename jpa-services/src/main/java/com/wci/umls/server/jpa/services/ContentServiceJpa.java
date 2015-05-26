@@ -3240,6 +3240,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private StringList autocompleteHelper(String terminology, String version,
     String searchTerm, Class<?> clazz) throws Exception {
 
+    if (terminology == null || version == null || searchTerm == null) {
+      return new StringList();
+    }
     final String TITLE_EDGE_NGRAM_INDEX = "atoms.edgeNGramName";
     final String TITLE_NGRAM_INDEX = "atoms.nGramName";
 

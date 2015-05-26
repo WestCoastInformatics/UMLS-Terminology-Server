@@ -199,9 +199,15 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
     throws Exception {
     if (relationship != null) {
-      relationship.getFrom().getTerminology();
-      relationship.getTo().getTerminology();
-      relationship.getAlternateTerminologyIds().keySet();
+      if (relationship.getFrom() != null) {
+        relationship.getFrom().getTerminology();
+      }
+      if (relationship.getTo() != null) {
+        relationship.getTo().getTerminology();
+      }
+      if (relationship.getAlternateTerminologyIds() != null) {
+        relationship.getAlternateTerminologyIds().keySet();
+      }
       resolveAttributes(relationship, relationship.getId() == null);
     } else if (relationship == null) {
       throw new Exception("Cannot resolve a null relationship.");
@@ -329,8 +335,6 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     } else if (lexicalClass == null) {
       throw new Exception("Cannot resolve a null lexical class.");
 
-    } else if (lexicalClass.getId() == null) {
-      throw new Exception("Cannot resolve a lexical class with a null id.");
     }
   }
 
@@ -362,9 +366,6 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
     } else if (stringClass == null) {
       throw new Exception("Cannot resolve a null string class.");
-
-    } else if (stringClass.getId() == null) {
-      throw new Exception("Cannot resolve a string class with a null id.");
     }
   }
 

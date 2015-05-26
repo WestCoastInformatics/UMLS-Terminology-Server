@@ -1889,7 +1889,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           cui.getId());
       commitClearBegin();
     }
-
+    results.close();
     Logger.getLogger(getClass()).info("  Add descriptors");
     objectCt = 0;
 
@@ -1938,6 +1938,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           dui.getId());
       commitClearBegin();
     }
+    results.close();
 
     Logger.getLogger(getClass()).info("  Add codes");
     objectCt = 0;
@@ -1988,6 +1989,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           code.getId());
       commitClearBegin();
     }
+    results.close();
 
     // NOTE: for efficiency and lack of use cases, we've temporarily
     // suspended the loading of LexicalClass and StringClass objects

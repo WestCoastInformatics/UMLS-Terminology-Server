@@ -37,7 +37,7 @@
     <hibernate.search.version>5.1.1.Final</hibernate.search.version>
     <hibernate.entitymanager.version>4.1.0.Final</hibernate.entitymanager.version>
     <hibernate.validator.version>5.0.1.Final</hibernate.validator.version>
-    <mysql.connector.java.version>5.1.26</mysql.connector.java.version>
+    <mysql.connector.java.version>5.1.35</mysql.connector.java.version>
     <slf4j.log4j12.version>1.7.10</slf4j.log4j12.version>
     <maven.plugin.api.version>3.2.5</maven.plugin.api.version>
     <jersey.version>1.19</jersey.version>

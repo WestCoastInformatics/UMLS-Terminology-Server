@@ -21,9 +21,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
-import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
-import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultGraphResolutionHandler;
 import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.model.content.Atom;
@@ -208,8 +206,7 @@ public class Handler002Test {
         TerminologyUtility.getHierarchicalIsaRels("UMLS", "latest"));
     handlerService.resolve(new CodeJpa(),
         TerminologyUtility.getHierarchicalIsaRels("UMLS", "latest"));
-    handlerService.resolve(new LexicalClassJpa());
-    handlerService.resolve(new StringClassJpa());
+
 
 
     handlerService.resolve(new SemanticTypeComponentJpa());
