@@ -1681,7 +1681,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "retrieve atom subsets",
           UserRole.VIEWER);
 
-      SubsetList list = contentService.getAtomSubsets(terminology, version);
+      SubsetList list =
+          contentService.getAtomSubsets(terminology, version, Branch.ROOT);
       for (int i = 0; i < list.getCount(); i++) {
         contentService.getGraphResolutionHandler(terminology).resolve(
             (AtomSubset) list.getObjects().get(i));
@@ -1714,7 +1715,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "retrieve concept subsets",
           UserRole.VIEWER);
 
-      SubsetList list = contentService.getConceptSubsets(terminology, version);
+      SubsetList list =
+          contentService.getConceptSubsets(terminology, version, Branch.ROOT);
       for (int i = 0; i < list.getCount(); i++) {
         contentService.getGraphResolutionHandler(terminology).resolve(
             (ConceptSubset) list.getObjects().get(i));

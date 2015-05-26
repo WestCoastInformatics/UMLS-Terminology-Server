@@ -57,23 +57,26 @@ import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.content.AbstractComponent;
-import com.wci.umls.server.jpa.content.AbstractSubset;
-import com.wci.umls.server.jpa.content.AbstractSubsetMember;
-import com.wci.umls.server.jpa.content.AbstractTransitiveRelationship;
-import com.wci.umls.server.jpa.content.AbstractTreePosition;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
+import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
+import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
+import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
+import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
+import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
@@ -458,44 +461,48 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.ContentService#getSubset(java.lang.Long)
-   */
   @Override
-  public Subset getSubset(Long id) throws Exception {
+  public Subset getSubset(Long id, Class<? extends Subset> subsetClass)
+    throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - subset " + id);
-    return getComponent(id, AbstractSubset.class);
+    if (subsetClass != null) {
+      return getComponent(id, subsetClass);
+    } else {
+      Subset subset = getComponent(id, AtomSubsetJpa.class);
+      if (subset == null) {
+        subset = getComponent(id, ConceptSubsetJpa.class);
+      }
+      return subset;
+    }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getSubset(java.lang.String,
-   * java.lang.String, java.lang.String, java.lang.String)
-   */
   @Override
   public Subset getSubset(String terminologyId, String terminology,
-    String version, String branch) throws Exception {
+    String version, String branch, Class<? extends Subset> subsetClass)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get subset " + terminologyId + "/" + terminology
             + "/" + version + "/" + branch);
-    return getComponent(terminologyId, terminology, version, branch,
-        AbstractSubset.class);
+    if (subsetClass != null) {
+      return getComponent(terminologyId, terminology, version, branch,
+          subsetClass);
+    } else {
+      Subset subset =
+          getComponent(terminologyId, terminology, version, branch,
+              AtomSubsetJpa.class);
+      if (subset == null) {
+        subset =
+            getComponent(terminologyId, terminology, version, branch,
+                ConceptSubsetJpa.class);
+      }
+      return subset;
+    }
+
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getAtomSubsets(java.lang.String
-   * , java.lang.String)
-   */
   @Override
-  public SubsetList getAtomSubsets(String terminology, String version)
-    throws Exception {
+  public SubsetList getAtomSubsets(String terminology, String version,
+    String branch) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get atom subsets " + terminology + "/" + version);
     javax.persistence.Query query =
@@ -520,16 +527,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getConceptSubsets(java.lang
-   * .String, java.lang.String)
-   */
   @Override
-  public SubsetList getConceptSubsets(String terminology, String version)
-    throws Exception {
+  public SubsetList getConceptSubsets(String terminology, String version,
+    String branch) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get concept subsets " + terminology + "/" + version);
     javax.persistence.Query query =
@@ -746,37 +746,24 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getAllSubsets(java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
   @Override
   public SubsetList getAllSubsets(String terminology, String version,
-    String branch) {
+    String branch) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get all subsets " + terminology + "/" + version
             + "/" + branch);
     assert branch != null;
 
     try {
-      javax.persistence.Query query =
-          manager.createQuery("select a from AbstractSubset a "
-              + "where terminologyVersion = :version "
-              + "and terminology = :terminology "
-              + "and (branch = :branch or branchedTo not like :branchMatch)");
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
-      query.setParameter("branch", branch);
-      query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
-      @SuppressWarnings("unchecked")
-      List<Subset> subsets = query.getResultList();
-      SubsetList subsetList = new SubsetListJpa();
-      subsetList.setObjects(subsets);
-      subsetList.setTotalCount(subsets.size());
-      return subsetList;
+      SubsetList list = getAtomSubsets(terminology, version, branch);
+      if (list == null) {
+        return getConceptSubsets(terminology, version, branch);
+      } else {
+        list.getObjects().addAll(
+            getConceptSubsets(terminology, version, branch).getObjects());
+      }
+      list.setTotalCount(list.getObjects().size());
+      return list;
     } catch (NoResultException e) {
       return null;
     }
@@ -2010,7 +1997,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           getComponent(id, ConceptRelationshipJpa.class);
       if (rel == null) {
         rel = getComponent(id, AtomRelationshipJpa.class);
-  }
+      }
       if (rel == null) {
         rel = getComponent(id, CodeRelationshipJpa.class);
       }
@@ -2039,9 +2026,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           getComponents(terminologyId, terminology, version, relationshipClass);
     } else {
       relationships =
-        getComponents(terminologyId, terminology, version,
+          getComponents(terminologyId, terminology, version,
               ConceptRelationshipJpa.class);
-    if (relationships == null) {
+      if (relationships == null) {
         relationships =
             getComponents(terminologyId, terminology, version,
                 AtomRelationshipJpa.class);
@@ -2079,9 +2066,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - find relationship " + terminologyId + "/"
             + terminology + "/" + version + "/" + branch);
     if (relationshipClass != null) {
-    return getComponent(terminologyId, terminology, version, branch,
+      return getComponent(terminologyId, terminology, version, branch,
           relationshipClass);
-  }
+    }
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel =
         getComponent(terminologyId, terminology, version, branch,
             ConceptRelationshipJpa.class);
@@ -2181,6 +2168,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public void removeRelationship(
     Long id,
@@ -2194,24 +2182,35 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (relationshipClass != null) {
       rel = removeComponent(id, relationshipClass);
     } else {
-      rel = removeComponent(id, ConceptRelationshipJpa.class);
-      if (rel == null) {
-        rel = removeComponent(id, AtomRelationshipJpa.class);
-      }
-      if (rel == null) {
-        rel = removeComponent(id, CodeRelationshipJpa.class);
-      }
-      if (rel == null) {
-        rel = removeComponent(id, DescriptorRelationshipJpa.class);
-      }
-    }
-    if (rel == null) {
-      throw new Exception("Unexpected relationship type encountered. " + relationshipClass);
+      rel = getRelationship(id, relationshipClass);
+      rel = removeComponent(id, rel.getClass());
     }
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
         listener.relationshipChanged(rel, WorkflowListener.Action.REMOVE);
       }
+    }
+  }
+
+  @Override
+  public TransitiveRelationship<? extends AtomClass> getTransitiveRelationship(
+    Long id,
+    Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get transitive relationship " + id);
+    if (relationshipClass != null) {
+      return getComponent(id, relationshipClass);
+    } else {
+      TransitiveRelationship<? extends AtomClass> rel =
+          getComponent(id, ConceptTransitiveRelationshipJpa.class);
+      if (rel == null) {
+        rel = getComponent(id, CodeTransitiveRelationshipJpa.class);
+      }
+      if (rel == null) {
+        rel = getComponent(id, DescriptorTransitiveRelationshipJpa.class);
+      }
+      return rel;
     }
   }
 
@@ -2222,6 +2221,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * com.wci.umls.server.services.ContentService#addTransitiveRelationship(com
    * .wci.umls.server.model.content.TransitiveRelationship)
    */
+
   @Override
   public TransitiveRelationship<? extends ComponentHasAttributes> addTransitiveRelationship(
     TransitiveRelationship<? extends ComponentHasAttributes> rel)
@@ -2284,24 +2284,38 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#removeTransitiveRelationship
-   * (java.lang.Long)
-   */
   @Override
-  public void removeTransitiveRelationship(Long id) throws Exception {
+  public void removeTransitiveRelationship(
+    Long id,
+    Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - remove transitive relationship " + id);
-    // Remove the component
-    @SuppressWarnings({
-        "unchecked", "unused"
-    })
-    TransitiveRelationship<? extends ComponentHasAttributes> rel =
-        removeComponent(id, AbstractTransitiveRelationship.class);
 
+    TransitiveRelationship<? extends ComponentHasAttributes> rel = null;
+    rel = getComponent(id, relationshipClass);
+    removeComponent(id, rel.getClass());
+  }
+
+  @Override
+  public TreePosition<? extends AtomClass> getTreePosition(Long id,
+    Class<? extends TreePosition<? extends AtomClass>> treeposClass)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get tree position " + id);
+    if (treeposClass != null) {
+      return getComponent(id, treeposClass);
+    } else {
+      TreePosition<? extends AtomClass> treepos =
+          getComponent(id, ConceptTreePositionJpa.class);
+      if (treepos == null) {
+        treepos = getComponent(id, CodeTreePositionJpa.class);
+      }
+      if (treepos == null) {
+        treepos = getComponent(id, DescriptorTreePositionJpa.class);
+      }
+      return treepos;
+    }
   }
 
   @Override
@@ -2360,15 +2374,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   }
 
   @Override
-  public void removeTreePosition(Long id) throws Exception {
+  public void removeTreePosition(Long id,
+    Class<? extends TreePosition<? extends AtomClass>> treeposClass)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - remove tree position " + id);
-    // Remove the component
-    @SuppressWarnings({
-        "unchecked", "unused"
-    })
     TreePosition<? extends ComponentHasAttributesAndName> treepos =
-        removeComponent(id, AbstractTreePosition.class);
+        getComponent(id, treeposClass);
+    removeComponent(id, treepos.getClass());
   }
 
   /*
@@ -2424,7 +2437,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     final IdentifierAssignmentHandler idHandler =
         getIdentifierAssignmentHandler(subset.getTerminology());
     if (!idHandler.allowIdChangeOnUpdate() && assignIdentifiersFlag) {
-      Subset subset2 = getSubset(subset.getId());
+      Subset subset2 = getSubset(subset.getId(), subset.getClass());
       if (!idHandler.getTerminologyId(subset).equals(
           idHandler.getTerminologyId(subset2))) {
         throw new Exception("Update cannot be used to change object identity.");
@@ -2442,17 +2455,18 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#removeSubset(java.lang.Long)
-   */
   @Override
-  public void removeSubset(Long id) throws Exception {
+  public void removeSubset(Long id, Class<? extends Subset> subsetClass)
+    throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - remove subset " + id);
+    Subset subset = null;
     // Remove the component
-    Subset subset = removeComponent(id, AbstractSubset.class);
+    if (subsetClass != null) {
+      subset = removeComponent(id, subsetClass);
+    } else {
+      subset = getSubset(id, subsetClass);
+      removeComponent(id, subset.getClass());
+    }
 
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
@@ -2461,38 +2475,54 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getSubsetMember(java.lang.Long)
-   */
-  @SuppressWarnings("unchecked")
   @Override
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
-    Long id) throws Exception {
+    Long id,
+    Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get subset member " + id);
-    return getComponent(id, AbstractSubsetMember.class);
+    if (memberClass != null) {
+      return getComponent(id, memberClass);
+    } else {
+      SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
+          getComponent(id, AtomSubsetMemberJpa.class);
+      if (member == null) {
+        member = getComponent(id, ConceptSubsetMemberJpa.class);
+      }
+      return member;
+    }
+
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getSubsetMembers(java.lang.
-   * String, java.lang.String, java.lang.String)
-   */
   @SuppressWarnings("unchecked")
   @Override
-  public SubsetMemberList getSubsetMembers(String terminologyId,
-    String terminology, String version) throws Exception {
+  public SubsetMemberList getSubsetMembers(
+    String terminologyId,
+    String terminology,
+    String version,
+    Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get subset members " + terminologyId + "/"
             + terminology + "/" + version);
     List<SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> members =
-        getComponents(terminologyId, terminology, version,
-            AbstractSubsetMember.class);
+        null;
+    if (memberClass != null) {
+      members =
+
+      getComponents(terminologyId, terminology, version, memberClass);
+    } else {
+      members =
+          getComponents(terminologyId, terminology, version,
+              AtomSubsetMemberJpa.class);
+      if (members == null) {
+        members =
+            getComponents(terminologyId, terminology, version,
+                ConceptSubsetMemberJpa.class);
+
+      }
+    }
     if (members == null) {
       return null;
     }
@@ -2502,23 +2532,31 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getSubsetMember(java.lang.String
-   * , java.lang.String, java.lang.String, java.lang.String)
-   */
-  @SuppressWarnings("unchecked")
   @Override
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
-    String terminologyId, String terminology, String version, String branch)
+    String terminologyId,
+    String terminology,
+    String version,
+    String branch,
+    Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get subset member " + terminologyId + "/"
             + terminology + "/" + version + "/" + branch);
-    return getComponent(terminologyId, terminology, version, branch,
-        AbstractSubsetMember.class);
+    if (memberClass != null) {
+      return getComponent(terminologyId, terminology, version, branch,
+          memberClass);
+    } else {
+      SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
+          getComponent(terminologyId, terminology, version, branch,
+              AtomSubsetMemberJpa.class);
+      if (member == null) {
+        member =
+            getComponent(terminologyId, terminology, version, branch,
+                ConceptSubsetMemberJpa.class);
+      }
+      return member;
+    }
   }
 
   /*
@@ -2609,18 +2647,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * .Long)
    */
   @Override
-  public void removeSubsetMember(Long id) throws Exception {
+  public void removeSubsetMember(
+    Long id,
+    Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - remove subsetMember " + id);
-    // Remove the component
-    @SuppressWarnings("unchecked")
-    SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> subsetMember =
-        removeComponent(id, AbstractSubsetMember.class);
+    // find and remove the component
+    SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
+        getComponent(id, memberClass);
+    removeComponent(id, member.getClass());
 
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
-        listener.subsetMemberChanged(subsetMember,
-            WorkflowListener.Action.REMOVE);
+        listener.subsetMemberChanged(member, WorkflowListener.Action.REMOVE);
       }
     }
   }
@@ -4424,14 +4464,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @param pfs the pfs
    * @param clazz the clazz
    * @return the tree position list
-   * @throws Exception 
+   * @throws Exception
    */
   @SuppressWarnings("unchecked")
   private TreePositionList findTreePositionsHelper(String terminologyId,
     String terminology, String version, String branch, String query,
     PfsParameter pfs, Class<?> clazz) throws Exception {
-    
- // Prepare the query string
+
+    // Prepare the query string
 
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query);
@@ -4460,8 +4500,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           "The specified search terms cannot be parsed.  Please check syntax and try again.");
     }
     FullTextQuery fullTextQuery =
-        fullTextEntityManager.createFullTextQuery(luceneQuery,
-            clazz);
+        fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
 
     // Apply paging and sorting parameters - if no search criteria
     applyPfsToLuceneQuery(clazz, fullTextQuery, pfs);
@@ -4472,7 +4511,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     fullTextEntityManager.close();
     manager = factory.createEntityManager();
     return list;
-    
+
   }
 
 }

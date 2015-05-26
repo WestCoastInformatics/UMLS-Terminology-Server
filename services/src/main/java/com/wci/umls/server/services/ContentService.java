@@ -101,10 +101,12 @@ public interface ContentService extends RootService {
    * Returns the subset.
    *
    * @param id the id
+   * @param subsetClass the subset class, null if unknown
    * @return the subset
    * @throws Exception the exception
    */
-  public Subset getSubset(Long id) throws Exception;
+  public Subset getSubset(Long id, Class<? extends Subset> subsetClass)
+    throws Exception;
 
   /**
    * Returns the subset.
@@ -113,33 +115,37 @@ public interface ContentService extends RootService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param subsetClass the subset class, null if unknown
    * @return the subset
    * @throws Exception the exception
    */
   public Subset getSubset(String terminologyId, String terminology,
-    String version, String branch) throws Exception;
+    String version, String branch, Class<? extends Subset> subsetClass)
+    throws Exception;
 
   /**
    * Returns the atom subsets.
    *
    * @param terminology the terminology
    * @param version the version
+   * @param branch the branch
    * @return the subsets
    * @throws Exception the exception
    */
-  public SubsetList getAtomSubsets(String terminology, String version)
-    throws Exception;
+  public SubsetList getAtomSubsets(String terminology, String version,
+    String branch) throws Exception;
 
   /**
    * Returns the concept subsets.
    *
    * @param terminology the terminology
    * @param version the version
+   * @param branch the branch
    * @return the concept subsets
    * @throws Exception the exception
    */
-  public SubsetList getConceptSubsets(String terminology, String version)
-    throws Exception;
+  public SubsetList getConceptSubsets(String terminology, String version,
+    String branch) throws Exception;
 
   /**
    * Returns the atom subset members for the specified subset.
@@ -787,6 +793,19 @@ public interface ContentService extends RootService {
     throws Exception;
 
   /**
+   * Returns the transitive relationship.
+   *
+   * @param id the id
+   * @param relationshipClass the relationship class
+   * @return the transitive relationship
+   * @throws Exception the exception
+   */
+  public TransitiveRelationship<? extends AtomClass> getTransitiveRelationship(
+    Long id,
+    Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
+    throws Exception;
+
+  /**
    * Adds the transitive relationship.
    * 
    * @param transitiveRelationship the transitive relationship
@@ -809,11 +828,27 @@ public interface ContentService extends RootService {
 
   /**
    * Removes the transitive relationship.
-   * 
+   *
    * @param id the id
+   * @param relationshipClass the relationship class, null if unknown
    * @throws Exception the exception
    */
-  public void removeTransitiveRelationship(Long id) throws Exception;
+  public void removeTransitiveRelationship(
+    Long id,
+    Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
+    throws Exception;
+
+  /**
+   * Returns the tree position.
+   *
+   * @param id the id
+   * @param treeposClass the treepos class, null if unknown
+   * @return the tree position
+   * @throws Exception the exception
+   */
+  public TreePosition<? extends AtomClass> getTreePosition(Long id,
+    Class<? extends TreePosition<? extends AtomClass>> treeposClass)
+    throws Exception;
 
   /**
    * Adds the tree position.
@@ -840,9 +875,12 @@ public interface ContentService extends RootService {
    * Removes the tree position.
    *
    * @param id the id
+   * @param treeposClass the treepos class, null if unknown
    * @throws Exception the exception
    */
-  public void removeTreePosition(Long id) throws Exception;
+  public void removeTreePosition(Long id,
+    Class<? extends TreePosition<? extends AtomClass>> treeposClass)
+    throws Exception;
 
   /**
    * Adds the subset.
@@ -863,11 +901,13 @@ public interface ContentService extends RootService {
 
   /**
    * Removes the subset.
-   * 
+   *
    * @param id the id
+   * @param subsetClass the subset class, null if unknown
    * @throws Exception the exception
    */
-  public void removeSubset(Long id) throws Exception;
+  public void removeSubset(Long id, Class<? extends Subset> subsetClass)
+    throws Exception;
 
   /**
    * Adds the subset member.
@@ -892,11 +932,15 @@ public interface ContentService extends RootService {
 
   /**
    * Removes the subset member.
-   * 
+   *
    * @param id the id
+   * @param memberClass the member class, null if unknown
    * @throws Exception the exception
    */
-  public void removeSubsetMember(Long id) throws Exception;
+  public void removeSubsetMember(
+    Long id,
+    Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
+    throws Exception;
 
   /**
    * Returns the concept search results matching the query. Results can be
@@ -1018,9 +1062,10 @@ public interface ContentService extends RootService {
    * @param version the version
    * @param branch the branch
    * @return the all subsets
+   * @throws Exception
    */
   public SubsetList getAllSubsets(String terminology, String version,
-    String branch);
+    String branch) throws Exception;
 
   /**
    * Clear transitive closure.
@@ -1317,11 +1362,16 @@ public interface ContentService extends RootService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param memberClass the member class, null if unknown
    * @return the subset member
    * @throws Exception the exception
    */
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
-    String terminologyId, String terminology, String version, String branch)
+    String terminologyId,
+    String terminology,
+    String version,
+    String branch,
+    Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
   /**
@@ -1330,20 +1380,28 @@ public interface ContentService extends RootService {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param memberClass the member class, null if unkonwn
    * @return the subset member
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembers(String terminologyId,
-    String terminology, String version) throws Exception;
+  public SubsetMemberList getSubsetMembers(
+    String terminologyId,
+    String terminology,
+    String version,
+    Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
+    throws Exception;
 
   /**
    * Gets the subset members.
    *
    * @param id the id
+   * @param memberClass the member class, null if unknown
    * @return the subset member
    * @throws Exception the exception
    */
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
-    Long id) throws Exception;
+    Long id,
+    Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
+    throws Exception;
 
 }
