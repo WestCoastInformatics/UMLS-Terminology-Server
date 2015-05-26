@@ -58,21 +58,23 @@ import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
-import com.wci.umls.server.jpa.content.AbstractRelationship;
 import com.wci.umls.server.jpa.content.AbstractSubset;
 import com.wci.umls.server.jpa.content.AbstractSubsetMember;
 import com.wci.umls.server.jpa.content.AbstractTransitiveRelationship;
 import com.wci.umls.server.jpa.content.AbstractTreePosition;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
@@ -1791,8 +1793,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       localQueryStr += " order by a." + pfs.getSortField();
     }
 
-    Logger.getLogger(getClass()).info(
-        "localQueryStr: " + localQueryStr);
+    Logger.getLogger(getClass()).info("localQueryStr: " + localQueryStr);
     javax.persistence.Query query = manager.createQuery(localQueryStr);
     if (pfs != null && pfs.getStartIndex() > -1 && pfs.getMaxResults() > -1) {
       query.setFirstResult(pfs.getStartIndex());
@@ -2072,38 +2073,68 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getRelationship(java.lang.Long)
-   */
-  @SuppressWarnings("unchecked")
   @Override
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
-    Long id) throws Exception {
+    Long id,
+    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationship " + id);
-    return getComponent(id, AbstractRelationship.class);
+    if (relationshipClass != null) {
+      return getComponent(id, relationshipClass);
+    } else {
+      Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel =
+          getComponent(id, ConceptRelationshipJpa.class);
+      if (rel == null) {
+        rel = getComponent(id, AtomRelationshipJpa.class);
+      }
+      if (rel == null) {
+        rel = getComponent(id, CodeRelationshipJpa.class);
+      }
+      if (rel == null) {
+        rel = getComponent(id, DescriptorRelationshipJpa.class);
+      }
+      return rel;
+    }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getRelationships(java.lang.
-   * String, java.lang.String, java.lang.String)
-   */
   @SuppressWarnings("unchecked")
   @Override
-  public RelationshipList getRelationships(String terminologyId,
-    String terminology, String version) throws Exception {
+  public RelationshipList getRelationships(
+    String terminologyId,
+    String terminology,
+    String version,
+    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships " + terminologyId + "/"
             + terminology + "/" + version);
     List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationships =
-        getComponents(terminologyId, terminology, version,
-            AbstractRelationship.class);
+        null;
+    if (relationshipClass != null) {
+      relationships =
+          getComponents(terminologyId, terminology, version, relationshipClass);
+    } else {
+      relationships =
+          getComponents(terminologyId, terminology, version,
+              ConceptRelationshipJpa.class);
+      if (relationships == null) {
+        relationships =
+            getComponents(terminologyId, terminology, version,
+                AtomRelationshipJpa.class);
+      }
+      if (relationships == null) {
+        relationships =
+            getComponents(terminologyId, terminology, version,
+                CodeRelationshipJpa.class);
+      }
+      if (relationships == null) {
+        relationships =
+            getComponents(terminologyId, terminology, version,
+                DescriptorRelationshipJpa.class);
+      }
+    }
+
     if (relationships == null) {
       return null;
     }
@@ -2113,23 +2144,37 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getRelationship(java.lang.String
-   * , java.lang.String, java.lang.String, java.lang.String)
-   */
-  @SuppressWarnings("unchecked")
   @Override
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
-    String terminologyId, String terminology, String version, String branch)
+    String terminologyId,
+    String terminology,
+    String version,
+    String branch,
+    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationship " + terminologyId + "/"
             + terminology + "/" + version + "/" + branch);
-    return getComponent(terminologyId, terminology, version, branch,
-        AbstractRelationship.class);
+    if (relationshipClass != null) {
+      return getComponent(terminologyId, terminology, version, branch,
+          relationshipClass);
+    }
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel =
+        getComponent(terminologyId, terminology, version, branch,
+            ConceptRelationshipJpa.class);
+    if (rel == null) {
+      getComponent(terminologyId, terminology, version, branch,
+          AtomRelationshipJpa.class);
+    }
+    if (rel == null) {
+      getComponent(terminologyId, terminology, version, branch,
+          CodeRelationshipJpa.class);
+    }
+    if (rel == null) {
+      getComponent(terminologyId, terminology, version, branch,
+          DescriptorRelationshipJpa.class);
+    }
+    return rel;
   }
 
   /*
@@ -2213,22 +2258,33 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#removeRelationship(java.lang
-   * .Long)
-   */
   @Override
-  public void removeRelationship(Long id) throws Exception {
+  public void removeRelationship(
+    Long id,
+    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - remove relationship " + id);
     // Remove the component
-    @SuppressWarnings("unchecked")
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel =
-        removeComponent(id, AbstractRelationship.class);
-
+        null;
+    if (relationshipClass != null) {
+      rel = removeComponent(id, relationshipClass);
+    } else {
+      rel = removeComponent(id, ConceptRelationshipJpa.class);
+      if (rel == null) {
+        rel = removeComponent(id, AtomRelationshipJpa.class);
+      }
+      if (rel == null) {
+        rel = removeComponent(id, CodeRelationshipJpa.class);
+      }
+      if (rel == null) {
+        rel = removeComponent(id, DescriptorRelationshipJpa.class);
+      }
+    }
+    if (rel == null) {
+      throw new Exception("Unexpected relationship type encountered. " + relationshipClass);
+    }
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
         listener.relationshipChanged(rel, WorkflowListener.Action.REMOVE);
@@ -3107,16 +3163,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + clazz.getName().replace("Jpa",
                 "TransitiveRelationshipJpa" + " b, ") + clazz.getName() + " c "
             + "WHERE a.from = b.subType " + "AND b.superType = c "
-            + "AND a.obsolete = 0 "
-            + "AND c.terminology = :terminology "
+            + "AND a.obsolete = 0 " + "AND c.terminology = :terminology "
             + "AND c.terminologyVersion = :version "
             + "AND c.terminologyId = :terminologyId");
       } else {
         relBuilder.append("SELECT a.to FROM "
             + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
             + clazz.getName() + " b " + "WHERE a.from = b "
-            + "AND a.obsolete = 0 "
-            + "AND b.terminology = :terminology "
+            + "AND a.obsolete = 0 " + "AND b.terminology = :terminology "
             + "AND b.terminologyVersion = :version "
             + "AND b.terminologyId = :terminologyId");
       }
@@ -3143,16 +3197,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + clazz.getName().replace("Jpa",
                 "TransitiveRelationshipJpa" + " b, ") + clazz.getName() + " c "
             + "WHERE a.to = b.subType " + "AND b.superType = c "
-            + "AND a.obsolete = 0 "
-            + "AND c.terminology = :terminology "
+            + "AND a.obsolete = 0 " + "AND c.terminology = :terminology "
             + "AND c.terminologyVersion = :version "
             + "AND c.terminologyId = :terminologyId");
       } else {
         relBuilder.append("SELECT a.from FROM "
             + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
             + clazz.getName() + " b " + "WHERE a.to = b "
-            + "AND a.obsolete = 0 "
-            + "AND b.terminology = :terminology "
+            + "AND a.obsolete = 0 " + "AND b.terminology = :terminology "
             + "AND b.terminologyVersion = :version "
             + "AND b.terminologyId = :terminologyId");
       }
@@ -3165,15 +3217,16 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       builder.append("AND c IN (").append(relBuilder.toString()).append(")");
     }
 
-    // wrapper around query to findDescendants of results and self (unless specified)
+    // wrapper around query to findDescendants of results and self (unless
+    // specified)
     if (criteria.getFindDescendants()) {
       StringBuilder descBuilder = new StringBuilder();
       descBuilder
           .append(
               "SELECT t.subType FROM "
-                  + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa") + " t "
-                  + " WHERE t.superType IN (").append(builder.toString())
-          .append(")");
+                  + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
+                  + " t " + " WHERE t.superType IN (")
+          .append(builder.toString()).append(")");
 
       if (!criteria.getFindSelf()) {
         // Not self.

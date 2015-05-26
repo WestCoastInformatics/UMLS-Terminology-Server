@@ -239,7 +239,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     int i = 0;
     for (Long rootId : rootIds) {
       i++;
-      Logger.getLogger(getClass()).info(
+      Logger.getLogger(getClass()).debug(
           "  Compute tree positions for root " + rootId);
       fireProgressEvent((int) (10 + (i * 90.0 / rootIds.size())),
           "Compute tree positions for root " + rootId);
@@ -272,7 +272,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     Map<Long, Set<Long>> parChd, ValidationResult validationResult,
     Date startDate) throws Exception {
 
-    Logger.getLogger(getClass()).info(
+    Logger.getLogger(getClass()).debug(
         "    compute for " + id + ", " + ancestorPath);
     final Set<Long> descConceptIds = new HashSet<>();
 

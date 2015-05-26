@@ -28,13 +28,9 @@ import com.wci.umls.server.model.content.DescriptorTreePosition;
  * JPA-enabled implementation of {@link DescriptorTreePosition}.
  */
 @Entity
-@Table(name = "descriptor_tree_positions", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {
-        "terminologyId", "terminology", "terminologyVersion", "id"
-    }), @UniqueConstraint(columnNames = {
-        "ancestorPath", "terminologyId"
-    })
-})
+@Table(name = "descriptor_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
+    "terminologyId", "terminology", "terminologyVersion", "id"
+}))
 @Audited
 @Indexed
 @XmlRootElement(name = "descriptorTreePosition")
