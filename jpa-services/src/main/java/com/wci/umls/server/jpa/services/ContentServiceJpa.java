@@ -3046,6 +3046,26 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
+  
+  /**
+   * Find for general query helper.
+   *
+   * @param luceneQuery the lucene query
+   * @param hqlQuery the hql query
+   * @param branch the branch
+   * @param pfs the pfs
+   * @param fieldNames the field names
+   * @param clazz the clazz
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  private SearchResultList findForGeneralQueryHelper(String luceneQuery,
+    String hqlQuery, String branch, PfsParameter pfs,
+    String[] fieldNames, Class<?> clazz) throws Exception {
+    // TODO:
+    return null;
+  }
+  
   /**
    * Returns the query results.
    *
@@ -4563,6 +4583,33 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       return null;
     }
 
+  }
+
+  @Override
+  public SearchResultList findCodesForQuery(String luceneQuery,
+    String hqlQuery, String branch, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Content Service - find codes " + luceneQuery + "/" + hqlQuery + "/");
+    return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
+        codeFieldNames, CodeJpa.class);
+  }
+
+  @Override
+  public SearchResultList findConceptsForQuery(String luceneQuery,
+    String hqlQuery, String branch, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Content Service - find concepts " + luceneQuery + "/" + hqlQuery + "/");
+    return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
+        conceptFieldNames, ConceptJpa.class);
+  }
+
+  @Override
+  public SearchResultList findDescriptorsForQuery(String luceneQuery,
+    String hqlQuery, String branch, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Content Service - find descriptors " + luceneQuery + "/" + hqlQuery + "/");
+    return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
+        descriptorFieldNames, DescriptorJpa.class);
   }
 
 }
