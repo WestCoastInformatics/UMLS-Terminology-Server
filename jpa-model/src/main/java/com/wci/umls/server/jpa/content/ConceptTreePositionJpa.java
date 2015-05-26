@@ -29,11 +29,9 @@ import com.wci.umls.server.model.content.ConceptTreePosition;
  */
 @Entity
 @Table(name = "concept_tree_positions", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {
-        "terminologyId", "terminology", "terminologyVersion", "id"
-    }), @UniqueConstraint(columnNames = {
-        "ancestorPath", "terminologyId"
-    })
+  @UniqueConstraint(columnNames = {
+      "terminologyId", "terminology", "terminologyVersion", "id"
+  })
 })
 @Audited
 @Indexed

@@ -31,10 +31,8 @@ import com.wci.umls.server.model.content.CodeTreePosition;
 @Table(name = "code_tree_positions", uniqueConstraints = {
     @UniqueConstraint(columnNames = {
         "terminologyId", "terminology", "terminologyVersion", "id"
-    }), @UniqueConstraint(columnNames = {
-        "ancestorPath", "terminologyId"
     })
-})
+  })
 @Audited
 @Indexed
 @XmlRootElement(name = "codeTreePosition")

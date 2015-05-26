@@ -1228,8 +1228,8 @@ public class ContentClientRest implements ContentServiceRest {
         "Content Client - get atom subsets " + terminology + ", " + version);
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/aui/"
-            + terminology + "/" + version + "/subsets");
+        client.resource(config.getProperty("base.url")
+            + "/content/aui/subset/all/" + terminology + "/" + version);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get(ClientResponse.class);
@@ -1262,8 +1262,8 @@ public class ContentClientRest implements ContentServiceRest {
         "Content Client - get concept subsets " + terminology + ", " + version);
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/cui/"
-            + terminology + "/" + version + "/subsets");
+        client.resource(config.getProperty("base.url")
+            + "/content/cui/subset/all" + terminology + "/" + version);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get(ClientResponse.class);
@@ -1279,6 +1279,80 @@ public class ContentClientRest implements ContentServiceRest {
     SubsetListJpa subsetList =
         (SubsetListJpa) ConfigUtility.getGraphForString(resultString,
             SubsetListJpa.class);
+    return subsetList;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAtomSubsetMembers
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  public SubsetMemberList findAtomSubsetMembers(String subsetId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get atom subset members " + terminology + ", "
+            + version);
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/aui/subset/"
+            + subsetId + terminology + "/" + version + "/members/query/"
+            + (query == null ? "" : query));
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    // converting to object
+    SubsetMemberListJpa subsetList =
+        (SubsetMemberListJpa) ConfigUtility.getGraphForString(resultString,
+            SubsetMemberListJpa.class);
+    return subsetList;
+  }
+
+  @Override
+  public SubsetMemberList findConceptSubsetMembers(String subsetId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get concept subset members " + terminology + ", "
+            + version);
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/cui/subset/"
+            + subsetId + terminology + "/" + version + "/members/query/"
+            + (query == null ? "" : query));
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    // converting to object
+    SubsetMemberListJpa subsetList =
+        (SubsetMemberListJpa) ConfigUtility.getGraphForString(resultString,
+            SubsetMemberListJpa.class);
     return subsetList;
   }
 
@@ -1324,24 +1398,19 @@ public class ContentClientRest implements ContentServiceRest {
     return relList;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findTreesForConcept
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
   @Override
   public TreeList findTreesForConcept(String terminologyId, String terminology,
-    String version, PfsParameterJpa pfs, String authToken) throws Exception {
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get tree positions for concept " + terminologyId
             + ", " + terminology + ", " + version + ", " + pfs);
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
-            + terminology + "/" + version + "/" + terminologyId + "/tree");
+            + terminology + "/" + version + "/" + terminologyId
+            + "/trees/query/" + (query == null ? "" : query));
+
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1364,25 +1433,18 @@ public class ContentClientRest implements ContentServiceRest {
     return relList;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findTreesForDescriptor
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
   @Override
   public TreeList findTreesForDescriptor(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String terminology, String query, String version, PfsParameterJpa pfs,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get tree positions for descriptor " + terminologyId
             + ", " + terminology + ", " + version + ", " + pfs);
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
-            + terminology + "/" + version + "/" + terminologyId + "/tree");
+            + terminology + "/" + version + "/" + terminologyId
+            + "/trees/query/" + (query == null ? "" : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1415,14 +1477,16 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public TreeList findTreesForCode(String terminologyId, String terminology,
-    String version, PfsParameterJpa pfs, String authToken) throws Exception {
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get tree positions for code " + terminologyId + ", "
             + terminology + ", " + version + ", " + pfs);
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
-            + terminology + "/" + version + "/" + terminologyId + "/tree");
+            + terminology + "/" + version + "/" + terminologyId
+            + "/trees/query/" + (query == null ? "" : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);

@@ -29,6 +29,7 @@ import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
@@ -43,6 +44,8 @@ import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.content.TreeJpa;
+import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -60,6 +63,7 @@ import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
+import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.MetadataService;
@@ -1186,16 +1190,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find ancestor concepts",
           UserRole.VIEWER);
 
-      ConceptList list =  contentService.findAncestorConcepts(terminologyId, terminology,
-          version, parentsOnly, Branch.ROOT, pfs);
-      
+      ConceptList list =
+          contentService.findAncestorConcepts(terminologyId, terminology,
+              version, parentsOnly, Branch.ROOT, pfs);
+
       for (Concept concept : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(
-          concept,
-          TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
-              concept.getTerminologyVersion()));
+            concept,
+            TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
+                concept.getTerminologyVersion()));
       }
-      
+
       return list;
 
     } catch (Exception e) {
@@ -1237,16 +1242,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find descendant concepts",
           UserRole.VIEWER);
 
-      ConceptList list = contentService.findDescendantConcepts(terminologyId, terminology,
-          version, parentsOnly, Branch.ROOT, pfs);
-      
+      ConceptList list =
+          contentService.findDescendantConcepts(terminologyId, terminology,
+              version, parentsOnly, Branch.ROOT, pfs);
+
       for (Concept concept : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(
-          concept,
-          TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
-              concept.getTerminologyVersion()));
+            concept,
+            TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
+                concept.getTerminologyVersion()));
       }
-      
+
       return list;
 
     } catch (Exception e) {
@@ -1537,13 +1543,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken,
           "retrieve relationships for the concept", UserRole.VIEWER);
 
-      RelationshipList list = contentService.findRelationshipsForConcept(terminologyId,
-          terminology, version, Branch.ROOT, false, pfs);
-      
-      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list.getObjects()) {
+      RelationshipList list =
+          contentService.findRelationshipsForConcept(terminologyId,
+              terminology, version, Branch.ROOT, false, pfs);
+
+      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+          .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
-      
+
       return list;
 
     } catch (Exception e) {
@@ -1657,7 +1665,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @GET
-  @Path("/aui/{terminology}/{version}/subsets")
+  @Path("/aui/subset/all/{terminology}/{version}")
   @ApiOperation(value = "Get atom subsets", notes = "Get the atom level subsets.", response = SubsetList.class)
   public SubsetList getAtomSubsets(
     @ApiParam(value = "Atom terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -1690,7 +1698,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @GET
-  @Path("/cui/{terminology}/{version}/subsets")
+  @Path("/cui/subset/all/{terminology}/{version}")
   @ApiOperation(value = "Get concept subsets", notes = "Get the concept level subsets.", response = SubsetList.class)
   public SubsetList getConceptSubsets(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -1710,6 +1718,82 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       for (int i = 0; i < list.getCount(); i++) {
         contentService.getGraphResolutionHandler(terminology).resolve(
             (ConceptSubset) list.getObjects().get(i));
+      }
+      return list;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve concept subsets");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  @Override
+  @POST
+  @Path("/aui/subset/{subsetId}/{terminology}/{version}/members/query{query: (/query)?}")
+  @ApiOperation(value = "Find atom subset members", notes = "Get the members for the indicated atom subset.", response = SubsetMemberList.class)
+  public SubsetMemberList findAtomSubsetMembers(
+    @ApiParam(value = "Subset id, e.g. 341823433", required = true) @PathParam("subsetId") String subsetId,
+    @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /aui/subest/" + subsetId + "/" + terminology
+            + "/" + version + "/members/query/" + query);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find atom subset members",
+          UserRole.VIEWER);
+
+      SubsetMemberList list =
+          contentService.findAtomSubsetMembers(subsetId, terminology, version,
+              Branch.ROOT, query, pfs);
+      for (SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
+          .getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(member);
+      }
+      return list;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve atom subsets");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  @Override
+  @POST
+  @Path("/cui/subset/{subsetId}/{terminology}/{version}/members/query{query: (/query)?}")
+  @ApiOperation(value = "Find concept subset members", notes = "Get the members for the indicated concept subset.", response = SubsetMemberList.class)
+  public SubsetMemberList findConceptSubsetMembers(
+    @ApiParam(value = "Subset id, e.g. 341823433", required = true) @PathParam("subsetId") String subsetId,
+    @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/subest/" + subsetId + "/" + terminology
+            + "/" + version + "/members/query/" + query);
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find concept subset members",
+          UserRole.VIEWER);
+
+      SubsetMemberList list =
+          contentService.findConceptSubsetMembers(subsetId, terminology,
+              version, Branch.ROOT, query, pfs);
+      for (SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
+          .getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
       return list;
     } catch (Exception e) {
@@ -1754,15 +1838,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  @SuppressWarnings("unused")
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/trees")
+  @Path("/cui/{terminology}/{version}/{terminologyId}/trees/query{query: (/query)?}")
   @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given concept id.", response = TreeList.class)
   public TreeList findTreesForConcept(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query search term, e.g. 'sulphur'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1777,9 +1861,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       TreePositionList list =
           contentService.findTreePositionsForConcept(terminologyId,
-              terminology, version, pfs, Branch.ROOT);
+              terminology, version, Branch.ROOT, query, pfs);
       // TODO: do something to form a tree
-      return null;
+      final TreeList treeList = new TreeListJpa();
+      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
+          .getObjects()) {
+        final Tree tree = new TreeJpa();
+        tree.setSelf(treepos);
+      }
+      return treeList;
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a concept");
@@ -1791,15 +1881,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  @SuppressWarnings("unused")
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/trees")
+  @Path("/dui/{terminology}/{version}/{terminologyId}/trees/query{query: (/query)?}")
   @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given descriptor id.", response = TreeList.class)
   public TreeList findTreesForDescriptor(
     @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query search term, e.g. 'sulphur'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1814,9 +1904,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       TreePositionList list =
           contentService.findTreePositionsForDescriptor(terminologyId,
-              terminology, version, pfs, Branch.ROOT);
+              terminology, version, Branch.ROOT, query, pfs);
       // TODO: do something to form a tree
-      return null;
+      final TreeList treeList = new TreeListJpa();
+      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
+          .getObjects()) {
+        final Tree tree = new TreeJpa();
+        tree.setSelf(treepos);
+      }
+      return treeList;
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a descriptor");
@@ -1828,15 +1924,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  @SuppressWarnings("unused")
   @Override
   @POST
-  @Path("/code/{terminology}/{version}/{terminologyId}/trees")
+  @Path("/code/{terminology}/{version}/{terminologyId}/trees/query{query: (/query)?}")
   @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given code id.", response = TreeList.class)
   public TreeList findTreesForCode(
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query search term, e.g. 'sulphur'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1851,9 +1947,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       TreePositionList list =
           contentService.findTreePositionsForCode(terminologyId, terminology,
-              version, pfs, Branch.ROOT);
+              version, Branch.ROOT, query, pfs);
       // TODO: do something to form a tree
-      return null;
+      final TreeList treeList = new TreeListJpa();
+      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
+          .getObjects()) {
+        final Tree tree = new TreeJpa();
+        tree.setSelf(treepos);
+      }
+      return treeList;
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a code");

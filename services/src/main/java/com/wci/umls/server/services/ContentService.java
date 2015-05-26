@@ -151,10 +151,11 @@ public interface ContentService extends RootService {
    * @param query the query
    * @param pfs the pfs
    * @return the subset members
-   * @throws Exception 
+   * @throws Exception
    */
   public SubsetMemberList findAtomSubsetMembers(String subsetId,
-    String terminology, String version, String branch, String query, PfsParameter pfs) throws Exception;
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the concept subset members.
@@ -587,14 +588,15 @@ public interface ContentService extends RootService {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
-   * @param pfs the pfs parameter
    * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs parameter
    * @return the tree position list
    * @throws Exception the exception
    */
   public TreePositionList findTreePositionsForConcept(String terminologyId,
-    String terminology, String version, PfsParameter pfs, String branch)
-    throws Exception;
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find tree positions for descriptor.
@@ -602,14 +604,15 @@ public interface ContentService extends RootService {
    * @param descriptorId the descriptor id
    * @param terminology the terminology
    * @param version the version
-   * @param pfs the pfs parameter
    * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs parameter
    * @return the tree position list
    * @throws Exception the exception
    */
   public TreePositionList findTreePositionsForDescriptor(String descriptorId,
-    String terminology, String version, PfsParameter pfs, String branch)
-    throws Exception;
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find tree positions for code.
@@ -617,14 +620,15 @@ public interface ContentService extends RootService {
    * @param codeId the code id
    * @param terminology the terminology
    * @param version the version
-   * @param pfs the pfs parameter
    * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs parameter
    * @return the tree position list
    * @throws Exception the exception
    */
   public TreePositionList findTreePositionsForCode(String codeId,
-    String terminology, String version, PfsParameter pfs, String branch)
-    throws Exception;
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find descendant descriptors.
@@ -659,18 +663,6 @@ public interface ContentService extends RootService {
     PfsParameter pfs) throws Exception;
 
   /**
-   * Find descriptor tree positions.
-   *
-   * @param descriptor the descriptor
-   * @param branch the branch
-   * @param pfs the pfs parameter
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findDescriptorTreePositions(Descriptor descriptor,
-    String branch, PfsParameter pfs) throws Exception;
-
-  /**
    * Find descendant descriptors.
    *
    * @param terminologyId the terminology id
@@ -701,18 +693,6 @@ public interface ContentService extends RootService {
   public CodeList findAncestorCodes(String terminologyId, String terminology,
     String version, boolean parentsOnly, String branch, PfsParameter pfs)
     throws Exception;
-
-  /**
-   * Find code tree positions.
-   *
-   * @param code the code
-   * @param pfs the pfs parameter
-   * @param branch the branch
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findCodeTreePositions(Code code, String branch,
-    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the atom.

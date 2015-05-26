@@ -57,7 +57,6 @@ import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.content.AbstractComponent;
-import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
 import com.wci.umls.server.jpa.content.AbstractSubset;
 import com.wci.umls.server.jpa.content.AbstractSubsetMember;
@@ -243,7 +242,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private static String[] subsetMemberFieldNames = {};
 
   /** The tree position field names. */
-  @SuppressWarnings("unused")
   private static String[] treePositionFieldNames = {};
 
   static {
@@ -1732,54 +1730,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   }
 
   /**
-   * Find tree positions helper.
-   *
-   * @param atomClass the atom class
-   * @param pfs the pfs
-   * @param branch the branch
-   * @param clazz the clazz
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private TreePositionList findTreePositionsHelper(AtomClass atomClass,
-    PfsParameter pfs, String branch, Class<?> clazz) throws Exception {
-    if (pfs != null && pfs.getQueryRestriction() != null) {
-      throw new IllegalArgumentException(
-          "Query restriction is not implemented for this call: "
-              + pfs.getQueryRestriction());
-    }
-    String queryStr =
-        "select tr from " + clazz.getName().replace("Jpa", "TreePositionJpa")
-            + " tr, " + clazz.getName()
-
-            + " a " + " where a.terminologyVersion = :version "
-            + " and a.terminology = :terminology "
-            + " and a.terminologyId = :terminologyId" + " and tr.node = a ";
-    javax.persistence.Query query = applyPfsToQuery(queryStr, pfs);
-
-    javax.persistence.Query ctQuery =
-        manager.createQuery("select count(*) from "
-            + clazz.getName().replace("Jpa", "TreePositionJpa") + " tr, "
-            + clazz.getName() + " a "
-            + " where a.terminologyVersion = :version "
-            + " and a.terminology = :terminology "
-            + " and a.terminologyId = :terminologyId" + " and tr.node = a ");
-    TreePositionList list = new TreePositionListJpa();
-    ctQuery.setParameter("terminology", atomClass.getTerminology());
-    ctQuery.setParameter("version", atomClass.getTerminologyVersion());
-    ctQuery.setParameter("terminologyId", atomClass.getTerminologyId());
-    list.setTotalCount(((Long) ctQuery.getSingleResult()).intValue());
-
-    query.setParameter("terminology", atomClass.getTerminology());
-    query.setParameter("version", atomClass.getTerminologyVersion());
-    query.setParameter("terminologyId", atomClass.getTerminologyId());
-
-    list.setObjects(query.getResultList());
-    return list;
-  }
-
-  /**
    * Apply pfs to query.
    *
    * @param queryStr the query str
@@ -1858,21 +1808,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.ContentService#findDescriptorTreePositions
-   * (com.wci.umls.server.model.content.Descriptor, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
-  @Override
-  public TreePositionList findDescriptorTreePositions(Descriptor descriptor,
-    String branch, PfsParameter pfs) throws Exception {
-    return this.findTreePositionsHelper(descriptor, pfs, branch,
-        DescriptorJpa.class);
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
    * com.wci.umls.server.services.ContentService#findDescendantCodes(java.lang
    * .String, java.lang.String, java.lang.String, boolean, java.lang.String,
    * com.wci.umls.server.helpers.PfsParameter)
@@ -1919,20 +1854,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     list.setObjects(descendants);
     list.setTotalCount((int) totalCt[0]);
     return list;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findCodeTreePositions(com.wci
-   * .umls.server.model.content.Code, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
-  @Override
-  public TreePositionList findCodeTreePositions(Code code, String branch,
-    PfsParameter pfs) throws Exception {
-    return this.findTreePositionsHelper(code, pfs, branch, CodeJpa.class);
   }
 
   /*
@@ -2930,9 +2851,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       // Apply PFS sorting manually
       if (pfs != null && pfs.getSortField() != null) {
         final Method getMethod =
-            clazz.getMethod(
-                "get" + pfs.getSortField().substring(0,1).toUpperCase() +
-                pfs.getSortField().substring(1));
+            clazz.getMethod("get"
+                + pfs.getSortField().substring(0, 1).toUpperCase()
+                + pfs.getSortField().substring(1));
         if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
           throw new Exception("Referenced sort field is not comparable");
         }
@@ -2943,15 +2864,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           @Override
           public int compare(AtomClass o1, AtomClass o2) {
             try {
-              Comparable f1 = (Comparable) getMethod.invoke(o1, new Object[]{});
-              Comparable f2 = (Comparable) getMethod.invoke(o2, new Object[]{});
+              Comparable f1 =
+                  (Comparable) getMethod.invoke(o1, new Object[] {});
+              Comparable f2 =
+                  (Comparable) getMethod.invoke(o2, new Object[] {});
               return f1.compareTo(f2);
             } catch (Exception e) {
               // do nothing
             }
             return 0;
           }
-        });        
+        });
       }
 
       // Apply PFS paging manually
@@ -3879,8 +3802,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       stats.put("Total " + jpaTable, ct);
 
       // Only compute active counts for components
-      if (AbstractComponent.class.isAssignableFrom(type
-          .getBindableJavaType())) {
+      if (AbstractComponent.class.isAssignableFrom(type.getBindableJavaType())) {
         if (terminology != null) {
 
           query =
@@ -4247,9 +4169,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       // Apply PFS sorting manually
       if (pfs != null && pfs.getSortField() != null) {
         final Method getMethod =
-            ConceptRelationshipJpa.class.getMethod(
-                "get" + pfs.getSortField().substring(0,1).toUpperCase() +
-                pfs.getSortField().substring(1));
+            ConceptRelationshipJpa.class.getMethod("get"
+                + pfs.getSortField().substring(0, 1).toUpperCase()
+                + pfs.getSortField().substring(1));
         if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
           throw new Exception("Referenced sort field is not comparable");
         }
@@ -4257,8 +4179,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           @Override
           public int compare(Relationship o1, Relationship o2) {
             try {
-              Comparable f1 = (Comparable) getMethod.invoke(o1, new Object[]{});
-              Comparable f2 = (Comparable) getMethod.invoke(o2, new Object[]{});
+              Comparable f1 =
+                  (Comparable) getMethod.invoke(o1, new Object[] {});
+              Comparable f2 =
+                  (Comparable) getMethod.invoke(o2, new Object[] {});
               return f1.compareTo(f2);
             } catch (Exception e) {
               // do nothing
@@ -4398,61 +4322,37 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findTreePositionsForConcept
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
-   */
   @Override
   public TreePositionList findTreePositionsForConcept(String terminologyId,
-    String terminology, String version, PfsParameter pfs, String branch)
-    throws Exception {
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for concept " + terminologyId
             + "/" + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        pfs, ConceptJpa.class);
+        query, pfs, ConceptJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findTreePositionsForDescriptor
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
-   */
   @Override
   public TreePositionList findTreePositionsForDescriptor(String terminologyId,
-    String terminology, String version, PfsParameter pfs, String branch)
-    throws Exception {
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for descriptor " + terminologyId
             + "/" + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        pfs, DescriptorJpa.class);
+        query, pfs, DescriptorJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findTreePositionsForCode(java
-   * .lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter, java.lang.String)
-   */
   @Override
   public TreePositionList findTreePositionsForCode(String terminologyId,
-    String terminology, String version, PfsParameter pfs, String branch)
-    throws Exception {
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for code " + terminologyId + "/"
             + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        pfs, CodeJpa.class);
+        query, pfs, CodeJpa.class);
 
   }
 
@@ -4463,49 +4363,59 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param query the query
    * @param pfs the pfs
    * @param clazz the clazz
    * @return the tree position list
+   * @throws Exception 
    */
   @SuppressWarnings("unchecked")
   private TreePositionList findTreePositionsHelper(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs,
-    Class<?> clazz) {
-    javax.persistence.Query query =
-        applyPfsToQuery(
-            "select a from "
-                + clazz.getName().replace("Jpa", "TreePositionJpa") + " a, "
-                + clazz.getName()
-                + " b where b.terminologyId = :terminologyId "
-                + "and b.terminologyVersion = :version "
-                + "and b.terminology = :terminology and a.node = b ", pfs);
-    javax.persistence.Query ctQuery =
-        manager.createQuery("select count(*) from "
-            + clazz.getName().replace("Jpa", "TreePositionJpa") + " a, "
-            + clazz.getName() + " b where b.terminologyId = :terminologyId "
-            + "and b.terminologyVersion = :version "
-            + "and b.terminology = :terminology and a.node = b");
-    try {
-      TreePositionList list = new TreePositionListJpa();
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs, Class<?> clazz) throws Exception {
+    
+ // Prepare the query string
 
-      // execute count query
-      ctQuery.setParameter("terminologyId", terminologyId);
-      ctQuery.setParameter("terminology", terminology);
-      ctQuery.setParameter("version", version);
-      list.setTotalCount(((BigDecimal) ctQuery.getResultList().get(0))
-          .intValue());
-
-      query.setParameter("terminologyId", terminologyId);
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
-      list.setObjects(query.getResultList());
-      list.setTotalCount(list.getObjects().size());
-
-      return list;
-    } catch (NoResultException e) {
-      return null;
+    StringBuilder finalQuery = new StringBuilder();
+    finalQuery.append(query);
+    finalQuery.append(" AND terminology:" + terminology
+        + " AND terminologyVersion:" + version + " AND getNodeId:"
+        + terminologyId);
+    if (pfs != null && pfs.getQueryRestriction() != null) {
+      finalQuery.append(" AND ");
+      finalQuery.append(pfs.getQueryRestriction());
     }
+    Logger.getLogger(getClass()).info("query " + finalQuery);
 
+    // Prepare the manager and lucene query
+    FullTextEntityManager fullTextEntityManager =
+        Search.getFullTextEntityManager(manager);
+    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+    Query luceneQuery;
+    try {
+      QueryParser queryParser =
+          new MultiFieldQueryParser(treePositionFieldNames,
+              searchFactory.getAnalyzer(clazz));
+
+      luceneQuery = queryParser.parse(finalQuery.toString());
+    } catch (ParseException e) {
+      throw new LocalException(
+          "The specified search terms cannot be parsed.  Please check syntax and try again.");
+    }
+    FullTextQuery fullTextQuery =
+        fullTextEntityManager.createFullTextQuery(luceneQuery,
+            clazz);
+
+    // Apply paging and sorting parameters - if no search criteria
+    applyPfsToLuceneQuery(clazz, fullTextQuery, pfs);
+    TreePositionList list = new TreePositionListJpa();
+    list.setTotalCount(fullTextQuery.getResultSize());
+    list.setObjects(fullTextQuery.getResultList());
+
+    fullTextEntityManager.close();
+    manager = factory.createEntityManager();
+    return list;
+    
   }
 
 }

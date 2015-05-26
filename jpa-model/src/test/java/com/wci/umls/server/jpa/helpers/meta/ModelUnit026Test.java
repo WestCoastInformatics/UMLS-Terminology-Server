@@ -28,6 +28,12 @@ public class ModelUnit026Test {
   /** The model object to test. */
   private AttributeNameJpa object;
 
+  /** The test fixture */
+  private AttributeNameJpa atn;
+
+  /** The test fixture */
+  private AttributeNameJpa atn2;
+
   /**
    * Setup class.
    */
@@ -41,7 +47,20 @@ public class ModelUnit026Test {
    */
   @Before
   public void setup() {
+
     object = new AttributeNameJpa();
+    atn = new AttributeNameJpa();
+    atn2 = new AttributeNameJpa();
+    atn.setId(1L);
+    atn.setAbbreviation("1");
+    atn.setExpandedForm("1");
+    atn2.setId(2L);
+    atn2.setAbbreviation("2");
+    atn2.setExpandedForm("2");
+    atn.setEquivalentName(atn);
+    atn2.setEquivalentName(atn2);
+    atn.setSuperName(atn);
+    atn.setSuperName(atn2);
   }
 
   /**
@@ -71,7 +90,12 @@ public class ModelUnit026Test {
     tester.include("terminologyVersion");
     tester.include("publishable");
     tester.include("published");
-    
+    tester.include("domainId");
+    tester.include("rangeId");
+    tester.include("functional");
+    tester.include("existentialQuantification");
+    tester.include("universalQuantification");
+
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -122,11 +146,12 @@ public class ModelUnit026Test {
     tester.include("timestamp");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
+    tester.include("functional");
+    tester.include("existentialQuantification");
+    tester.include("universalQuantification");
 
     assertTrue(tester.testNotNullFields());
   }
-
-
 
   /**
    * Teardown.
