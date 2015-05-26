@@ -351,6 +351,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         info.setLastModifiedBy(loader);
         addReleaseInfo(info);
       }
+      
+      // TODO: Add metadata (including things like sub/super properties)
+      //   property chains, non-grouping relationships, etc.
 
       // Clear concept cache
       // clear and commit

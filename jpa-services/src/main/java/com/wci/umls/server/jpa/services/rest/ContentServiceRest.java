@@ -169,9 +169,10 @@ public interface ContentServiceRest {
     throws Exception;
 
   /**
-   * Find relationships for concept or any part of its graph and push them all up to the same level.
-   * For example a UMLS concept may return the CUI relationships, the atom relationships,
-   * the SCUI, SDUI, and CODE relationships - all represented as {@link ConceptRelationship}.
+   * Find relationships for concept or any part of its graph and push them all
+   * up to the same level. For example a UMLS concept may return the CUI
+   * relationships, the atom relationships, the SCUI, SDUI, and CODE
+   * relationships - all represented as {@link ConceptRelationship}.
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
@@ -512,13 +513,15 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the tree positions for concept
    * @throws Exception the exception
    */
   public TreeList findTreesForConcept(String terminologyId, String terminology,
-    String version, PfsParameterJpa pfs, String authToken) throws Exception;
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
 
   /**
    * Returns the tree positions for descriptor.
@@ -526,14 +529,15 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the tree positions for descriptor
    * @throws Exception the exception
    */
   public TreeList findTreesForDescriptor(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Returns the tree positions for code.
@@ -541,13 +545,15 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the tree positions for code
    * @throws Exception the exception
    */
   public TreeList findTreesForCode(String terminologyId, String terminology,
-    String version, PfsParameterJpa pfs, String authToken) throws Exception;
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
 
   /**
    * Gets the atom subsets.
@@ -572,5 +578,37 @@ public interface ContentServiceRest {
    */
   public SubsetList getConceptSubsets(String terminology, String version,
     String authToken) throws Exception;
+
+  /**
+   * Find atom subset members.
+   *
+   * @param subsetId the subset id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the subset member list
+   * @throws Exception the exception
+   */
+  public SubsetMemberList findAtomSubsetMembers(String subsetId,
+    String terminology, String version, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Find concept subset members.
+   *
+   * @param subsetId the subset id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the subset member list
+   * @throws Exception the exception
+   */
+  public SubsetMemberList findConceptSubsetMembers(String subsetId,
+    String terminology, String version, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
 }

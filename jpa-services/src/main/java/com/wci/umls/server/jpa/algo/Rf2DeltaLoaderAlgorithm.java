@@ -787,7 +787,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         if (!atomSubsetMap.containsKey(fields[4])) {
           AtomSubset subset =
               (AtomSubset) getSubset(fields[4], terminology,
-                  terminologyVersion, Branch.ROOT);
+                  terminologyVersion, Branch.ROOT, AtomSubset.class);
           atomSubsetMap.put(fields[4], subset);
         }
         AtomSubset subset = atomSubsetMap.get(fields[4]);
