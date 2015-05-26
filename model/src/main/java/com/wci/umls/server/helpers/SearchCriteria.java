@@ -102,6 +102,11 @@ public interface SearchCriteria {
    */
   public String getRelationshipFromId();
   
+  /**
+   * Sets the relationship from id.
+   *
+   * @param id the relationship from id
+   */
   public void setRelationshipFromId(String id);
 
   /**
@@ -112,6 +117,11 @@ public interface SearchCriteria {
    */
   public String getRelationshipType();
   
+  /**
+   * Sets the relationship type.
+   *
+   * @param type the relationship type
+   */
   public void setRelationshipType(String type);
 
   /**
@@ -122,6 +132,11 @@ public interface SearchCriteria {
    */
   public String getRelationshipToId();
   
+  /**
+   * Sets the relationship to id.
+   *
+   * @param id the relationship to id
+   */
   public void setRelationshipToId(String id);
 
   /**
@@ -132,6 +147,11 @@ public interface SearchCriteria {
    */
   public boolean getRelationshipDescendantsFlag();
   
+  /**
+   * Sets the relationship descendants flag.
+   *
+   * @param descendants the relationship descendants flag
+   */
   public void setRelationshipDescendantsFlag(boolean descendants);
 
   /**

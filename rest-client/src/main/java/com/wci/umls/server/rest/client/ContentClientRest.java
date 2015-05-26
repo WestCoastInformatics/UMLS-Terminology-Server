@@ -262,11 +262,10 @@ public class ContentClientRest implements ContentServiceRest {
 
     Client client = Client.create();
     // TODO: figure out how to remove this
-    if (query.equals(""))
-      query = null;
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
-            + terminology + "/" + version + "/query/" + query);
+            + terminology + "/" + version + "/query/"
+            + (query == null ? "" : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -380,11 +379,10 @@ public class ContentClientRest implements ContentServiceRest {
             + ", " + query + ", " + pfs);
 
     Client client = Client.create();
-    if (query.equals(""))
-      query = null;
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
-            + terminology + "/" + version + "/query/" + query);
+            + terminology + "/" + version + "/query/"
+            + (query == null ? "" : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -498,7 +496,8 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
-            + terminology + "/" + version + "/query/" + query);
+            + terminology + "/" + version + "/query/"
+            + (query == null ? "" : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -594,7 +593,6 @@ public class ContentClientRest implements ContentServiceRest {
             LexicalClassJpa.class);
     return lexicalClass;
   }
-
 
   /*
    * (non-Javadoc)

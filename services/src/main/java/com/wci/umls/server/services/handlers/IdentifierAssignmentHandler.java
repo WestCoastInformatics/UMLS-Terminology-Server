@@ -162,6 +162,7 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * Gets the terminology id.
    *
    * @param semanticTypeComponent the semantic type component
+   * @param concept the concept
    * @return the terminology id
    * @throws Exception the exception
    */

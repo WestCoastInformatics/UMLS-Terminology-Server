@@ -92,6 +92,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
   private Map<String, AtomSubset> atomSubsetMap = new HashMap<>();
 
   /** The concept subset map. */
+  @SuppressWarnings("unused")
   private Map<String, ConceptSubset> conceptSubsetMap = new HashMap<>();
 
   /** The existing concept cache. */
@@ -702,6 +703,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("unused")
   private void loadAtomSubsetMembers() throws Exception {
 
     // Setup variables
@@ -831,9 +833,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("unchecked")
   private void loadSimpleRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -842,7 +843,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    * @throws Exception the exception
    */
   private void loadSimpleMapRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -852,7 +853,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
 
   private void loadComplexMapRefSetMembers() throws Exception {
-    // TODO: do when we have mapping objects
+    // n/a
   }
 
   /**
@@ -863,7 +864,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
   private void loadExtendedMapRefSetMembers() throws Exception {
     // TODO: do when we have mapping objects
-
   }
 
   /**
@@ -873,7 +873,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
 
   private void loadAtomTypeRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -883,7 +883,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
 
   private void loadRefsetDescriptorRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -893,7 +893,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
 
   private void loadModuleDependencyRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -903,7 +903,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
 
   private void loadAttributeValueRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -913,7 +913,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
 
   private void loadAssociationReferenceRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**

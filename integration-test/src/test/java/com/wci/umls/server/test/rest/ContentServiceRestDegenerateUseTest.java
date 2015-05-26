@@ -8,27 +8,12 @@ package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.assertTrue;
 
-
-
-
-
-
-
-
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.wci.umls.server.helpers.SearchCriteria;
-import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.helpers.SearchCriteriaJpa;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.test.helpers.DegenerateUseMethodTestHelper;
@@ -225,31 +210,25 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
    *
    * @throws Exception the exception
    */
-/*  @Test
-  public void testDegenerateUseRestContent003() throws Exception {
-
-    Description description = concept.getDescriptions().iterator().next();
-
-    // get description
-    validParameters = new Object[] {
-        description.getTerminologyId(), testTerminology, testVersion, authToken
-    };
-
-    DegenerateUseMethodTestHelper.testDegenerateArguments(
-        contentService,
-        contentService.getClass().getMethod("getDescription",
-            getParameterTypes(validParameters)), validParameters);
-
-    // get description
-    validParameters = new Object[] {
-        description.getId(), authToken
-    };
-
-    DegenerateUseMethodTestHelper.testDegenerateArguments(
-        contentService,
-        contentService.getClass().getMethod("getDescription",
-            getParameterTypes(validParameters)), validParameters);
-  }*/
+  /*
+   * @Test public void testDegenerateUseRestContent003() throws Exception {
+   * 
+   * Description description = concept.getDescriptions().iterator().next();
+   * 
+   * // get description validParameters = new Object[] {
+   * description.getTerminologyId(), testTerminology, testVersion, authToken };
+   * 
+   * DegenerateUseMethodTestHelper.testDegenerateArguments( contentService,
+   * contentService.getClass().getMethod("getDescription",
+   * getParameterTypes(validParameters)), validParameters);
+   * 
+   * // get description validParameters = new Object[] { description.getId(),
+   * authToken };
+   * 
+   * DegenerateUseMethodTestHelper.testDegenerateArguments( contentService,
+   * contentService.getClass().getMethod("getDescription",
+   * getParameterTypes(validParameters)), validParameters); }
+   */
 
   /**
    * Test relationship services
@@ -259,7 +238,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
   @Test
   public void testDegenerateUseRestContent004() throws Exception {
 
-    Relationship relationship = concept.getRelationships().iterator().next();
+    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship =
+        concept.getRelationships().iterator().next();
 
     // get relationship
     validParameters =
@@ -289,33 +269,27 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
    *
    * @throws Exception the exception
    */
-/*  @Test
-  public void testDegenerateUseRestContent005() throws Exception {
-
-    Description description = concept.getDescriptions().iterator().next();
-    LanguageRefSetMember language =
-        description.getLanguageRefSetMembers().iterator().next();
-
-    // get language
-    validParameters = new Object[] {
-        language.getTerminologyId(), testTerminology, testVersion, authToken
-    };
-
-    DegenerateUseMethodTestHelper.testDegenerateArguments(
-        contentService,
-        contentService.getClass().getMethod("getLanguageRefSetMember",
-            getParameterTypes(validParameters)), validParameters);
-
-    // get language
-    validParameters = new Object[] {
-        language.getId(), authToken
-    };
-
-    DegenerateUseMethodTestHelper.testDegenerateArguments(
-        contentService,
-        contentService.getClass().getMethod("getLanguageRefSetMember",
-            getParameterTypes(validParameters)), validParameters);
-  }*/
+  /*
+   * @Test public void testDegenerateUseRestContent005() throws Exception {
+   * 
+   * Description description = concept.getDescriptions().iterator().next();
+   * LanguageRefSetMember language =
+   * description.getLanguageRefSetMembers().iterator().next();
+   * 
+   * // get language validParameters = new Object[] {
+   * language.getTerminologyId(), testTerminology, testVersion, authToken };
+   * 
+   * DegenerateUseMethodTestHelper.testDegenerateArguments( contentService,
+   * contentService.getClass().getMethod("getLanguageRefSetMember",
+   * getParameterTypes(validParameters)), validParameters);
+   * 
+   * // get language validParameters = new Object[] { language.getId(),
+   * authToken };
+   * 
+   * DegenerateUseMethodTestHelper.testDegenerateArguments( contentService,
+   * contentService.getClass().getMethod("getLanguageRefSetMember",
+   * getParameterTypes(validParameters)), validParameters); }
+   */
 
   /**
    * Test retrieval of SNOMEDCT refsetMembers NOTE: Ref Set Member id hardcoded,
@@ -328,7 +302,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
    */
   @Test
   public void testDegenerateUseRestContent006() throws Exception {
-//
+    //
   }
 
   /**

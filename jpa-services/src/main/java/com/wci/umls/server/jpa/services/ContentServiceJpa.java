@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.services;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.persistence.NoResultException;
 import javax.persistence.metamodel.EntityType;
@@ -238,12 +238,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private static String[] codeFieldNames = {};
 
   /** The relationship field names. */
+  @SuppressWarnings("unused")
   private static String[] relationshipFieldNames = {};
 
   /** The subset member field names. */
   private static String[] subsetMemberFieldNames = {};
 
   /** The tree position field names. */
+  @SuppressWarnings("unused")
   private static String[] treePositionFieldNames = {};
 
   static {
@@ -2984,11 +2986,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
       // Apply PFS sorting manually
       if (pfs != null && pfs.getSortField() != null) {
-        final Field sortField = clazz.getField(pfs.getSortField());
-        if (sortField.getType().isAssignableFrom(Comparable.class)) {
+        final Method getMethod =
+            clazz.getMethod(
+                "get" + pfs.getSortField().substring(0,1).toUpperCase() +
+                pfs.getSortField().substring(1));
+        if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
           throw new Exception("Referenced sort field is not comparable");
         }
-        sortField.setAccessible(true);
         Collections.sort(classes, new Comparator<AtomClass>() {
           @SuppressWarnings({
               "rawtypes", "unchecked"
@@ -2996,15 +3000,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           @Override
           public int compare(AtomClass o1, AtomClass o2) {
             try {
-              Comparable f1 = (Comparable) sortField.get(o1);
-              Comparable f2 = (Comparable) sortField.get(o2);
+              Comparable f1 = (Comparable) getMethod.invoke(o1, new Object[]{});
+              Comparable f2 = (Comparable) getMethod.invoke(o2, new Object[]{});
               return f1.compareTo(f2);
             } catch (Exception e) {
               // do nothing
             }
             return 0;
           }
-        });
+        });        
       }
 
       // Apply PFS paging manually
@@ -3901,7 +3905,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String version, String branch) throws Exception {
     Logger.getLogger(getClass()).info("Content Service - getComponentStats");
     assert branch != null;
-    Map<String, Integer> stats = new HashMap<>();
+    Map<String, Integer> stats = new TreeMap<>();
     for (EntityType<?> type : manager.getMetamodel().getEntities()) {
       String jpaTable = type.getName();
       // Logger.getLogger(getClass()).debug("  jpaTable = " + jpaTable);
@@ -3911,7 +3915,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
       if (!AbstractAbbreviation.class.isAssignableFrom(type
           .getBindableJavaType())
-          && !AbstractComponentHasAttributes.class.isAssignableFrom(type
+          && !AbstractComponent.class.isAssignableFrom(type
               .getBindableJavaType())) {
         continue;
       }
@@ -3932,7 +3936,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       stats.put("Total " + jpaTable, ct);
 
       // Only compute active counts for components
-      if (AbstractComponentHasAttributes.class.isAssignableFrom(type
+      if (AbstractComponent.class.isAssignableFrom(type
           .getBindableJavaType())) {
         if (terminology != null) {
 
@@ -4188,11 +4192,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     try {
 
       Concept concept = getConcept(conceptId, terminology, version, branch);
-
       List<Object[]> results = new ArrayList<>();
       String queryStr =
           "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
-              + "a.relationshipType, a.additionalRelationshipType, a.to.terminologyId "
+              + "a.relationshipType, a.additionalRelationshipType, a.to.terminologyId, "
+              + "a.obsolete, a.suppressible, a.published, a.publishable "
               + "from ConceptRelationshipJpa a " + "where "
               + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId ";
       javax.persistence.Query query = manager.createQuery(queryStr);
@@ -4201,7 +4205,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
       queryStr =
           "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
-              + "a.relationshipType, a.additionalRelationshipType, value(cui2) "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+              + "a.obsolete, a.suppressible, a.published, a.publishable "
               + "from AtomRelationshipJpa a join a.to.conceptTerminologyIds cui2 "
               + "where key(cui2) = '" + concept.getTerminology() + "' and "
               + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds) ";
@@ -4215,7 +4220,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
       queryStr =
           "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
-              + "a.relationshipType, a.additionalRelationshipType, value(cui2) "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+              + "a.obsolete, a.suppressible, a.published, a.publishable "
               + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
               + "DescriptorJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
               + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4234,7 +4240,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
       queryStr =
           "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
-              + "a.relationshipType, a.additionalRelationshipType, value(cui2) "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+              + "a.obsolete, a.suppressible, a.published, a.publishable "
               + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
               + "ConceptJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
               + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4253,7 +4260,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
       queryStr =
           "select a.id, a.terminologyId, a.terminology, a.terminologyVersion, "
-              + "a.relationshipType, a.additionalRelationshipType, value(cui2) "
+              + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
+              + "a.obsolete, a.suppressible, a.published, a.publishable "
               + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
               + "CodeJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
               + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4285,25 +4293,29 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         relationship.setTerminologyVersion(result[3].toString());
         relationship.setRelationshipType(result[4].toString());
         relationship.setAdditionalRelationshipType(result[5].toString());
+        relationship.setObsolete(result[7].toString().equals("1"));
+        relationship.setSuppressible(result[8].toString().equals("1"));
+        relationship.setPublished(result[9].toString().equals("1"));
+        relationship.setPublishable(result[10].toString().equals("1"));
         relationship.setTo(toConcept);
         conceptRels.add(relationship);
       }
 
-      // Apply PFS
       // Apply PFS sorting manually
       if (pfs != null && pfs.getSortField() != null) {
-        final Field sortField =
-            ConceptRelationshipJpa.class.getField(pfs.getSortField());
-        if (sortField.getType().isAssignableFrom(Comparable.class)) {
+        final Method getMethod =
+            ConceptRelationshipJpa.class.getMethod(
+                "get" + pfs.getSortField().substring(0,1).toUpperCase() +
+                pfs.getSortField().substring(1));
+        if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
           throw new Exception("Referenced sort field is not comparable");
         }
-        sortField.setAccessible(true);
         Collections.sort(conceptRels, new Comparator<Relationship>() {
           @Override
           public int compare(Relationship o1, Relationship o2) {
             try {
-              Comparable f1 = (Comparable) sortField.get(o1);
-              Comparable f2 = (Comparable) sortField.get(o2);
+              Comparable f1 = (Comparable) getMethod.invoke(o1, new Object[]{});
+              Comparable f2 = (Comparable) getMethod.invoke(o2, new Object[]{});
               return f1.compareTo(f2);
             } catch (Exception e) {
               // do nothing
@@ -4325,10 +4337,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       list.setTotalCount(results.size());
       list.setObjects(conceptRels);
 
-      return null;
-    } catch (Throwable e) {
-      System.err.println(e.getMessage());
-      e.printStackTrace();
+      return list;
+    } catch (NoResultException e) {
       return null;
     }
   }

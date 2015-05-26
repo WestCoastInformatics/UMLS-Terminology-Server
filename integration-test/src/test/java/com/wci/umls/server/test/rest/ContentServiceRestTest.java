@@ -95,6 +95,8 @@ public class ContentServiceRestTest {
 
   /**
    * Teardown.
+   *
+   * @throws Exception the exception
    */
   @After
   public void teardown() throws Exception {

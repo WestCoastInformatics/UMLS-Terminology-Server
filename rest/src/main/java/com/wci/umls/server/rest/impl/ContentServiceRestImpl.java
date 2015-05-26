@@ -50,6 +50,7 @@ import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
@@ -723,7 +724,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/query/{query}")
+  @Path("/cui/{terminology}/{version}/query{query: (/query)?}")
   @ApiOperation(value = "Find concepts matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
   public SearchResultList findConceptsForQuery(
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -857,7 +858,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/query/{query}")
+  @Path("/dui/{terminology}/{version}/query{query: (/query)?}")
   @ApiOperation(value = "Find descriptors matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
   public SearchResultList findDescriptorsForQuery(
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
@@ -988,7 +989,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/code/{terminology}/{version}/query/{query}")
+  @Path("/code/{terminology}/{version}/query{query: (/query)?}")
   @ApiOperation(value = "Find codes matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
   public SearchResultList findCodesForQuery(
     @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
@@ -1539,7 +1540,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       RelationshipList list = contentService.findRelationshipsForConcept(terminologyId,
           terminology, version, Branch.ROOT, false, pfs);
       
-      for (Relationship rel : list.getObjects()) {
+      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
       
