@@ -28,8 +28,7 @@ import com.wci.umls.server.model.content.ConceptTreePosition;
  * JPA-enabled implementation of {@link ConceptTreePosition}.
  */
 @Entity
-@Table(name = "concept_tree_positions", uniqueConstraints = {
-  @UniqueConstraint(columnNames = {
+@Table(name = "concept_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
       "terminologyId", "terminology", "terminologyVersion", "id"
   })
 })

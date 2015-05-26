@@ -776,11 +776,15 @@ public interface ContentService extends RootService {
 
   /**
    * Removes the relationship.
-   * 
+   *
    * @param id the id
+   * @param relationshipClass the relationship class, null if not known
    * @throws Exception the exception
    */
-  public void removeRelationship(Long id) throws Exception;
+  public void removeRelationship(
+    Long id,
+    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+    throws Exception;
 
   /**
    * Adds the transitive relationship.
@@ -1264,11 +1268,16 @@ public interface ContentService extends RootService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param relationshipClass the relationship class - null if not known
    * @return the relationship
    * @throws Exception the exception
    */
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
-    String terminologyId, String terminology, String version, String branch)
+    String terminologyId,
+    String terminology,
+    String version,
+    String branch,
+    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
     throws Exception;
 
   /**
@@ -1277,21 +1286,29 @@ public interface ContentService extends RootService {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param relationshipClass the relationship class - null if not known
    * @return the relationships
    * @throws Exception the exception
    */
-  public RelationshipList getRelationships(String terminologyId,
-    String terminology, String version) throws Exception;
+  public RelationshipList getRelationships(
+    String terminologyId,
+    String terminology,
+    String version,
+    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+    throws Exception;
 
   /**
    * Gets the relationship.
    *
    * @param id the id
+   * @param relationshipClass the relationship class, null if not known
    * @return the relationship
    * @throws Exception the exception
    */
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
-    Long id) throws Exception;
+    Long id,
+    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+    throws Exception;
 
   /**
    * Gets the subset member.

@@ -28,8 +28,7 @@ import com.wci.umls.server.model.content.CodeTreePosition;
  * JPA-enabled implementation of {@link CodeTreePosition}.
  */
 @Entity
-@Table(name = "code_tree_positions", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {
+@Table(name = "code_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
         "terminologyId", "terminology", "terminologyVersion", "id"
     })
   })
