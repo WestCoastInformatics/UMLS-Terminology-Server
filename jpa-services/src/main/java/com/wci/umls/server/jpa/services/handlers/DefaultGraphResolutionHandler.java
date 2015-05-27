@@ -29,6 +29,8 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
+import com.wci.umls.server.model.meta.RootTerminology;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
 /**
@@ -525,6 +527,32 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       throw new Exception("Cannot resolve a null subset.");
     }
 
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.meta.Terminology)
+   */
+  @Override
+  public void resolve(Terminology terminology) {
+    terminology.getSynonymousNames().size();
+    terminology.getRootTerminology().getTerminology();
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.meta.RootTerminology)
+   */
+  @Override
+  public void resolve(RootTerminology rootTerminology) {
+    rootTerminology.getSynonymousNames().size();
+    rootTerminology.getLanguage().getAbbreviation();
   }
 
 }

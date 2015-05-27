@@ -42,23 +42,12 @@ import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
-import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
  * Generically represents a service for accessing content.
  */
-public interface ContentService extends RootService {
-
-  /**
-   * Enable listeners.
-   */
-  public void enableListeners();
-
-  /**
-   * Disable listeners.
-   */
-  public void disableListeners();
+public interface ContentService extends MetadataService {
 
   /**
    * Returns the concept.
@@ -1103,17 +1092,6 @@ public interface ContentService extends RootService {
   public void clearBranch(String branch);
 
   /**
-   * Returns the graph resolution handler. This is configured internally but
-   * made available through this service.
-   *
-   * @param terminology the terminology
-   * @return the graph resolution handler
-   * @throws Exception the exception
-   */
-  public GraphResolutionHandler getGraphResolutionHandler(String terminology)
-    throws Exception;
-
-  /**
    * Returns the identifier assignment handler.
    *
    * @param terminology the terminology
@@ -1169,21 +1147,6 @@ public interface ContentService extends RootService {
    */
   public Map<String, Integer> getComponentStats(String terminology,
     String version, String branch) throws Exception;
-
-  /**
-   * Indicates whether or not to assign last modified when changing terminology
-   * components. Supports a loader that wants to disable this feature.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isLastModifiedFlag();
-
-  /**
-   * Sets the last modified flag.
-   *
-   * @param lastModifiedFlag the last modified flag
-   */
-  public void setLastModifiedFlag(boolean lastModifiedFlag);
 
   /**
    * Removes the definition.

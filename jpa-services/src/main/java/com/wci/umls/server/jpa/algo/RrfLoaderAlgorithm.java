@@ -132,9 +132,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** The published. */
   private final String published = "PUBLISHED";
 
-  // TODO: reconsider this: new TCustomHashMap<>(new StandardStrategy())
   /** The loaded terminologies. */
   private Map<String, Terminology> loadedTerminologies = new HashMap<>();
+
+  /** The loaded root terminologies. */
+  private Map<String, RootTerminology> loadedRootTerminologies =
+      new HashMap<>();
+
+  /** The loaded languages. */
+  private Map<String, Language> loadedLanguages = new HashMap<>();
 
   /** The loaded term types. */
   private Map<String, TermType> loadedTermTypes = new HashMap<>();
@@ -146,28 +152,28 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private Map<String, Long> codeIdMap = new HashMap<>();
 
   /** The concept map. */
-  private Map<String, Long> conceptIdMap = new HashMap<>(10000, .8f);
+  private Map<String, Long> conceptIdMap = new HashMap<>(10000);
 
   /** The descriptor map. */
-  private Map<String, Long> descriptorIdMap = new HashMap<>(10000, .8f);
+  private Map<String, Long> descriptorIdMap = new HashMap<>(10000);
 
   /** The atom map. */
-  private Map<String, Long> atomIdMap = new HashMap<>(10000, .8f);
+  private Map<String, Long> atomIdMap = new HashMap<>(10000);
 
   /** The atom concept id map. */
-  private Map<String, String> atomConceptIdMap = new HashMap<>(10000, .8f);
+  private Map<String, String> atomConceptIdMap = new HashMap<>(10000);
 
   /** The atom terminology map. */
-  private Map<String, String> atomTerminologyMap = new HashMap<>(10000, .8f);
+  private Map<String, String> atomTerminologyMap = new HashMap<>(10000);
 
   /** The atom code id map. */
-  private Map<String, String> atomCodeIdMap = new HashMap<>(10000, .8f);
+  private Map<String, String> atomCodeIdMap = new HashMap<>(10000);
 
   /** The atom descriptor id map. */
-  private Map<String, String> atomDescriptorIdMap = new HashMap<>(10000, .8f);
+  private Map<String, String> atomDescriptorIdMap = new HashMap<>(10000);
 
   /** The relationship map. */
-  private Map<String, Long> relationshipMap = new HashMap<>(10000, .8f);
+  private Map<String, Long> relationshipMap = new HashMap<>(10000);
 
   /** The cui aui atom subset map. */
   private Map<String, AtomSubset> cuiAuiAtomSubsetMap = new HashMap<>();
@@ -534,6 +540,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         }
         Logger.getLogger(getClass()).debug("    add language - " + lat);
         addLanguage(lat);
+        loadedLanguages.put(lat.getAbbreviation(), lat);
       }
 
       // Handle AdditionalRelationshipLabel
@@ -694,8 +701,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private void loadMrsab() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRSAB data");
     String line = null;
-    Map<String, RootTerminology> rootTerminologies = new HashMap<>();
-    Map<String, Terminology> terminologies = new HashMap<>();
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAB);
     final String fields[] = new String[25];
     while ((line = reader.readLine()) != null) {
@@ -776,14 +781,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       else
         term.setTerminologyVersion(fields[6]);
       term.setDescriptionLogicTerminology(false);
-      terminologies.put(fields[2], term);
 
-      if (!rootTerminologies.containsKey(fields[3])) {
+      if (!loadedRootTerminologies.containsKey(fields[3])) {
         RootTerminology root = new RootTerminologyJpa();
         root.setAcquisitionContact(null); // no data for this in MRSAB
         root.setContentContact(new ContactInfoJpa(fields[12]));
         root.setFamily(fields[5]);
-        // root.setLanguage(getLanguages(terminology, terminologyVersion));
         root.setLicenseContact(new ContactInfoJpa(fields[11]));
         root.setPolyhierarchy(fields[16].contains("MULTIPLE"));
         root.setPreferredName(fields[4]);
@@ -793,10 +796,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         root.setLastModified(releaseVersionDate);
         root.setLastModifiedBy(loader);
         addRootTerminology(root);
-        rootTerminologies.put(fields[3], root);
+        loadedRootTerminologies.put(root.getTerminology(), root);
       }
 
-      RootTerminology root = rootTerminologies.get(fields[3]);
+      RootTerminology root = loadedRootTerminologies.get(fields[3]);
       term.setRootTerminology(root);
       addTerminology(term);
       // cache terminology by RSAB and VSAB
@@ -820,18 +823,21 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       term.setTerminology(terminology);
       term.setTerminologyVersion(terminologyVersion);
       term.setDescriptionLogicTerminology(false);
-      terminologies.put(terminology, term);
 
       RootTerminology root = new RootTerminologyJpa();
       root.setFamily(terminology);
       root.setPreferredName(terminology);
-      root.setRestrictionLevel(-1);
+      root.setRestrictionLevel(0);
       root.setTerminology(terminology);
       root.setTimestamp(releaseVersionDate);
       root.setLastModified(releaseVersionDate);
       root.setLastModifiedBy(loader);
+      root.setLanguage(loadedLanguages.get("ENG"));
+      if (root.getLanguage() == null) {
+        throw new Exception("Unable to find ENG langauge.");
+      }
       addRootTerminology(root);
-      rootTerminologies.put(terminology, root);
+      loadedRootTerminologies.put(root.getTerminology(), root);
       term.setRootTerminology(root);
       addTerminology(term);
       loadedTerminologies.put(term.getTerminology(), term);
@@ -1272,7 +1278,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             // We now know subset type, insert it and remove the corresponding
             // opposite type
             if (idTerminologyAtomSubsetMap.containsKey(subsetIdKey)) {
-              Logger.getLogger(getClass()).debug("  Concept subset " + conceptSubset);
+              Logger.getLogger(getClass()).debug(
+                  "  Concept subset " + conceptSubset);
               addSubset(conceptSubset);
               idTerminologyAtomSubsetMap.remove(subsetIdKey);
             }
@@ -1331,10 +1338,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           memberAtt.setPublished(true);
           memberAtt.setName(atvFields[1]);
           memberAtt.setValue(atvFields[2]);
-          Logger.getLogger(getClass()).debug("        Add member attribute" + memberAtt);
+          Logger.getLogger(getClass()).debug(
+              "        Add member attribute" + memberAtt);
           addAttribute(memberAtt, member);
 
-          // This member is not yet committed, so no need for an "updateSubsetMember" call.
+          // This member is not yet committed, so no need for an
+          // "updateSubsetMember" call.
           member.addAttribute(memberAtt);
 
         }
@@ -1684,8 +1693,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // C0000005|ENG|P|L0000005|PF|S0007492|Y|A7755565||M0019694|D012711|MSH|PEN|D012711|(131)I-Macroaggregated
       // Albumin|0|N|256|
 
+      // set the root terminology language
+      loadedRootTerminologies.get(fields[11]).setLanguage(
+          loadedLanguages.get(fields[1]));
+
       final Atom atom = new AtomJpa();
-      atom.setLanguage(fields[3].intern());
+      atom.setLanguage(fields[1].intern());
       atom.setTimestamp(releaseVersionDate);
       atom.setLastModified(releaseVersionDate);
       atom.setLastModifiedBy(loader);
@@ -1734,6 +1747,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           t.getRootTerminology().setHierarchicalName(fields[14]);
         }
       }
+
+      if (fields[11].equals("SRC") && fields[12].equals("RPT")) {
+        final Terminology t = loadedTerminologies.get(fields[13].substring(2));
+        if (t == null || t.getRootTerminology() == null) {
+          Logger.getLogger(getClass()).error("  Null root " + line);
+        } else {
+          t.getRootTerminology().setPreferredName(fields[14]);
+        }
+      }
       if (fields[11].equals("SRC") && fields[12].equals("RSY")
           && !fields[14].equals("")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
@@ -1752,7 +1774,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         if (t == null || t.getRootTerminology() == null) {
           Logger.getLogger(getClass()).error("  Null root " + line);
         } else {
-          List<String> syNames = t.getRootTerminology().getSynonymousNames();
+          List<String> syNames = t.getSynonymousNames();
           syNames.add(fields[14]);
         }
       }
@@ -1823,6 +1845,14 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
     }
+    // Add last concept
+    if (prevCui != null) {
+      cui.setName(getComputedPreferredName(cui));
+      addConcept(cui);
+      conceptIdMap.put(cui.getTerminology() + cui.getTerminologyId(),
+          cui.getId());
+      logAndCommit(++objectCt);
+    }
 
     // Set the terminology organizing class types
     for (final Terminology terminology : loadedTerminologies.values()) {
@@ -1831,14 +1861,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         terminology.setOrganizingClassType(idType);
         updateTerminology(terminology);
       }
-    }
-    // Add last concept
-    if (prevCui != null) {
-      cui.setName(getComputedPreferredName(cui));
-      addConcept(cui);
-      conceptIdMap.put(cui.getTerminology() + cui.getTerminologyId(),
-          cui.getId());
-      logAndCommit(++objectCt);
     }
 
     Logger.getLogger(getClass()).info("  Add concepts");
@@ -2065,6 +2087,17 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // }
 
     // commit
+    commitClearBegin();
+
+    // Update all root terminologies now that we know languages and names
+    for (RootTerminology root : loadedRootTerminologies.values()) {
+      updateRootTerminology(root);
+    }
+
+    // Update all root terminologies now that we know languages and names
+    for (Terminology terminology : loadedTerminologies.values()) {
+      updateTerminology(terminology);
+    }
     commitClearBegin();
 
   }

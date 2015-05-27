@@ -117,7 +117,6 @@ import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
-import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 import com.wci.umls.server.services.handlers.NormalizedStringHandler;
 import com.wci.umls.server.services.handlers.WorkflowListener;
@@ -203,32 +202,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /** The graph resolver. */
-  public static Map<String, GraphResolutionHandler> graphResolverMap = null;
-  static {
-    graphResolverMap = new HashMap<>();
-    try {
-      if (config == null)
-        config = ConfigUtility.getConfigProperties();
-      String key = "graph.resolution.handler";
-      for (String handlerName : config.getProperty(key).split(",")) {
-        if (handlerName.isEmpty())
-          continue;
-        // Add handlers to map
-        GraphResolutionHandler handlerService =
-            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
-                handlerName, GraphResolutionHandler.class);
-        graphResolverMap.put(handlerName, handlerService);
-      }
-      if (!graphResolverMap.containsKey(ConfigUtility.DEFAULT)) {
-        throw new Exception("graph.resolution.handler." + ConfigUtility.DEFAULT
-            + " expected and does not exist.");
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      graphResolverMap = null;
-    }
-  }
 
   /** The concept field names. */
   private static String[] conceptFieldNames = {};
@@ -287,10 +260,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (listeners == null) {
       throw new Exception(
           "Listeners did not properly initialize, serious error.");
-    }
-    if (graphResolverMap == null) {
-      throw new Exception(
-          "Graph resolver did not properly initialize, serious error.");
     }
 
     if (idHandlerMap == null) {
@@ -3022,6 +2991,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @return the search result list
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   private SearchResultList findForGeneralQueryHelper(String luceneQuery,
     String hqlQuery, String branch, PfsParameter pfs,
     String[] fieldNames, Class<?> clazz) throws Exception {
@@ -3747,23 +3717,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public void clearBranch(String branch) {
     // TODO: part of implementing branching
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getGraphResolutionHandler(java
-   * .lang.String)
-   */
-  @Override
-  public GraphResolutionHandler getGraphResolutionHandler(String terminology)
-    throws Exception {
-    if (graphResolverMap.containsKey(terminology)) {
-      return graphResolverMap.get(terminology);
-    }
-    return graphResolverMap.get(ConfigUtility.DEFAULT);
-  }
-
   /*
    * (non-Javadoc)
    * 

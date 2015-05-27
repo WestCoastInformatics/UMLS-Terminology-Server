@@ -20,6 +20,7 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
+import com.wci.umls.server.helpers.meta.LanguageList;
 import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.RootTerminologyList;
@@ -30,6 +31,7 @@ import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
 import com.wci.umls.server.jpa.helpers.meta.GeneralMetadataEntryListJpa;
+import com.wci.umls.server.jpa.helpers.meta.LanguageListJpa;
 import com.wci.umls.server.jpa.helpers.meta.PropertyChainListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RootTerminologyListJpa;
@@ -58,6 +60,7 @@ import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService;
+import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 import com.wci.umls.server.services.handlers.WorkflowListener;
 
 /**
@@ -125,6 +128,33 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
   }
 
+  /** The graph resolver. */
+  private static Map<String, GraphResolutionHandler> graphResolverMap = null;
+  static {
+    graphResolverMap = new HashMap<>();
+    try {
+      if (config == null)
+        config = ConfigUtility.getConfigProperties();
+      String key = "graph.resolution.handler";
+      for (String handlerName : config.getProperty(key).split(",")) {
+        if (handlerName.isEmpty())
+          continue;
+        // Add handlers to map
+        GraphResolutionHandler handlerService =
+            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
+                handlerName, GraphResolutionHandler.class);
+        graphResolverMap.put(handlerName, handlerService);
+      }
+      if (!graphResolverMap.containsKey(ConfigUtility.DEFAULT)) {
+        throw new Exception("graph.resolution.handler." + ConfigUtility.DEFAULT
+            + " expected and does not exist.");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      graphResolverMap = null;
+    }
+  }
+
   /**
    * Instantiates an empty {@link MetadataServiceJpa}.
    *
@@ -139,6 +169,10 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     if (listeners == null) {
       throw new Exception(
           "Listeners did not properly initialize, serious error.");
+    }
+    if (graphResolverMap == null) {
+      throw new Exception(
+          "Graph resolver did not properly initialize, serious error.");
     }
   }
 
@@ -188,7 +222,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
         "Metadata service - get all metadata " + terminology + ", " + version);
 
     // TODO: need to sort the results.
-    
+
     Map<String, Map<String, String>> abbrMapList = new HashMap<>();
 
     Map<String, String> additionalRelTypeMap =
@@ -233,6 +267,13 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       abbrMapList.put(MetadataKeys.Hierarchical_Relationship_Types.toString(),
           hierRelTypeMap);
     }
+
+    Map<String, String> latMap =
+        getAbbreviationMap(getLanguages(terminology, version).getObjects());
+    if (latMap != null) {
+      abbrMapList.put(MetadataKeys.Languages.toString(), latMap);
+    }
+
     return abbrMapList;
   }
 
@@ -445,6 +486,22 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     } else {
       // return an empty map
       return new RelationshipTypeListJpa();
+    }
+  }
+
+  @Override
+  public LanguageList getLanguages(String terminology, String version)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Metadata service - get languages " + terminology + ", " + version);
+    if (helperMap.containsKey(terminology)) {
+      return helperMap.get(terminology).getLanguages(terminology, version);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).getLanguages(terminology,
+          version);
+    } else {
+      // return an empty map
+      return new LanguageListJpa();
     }
   }
 
@@ -1553,4 +1610,12 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
   }
 
+  @Override
+  public GraphResolutionHandler getGraphResolutionHandler(String terminology)
+    throws Exception {
+    if (graphResolverMap.containsKey(terminology)) {
+      return graphResolverMap.get(terminology);
+    }
+    return graphResolverMap.get(ConfigUtility.DEFAULT);
+  }
 }

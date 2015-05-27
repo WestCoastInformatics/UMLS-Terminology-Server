@@ -3,6 +3,9 @@
  */
 package com.wci.umls.server.test.rest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
@@ -19,6 +22,8 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
+import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService.MetadataKeys;
 
 /**
@@ -159,7 +164,98 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
   }
 
   /**
-   * Teardown.
+   * Test normal use of obtaining terminology objects.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestMetadata004() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    // test UMLS metadata
+    Terminology umls =
+        metadataService.getTerminology("UMLS", "latest", authToken);
+    assertEquals("loader", umls.getLastModifiedBy());
+    assertFalse(umls.isAssertsRelDirection());
+    assertTrue(umls.isCurrent());
+    assertFalse(umls.isDescriptionLogicTerminology());
+    assertNull(umls.getEndDate());
+    assertNull(umls.getStartDate());
+    assertEquals(IdType.CONCEPT, umls.getOrganizingClassType());
+    assertEquals("UMLS", umls.getPreferredName());
+    assertEquals("UMLS", umls.getTerminology());
+    assertEquals("latest", umls.getTerminologyVersion());
+
+    assertEquals("UMLS", umls.getRootTerminology().getTerminology());
+    // Because of XML Transient
+    assertNull(umls.getRootTerminology().getLastModifiedBy());
+    assertNull(umls.getRootTerminology().getFamily());
+    assertNull(umls.getRootTerminology().getHierarchicalName());
+    assertNull(umls.getRootTerminology().getLanguage());
+    assertNull(umls.getRootTerminology().getPreferredName());
+    assertNull(umls.getRootTerminology().getShortName());
+    assertNull(umls.getRootTerminology().getAcquisitionContact());
+    assertNull(umls.getRootTerminology().getContentContact());
+    assertNull(umls.getRootTerminology().getLicenseContact());
+
+    // test UMLS metadata
+    Terminology snomed =
+        metadataService.getTerminology("SNOMEDCT_US", "2014_09_01", authToken);
+    assertEquals("loader", snomed.getLastModifiedBy());
+    assertTrue(snomed.isAssertsRelDirection());
+    assertTrue(snomed.isCurrent());
+    assertFalse(snomed.isDescriptionLogicTerminology());
+    assertNull(snomed.getEndDate());
+    assertNull(snomed.getStartDate());
+    assertEquals(IdType.CONCEPT, snomed.getOrganizingClassType());
+    assertEquals("US Edition of SNOMED CT, 2014_09_01",
+        snomed.getPreferredName());
+    assertEquals("SNOMEDCT_US", snomed.getTerminology());
+    assertEquals("2014_09_01", snomed.getTerminologyVersion());
+
+    assertEquals("SNOMEDCT_US", snomed.getRootTerminology().getTerminology());
+    // Because of XML Transient
+    assertNull(snomed.getRootTerminology().getLastModifiedBy());
+    assertNull(snomed.getRootTerminology().getFamily());
+    assertNull(snomed.getRootTerminology().getHierarchicalName());
+    assertNull(snomed.getRootTerminology().getLanguage());
+    assertNull(snomed.getRootTerminology().getPreferredName());
+    assertNull(snomed.getRootTerminology().getShortName());
+    assertNull(snomed.getRootTerminology().getAcquisitionContact());
+    assertNull(snomed.getRootTerminology().getContentContact());
+    assertNull(snomed.getRootTerminology().getLicenseContact());
+
+    // test MSH metadata
+    Terminology msh =
+        metadataService.getTerminology("MSH", "2015_2014_09_08", authToken);
+    assertEquals("loader", msh.getLastModifiedBy());
+    assertFalse(msh.isAssertsRelDirection());
+    assertTrue(msh.isCurrent());
+    assertFalse(msh.isDescriptionLogicTerminology());
+    assertNull(msh.getEndDate());
+    assertNull(msh.getStartDate());
+    assertEquals(IdType.DESCRIPTOR, msh.getOrganizingClassType());
+    assertEquals("Medical Subject Headings, 2015_2014_09_08",
+        msh.getPreferredName());
+    assertEquals("MSH", msh.getTerminology());
+    assertEquals("2015_2014_09_08", msh.getTerminologyVersion());
+
+    assertEquals("MSH", msh.getRootTerminology().getTerminology());
+    // Because of XML Transient
+    assertNull(msh.getRootTerminology().getLastModifiedBy());
+    assertNull(msh.getRootTerminology().getFamily());
+    assertNull(msh.getRootTerminology().getHierarchicalName());
+    assertNull(msh.getRootTerminology().getLanguage());
+    assertNull(msh.getRootTerminology().getPreferredName());
+    assertNull(msh.getRootTerminology().getShortName());
+    assertNull(msh.getRootTerminology().getAcquisitionContact());
+    assertNull(msh.getRootTerminology().getContentContact());
+    assertNull(msh.getRootTerminology().getLicenseContact());
+
+  }
+
+  /**
+   * Teardown.  
    *
    * @throws Exception the exception
    */
@@ -238,6 +334,13 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedNames.get(MetadataKeys.Hierarchical_Relationship_Types).add(
         "has child relationship in a Metathesaurus source vocabulary");
 
+    // Languages
+    expectedSizes.put(MetadataKeys.Languages, 21);
+    expectedSizes2.put(MetadataKeys.Languages, 21);
+    expectedIds.put(MetadataKeys.Languages, "ENG");
+    expectedNames.put(MetadataKeys.Languages, new HashSet<String>());
+    expectedNames.get(MetadataKeys.Languages).add("English");
+
     boolean result =
         testHelper(keyValuePairLists, expectedSizes, expectedSizes2,
             expectedIds, expectedNames);
@@ -275,10 +378,12 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     // Additional relationship types
     expectedSizes.put(MetadataKeys.Additional_Relationship_Types, 61);
     expectedSizes2.put(MetadataKeys.Additional_Relationship_Types, 61);
-    expectedIds.put(MetadataKeys.Additional_Relationship_Types, "has_temporal_context");
+    expectedIds.put(MetadataKeys.Additional_Relationship_Types,
+        "has_temporal_context");
     expectedNames.put(MetadataKeys.Additional_Relationship_Types,
         new HashSet<String>());
-    expectedNames.get(MetadataKeys.Additional_Relationship_Types).add("Has temporal context");
+    expectedNames.get(MetadataKeys.Additional_Relationship_Types).add(
+        "Has temporal context");
 
     // Attribute names
     expectedSizes.put(MetadataKeys.Attribute_Names, 43);
@@ -292,7 +397,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedSizes2.put(MetadataKeys.Semantic_Types, 0);
     expectedIds.put(MetadataKeys.Semantic_Types, "clnd");
     expectedNames.put(MetadataKeys.Semantic_Types, new HashSet<String>());
-    //expectedNames.get(MetadataKeys.Semantic_Types).add("Clinical Drug");
+    // expectedNames.get(MetadataKeys.Semantic_Types).add("Clinical Drug");
 
     // Term types
     expectedSizes.put(MetadataKeys.Term_Types, 18);
@@ -310,13 +415,19 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedNames.get(MetadataKeys.Hierarchical_Relationship_Types).add(
         "has child relationship in a Metathesaurus source vocabulary");
 
+    // Languages
+    expectedSizes.put(MetadataKeys.Languages, 1);
+    expectedSizes2.put(MetadataKeys.Languages, 1);
+    expectedIds.put(MetadataKeys.Languages, "ENG");
+    expectedNames.put(MetadataKeys.Languages, new HashSet<String>());
+    expectedNames.get(MetadataKeys.Languages).add("English");
+
     boolean result =
         testHelper(keyValuePairLists, expectedSizes, expectedSizes2,
             expectedIds, expectedNames);
 
     return result;
   }
-  
 
   /**
    * Test msh metadata.
@@ -328,9 +439,9 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
   private boolean testMshMetadata(KeyValuePairLists keyValuePairLists)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "Testing MSH metadata retrieval, "
-            + keyValuePairLists.getCount() + " pair lists found ("
-            + MetadataKeys.values().length + " expected)");
+        "Testing MSH metadata retrieval, " + keyValuePairLists.getCount()
+            + " pair lists found (" + MetadataKeys.values().length
+            + " expected)");
 
     Map<MetadataKeys, Integer> expectedSizes = new HashMap<>();
     Map<MetadataKeys, Integer> expectedSizes2 = new HashMap<>();
@@ -358,14 +469,15 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedSizes2.put(MetadataKeys.Attribute_Names, 27);
     expectedIds.put(MetadataKeys.Attribute_Names, "TERMUI");
     expectedNames.put(MetadataKeys.Attribute_Names, new HashSet<String>());
-    expectedNames.get(MetadataKeys.Attribute_Names).add("Term unique identifier");
+    expectedNames.get(MetadataKeys.Attribute_Names).add(
+        "Term unique identifier");
 
     // Semantic types
     expectedSizes.put(MetadataKeys.Semantic_Types, 0);
     expectedSizes2.put(MetadataKeys.Semantic_Types, 0);
     expectedIds.put(MetadataKeys.Semantic_Types, "clnd");
     expectedNames.put(MetadataKeys.Semantic_Types, new HashSet<String>());
-    //expectedNames.get(MetadataKeys.Semantic_Types).add("Clinical Drug");
+    // expectedNames.get(MetadataKeys.Semantic_Types).add("Clinical Drug");
 
     // Term types
     expectedSizes.put(MetadataKeys.Term_Types, 19);
@@ -382,6 +494,13 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
         new HashSet<String>());
     expectedNames.get(MetadataKeys.Hierarchical_Relationship_Types).add(
         "has child relationship in a Metathesaurus source vocabulary");
+
+    // Languages
+    expectedSizes.put(MetadataKeys.Languages, 1);
+    expectedSizes2.put(MetadataKeys.Languages, 1);
+    expectedIds.put(MetadataKeys.Languages, "ENG");
+    expectedNames.put(MetadataKeys.Languages, new HashSet<String>());
+    expectedNames.get(MetadataKeys.Languages).add("English");
 
     boolean result =
         testHelper(keyValuePairLists, expectedSizes, expectedSizes2,
@@ -477,7 +596,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
 
       if (expectedSize == 0 && pairs.size() == 0) {
         categorySuccessCt++;
-      } 
+      }
       // if this case has been specified, check it
       else if (expectedSize != -1 && pairs.size() != 0) {
 
@@ -512,11 +631,10 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     }
 
     Logger.getLogger(getClass()).info(
-        "Metadata Categories Validated:  " + categorySuccessCt
-            + " out of " + MetadataKeys.values().length);
+        "Metadata Categories Validated:  " + categorySuccessCt + " out of "
+            + MetadataKeys.values().length);
 
     return categorySuccessCt == MetadataKeys.values().length;
   }
-
 
 }
