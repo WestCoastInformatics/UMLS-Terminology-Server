@@ -42,23 +42,12 @@ import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
-import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
  * Generically represents a service for accessing content.
  */
-public interface ContentService extends RootService {
-
-  /**
-   * Enable listeners.
-   */
-  public void enableListeners();
-
-  /**
-   * Disable listeners.
-   */
-  public void disableListeners();
+public interface ContentService extends MetadataService {
 
   /**
    * Returns the concept.
@@ -101,10 +90,12 @@ public interface ContentService extends RootService {
    * Returns the subset.
    *
    * @param id the id
+   * @param subsetClass the subset class, null if unknown
    * @return the subset
    * @throws Exception the exception
    */
-  public Subset getSubset(Long id) throws Exception;
+  public Subset getSubset(Long id, Class<? extends Subset> subsetClass)
+    throws Exception;
 
   /**
    * Returns the subset.
@@ -113,33 +104,37 @@ public interface ContentService extends RootService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param subsetClass the subset class, null if unknown
    * @return the subset
    * @throws Exception the exception
    */
   public Subset getSubset(String terminologyId, String terminology,
-    String version, String branch) throws Exception;
+    String version, String branch, Class<? extends Subset> subsetClass)
+    throws Exception;
 
   /**
    * Returns the atom subsets.
    *
    * @param terminology the terminology
    * @param version the version
+   * @param branch the branch
    * @return the subsets
    * @throws Exception the exception
    */
-  public SubsetList getAtomSubsets(String terminology, String version)
-    throws Exception;
+  public SubsetList getAtomSubsets(String terminology, String version,
+    String branch) throws Exception;
 
   /**
    * Returns the concept subsets.
    *
    * @param terminology the terminology
    * @param version the version
+   * @param branch the branch
    * @return the concept subsets
    * @throws Exception the exception
    */
-  public SubsetList getConceptSubsets(String terminology, String version)
-    throws Exception;
+  public SubsetList getConceptSubsets(String terminology, String version,
+    String branch) throws Exception;
 
   /**
    * Returns the atom subset members for the specified subset.
@@ -588,14 +583,15 @@ public interface ContentService extends RootService {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
-   * @param pfs the pfs parameter
    * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs parameter
    * @return the tree position list
    * @throws Exception the exception
    */
   public TreePositionList findTreePositionsForConcept(String terminologyId,
-    String terminology, String version, PfsParameter pfs, String branch)
-    throws Exception;
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find tree positions for descriptor.
@@ -603,14 +599,15 @@ public interface ContentService extends RootService {
    * @param descriptorId the descriptor id
    * @param terminology the terminology
    * @param version the version
-   * @param pfs the pfs parameter
    * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs parameter
    * @return the tree position list
    * @throws Exception the exception
    */
   public TreePositionList findTreePositionsForDescriptor(String descriptorId,
-    String terminology, String version, PfsParameter pfs, String branch)
-    throws Exception;
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find tree positions for code.
@@ -618,14 +615,15 @@ public interface ContentService extends RootService {
    * @param codeId the code id
    * @param terminology the terminology
    * @param version the version
-   * @param pfs the pfs parameter
    * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs parameter
    * @return the tree position list
    * @throws Exception the exception
    */
   public TreePositionList findTreePositionsForCode(String codeId,
-    String terminology, String version, PfsParameter pfs, String branch)
-    throws Exception;
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find descendant descriptors.
@@ -660,18 +658,6 @@ public interface ContentService extends RootService {
     PfsParameter pfs) throws Exception;
 
   /**
-   * Find descriptor tree positions.
-   *
-   * @param descriptor the descriptor
-   * @param branch the branch
-   * @param pfs the pfs parameter
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findDescriptorTreePositions(Descriptor descriptor,
-    String branch, PfsParameter pfs) throws Exception;
-
-  /**
    * Find descendant descriptors.
    *
    * @param terminologyId the terminology id
@@ -702,18 +688,6 @@ public interface ContentService extends RootService {
   public CodeList findAncestorCodes(String terminologyId, String terminology,
     String version, boolean parentsOnly, String branch, PfsParameter pfs)
     throws Exception;
-
-  /**
-   * Find code tree positions.
-   *
-   * @param code the code
-   * @param pfs the pfs parameter
-   * @param branch the branch
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findCodeTreePositions(Code code, String branch,
-    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the atom.
@@ -808,6 +782,19 @@ public interface ContentService extends RootService {
     throws Exception;
 
   /**
+   * Returns the transitive relationship.
+   *
+   * @param id the id
+   * @param relationshipClass the relationship class
+   * @return the transitive relationship
+   * @throws Exception the exception
+   */
+  public TransitiveRelationship<? extends AtomClass> getTransitiveRelationship(
+    Long id,
+    Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
+    throws Exception;
+
+  /**
    * Adds the transitive relationship.
    * 
    * @param transitiveRelationship the transitive relationship
@@ -830,11 +817,27 @@ public interface ContentService extends RootService {
 
   /**
    * Removes the transitive relationship.
-   * 
+   *
    * @param id the id
+   * @param relationshipClass the relationship class, null if unknown
    * @throws Exception the exception
    */
-  public void removeTransitiveRelationship(Long id) throws Exception;
+  public void removeTransitiveRelationship(
+    Long id,
+    Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
+    throws Exception;
+
+  /**
+   * Returns the tree position.
+   *
+   * @param id the id
+   * @param treeposClass the treepos class, null if unknown
+   * @return the tree position
+   * @throws Exception the exception
+   */
+  public TreePosition<? extends AtomClass> getTreePosition(Long id,
+    Class<? extends TreePosition<? extends AtomClass>> treeposClass)
+    throws Exception;
 
   /**
    * Adds the tree position.
@@ -861,9 +864,12 @@ public interface ContentService extends RootService {
    * Removes the tree position.
    *
    * @param id the id
+   * @param treeposClass the treepos class, null if unknown
    * @throws Exception the exception
    */
-  public void removeTreePosition(Long id) throws Exception;
+  public void removeTreePosition(Long id,
+    Class<? extends TreePosition<? extends AtomClass>> treeposClass)
+    throws Exception;
 
   /**
    * Adds the subset.
@@ -884,11 +890,13 @@ public interface ContentService extends RootService {
 
   /**
    * Removes the subset.
-   * 
+   *
    * @param id the id
+   * @param subsetClass the subset class, null if unknown
    * @throws Exception the exception
    */
-  public void removeSubset(Long id) throws Exception;
+  public void removeSubset(Long id, Class<? extends Subset> subsetClass)
+    throws Exception;
 
   /**
    * Adds the subset member.
@@ -913,11 +921,15 @@ public interface ContentService extends RootService {
 
   /**
    * Removes the subset member.
-   * 
+   *
    * @param id the id
+   * @param memberClass the member class, null if unknown
    * @throws Exception the exception
    */
-  public void removeSubsetMember(Long id) throws Exception;
+  public void removeSubsetMember(
+    Long id,
+    Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
+    throws Exception;
 
   /**
    * Returns the concept search results matching the query. Results can be
@@ -1039,9 +1051,10 @@ public interface ContentService extends RootService {
    * @param version the version
    * @param branch the branch
    * @return the all subsets
+   * @throws Exception
    */
   public SubsetList getAllSubsets(String terminology, String version,
-    String branch);
+    String branch) throws Exception;
 
   /**
    * Clear transitive closure.
@@ -1077,17 +1090,6 @@ public interface ContentService extends RootService {
    * @param branch the branch
    */
   public void clearBranch(String branch);
-
-  /**
-   * Returns the graph resolution handler. This is configured internally but
-   * made available through this service.
-   *
-   * @param terminology the terminology
-   * @return the graph resolution handler
-   * @throws Exception the exception
-   */
-  public GraphResolutionHandler getGraphResolutionHandler(String terminology)
-    throws Exception;
 
   /**
    * Returns the identifier assignment handler.
@@ -1145,21 +1147,6 @@ public interface ContentService extends RootService {
    */
   public Map<String, Integer> getComponentStats(String terminology,
     String version, String branch) throws Exception;
-
-  /**
-   * Indicates whether or not to assign last modified when changing terminology
-   * components. Supports a loader that wants to disable this feature.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isLastModifiedFlag();
-
-  /**
-   * Sets the last modified flag.
-   *
-   * @param lastModifiedFlag the last modified flag
-   */
-  public void setLastModifiedFlag(boolean lastModifiedFlag);
 
   /**
    * Removes the definition.
@@ -1338,11 +1325,16 @@ public interface ContentService extends RootService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param memberClass the member class, null if unknown
    * @return the subset member
    * @throws Exception the exception
    */
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
-    String terminologyId, String terminology, String version, String branch)
+    String terminologyId,
+    String terminology,
+    String version,
+    String branch,
+    Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
   /**
@@ -1351,20 +1343,67 @@ public interface ContentService extends RootService {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param memberClass the member class, null if unkonwn
    * @return the subset member
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembers(String terminologyId,
-    String terminology, String version) throws Exception;
+  public SubsetMemberList getSubsetMembers(
+    String terminologyId,
+    String terminology,
+    String version,
+    Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
+    throws Exception;
 
   /**
    * Gets the subset members.
    *
    * @param id the id
+   * @param memberClass the member class, null if unknown
    * @return the subset member
    * @throws Exception the exception
    */
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
-    Long id) throws Exception;
+    Long id,
+    Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
+    throws Exception;
+
+  /**
+   * Find codes for query.
+   *
+   * @param luceneQuery the lucene query
+   * @param hqlQuery the hql query
+   * @param rOOT the r oot
+   * @param pfs the pfs
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findCodesForQuery(String luceneQuery,
+    String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+
+  /**
+   * Find concepts for query.
+   *
+   * @param luceneQuery the lucene query
+   * @param hqlQuery the hql query
+   * @param rOOT the r oot
+   * @param pfs the pfs
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findConceptsForQuery(String luceneQuery,
+    String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+
+  /**
+   * Find descriptors for query.
+   *
+   * @param luceneQuery the lucene query
+   * @param hqlQuery the hql query
+   * @param rOOT the r oot
+   * @param pfs the pfs
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findDescriptorsForQuery(String luceneQuery,
+    String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
 
 }

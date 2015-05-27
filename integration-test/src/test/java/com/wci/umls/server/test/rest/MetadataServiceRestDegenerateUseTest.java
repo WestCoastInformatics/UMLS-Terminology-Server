@@ -103,6 +103,24 @@ public class MetadataServiceRestDegenerateUseTest extends
     }
 
   }
+  
+  /**
+   * Test retrieving terminology objects
+   * @throws Exception
+   */
+  @Test
+  public void testDegenerateUseRestMetadata004() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    // test bad authorization
+    try {
+      metadataService.getTerminology(null, null, authToken);
+      fail("Getting terminology with null parameters failed");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+  }
 
   /**
    * Teardown.
