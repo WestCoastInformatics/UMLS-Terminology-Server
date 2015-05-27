@@ -51,7 +51,7 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
    * @parameter
    */
   private boolean server = false;
-
+  
   /**
    * Instantiates a {@link TerminologyRrfUmlsLoaderMojo} from the specified
    * parameters.
@@ -81,19 +81,6 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
       boolean serverRunning = ConfigUtility.isServerActive();
       getLog().info(
           "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
-
-      //
-      // If server is not running, disable envers
-      // TODO: consider having a separate config.properties file for loading
-      // it can use different config.properties file as well (e.g. for deployment)
-      // then this can be set there instead.
-      //
-      if (!serverRunning) {
-        getLog().info("  DISABLE envers for RRF load");
-        properties.setProperty("hibernate.listeners.envers.autoRegister",
-            "false");
-      }
-
       
       if (serverRunning && !server) {
         throw new MojoFailureException(
