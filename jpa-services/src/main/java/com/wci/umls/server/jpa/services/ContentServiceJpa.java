@@ -541,7 +541,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Prepare the query string
 
     StringBuilder finalQuery = new StringBuilder();
-    finalQuery.append(query);
+    finalQuery.append(query == null ? "" : query);
     finalQuery.append(" AND terminology:" + terminology
         + " AND terminologyVersion:" + version + " AND subsetTerminologyId:"
         + subsetId);
@@ -592,7 +592,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Prepare the query string
 
     StringBuilder finalQuery = new StringBuilder();
-    finalQuery.append(query);
+    finalQuery.append(query == null ? "" : query);
     finalQuery.append(" AND terminology:" + terminology
         + " AND terminologyVersion:" + version + " AND subsetTerminologyId:"
         + subsetId);
@@ -3018,7 +3018,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     PfsParameter pfs, int[] totalCt) throws Exception {
     // Prepare the query string
     StringBuilder finalQuery = new StringBuilder();
-    finalQuery.append(query);
+    finalQuery.append(query == null ? "" : query);
     finalQuery.append(" AND terminology:" + terminology
         + " AND terminologyVersion:" + version);
     if (pfs != null && pfs.getQueryRestriction() != null) {
