@@ -4450,9 +4450,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Prepare the query string
 
     StringBuilder finalQuery = new StringBuilder();
-    finalQuery.append(query);
+    finalQuery.append(query == null ? "" : query);
     finalQuery.append(" AND terminology:" + terminology
-        + " AND terminologyVersion:" + version + " AND getNodeId:"
+        + " AND terminologyVersion:" + version + " AND getNodeTerminologyId:"
         + terminologyId);
     if (pfs != null && pfs.getQueryRestriction() != null) {
       finalQuery.append(" AND ");

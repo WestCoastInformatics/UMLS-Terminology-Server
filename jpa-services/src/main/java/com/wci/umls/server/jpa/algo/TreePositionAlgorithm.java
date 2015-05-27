@@ -16,11 +16,8 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
-import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
@@ -299,20 +296,17 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     TreePosition<? extends ComponentHasAttributesAndName> tp = null;
     if (idType == IdType.CONCEPT) {
       ConceptTreePosition ctp = new ConceptTreePositionJpa();
-      Concept concept = new ConceptJpa();
-      concept.setId(id);
+      Concept concept = getConcept(id);
       ctp.setNode(concept);
       tp = ctp;
     } else if (idType == IdType.DESCRIPTOR) {
       DescriptorTreePosition dtp = new DescriptorTreePositionJpa();
-      Descriptor descriptor = new DescriptorJpa();
-      descriptor.setId(id);
+      Descriptor descriptor = getDescriptor(id);
       dtp.setNode(descriptor);
       tp = dtp;
     } else if (idType == IdType.CODE) {
       CodeTreePosition ctp = new CodeTreePositionJpa();
-      Code code = new CodeJpa();
-      code.setId(id);
+      Code code = getCode(id);
       ctp.setNode(code);
       tp = ctp;
     } else {
