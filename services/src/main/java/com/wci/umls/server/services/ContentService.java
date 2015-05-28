@@ -189,43 +189,51 @@ public interface ContentService extends RootService {
     String terminology, String version, String branch);
 
   /**
-   * Gets the relationships for concept.
+   * Gets the relationships for concept and query.
    *
    * @param conceptId the concept id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param branch the branch
    * @param pfs the pfs
    * @return the relationships for concept
+   * @throws Exception 
    */
-  public RelationshipList findRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch, PfsParameter pfs);
+  public RelationshipList findConceptRelationshipsForQuery(String conceptId,
+    String terminology, String version, String query, String branch,
+    PfsParameter pfs) throws Exception;
 
   /**
-   * Returns the relationships for descriptor.
+   * Returns the relationships for descriptor and query.
    *
    * @param descriptorId the descriptor id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param branch the branch
    * @param pfs the pfs
    * @return the relationships for descriptor
+   * @throws Exception 
    */
-  public RelationshipList findRelationshipsForDescriptor(String descriptorId,
-    String terminology, String version, String branch, PfsParameter pfs);
+  public RelationshipList findDescriptorRelationshipsForQuery(String descriptorId,
+    String terminology, String version, String query, String branch, PfsParameter pfs) throws Exception;
 
   /**
-   * Returns the relationships for code.
+   * Returns the relationships for code and query
    *
    * @param codeId the code id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param branch the branch
    * @param pfs the pfs
    * @return the relationships for code
+   * @throws Exception 
    */
-  public RelationshipList findRelationshipsForCode(String codeId,
-    String terminology, String version, String branch, PfsParameter pfs);
+  public RelationshipList findCodeRelationshipsForQuery(String codeId,
+    String terminology, String version, String query, String branch,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the relationships for atom.
@@ -676,8 +684,8 @@ public interface ContentService extends RootService {
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findCodeTreePositions(Code code, String branch, PfsParameter pfs
-    ) throws Exception;
+  public TreePositionList findCodeTreePositions(Code code, String branch,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the atom.

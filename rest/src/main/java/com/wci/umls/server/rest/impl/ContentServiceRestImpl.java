@@ -50,17 +50,21 @@ import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
+import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -1498,12 +1502,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/relationships")
+  @Path("/cui/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given concept id.", response = RelationshipList.class)
-  public RelationshipList findRelationshipsForConcept(
+  public RelationshipList findRelationshipsForConceptAndQuery(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1515,10 +1520,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     try {
       authenticate(securityService, authToken,
           "retrieve relationships for the concept", UserRole.VIEWER);
+      
+      Concept c = contentService.getConcept(terminologyId, terminology, version, Branch.ROOT);
+      
+      RelationshipList list = contentService.findConceptRelationshipsForQuery(c.getId().toString(),
+          terminology, version, query, Branch.ROOT, pfs);
 
-      return contentService.findRelationshipsForConcept(terminologyId,
-          terminology, version, Branch.ROOT, pfs);
-
+      GraphResolutionHandler handler =  contentService.getGraphResolutionHandler(terminology);
+      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : list.getObjects()) {
+       handler.resolve(r);
+      }
+      return list;
+      
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a concept");
       return null;
@@ -1531,12 +1544,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/relationships")
+  @Path("/dui/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given descriptor id.", response = RelationshipList.class)
-  public RelationshipList findRelationshipsForDescriptor(
+  public RelationshipList findRelationshipsForDescriptorAndQuery(
     @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1548,9 +1562,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     try {
       authenticate(securityService, authToken,
           "retrieve relationships for the descriptor", UserRole.VIEWER);
+      
+      Descriptor d = contentService.getDescriptor(terminologyId, terminology, version, Branch.ROOT);
 
-      return contentService.findRelationshipsForDescriptor(terminologyId,
-          terminology, version, Branch.ROOT, pfs);
+      RelationshipList list = contentService.findDescriptorRelationshipsForQuery(
+          d.getId().toString(), terminology, version, query, Branch.ROOT, pfs);
+      
+      GraphResolutionHandler handler =  contentService.getGraphResolutionHandler(terminology);
+      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : list.getObjects()) {
+       handler.resolve(r);
+      }
+      
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a descriptor");
@@ -1564,26 +1587,38 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/code/{terminology}/{version}/{terminologyId}/relationships")
+  @Path("/code/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given code id.", response = RelationshipList.class)
-  public RelationshipList findRelationshipsForCode(
+  public RelationshipList findRelationshipsForCodeAndQuery(
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships");
+            + terminologyId + "/relationships/query" + query);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
           "retrieve relationships for the code", UserRole.VIEWER);
 
-      return contentService.findRelationshipsForCode(terminologyId,
-          terminology, version, Branch.ROOT, pfs);
+      Code c = contentService.getCode(terminologyId, terminology, version, Branch.ROOT);
+
+      // TODO Modify query based on results of code search
+      
+      // TODO Change call to use terminology Id here
+      RelationshipList list = contentService.findCodeRelationshipsForQuery(
+          c.getId().toString(), terminology, version, query, Branch.ROOT, pfs);
+      
+      GraphResolutionHandler handler =  contentService.getGraphResolutionHandler(terminology);
+      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : list.getObjects()) {
+       handler.resolve(r);
+      }
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a code");

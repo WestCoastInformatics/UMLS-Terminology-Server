@@ -139,65 +139,6 @@ public interface ContentServiceRest {
   public SubsetMemberList getSubsetMembersForConcept(String terminologyId,
     String terminology, String version, String authToken) throws Exception;
 
-  /**
-   * Gets the relationships for concept.
-   *
-   * @param terminologyId the concept id
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the relationships for concept
-   * @throws Exception the exception
-   */
-  public RelationshipList findRelationshipsForConcept(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception;
-
-  /**
-   * Returns the relationships for atom.
-   *
-   * @param terminologyId the atom id
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the relationships for atom
-   * @throws Exception the exception
-   */
-  public RelationshipList findRelationshipsForAtom(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception;
-
-  /**
-   * Returns the relationships for descriptor.
-   *
-   * @param terminologyId the descriptor id
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the relationships for descriptor
-   * @throws Exception the exception
-   */
-  public RelationshipList findRelationshipsForDescriptor(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception;
-
-  /**
-   * Returns the relationships for code.
-   *
-   * @param terminologyId the code id
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the relationships for code
-   * @throws Exception the exception
-   */
-  public RelationshipList findRelationshipsForCode(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception;
 
   /**
    * Find descriptorss for query.
@@ -515,5 +456,68 @@ public interface ContentServiceRest {
    */
   public SubsetList getConceptSubsets(String terminology, String version,
     String authToken) throws Exception;
+
+  /**
+   * Find concept relationships for query.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  public RelationshipList findRelationshipsForConceptAndQuery(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+
+  /**
+   * Find descriptor relationships for query.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  public RelationshipList findRelationshipsForDescriptorAndQuery(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+
+  /**
+   * Find code relationships for query.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  public RelationshipList findRelationshipsForCodeAndQuery(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+
+  /**
+   * Find relationships for atom.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  public RelationshipList findRelationshipsForAtom(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception;
 
 }

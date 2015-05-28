@@ -19,6 +19,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
@@ -31,6 +38,7 @@ import com.wci.umls.server.model.content.DescriptorRelationship;
     "terminologyId", "terminology", "terminologyVersion", "id"
 }))
 @Audited
+@Indexed
 @XmlRootElement(name = "descriptorRelationship")
 public class DescriptorRelationshipJpa extends
     AbstractRelationship<Descriptor, Descriptor> implements
@@ -102,6 +110,8 @@ public class DescriptorRelationshipJpa extends
    *
    * @return the from id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @FieldBridge(impl = LongBridge.class) 
   public Long getFromId() {
     return from == null ? null : from.getId();
   }
@@ -188,6 +198,7 @@ public class DescriptorRelationshipJpa extends
    *
    * @return the to id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getToId() {
     return to == null ? null : to.getId();
   }
@@ -209,6 +220,7 @@ public class DescriptorRelationshipJpa extends
    *
    * @return the to terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToTerminologyId() {
     return to == null ? null : to.getTerminologyId();
   }
@@ -226,10 +238,55 @@ public class DescriptorRelationshipJpa extends
   }
 
   /**
+   * Returns the to terminology.
+   *
+   * @return the to terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getToTerminology() {
+    return to == null ? null : to.getTerminology();
+  }
+
+  /**
+   * Sets the to terminology.
+   *
+   * @param terminologyId the to terminology
+   */
+  public void setToTerminology(String terminology) {
+    if (to == null) {
+      to = new DescriptorJpa();
+    }
+    to.setTerminology(terminology);
+  }
+
+  /**
+   * Returns the to terminology version.
+   *
+   * @return the to terminology version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getToTerminologyVersion() {
+    return to == null ? null : to.getTerminologyVersion();
+  }
+
+  /**
+   * Sets the to terminology version.
+   *
+   * @param terminologyVersion the to terminology version
+   */
+  public void setToTerminologyVersion(String terminologyVersion) {
+    if (to == null) {
+      to = new DescriptorJpa();
+    }
+    to.setTerminologyVersion(terminologyVersion);
+  }
+
+  /**
    * Returns the to term. For JAXB.
    *
    * @return the to term
    */
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getToName() {
     return to == null ? null : to.getName();
   }
@@ -253,6 +310,10 @@ public class DescriptorRelationshipJpa extends
    * getAlternateTerminologyIds()
    */
   @Override
+  /*
+   * TODO: Need a bridge for maps @Field(index = Index.YES, analyze =
+   * Analyze.YES, store = Store.NO)
+   */
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
@@ -375,9 +436,8 @@ public class DescriptorRelationshipJpa extends
    */
   @Override
   public String toString() {
-    return "DescriptorRelationshipJpa [from=" + from
-        + ", to=" + to + ", alternateTerminologyIds="
-        + alternateTerminologyIds + "]";
+    return "DescriptorRelationshipJpa [from=" + from + ", to=" + to
+        + ", alternateTerminologyIds=" + alternateTerminologyIds + "]";
   }
 
 }

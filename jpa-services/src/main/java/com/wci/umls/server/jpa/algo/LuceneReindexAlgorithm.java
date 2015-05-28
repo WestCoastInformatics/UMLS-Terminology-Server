@@ -16,8 +16,11 @@ import org.hibernate.search.jpa.Search;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.services.RootServiceJpa;
@@ -31,7 +34,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
  */
 public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm {
 
-  /**  Listeners. */
+  /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The request cancel flag. */
@@ -116,6 +119,9 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
       objectsToReindex.add("LexicalClassJpa");
       objectsToReindex.add("StringClassJpa");
       objectsToReindex.add("ProjectJpa");
+      objectsToReindex.add("CodeRelationshipJpa");
+      objectsToReindex.add("ConceptRelationshipJpa");
+      objectsToReindex.add("DescriptorRelationshipJpa");
 
       // otherwise, construct set of indexed objects
     } else {
@@ -176,7 +182,8 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
 
     // Lexical Class
     if (objectsToReindex.contains("LexicalClassJpa")) {
-      Logger.getLogger(getClass()).info("  Creating indexes for LexicalClassJpa");
+      Logger.getLogger(getClass()).info(
+          "  Creating indexes for LexicalClassJpa");
       fullTextEntityManager.purgeAll(LexicalClassJpa.class);
       fullTextEntityManager.flushToIndexes();
       fullTextEntityManager.createIndexer(LexicalClassJpa.class)
@@ -188,7 +195,8 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
 
     // StringClass
     if (objectsToReindex.contains("StringClassJpa")) {
-      Logger.getLogger(getClass()).info("  Creating indexes for StringClassJpa");
+      Logger.getLogger(getClass())
+          .info("  Creating indexes for StringClassJpa");
       fullTextEntityManager.purgeAll(StringClassJpa.class);
       fullTextEntityManager.flushToIndexes();
       fullTextEntityManager.createIndexer(StringClassJpa.class)
@@ -197,7 +205,6 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
 
       objectsToReindex.remove("StringClassJpa");
     }
-
 
     // Projects
     if (objectsToReindex.contains("ProjectJpa")) {
@@ -209,6 +216,42 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
           .threadsToLoadObjects(4).startAndWait();
 
       objectsToReindex.remove("ProjectJpa");
+    }
+
+    // ConceptRelationships
+    if (objectsToReindex.contains("ConceptRelationshipJpa")) {
+      Logger.getLogger(getClass()).info("  Creating indexes for ConceptRelationshipJpa");
+      fullTextEntityManager.purgeAll(ConceptRelationshipJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(ConceptRelationshipJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("ConceptRelationshipJpa");
+    }
+
+    // DescriptorRelationship
+    if (objectsToReindex.contains("DescriptorRelationshipJpa")) {
+      Logger.getLogger(getClass()).info("  Creating indexes for DescriptorRelationshipJpa");
+      fullTextEntityManager.purgeAll(DescriptorRelationshipJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(DescriptorRelationshipJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("DescriptorRelationshipJpa");
+    }
+
+    // CodeRelationship
+    if (objectsToReindex.contains("CodeRelationshipJpa")) {
+      Logger.getLogger(getClass()).info("  Creating indexes for CodeRelationshipJpa");
+      fullTextEntityManager.purgeAll(CodeRelationshipJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(CodeRelationshipJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("CodeRelationshipJpa");
     }
 
     if (objectsToReindex.size() != 0) {
@@ -298,6 +341,6 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
 
   @Override
   public void refreshCaches() throws Exception {
-    // n/a    
+    // n/a
   }
 }

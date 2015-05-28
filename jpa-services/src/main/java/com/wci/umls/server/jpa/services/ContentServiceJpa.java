@@ -5,7 +5,6 @@ package com.wci.umls.server.jpa.services;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -65,9 +64,12 @@ import com.wci.umls.server.jpa.content.AbstractTransitiveRelationship;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
@@ -94,6 +96,7 @@ import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
@@ -227,6 +230,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /** The code field names. */
   private static String[] codeFieldNames = {};
 
+  /** The concept relationship field names */
+  private static String[] conceptRelationshipFieldNames = {};
+
+  /** The concept relationship field names */
+  private static String[] codeRelationshipFieldNames = {};
+
+  /** The concept relationship field names */
+  private static String[] descriptorRelationshipFieldNames = {};
+
   static {
 
     try {
@@ -239,6 +251,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       codeFieldNames =
           IndexUtility.getIndexedStringFieldNames(CodeJpa.class).toArray(
               new String[] {});
+      conceptRelationshipFieldNames =
+          IndexUtility.getIndexedStringFieldNames(ConceptRelationshipJpa.class)
+              .toArray(new String[] {});
+      codeRelationshipFieldNames =
+          IndexUtility.getIndexedStringFieldNames(CodeRelationshipJpa.class)
+              .toArray(new String[] {});
+      descriptorRelationshipFieldNames =
+          IndexUtility.getIndexedStringFieldNames(
+              DescriptorRelationshipJpa.class).toArray(new String[] {});
     } catch (Exception e) {
       e.printStackTrace();
       conceptFieldNames = null;
@@ -557,8 +578,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       ctQuery.setParameter("terminologyId", subsetId);
       ctQuery.setParameter("terminology", terminology);
       ctQuery.setParameter("version", version);
-      list.setTotalCount(((BigDecimal) ctQuery.getResultList().get(0))
-          .intValue());
+      list.setTotalCount(((Long) ctQuery.getResultList().get(0)).intValue());
 
       // Get results
       query.setParameter("terminologyId", subsetId);
@@ -604,8 +624,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       ctQuery.setParameter("terminologyId", subsetId);
       ctQuery.setParameter("terminology", terminology);
       ctQuery.setParameter("version", version);
-      list.setTotalCount(((BigDecimal) ctQuery.getResultList().get(0))
-          .intValue());
+      list.setTotalCount(((Long) ctQuery.getResultList().get(0)).intValue());
 
       // Get results
       query.setParameter("terminologyId", subsetId);
@@ -2925,6 +2944,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private List<AtomClass> getQueryResults(String terminology, String version,
     String branch, String query, String[] fieldNames, Class<?> clazz,
     PfsParameter pfs, int[] totalCt) throws Exception {
+
     // Prepare the query string
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query);
@@ -2934,7 +2954,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       finalQuery.append(" AND ");
       finalQuery.append(pfs.getQueryRestriction());
     }
-    Logger.getLogger(getClass()).info("query " + finalQuery);
+    
+    // if no query supplied, remove first AND
+    if (finalQuery.indexOf(" AND ") == 0) {
+      finalQuery.delete(0, 5);
+    }
+    
+    Logger.getLogger(getClass()).info("query for " + clazz.getName() +  ": " + finalQuery);
 
     // Prepare the manager and lucene query
     FullTextEntityManager fullTextEntityManager =
@@ -3295,7 +3321,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + ", " + searchTerm);
     return autocompleteHelper(terminology, version, searchTerm, CodeJpa.class);
   }
- 
+
   /*
    * (non-Javadoc)
    * 
@@ -4002,13 +4028,34 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
-  public RelationshipList findRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch, PfsParameter pfs) {
+  public RelationshipList findConceptRelationshipsForQuery(String conceptId,
+    String terminology, String version, String query, String branch,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get relationships for concept " + conceptId + "/"
-            + terminology + "/" + version);
-    return findRelationshipsHelper(conceptId, terminology, version, branch,
-        pfs, ConceptJpa.class);
+            + terminology + "/" + version + "/" + query);
+
+    // construct query from non-null/empty passed query and concept id
+    /*String queryStr =
+        (query == null || query.equals("null") || query.isEmpty() ? "" : query
+            + "AND ")
+            + "fromId:" + conceptId;*/
+    
+    String queryStr = "";
+
+    int totalCt[] = new int[1];
+    List<AtomClass> results =
+        getQueryResults(terminology, version, branch, queryStr,
+            conceptRelationshipFieldNames, ConceptRelationshipJpa.class, pfs,
+            totalCt);
+
+    // cast to RelationshipList
+    RelationshipList list = new RelationshipListJpa();
+    for (AtomClass a : results) {
+      list.addObject((ConceptRelationshipJpa) a);
+    }
+
+    return list;
   }
 
   /*
@@ -4020,13 +4067,28 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
-  public RelationshipList findRelationshipsForDescriptor(String descriptorId,
-    String terminology, String version, String branch, PfsParameter pfs) {
+  public RelationshipList findDescriptorRelationshipsForQuery(
+    String descriptorId, String terminology, String version, String query,
+    String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get relationships for descriptor " + descriptorId
-            + "/" + terminology + "/" + version);
-    return findRelationshipsHelper(descriptorId, terminology, version, branch,
-        pfs, DescriptorJpa.class);
+            + "/" + terminology + "/" + version + "/" + query);
+    int totalCt[] = new int[1];
+
+    String queryStr = query + "AND fromId:" + descriptorId;
+
+    List<AtomClass> results =
+        getQueryResults(terminology, version, branch, queryStr,
+            descriptorRelationshipFieldNames, DescriptorRelationshipJpa.class,
+            pfs, totalCt);
+
+    // cast to RelationshipList
+    RelationshipList list = new RelationshipListJpa();
+    for (AtomClass a : results) {
+      list.addObject((DescriptorRelationshipJpa) a);
+    }
+
+    return list;
   }
 
   /*
@@ -4038,13 +4100,27 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * com.wci.umls.server.helpers.PfsParameter)
    */
   @Override
-  public RelationshipList findRelationshipsForCode(String codeId,
-    String terminology, String version, String branch, PfsParameter pfs) {
+  public RelationshipList findCodeRelationshipsForQuery(String codeId,
+    String terminology, String version, String query, String branch,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - get relationships for code " + codeId + "/"
-            + terminology + "/" + version);
-    return findRelationshipsHelper(codeId, terminology, version, branch, pfs,
-        CodeJpa.class);
+            + terminology + "/" + version + "/" + query);
+    int totalCt[] = new int[1];
+    List<AtomClass> results =
+        getQueryResults(terminology, version, branch, query,
+            codeRelationshipFieldNames, CodeRelationshipJpa.class, pfs, totalCt);
+
+    // cast to RelationshipList
+    RelationshipList list = new RelationshipListJpa();
+    for (AtomClass a : results) {
+      list.addObject((CodeRelationshipJpa) a);
+    }
+
+    return list;
+
+    // findRelationshipsHelper(codeId, terminology, version, query, branch,
+    // pfs, CodeRelationshipJpa.class);
   }
 
   /*
@@ -4061,8 +4137,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug(
         "Content Service - get relationships for atom " + atomId + "/"
             + terminology + "/" + version);
-    return findRelationshipsHelper(atomId, terminology, version, branch, pfs,
-        AtomJpa.class);
+
+    // TODO: Index AtomRelationship and use lucene query
+    return findRelationshipsHelperForQuery(atomId, terminology, version, null,
+        branch, pfs, AtomJpa.class);
   }
 
   /**
@@ -4077,9 +4155,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @return the relationship list
    */
   @SuppressWarnings("unchecked")
-  private RelationshipList findRelationshipsHelper(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs,
-    Class<?> clazz) {
+  private RelationshipList findRelationshipsHelperForQuery(
+    String terminologyId, String terminology, String version, String queryStr,
+    String branch, PfsParameter pfs, Class<?> clazz) {
+
     javax.persistence.Query query =
         applyPfsToQuery(
             "select a from "
@@ -4101,8 +4180,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       ctQuery.setParameter("terminologyId", terminologyId);
       ctQuery.setParameter("terminology", terminology);
       ctQuery.setParameter("version", version);
-      list.setTotalCount(((BigDecimal) ctQuery.getResultList().get(0))
-          .intValue());
+      list.setTotalCount(((Long) ctQuery.getResultList().get(0)).intValue());
 
       query.setParameter("terminologyId", terminologyId);
       query.setParameter("terminology", terminology);
@@ -4210,8 +4288,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       ctQuery.setParameter("terminologyId", terminologyId);
       ctQuery.setParameter("terminology", terminology);
       ctQuery.setParameter("version", version);
-      list.setTotalCount(((BigDecimal) ctQuery.getResultList().get(0))
-          .intValue());
+      list.setTotalCount(((Long) ctQuery.getResultList().get(0)).intValue());
 
       query.setParameter("terminologyId", terminologyId);
       query.setParameter("terminology", terminology);
