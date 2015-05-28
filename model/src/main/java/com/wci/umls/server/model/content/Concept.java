@@ -32,6 +32,20 @@ public interface Concept extends AtomClass, ComponentHasDefinitions,
   public void setFullyDefined(boolean fullyDefined);
 
   /**
+   * Indicates whether or not this is an anonymous concept.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isAnonymous();
+
+  /**
+   * Sets the anonymous flag.
+   *
+   * @param anonymous the anonymous
+   */
+  public void setAnonymous(boolean anonymous);
+
+  /**
    * Returns the semantic types.
    *
    * @return the semantic types

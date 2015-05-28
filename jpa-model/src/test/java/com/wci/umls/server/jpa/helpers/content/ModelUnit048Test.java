@@ -56,10 +56,14 @@ public class ModelUnit048Test {
     code1.setId(1L);
     code1.setName("1");
     code1.setTerminologyId("1");
+    code1.setTerminology("1");
+    code1.setTerminologyVersion("1");
     code2 = new CodeJpa();
     code2.setId(2L);
     code2.setName("2");
     code2.setTerminologyId("2");
+    code2.setTerminology("2");
+    code2.setTerminologyVersion("2");
   }
 
   /**
@@ -73,6 +77,8 @@ public class ModelUnit048Test {
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("nodeId");
     tester.exclude("nodeTerminologyId");
+    tester.exclude("nodeTerminology");
+    tester.exclude("nodeTerminologyVersion");
     tester.exclude("nodeName");
     tester.test();
   }
@@ -163,6 +169,9 @@ public class ModelUnit048Test {
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<nodeId>"));
     assertTrue(xml.contains("<nodeName>"));
+    assertTrue(xml.contains("<nodeTerminologyId>"));
+    assertTrue(xml.contains("<nodeTerminology>"));
+    assertTrue(xml.contains("<nodeTerminologyVersion>"));
     assertFalse(xml.contains("<node>"));
   }
 

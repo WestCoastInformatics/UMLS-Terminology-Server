@@ -151,6 +151,50 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
     node.setTerminologyId(terminologyId);
   }
 
+  /**
+   * Returns the node terminology. For JAXB.
+   *
+   * @return the node terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getNodeTerminology() {
+    return node == null ? null : node.getTerminology();
+  }
+
+  /**
+   * Sets the node terminology. For JAXB.
+   *
+   * @param terminology the node terminology
+   */
+  public void setNodeTerminology(String terminology) {
+    if (node == null) {
+      node = new ConceptJpa();
+    }
+    node.setTerminology(terminology);
+  }
+
+  /**
+   * Returns the node terminology version. For JAXB.
+   *
+   * @return the node terminology version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getNodeTerminologyVersion() {
+    return node == null ? null : node.getTerminologyVersion();
+  }
+
+  /**
+   * Sets the node terminology version. For JAXB.
+   *
+   * @param terminologyVersion the node terminology version
+   */
+  public void setNodeTerminologyVersion(String terminologyVersion) {
+    if (node == null) {
+      node = new ConceptJpa();
+    }
+    node.setTerminologyVersion(terminologyVersion);
+  }
+
   /*
    * (non-Javadoc)
    * 

@@ -64,19 +64,27 @@ public class ModelUnit044Test {
     concept1 = new ConceptJpa();
     concept1.setId(1L);
     concept1.setTerminologyId("1");
+    concept1.setTerminology("1");
+    concept1.setTerminologyVersion("1");
     concept1.setName("1");
     concept2 = new ConceptJpa();
     concept2.setId(2L);
     concept2.setTerminologyId("2");
+    concept2.setTerminology("2");
+    concept2.setTerminologyVersion("2");
     concept1.setName("2");
 
     subset1 = new ConceptSubsetJpa();
     subset1.setId(1L);
     subset1.setTerminologyId("1");
+    subset1.setTerminology("1");
+    subset1.setTerminologyVersion("1");
     subset1.setName("2");
     subset2 = new ConceptSubsetJpa();
     subset2.setId(2L);
     subset2.setTerminologyId("2");
+    subset2.setTerminology("2");
+    subset2.setTerminologyVersion("2");
     subset2.setName("2");
   }
 
@@ -91,9 +99,13 @@ public class ModelUnit044Test {
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("memberId");
     tester.exclude("memberTerminologyId");
+    tester.exclude("memberTerminology");
+    tester.exclude("memberTerminologyVersion");
     tester.exclude("memberName");
     tester.exclude("subsetId");
     tester.exclude("subsetTerminologyId");
+    tester.exclude("subsetTerminology");
+    tester.exclude("subsetTerminologyVersion");
     tester.exclude("subsetName");
     tester.test();
   }
@@ -179,10 +191,14 @@ public class ModelUnit044Test {
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<subsetId>"));
     assertTrue(xml.contains("<subsetTerminologyId>"));
+    assertTrue(xml.contains("<subsetTerminology>"));
+    assertTrue(xml.contains("<subsetTerminologyVersion>"));
     assertTrue(xml.contains("<subsetName>"));
     assertFalse(xml.contains("<subset>"));
     assertTrue(xml.contains("<memberId>"));
     assertTrue(xml.contains("<memberTerminologyId>"));
+    assertTrue(xml.contains("<memberTerminology>"));
+    assertTrue(xml.contains("<memberTerminologyVersion>"));
     assertTrue(xml.contains("<memberName>"));
     assertFalse(xml.contains("<member>"));
 
