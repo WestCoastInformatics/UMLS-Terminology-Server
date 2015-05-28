@@ -30,7 +30,7 @@ public class SubsetMemberListJpa
    * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
    */
   @Override
-  @XmlElement(type = AbstractSubsetMember.class, name = "subsetMember")
+  @XmlElement(type = AbstractSubsetMember.class, name = "member")
   public List<SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> getObjects() {
     return super.getObjectsTransient();
   }
