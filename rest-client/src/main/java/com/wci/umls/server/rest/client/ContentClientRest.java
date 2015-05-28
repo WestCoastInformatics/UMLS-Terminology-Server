@@ -312,7 +312,7 @@ public class ContentClientRest implements ContentServiceRest {
            + "/luceneQuery/"
             + (luceneQuery == null ? "" : luceneQuery)
             + "/hqlQuery/"
-            + (hqlQuery == null ? "" : hqlQuery));
+            + (hqlQuery == null ? "" : hqlQuery) + "/");
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);

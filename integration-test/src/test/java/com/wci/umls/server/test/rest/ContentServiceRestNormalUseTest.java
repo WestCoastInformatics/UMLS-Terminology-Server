@@ -1121,7 +1121,25 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
   }
 
+  @Test
+  public void testNormalUseRestContent012() throws Exception {
 
+    Logger.getLogger(getClass()).debug("Start test");
+    
+    /** Find concepts with hql query */
+    Logger.getLogger(getClass()).info(
+        "TEST - " + ", SNOMEDCT_US, 2014_09_01, " + authToken);
+    String snomedTerminology = "SNOMEDCT_US";
+    String snomedVersion = "2014_09_01";
+
+    SearchResultList sml = contentService.findConceptsForQuery("null", "null", new PfsParameterJpa(), authToken);
+//SELECT c.terminologyId FROM ConceptJpa c
+    assertNotNull(sml);
+    /*assertNotEquals(c.getName(),
+        "No default preferred name found");
+*/
+    // TODO: test other findRelationshipsFor... on other components
+}
 
   /**
    * Teardown.

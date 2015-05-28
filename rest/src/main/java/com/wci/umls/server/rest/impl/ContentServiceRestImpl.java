@@ -967,7 +967,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/dui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
+  @Path("/dui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}/")
   @ApiOperation(value = "Find descriptors matching a lucene or hql search query.", notes = "Gets a list of search results that match the lucene or hql query for the root branch.", response = SearchResultList.class)
   public SearchResultList findDescriptorsForQuery(
     @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
