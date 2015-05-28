@@ -15,7 +15,7 @@ import com.wci.umls.server.helpers.SearchCriteria;
 /**
  * The JPA enabled implementation of the paging/filtering/sorting object.
  */
-@XmlRootElement
+@XmlRootElement(name = "pfs")
 public class PfsParameterJpa implements PfsParameter {
 
   /** The maximum number of results. */

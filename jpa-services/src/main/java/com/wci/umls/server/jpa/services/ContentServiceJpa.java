@@ -542,14 +542,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
-    finalQuery.append(" AND terminology:" + terminology
+    if (!finalQuery.toString().isEmpty()) {
+      finalQuery.append(" AND ");
+    }
+    finalQuery.append("terminology:" + terminology
         + " AND terminologyVersion:" + version + " AND subsetTerminologyId:"
         + subsetId);
     if (pfs != null && pfs.getQueryRestriction() != null) {
       finalQuery.append(" AND ");
       finalQuery.append(pfs.getQueryRestriction());
     }
-    Logger.getLogger(getClass()).info("query " + finalQuery);
+    Logger.getLogger(getClass()).info("query = " + finalQuery);
 
     // Prepare the manager and lucene query
     FullTextEntityManager fullTextEntityManager =
@@ -576,8 +579,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     list.setTotalCount(fullTextQuery.getResultSize());
     list.setObjects(fullTextQuery.getResultList());
 
-    fullTextEntityManager.close();
-    manager = factory.createEntityManager();
     return list;
   }
 
@@ -593,14 +594,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
-    finalQuery.append(" AND terminology:" + terminology
+    if (!finalQuery.toString().isEmpty()) {
+      finalQuery.append(" AND ");
+    }
+    finalQuery.append("terminology:" + terminology
         + " AND terminologyVersion:" + version + " AND subsetTerminologyId:"
         + subsetId);
     if (pfs != null && pfs.getQueryRestriction() != null) {
       finalQuery.append(" AND ");
       finalQuery.append(pfs.getQueryRestriction());
     }
-    Logger.getLogger(getClass()).info("query " + finalQuery);
+    Logger.getLogger(getClass()).info("query = " + finalQuery);
 
     // Prepare the manager and lucene query
     FullTextEntityManager fullTextEntityManager =
@@ -627,8 +631,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     list.setTotalCount(fullTextQuery.getResultSize());
     list.setObjects(fullTextQuery.getResultList());
 
-    fullTextEntityManager.close();
-    manager = factory.createEntityManager();
     return list;
   }
 
@@ -2869,7 +2871,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     boolean queryFlag = false;
     if (query != null && !query.equals("") && !query.equals("null")) {
       queryClasses =
-          getQueryResults(terminology, version, branch, query, fieldNames,
+          getLuceneQueryResults(terminology, version, branch, query, fieldNames,
               clazz, pfs, totalCt);
       queryFlag = true;
     }
@@ -2995,9 +2997,173 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private SearchResultList findForGeneralQueryHelper(String luceneQuery,
     String hqlQuery, String branch, PfsParameter pfs,
     String[] fieldNames, Class<?> clazz) throws Exception {
-    // TODO:
-    return null;
+    // Prepare results
+    SearchResultList results = new SearchResultListJpa();
+    List<AtomClass> classes = null;
+    int totalCt[] = new int[1];
+
+    // Perform Lucene search
+    List<AtomClass> luceneQueryClasses = new ArrayList<>();
+    boolean luceneQueryFlag = false;
+    if (luceneQuery != null && !luceneQuery.equals("") && !luceneQuery.equals("null")) {
+      luceneQueryClasses =
+          getLuceneQueryResults("", "", branch, luceneQuery, fieldNames,
+              clazz, pfs, totalCt);
+      luceneQueryFlag = true;
+    }
+
+    boolean hqlQueryFlag = false;
+    List<AtomClass> hqlQueryClasses = new ArrayList<>();
+    if (hqlQuery != null && !hqlQuery.equals("") && !hqlQuery.equals("null")) {
+      List<AtomClass> hqlResults =
+          manager.createQuery(hqlQuery).getResultList();
+      for (AtomClass r : hqlResults) {
+        hqlQueryClasses.add(r);
+      }
+      hqlQueryFlag = true;
+    }
+    
+    // Determine whether both query and criteria were used, or just one or the
+    // other
+
+    // Start with query results if they exist
+    if (luceneQueryFlag) {
+      classes = luceneQueryClasses;
+    }
+
+    if (hqlQueryFlag) {
+
+      if (luceneQueryFlag) {
+        // Intersect the lucene and HQL results
+        classes.retainAll(hqlQueryClasses);
+      } else {
+        // Otherwise, just use hql classes
+        classes = hqlQueryClasses;
+      }
+
+      // Here we know the total size
+      totalCt[0] = classes.size();
+
+      // Apply PFS sorting manually
+      if (pfs != null && pfs.getSortField() != null) {
+        final Method getMethod =
+            clazz.getMethod("get"
+                + pfs.getSortField().substring(0, 1).toUpperCase()
+                + pfs.getSortField().substring(1));
+        if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
+          throw new Exception("Referenced sort field is not comparable");
+        }
+        Collections.sort(classes, new Comparator<AtomClass>() {
+          @SuppressWarnings({
+              "rawtypes", "unchecked"
+          })
+          @Override
+          public int compare(AtomClass o1, AtomClass o2) {
+            try {
+              Comparable f1 =
+                  (Comparable) getMethod.invoke(o1, new Object[] {});
+              Comparable f2 =
+                  (Comparable) getMethod.invoke(o2, new Object[] {});
+              return f1.compareTo(f2);
+            } catch (Exception e) {
+              // do nothing
+            }
+            return 0;
+          }
+        });
+      }
+
+      // Apply PFS paging manually
+      if (pfs != null && pfs.getStartIndex() != -1) {
+        int startIndex = pfs.getStartIndex();
+        int toIndex = classes.size();
+        toIndex = Math.min(toIndex, startIndex + pfs.getMaxResults());
+        classes = classes.subList(startIndex, toIndex);
+      }
+
+    } else {
+      // If criteria flag wasn't triggered, then PFS was already handled
+      // by the query mechanism - which only applies PFS if criteria isn't
+      // also used. Therefore, we are ready to go.
+
+      // Manual PFS handling is in the section above.
+    }
+
+    // Some result has been found, even if empty
+    if (classes == null)
+      return results;
+
+    // construct the search results
+    for (AtomClass atomClass : classes) {
+      SearchResult sr = new SearchResultJpa();
+      sr.setId(atomClass.getId());
+      sr.setTerminologyId(atomClass.getTerminologyId());
+      sr.setTerminology(atomClass.getTerminology());
+      sr.setTerminologyVersion(atomClass.getTerminologyVersion());
+      sr.setValue(atomClass.getName());
+      results.addObject(sr);
+    }
+
+    results.setTotalCount(totalCt[0]);
+    return results;
+
+    /*if (results == null)
+      throw new Exception("Failed to retrieve results for query");
+
+    SearchResultList srl = new SearchResultListJpa();
+    for (Object result : results) {
+      SearchResult sr = new SearchResultJpa();
+      sr.setTerminology(((AtomClass)result).getTerminology());
+      sr.setTerminologyVersion(((AtomClass)result).getTerminologyVersion());
+      sr.setTerminologyId(((AtomClass)result).getTerminologyId());
+      sr.setId(((AtomClass)result).getId());
+      srl.addObject(sr);
+    }
+    return srl;*/
   }
+  
+  /**
+   * Execute hql query.
+   *
+   * @param query the query
+   * @return the result set
+   * @throws Exception the exception
+   */
+  @SuppressWarnings({
+    "unchecked"
+  })
+  private List<Object[]> executeHqlQuery(String query)
+    throws Exception {
+
+    // check for hql query errors -- throw as local exception
+    // this is used to propagate errors back to user when testing queries
+
+    // ensure that query begins with SELECT (i.e. prevent injection
+    // problems)
+    if (!query.toUpperCase().startsWith("SELECT")) {
+      throw new LocalException(
+          "HQL Query has bad format:  does not begin with SELECT");
+    }
+
+    // check for multiple commands (i.e. multiple semi-colons)
+    if (query.indexOf(";") != query.length() - 1 && query.endsWith(";")) {
+      throw new LocalException(
+          "HQL Query has bad format:  multiple commands detected");
+    }
+
+    // crude check: check for data manipulation commands
+    if (query.toUpperCase().matches(
+        "ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
+      throw new LocalException(
+          "HQL Query has bad format:  data manipulation request detected");
+    }
+
+
+    // HQL
+    javax.persistence.Query jpaQuery = manager.createQuery(query);
+    return jpaQuery.getResultList();
+  }
+
   
   /**
    * Returns the query results.
@@ -3013,19 +3179,26 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @return the query results
    * @throws Exception the exception
    */
-  private List<AtomClass> getQueryResults(String terminology, String version,
+  private List<AtomClass> getLuceneQueryResults(String terminology, String version,
     String branch, String query, String[] fieldNames, Class<?> clazz,
     PfsParameter pfs, int[] totalCt) throws Exception {
     // Prepare the query string
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
-    finalQuery.append(" AND terminology:" + terminology
+    if (!finalQuery.toString().isEmpty()) {
+      finalQuery.append(" AND ");
+    }
+    if (terminology != null && !terminology.equals("") &&
+        version != null && !version.equals("")) {
+      finalQuery.append("terminology:" + terminology
         + " AND terminologyVersion:" + version);
+    }
+    
     if (pfs != null && pfs.getQueryRestriction() != null) {
       finalQuery.append(" AND ");
       finalQuery.append(pfs.getQueryRestriction());
     }
-    Logger.getLogger(getClass()).info("query " + finalQuery);
+    Logger.getLogger(getClass()).info("query = " + finalQuery);
 
     // Prepare the manager and lucene query
     FullTextEntityManager fullTextEntityManager =
@@ -3055,9 +3228,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // execute the query
     @SuppressWarnings("unchecked")
     List<AtomClass> classes = fullTextQuery.getResultList();
-    fullTextEntityManager.close();
-    // closing fullTextEntityManager closes manager as well, recreate
-    manager = factory.createEntityManager();
     return classes;
   }
 
@@ -4451,14 +4621,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
-    finalQuery.append(" AND terminology:" + terminology
+    if (!finalQuery.toString().isEmpty()) {
+      finalQuery.append(" AND ");
+    }
+    finalQuery.append("terminology:" + terminology
         + " AND terminologyVersion:" + version + " AND getNodeTerminologyId:"
         + terminologyId);
     if (pfs != null && pfs.getQueryRestriction() != null) {
       finalQuery.append(" AND ");
       finalQuery.append(pfs.getQueryRestriction());
     }
-    Logger.getLogger(getClass()).info("query " + finalQuery);
+    Logger.getLogger(getClass()).info("query = " + finalQuery);
 
     // Prepare the manager and lucene query
     FullTextEntityManager fullTextEntityManager =
@@ -4484,14 +4657,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     list.setTotalCount(fullTextQuery.getResultSize());
     list.setObjects(fullTextQuery.getResultList());
 
-    fullTextEntityManager.close();
-    manager = factory.createEntityManager();
     return list;
 
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findCodesForGeneralQuery(java
+   * .lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
-  public SearchResultList findCodesForQuery(String luceneQuery,
+  public SearchResultList findCodesForGeneralQuery(String luceneQuery,
     String hqlQuery, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
         "Content Service - find codes " + luceneQuery + "/" + hqlQuery + "/");
@@ -4499,20 +4678,39 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         codeFieldNames, CodeJpa.class);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findConceptsForGeneralQuery
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
-  public SearchResultList findConceptsForQuery(String luceneQuery,
+  public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
     String hqlQuery, String branch, PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Content Service - find concepts " + luceneQuery + "/" + hqlQuery + "/");
+    Logger.getLogger(getClass())
+        .info(
+            "Content Service - find concepts " + luceneQuery + "/" + hqlQuery
+                + "/");
     return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
         conceptFieldNames, ConceptJpa.class);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findDescriptorsForGeneralQuery
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
-  public SearchResultList findDescriptorsForQuery(String luceneQuery,
+  public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
     String hqlQuery, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
-        "Content Service - find descriptors " + luceneQuery + "/" + hqlQuery + "/");
+        "Content Service - find descriptors " + luceneQuery + "/" + hqlQuery
+            + "/");
     return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
         descriptorFieldNames, DescriptorJpa.class);
   }
