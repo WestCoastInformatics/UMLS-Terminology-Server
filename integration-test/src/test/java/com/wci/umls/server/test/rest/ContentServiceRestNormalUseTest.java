@@ -625,7 +625,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       String snomedTerminology = "SNOMEDCT_US";
       String snomedVersion = "2014_09_01";
 
-      RelationshipList sml = contentService.findRelationshipsForConcept("198664006", snomedTerminology, snomedVersion, new PfsParameterJpa(), authToken);
+      RelationshipList sml = contentService.findRelationshipsForConcept("198664006", snomedTerminology, snomedVersion, null, new PfsParameterJpa(), authToken);
 
       assertNotNull(sml);
       /*assertNotEquals(c.getName(),

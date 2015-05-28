@@ -1200,7 +1200,7 @@ public class ContentClientRest implements ContentServiceRest {
    * java.lang.String)
    */
   @Override
-  public RelationshipList findRelationshipsForConceptAndQuery(String terminologyId,
+  public RelationshipList findRelationshipsForConcept(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1276,7 +1276,7 @@ public class ContentClientRest implements ContentServiceRest {
    * java.lang.String)
    */
   @Override
-  public RelationshipList findRelationshipsForDescriptorAndQuery(String terminologyId,
+  public RelationshipList findRelationshipsForDescriptor(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1318,7 +1318,7 @@ public class ContentClientRest implements ContentServiceRest {
    * java.lang.String)
    */
   @Override
-  public RelationshipList findRelationshipsForCodeAndQuery(String terminologyId,
+  public RelationshipList findRelationshipsForCode(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1503,11 +1503,11 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public RelationshipList findRelationshipsForAtom(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find relationships for atom " + terminologyId + ", "
-            + terminology + ", " + version + ", " + pfs);
+            + terminology + ", " + version + ", " + query + ", " + pfs);
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/aui/"

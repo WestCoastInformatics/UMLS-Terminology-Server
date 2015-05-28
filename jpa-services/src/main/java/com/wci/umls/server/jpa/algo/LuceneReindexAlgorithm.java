@@ -17,11 +17,14 @@ import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
@@ -348,6 +351,14 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
     fullTextEntityManager.purgeAll(LexicalClassJpa.class);
     fullTextEntityManager.purgeAll(StringClassJpa.class);
     fullTextEntityManager.purgeAll(ProjectJpa.class);
+    fullTextEntityManager.purgeAll(AtomSubsetMemberJpa.class);
+    fullTextEntityManager.purgeAll(ConceptSubsetMemberJpa.class);
+    fullTextEntityManager.purgeAll(ConceptTreePositionJpa.class);
+    fullTextEntityManager.purgeAll(DescriptorTreePositionJpa.class);
+    fullTextEntityManager.purgeAll(CodeTreePositionJpa.class);
+    fullTextEntityManager.purgeAll(CodeRelationshipJpa.class);
+    fullTextEntityManager.purgeAll(ConceptRelationshipJpa.class);
+    fullTextEntityManager.purgeAll(DescriptorRelationshipJpa.class);
   }
 
   /**

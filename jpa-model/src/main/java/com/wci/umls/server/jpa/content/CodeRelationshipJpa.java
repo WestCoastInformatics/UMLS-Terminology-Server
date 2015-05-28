@@ -21,11 +21,9 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
-import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
@@ -107,8 +105,6 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
    *
    * @return the from id
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  @FieldBridge(impl = LongBridge.class) 
   public Long getFromId() {
     return from == null ? null : from.getId();
   }
@@ -124,12 +120,57 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     }
     from.setId(id);
   }
+  
+  /**
+   * Returns the from terminology.
+   *
+   * @return the from terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getFromTerminology() {
+    return from == null ? null : from.getTerminology();
+  }
+  
+  /**
+   * Sets the from terminology
+   *
+   * @param terminology the from terminology
+   */
+  public void setFromTerminology(String terminology) {
+    if (from == null) {
+      from = new CodeJpa();
+    }
+    from.setTerminology(terminology);
+  }
+  
+  /**
+   * Returns the from version.
+   *
+   * @return the from version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getFromTerminologyVersion() {
+    return from == null ? null : from.getTerminologyVersion();
+  }
+  
+  /**
+   * Sets the from terminology id.
+   *
+   * @param terminologyVersion the from terminology id
+   */
+  public void setFromTerminologyVersion(String terminologyVersion) {
+    if (from == null) {
+      from = new CodeJpa();
+    }
+    from.setTerminologyVersion(terminologyVersion);
+  }
 
   /**
    * Returns the from terminology id.
    *
    * @return the from terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromTerminologyId() {
     return from == null ? null : from.getTerminologyId();
   }
@@ -151,6 +192,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
    *
    * @return the from term
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromName() {
     return from == null ? null : from.getName();
   }
@@ -210,8 +252,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     }
     to.setId(id);
   }
-  
-  
+
   /**
    * Returns the to terminology id.
    *
@@ -233,7 +274,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     }
     to.setTerminologyId(terminologyId);
   }
-  
+
   /**
    * Returns the to terminology.
    *
@@ -255,11 +296,11 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     }
     to.setTerminology(terminology);
   }
-  
+
   /**
-   * Returns the to terminologyVersion.
+   * Returns the to terminology version.
    *
-   * @return the to terminologyVersion
+   * @return the to terminology version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToTerminologyVersion() {
@@ -269,7 +310,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
   /**
    * Sets the to terminology version.
    *
-   * @param terminologyVersion the to terminologyVersion
+   * @param terminologyVersion the to terminology version
    */
   public void setToTerminologyVersion(String terminologyVersion) {
     if (to == null) {
@@ -277,7 +318,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     }
     to.setTerminologyVersion(terminologyVersion);
   }
-
+  
   /**
    * Returns the to term. For JAXB.
    *
@@ -299,6 +340,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     }
     to.setName(term);
   }
+
 
   /*
    * (non-Javadoc)

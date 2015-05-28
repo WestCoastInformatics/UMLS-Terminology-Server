@@ -56,7 +56,6 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
@@ -730,7 +729,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/query{query: (/query)?}")
+  @Path("/cui/{terminology}/{version}/query/{query: (/query)?}")
   @ApiOperation(value = "Find concepts matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
   public SearchResultList findConceptsForQuery(
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -1634,7 +1633,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/cui/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given concept id.", response = RelationshipList.class)
-  public RelationshipList findRelationshipsForConceptAndQuery(
+  public RelationshipList findRelationshipsForConcept(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
@@ -1653,7 +1652,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       
       RelationshipList list =
           contentService.findRelationshipsForConcept(terminologyId,
-              terminology, version, Branch.ROOT, false, pfs);
+              terminology, version, Branch.ROOT, query, false, pfs);
       
       for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
           .getObjects()) {
@@ -1709,7 +1708,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/dui/{terminology}/{version}/{terminologyId}/relationships")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given descriptor id.", response = RelationshipList.class)
-  public RelationshipList findRelationshipsForDescriptorAndQuery(
+  public RelationshipList findRelationshipsForDescriptor(
     @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor terminology version, e.g. latest", required = true) @PathParam("version") String version,
@@ -1726,11 +1725,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken,
           "retrieve relationships for the descriptor", UserRole.VIEWER);
       
-      return contentService.findRelationshipsForDescriptor(terminologyId,
-          terminology, version, Branch.ROOT, false, pfs);
-
-      RelationshipList list = contentService.findDescriptorRelationshipsForQuery(
-          d.getId().toString(), terminology, version, query, Branch.ROOT, pfs);
+      RelationshipList list = contentService.findRelationshipsForDescriptor(terminologyId,
+          terminology, version, Branch.ROOT, query, false, pfs);
       
       GraphResolutionHandler handler =  contentService.getGraphResolutionHandler(terminology);
       for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : list.getObjects()) {
@@ -1753,7 +1749,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given code id.", response = RelationshipList.class)
-  public RelationshipList findRelationshipsForCodeAndQuery(
+  public RelationshipList findRelationshipsForCode(
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code terminology version, e.g. latest", required = true) @PathParam("version") String version,
@@ -1770,14 +1766,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken,
           "retrieve relationships for the code", UserRole.VIEWER);
 
-      return contentService.findRelationshipsForCode(terminologyId,
-          terminology, version, Branch.ROOT, false, pfs);
-
-      // TODO Modify query based on results of code search
-      
-      // TODO Change call to use terminology Id here
-      RelationshipList list = contentService.findCodeRelationshipsForQuery(
-          c.getId().toString(), terminology, version, query, Branch.ROOT, pfs);
+      RelationshipList list = contentService.findRelationshipsForCode(
+          terminologyId, terminology, version, Branch.ROOT, query, false, pfs);
       
       GraphResolutionHandler handler =  contentService.getGraphResolutionHandler(terminology);
       for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : list.getObjects()) {
@@ -1949,7 +1939,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   public RelationshipList findRelationshipsForAtom(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
@@ -1961,7 +1951,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve relationships for the atom", UserRole.VIEWER);
 
       return contentService.findRelationshipsForAtom(terminologyId,
-          terminology, version, Branch.ROOT, false, pfs);
+          terminology, version, Branch.ROOT, query, false, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a atom");

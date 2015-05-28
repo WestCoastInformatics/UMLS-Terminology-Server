@@ -206,8 +206,8 @@ public interface ContentService extends MetadataService {
    * @throws Exception 
    */
   public RelationshipList findRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs);
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find relationships for concept or any part of its graph and push them all
@@ -242,8 +242,8 @@ public interface ContentService extends MetadataService {
    * @throws Exception 
    */
   public RelationshipList findRelationshipsForDescriptor(String descriptorId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs);
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the relationships for code and query
@@ -259,8 +259,8 @@ public interface ContentService extends MetadataService {
    * @throws Exception 
    */
   public RelationshipList findRelationshipsForCode(String codeId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs);
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the relationships for atom.
@@ -272,10 +272,11 @@ public interface ContentService extends MetadataService {
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for atom
+   * @throws Exception 
    */
   public RelationshipList findRelationshipsForAtom(String conceptId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs);
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the descriptor.

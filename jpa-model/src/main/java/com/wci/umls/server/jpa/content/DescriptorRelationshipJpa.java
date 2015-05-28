@@ -21,11 +21,9 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
-import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
@@ -110,8 +108,6 @@ public class DescriptorRelationshipJpa extends
    *
    * @return the from id
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  @FieldBridge(impl = LongBridge.class) 
   public Long getFromId() {
     return from == null ? null : from.getId();
   }
@@ -127,12 +123,57 @@ public class DescriptorRelationshipJpa extends
     }
     from.setId(id);
   }
+  
+  /**
+   * Returns the from terminology.
+   *
+   * @return the from terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getFromTerminology() {
+    return from == null ? null : from.getTerminology();
+  }
+  
+  /**
+   * Sets the from terminology
+   *
+   * @param terminology the from terminology
+   */
+  public void setFromTerminology(String terminology) {
+    if (from == null) {
+      from = new DescriptorJpa();
+    }
+    from.setTerminology(terminology);
+  }
+  
+  /**
+   * Returns the from version.
+   *
+   * @return the from version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getFromTerminologyVersion() {
+    return from == null ? null : from.getTerminologyVersion();
+  }
+  
+  /**
+   * Sets the from terminology id.
+   *
+   * @param terminologyVersion the from terminology id
+   */
+  public void setFromTerminologyVersion(String terminologyVersion) {
+    if (from == null) {
+      from = new DescriptorJpa();
+    }
+    from.setTerminologyVersion(terminologyVersion);
+  }
 
   /**
    * Returns the from terminology id.
    *
    * @return the from terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromTerminologyId() {
     return from == null ? null : from.getTerminologyId();
   }
@@ -154,6 +195,7 @@ public class DescriptorRelationshipJpa extends
    *
    * @return the from term
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromName() {
     return from == null ? null : from.getName();
   }
@@ -176,6 +218,7 @@ public class DescriptorRelationshipJpa extends
    * @see com.wci.umls.server.model.content.Relationship#getTo()
    */
   @Override
+  @XmlTransient
   public Descriptor getTo() {
     return to;
   }
@@ -188,7 +231,6 @@ public class DescriptorRelationshipJpa extends
    * .model.content.Component)
    */
   @Override
-  @XmlTransient
   public void setTo(Descriptor component) {
     this.to = component;
   }
@@ -198,7 +240,6 @@ public class DescriptorRelationshipJpa extends
    *
    * @return the to id
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getToId() {
     return to == null ? null : to.getId();
   }
@@ -250,7 +291,7 @@ public class DescriptorRelationshipJpa extends
   /**
    * Sets the to terminology.
    *
-   * @param terminologyId the to terminology
+   * @param terminology the to terminology
    */
   public void setToTerminology(String terminology) {
     if (to == null) {
@@ -280,7 +321,7 @@ public class DescriptorRelationshipJpa extends
     }
     to.setTerminologyVersion(terminologyVersion);
   }
-
+  
   /**
    * Returns the to term. For JAXB.
    *
@@ -302,6 +343,7 @@ public class DescriptorRelationshipJpa extends
     }
     to.setName(term);
   }
+
 
   /*
    * (non-Javadoc)

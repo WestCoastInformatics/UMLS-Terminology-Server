@@ -212,7 +212,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private static String[] codeFieldNames = {};
 
   /** The relationship field names. */
-  @SuppressWarnings("unused")
   private static String[] relationshipFieldNames = {};
 
   /** The subset member field names. */
@@ -4106,33 +4105,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public RelationshipList findRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs) {
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for concept " + conceptId + "/"
-            + terminology + "/" + version + "/" + query);
+            + terminology + "/" + version  + "/" + branch + "/" + query + "/" + inverseFlag);
 
-    // construct query from non-null/empty passed query and concept id
-    /*String queryStr =
-        (query == null || query.equals("null") || query.isEmpty() ? "" : query
-            + "AND ")
-            + "fromId:" + conceptId;*/
-    
-    String queryStr = "";
-
-    int totalCt[] = new int[1];
-    List<AtomClass> results =
-        getQueryResults(terminology, version, branch, queryStr,
-            conceptRelationshipFieldNames, ConceptRelationshipJpa.class, pfs,
-            totalCt);
-
-    // cast to RelationshipList
-    RelationshipList list = new RelationshipListJpa();
-    for (AtomClass a : results) {
-      list.addObject((ConceptRelationshipJpa) a);
-    }
-
-    return list;
+    return
+        findRelationshipsForComponentHelper(conceptId, terminology, version, branch, query, inverseFlag,
+            pfs, ConceptRelationshipJpa.class);
   }
 
   /*
@@ -4319,27 +4300,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public RelationshipList findRelationshipsForDescriptor(String descriptorId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs) {
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for descriptor " + descriptorId
-            + "/" + terminology + "/" + version + "/" + query);
-    int totalCt[] = new int[1];
+            + "/" + terminology + "/" + version + "/" + branch + "/" + query + "/" + inverseFlag);
+   
+    return  findRelationshipsForComponentHelper(descriptorId, terminology, version, branch, query, inverseFlag,
+            pfs, DescriptorRelationshipJpa.class);
 
-    String queryStr = query + "AND fromId:" + descriptorId;
-
-    List<AtomClass> results =
-        getQueryResults(terminology, version, branch, queryStr,
-            descriptorRelationshipFieldNames, DescriptorRelationshipJpa.class,
-            pfs, totalCt);
-
-    // cast to RelationshipList
-    RelationshipList list = new RelationshipListJpa();
-    for (AtomClass a : results) {
-      list.addObject((DescriptorRelationshipJpa) a);
-    }
-
-    return list;
   }
 
   /*
@@ -4352,26 +4321,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public RelationshipList findRelationshipsForCode(String codeId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs) {
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for code " + codeId + "/"
-            + terminology + "/" + version + "/" + query);
-    int totalCt[] = new int[1];
-    List<AtomClass> results =
-        getQueryResults(terminology, version, branch, query,
-            codeRelationshipFieldNames, CodeRelationshipJpa.class, pfs, totalCt);
+            + terminology + "/" + version + "/" + branch + "/" + query + "/" + inverseFlag);
+ 
+    return
+        findRelationshipsForComponentHelper(codeId, terminology, version, branch, query, inverseFlag, pfs, CodeRelationshipJpa.class);
 
-    // cast to RelationshipList
-    RelationshipList list = new RelationshipListJpa();
-    for (AtomClass a : results) {
-      list.addObject((CodeRelationshipJpa) a);
-    }
-
-    return list;
-
-    // findRelationshipsHelper(codeId, terminology, version, query, branch,
-    // pfs, CodeRelationshipJpa.class);
   }
 
   /*
@@ -4384,17 +4342,18 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public RelationshipList findRelationshipsForAtom(String atomId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs) {
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for atom " + atomId + "/"
-            + terminology + "/" + version);
-    return findRelationshipsHelper(atomId, terminology, version, branch,
-        inverseFlag, pfs, AtomJpa.class);
+            + terminology + "/" + version + "/" + branch + "/" + query + "/" + inverseFlag);
+    return findRelationshipsForComponentHelper(atomId, terminology, version, branch, query, inverseFlag,
+        pfs, AtomJpa.class);
   }
 
   /**
    * Find relationships helper.
+   * TODO:  Enable search criteria for relationships searching
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
@@ -4404,47 +4363,73 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @param pfs the pfs
    * @param clazz the clazz
    * @return the relationship list
+   * @throws Exception 
    */
   @SuppressWarnings("unchecked")
-  private RelationshipList findRelationshipsHelper(String terminologyId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs, Class<?> clazz) {
-    // Match "to" for inverseFlag, "from" otherwise
-    javax.persistence.Query query =
-        applyPfsToQuery(
-            "select a from "
-                + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
-                + clazz.getName()
-                + " b where b.terminologyId = :terminologyId "
-                + "and b.terminologyVersion = :version "
-                + "and b.terminology = :terminology and a."
-                + (inverseFlag ? "to" : "from") + " = b ", pfs);
-    javax.persistence.Query ctQuery =
-        manager.createQuery("select count(*) from "
-            + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
-            + clazz.getName() + " b where b.terminologyId = :terminologyId "
-            + "and b.terminologyVersion = :version "
-            + "and b.terminology = :terminology and a."
-            + (inverseFlag ? "to" : "from") + " = b");
-    try {
-      RelationshipList list = new RelationshipListJpa();
-
-      // execute count query
-      ctQuery.setParameter("terminologyId", terminologyId);
-      ctQuery.setParameter("terminology", terminology);
-      ctQuery.setParameter("version", version);
-      list.setTotalCount(((Long) ctQuery.getResultList().get(0)).intValue());
-
-      query.setParameter("terminologyId", terminologyId);
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
-      list.setObjects(query.getResultList());
-      list.setTotalCount(list.getObjects().size());
-
-      return list;
-    } catch (NoResultException e) {
-      return null;
+  private RelationshipList findRelationshipsForComponentHelper(String terminologyId, String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs, Class<?> clazz) throws Exception {
+    
+    RelationshipList results = new RelationshipListJpa();
+    
+    // Prepare the query string
+    StringBuilder finalQuery = new StringBuilder();
+    finalQuery.append(query == null ? "" : query);
+    
+    // add id/terminology/version constraints baesd on inverse flag
+    if (inverseFlag == true) {
+      finalQuery.append(" AND toTerminologyId:" + terminologyId + " AND toTerminology: " + terminology + " AND toTerminologyVersion:" + version);
+    } else {
+      finalQuery.append(" AND fromTerminologyId:" + terminologyId + " AND fromTerminology: " + terminology + " AND fromTerminologyVersion:" + version);
     }
+    // add query restriction if supplied
+    if (pfs != null && pfs.getQueryRestriction() != null) {
+      finalQuery.append(" AND ");
+      finalQuery.append(pfs.getQueryRestriction());
+    }
+    
+    // if no query supplied, remove first AND
+    if (finalQuery.indexOf(" AND ") == 0) {
+      finalQuery.delete(0, 5);
+    }
+    
+    Logger.getLogger(getClass()).info("query for " + clazz.getName() +  ": " + finalQuery);
+
+    // Prepare the manager and lucene query
+    FullTextEntityManager fullTextEntityManager =
+        Search.getFullTextEntityManager(manager);
+    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+    Query luceneQuery;
+    try {
+      QueryParser queryParser =
+          new MultiFieldQueryParser(relationshipFieldNames,
+              searchFactory.getAnalyzer(clazz));
+
+      luceneQuery = queryParser.parse(finalQuery.toString());
+    } catch (ParseException e) {
+      throw new LocalException(
+          "The specified search terms cannot be parsed.  Please check syntax and try again.");
+    }
+    FullTextQuery fullTextQuery =
+        fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
+    
+    // Get result size
+    results.setTotalCount(fullTextQuery.getResultSize());
+
+    // Apply paging and sorting parameters - if no search criteria
+    if (pfs.getSearchCriteria().isEmpty()) {
+      applyPfsToLuceneQuery(clazz, fullTextQuery, pfs);
+    }
+
+    // execute the query
+    List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationships = fullTextQuery.getResultList();
+    results.setObjects(relationships);
+    
+    fullTextEntityManager.close();
+   
+    // closing fullTextEntityManager closes manager as well, recreate
+    manager = factory.createEntityManager();
+    return results;
+  
   }
 
   @Override

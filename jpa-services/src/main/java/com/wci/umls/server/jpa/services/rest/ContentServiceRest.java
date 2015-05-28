@@ -184,7 +184,7 @@ public interface ContentServiceRest {
    * @throws Exception the exception
    */
   public RelationshipList findRelationshipsForAtom(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
 
   /**
@@ -199,7 +199,7 @@ public interface ContentServiceRest {
    * @throws Exception the exception
    */
   public RelationshipList findRelationshipsForDescriptor(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
 
   /**
@@ -214,7 +214,22 @@ public interface ContentServiceRest {
    * @throws Exception the exception
    */
   public RelationshipList findRelationshipsForCode(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+  
+  /**
+   * Returns the relationships for concept.
+   *
+   * @param terminologyId the concept id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationships for concept
+   * @throws Exception the exception
+   */
+  public RelationshipList findRelationshipsForConcept(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
 
   /**
