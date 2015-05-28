@@ -12,7 +12,7 @@ package com.wci.umls.server.model.content;
  * @param <T> the type
  * 
  */
-public interface TreePosition<T extends ComponentHasAttributesAndName> extends ComponentHasAttributes {
+public interface TreePosition<T extends AtomClass> extends ComponentHasAttributes {
 
   /**
    * Returns the node.

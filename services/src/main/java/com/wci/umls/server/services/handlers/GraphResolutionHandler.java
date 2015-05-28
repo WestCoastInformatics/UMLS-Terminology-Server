@@ -20,6 +20,8 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
+import com.wci.umls.server.model.meta.RootTerminology;
+import com.wci.umls.server.model.meta.Terminology;
 
 /**
  * Generically represents an algorithm for reading objects to a certain depth
@@ -107,7 +109,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @throws Exception the exception
    */
   public void resolve(AtomSubset subset) throws Exception;
-  
+
   /**
    * Resolve.
    *
@@ -115,8 +117,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @throws Exception the exception
    */
   public void resolve(ConceptSubset subset) throws Exception;
-  
- 
+
   /**
    * Resolve atoms.
    *
@@ -158,7 +159,21 @@ public interface GraphResolutionHandler extends Configurable {
    * @throws Exception the exception
    */
   public void resolve(
-    SubsetMember<? extends ComponentHasAttributesAndName> member)
+    SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member)
     throws Exception;
+
+  /**
+   * Resolve.
+   *
+   * @param terminology the terminology
+   */
+  public void resolve(Terminology terminology);
+
+  /**
+   * Resolve.
+   *
+   * @param rootTerminology the root terminology
+   */
+  public void resolve(RootTerminology rootTerminology);
 
 }

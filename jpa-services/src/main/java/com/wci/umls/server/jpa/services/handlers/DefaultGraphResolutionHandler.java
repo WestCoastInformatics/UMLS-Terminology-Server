@@ -29,6 +29,8 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
+import com.wci.umls.server.model.meta.RootTerminology;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
 /**
@@ -96,8 +98,6 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         }
         resolve(rel);
       }
-      // TODO: skip rels
-      //concept.setRelationships(new ArrayList<ConceptRelationship>());
 
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");
@@ -201,9 +201,15 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
     throws Exception {
     if (relationship != null) {
-      relationship.getFrom().getTerminology();
-      relationship.getTo().getTerminology();
-      relationship.getAlternateTerminologyIds().keySet();
+      if (relationship.getFrom() != null) {
+        relationship.getFrom().getTerminology();
+      }
+      if (relationship.getTo() != null) {
+        relationship.getTo().getTerminology();
+      }
+      if (relationship.getAlternateTerminologyIds() != null) {
+        relationship.getAlternateTerminologyIds().keySet();
+      }
       resolveAttributes(relationship, relationship.getId() == null);
     } else if (relationship == null) {
       throw new Exception("Cannot resolve a null relationship.");
@@ -331,8 +337,6 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     } else if (lexicalClass == null) {
       throw new Exception("Cannot resolve a null lexical class.");
 
-    } else if (lexicalClass.getId() == null) {
-      throw new Exception("Cannot resolve a lexical class with a null id.");
     }
   }
 
@@ -364,9 +368,6 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
     } else if (stringClass == null) {
       throw new Exception("Cannot resolve a null string class.");
-
-    } else if (stringClass.getId() == null) {
-      throw new Exception("Cannot resolve a string class with a null id.");
     }
   }
 
@@ -389,7 +390,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
   @Override
   public void resolve(
-    SubsetMember<? extends ComponentHasAttributesAndName> member)
+    SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member)
     throws Exception {
     if (member != null) {
       boolean nullId = member.getId() == null;
@@ -431,8 +432,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
    * @param nullId the null id
    */
   @SuppressWarnings("static-method")
-  private void resolveAtomSubsetMembers(AtomSubset subset,
-    boolean nullId) {
+  private void resolveAtomSubsetMembers(AtomSubset subset, boolean nullId) {
     for (AtomSubsetMember member : subset.getMembers()) {
       member.getMember();
       if (member.getAttributes() != null)
@@ -442,7 +442,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
     }
   }
-  
+
   /**
    * Resolve concept subset members.
    *
@@ -450,8 +450,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
    * @param nullId the null id
    */
   @SuppressWarnings("static-method")
-  private void resolveConceptSubsetMembers(ConceptSubset subset,
-    boolean nullId) {
+  private void resolveConceptSubsetMembers(ConceptSubset subset, boolean nullId) {
     for (ConceptSubsetMember member : subset.getMembers()) {
       member.getMember();
       if (member.getAttributes() != null)
@@ -460,7 +459,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         member.setId(null);
       }
     }
-  }  
+  }
 
   /**
    * Resolve definition.
@@ -478,8 +477,12 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     resolveAttributes(definition, nullId);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com.wci.umls.server.model.content.AtomSubset)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.content.AtomSubset)
    */
   @Override
   public void resolve(AtomSubset subset) throws Exception {
@@ -487,22 +490,25 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       boolean nullId = subset.getId() == null;
 
       subset.getName();
-      
+
       // Attributes
       resolveAttributes(subset, nullId);
-      
+
       // AtomSubsetMembers
       resolveAtomSubsetMembers(subset, nullId);
-
 
     } else if (subset == null) {
       throw new Exception("Cannot resolve a null subset.");
     }
 
   }
-  
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com.wci.umls.server.model.content.ConceptSubset)
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.content.ConceptSubset)
    */
   @Override
   public void resolve(ConceptSubset subset) throws Exception {
@@ -510,18 +516,43 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       boolean nullId = subset.getId() == null;
 
       subset.getName();
-      
+
       // Attributes
       resolveAttributes(subset, nullId);
-      
+
       // ConceptSubsetMembers
       resolveConceptSubsetMembers(subset, nullId);
-
 
     } else if (subset == null) {
       throw new Exception("Cannot resolve a null subset.");
     }
 
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.meta.Terminology)
+   */
+  @Override
+  public void resolve(Terminology terminology) {
+    terminology.getSynonymousNames().size();
+    terminology.getRootTerminology().getTerminology();
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.meta.RootTerminology)
+   */
+  @Override
+  public void resolve(RootTerminology rootTerminology) {
+    rootTerminology.getSynonymousNames().size();
+    rootTerminology.getLanguage().getAbbreviation();
   }
 
 }

@@ -61,6 +61,10 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Column(nullable = false)
   private boolean fullyDefined = false;
 
+  /** The anonymous. */
+  @Column(nullable = false)
+  private boolean anonymous = false;
+
   /** The uses relationships intersection flag. */
   @Column(nullable = false)
   private boolean usesRelationshipIntersection = true;
@@ -84,6 +88,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    */
   public ConceptJpa(Concept concept, boolean deepCopy) {
     super(concept, deepCopy);
+    anonymous = concept.isAnonymous();
     fullyDefined = concept.isFullyDefined();
     usesRelationshipIntersection = concept.getUsesRelationshipIntersection();
     usesRelationshipUnion = concept.getUsesRelationshipUnion();
@@ -228,6 +233,27 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     this.fullyDefined = fullyDefined;
   }
 
+  /**
+   * Indicates whether or not the concept is anonymous.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public boolean isAnonymous() {
+    return anonymous;
+  }
+
+  /**
+   * Sets the anonymous flag.
+   *
+   * @param anonymous the anonymous flag
+   */
+  @Override
+  public void setAnonymous(boolean anonymous) {
+    this.anonymous = anonymous;
+  }
+  
   /*
    * (non-Javadoc)
    * 
@@ -405,6 +431,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + (anonymous ? 1231 : 1237);
     result = prime * result + (fullyDefined ? 1231 : 1237);
     result = prime * result + (usesRelationshipIntersection ? 1231 : 1237);
     result = prime * result + (usesRelationshipUnion ? 1231 : 1237);
@@ -427,6 +454,8 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       return false;
     ConceptJpa other = (ConceptJpa) obj;
     if (fullyDefined != other.fullyDefined)
+      return false;
+    if (anonymous != other.anonymous)
       return false;
     if (usesRelationshipIntersection != other.usesRelationshipIntersection)
       return false;

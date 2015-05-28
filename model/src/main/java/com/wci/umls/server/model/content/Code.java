@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.model.content;
 
-import com.wci.umls.server.helpers.HasRelationships;
 
 /**
  * Represents a fuzzy conceptual meaning that may be a {@link Concept} or may be
@@ -14,7 +13,8 @@ import com.wci.umls.server.helpers.HasRelationships;
  * For "legacy" UMLS sources, it's also an alternative to concept/descriptor as
  * it has not clearly been defined which is which.
  */
-public interface Code extends AtomClass, HasRelationships<CodeRelationship> {
+public interface Code extends AtomClass,
+    ComponentHasRelationships<CodeRelationship> {
 
   // Nothing extra
 

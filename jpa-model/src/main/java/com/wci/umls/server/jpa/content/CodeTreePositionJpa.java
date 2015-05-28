@@ -14,6 +14,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTreePosition;
@@ -22,14 +28,11 @@ import com.wci.umls.server.model.content.CodeTreePosition;
  * JPA-enabled implementation of {@link CodeTreePosition}.
  */
 @Entity
-@Table(name = "code_tree_positions", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {
-        "terminologyId", "terminology", "terminologyVersion", "id"
-    }), @UniqueConstraint(columnNames = {
-        "ancestorPath", "terminologyId"
-    })
-})
+@Table(name = "code_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
+    "terminologyId", "terminology", "terminologyVersion", "id"
+}))
 @Audited
+@Indexed
 @XmlRootElement(name = "codeTreePosition")
 public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
     CodeTreePosition {
@@ -74,6 +77,7 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
    * @return the node id
    */
   @XmlElement
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getNodeId() {
     return node == null ? null : node.getId();
   }
@@ -95,6 +99,7 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
    *
    * @return the node name
    */
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"))
   public String getNodeName() {
     return node == null ? null : node.getName();
   }
@@ -116,6 +121,7 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
    *
    * @return the node terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getNodeTerminologyId() {
     return node == null ? null : node.getTerminologyId();
   }
@@ -130,6 +136,50 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
       node = new CodeJpa();
     }
     node.setTerminologyId(terminologyId);
+  }
+
+  /**
+   * Returns the node terminology. For JAXB.
+   *
+   * @return the node terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getNodeTerminology() {
+    return node == null ? null : node.getTerminology();
+  }
+
+  /**
+   * Sets the node terminology. For JAXB.
+   *
+   * @param terminology the node terminology
+   */
+  public void setNodeTerminology(String terminology) {
+    if (node == null) {
+      node = new CodeJpa();
+    }
+    node.setTerminology(terminology);
+  }
+
+  /**
+   * Returns the node terminology version. For JAXB.
+   *
+   * @return the node terminology version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getNodeTerminologyVersion() {
+    return node == null ? null : node.getTerminologyVersion();
+  }
+
+  /**
+   * Sets the node terminology version. For JAXB.
+   *
+   * @param terminologyVersion the node terminology version
+   */
+  public void setNodeTerminologyVersion(String terminologyVersion) {
+    if (node == null) {
+      node = new CodeJpa();
+    }
+    node.setTerminologyVersion(terminologyVersion);
   }
 
   /*

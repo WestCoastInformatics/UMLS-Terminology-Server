@@ -49,9 +49,9 @@ public class ContentServiceAutocompleteTest {
   public void testConceptAutocompleteNormalUse() throws Exception {
     StringList results =
         service.autocompleteConcepts("SNOMEDCT_US", "2014_09_01", "lett");
-    assertEquals(20, results.getObjects().size());
+    assertEquals(13, results.getObjects().size());
     results = service.autocompleteConcepts("SNOMEDCT_US", "2014_09_01", "let");
-    assertEquals(20, results.getObjects().size());
+    assertEquals(17, results.getObjects().size());
 
     results = service.autocompleteConcepts("UMLS", "latest", "lett");
     assertEquals(20, results.getObjects().size());
@@ -68,9 +68,9 @@ public class ContentServiceAutocompleteTest {
   public void testDescriptorAutocompleteNormalUse() throws Exception {
     StringList results =
         service.autocompleteDescriptors("MSH", "2015_2014_09_08", "dipa");
-    assertEquals(20, results.getObjects().size());
+    assertEquals(7, results.getObjects().size());
     results = service.autocompleteDescriptors("MSH", "2015_2014_09_08", "dip");
-    assertEquals(20, results.getObjects().size());
+    assertEquals(7, results.getObjects().size());
     results = service.autocompleteDescriptors("MSH", "2015_2014_09_08", "di");
     assertTrue(results.getObjects().isEmpty());
     results = service.autocompleteDescriptors("MSH", "2015_2014_09_08", "d");
@@ -88,18 +88,18 @@ public class ContentServiceAutocompleteTest {
   public void testCodeAutocompleteNormalUse() throws Exception {
     StringList results =
         service.autocompleteCodes("SNOMEDCT_US", "2014_09_01", "lett");
-    assertEquals(20, results.getObjects().size());
+    assertEquals(13, results.getObjects().size());
     results = service.autocompleteCodes("SNOMEDCT_US", "2014_09_01", "let");
-    assertEquals(20, results.getObjects().size());
+    assertEquals(17, results.getObjects().size());
     results = service.autocompleteCodes("SNOMEDCT_US", "2014_09_01", "le");
     assertTrue(results.getObjects().isEmpty());
     results = service.autocompleteCodes("SNOMEDCT_US", "2014_09_01", "l");
     assertTrue(results.getObjects().isEmpty());
 
     results = service.autocompleteCodes("UMLS", "latest", "lett");
-    assertEquals(20, results.getObjects().size());
+    assertEquals(0, results.getObjects().size());
     results = service.autocompleteCodes("UMLS", "latest", "let");
-    assertEquals(20, results.getObjects().size());
+    assertEquals(0, results.getObjects().size());
     results = service.autocompleteCodes("UMLS", "latest", "le");
     assertTrue(results.getObjects().isEmpty());
     results = service.autocompleteCodes("UMLS", "latest", "l");

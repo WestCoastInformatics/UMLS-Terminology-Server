@@ -21,6 +21,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
+import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
@@ -58,7 +59,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/terminology/id/{terminology}/{version}")
-  @ApiOperation(value = "Get all terminology information for a name and version", notes = "Gets the key-value pairs representing all information for a particular terminology and version.", response = KeyValuePairLists.class)
+  @ApiOperation(value = "Get terminology", notes = "Gets the terminology for the specified parameters.", response = TerminologyJpa.class)
   public Terminology getTerminology(
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
@@ -83,9 +84,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
 
       Terminology termInfo =
           metadataService.getTerminology(terminology, version);
-
-      // TODO: Move lazy instantiation into graph resolver
-      termInfo.getSynonymousNames().size();
+      metadataService.getGraphResolutionHandler(terminology).resolve(termInfo);
 
       return termInfo;
 

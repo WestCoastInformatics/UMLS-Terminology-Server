@@ -10,6 +10,7 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
+import com.wci.umls.server.helpers.meta.LanguageList;
 import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.RootTerminologyList;
@@ -26,6 +27,7 @@ import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
+import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
 /**
  * Services to retrieve metadata objects.
@@ -48,7 +50,9 @@ public interface MetadataService extends RootService, Configurable {
     /** The Term_ types. */
     Term_Types,
     /** The Hierarchical_ relationship_ types. */
-    Hierarchical_Relationship_Types
+    Hierarchical_Relationship_Types,
+    /** The Languages. */
+    Languages
   }
 
   /**
@@ -140,8 +144,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the property chains
    * @throws Exception the exception
    */
-  public PropertyChainList getPropertyChains(String terminology,
-    String version) throws Exception;
+  public PropertyChainList getPropertyChains(String terminology, String version)
+    throws Exception;
 
   /**
    * Returns the additional relation types.
@@ -162,8 +166,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the attribute names
    * @throws Exception the exception
    */
-  public AttributeNameList getAttributeNames(String terminology,
-    String version) throws Exception;
+  public AttributeNameList getAttributeNames(String terminology, String version)
+    throws Exception;
 
   /**
    * Returns the semantic types.
@@ -185,6 +189,17 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception the exception
    */
   public TermTypeList getTermTypes(String terminology, String version)
+    throws Exception;
+
+  /**
+   * Returns the languages.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @return the languages
+   * @throws Exception the exception
+   */
+  public LanguageList getLanguages(String terminology, String version)
     throws Exception;
 
   /**
@@ -245,8 +260,8 @@ public interface MetadataService extends RootService, Configurable {
    * @param version the version
    * @return the general metadata entries
    */
-  public GeneralMetadataEntryList getGeneralMetadataEntries(
-    String terminology, String version);
+  public GeneralMetadataEntryList getGeneralMetadataEntries(String terminology,
+    String version);
 
   /**
    * Returns the precedence list.
@@ -440,7 +455,6 @@ public interface MetadataService extends RootService, Configurable {
    */
   public void removeTermType(Long id) throws Exception;
 
-
   /**
    * Adds the general metadata entry.
    *
@@ -448,7 +462,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the general metadata entry
    * @throws Exception the exception
    */
-  public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry) throws Exception;
+  public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry)
+    throws Exception;
 
   /**
    * Update general metadata entry.
@@ -456,7 +471,8 @@ public interface MetadataService extends RootService, Configurable {
    * @param entry the entry
    * @throws Exception the exception
    */
-  public void updateGeneralMetadataEntry(GeneralMetadataEntry entry) throws Exception;
+  public void updateGeneralMetadataEntry(GeneralMetadataEntry entry)
+    throws Exception;
 
   /**
    * Removes the general metadata entry.
@@ -525,8 +541,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the root terminology
    * @throws Exception the exception
    */
-  public PrecedenceList addPrecedenceList(PrecedenceList list)
-    throws Exception;
+  public PrecedenceList addPrecedenceList(PrecedenceList list) throws Exception;
 
   /**
    * Update precedence list.
@@ -543,5 +558,16 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception the exception
    */
   public void removePrecedenceList(Long id) throws Exception;
+
+  /**
+   * Returns the graph resolution handler. This is configured internally but
+   * made available through this service.
+   *
+   * @param terminology the terminology
+   * @return the graph resolution handler
+   * @throws Exception the exception
+   */
+  public GraphResolutionHandler getGraphResolutionHandler(String terminology)
+    throws Exception;
 
 }

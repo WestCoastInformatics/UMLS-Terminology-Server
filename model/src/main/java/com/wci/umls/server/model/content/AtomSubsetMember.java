@@ -7,24 +7,9 @@
  *************************************************************/
 package com.wci.umls.server.model.content;
 
-
-
 /**
  * Represents membership of an {@link Atom} i0n a {@link Subset}.
  */
-public interface AtomSubsetMember extends SubsetMember<Atom>{
-
-  /**
-   * Returns the subset.
-   * 
-   * @return the subset
-   */
-  public AtomSubset getSubset();
-
-  /**
-   * Sets the subset.
-   * 
-   * @param subset the subset
-   */
-  public void setSubset(AtomSubset subset);
+public interface AtomSubsetMember extends SubsetMember<Atom, AtomSubset> {
+  // n/a
 }

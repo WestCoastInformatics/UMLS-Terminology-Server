@@ -12,6 +12,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
@@ -27,9 +33,10 @@ import com.wci.umls.server.model.content.SubsetMember;
     "terminologyId", "terminology", "terminologyVersion", "id"
 }))
 @Audited
+@Indexed
 @XmlRootElement(name = "conceptMember")
-public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
-    implements ConceptSubsetMember {
+public class ConceptSubsetMemberJpa extends
+    AbstractSubsetMember<Concept, ConceptSubset> implements ConceptSubsetMember {
 
   /** The member. */
   @ManyToOne(targetEntity = ConceptJpa.class, optional = false)
@@ -88,6 +95,7 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
    *
    * @return the member id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getMemberId() {
     return member == null ? null : member.getId();
   }
@@ -109,6 +117,7 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
    *
    * @return the member terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getMemberTerminologyId() {
     return member == null ? null : member.getTerminologyId();
   }
@@ -126,10 +135,55 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
   }
 
   /**
+   * Returns the member terminology. For JAXB.
+   *
+   * @return the member terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getMemberTerminology() {
+    return member == null ? null : member.getTerminology();
+  }
+
+  /**
+   * Sets the member terminology. For JAXB.
+   *
+   * @param terminology the member terminology
+   */
+  public void setMemberTerminology(String terminology) {
+    if (member == null) {
+      member = new ConceptJpa();
+    }
+    member.setTerminology(terminology);
+  }
+  
+  /**
+   * Returns the member terminology version. For JAXB.
+   *
+   * @return the member terminology version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getMemberTerminologyVersion() {
+    return member == null ? null : member.getTerminologyVersion();
+  }
+
+  /**
+   * Sets the member terminology version. For JAXB.
+   *
+   * @param terminologyVersion the member terminology version
+   */
+  public void setMemberTerminologyVersion(String terminologyVersion) {
+    if (member == null) {
+      member = new ConceptJpa();
+    }
+    member.setTerminologyVersion(terminologyVersion);
+  }
+
+  /**
    * Returns the member name. For JAXB.
    *
    * @return the member name
    */
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"))
   public String getMemberName() {
     return member == null ? null : member.getName();
   }
@@ -174,6 +228,7 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
    *
    * @return the subset id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getSubsetId() {
     return subset == null ? null : subset.getId();
   }
@@ -195,6 +250,7 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
    *
    * @return the subset terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getSubsetTerminologyId() {
     return subset == null ? null : subset.getTerminologyId();
   }
@@ -211,11 +267,56 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
     subset.setTerminologyId(terminologyId);
   }
 
+
+  /**
+   * Returns the subset terminology. For JAXB.
+   *
+   * @return the subset terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getSubsetTerminology() {
+    return subset == null ? null : subset.getTerminology();
+  }
+
+  /**
+   * Sets the subset terminology. For JAXB.
+   *
+   * @param terminology the subset terminology
+   */
+  public void setSubsetTerminology(String terminology) {
+    if (subset == null) {
+      subset = new ConceptSubsetJpa();
+    }
+    subset.setTerminology(terminology);
+  }
+  
+  /**
+   * Returns the subset terminology version. For JAXB.
+   *
+   * @return the subset terminology version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getSubsetTerminologyVersion() {
+    return subset == null ? null : subset.getTerminologyVersion();
+  }
+
+  /**
+   * Sets the subset terminology version. For JAXB.
+   *
+   * @param terminologyVersion the subset terminology version
+   */
+  public void setSubsetTerminologyVersion(String terminologyVersion) {
+    if (subset == null) {
+      subset = new ConceptSubsetJpa();
+    }
+    subset.setTerminologyVersion(terminologyVersion);
+  }
   /**
    * Returns the subset name. For JAXB.
    *
    * @return the subset name
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getSubsetName() {
     return subset == null ? null : subset.getName();
   }
@@ -296,8 +397,8 @@ public class ConceptSubsetMemberJpa extends AbstractSubsetMember<Concept>
    */
   @Override
   public String toString() {
-    return "ConceptSubsetMemberJpa [id = " + getId() + ", member=" + member + ", subset=" + subset
-        + "]";
+    return "ConceptSubsetMemberJpa [id = " + getId() + ", member=" + member
+        + ", subset=" + subset + "]";
   }
 
 }

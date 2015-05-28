@@ -18,6 +18,7 @@ import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
@@ -54,6 +55,19 @@ public interface ContentServiceRest {
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
+
+  /**
+   * Find concepts for query.
+   *
+   * @param luceneQuery the lucene query
+   * @param hqlQuery the hql query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findConceptsForQuery(String luceneQuery,
+    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Autocomplete concepts.
@@ -141,6 +155,69 @@ public interface ContentServiceRest {
 
 
   /**
+   * Find relationships for concept or any part of its graph and push them all
+   * up to the same level. For example a UMLS concept may return the CUI
+   * relationships, the atom relationships, the SCUI, SDUI, and CODE
+   * relationships - all represented as {@link ConceptRelationship}.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  public RelationshipList findDeepRelationshipsForConcept(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the relationships for atom.
+   *
+   * @param terminologyId the atom id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationships for atom
+   * @throws Exception the exception
+   */
+  public RelationshipList findRelationshipsForAtom(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the relationships for descriptor.
+   *
+   * @param terminologyId the descriptor id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationships for descriptor
+   * @throws Exception the exception
+   */
+  public RelationshipList findRelationshipsForDescriptor(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Returns the relationships for code.
+   *
+   * @param terminologyId the code id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationships for code
+   * @throws Exception the exception
+   */
+  public RelationshipList findRelationshipsForCode(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
    * Find descriptorss for query.
    *
    * @param terminology the terminology
@@ -154,6 +231,19 @@ public interface ContentServiceRest {
   public SearchResultList findDescriptorsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
+
+  /**
+   * Find descriptors for query.
+   *
+   * @param luceneQuery the lucene query
+   * @param hqlQuery the hql query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findDescriptorsForQuery(String luceneQuery,
+    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Autocomplete descriptors.
@@ -226,6 +316,19 @@ public interface ContentServiceRest {
    */
   public SearchResultList findCodesForQuery(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Find codes for query.
+   *
+   * @param luceneQuery the lucene query
+   * @param hqlQuery the hql query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public SearchResultList findCodesForQuery(String luceneQuery,
+    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Autocomplete codes.
@@ -396,13 +499,15 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the tree positions for concept
    * @throws Exception the exception
    */
   public TreeList findTreesForConcept(String terminologyId, String terminology,
-    String version, PfsParameterJpa pfs, String authToken) throws Exception;
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
 
   /**
    * Returns the tree positions for descriptor.
@@ -410,14 +515,15 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the tree positions for descriptor
    * @throws Exception the exception
    */
   public TreeList findTreesForDescriptor(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Returns the tree positions for code.
@@ -425,13 +531,15 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the tree positions for code
    * @throws Exception the exception
    */
   public TreeList findTreesForCode(String terminologyId, String terminology,
-    String version, PfsParameterJpa pfs, String authToken) throws Exception;
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
 
   /**
    * Gets the atom subsets.
@@ -458,66 +566,35 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
-   * Find concept relationships for query.
+   * Find atom subset members.
    *
-   * @param terminologyId the terminology id
+   * @param subsetId the subset id
    * @param terminology the terminology
    * @param version the version
    * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
-   * @return the relationship list
+   * @return the subset member list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForConceptAndQuery(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception;
+  public SubsetMemberList findAtomSubsetMembers(String subsetId,
+    String terminology, String version, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
-   * Find descriptor relationships for query.
+   * Find concept subset members.
    *
-   * @param terminologyId the terminology id
+   * @param subsetId the subset id
    * @param terminology the terminology
    * @param version the version
    * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
-   * @return the relationship list
+   * @return the subset member list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForDescriptorAndQuery(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception;
-
-  /**
-   * Find code relationships for query.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the relationship list
-   * @throws Exception the exception
-   */
-  public RelationshipList findRelationshipsForCodeAndQuery(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception;
-
-  /**
-   * Find relationships for atom.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the relationship list
-   * @throws Exception the exception
-   */
-  public RelationshipList findRelationshipsForAtom(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public SubsetMemberList findConceptSubsetMembers(String subsetId,
+    String terminology, String version, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
 }

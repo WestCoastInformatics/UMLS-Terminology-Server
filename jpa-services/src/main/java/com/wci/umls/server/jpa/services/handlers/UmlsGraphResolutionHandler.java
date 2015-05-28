@@ -69,8 +69,13 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
         resolve(atom);
       }
 
-      // skip relationships (for UMLS concept)
-      concept.setRelationships(new ArrayList<ConceptRelationship>());
+      // Relationships
+      for (ConceptRelationship rel : concept.getRelationships()) {
+        if (nullId) {
+          rel.setId(null);
+        }
+        resolve(rel);
+      }
 
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");
@@ -184,6 +189,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
         atom.setAttributes(new ArrayList<Attribute>());
         atom.setDefinitions(new ArrayList<Definition>());
         atom.setRelationships(new ArrayList<AtomRelationship>());
+        atom.setMembers(new ArrayList<AtomSubsetMember>());
       }
 
     } else if (lexicalClass == null) {
@@ -218,6 +224,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
         atom.setAttributes(new ArrayList<Attribute>());
         atom.setDefinitions(new ArrayList<Definition>());
         atom.setRelationships(new ArrayList<AtomRelationship>());
+        atom.setMembers(new ArrayList<AtomSubsetMember>());
       }
 
     } else if (stringClass == null) {

@@ -15,12 +15,14 @@ import org.hibernate.search.jpa.Search;
 
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
-import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
+import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
+import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
-import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
+import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.services.RootServiceJpa;
@@ -118,7 +120,11 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
       objectsToReindex.add("DescriptorJpa");
       objectsToReindex.add("LexicalClassJpa");
       objectsToReindex.add("StringClassJpa");
-      objectsToReindex.add("ProjectJpa");
+      objectsToReindex.add("AtomSubsetMemberJpa");
+      objectsToReindex.add("ConceptSubsetMemberJpa");
+      objectsToReindex.add("ConceptTreePositionJpa");
+      objectsToReindex.add("DescriptorTreePositionJpa");
+      objectsToReindex.add("CodeTreePositionJpa");
       objectsToReindex.add("CodeRelationshipJpa");
       objectsToReindex.add("ConceptRelationshipJpa");
       objectsToReindex.add("DescriptorRelationshipJpa");
@@ -154,6 +160,19 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
           .threadsToLoadObjects(4).startAndWait();
 
       objectsToReindex.remove("ConceptJpa");
+    }
+
+    // ConceptSubsetMember
+    if (objectsToReindex.contains("ConceptSubsetMemberJpa")) {
+      Logger.getLogger(getClass()).info(
+          "  Creating indexes for ConceptSubsetMemberJpa");
+      fullTextEntityManager.purgeAll(ConceptSubsetMemberJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(ConceptSubsetMemberJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("ConceptSubsetMemberJpa");
     }
 
     // Descriptor
@@ -204,6 +223,58 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
           .threadsToLoadObjects(4).startAndWait();
 
       objectsToReindex.remove("StringClassJpa");
+    }
+
+    // AtomSubsetMember
+    if (objectsToReindex.contains("AtomSubsetMemberJpa")) {
+      Logger.getLogger(getClass()).info(
+          "  Creating indexes for AtomSubsetMemberJpa");
+      fullTextEntityManager.purgeAll(AtomSubsetMemberJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(AtomSubsetMemberJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("AtomSubsetMemberJpa");
+    }
+
+    // Concept tree position
+    if (objectsToReindex.contains("ConceptTreePositionJpa")) {
+      Logger.getLogger(getClass()).info(
+          "  Creating indexes for ConceptTreePositionJpa");
+      fullTextEntityManager.purgeAll(ConceptTreePositionJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(ConceptTreePositionJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("ConceptTreePositionJpa");
+    }
+
+    // Descriptor tree position
+    if (objectsToReindex.contains("DescriptorTreePositionJpa")) {
+      Logger.getLogger(getClass()).info(
+          "  Creating indexes for DescriptorTreePositionJpa");
+      fullTextEntityManager.purgeAll(DescriptorTreePositionJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(DescriptorTreePositionJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("DescriptorTreePositionJpa");
+    }
+
+    // Code tree position
+    if (objectsToReindex.contains("CodeTreePositionJpa")) {
+      Logger.getLogger(getClass()).info(
+          "  Creating indexes for CodeTreePositionJpa");
+      fullTextEntityManager.purgeAll(CodeTreePositionJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(CodeTreePositionJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("CodeTreePositionJpa");
     }
 
     // Projects

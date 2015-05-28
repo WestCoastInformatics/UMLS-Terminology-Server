@@ -101,6 +101,13 @@ public interface SearchCriteria {
    * @return the find by relationship from id
    */
   public String getRelationshipFromId();
+  
+  /**
+   * Sets the relationship from id.
+   *
+   * @param id the relationship from id
+   */
+  public void setRelationshipFromId(String id);
 
   /**
    * Returns the type id of relationships for which matches among from or
@@ -109,6 +116,13 @@ public interface SearchCriteria {
    * @return the find by relationship type
    */
   public String getRelationshipType();
+  
+  /**
+   * Sets the relationship type.
+   *
+   * @param type the relationship type
+   */
+  public void setRelationshipType(String type);
 
   /**
    * Returns the to id of relationships for which matches among from ids
@@ -117,14 +131,28 @@ public interface SearchCriteria {
    * @return the find by relationship to id
    */
   public String getRelationshipToId();
+  
+  /**
+   * Sets the relationship to id.
+   *
+   * @param id the relationship to id
+   */
+  public void setRelationshipToId(String id);
 
   /**
    * Indicates whether the specified from or to id of a relationship
-   * criteria should be searched for just that id or also its descendats.
+   * criteria should be searched for just that id or also its descendants.
    *
    * @return the find by relationship descendants
    */
   public boolean getRelationshipDescendantsFlag();
+  
+  /**
+   * Sets the relationship descendants flag.
+   *
+   * @param descendants the relationship descendants flag
+   */
+  public void setRelationshipDescendantsFlag(boolean descendants);
 
   /**
    * Indicates that the search should return from concepts connected by the

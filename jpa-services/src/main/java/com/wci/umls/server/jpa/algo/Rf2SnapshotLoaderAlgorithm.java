@@ -38,6 +38,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
+import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
@@ -79,10 +80,10 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   /** hash sets for retrieving descriptions. */
   private Map<String, Atom> atomCache = new HashMap<>(); // used
 
-  /**  The atom subset map. */
+  /** The atom subset map. */
   private Map<String, AtomSubset> atomSubsetMap = new HashMap<>();
 
-  /**  The concept subset map. */
+  /** The concept subset map. */
   private Map<String, ConceptSubset> conceptSubsetMap = new HashMap<>();
 
   /** hash set for storing default preferred names. */
@@ -331,7 +332,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
       // Load metadata
       // TODO:
-      
+
       //
       // Create ReleaseInfo for this release if it does not already exist
       //
@@ -350,6 +351,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         info.setLastModifiedBy(loader);
         addReleaseInfo(info);
       }
+      
+      // TODO: Add metadata (including things like sub/super properties)
+      //   property chains, non-grouping relationships, etc.
 
       // Clear concept cache
       // clear and commit
@@ -513,14 +517,14 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
         concept.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, concept);
 
         Attribute attribute2 = new AttributeJpa();
         setCommonFields(attribute2);
         attribute2.setName("definitionStatusId");
         attribute2.setValue(fields[4].intern());
         concept.addAttribute(attribute2);
-        addAttribute(attribute2);
+        addAttribute(attribute2, concept);
 
         // copy concept to shed any hibernate stuff
         addConcept(concept);
@@ -590,21 +594,21 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
         relationship.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, relationship);
 
         Attribute attribute2 = new AttributeJpa();
         setCommonFields(attribute2);
         attribute2.setName("characteristicTypeId");
         attribute2.setValue(fields[8].intern());
         relationship.addAttribute(attribute2);
-        addAttribute(attribute2);
+        addAttribute(attribute2, relationship);
 
         Attribute attribute3 = new AttributeJpa();
         setCommonFields(attribute3);
         attribute3.setName("characteristicTypeId");
         attribute3.setValue(fields[9].intern());
         relationship.addAttribute(attribute3);
-        addAttribute(attribute3);
+        addAttribute(attribute3, relationship);
 
         // get concepts from cache, they just need to have ids
         final Concept fromConcept = conceptCache.get(fields[4]);
@@ -705,14 +709,14 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
         atom.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, atom);
 
         Attribute attribute2 = new AttributeJpa();
         setCommonFields(attribute2);
         attribute2.setName("caseSignificanceId");
         attribute2.setValue(fields[8].intern());
         atom.addAttribute(attribute2);
-        addAttribute(attribute2);
+        addAttribute(attribute2, atom);
 
         // set concept from cache and set initial prev concept
         Concept concept = conceptCache.get(fields[4]);
@@ -817,7 +821,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("acceptabilityId");
         attribute.setValue(fields[6].intern());
         member.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, member);
 
         if (!atomSubsetMap.containsKey(fields[4])) {
           AtomSubset subset = new AtomSubsetJpa();
@@ -832,7 +836,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           attribute2.setName("moduleId");
           attribute2.setValue(fields[3].intern());
           subset.addAttribute(attribute2);
-          addAttribute(attribute2);
+          addAttribute(attribute2, member);
 
         }
         AtomSubset subset = atomSubsetMap.get(fields[4]);
@@ -875,7 +879,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           break;
         }
 
-        SubsetMember<? extends ComponentHasAttributesAndName> member = null;
+        SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
+            null;
 
         if (conceptCache.containsKey(fields[5])) {
           member = new ConceptSubsetMemberJpa();
@@ -908,7 +913,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("valueId");
         attribute.setValue(fields[6].intern());
         member.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, member);
 
         if (!atomSubsetMap.containsKey(fields[4])) {
           AtomSubset subset = new AtomSubsetJpa();
@@ -923,7 +928,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           attribute2.setName("moduleId");
           attribute2.setValue(fields[3].intern());
           subset.addAttribute(attribute2);
-          addAttribute(attribute2);
+          addAttribute(attribute2, member);
 
           ((AtomSubsetMember) member).setSubset(subset);
           subset.addMember((AtomSubsetMember) member);
@@ -940,7 +945,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           attribute2.setName("moduleId");
           attribute2.setValue(fields[3].intern());
           subset.addAttribute(attribute2);
-          addAttribute(attribute2);
+          addAttribute(attribute2, member);
 
           ((ConceptSubsetMember) member).setSubset(subset);
           subset.addMember((ConceptSubsetMember) member);
@@ -985,7 +990,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           break;
         }
 
-        SubsetMember<? extends ComponentHasAttributesAndName> member = null;
+        SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
+            null;
 
         if (conceptCache.containsKey(fields[5])) {
           member = new ConceptSubsetMemberJpa();
@@ -1018,7 +1024,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("targetComponentId");
         attribute.setValue(fields[6].intern());
         member.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, member);
 
         if (!atomSubsetMap.containsKey(fields[4])) {
           AtomSubset subset = new AtomSubsetJpa();
@@ -1033,7 +1039,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           attribute2.setName("moduleId");
           attribute2.setValue(fields[3].intern());
           subset.addAttribute(attribute2);
-          addAttribute(attribute2);
+          addAttribute(attribute2, member);
 
           ((AtomSubsetMember) member).setSubset(subset);
           subset.addMember((AtomSubsetMember) member);
@@ -1050,7 +1056,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           attribute2.setName("moduleId");
           attribute2.setValue(fields[3].intern());
           subset.addAttribute(attribute2);
-          addAttribute(attribute2);
+          addAttribute(attribute2, member);
 
           ((ConceptSubsetMember) member).setSubset(subset);
           subset.addMember((ConceptSubsetMember) member);
@@ -1093,7 +1099,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           break;
         }
 
-        SubsetMember<? extends ComponentHasAttributesAndName> member = null;
+        SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
+            null;
 
         if (conceptCache.containsKey(fields[5])) {
           member = new ConceptSubsetMemberJpa();
@@ -1129,7 +1136,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           attribute2.setName("moduleId");
           attribute2.setValue(fields[3].intern());
           subset.addAttribute(attribute2);
-          addAttribute(attribute2);
+          addAttribute(attribute2, member);
 
           ((ConceptSubsetMember) member).setSubset(subset);
           subset.addMember((ConceptSubsetMember) member);
@@ -1172,7 +1179,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           break;
         }
 
-        SubsetMember<? extends ComponentHasAttributesAndName> member = null;
+        SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
+            null;
 
         if (conceptCache.containsKey(fields[5])) {
           member = new ConceptSubsetMemberJpa();
@@ -1201,7 +1209,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("mapTarget");
         attribute.setValue(fields[6].intern());
         member.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, member);
 
         if (!conceptSubsetMap.containsKey(fields[4])) {
           ConceptSubset subset = new ConceptSubsetJpa();
@@ -1216,7 +1224,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           attribute2.setName("moduleId");
           attribute2.setValue(fields[3].intern());
           subset.addAttribute(attribute2);
-          addAttribute(attribute2);
+          addAttribute(attribute2, member);
 
           ((ConceptSubsetMember) member).setSubset(subset);
           subset.addMember((ConceptSubsetMember) member);
@@ -1281,7 +1289,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           break;
         }
 
-        SubsetMember<? extends ComponentHasAttributesAndName> member = null;
+        SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
+            null;
 
         if (conceptCache.containsKey(fields[5])) {
           member = new ConceptSubsetMemberJpa();
@@ -1310,21 +1319,21 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("attributeDescription");
         attribute.setValue(fields[6].intern());
         member.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, member);
 
         Attribute attribute2 = new AttributeJpa();
         setCommonFields(attribute2);
         attribute2.setName("attributeType");
         attribute2.setValue(fields[7].intern());
         member.addAttribute(attribute2);
-        addAttribute(attribute2);
+        addAttribute(attribute2, member);
 
         Attribute attribute3 = new AttributeJpa();
         setCommonFields(attribute3);
         attribute3.setName("attributeOrder");
         attribute3.setValue(fields[8].intern());
         member.addAttribute(attribute3);
-        addAttribute(attribute3);
+        addAttribute(attribute3, member);
 
         if (!conceptSubsetMap.containsKey(fields[4])) {
           ConceptSubset subset = new ConceptSubsetJpa();
@@ -1339,7 +1348,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           attribute4.setName("moduleId");
           attribute4.setValue(fields[3].intern());
           subset.addAttribute(attribute4);
-          addAttribute(attribute4);
+          addAttribute(attribute4, member);
 
           ((ConceptSubsetMember) member).setSubset(subset);
           subset.addMember((ConceptSubsetMember) member);
@@ -1383,7 +1392,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           break;
         }
 
-        SubsetMember<? extends ComponentHasAttributesAndName> member = null;
+        SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
+            null;
 
         if (conceptCache.containsKey(fields[5])) {
           member = new ConceptSubsetMemberJpa();
@@ -1412,14 +1422,14 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("sourceEffectiveTime");
         attribute.setValue(fields[6].intern());
         member.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, member);
 
         Attribute attribute2 = new AttributeJpa();
         setCommonFields(attribute2);
         attribute2.setName("targetEffectiveTime");
         attribute2.setValue(fields[7].intern());
         member.addAttribute(attribute2);
-        addAttribute(attribute2);
+        addAttribute(attribute2, member);
 
         if (!conceptSubsetMap.containsKey(fields[4])) {
           ConceptSubset subset = new ConceptSubsetJpa();
@@ -1434,7 +1444,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           attribute4.setName("moduleId");
           attribute4.setValue(fields[3].intern());
           subset.addAttribute(attribute4);
-          addAttribute(attribute4);
+          addAttribute(attribute4, member);
 
           ((ConceptSubsetMember) member).setSubset(subset);
           subset.addMember((ConceptSubsetMember) member);
@@ -1478,7 +1488,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           break;
         }
 
-        SubsetMember<? extends ComponentHasAttributesAndName> member = null;
+        SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
+            null;
 
         if (conceptCache.containsKey(fields[5])) {
           member = new ConceptSubsetMemberJpa();
@@ -1507,14 +1518,14 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("descriptionFormat");
         attribute.setValue(fields[6].intern());
         member.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, member);
 
         Attribute attribute2 = new AttributeJpa();
         setCommonFields(attribute2);
         attribute2.setName("descriptionLength");
         attribute2.setValue(fields[7].intern());
         member.addAttribute(attribute2);
-        addAttribute(attribute2);
+        addAttribute(attribute2, member);
 
         if (!conceptSubsetMap.containsKey(fields[4])) {
           ConceptSubset subset = new ConceptSubsetJpa();
@@ -1529,7 +1540,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           attribute4.setName("moduleId");
           attribute4.setValue(fields[3].intern());
           subset.addAttribute(attribute4);
-          addAttribute(attribute4);
+          addAttribute(attribute4, member);
 
           ((ConceptSubsetMember) member).setSubset(subset);
           subset.addMember((ConceptSubsetMember) member);

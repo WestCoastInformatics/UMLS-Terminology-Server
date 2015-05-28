@@ -33,7 +33,6 @@ import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.services.helpers.ConceptReportHelper;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
@@ -93,6 +92,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
   private Map<String, AtomSubset> atomSubsetMap = new HashMap<>();
 
   /** The concept subset map. */
+  @SuppressWarnings("unused")
   private Map<String, ConceptSubset> conceptSubsetMap = new HashMap<>();
 
   /** The existing concept cache. */
@@ -534,14 +534,14 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
         newConcept.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, newConcept);
 
         Attribute attribute2 = new AttributeJpa();
         setCommonFields(attribute2);
         attribute2.setName("definitionStatusId");
         attribute2.setValue(fields[4].intern());
         newConcept.addAttribute(attribute2);
-        addAttribute(attribute2);
+        addAttribute(attribute2, newConcept);
 
         // If concept is new, add it
         if (concept == null) {
@@ -653,14 +653,14 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           attribute.setName("moduleId");
           attribute.setValue(fields[3].intern());
           newAtom.addAttribute(attribute);
-          addAttribute(attribute);
+          addAttribute(attribute, newAtom);
 
           Attribute attribute2 = new AttributeJpa();
           setCommonFields(attribute2);
           attribute2.setName("caseSignificanceId");
           attribute2.setValue(fields[8].intern());
           newAtom.addAttribute(attribute2);
-          addAttribute(attribute2);
+          addAttribute(attribute2, newAtom);
 
           // If atom is new, add it
           if (atom == null) {
@@ -703,6 +703,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("unused")
   private void loadAtomSubsetMembers() throws Exception {
 
     // Setup variables
@@ -781,12 +782,12 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("acceptabilityId");
         attribute.setValue(fields[6].intern());
         member.addAttribute(attribute);
-        addAttribute(attribute);
+        addAttribute(attribute, newMember);
 
         if (!atomSubsetMap.containsKey(fields[4])) {
           AtomSubset subset =
               (AtomSubset) getSubset(fields[4], terminology,
-                  terminologyVersion, Branch.ROOT);
+                  terminologyVersion, Branch.ROOT, AtomSubset.class);
           atomSubsetMap.put(fields[4], subset);
         }
         AtomSubset subset = atomSubsetMap.get(fields[4]);
@@ -832,9 +833,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("unchecked")
   private void loadSimpleRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -843,7 +843,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    * @throws Exception the exception
    */
   private void loadSimpleMapRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -853,7 +853,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
 
   private void loadComplexMapRefSetMembers() throws Exception {
-    // TODO: do when we have mapping objects
+    // n/a
   }
 
   /**
@@ -864,7 +864,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
   private void loadExtendedMapRefSetMembers() throws Exception {
     // TODO: do when we have mapping objects
-
   }
 
   /**
@@ -874,7 +873,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
 
   private void loadAtomTypeRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -884,7 +883,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
 
   private void loadRefsetDescriptorRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -894,7 +893,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
 
   private void loadModuleDependencyRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -904,7 +903,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
 
   private void loadAttributeValueRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -914,7 +913,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
 
   private void loadAssociationReferenceRefSetMembers() throws Exception {
-
+    // n/a
   }
 
   /**

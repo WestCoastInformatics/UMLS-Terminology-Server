@@ -71,10 +71,10 @@ public class ModelUnit006Test {
     tester.include("primitiveOnly");
     tester.include("findSelf");
     // no set methods for these things:
-    //tester.include("relationshipToId");
-    //tester.include("relationshipDescendantsFlag");
-    //tester.include("relationshipType");
-    //tester.include("relationshipFromId");
+    tester.include("relationshipToId");
+    tester.include("relationshipDescendantsFlag");
+    tester.include("relationshipType");
+    tester.include("relationshipFromId");
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());

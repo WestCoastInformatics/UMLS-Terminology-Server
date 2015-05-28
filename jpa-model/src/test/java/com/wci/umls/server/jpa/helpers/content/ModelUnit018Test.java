@@ -78,7 +78,7 @@ public class ModelUnit018Test {
     tester.include("terminologyVersion");
 
     tester.include("name");
-    tester.include("normalizedString");
+    tester.include("normalizedName");
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
@@ -147,7 +147,7 @@ public class ModelUnit018Test {
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
     tester.include("name");
-    tester.include("normalizedString");
+    tester.include("normalizedName");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
@@ -163,7 +163,7 @@ public class ModelUnit018Test {
     tester.include("terminology");
     tester.include("terminologyVersion");
     tester.include("nameSort");
-    tester.include("normalizedStringSort");
+    tester.include("normalizedNameSort");
     tester.include("workflowStatus");
     tester.include("branch");
     tester.include("branchedTo");
