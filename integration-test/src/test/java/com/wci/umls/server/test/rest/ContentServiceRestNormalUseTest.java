@@ -1132,7 +1132,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     String snomedTerminology = "SNOMEDCT_US";
     String snomedVersion = "2014_09_01";
 
-    SearchResultList sml = contentService.findConceptsForQuery("null", "null", new PfsParameterJpa(), authToken);
+    SearchResultList sml = contentService.findConceptsForGeneralQuery("", "", new PfsParameterJpa(), authToken);
 //SELECT c.terminologyId FROM ConceptJpa c
     assertNotNull(sml);
     /*assertNotEquals(c.getName(),

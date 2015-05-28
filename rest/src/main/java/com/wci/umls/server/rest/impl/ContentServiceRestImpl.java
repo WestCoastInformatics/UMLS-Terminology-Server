@@ -770,7 +770,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/cui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
   @ApiOperation(value = "Find concepts matching a lucene or hql search query.", notes = "Gets a list of search results that match the lucene or hql query for the root branch.", response = SearchResultList.class)
-  public SearchResultList findConceptsForQuery(
+  public SearchResultList findConceptsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
     @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
@@ -797,7 +797,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findConceptsForQuery(luceneQueryStr, hqlQueryStr,
+          contentService.findConceptsForGeneralQuery(luceneQueryStr, hqlQueryStr,
               Branch.ROOT, pfs);
       return sr;
 
@@ -814,7 +814,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/code/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
   @ApiOperation(value = "Find codes matching a lucene or hql search query.", notes = "Gets a list of search results that match the lucene or hql query for the root branch.", response = SearchResultList.class)
-  public SearchResultList findCodesForQuery(
+  public SearchResultList findCodesForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
     @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
@@ -841,7 +841,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findCodesForQuery(luceneQueryStr, hqlQueryStr,
+          contentService.findCodesForGeneralQuery(luceneQueryStr, hqlQueryStr,
               Branch.ROOT, pfs);
       return sr;
 
@@ -997,7 +997,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/dui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}/")
   @ApiOperation(value = "Find descriptors matching a lucene or hql search query.", notes = "Gets a list of search results that match the lucene or hql query for the root branch.", response = SearchResultList.class)
-  public SearchResultList findDescriptorsForQuery(
+  public SearchResultList findDescriptorsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
     @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
@@ -1024,7 +1024,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findDescriptorsForQuery(luceneQueryStr, hqlQueryStr,
+          contentService.findDescriptorsForGeneralQuery(luceneQueryStr, hqlQueryStr,
               Branch.ROOT, pfs);
       return sr;
 

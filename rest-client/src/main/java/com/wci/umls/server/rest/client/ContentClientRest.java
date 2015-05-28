@@ -303,7 +303,7 @@ public class ContentClientRest implements ContentServiceRest {
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public SearchResultList findConceptsForQuery(String luceneQuery,
+  public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
     String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception {
 
     Logger.getLogger(getClass()).debug(
@@ -468,7 +468,7 @@ public class ContentClientRest implements ContentServiceRest {
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public SearchResultList findDescriptorsForQuery(String luceneQuery,
+  public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
     String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find descriptors " + luceneQuery + ", " + hqlQuery
@@ -629,7 +629,7 @@ public class ContentClientRest implements ContentServiceRest {
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public SearchResultList findCodesForQuery(String luceneQuery,
+  public SearchResultList findCodesForGeneralQuery(String luceneQuery,
     String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find codes " + luceneQuery + ", " + hqlQuery + ", "

@@ -4657,8 +4657,16 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findCodesForGeneralQuery(java
+   * .lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
-  public SearchResultList findCodesForQuery(String luceneQuery,
+  public SearchResultList findCodesForGeneralQuery(String luceneQuery,
     String hqlQuery, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
         "Content Service - find codes " + luceneQuery + "/" + hqlQuery + "/");
@@ -4666,20 +4674,39 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         codeFieldNames, CodeJpa.class);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findConceptsForGeneralQuery
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
-  public SearchResultList findConceptsForQuery(String luceneQuery,
+  public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
     String hqlQuery, String branch, PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Content Service - find concepts " + luceneQuery + "/" + hqlQuery + "/");
+    Logger.getLogger(getClass())
+        .info(
+            "Content Service - find concepts " + luceneQuery + "/" + hqlQuery
+                + "/");
     return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
         conceptFieldNames, ConceptJpa.class);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findDescriptorsForGeneralQuery
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
   @Override
-  public SearchResultList findDescriptorsForQuery(String luceneQuery,
+  public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
     String hqlQuery, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
-        "Content Service - find descriptors " + luceneQuery + "/" + hqlQuery + "/");
+        "Content Service - find descriptors " + luceneQuery + "/" + hqlQuery
+            + "/");
     return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
         descriptorFieldNames, DescriptorJpa.class);
   }

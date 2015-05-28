@@ -74,7 +74,7 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findConceptsForQuery(String luceneQuery,
+  public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
     String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
@@ -264,7 +264,7 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findDescriptorsForQuery(String luceneQuery,
+  public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
     String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
@@ -349,7 +349,7 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findCodesForQuery(String luceneQuery,
+  public SearchResultList findCodesForGeneralQuery(String luceneQuery,
     String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
