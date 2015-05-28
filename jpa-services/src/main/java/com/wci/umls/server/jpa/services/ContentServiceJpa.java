@@ -542,14 +542,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
-    finalQuery.append(" AND terminology:" + terminology
+    if (!finalQuery.toString().isEmpty()) {
+      finalQuery.append(" AND ");
+    }
+    finalQuery.append("terminology:" + terminology
         + " AND terminologyVersion:" + version + " AND subsetTerminologyId:"
         + subsetId);
     if (pfs != null && pfs.getQueryRestriction() != null) {
       finalQuery.append(" AND ");
       finalQuery.append(pfs.getQueryRestriction());
     }
-    Logger.getLogger(getClass()).info("query " + finalQuery);
+    Logger.getLogger(getClass()).info("query = " + finalQuery);
 
     // Prepare the manager and lucene query
     FullTextEntityManager fullTextEntityManager =
@@ -576,8 +579,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     list.setTotalCount(fullTextQuery.getResultSize());
     list.setObjects(fullTextQuery.getResultList());
 
-    fullTextEntityManager.close();
-    manager = factory.createEntityManager();
     return list;
   }
 
@@ -593,14 +594,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
-    finalQuery.append(" AND terminology:" + terminology
+    if (!finalQuery.toString().isEmpty()) {
+      finalQuery.append(" AND ");
+    }
+    finalQuery.append("terminology:" + terminology
         + " AND terminologyVersion:" + version + " AND subsetTerminologyId:"
         + subsetId);
     if (pfs != null && pfs.getQueryRestriction() != null) {
       finalQuery.append(" AND ");
       finalQuery.append(pfs.getQueryRestriction());
     }
-    Logger.getLogger(getClass()).info("query " + finalQuery);
+    Logger.getLogger(getClass()).info("query = " + finalQuery);
 
     // Prepare the manager and lucene query
     FullTextEntityManager fullTextEntityManager =
@@ -627,8 +631,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     list.setTotalCount(fullTextQuery.getResultSize());
     list.setObjects(fullTextQuery.getResultList());
 
-    fullTextEntityManager.close();
-    manager = factory.createEntityManager();
     return list;
   }
 
@@ -3013,10 +3015,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     boolean hqlQueryFlag = false;
     List<AtomClass> hqlQueryClasses = new ArrayList<>();
     if (hqlQuery != null && !hqlQuery.equals("") && !hqlQuery.equals("null")) {
-      List<Object[]> hqlResults =
-          executeHqlQuery(hqlQuery);
-      for (Object[] resultArray : hqlResults) {
-        hqlQueryClasses.add((AtomClass) resultArray[0]);
+      List<AtomClass> hqlResults =
+          manager.createQuery(hqlQuery).getResultList();
+      for (AtomClass r : hqlResults) {
+        hqlQueryClasses.add(r);
       }
       hqlQueryFlag = true;
     }
@@ -3183,16 +3185,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Prepare the query string
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
-    if (terminology != null && version != null && 
-        !terminology.equals("") && !version.equals("")) {
-      finalQuery.append(" AND terminology:" + terminology
+    if (!finalQuery.toString().isEmpty()) {
+      finalQuery.append(" AND ");
+    }
+    if (terminology != null && !terminology.equals("") &&
+        version != null && !version.equals("")) {
+      finalQuery.append("terminology:" + terminology
         + " AND terminologyVersion:" + version);
     }
+    
     if (pfs != null && pfs.getQueryRestriction() != null) {
       finalQuery.append(" AND ");
       finalQuery.append(pfs.getQueryRestriction());
     }
-    Logger.getLogger(getClass()).info("query " + finalQuery);
+    Logger.getLogger(getClass()).info("query = " + finalQuery);
 
     // Prepare the manager and lucene query
     FullTextEntityManager fullTextEntityManager =
@@ -3222,9 +3228,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // execute the query
     @SuppressWarnings("unchecked")
     List<AtomClass> classes = fullTextQuery.getResultList();
-    fullTextEntityManager.close();
-    // closing fullTextEntityManager closes manager as well, recreate
-    manager = factory.createEntityManager();
     return classes;
   }
 
@@ -4618,14 +4621,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
-    finalQuery.append(" AND terminology:" + terminology
+    if (!finalQuery.toString().isEmpty()) {
+      finalQuery.append(" AND ");
+    }
+    finalQuery.append("terminology:" + terminology
         + " AND terminologyVersion:" + version + " AND getNodeTerminologyId:"
         + terminologyId);
     if (pfs != null && pfs.getQueryRestriction() != null) {
       finalQuery.append(" AND ");
       finalQuery.append(pfs.getQueryRestriction());
     }
-    Logger.getLogger(getClass()).info("query " + finalQuery);
+    Logger.getLogger(getClass()).info("query = " + finalQuery);
 
     // Prepare the manager and lucene query
     FullTextEntityManager fullTextEntityManager =
@@ -4651,8 +4657,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     list.setTotalCount(fullTextQuery.getResultSize());
     list.setObjects(fullTextQuery.getResultList());
 
-    fullTextEntityManager.close();
-    manager = factory.createEntityManager();
     return list;
 
   }

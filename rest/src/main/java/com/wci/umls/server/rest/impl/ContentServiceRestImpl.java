@@ -51,12 +51,10 @@ import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
-import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
@@ -1832,7 +1830,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           contentService.getAtomSubsets(terminology, version, Branch.ROOT);
       for (int i = 0; i < list.getCount(); i++) {
         contentService.getGraphResolutionHandler(terminology).resolve(
-            (AtomSubset) list.getObjects().get(i));
+            list.getObjects().get(i));
       }
       return list;
     } catch (Exception e) {
@@ -1866,7 +1864,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           contentService.getConceptSubsets(terminology, version, Branch.ROOT);
       for (int i = 0; i < list.getCount(); i++) {
         contentService.getGraphResolutionHandler(terminology).resolve(
-            (ConceptSubset) list.getObjects().get(i));
+            list.getObjects().get(i));
       }
       return list;
     } catch (Exception e) {
@@ -1878,6 +1876,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  @Produces({
+      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+  })
   @Override
   @POST
   @Path("/aui/subset/{subsetId}/{terminology}/{version}/members/query/{query}")
@@ -1897,7 +1898,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       queryStr = "";
     }
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /aui/subest/" + subsetId + "/" + terminology
+        "RESTful call (Content): /aui/subset/" + subsetId + "/" + terminology
             + "/" + version + "/members/query/" + queryStr);
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1940,7 +1941,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       queryStr = "";
     }
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/subest/" + subsetId + "/" + terminology
+        "RESTful call (Content): /cui/subset/" + subsetId + "/" + terminology
             + "/" + version + "/members/query/" + queryStr);
     ContentService contentService = new ContentServiceJpa();
     try {

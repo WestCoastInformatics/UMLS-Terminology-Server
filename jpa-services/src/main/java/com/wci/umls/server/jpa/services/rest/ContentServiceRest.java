@@ -34,7 +34,7 @@ public interface ContentServiceRest {
    * with complex regular expressions, but we feel this is a more straightforward
    * solution.
    */
-  public final String QUERY_BLANK = "^BLANK^";
+  public final String QUERY_BLANK = "~BLANK~";
 
   /**
    * Returns the concept.

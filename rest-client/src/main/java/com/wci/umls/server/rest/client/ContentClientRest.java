@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.client;
 
+import java.net.URLEncoder;
 import java.util.Properties;
 
 import javax.ws.rs.core.MediaType;
@@ -316,10 +317,12 @@ public class ContentClientRest implements ContentServiceRest {
             + "/content/cui"
             + "/luceneQuery/"
             + (luceneQuery == null || luceneQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : luceneQuery)
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( luceneQuery , "UTF8" ).replaceAll("\\+", "%20")
+)
             + "/hqlQuery/"
             + (hqlQuery == null || hqlQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : hqlQuery));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( hqlQuery , "UTF8" ).replaceAll("\\+", "%20")
+));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -363,9 +366,7 @@ public class ContentClientRest implements ContentServiceRest {
             + terminology + "/" + version + "/autocomplete/" + searchTerm);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .get(ClientResponse.class);
+            .header("Authorization", authToken).get(ClientResponse.class);
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -434,9 +435,14 @@ public class ContentClientRest implements ContentServiceRest {
 
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/dui/"
-            + terminology + "/" + version + "/query/"
-            + (query == null || query.isEmpty() ? ContentServiceRest.QUERY_BLANK : query));
+        client.resource(config.getProperty("base.url")
+            + "/content/dui/"
+            + terminology
+            + "/"
+            + version
+            + "/query/"
+            + (query == null || query.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -473,15 +479,17 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find descriptors " + luceneQuery + ", " + hqlQuery
             + ", " + pfs);
-
+    
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
             + "/content/dui/"
             + "/luceneQuery/"
-            + (luceneQuery == null || luceneQuery.isEmpty()? ContentServiceRest.QUERY_BLANK
-                : luceneQuery) + "/hqlQuery/"
-            + (hqlQuery == null || hqlQuery.isEmpty() ? ContentServiceRest.QUERY_BLANK : hqlQuery));
+            + (luceneQuery == null || luceneQuery.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( luceneQuery , "UTF8" ).replaceAll("\\+", "%20"))
+            + "/hqlQuery/"
+            + (hqlQuery == null || hqlQuery.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( hqlQuery , "UTF8" ).replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -525,9 +533,7 @@ public class ContentClientRest implements ContentServiceRest {
             + terminology + "/" + version + "/autocomplete/" + searchTerm);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .get(ClientResponse.class);
+            .header("Authorization", authToken).get(ClientResponse.class);
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -594,9 +600,14 @@ public class ContentClientRest implements ContentServiceRest {
 
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/code/"
-            + terminology + "/" + version + "/query/"
-            + (query == null || query.isEmpty()? ContentServiceRest.QUERY_BLANK : query));
+        client.resource(config.getProperty("base.url")
+            + "/content/code/"
+            + terminology
+            + "/"
+            + version
+            + "/query/"
+            + (query == null || query.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -640,9 +651,11 @@ public class ContentClientRest implements ContentServiceRest {
         client.resource(config.getProperty("base.url")
             + "/content/code/"
             + "/luceneQuery/"
-            + (luceneQuery == null || luceneQuery.isEmpty()? ContentServiceRest.QUERY_BLANK
-                : luceneQuery) + "/hqlQuery/"
-            + (hqlQuery == null || hqlQuery.isEmpty() ? ContentServiceRest.QUERY_BLANK : hqlQuery));
+            + (luceneQuery == null || luceneQuery.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( luceneQuery , "UTF8" ).replaceAll("\\+", "%20"))
+            + "/hqlQuery/"
+            + (hqlQuery == null || hqlQuery.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( hqlQuery , "UTF8" ).replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -686,9 +699,7 @@ public class ContentClientRest implements ContentServiceRest {
             + terminology + "/" + version + "/autocomplete/" + searchTerm);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .get(ClientResponse.class);
+            .header("Authorization", authToken).get(ClientResponse.class);
 
     String resultString = response.getEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1225,6 +1236,7 @@ public class ContentClientRest implements ContentServiceRest {
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
             .post(ClientResponse.class, pfsString);
 
     String resultString = response.getEntity(String.class);
@@ -1259,6 +1271,7 @@ public class ContentClientRest implements ContentServiceRest {
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
             .post(ClientResponse.class, pfsString);
 
     String resultString = response.getEntity(String.class);
@@ -1301,6 +1314,7 @@ public class ContentClientRest implements ContentServiceRest {
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
             .post(ClientResponse.class, pfsString);
 
     String resultString = response.getEntity(String.class);
@@ -1343,6 +1357,7 @@ public class ContentClientRest implements ContentServiceRest {
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
             .post(ClientResponse.class, pfsString);
 
     String resultString = response.getEntity(String.class);
@@ -1408,7 +1423,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
-            + "/content/cui/subset/all" + terminology + "/" + version);
+            + "/content/cui/subset/all/" + terminology + "/" + version);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get(ClientResponse.class);
@@ -1444,15 +1459,23 @@ public class ContentClientRest implements ContentServiceRest {
             + version);
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/aui/subset/"
-            + subsetId + terminology + "/" + version + "/members/query/"
-            + (query == null || query.isEmpty()? ContentServiceRest.QUERY_BLANK : query));
+        client.resource(config.getProperty("base.url")
+            + "/content/aui/subset/"
+            + subsetId
+            + "/"
+            + terminology
+            + "/"
+            + version
+            + "/members/query/"
+            + (query == null || query.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
             .post(ClientResponse.class, pfsString);
 
     String resultString = response.getEntity(String.class);
@@ -1477,15 +1500,23 @@ public class ContentClientRest implements ContentServiceRest {
             + version);
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/cui/subset/"
-            + subsetId + terminology + "/" + version + "/members/query/"
-            + (query == null || query.isEmpty()? ContentServiceRest.QUERY_BLANK : query));
+        client.resource(config.getProperty("base.url")
+            + "/content/cui/subset/"
+            + subsetId
+            + "/"
+            + terminology
+            + "/"
+            + version
+            + "/members/query/"
+            + (query == null || query.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
             .post(ClientResponse.class, pfsString);
 
     String resultString = response.getEntity(String.class);
@@ -1527,6 +1558,7 @@ public class ContentClientRest implements ContentServiceRest {
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
             .post(ClientResponse.class, pfsString);
 
     String resultString = response.getEntity(String.class);
@@ -1552,10 +1584,16 @@ public class ContentClientRest implements ContentServiceRest {
             + ", " + terminology + ", " + version + ", " + pfs);
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/cui/"
-            + terminology + "/" + version + "/" + terminologyId
+        client.resource(config.getProperty("base.url")
+            + "/content/cui/"
+            + terminology
+            + "/"
+            + version
+            + "/"
+            + terminologyId
             + "/trees/query/"
-            + (query == null || query.isEmpty()? ContentServiceRest.QUERY_BLANK : query));
+            + (query == null || query.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : query));
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -1563,6 +1601,7 @@ public class ContentClientRest implements ContentServiceRest {
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
             .post(ClientResponse.class, pfsString);
 
     String resultString = response.getEntity(String.class);
@@ -1588,16 +1627,23 @@ public class ContentClientRest implements ContentServiceRest {
             + ", " + terminology + ", " + version + ", " + pfs);
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/dui/"
-            + terminology + "/" + version + "/" + terminologyId
+        client.resource(config.getProperty("base.url")
+            + "/content/dui/"
+            + terminology
+            + "/"
+            + version
+            + "/"
+            + terminologyId
             + "/trees/query/"
-            + (query == null || query.isEmpty()? ContentServiceRest.QUERY_BLANK : query));
+            + (query == null || query.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
             .post(ClientResponse.class, pfsString);
 
     String resultString = response.getEntity(String.class);
@@ -1631,16 +1677,23 @@ public class ContentClientRest implements ContentServiceRest {
             + terminology + ", " + version + ", " + pfs);
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/code/"
-            + terminology + "/" + version + "/" + terminologyId
+        client.resource(config.getProperty("base.url")
+            + "/content/code/"
+            + terminology
+            + "/"
+            + version
+            + "/"
+            + terminologyId
             + "/trees/query/"
-            + (query == null|| query.isEmpty() ? ContentServiceRest.QUERY_BLANK : query));
+            + (query == null || query.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
             .post(ClientResponse.class, pfsString);
 
     String resultString = response.getEntity(String.class);
