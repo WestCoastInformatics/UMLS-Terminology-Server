@@ -74,9 +74,13 @@ public class ModelUnit017Test {
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("superTypeId");
     tester.exclude("superTypeTerminologyId");
+    tester.exclude("superTypeTerminology");
+    tester.exclude("superTypeTerminologyVersion");
     tester.exclude("superTypeName");
     tester.exclude("subTypeId");
     tester.exclude("subTypeTerminologyId");
+    tester.exclude("subTypeTerminology");
+    tester.exclude("subTypeTerminologyVersion");
     tester.exclude("subTypeName");
     tester.test();
   }
@@ -170,9 +174,13 @@ public class ModelUnit017Test {
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<subTypeId>"));
     assertTrue(xml.contains("<subTypeTerminologyId>"));
+    assertTrue(xml.contains("<subTypeTerminology>"));
+    assertTrue(xml.contains("<subTypeTerminologyVersion>"));
     assertTrue(xml.contains("<subTypeName>"));
     assertTrue(xml.contains("<superTypeId>"));
     assertTrue(xml.contains("<superTypeTerminologyId>"));
+    assertTrue(xml.contains("<superTypeTerminology>"));
+    assertTrue(xml.contains("<superTypeTerminologyVersion>"));
     assertTrue(xml.contains("<superTypeName>"));
     assertFalse(xml.contains("<subType>"));
     assertFalse(xml.contains("<superType>"));

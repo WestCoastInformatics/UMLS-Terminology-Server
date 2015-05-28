@@ -20,6 +20,7 @@ import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService;
+import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
 /**
  * Default implementation of {@link MetadataService}.
@@ -471,6 +472,13 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
   @Override
   public void removePrecedenceList(Long id) throws Exception {
     // n/a
+  }
+
+  @Override
+  public GraphResolutionHandler getGraphResolutionHandler(String terminology)
+    throws Exception {
+    // n/a
+    return null;
   }
 
 }

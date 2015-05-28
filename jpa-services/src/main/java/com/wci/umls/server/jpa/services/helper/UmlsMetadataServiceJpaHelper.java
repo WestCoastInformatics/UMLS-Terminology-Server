@@ -17,11 +17,13 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
+import com.wci.umls.server.helpers.meta.LanguageList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.TermTypeList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
+import com.wci.umls.server.jpa.helpers.meta.LanguageListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
 import com.wci.umls.server.model.content.Relationship;
@@ -50,6 +52,9 @@ public class UmlsMetadataServiceJpaHelper extends
 
   /** The relationship types map. */
   public static Map<String, Set<String>> relationshipTypesMap = new HashMap<>();
+
+  /** The languages map. */
+  public static Map<String, Set<String>> languagesMap = new HashMap<>();
 
   /** The chd rel. */
   public static RelationshipType chdRel = null;
@@ -143,6 +148,47 @@ public class UmlsMetadataServiceJpaHelper extends
     return types;
   }
 
+  @SuppressWarnings({
+    "unchecked"
+  })
+  @Override
+  public LanguageList getLanguages(String terminology,
+    String version) throws Exception {
+    Logger.getLogger(getClass()).info(
+        "get languages - " + terminology + ", " + version);
+    // Cache relationship types map
+    if (languagesMap.isEmpty()) {
+      javax.persistence.Query query =
+          manager
+              .createQuery("select distinct a.terminology, a.terminologyVersion, t.abbreviation "
+                  + "from AtomJpa a, LanguageJpa t "
+                  + "where a.language = t.abbreviation");
+      List<Object[]> results = query.getResultList();
+      for (Object[] result : results) {
+        if (!languagesMap.containsKey(result[0].toString() + result[1])) {
+          languagesMap.put(result[0].toString() + result[1],
+              new HashSet<String>());
+        }
+        languagesMap.get(result[0].toString() + result[1]).add(
+            result[2].toString());
+      }     
+    } 
+    javax.persistence.Query query =
+        manager.createQuery("SELECT t from LanguageJpa t "
+            + " where terminology = :terminology "
+            + "   and terminologyVersion = :version"
+            + "   and abbreviation in (:list)");
+    query.setParameter("terminology", umlsTerminology);
+    query.setParameter("version", umlsVersion);
+    query.setParameter("list", languagesMap.get(terminology + version));
+
+    LanguageList types = new LanguageListJpa();
+    types.setObjects(query.getResultList());
+    types.setTotalCount(types.getObjects().size());
+    Logger.getLogger(getClass()).info("  results = " + types.getObjects());
+    return types;
+  }  
+  
   /*
    * (non-Javadoc)
    * 

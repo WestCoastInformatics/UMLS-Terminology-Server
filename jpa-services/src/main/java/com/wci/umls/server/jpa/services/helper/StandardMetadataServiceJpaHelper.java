@@ -7,6 +7,7 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
+import com.wci.umls.server.helpers.meta.LanguageList;
 import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
@@ -14,6 +15,7 @@ import com.wci.umls.server.helpers.meta.TermTypeList;
 import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
 import com.wci.umls.server.jpa.helpers.meta.GeneralMetadataEntryListJpa;
+import com.wci.umls.server.jpa.helpers.meta.LanguageListJpa;
 import com.wci.umls.server.jpa.helpers.meta.PropertyChainListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
@@ -62,6 +64,24 @@ public class StandardMetadataServiceJpaHelper extends
     return types;
   }
 
+  @SuppressWarnings({
+    "unchecked"
+  })
+  @Override
+  public LanguageList getLanguages(String terminology,
+    String version) throws Exception {
+    javax.persistence.Query query =
+        manager
+            .createQuery("SELECT r from LanguageJpa r where terminology = :terminology"
+                + " and terminologyVersion = :version");
+
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    LanguageList types = new LanguageListJpa();
+    types.setObjects(query.getResultList());
+    types.setTotalCount(types.getObjects().size());
+    return types;
+  }
   @SuppressWarnings("unchecked")
   @Override
   public PropertyChainList getPropertyChains(String terminology, String version)
@@ -310,4 +330,5 @@ public class StandardMetadataServiceJpaHelper extends
   public void refreshCaches() throws Exception {
     // n/a
   }
+
 }

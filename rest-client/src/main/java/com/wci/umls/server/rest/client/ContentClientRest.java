@@ -263,9 +263,14 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     // TODO: figure out how to remove this
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/cui/"
-            + terminology + "/" + version + "/query/"
-            + (query == null ? "" : query));
+        client.resource(config.getProperty("base.url")
+            + "/content/cui/"
+            + terminology
+            + "/"
+            + version
+            + "/query/"
+            + (query == null || query.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -299,20 +304,22 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public SearchResultList findConceptsForQuery(String luceneQuery,
-    String hqlQuery, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception {
 
     Logger.getLogger(getClass()).debug(
-        "Content Client - find concepts " + luceneQuery + ", " 
-            + hqlQuery + ", " + pfs);
+        "Content Client - find concepts " + luceneQuery + ", " + hqlQuery
+            + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/cui"
-           + "/luceneQuery/"
-            + (luceneQuery == null ? "" : luceneQuery)
+        client.resource(config.getProperty("base.url")
+            + "/content/cui"
+            + "/luceneQuery/"
+            + (luceneQuery == null || luceneQuery.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : luceneQuery)
             + "/hqlQuery/"
-            + (hqlQuery == null ? "" : hqlQuery) + "/");
+            + (hqlQuery == null || hqlQuery.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : hqlQuery));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -429,7 +436,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
             + terminology + "/" + version + "/query/"
-            + (query == null ? "" : query));
+            + (query == null || query.isEmpty() ? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -462,19 +469,19 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public SearchResultList findDescriptorsForQuery(String luceneQuery,
-    String hqlQuery, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find descriptors " + luceneQuery 
-            + ", " + hqlQuery + ", " + pfs);
+        "Content Client - find descriptors " + luceneQuery + ", " + hqlQuery
+            + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/dui/"
+        client.resource(config.getProperty("base.url")
+            + "/content/dui/"
             + "/luceneQuery/"
-            + (luceneQuery == null ? "" : luceneQuery)
-            + "/hqlQuery/"
-            + (hqlQuery == null ? "" : hqlQuery));
+            + (luceneQuery == null || luceneQuery.isEmpty()? ContentServiceRest.QUERY_BLANK
+                : luceneQuery) + "/hqlQuery/"
+            + (hqlQuery == null || hqlQuery.isEmpty() ? ContentServiceRest.QUERY_BLANK : hqlQuery));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -589,7 +596,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
             + terminology + "/" + version + "/query/"
-            + (query == null ? "" : query));
+            + (query == null || query.isEmpty()? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -622,19 +629,20 @@ public class ContentClientRest implements ContentServiceRest {
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public SearchResultList findCodesForQuery(String luceneQuery, String hqlQuery,
-    PfsParameterJpa pfs, String authToken) throws Exception {
+  public SearchResultList findCodesForQuery(String luceneQuery,
+    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find codes " + luceneQuery + ", " + hqlQuery + ", "
-             + pfs);
+            + pfs);
 
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/code/"
+        client.resource(config.getProperty("base.url")
+            + "/content/code/"
             + "/luceneQuery/"
-            + (luceneQuery == null ? "" : luceneQuery)
-            + "/hqlQuery/"
-            + (hqlQuery == null ? "" : hqlQuery));
+            + (luceneQuery == null || luceneQuery.isEmpty()? ContentServiceRest.QUERY_BLANK
+                : luceneQuery) + "/hqlQuery/"
+            + (hqlQuery == null || hqlQuery.isEmpty() ? ContentServiceRest.QUERY_BLANK : hqlQuery));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1438,7 +1446,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/aui/subset/"
             + subsetId + terminology + "/" + version + "/members/query/"
-            + (query == null ? "" : query));
+            + (query == null || query.isEmpty()? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1471,7 +1479,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/subset/"
             + subsetId + terminology + "/" + version + "/members/query/"
-            + (query == null ? "" : query));
+            + (query == null || query.isEmpty()? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1546,7 +1554,8 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
             + terminology + "/" + version + "/" + terminologyId
-            + "/trees/query/" + (query == null ? "" : query));
+            + "/trees/query/"
+            + (query == null || query.isEmpty()? ContentServiceRest.QUERY_BLANK : query));
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -1581,7 +1590,8 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
             + terminology + "/" + version + "/" + terminologyId
-            + "/trees/query/" + (query == null ? "" : query));
+            + "/trees/query/"
+            + (query == null || query.isEmpty()? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1623,7 +1633,8 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
             + terminology + "/" + version + "/" + terminologyId
-            + "/trees/query/" + (query == null ? "" : query));
+            + "/trees/query/"
+            + (query == null|| query.isEmpty() ? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);

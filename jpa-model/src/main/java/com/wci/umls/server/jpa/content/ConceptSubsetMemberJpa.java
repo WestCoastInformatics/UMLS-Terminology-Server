@@ -135,6 +135,50 @@ public class ConceptSubsetMemberJpa extends
   }
 
   /**
+   * Returns the member terminology. For JAXB.
+   *
+   * @return the member terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getMemberTerminology() {
+    return member == null ? null : member.getTerminology();
+  }
+
+  /**
+   * Sets the member terminology. For JAXB.
+   *
+   * @param terminology the member terminology
+   */
+  public void setMemberTerminology(String terminology) {
+    if (member == null) {
+      member = new ConceptJpa();
+    }
+    member.setTerminology(terminology);
+  }
+  
+  /**
+   * Returns the member terminology version. For JAXB.
+   *
+   * @return the member terminology version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getMemberTerminologyVersion() {
+    return member == null ? null : member.getTerminologyVersion();
+  }
+
+  /**
+   * Sets the member terminology version. For JAXB.
+   *
+   * @param terminologyVersion the member terminology version
+   */
+  public void setMemberTerminologyVersion(String terminologyVersion) {
+    if (member == null) {
+      member = new ConceptJpa();
+    }
+    member.setTerminologyVersion(terminologyVersion);
+  }
+
+  /**
    * Returns the member name. For JAXB.
    *
    * @return the member name
@@ -223,6 +267,50 @@ public class ConceptSubsetMemberJpa extends
     subset.setTerminologyId(terminologyId);
   }
 
+
+  /**
+   * Returns the subset terminology. For JAXB.
+   *
+   * @return the subset terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getSubsetTerminology() {
+    return subset == null ? null : subset.getTerminology();
+  }
+
+  /**
+   * Sets the subset terminology. For JAXB.
+   *
+   * @param terminology the subset terminology
+   */
+  public void setSubsetTerminology(String terminology) {
+    if (subset == null) {
+      subset = new ConceptSubsetJpa();
+    }
+    subset.setTerminology(terminology);
+  }
+  
+  /**
+   * Returns the subset terminology version. For JAXB.
+   *
+   * @return the subset terminology version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getSubsetTerminologyVersion() {
+    return subset == null ? null : subset.getTerminologyVersion();
+  }
+
+  /**
+   * Sets the subset terminology version. For JAXB.
+   *
+   * @param terminologyVersion the subset terminology version
+   */
+  public void setSubsetTerminologyVersion(String terminologyVersion) {
+    if (subset == null) {
+      subset = new ConceptSubsetJpa();
+    }
+    subset.setTerminologyVersion(terminologyVersion);
+  }
   /**
    * Returns the subset name. For JAXB.
    *

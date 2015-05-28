@@ -130,6 +130,47 @@ public class CodeTransitiveRelationshipJpa extends
   }
 
   /**
+   * Returns the super type terminology id. For JAXB.
+   *
+   * @return the super type terminology id
+   */
+  public String getSuperTypeTerminology() {
+    return superType == null ? null : superType.getTerminology();
+  }
+
+  /**
+   * Sets the super type terminology.
+   *
+   * @param terminology the super type terminology
+   */
+  public void setSuperTypeTerminology(String terminology) {
+    if (superType == null) {
+      superType = new CodeJpa();
+    }
+    superType.setTerminology(terminology);
+  }
+  
+  /**
+   * Returns the super type terminology. For JAXB.
+   *
+   * @return the super type terminology
+   */
+  public String getSuperTypeTerminologyVersion() {
+    return superType == null ? null : superType.getTerminologyVersion();
+  }
+
+  /**
+   * Sets the super type terminology version.
+   *
+   * @param terminologyVersion the super type terminology version
+   */
+  public void setSuperTypeTerminologyVersion(String terminologyVersion) {
+    if (superType == null) {
+      superType = new CodeJpa();
+    }
+    superType.setTerminologyVersion(terminologyVersion);
+  }
+  /**
    * Returns the super type term. For JAXB.
    *
    * @return the super type term
@@ -216,6 +257,48 @@ public class CodeTransitiveRelationshipJpa extends
   }
 
   /**
+   * Returns the sub type terminology id. For JAXB.
+   *
+   * @return the sub type terminology id
+   */
+  public String getSubTypeTerminology() {
+    return subType == null ? null : subType.getTerminology();
+  }
+
+  /**
+   * Sets the sub type terminology.
+   *
+   * @param terminology the sub type terminology
+   */
+  public void setSubTypeTerminology(String terminology) {
+    if (subType == null) {
+      subType = new CodeJpa();
+    }
+    subType.setTerminology(terminology);
+  }
+
+  /**
+   * Returns the sub type terminology. For JAXB.
+   *
+   * @return the sub type terminology
+   */
+  public String getSubTypeTerminologyVersion() {
+    return subType == null ? null : subType.getTerminologyVersion();
+  }
+
+  /**
+   * Sets the sub type terminology version.
+   *
+   * @param terminologyVersion the sub type terminology version
+   */
+  public void setSubTypeTerminologyVersion(String terminologyVersion) {
+    if (subType == null) {
+      subType = new CodeJpa();
+    }
+    subType.setTerminologyVersion(terminologyVersion);
+  }
+
+  /**
    * Returns the sub type term. For JAXB.
    *
    * @return the sub type term
@@ -235,6 +318,7 @@ public class CodeTransitiveRelationshipJpa extends
     }
     subType.setName(term);
   }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -252,8 +336,7 @@ public class CodeTransitiveRelationshipJpa extends
       return false;
     if (getClass() != obj.getClass())
       return false;
-    CodeTransitiveRelationshipJpa other =
-        (CodeTransitiveRelationshipJpa) obj;
+    CodeTransitiveRelationshipJpa other = (CodeTransitiveRelationshipJpa) obj;
     if (subType == null) {
       if (other.subType != null)
         return false;

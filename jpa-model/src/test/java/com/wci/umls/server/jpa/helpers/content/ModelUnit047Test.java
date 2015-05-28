@@ -57,10 +57,14 @@ public class ModelUnit047Test {
     descriptor1.setId(1L);
     descriptor1.setName("1");
     descriptor1.setTerminologyId("1");
+    descriptor1.setTerminology("1");
+    descriptor1.setTerminologyVersion("1");
     descriptor2 = new DescriptorJpa();
     descriptor2.setId(2L);
     descriptor2.setName("2");
     descriptor2.setTerminologyId("2");
+    descriptor2.setTerminology("2");
+    descriptor2.setTerminologyVersion("2");
   }
 
   /**
@@ -74,6 +78,8 @@ public class ModelUnit047Test {
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("nodeId");
     tester.exclude("nodeTerminologyId");
+    tester.exclude("nodeTerminology");
+    tester.exclude("nodeTerminologyVersion");
     tester.exclude("nodeName");
     tester.test();
   }
@@ -164,6 +170,9 @@ public class ModelUnit047Test {
     String xml = ConfigUtility.getStringForGraph(object);
     assertTrue(xml.contains("<nodeId>"));
     assertTrue(xml.contains("<nodeName>"));
+    assertTrue(xml.contains("<nodeTerminologyId>"));
+    assertTrue(xml.contains("<nodeTerminology>"));
+    assertTrue(xml.contains("<nodeTerminologyVersion>"));
     assertFalse(xml.contains("<node>"));
   }
 

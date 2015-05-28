@@ -79,6 +79,7 @@ public class ModelUnit011Test {
 
     tester.include("name");
     tester.include("fullyDefined");
+    tester.include("anonymous");
     tester.include("usesRelationshipIntersection");
     tester.include("usesRelationshipUnion");
 
@@ -134,6 +135,7 @@ public class ModelUnit011Test {
     tester.include("terminologyVersion");
     tester.include("name");
     tester.include("fullyDefined");
+    tester.include("anonymous");
     tester.include("usesRelationshipIntersection");
     tester.include("usesRelationshipUnion");
 
@@ -167,6 +169,7 @@ public class ModelUnit011Test {
     tester.include("terminology");
     tester.include("terminologyVersion");
     tester.include("fullyDefined");
+    tester.include("anonymous");
     tester.include("nameSort");
     tester.include("workflowStatus");
     tester.include("branch");
