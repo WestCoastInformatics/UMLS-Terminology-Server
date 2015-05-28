@@ -265,7 +265,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
             + terminology + "/" + version + "/query/"
-            + (query == null ? "" : query));
+            + (query == null ? ContentServiceRest.QUERY_BLANK : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -310,9 +310,9 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui"
            + "/luceneQuery/"
-            + (luceneQuery == null ? "" : luceneQuery)
+            + (luceneQuery == null ? ContentServiceRest.QUERY_BLANK  : luceneQuery)
             + "/hqlQuery/"
-            + (hqlQuery == null ? "" : hqlQuery));
+            + (hqlQuery == null ? ContentServiceRest.QUERY_BLANK  : hqlQuery));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -429,7 +429,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
             + terminology + "/" + version + "/query/"
-            + (query == null ? "" : query));
+            + (query == null ? ContentServiceRest.QUERY_BLANK  : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -472,9 +472,9 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
             + "/luceneQuery/"
-            + (luceneQuery == null ? "" : luceneQuery)
+            + (luceneQuery == null ? ContentServiceRest.QUERY_BLANK  : luceneQuery)
             + "/hqlQuery/"
-            + (hqlQuery == null ? "" : hqlQuery));
+            + (hqlQuery == null ? ContentServiceRest.QUERY_BLANK  : hqlQuery));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -589,7 +589,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
             + terminology + "/" + version + "/query/"
-            + (query == null ? "" : query));
+            + (query == null ? ContentServiceRest.QUERY_BLANK  : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -632,9 +632,9 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
             + "/luceneQuery/"
-            + (luceneQuery == null ? "" : luceneQuery)
+            + (luceneQuery == null ? ContentServiceRest.QUERY_BLANK  : luceneQuery)
             + "/hqlQuery/"
-            + (hqlQuery == null ? "" : hqlQuery));
+            + (hqlQuery == null ? ContentServiceRest.QUERY_BLANK  : hqlQuery));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1438,7 +1438,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/aui/subset/"
             + subsetId + terminology + "/" + version + "/members/query/"
-            + (query == null ? "" : query));
+            + (query == null ? ContentServiceRest.QUERY_BLANK  : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1471,7 +1471,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/subset/"
             + subsetId + terminology + "/" + version + "/members/query/"
-            + (query == null ? "" : query));
+            + (query == null ? ContentServiceRest.QUERY_BLANK  : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1546,7 +1546,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
             + terminology + "/" + version + "/" + terminologyId
-            + "/trees/query/" + (query == null ? "" : query));
+            + "/trees/query/" + (query == null ? ContentServiceRest.QUERY_BLANK  : query));
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -1581,7 +1581,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
             + terminology + "/" + version + "/" + terminologyId
-            + "/trees/query/" + (query == null ? "" : query));
+            + "/trees/query/" + (query == null ? ContentServiceRest.QUERY_BLANK  : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1623,7 +1623,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
             + terminology + "/" + version + "/" + terminologyId
-            + "/trees/query/" + (query == null ? "" : query));
+            + "/trees/query/" + (query == null ? ContentServiceRest.QUERY_BLANK  : query));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);

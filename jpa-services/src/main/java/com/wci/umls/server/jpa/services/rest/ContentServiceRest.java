@@ -29,6 +29,14 @@ import com.wci.umls.server.model.content.StringClass;
 public interface ContentServiceRest {
 
   /**
+   * Value representing a blank query. Needed so that jersey can identify URL
+   * containing an "optional" parameter.  This could be done alternatively
+   * with complex regular expressions, but we feel this is a more straightforward
+   * solution.
+   */
+  public final String QUERY_BLANK = "^BLANK^";
+
+  /**
    * Returns the concept.
    *
    * @param terminologyId the terminology id
@@ -55,7 +63,7 @@ public interface ContentServiceRest {
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
-  
+
   /**
    * Find concepts for query.
    *
@@ -245,7 +253,7 @@ public interface ContentServiceRest {
   public SearchResultList findDescriptorsForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
-  
+
   /**
    * Find descriptors for query.
    *
@@ -592,8 +600,8 @@ public interface ContentServiceRest {
    * @throws Exception the exception
    */
   public SubsetMemberList findAtomSubsetMembers(String subsetId,
-    String terminology, String version, String query,
-    PfsParameterJpa pfs, String authToken) throws Exception;
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Find concept subset members.
@@ -608,7 +616,7 @@ public interface ContentServiceRest {
    * @throws Exception the exception
    */
   public SubsetMemberList findConceptSubsetMembers(String subsetId,
-    String terminology, String version, String query,
-    PfsParameterJpa pfs, String authToken) throws Exception;
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
 }
