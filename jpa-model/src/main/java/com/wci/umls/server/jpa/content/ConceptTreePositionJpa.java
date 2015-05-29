@@ -17,9 +17,11 @@ import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptTreePosition;
@@ -91,6 +93,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    */
   @XmlElement
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @FieldBridge(impl = LongBridge.class)
   public Long getNodeId() {
     return node == null ? null : node.getId();
   }

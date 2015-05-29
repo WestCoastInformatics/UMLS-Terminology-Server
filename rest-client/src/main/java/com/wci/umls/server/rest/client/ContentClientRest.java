@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.client;
 
+import java.net.URLEncoder;
 import java.util.Properties;
 
 import javax.ws.rs.core.MediaType;
@@ -270,7 +271,7 @@ public class ContentClientRest implements ContentServiceRest {
             + version
             + "/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,"UTF-8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -439,7 +440,7 @@ public class ContentClientRest implements ContentServiceRest {
             + version
             + "/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,"UTF-8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -604,7 +605,7 @@ public class ContentClientRest implements ContentServiceRest {
             + version
             + "/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,"UTF-8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1465,7 +1466,7 @@ public class ContentClientRest implements ContentServiceRest {
             + version
             + "/members/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,"UTF-8")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1506,7 +1507,7 @@ public class ContentClientRest implements ContentServiceRest {
             + version
             + "/members/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,"UTF-8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1590,7 +1591,7 @@ public class ContentClientRest implements ContentServiceRest {
             + terminologyId
             + "/trees/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,"UTF-8").replaceAll("\\+", "%20")));
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()

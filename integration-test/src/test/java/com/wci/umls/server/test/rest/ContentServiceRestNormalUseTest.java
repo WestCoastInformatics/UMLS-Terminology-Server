@@ -485,6 +485,33 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     }
     assertEquals(19, searchResults.getCount());
 
+    // Simple query with spaces, empty pfs
+    Logger.getLogger(getClass()).info("  Simple query, empty pfs");
+    searchResults =
+        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+            "heart disease", null, authToken);
+    Logger.getLogger(getClass()).info(
+        "    totalCount = " + searchResults.getTotalCount());
+    assertEquals(19, searchResults.getTotalCount());
+    for (SearchResult sr : searchResults.getObjects()) {
+      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
+    }
+    assertEquals(19, searchResults.getCount());
+
+    // Complex fielded query, empty pfs
+    Logger.getLogger(getClass()).info("  Simple query, empty pfs");
+    searchResults =
+        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
+            "heart disease AND obsolete:false AND suppressible:false AND published:true", null,
+            authToken);
+    Logger.getLogger(getClass()).info(
+        "    totalCount = " + searchResults.getTotalCount());
+    assertEquals(19, searchResults.getTotalCount());
+    for (SearchResult sr : searchResults.getObjects()) {
+      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
+    }
+    assertEquals(19, searchResults.getCount());
+
     // Simple query, sorted on name
     Logger.getLogger(getClass()).info("  Simple query, sorted on name");
     pfs.setSortField("name");
@@ -514,7 +541,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(19,searchResults.getCount());
+    assertEquals(19, searchResults.getCount());
     assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfs,
         ConceptJpa.class));
 
@@ -574,7 +601,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(1,searchResults.getCount());
+    assertEquals(1, searchResults.getCount());
     assertTrue(searchResults.getObjects().get(0).getTerminologyId()
         .equals("169559003"));
 
@@ -639,7 +666,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(0,searchResults.getCount());
+    assertEquals(0, searchResults.getCount());
 
     // No query, active and primitive only, first page
     Logger.getLogger(getClass()).info(
@@ -888,7 +915,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(1,searchResults.getCount());
+    assertEquals(1, searchResults.getCount());
     for (SearchResult sr : searchResults.getObjects()) {
       assertTrue(sr.getValue().contains("muscle"));
     }
@@ -917,45 +944,21 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(1,searchResults.getCount());
+    assertEquals(1, searchResults.getCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
 
   }
 
+
   /**
-   * Test Get and Find methods for getAtomSubsets and getConceptSubsets
+   * Test "find" descriptors by query.
    * @throws Exception
    */
   @Test
   public void testNormalUseRestContent009() throws Exception {
-
     Logger.getLogger(getClass()).debug("Start test");
-
-    /** Get codes */
-    Logger.getLogger(getClass()).info(
-        "TEST - " + "SNOMEDCT_US, 2014_09_01, " + authToken);
-    SubsetList sml =
-        contentService.getAtomSubsets(snomedTerminology, snomedVersion,
-            authToken);
-    assertNotNull(sml);
-
-    sml =
-        contentService.getConceptSubsets(snomedTerminology, snomedVersion,
-            authToken);
-    assertNotNull(sml);
-  }
-
-  /**
-   * Test variations of findDescriptorsForQuery()
-   * @throws Exception
-   */
-  @Test
-  public void testNormalUseRestContent010() throws Exception {
-
-    Logger.getLogger(getClass()).debug("Start test");
-    /** Find descriptions for query */
 
     String query = "amino*";
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -969,7 +972,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(9,searchResults.getCount());
+    assertEquals(9, searchResults.getCount());
 
     // Sorted results – Pfs parameter with sortField name
     // TEST: 9 results, sorted alphabetically
@@ -980,7 +983,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(9,searchResults.getCount());
+    assertEquals(9, searchResults.getCount());
     assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfs,
         DescriptorJpa.class));
 
@@ -993,7 +996,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(9,searchResults.getCount());
+    assertEquals(9, searchResults.getCount());
     assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfs,
         DescriptorJpa.class));
 
@@ -1046,7 +1049,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(1,searchResults.getCount());
+    assertEquals(1, searchResults.getCount());
     assertTrue(searchResults.getObjects().get(0).getTerminologyId()
         .equals("C118284"));
 
@@ -1100,7 +1103,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     srl =
         contentService.findDescriptorsForQuery(mshTerminology, mshVersion, "",
             pfs, authToken);
-    assertEquals(0,srl.getCount());
+    assertEquals(0, srl.getCount());
     Logger.getLogger(getClass()).info("Result count: " + srl.getCount());
 
     /**
@@ -1138,7 +1141,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     srl =
         contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
             "disease", pfs, authToken);
-    assertEquals(8,srl.getCount());
+    assertEquals(8, srl.getCount());
     Logger.getLogger(getClass()).info("Result count: " + srl.getCount());
     for (SearchResult sr : srl.getObjects()) {
       Logger.getLogger(getClass()).info(
@@ -1162,7 +1165,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     srl =
         contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
             "disease", pfs, authToken);
-    assertEquals (0, srl.getCount());
+    assertEquals(0, srl.getCount());
     Logger.getLogger(getClass()).info("Result count: " + srl.getCount());
     for (SearchResult sr : srl.getObjects()) {
       Logger.getLogger(getClass()).info(

@@ -21,6 +21,7 @@ import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -593,6 +594,17 @@ public interface ContentService extends MetadataService {
     String terminology, String version, String branch, String query,
     PfsParameter pfs) throws Exception;
 
+  /**
+   * Returns the concept tree for ancestor path. The tree type is
+   * the same as the type of the idenfier passed.
+   *
+   * @param ancestorPath the ancestor path
+   * @param id the id
+   * @return the concept tree for ancestor path
+   * @throws Exception the exception
+   */
+  public Tree getTreeForAncestorPath(String ancestorPath, Long id) throws Exception;
+    
   /**
    * Find tree positions for descriptor.
    *

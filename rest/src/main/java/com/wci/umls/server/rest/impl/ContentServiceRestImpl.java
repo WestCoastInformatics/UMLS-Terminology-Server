@@ -44,7 +44,6 @@ import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
@@ -2027,13 +2026,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       TreePositionList list =
           contentService.findTreePositionsForConcept(terminologyId,
               terminology, version, Branch.ROOT, queryStr, pfs);
-      // TODO: do something to form a tree
+
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
-        final Tree tree = new TreeJpa();
-        tree.setSelf(treepos);
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getId());
+        treeList.addObject(tree);
       }
+      // NOTE: to merge trees use tree.merge(tree2).
+
       return treeList;
 
     } catch (Exception e) {
@@ -2074,13 +2077,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       TreePositionList list =
           contentService.findTreePositionsForDescriptor(terminologyId,
               terminology, version, Branch.ROOT, queryStr, pfs);
-      // TODO: do something to form a tree
+
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
-        final Tree tree = new TreeJpa();
-        tree.setSelf(treepos);
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getId());
+        treeList.addObject(tree);
       }
+      // NOTE: to merge trees use tree.merge(tree2).
+
       return treeList;
 
     } catch (Exception e) {
@@ -2122,13 +2129,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       TreePositionList list =
           contentService.findTreePositionsForCode(terminologyId, terminology,
               version, Branch.ROOT, queryStr, pfs);
-      // TODO: do something to form a tree
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
-        final Tree tree = new TreeJpa();
-        tree.setSelf(treepos);
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getId());
+        treeList.addObject(tree);
       }
+      // NOTE: to merge trees use tree.merge(tree2).
       return treeList;
 
     } catch (Exception e) {
