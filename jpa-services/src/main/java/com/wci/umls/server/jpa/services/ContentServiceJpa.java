@@ -3006,7 +3006,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           getLuceneQueryResults("", "", branch, luceneQuery, fieldNames,
               clazz, pfs, totalCt);
       luceneQueryFlag = true;
-  }
+    }
 
     boolean hqlQueryFlag = false;
     List<AtomClass> hqlQueryClasses = new ArrayList<>();

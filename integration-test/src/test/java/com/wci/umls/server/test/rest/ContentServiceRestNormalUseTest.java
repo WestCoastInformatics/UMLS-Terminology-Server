@@ -1639,11 +1639,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   @Test
   public void testNormalUseRestContent013() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
+    
     /** Find concepts with hql query */
     Logger.getLogger(getClass()).info(
-        "TEST - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
+        "TEST1 - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
             + authToken);
-
     SearchResultList sml =
         contentService.findConceptsForGeneralQuery("",
             "SELECT c FROM ConceptJpa c", new PfsParameterJpa(), authToken);
@@ -1654,7 +1654,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(20);
     Logger.getLogger(getClass()).info(
-        "TEST - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
+        "TEST2 - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
             + pfs + authToken);
     sml =
         contentService.findConceptsForGeneralQuery("",
@@ -1666,10 +1666,9 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger
         .getLogger(getClass())
         .info(
-            "TEST - "
+            "TEST3 - "
                 + "name:amino, SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
                 + authToken);
-
     sml =
         contentService.findConceptsForGeneralQuery("name:amino",
             "SELECT c FROM ConceptJpa c", new PfsParameterJpa(), authToken);
@@ -1678,13 +1677,100 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     /** Find concepts in lucene query */
     Logger.getLogger(getClass()).info(
-        "TEST - " + "name:amino, SNOMEDCT_US, 2014_09_01, " + authToken);
-
+        "TEST4 - " + "name:amino, SNOMEDCT_US, 2014_09_01, " + authToken);
     sml =
         contentService.findConceptsForGeneralQuery("name:amino", "",
             new PfsParameterJpa(), authToken);
     assertTrue(sml.getCount() == 10);
     assertTrue(sml.getTotalCount() == 10);
+    
+    /** Find descriptors with hql query */
+    Logger.getLogger(getClass()).info(
+        "TEST5 - " + "SELECT c FROM DescriptorJpa c, SNOMEDCT_US, 2014_09_01, "
+            + authToken);
+    sml =
+        contentService.findDescriptorsForGeneralQuery("",
+            "SELECT c FROM DescriptorJpa c", new PfsParameterJpa(), authToken);
+    assertTrue(sml.getCount() == 997);
+
+    /** Find descriptors with hql query and pfs parameter max results 20 */
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(20);
+    Logger.getLogger(getClass()).info(
+        "TEST6 - " + "SELECT c FROM DescriptorJpa c, SNOMEDCT_US, 2014_09_01, "
+            + pfs + authToken);
+    sml =
+        contentService.findDescriptorsForGeneralQuery("",
+            "SELECT c FROM DescriptorJpa c", pfs, authToken);
+    assertTrue(sml.getCount() == 20);
+    assertTrue(sml.getTotalCount() == 997);
+
+    /** Find descriptors in intersection of lucene and hql queries */
+    Logger
+        .getLogger(getClass())
+        .info(
+            "TEST7 - "
+                + "name:amino, SELECT c FROM DescriptorJpa c, SNOMEDCT_US, 2014_09_01, "
+                + authToken);
+    sml =
+        contentService.findDescriptorsForGeneralQuery("name:amino",
+            "SELECT c FROM DescriptorJpa c", new PfsParameterJpa(), authToken);
+    assertTrue(sml.getCount() == 4);
+    assertTrue(sml.getTotalCount() == 4);
+
+    /** Find descriptors in lucene query */
+    Logger.getLogger(getClass()).info(
+        "TEST8 - " + "name:amino, SNOMEDCT_US, 2014_09_01, " + authToken);
+    sml =
+        contentService.findDescriptorsForGeneralQuery("name:amino", "",
+            new PfsParameterJpa(), authToken);
+    assertTrue(sml.getCount() == 4);
+    assertTrue(sml.getTotalCount() == 4);    
+    
+    /** Find codes with hql query */
+    Logger.getLogger(getClass()).info(
+        "TEST9 - " + "SELECT c FROM CodeJpa c, SNOMEDCT_US, 2014_09_01, "
+            + authToken);
+    sml =
+        contentService.findCodesForGeneralQuery("",
+            "SELECT c FROM CodeJpa c", new PfsParameterJpa(), authToken);
+    assertTrue(sml.getCount() == 5050);
+
+    /** Find codes with hql query and pfs parameter max results 20 */
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(20);
+    Logger.getLogger(getClass()).info(
+        "TEST10 - " + "SELECT c FROM CodeJpa c, SNOMEDCT_US, 2014_09_01, "
+            + pfs + authToken);
+    sml =
+        contentService.findCodesForGeneralQuery("",
+            "SELECT c FROM CodeJpa c", pfs, authToken);
+    assertTrue(sml.getCount() == 20);
+    assertTrue(sml.getTotalCount() == 5050);
+
+    /** Find codes in intersection of lucene and hql queries */
+    Logger
+        .getLogger(getClass())
+        .info(
+            "TEST11 - "
+                + "name:amino, SELECT c FROM CodeJpa c, SNOMEDCT_US, 2014_09_01, "
+                + authToken);
+    sml =
+        contentService.findCodesForGeneralQuery("name:amino",
+            "SELECT c FROM CodeJpa c", new PfsParameterJpa(), authToken);
+    assertTrue(sml.getCount() == 6);
+    assertTrue(sml.getTotalCount() == 6);
+
+    /** Find codes in lucene query */
+    Logger.getLogger(getClass()).info(
+        "TEST12 - " + "name:amino, SNOMEDCT_US, 2014_09_01, " + authToken);
+    sml =
+        contentService.findCodesForGeneralQuery("name:amino", "",
+            new PfsParameterJpa(), authToken);
+    assertTrue(sml.getCount() == 6);
+    assertTrue(sml.getTotalCount() == 6); 
   }
 
   /**

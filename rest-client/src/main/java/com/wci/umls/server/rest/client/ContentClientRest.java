@@ -485,7 +485,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
-            + "/content/dui/"
+            + "/content/dui"
             + "/luceneQuery/"
             + (luceneQuery == null || luceneQuery.isEmpty()
                 ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
@@ -654,7 +654,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
-            + "/content/code/"
+            + "/content/code"
             + "/luceneQuery/"
             + (luceneQuery == null || luceneQuery.isEmpty()
                 ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
