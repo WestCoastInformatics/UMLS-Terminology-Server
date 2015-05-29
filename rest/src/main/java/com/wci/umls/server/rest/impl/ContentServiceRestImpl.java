@@ -44,7 +44,6 @@ import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
@@ -52,12 +51,10 @@ import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
@@ -795,8 +792,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findConceptsForGeneralQuery(luceneQueryStr, hqlQueryStr,
-              Branch.ROOT, pfs);
+          contentService.findConceptsForGeneralQuery(luceneQueryStr,
+              hqlQueryStr, Branch.ROOT, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1022,8 +1019,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findDescriptorsForGeneralQuery(luceneQueryStr, hqlQueryStr,
-              Branch.ROOT, pfs);
+          contentService.findDescriptorsForGeneralQuery(luceneQueryStr,
+              hqlQueryStr, Branch.ROOT, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1315,7 +1312,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/ancestors")
+  @Path("/cui/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
   @ApiOperation(value = "Find ancestor concepts.", notes = "Gets a list of ancestor concepts.", response = ConceptList.class)
   public ConceptList findAncestorConcepts(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
@@ -1367,13 +1364,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/descendants")
+  @Path("/cui/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
   @ApiOperation(value = "Find descendant concepts.", notes = "Gets a list of descendant concepts.", response = ConceptList.class)
   public ConceptList findDescendantConcepts(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1389,7 +1386,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       ConceptList list =
           contentService.findDescendantConcepts(terminologyId, terminology,
-              version, parentsOnly, Branch.ROOT, pfs);
+              version, childrenOnly, Branch.ROOT, pfs);
 
       for (Concept concept : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(
@@ -1419,7 +1416,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/ancestors")
+  @Path("/dui/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
   @ApiOperation(value = "Find ancestor descriptors.", notes = "Gets a list of ancestor descriptors.", response = DescriptorList.class)
   public DescriptorList findAncestorDescriptors(
     @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
@@ -1439,9 +1436,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find ancestor descriptors",
           UserRole.VIEWER);
 
-      return contentService.findAncestorDescriptors(terminologyId, terminology,
-          version, parentsOnly, Branch.ROOT, pfs);
+      DescriptorList list =
+          contentService.findAncestorDescriptors(terminologyId, terminology,
+              version, parentsOnly, Branch.ROOT, pfs);
 
+      for (Descriptor descriptor : list.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology)
+            .resolve(
+                descriptor,
+                TerminologyUtility.getHierarchicalIsaRels(
+                    descriptor.getTerminology(),
+                    descriptor.getTerminologyVersion()));
+      }
+
+      return list;
     } catch (Exception e) {
       handleException(e, "trying to find the ancestor descriptors");
       return null;
@@ -1461,13 +1469,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/descendants")
+  @Path("/dui/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
   @ApiOperation(value = "Find descendant descriptors.", notes = "Gets a list of descendant descriptors.", response = DescriptorList.class)
   public DescriptorList findDescendantDescriptors(
     @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1481,9 +1489,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find descendant descriptors",
           UserRole.VIEWER);
 
-      return contentService.findDescendantDescriptors(terminologyId,
-          terminology, version, parentsOnly, Branch.ROOT, pfs);
+      DescriptorList list =
+          contentService.findDescendantDescriptors(terminologyId, terminology,
+              version, childrenOnly, Branch.ROOT, pfs);
 
+      for (Descriptor descriptor : list.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology)
+            .resolve(
+                descriptor,
+                TerminologyUtility.getHierarchicalIsaRels(
+                    descriptor.getTerminology(),
+                    descriptor.getTerminologyVersion()));
+      }
+
+      return list;
     } catch (Exception e) {
       handleException(e, "trying to find the descendant descriptors");
       return null;
@@ -1503,7 +1522,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/code/{terminology}/{version}/{terminologyId}/ancestors")
+  @Path("/code/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
   @ApiOperation(value = "Find ancestor codes.", notes = "Gets a list of ancestor codes.", response = CodeList.class)
   public CodeList findAncestorCodes(
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
@@ -1523,9 +1542,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find ancestor codes",
           UserRole.VIEWER);
 
-      return contentService.findAncestorCodes(terminologyId, terminology,
-          version, parentsOnly, Branch.ROOT, pfs);
+      CodeList list =
+          contentService.findAncestorCodes(terminologyId, terminology, version,
+              parentsOnly, Branch.ROOT, pfs);
 
+      for (Code code : list.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(
+            code,
+            TerminologyUtility.getHierarchicalIsaRels(code.getTerminology(),
+                code.getTerminologyVersion()));
+      }
+
+      return list;
     } catch (Exception e) {
       handleException(e, "trying to find the ancestor codes");
       return null;
@@ -1545,13 +1573,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/code/{terminology}/{version}/{terminologyId}/descendants")
+  @Path("/code/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
   @ApiOperation(value = "Find descendant codes.", notes = "Gets a list of descendant codes.", response = CodeList.class)
   public CodeList findDescendantCodes(
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1565,9 +1593,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find descendant codes",
           UserRole.VIEWER);
 
-      return contentService.findDescendantCodes(terminologyId, terminology,
-          version, parentsOnly, Branch.ROOT, pfs);
+      CodeList list =
+          contentService.findDescendantCodes(terminologyId, terminology,
+              version, childrenOnly, Branch.ROOT, pfs);
 
+      for (Code code : list.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(
+            code,
+            TerminologyUtility.getHierarchicalIsaRels(code.getTerminology(),
+                code.getTerminologyVersion()));
+      }
+
+      return list;
     } catch (Exception e) {
       handleException(e, "trying to find the descendant codes");
       return null;
@@ -1670,12 +1707,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/relationships")
+  @Path("/cui/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given concept id.", response = RelationshipList.class)
   public RelationshipList findRelationshipsForConcept(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1690,12 +1728,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       RelationshipList list =
           contentService.findRelationshipsForConcept(terminologyId,
-              terminology, version, Branch.ROOT, false, pfs);
+              terminology, version, Branch.ROOT, query, false, pfs);
 
-      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
-          .getObjects()) {
-        contentService.getGraphResolutionHandler(terminology).resolve(rel);
-      }
+      /*
+       * TODO: Closing FullTextEntityManager causes new connection, losing
+       * persistent data This has been moved into the JPA layer, but not ideal
+       * for (Relationship<? extends ComponentHasAttributes, ? extends
+       * ComponentHasAttributes> rel : list .getObjects()) {
+       * contentService.getGraphResolutionHandler(terminology).resolve(rel); }
+       */
 
       return list;
 
@@ -1744,26 +1785,36 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/relationships")
+  @Path("/dui/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given descriptor id.", response = RelationshipList.class)
   public RelationshipList findRelationshipsForDescriptor(
     @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships");
+            + terminologyId + "/relationships/query/" + query);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
           "retrieve relationships for the descriptor", UserRole.VIEWER);
 
-      return contentService.findRelationshipsForDescriptor(terminologyId,
-          terminology, version, Branch.ROOT, false, pfs);
+      RelationshipList list =
+          contentService.findRelationshipsForDescriptor(terminologyId,
+              terminology, version, Branch.ROOT, query, false, pfs);
+      /*
+       * GraphResolutionHandler handler =
+       * contentService.getGraphResolutionHandler(terminology); for
+       * (Relationship<? extends ComponentHasAttributes, ? extends
+       * ComponentHasAttributes> r : list.getObjects()) { handler.resolve(r); }
+       */
+
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a descriptor");
@@ -1777,26 +1828,36 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/code/{terminology}/{version}/{terminologyId}/relationships")
+  @Path("/code/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given code id.", response = RelationshipList.class)
   public RelationshipList findRelationshipsForCode(
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships");
+            + terminologyId + "/relationships/query" + query);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
           "retrieve relationships for the code", UserRole.VIEWER);
 
-      return contentService.findRelationshipsForCode(terminologyId,
-          terminology, version, Branch.ROOT, false, pfs);
+      RelationshipList list =
+          contentService.findRelationshipsForCode(terminologyId, terminology,
+              version, Branch.ROOT, query, false, pfs);
+
+      /*
+       * GraphResolutionHandler handler =
+       * contentService.getGraphResolutionHandler(terminology); for
+       * (Relationship<? extends ComponentHasAttributes, ? extends
+       * ComponentHasAttributes> r : list.getObjects()) { handler.resolve(r); }
+       */
+      return list;
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a code");
@@ -1975,8 +2036,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   public RelationshipList findRelationshipsForAtom(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Atom): /aui/" + terminology + "/" + version + "/"
@@ -1987,7 +2048,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "retrieve relationships for the atom", UserRole.VIEWER);
 
       return contentService.findRelationshipsForAtom(terminologyId,
-          terminology, version, Branch.ROOT, false, pfs);
+          terminology, version, Branch.ROOT, query, false, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a atom");
@@ -2027,13 +2088,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       TreePositionList list =
           contentService.findTreePositionsForConcept(terminologyId,
               terminology, version, Branch.ROOT, queryStr, pfs);
-      // TODO: do something to form a tree
+
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
-        final Tree tree = new TreeJpa();
-        tree.setSelf(treepos);
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getId());
+        treeList.addObject(tree);
       }
+      // NOTE: to merge trees use tree.merge(tree2).
+
       return treeList;
 
     } catch (Exception e) {
@@ -2074,13 +2139,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       TreePositionList list =
           contentService.findTreePositionsForDescriptor(terminologyId,
               terminology, version, Branch.ROOT, queryStr, pfs);
-      // TODO: do something to form a tree
+
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
-        final Tree tree = new TreeJpa();
-        tree.setSelf(treepos);
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getId());
+        treeList.addObject(tree);
       }
+      // NOTE: to merge trees use tree.merge(tree2).
+
       return treeList;
 
     } catch (Exception e) {
@@ -2122,13 +2191,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       TreePositionList list =
           contentService.findTreePositionsForCode(terminologyId, terminology,
               version, Branch.ROOT, queryStr, pfs);
-      // TODO: do something to form a tree
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
-        final Tree tree = new TreeJpa();
-        tree.setSelf(treepos);
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getId());
+        treeList.addObject(tree);
       }
+      // NOTE: to merge trees use tree.merge(tree2).
       return treeList;
 
     } catch (Exception e) {

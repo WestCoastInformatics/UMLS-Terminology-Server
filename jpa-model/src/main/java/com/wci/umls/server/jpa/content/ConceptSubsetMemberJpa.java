@@ -15,9 +15,11 @@ import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
@@ -95,6 +97,7 @@ public class ConceptSubsetMemberJpa extends
    *
    * @return the member id
    */
+  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getMemberId() {
     return member == null ? null : member.getId();
@@ -228,6 +231,7 @@ public class ConceptSubsetMemberJpa extends
    *
    * @return the subset id
    */
+  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getSubsetId() {
     return subset == null ? null : subset.getId();

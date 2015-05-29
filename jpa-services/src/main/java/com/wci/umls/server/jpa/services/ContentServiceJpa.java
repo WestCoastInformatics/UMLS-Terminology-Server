@@ -4,7 +4,6 @@
 package com.wci.umls.server.jpa.services;
 
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,6 +54,7 @@ import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -93,6 +93,7 @@ import com.wci.umls.server.jpa.helpers.content.RelationshipListJpa;
 import com.wci.umls.server.jpa.helpers.content.StringClassListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
+import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.model.content.Atom;
@@ -202,7 +203,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-
   /** The concept field names. */
   private static String[] conceptFieldNames = {};
 
@@ -213,7 +213,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private static String[] codeFieldNames = {};
 
   /** The relationship field names. */
-  @SuppressWarnings("unused")
   private static String[] relationshipFieldNames = {};
 
   /** The subset member field names. */
@@ -477,7 +476,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     javax.persistence.Query query =
         manager.createQuery("select a from AtomSubsetJpa a where "
             + "terminologyVersion = :version and terminology = :terminology");
-
     // Try to retrieve the single expected result If zero or more than one
     // result are returned, log error and set result to null
     try {
@@ -545,9 +543,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (!finalQuery.toString().isEmpty()) {
       finalQuery.append(" AND ");
     }
-    finalQuery.append("terminology:" + terminology
-        + " AND terminologyVersion:" + version + " AND subsetTerminologyId:"
-        + subsetId);
+    finalQuery.append("terminology:" + terminology + " AND terminologyVersion:"
+        + version + " AND subsetTerminologyId:" + subsetId);
     if (pfs != null && pfs.getQueryRestriction() != null) {
       finalQuery.append(" AND ");
       finalQuery.append(pfs.getQueryRestriction());
@@ -597,9 +594,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (!finalQuery.toString().isEmpty()) {
       finalQuery.append(" AND ");
     }
-    finalQuery.append("terminology:" + terminology
-        + " AND terminologyVersion:" + version + " AND subsetTerminologyId:"
-        + subsetId);
+    finalQuery.append("terminology:" + terminology + " AND terminologyVersion:"
+        + version + " AND subsetTerminologyId:" + subsetId);
     if (pfs != null && pfs.getQueryRestriction() != null) {
       finalQuery.append(" AND ");
       finalQuery.append(pfs.getQueryRestriction());
@@ -1564,11 +1560,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    List<Concept> descendants =
+    List<Concept> ancestors =
         this.findAncestorsHelper(terminologyId, terminology, version,
             parentsOnly, branch, pfs, ConceptJpa.class, totalCt);
     ConceptList list = new ConceptListJpa();
-    list.setObjects(descendants);
+    list.setObjects(ancestors);
     list.setTotalCount((int) totalCt[0]);
     return list;
   }
@@ -1663,8 +1659,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " where sub.terminologyVersion = :version "
             + " and sub.terminology = :terminology "
             + " and sub.terminologyId = :terminologyId"
-            + " and tr.subType = sub and tr.superType = a "
-            + " and tr.superType != tr.subType ";
+            + " and tr.subType = sub" + " and tr.superType = a "
+            + " and tr.subType != tr.superType";
     javax.persistence.Query query = applyPfsToQuery(queryStr, pfs);
 
     javax.persistence.Query ctQuery =
@@ -1674,8 +1670,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " where sub.terminologyVersion = :version "
             + " and sub.terminology = :terminology "
             + " and sub.terminologyId = :terminologyId"
-            + " and tr.subType = sub and tr.superType = a "
-            + " and tr.superType != tr.subType ");
+            + " and tr.subType = sub" + " and tr.superType = a "
+            + " and tr.subType != tr.superType");
+
 
     ctQuery.setParameter("terminology", terminology);
     ctQuery.setParameter("version", version);
@@ -1755,11 +1752,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    List<Descriptor> descendants =
+    List<Descriptor> ancestors =
         this.findAncestorsHelper(terminologyId, terminology, version,
             childrenOnly, branch, pfs, DescriptorJpa.class, totalCt);
     DescriptorList list = new DescriptorListJpa();
-    list.setObjects(descendants);
+    list.setObjects(ancestors);
     list.setTotalCount((int) totalCt[0]);
     return list;
   }
@@ -2980,7 +2977,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
-  
   /**
    * Find for general query helper.
    *
@@ -2995,8 +2991,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @SuppressWarnings("static-method")
   private SearchResultList findForGeneralQueryHelper(String luceneQuery,
-    String hqlQuery, String branch, PfsParameter pfs,
-    String[] fieldNames, Class<?> clazz) throws Exception {
+    String hqlQuery, String branch, PfsParameter pfs, String[] fieldNames,
+    Class<?> clazz) throws Exception {
     // Prepare results
     SearchResultList results = new SearchResultListJpa();
     List<AtomClass> classes = null;
@@ -3010,7 +3006,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           getLuceneQueryResults("", "", branch, luceneQuery, fieldNames,
               clazz, pfs, totalCt);
       luceneQueryFlag = true;
-    }
+  }
 
     boolean hqlQueryFlag = false;
     List<AtomClass> hqlQueryClasses = new ArrayList<>();
@@ -3182,6 +3178,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private List<AtomClass> getLuceneQueryResults(String terminology, String version,
     String branch, String query, String[] fieldNames, Class<?> clazz,
     PfsParameter pfs, int[] totalCt) throws Exception {
+
     // Prepare the query string
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
@@ -3197,6 +3194,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       finalQuery.append(pfs.getQueryRestriction());
     }
     Logger.getLogger(getClass()).info("query = " + finalQuery);
+    
+    // if no query supplied, remove first AND
+    if (finalQuery.indexOf(" AND ") == 0) {
+      finalQuery.delete(0, 5);
+    }
+    
+    Logger.getLogger(getClass()).info("query for " + clazz.getName() +  ": " + finalQuery);
 
     // Prepare the manager and lucene query
     FullTextEntityManager fullTextEntityManager =
@@ -3885,6 +3889,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public void clearBranch(String branch) {
     // TODO: part of implementing branching
   }
+
   /*
    * (non-Javadoc)
    * 
@@ -4268,13 +4273,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public RelationshipList findRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs) {
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for concept " + conceptId + "/"
-            + terminology + "/" + version);
-    return findRelationshipsHelper(conceptId, terminology, version, branch,
-        inverseFlag, pfs, ConceptJpa.class);
+            + terminology + "/" + version  + "/" + branch + "/" + query + "/" + inverseFlag);
+
+    return
+        findRelationshipsForComponentHelper(conceptId, terminology, version, branch, query, inverseFlag,
+            pfs, ConceptRelationshipJpa.class);
   }
 
   /*
@@ -4461,13 +4468,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public RelationshipList findRelationshipsForDescriptor(String descriptorId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs) {
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for descriptor " + descriptorId
-            + "/" + terminology + "/" + version);
-    return findRelationshipsHelper(descriptorId, terminology, version, branch,
-        inverseFlag, pfs, DescriptorJpa.class);
+            + "/" + terminology + "/" + version + "/" + branch + "/" + query + "/" + inverseFlag);
+   
+    return  findRelationshipsForComponentHelper(descriptorId, terminology, version, branch, query, inverseFlag,
+            pfs, DescriptorRelationshipJpa.class);
+
   }
 
   /*
@@ -4480,13 +4489,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public RelationshipList findRelationshipsForCode(String codeId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs) {
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for code " + codeId + "/"
-            + terminology + "/" + version);
-    return findRelationshipsHelper(codeId, terminology, version, branch,
-        inverseFlag, pfs, CodeJpa.class);
+            + terminology + "/" + version + "/" + branch + "/" + query + "/" + inverseFlag);
+ 
+    return
+        findRelationshipsForComponentHelper(codeId, terminology, version, branch, query, inverseFlag, pfs, CodeRelationshipJpa.class);
+
   }
 
   /*
@@ -4499,17 +4510,18 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public RelationshipList findRelationshipsForAtom(String atomId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs) {
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for atom " + atomId + "/"
-            + terminology + "/" + version);
-    return findRelationshipsHelper(atomId, terminology, version, branch,
-        inverseFlag, pfs, AtomJpa.class);
+            + terminology + "/" + version + "/" + branch + "/" + query + "/" + inverseFlag);
+    return findRelationshipsForComponentHelper(atomId, terminology, version, branch, query, inverseFlag,
+        pfs, AtomJpa.class);
   }
 
   /**
    * Find relationships helper.
+   * TODO:  Enable search criteria for relationships searching
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
@@ -4519,48 +4531,76 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @param pfs the pfs
    * @param clazz the clazz
    * @return the relationship list
+   * @throws Exception 
    */
   @SuppressWarnings("unchecked")
-  private RelationshipList findRelationshipsHelper(String terminologyId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs, Class<?> clazz) {
-    // Match "to" for inverseFlag, "from" otherwise
-    javax.persistence.Query query =
-        applyPfsToQuery(
-            "select a from "
-                + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
-                + clazz.getName()
-                + " b where b.terminologyId = :terminologyId "
-                + "and b.terminologyVersion = :version "
-                + "and b.terminology = :terminology and a."
-                + (inverseFlag ? "to" : "from") + " = b ", pfs);
-    javax.persistence.Query ctQuery =
-        manager.createQuery("select count(*) from "
-            + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
-            + clazz.getName() + " b where b.terminologyId = :terminologyId "
-            + "and b.terminologyVersion = :version "
-            + "and b.terminology = :terminology and a."
-            + (inverseFlag ? "to" : "from") + " = b");
-    try {
-      RelationshipList list = new RelationshipListJpa();
-
-      // execute count query
-      ctQuery.setParameter("terminologyId", terminologyId);
-      ctQuery.setParameter("terminology", terminology);
-      ctQuery.setParameter("version", version);
-      list.setTotalCount(((BigDecimal) ctQuery.getResultList().get(0))
-          .intValue());
-
-      query.setParameter("terminologyId", terminologyId);
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
-      list.setObjects(query.getResultList());
-      list.setTotalCount(list.getObjects().size());
-
-      return list;
-    } catch (NoResultException e) {
-      return null;
+  private RelationshipList findRelationshipsForComponentHelper(String terminologyId, String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs, Class<?> clazz) throws Exception {
+    
+    RelationshipList results = new RelationshipListJpa();
+    
+    // Prepare the query string
+    StringBuilder finalQuery = new StringBuilder();
+    
+    // append the query if not null/blank, with trailing AND
+    finalQuery.append(query == null || query.equals("null") || query.isEmpty() ? "" : query + " AND ");
+    
+    // add id/terminology/version constraints baesd on inverse flag
+    if (inverseFlag == true) {
+      finalQuery.append("toTerminologyId:" + terminologyId + " AND toTerminology: " + terminology + " AND toTerminologyVersion:" + version);
+    } else {
+      finalQuery.append("fromTerminologyId:" + terminologyId + " AND fromTerminology: " + terminology + " AND fromTerminologyVersion:" + version);
     }
+    // add query restriction if supplied
+    if (pfs != null && pfs.getQueryRestriction() != null && !pfs.getQueryRestriction().isEmpty()) {
+      finalQuery.append(" AND ");
+      finalQuery.append(pfs.getQueryRestriction());
+    }
+
+    
+    Logger.getLogger(getClass()).info("query for " + clazz.getName() +  ": " + finalQuery);
+
+    // Prepare the manager and lucene query
+    FullTextEntityManager fullTextEntityManager =
+        Search.getFullTextEntityManager(manager);
+    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+    Query luceneQuery;
+    try {
+      QueryParser queryParser =
+          new MultiFieldQueryParser(relationshipFieldNames,
+              searchFactory.getAnalyzer(clazz));
+
+      luceneQuery = queryParser.parse(finalQuery.toString());
+    } catch (ParseException e) {
+      throw new LocalException(
+          "The specified search terms cannot be parsed.  Please check syntax and try again.");
+    }
+    FullTextQuery fullTextQuery =
+        fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
+    
+    // Get result size
+    results.setTotalCount(fullTextQuery.getResultSize());
+
+    // Apply paging and sorting parameters - if no search criteria
+    if (pfs.getSearchCriteria().isEmpty()) {
+      applyPfsToLuceneQuery(clazz, fullTextQuery, pfs);
+    }
+
+    // execute the query
+    List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationships = fullTextQuery.getResultList();
+    results.setObjects(relationships);
+    
+    for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : results
+        .getObjects()) {
+      getGraphResolutionHandler(terminology).resolve(rel);
+    }
+    
+    fullTextEntityManager.close();
+   
+    // closing fullTextEntityManager closes manager as well, recreate
+    manager = factory.createEntityManager();
+    return results;
+  
   }
 
   @Override
@@ -4571,7 +4611,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - find relationships for concept " + terminologyId
             + "/" + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        query, pfs, ConceptJpa.class);
+        query, pfs, ConceptTreePositionJpa.class);
   }
 
   @Override
@@ -4582,7 +4622,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - find relationships for descriptor " + terminologyId
             + "/" + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        query, pfs, DescriptorJpa.class);
+        query, pfs, DescriptorTreePositionJpa.class);
   }
 
   @Override
@@ -4593,7 +4633,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - find relationships for code " + terminologyId + "/"
             + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        query, pfs, CodeJpa.class);
+        query, pfs, CodeTreePositionJpa.class);
 
   }
 
@@ -4622,9 +4662,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (!finalQuery.toString().isEmpty()) {
       finalQuery.append(" AND ");
     }
-    finalQuery.append("terminology:" + terminology
-        + " AND terminologyVersion:" + version + " AND getNodeTerminologyId:"
-        + terminologyId);
+    finalQuery.append("terminology:" + terminology + " AND terminologyVersion:"
+        + version + " AND nodeTerminologyId:" + terminologyId);
     if (pfs != null && pfs.getQueryRestriction() != null) {
       finalQuery.append(" AND ");
       finalQuery.append(pfs.getQueryRestriction());
@@ -4637,6 +4676,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
     Query luceneQuery;
     try {
+
       QueryParser queryParser =
           new MultiFieldQueryParser(treePositionFieldNames,
               searchFactory.getAnalyzer(clazz));
@@ -4693,7 +4733,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
                 + "/");
     return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
         conceptFieldNames, ConceptJpa.class);
-  }
+}
 
   /*
    * (non-Javadoc)
@@ -4711,6 +4751,89 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + "/");
     return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
         descriptorFieldNames, DescriptorJpa.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Tree getTreeForAncestorPath(String ancestorPath, Long id)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Content Service - get tree for ancestor path " + ancestorPath);
+
+    if (ancestorPath == null) {
+      throw new Exception(
+          "Null ancestor path is not allowed, pass a blank value");
+    }
+    // Determine type
+    Class<?> clazz = null;
+    if (manager.find(ConceptJpa.class, id) != null) {
+      clazz = ConceptTreePositionJpa.class;
+    } else if (manager.find(DescriptorJpa.class, id) != null) {
+      clazz = ConceptTreePositionJpa.class;
+    } else if (manager.find(CodeJpa.class, id) != null) {
+      clazz = ConceptTreePositionJpa.class;
+    } else {
+      throw new Exception("Unknown tree position type.");
+    }
+    Logger.getLogger(getClass()).debug("  type = " + clazz.getName());
+
+    Tree tree = new TreeJpa();
+    // Split ancestor path and build up tree. finally add the "self" entry;
+    String partAncPath = "";
+    Tree partTree = tree;
+
+    // Prepare lucene
+    FullTextEntityManager fullTextEntityManager =
+        Search.getFullTextEntityManager(manager);
+    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+    QueryParser queryParser =
+        new MultiFieldQueryParser(treePositionFieldNames,
+            searchFactory.getAnalyzer(clazz));
+    String fullAncPath =
+        ancestorPath + (ancestorPath.isEmpty() ? "" : "~") + id;
+    // Iterate over ancestor path
+    for (String pathPart : fullAncPath.split("~")) {
+      Long partId = Long.parseLong(pathPart);
+      Logger.getLogger(getClass()).debug("  nodeId = " + partId);
+      Logger.getLogger(getClass()).debug("  ancestorPath = " + partAncPath);
+
+      StringBuilder finalQuery = new StringBuilder();
+      finalQuery.append("nodeId:" + partId + " AND ");
+      if (partAncPath.isEmpty()) {
+        // query for empty value
+        finalQuery.append("-ancestorPath:[* TO *]");
+      } else {
+        finalQuery.append("ancestorPath:\"" + partAncPath + "\"");
+      }
+      // Prepare the manager and lucene query
+      Query luceneQuery = queryParser.parse(finalQuery.toString());
+      FullTextQuery fullTextQuery =
+          fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
+
+      if (fullTextQuery.getResultSize() != 1) {
+        throw new Exception("Unexpected number of results: "
+            + fullTextQuery.getResultSize());
+      }
+
+      TreePosition<? extends AtomClass> treepos =
+          (TreePosition<? extends AtomClass>) fullTextQuery.getResultList()
+              .get(0);
+
+      partTree.setSelf(treepos);
+      Tree nextPart = new TreeJpa();
+      
+      if (!partId.equals(id)) {
+        List<Tree> list = new ArrayList<Tree>();
+        list.add(nextPart);
+        partTree.setChildren(list);
+      }
+      partTree = nextPart;
+
+      partAncPath += (partAncPath.equals("") ? "" : "~");
+      partAncPath += pathPart;
+    }
+
+    return tree;
   }
 
 }

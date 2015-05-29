@@ -56,5 +56,14 @@ a {
 	word-wrap: break-word;
 }
 
+.icon-list {
+	list-style: none;
+	padding-left: 0;
+	margin-left: 1em;
+}
 
+.glyphicon-none:before {
+    color: transparent;
+    
+}
 

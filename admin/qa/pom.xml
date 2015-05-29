@@ -348,7 +348,7 @@
                         b.terminologyId);
                       </value>
                     </property>
-                    
+
                     <property>
                       <name>Relationship type without inverse</name>
                       <value>
@@ -365,7 +365,6 @@
                         WHERE inverse IS NULL;
                       </value>
                     </property>
-
 
                     <!-- Validate projects -->
                     <!-- Validate release info -->

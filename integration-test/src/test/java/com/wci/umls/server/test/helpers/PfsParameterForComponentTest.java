@@ -74,6 +74,9 @@ public class PfsParameterForComponentTest {
       } else if (sortClass.getName().contains("Descriptor")) {
         c = contentService.getDescriptor(sr.getTerminologyId(),
              sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
+      } else if (sortClass.getName().contains("Code")) {
+        c = contentService.getCode(sr.getTerminologyId(),
+             sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
       } else {
          c = contentService.getConcept(sr.getTerminologyId(),
               sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);

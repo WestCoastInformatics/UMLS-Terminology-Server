@@ -176,6 +176,19 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   public Long getToId() {
     return to == null ? null : to.getId();
   }
+  
+  /**
+   * Sets the to id.
+   *
+   * @param id the to id
+   */
+  public void setToId(Long id) {
+    if (to == null) {
+      to = new AtomJpa();
+    }
+    to.setId(id);
+  }
+
 
   /**
    * Returns the to terminology id.
@@ -206,17 +219,6 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     return to == null ? null : to.getName();
   }
 
-  /**
-   * Sets the to id.
-   *
-   * @param id the to id
-   */
-  public void setToId(Long id) {
-    if (to == null) {
-      to = new AtomJpa();
-    }
-    to.setId(id);
-  }
 
   /**
    * Sets the to name.

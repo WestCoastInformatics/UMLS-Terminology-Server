@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Module Metadata -->
+  <parent>
+    <groupId>com.wci.umls.server</groupId>
+    <artifactId>term-server-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../parent</relativePath>
+  </parent>
+
+  <artifactId>term-server-examples</artifactId>
+  <name>UMLS terminology server examples module.</name>
+  <description>Provides useful examples for common activities</description>
+
+  <!-- Avoid running examples by default, use -DskipTests=false -->
+  <properties>
+    <skipTests>true</skipTests>
+  </properties>
+
+
+  <!-- Declare Project Dependency Versions -->
+  <dependencies>
+
+    <!-- Term server dependencies -->
+    <dependency>
+      <groupId>com.wci.umls.server</groupId>
+      <artifactId>term-server-rest-client</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.wci.umls.server</groupId>
+      <artifactId>term-server-model</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Add src/main/resources to the classpath -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
+          <additionalClasspathElements>
+            <additionalClasspathElement>src/main/resources</additionalClasspathElement>
+          </additionalClasspathElements>
+          <skipTests>${skipTests}</skipTests>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

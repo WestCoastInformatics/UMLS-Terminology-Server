@@ -1081,6 +1081,16 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         Atom atom = getAtom(atomIdMap.get(fields[3]));
         atom.addAttribute(att);
         addAttribute(att, atom);
+      }
+      // Special case of a CODE attribute where the AUI has "NOCODE" as the code
+      // UMLS has one case of an early XM atom with NOCODE (ICD9CM to CCS map)
+      // In loadMrconso we skip NOCODE codes, never creating them.
+      else if (fields[4].equals("CODE")
+          && atomCodeIdMap.get(fields[3]).equals("NOCODE")) {
+        // Get the concept for the AUI
+        Atom atom = getAtom(atomIdMap.get(fields[3]));
+        atom.addAttribute(att);
+        addAttribute(att, atom);
       } else if (fields[4].equals("RUI")) {
         // Get the relationship for the RUI
         Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship =
@@ -1231,6 +1241,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // attributes)
       if (!fields[3].equals(prevMetaUi)) {
         ++objectCt;
+        // Ready to commit, clear the subset member cache
+        if (objectCt % commitCt == 0) {
+          addedSubsetMembers.clear();
+        }
+        logAndCommit(objectCt);
       }
 
       // Skip everything except SUBSET_MEMBER
@@ -1348,13 +1363,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       }
 
-      // Ready to commit, clear the subset member cache
-      if (objectCt % commitCt == 0) {
-        addedSubsetMembers.clear();
-      }
-
-      logAndCommit(objectCt);
-
       prevMetaUi = fields[3];
       //
       // NOTE: there are no subset attributes in RRF
@@ -1436,7 +1444,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (fields[2].equals("CUI") && fields[6].equals("CUI")) {
         final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
 
-        // Get the concept for the terminology and CUI
         final Concept fromConcept =
             getConcept(conceptIdMap.get(terminology + fields[4]));
         conceptRel.setFrom(fromConcept);
@@ -1452,7 +1459,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (fields[2].equals("SCUI") && fields[6].equals("SCUI")) {
         final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
 
-        // Get the concept for the terminology and SCUI of the AUI (METAUI)
         final Concept fromConcept =
             getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[5])
                 + atomConceptIdMap.get(fields[5])));
@@ -1471,7 +1477,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         final DescriptorRelationship descriptorRel =
             new DescriptorRelationshipJpa();
 
-        // Get the descriptor for the terminology and SDUI of the AUI (METAUI)
         final Descriptor fromDescriptor =
             getDescriptor(descriptorIdMap.get(atomTerminologyMap.get(fields[5])
                 + atomDescriptorIdMap.get(fields[5])));
@@ -1489,7 +1494,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (fields[2].equals("CODE") && fields[6].equals("CODE")) {
         final CodeRelationship codeRel = new CodeRelationshipJpa();
 
-        // Get the code for the terminology and CODE of the AUI (METAUI)
         final Code fromCode =
             getCode(codeIdMap.get(atomTerminologyMap.get(fields[5])
                 + atomCodeIdMap.get(fields[5])));

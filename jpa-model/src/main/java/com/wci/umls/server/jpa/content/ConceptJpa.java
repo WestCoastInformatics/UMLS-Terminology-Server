@@ -218,7 +218,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(name="fullyDefined", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isFullyDefined() {
     return fullyDefined;
   }
@@ -239,7 +239,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(name="anonymous", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isAnonymous() {
     return anonymous;
   }

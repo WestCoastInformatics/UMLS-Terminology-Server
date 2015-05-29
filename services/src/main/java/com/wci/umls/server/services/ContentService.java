@@ -21,6 +21,7 @@ import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -193,19 +194,21 @@ public interface ContentService extends MetadataService {
     String terminology, String version, String branch);
 
   /**
-   * Gets the relationships for concept.
+   * Gets the relationships for concept and query.
    *
    * @param conceptId the concept id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param branch the branch
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for concept
+   * @throws Exception 
    */
   public RelationshipList findRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs);
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find relationships for concept or any part of its graph and push them all
@@ -232,29 +235,33 @@ public interface ContentService extends MetadataService {
    * @param descriptorId the descriptor id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param branch the branch
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for descriptor
+   * @throws Exception 
    */
   public RelationshipList findRelationshipsForDescriptor(String descriptorId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs);
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception;
 
   /**
-   * Returns the relationships for code.
+   * Returns the relationships for code and query
    *
    * @param codeId the code id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param branch the branch
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for code
+   * @throws Exception 
    */
   public RelationshipList findRelationshipsForCode(String codeId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs);
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the relationships for atom.
@@ -266,10 +273,11 @@ public interface ContentService extends MetadataService {
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for atom
+   * @throws Exception 
    */
   public RelationshipList findRelationshipsForAtom(String conceptId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs);
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the descriptor.
@@ -594,6 +602,17 @@ public interface ContentService extends MetadataService {
     PfsParameter pfs) throws Exception;
 
   /**
+   * Returns the concept tree for ancestor path. The tree type is
+   * the same as the type of the idenfier passed.
+   *
+   * @param ancestorPath the ancestor path
+   * @param id the id
+   * @return the concept tree for ancestor path
+   * @throws Exception the exception
+   */
+  public Tree getTreeForAncestorPath(String ancestorPath, Long id) throws Exception;
+    
+  /**
    * Find tree positions for descriptor.
    *
    * @param descriptorId the descriptor id
@@ -771,7 +790,7 @@ public interface ContentService extends MetadataService {
 
   /**
    * Removes the relationship.
-   *
+   * 
    * @param id the id
    * @param relationshipClass the relationship class, null if not known
    * @throws Exception the exception
@@ -817,7 +836,7 @@ public interface ContentService extends MetadataService {
 
   /**
    * Removes the transitive relationship.
-   *
+   * 
    * @param id the id
    * @param relationshipClass the relationship class, null if unknown
    * @throws Exception the exception
@@ -890,7 +909,7 @@ public interface ContentService extends MetadataService {
 
   /**
    * Removes the subset.
-   *
+   * 
    * @param id the id
    * @param subsetClass the subset class, null if unknown
    * @throws Exception the exception
@@ -921,7 +940,7 @@ public interface ContentService extends MetadataService {
 
   /**
    * Removes the subset member.
-   *
+   * 
    * @param id the id
    * @param memberClass the member class, null if unknown
    * @throws Exception the exception

@@ -15,11 +15,9 @@
 
 <!-- Angular core  -->
 <script type="text/javascript"
-	src="./ui/components/angular/angular.min.js"></script>
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
 
-<!-- Angular/Boostrap UI Components -->
-<script type="text/javascript"
-	src="ui/components/angular-bootstrap/ui-bootstrap.js"></script>
+<!-- Angular/Boostrap UI -->
 <script type="text/javascript"
 	src="ui/components/angular-bootstrap/ui-bootstrap-tpls-0.13.0.min.js"></script>
 
@@ -119,10 +117,10 @@
 									<li>SNOMEDCT_US, 2014_09_01</li>
 								</ul>
 								<p class="introText">The mini version of the UMLS contains
-									about 2,000 concepts. Due to the use of IP restricted content, we
-									require users to authenticate with an NLM UTS account to ensure
-									they have agreed to the UMLS License. We are a UMLS authorized
-									content distributor.</p>
+									about 2,000 concepts. Due to the use of IP restricted content,
+									we require users to authenticate with an NLM UTS account to
+									ensure they have agreed to the UMLS License. We are a UMLS
+									authorized content distributor.</p>
 								<p class="introText">
 									To obtain a UTS account, visit <a href="http://uts.nlm.nih.gov">http://uts.nlm.nih.gov</a>
 								</p>
@@ -132,7 +130,7 @@
 								</p>
 								<p class="introText">
 									For complete documentation, see the <a
-										href="http://wiki.terminology.tools/confluence/display/UTS/UMLS+Terminology+Server+Home">UMLS 
+										href="http://wiki.terminology.tools/confluence/display/UTS/UMLS+Terminology+Server+Home">UMLS
 										Terminology Server wiki</a>.
 								</p>
 								<p class="introText">
@@ -156,7 +154,7 @@
 								<td width="15%;">Terminology</td>
 								<td width="85%;"><select ng-model="terminology"
 									ng-change="setTerminology(terminology)"
-									ng-options="terminology as terminology.terminology for terminology in terminologies"></select></td>
+									ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select></td>
 							<tr>
 								<td>Query</td>
 								<td><form width="100%">
@@ -167,7 +165,7 @@
 											typeahead-loading="loadingSuggestions"
 											typeahead-focus-first="false"
 											typeahead-on-select="findConcepts(conceptQuery)"
-											typeahead-editable="true">
+											typeahead-editable="true" typeahead-min-length="3">
 
 										<button class="btn btn-small btn-primary" type="submit"
 											ng-click="findConcepts(conceptQuery)">Search</button>
@@ -200,10 +198,11 @@
 								ng-show="searchResults.length > 0">
 
 								<tbody>
-									<tr ng-repeat="searchResult in pagedSearchResults"
+									<tr ng-class="{active: searchResult.active}"
+										ng-repeat="searchResult in pagedSearchResults"
 										ng-click="getComponent(terminology.terminology, searchResult.terminologyId)">
 										<td>{{searchResult.terminologyId}}</td>
-										<td style="word-wrap: break-word;">{{searchResult.value}}</td>
+										<td style="word-break: break-all; word-wrap: break-word;">{{searchResult.value}}</td>
 									</tr>
 								</tbody>
 							</table>
@@ -216,40 +215,51 @@
 								tooltip="{{getPreviousConceptStr()}}">Back</button>
 
 
-							<br> {{$scope.conceptHistoryIndex}}<br>
-							{{$scope.conceptHistory}}
+							<br> {{$scope.componentHistoryIndex}}<br>
+							{{$scope.componentHistory}}
 						</div>
 
-						<!-- Component display is 4 -->
+						<!-- Component display -->
 						<div class="col-md-8 col-xs-12" ng-show="component != null">
 							<div class="alert alert-info">
-
+							<span class="dropdown" dropdown dropdown-append-to-body
+								tooltip="View All History"> <a
+								ng-show="componentHistory.length > 2"
+								class="glyphicon glyphicon-time dropdown-toggle" dropdown-toggle></a>
+								<ul class="dropdown-menu">
+									<li ng-repeat="component in componentHistory | orderBy:'+':false"
+										ng-click="getComponentFromType(component.terminology, component.terminologyId, component.type)"><a>{{getComponentStr(component)}}</a></li>
+								</ul>
+							</span>
+							
 								<a class="glyphicon glyphicon-step-backward"
 									ng-click="getPreviousConcept()"
-									ng-show="conceptHistoryIndex > 0"
-									tooltip="{{getPreviousConceptStr()}}"></a> <span
-									ng-show="component.terminology != terminology.terminology">{{component.terminology}}</span>
-								{{getOrganizingClassType(component.terminology)}} Report <a
+									ng-show="componentHistoryIndex > 0"
+									tooltip="{{getComponentStr(componentHistory[componentHistoryIndex - 1])}}"></a>
+
+								<span ng-show="component.terminology != terminology.terminology">{{component.terminology}}</span>
+								{{componentType}} Report <a
 									class="glyphicon glyphicon-step-forward"
 									ng-click="getNextConcept()"
-									ng-show="conceptHistory.length > conceptHistoryIndex + 1 && conceptHistory.length > 0"
-									tooltip="{{getNextConceptStr()}}"></a>
+									ng-show="componentHistory.length > componentHistoryIndex + 1 && componentHistory.length > 0"
+									tooltip="{{getComponentStr(componentHistory[componentHistoryIndex + 1])}}"></a>
 
 							</div>
 							<h3>{{component.terminologyId}} {{component.name}}</h3>
+							
 
-							<button ng-show="hasBooleanFieldTrue(component, 'suppressible')"
-								ng-click="toggleSuppressible()" class="btn btn-xs btn-primary">
+							<button ng-click="toggleSuppressible()"
+								class="btn btn-xs btn-primary">
 								<span ng-show="showSuppressible == true">Hide
 									Suppressible</span> <span ng-show="showSuppressible != true">Show
 									Suppressible</span>
 							</button>
-							<button ng-show="hasBooleanFieldTrue(component, 'obsolete')"
-								ng-click="toggleObsolete()" class="btn btn-xs btn-primary">
+							<button ng-click="toggleObsolete()"
+								class="btn btn-xs btn-primary">
 								<span ng-show="showObsolete == true">Hide Obsolete</span> <span
 									ng-show="showObsolete != true">Show Obsolete</span>
 							</button>
-<!-- no use case for removing atom info 
+							<!-- no use case for removing atom info 
 							<button ng-show="hasBooleanFieldTrue(component, 'atomElement')"
 								ng-click="toggleAtomElement()" class="btn btn-xs btn-primary">
 								<span ng-show="showAtomElement == true">Hide Atom
@@ -259,23 +269,19 @@
  -->
 							<!--  Semantic types -->
 							<div ng-show="component.semanticType.length > 0">
-								<h4>
-									Semantic Types (<span
-										ng-show="component.semanticType.length != pagedSemanticTypes.totalCt">{{pagedSemanticTypes.totalCt}}
-										shown of </span>{{component.semanticType.length}})
-								</h4>
-								
+								<h4>Semantic Types ({{pagedSemanticTypes.totalCount}})</h4>
+
 
 
 								<pagination max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-									ng-show="pagedSemanticTypes.totalCt > pageSize"
-									total-items="pagedSemanticTypes.totalCt"
+									ng-show="pagedSemanticTypes.totalCount > pageSize"
+									total-items="pagedSemanticTypes.totalCount"
 									ng-model="semanticTypesPage"
 									ng-change="getPagedSemanticTypes(semanticTypesPage)"></pagination>
 
-								<ul>
+								<ul class="icon-list">
 									<li class="cr-list" ng-repeat="item in pagedSemanticTypes"
 										ng-show="showItem(item)"><span
 										class="label label-warning"
@@ -289,61 +295,54 @@
 
 							<!--  Definitions -->
 							<div ng-show="component.definition.length > 0">
-								<h4>
-									Definitions (<span
-										ng-show="component.definition.length != pagedDefinitions.totalCt">{{pagedDefinitions.totalCt}}
-										shown of </span>{{component.definition.length}})
-								</h4>
-								
+								<h4>Definitions ({{pagedDefinitions.totalCount}})</h4>
+
 
 
 								<pagination max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-									ng-show="pagedDefinitions.totalCt > pageSize"
-									total-items="pagedDefinitions.totalCt"
+									ng-show="pagedDefinitions.totalCount > pageSize"
+									total-items="pagedDefinitions.totalCount"
 									ng-model="definitionsPage"
 									ng-change="getPagedDefinitions(definitionsPage)"></pagination>
 
-								<ul>
+								<ul class="icon-list">
 									<li class="cr-list" ng-repeat="item in pagedDefinitions"
-										ng-show="showItem(item)">
-										<span class="label label-info" ng-show="item.atomElement == true" tooltip="{{item.atomElementStr}}">i</span><span
+										ng-show="showItem(item)"><span class="label label-info"
+										ng-show="item.atomElement == true"
+										tooltip="{{item.atomElementStr}}">i</span><span
 										class="label label-warning"
 										ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
 										<span class="label label-default"
 										ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
 										{{item.value}}</li>
 								</ul>
-								
-							    
+
+
 
 							</div>
 
 							<!-- Atoms -->
-							<div ng-show="component.atom.length > 0">
-								<h4>
-									Atoms (<span
-										ng-show="component.atom.length != pagedAtoms.totalCt">{{pagedAtoms.totalCt}}
-										shown of </span>{{component.atom.length}})
-								</h4>
+							<div ng-show="pagedAtoms.totalCount > 0">
+								<h4>Atoms ({{pagedAtoms.totalCount}})</h4>
 
 								<pagination max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
 									ng-show="component.atom.length > pageSize"
-									total-items="pagedAtoms.totalCt" ng-model="atomsPage"
+									total-items="pagedAtoms.totalCount" ng-model="atomsPage"
 									ng-change="getPagedAtoms(atomsPage)"></pagination>
 
-								<ul>
-									<li class="cr-list" ng-repeat="item in pagedAtoms"
-										ng-show="showItem(item)"><span
+								<ul class="icon-list">
+									<li ng-class="cr-list" ng-repeat="item in pagedAtoms"
+										ng-show="showItem(item)"><a
+										ng-class="getCollapseIcon(item)"
+										ng-click="toggleItemCollapse(item)"></a> <span
 										class="label label-warning"
 										ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
 										<span class="label label-default"
-										ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
-
-										<!--  Format:  name [terminology/termType] codeId componentId descriptorId conceptTerminologyIds
+										ng-show="item.obsolete == true" tooltip="Obsolete">O</span> <!--  Format:  name [terminology/termType] codeId componentId descriptorId conceptTerminologyIds
 											  NOTE: codeId, componentId, descriptorId automatically shown if of differing terminology, 
 											  see each type below for additional rules
 										 --> {{item.name}} <!--  Terminology and term type --> [ <!--  Do not show terminology if same as component terminology -->
@@ -371,25 +370,58 @@
 											<a
 											ng-show="key != component.terminology || value != component.terminologyId"
 											tooltip="{{key}} concept" ng-click="getComponent(key, value)">{{value}}</a>
-									</span></li>
+									</span>
+
+
+										<div style="margin-left: 40px;"
+											ng-show="item.expanded == true">
+
+											<div ng-show="item.definition.length > 0">
+												<strong>Definitions</strong>
+												<ul>
+													<li ng-repeat="definition in item.definition">
+														{{definition.value}}</li>
+												</ul>
+											</div>
+
+											<div ng-show="item.attribute.length > 0">
+												<strong>Attributes</strong>
+												<ul>
+													<li ng-repeat="attribute in item.attribute">
+														{{attribute.name}} = {{attribute.value}}</li>
+												</ul>
+											</div>
+
+											<div ng-show="item.relationship.length > 0">
+												<strong>Relationships</strong>
+												<ul>
+													<li ng-repeat="relationship in item.relationship"><span
+														class="label label-info"
+														tooltip="{{getRelationshipTypeName(relationship.relationshipType)}}">{{relationship.relationshipType}}</span>
+														{{relationship.additionalRelationshipType}} <a
+														ng-click="getComponent(component.terminology, relationship.toTerminologyId)"
+														tooltip="{{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toTerminologyId}}</a>
+														{{relationship.toName}}</li>
+												</ul>
+											</div>
+										</div></li>
+
 								</ul>
 							</div>
 
+
 							<!--  Attributes -->
 							<div ng-show="component.attribute.length > 0">
-								<h4>
-									Attributes (<span
-										ng-show="component.atom.length != pagedAttributes.totalCt">{{pagedAttributes.totalCt}}
-										shown of </span>{{component.attribute.length}})
-								</h4>
+								<h4>Attributes ({{pagedAttributes.totalCount}})</h4>
 								<pagination max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-									ng-show="pagedAttributes.totalCt > pageSize"
-									total-items="pagedAttributes.totalCt" ng-model="attributesPage"
+									ng-show="pagedAttributes.totalCount > pageSize"
+									total-items="pagedAttributes.totalCount"
+									ng-model="attributesPage"
 									ng-change="getPagedAttributes(attributesPage)"></pagination>
 
-								<ul>
+								<ul class="icon-list">
 									<li class="cr-list" ng-repeat="item in pagedAttributes"
 										ng-show="showItem(item)"><span
 										class="label label-warning"
@@ -401,73 +433,71 @@
 							</div>
 
 							<!-- Relationships -->
-							<div ng-show="component.relationship.length> 0">
-								<h4>
-									Relationships (<span
-										ng-show="component.relationship.length != pagedRelationships.totalCt">{{pagedRelationships.totalCt}}
-										shown of </span>{{component.relationship.length}})
-								</h4>
+							<div ng-show="pagedRelationships.totalCount > 0">
+								<h4>Relationships ({{pagedRelationships.totalCount}})</h4>
 
 								<pagination max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-									ng-show="pagedRelationships.totalCt > pageSize"
-									total-items="pagedRelationships.totalCt"
+									ng-show="pagedRelationships.totalCount > pageSize"
+									total-items="pagedRelationships.totalCount"
 									ng-model="relationshipsPage"
 									ng-change="getPagedRelationships(relationshipsPage)"></pagination>
-								<ul>
+								<ul class="icon-list">
 									<li class="cr-list" ng-repeat="item in pagedRelationships"
 										ng-show="showItem(item)"><span
 										class="label label-warning"
 										ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
 										<span class="label label-default"
-										ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
-										{{item.relationshipType}} {{item.additionalRelationshipType}}
-										<a
+										ng-show="item.obsolete == true" tooltip="Obsolete">O</span> <span
+										class="label label-info"
+										tooltip="{{getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
+										{{item.additionalRelationshipType}} <a
 										ng-click="getComponent(component.terminology, item.toTerminologyId)"
 										tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toTerminologyId}}</a>
 										{{item.toName}}</li>
 								</ul>
-
 							</div>
 						</div>
 					</div>
 
+
 					</tab> <tab heading="Metadata"> <!-- Metadata display -->
-					<div class="container-fluid"">
+					<div class="container-fluid">
 
 						<div class="row">
-                          <div class="col-md-12 col-xs-12" >
-							<h3>Metadata for
-								{{terminology.terminology}} {{terminology.terminologyVersion}}</h3>
-							<ul>
-								<li ng-repeat="item in metadata"
-									ng-show="item.keyValuePair.length > 0"><b>{{item.name}}</b>
-									<ul>
-										<li ng-repeat="pair in item.keyValuePair">
-											<span class="label label-info">{{pair.key}}</span>&nbsp;{{pair.value}}</li>
-									</ul></li>
-							</ul>
-                          </div>
+							<div class="col-md-12 col-xs-12">
+								<h3>Metadata for {{terminology.terminology}}
+									{{terminology.terminologyVersion}}</h3>
+								<ul>
+									<li ng-repeat="item in metadata"
+										ng-show="item.keyValuePair.length > 0"><b>{{item.name}}</b>
+										<ul>
+											<li ng-repeat="pair in item.keyValuePair"><span
+												class="label label-info">{{pair.key}}</span>&nbsp;{{pair.value}}</li>
+										</ul></li>
+								</ul>
+							</div>
 						</div>
 					</div>
 					</tab> </tabset>
 				</div>
 			</div>
-
-
-
-			<div class="col-md-1 col-xs-0">
-				<!-- blank column -->
-			</div>
 		</div>
-    
-        <!--  Show logout button at the bottom in XS mode -->
-        <div id="mobileFooter" class="visible-xs hidden-md col-xs-12">
-                    <button class="btn btn-sm btn-primary btn-structure"
-              style="margin-top: 10px" ng-click="logout()"
-              ng-show="authToken != null">Logout</button>
-        </div>
+
+
+
+		<div class="col-md-1 col-xs-0">
+			<!-- blank column -->
+		</div>
+	</div>
+
+	<!--  Show logout button at the bottom in XS mode -->
+	<div id="mobileFooter" class="visible-xs hidden-md col-xs-12">
+		<button class="btn btn-sm btn-primary btn-structure"
+			style="margin-top: 10px" ng-click="logout()"
+			ng-show="authToken != null">Logout</button>
+	</div>
 	</div>
 
 	<!-- Footer -->

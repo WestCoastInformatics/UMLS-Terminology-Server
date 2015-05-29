@@ -271,7 +271,8 @@ public class ContentClientRest implements ContentServiceRest {
             + version
             + "/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                    "UTF-8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -317,12 +318,12 @@ public class ContentClientRest implements ContentServiceRest {
             + "/content/cui"
             + "/luceneQuery/"
             + (luceneQuery == null || luceneQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( luceneQuery , "UTF8" ).replaceAll("\\+", "%20")
-)
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
+                    luceneQuery, "UTF8").replaceAll("\\+", "%20"))
             + "/hqlQuery/"
             + (hqlQuery == null || hqlQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( hqlQuery , "UTF8" ).replaceAll("\\+", "%20")
-));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(hqlQuery,
+                    "UTF8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -442,7 +443,8 @@ public class ContentClientRest implements ContentServiceRest {
             + version
             + "/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                    "UTF-8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -479,17 +481,19 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find descriptors " + luceneQuery + ", " + hqlQuery
             + ", " + pfs);
-    
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
             + "/content/dui/"
             + "/luceneQuery/"
             + (luceneQuery == null || luceneQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( luceneQuery , "UTF8" ).replaceAll("\\+", "%20"))
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
+                    luceneQuery, "UTF8").replaceAll("\\+", "%20"))
             + "/hqlQuery/"
             + (hqlQuery == null || hqlQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( hqlQuery , "UTF8" ).replaceAll("\\+", "%20")));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(hqlQuery,
+                    "UTF8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -607,7 +611,8 @@ public class ContentClientRest implements ContentServiceRest {
             + version
             + "/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                    "UTF-8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -652,10 +657,12 @@ public class ContentClientRest implements ContentServiceRest {
             + "/content/code/"
             + "/luceneQuery/"
             + (luceneQuery == null || luceneQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( luceneQuery , "UTF8" ).replaceAll("\\+", "%20"))
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
+                    luceneQuery, "UTF8").replaceAll("\\+", "%20"))
             + "/hqlQuery/"
             + (hqlQuery == null || hqlQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( hqlQuery , "UTF8" ).replaceAll("\\+", "%20")));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(hqlQuery,
+                    "UTF8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -795,16 +802,17 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public ConceptList findAncestorConcepts(String terminologyId,
-    String terminology, String version, boolean childrenOnly,
+    String terminology, String version, boolean parentsOnly,
     PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find ancestor concepts " + terminologyId + ", "
-            + terminology + ", " + version + ", " + childrenOnly + ", " + pfs);
+            + terminology + ", " + version + ", " + parentsOnly + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
-            + terminologyId + "/" + terminology + "/" + version + "/ancestors");
+            + terminology + "/" + version + "/" + terminologyId + "/ancestors/"
+            + parentsOnly);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -848,7 +856,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
             + terminology + "/" + version + "/" + terminologyId
-            + "/descendants");
+            + "/descendants/" + childrenOnly);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -882,16 +890,17 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public DescriptorList findAncestorDescriptors(String terminologyId,
-    String terminology, String version, boolean childrenOnly,
+    String terminology, String version, boolean parentsOnly,
     PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find ancestor descriptors " + terminologyId + ", "
-            + terminology + ", " + version + ", " + childrenOnly + ", " + pfs);
+            + terminology + ", " + version + ", " + parentsOnly + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
-            + terminologyId + "/" + terminology + "/" + version + "/ancestors");
+            + terminology + "/" + version + "/" + terminologyId + "/ancestors/"
+            + parentsOnly);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -934,8 +943,8 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
-            + terminologyId + "/" + terminology + "/" + version
-            + "/descendants");
+            + terminology + "/" + version + "/" + terminologyId
+            + "/descendants/" + childrenOnly);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -969,16 +978,18 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public CodeList findAncestorCodes(String terminologyId, String terminology,
-    String version, boolean childrenOnly, PfsParameterJpa pfs, String authToken)
+    String version, boolean parentsOnly, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find ancestor codes " + terminologyId + ", "
-            + terminology + ", " + version + ", " + childrenOnly + ", " + pfs);
+            + terminology + ", " + version + ", " + parentsOnly + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
-            + terminologyId + "/" + terminology + "/" + version + "/ancestors");
+            + terminology + "/" + version + "/" + terminologyId + "/ancestors/"
+            + parentsOnly);
+
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1021,8 +1032,8 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
-            + terminologyId + "/" + terminology + "/" + version
-            + "/descendants");
+            + terminology + "/" + version + "/" + terminologyId
+            + "/descendants/" + childrenOnly);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1220,16 +1231,16 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public RelationshipList findRelationshipsForConcept(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find relationships for concept " + terminologyId
-            + ", " + terminology + ", " + version + ", " + pfs);
+            + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
             + terminology + "/" + version + "/" + terminologyId
-            + "/relationships");
+            + "/relationships/query/" + query);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1298,16 +1309,16 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public RelationshipList findRelationshipsForDescriptor(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find relationships for descriptor " + terminologyId
-            + ", " + terminology + ", " + version + ", " + pfs);
+            + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
             + terminology + "/" + version + "/" + terminologyId
-            + "/relationships");
+            + "/relationships/query/" + query);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1341,16 +1352,16 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public RelationshipList findRelationshipsForCode(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find relationships for code " + terminologyId + ", "
-            + terminology + ", " + version + ", " + pfs);
+            + terminology + ", " + version + ", " + pfs + ", " + query);
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
             + terminology + "/" + version + "/" + terminologyId
-            + "/relationships");
+            + "/relationships/query/" + query);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1468,7 +1479,8 @@ public class ContentClientRest implements ContentServiceRest {
             + version
             + "/members/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                    "UTF-8")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1509,7 +1521,8 @@ public class ContentClientRest implements ContentServiceRest {
             + version
             + "/members/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                    "UTF-8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1542,11 +1555,11 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public RelationshipList findRelationshipsForAtom(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find relationships for atom " + terminologyId + ", "
-            + terminology + ", " + version + ", " + pfs);
+            + terminology + ", " + version + ", " + query + ", " + pfs);
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/aui/"
@@ -1593,7 +1606,8 @@ public class ContentClientRest implements ContentServiceRest {
             + terminologyId
             + "/trees/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                    "UTF-8").replaceAll("\\+", "%20")));
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()

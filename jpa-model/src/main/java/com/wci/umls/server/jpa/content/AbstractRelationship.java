@@ -8,6 +8,10 @@ import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Relationship;
@@ -29,27 +33,27 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
 
   /** The relationship type. */
   @Column(nullable = false)
-  private String relationshipType;
+  private String relationshipType; // index
 
   /** The additional relationship type. */
   @Column(nullable = true)
-  private String additionalRelationshipType;
+  private String additionalRelationshipType; // index
 
   /** The group. */
   @Column(name = "relGroup", nullable = true)
-  private String group;
+  private String group; // index
 
   /** The inferred. */
   @Column(nullable = false)
-  private boolean inferred;
+  private boolean inferred; // index
 
   /** The stated. */
-  @Column(nullable = false)
+  @Column(nullable = false) // index
   private boolean stated;
 
   /** The asserted direction flag. */
   @Column(nullable = false)
-  private boolean assertedDirection;
+  private boolean assertedDirection; // index
 
   /**
    * Instantiates an empty {@link AbstractRelationship}.
@@ -80,6 +84,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
    * @return the relationship type
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getRelationshipType() {
     return relationshipType;
   }
@@ -102,6 +107,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
    * @return the additional relationship type
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getAdditionalRelationshipType() {
     return additionalRelationshipType;
   }
@@ -122,6 +128,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
    * @see com.wci.umls.server.model.content.Relationship#getGroup()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getGroup() {
     return group;
   }
@@ -143,6 +150,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
    * @see com.wci.umls.server.model.content.Relationship#isInferred()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isInferred() {
     return inferred;
   }
@@ -163,6 +171,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
    * @see com.wci.umls.server.model.content.Relationship#isStated()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isStated() {
     return stated;
   }
@@ -183,6 +192,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
    * @see com.wci.umls.server.model.content.Relationship#isAssertedDirection()
    */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isAssertedDirection() {
     return assertedDirection;
   }
