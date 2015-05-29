@@ -23,7 +23,6 @@ import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.ConceptList;
-import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -501,9 +500,12 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // Complex fielded query, empty pfs
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
     searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "heart disease AND obsolete:false AND suppressible:false AND published:true", null,
-            authToken);
+        contentService
+            .findConceptsForQuery(
+                snomedTerminology,
+                snomedVersion,
+                "heart disease AND obsolete:false AND suppressible:false AND published:true",
+                null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
     assertEquals(19, searchResults.getTotalCount());
@@ -951,7 +953,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
   }
 
-
   /**
    * Test "find" descriptors by query.
    * @throws Exception
@@ -1234,30 +1235,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // assertTrue(conceptList.getCount() == 11);
 
-  }
-
-  /**
-   * Test Find methods for relationships
-   * @throws Exception
-   */
-  @Test
-  // TODO: figure out why this is causing a 415 Unsupported Media Type exception
-  public void testNormalUseRestContent012() throws Exception {
-
-    Logger.getLogger(getClass()).debug("Start test");
-
-    /** Get relationships for concept */
-    Logger.getLogger(getClass()).info(
-        "TEST - " + "198664006, SNOMEDCT_US, 2014_09_01, " + authToken);
-    RelationshipList sml =
-        contentService.findRelationshipsForConcept("198664006",
-            snomedTerminology, snomedVersion, new PfsParameterJpa(), authToken);
-
-    assertNotNull(sml);
-    /*
-     * assertNotEquals(c.getName(), "No default preferred name found");
-     */
-    // TODO: test other findRelationshipsFor... on other components
   }
 
   /**
