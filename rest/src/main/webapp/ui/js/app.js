@@ -891,7 +891,8 @@ tsApp
         // paged variable lists
         // NOTE:  Each list must have a totalCount variable
         //        either from ResultList object or calculated
-        $scope.pagedSearchResults = null;	
+        $scope.pagedSearchResults = null;
+        $scope.pagedAttributes = null;
         $scope.pagedSemanticTypes = null;
         $scope.pagedDescriptions = null;
         $scope.pagedRelationships = null;
@@ -904,6 +905,13 @@ tsApp
         $scope.relationshipsPage = 1;
         $scope.atomsPage = 1;
         
+        // variable filter variables
+        $scope.semanticTypesFilter = null;
+        $scope.descriptionsFilter = null;
+        $scope.relationshipsFilter = null;
+        $scope.atomsFilter = null;
+        $scope.attributesFilter = null;
+        
         // default page size
         $scope.pageSize = 10;
         
@@ -914,8 +922,14 @@ tsApp
             $scope.definitionsPage = 1;
             $scope.relationshipsPage = 1;
             $scope.atomsPage = 1;
+            $scope.attributesPage = 1;
 
-            // TODO Add others
+            $scope.semanticTypesFilter = null;
+            $scope.descriptionsFilter = null;
+            $scope.relationshipsFilter = null;
+            $scope.atomsFilter = null;
+            $scope.attributesFilter = null;
+            
         }
         
         // apply paging to all elements
@@ -982,39 +996,41 @@ tsApp
         // Client-side Paging
         // Functions for arrays retrieved in full, then paged by js.
         ////////////////////////////////////////////////////////////////
-        $scope.getPagedAtoms = function(page) {
+        $scope.getPagedAtoms = function(page, query) {
         	
         	// set the page if supplied, otherwise use the current value
         	if (page) $scope.atomsPage = page;
+        	if (!query) query = null;
         	
         	// get the paged array, with flags and filter (TODO: Support filtering)
-        	$scope.pagedAtoms = $scope.getPagedArray($scope.component.atom, $scope.atomsPage, true, null);
+        	$scope.pagedAtoms = $scope.getPagedArray($scope.component.atom, $scope.atomsPage, true, query);
         }
         
         
-        $scope.getPagedDefinitions = function(page) {
+        $scope.getPagedDefinitions = function(page, query) {
         	
         	console.debug('paged definitions', page, $scope.definitionsPage);
         	
         	// set the page if supplied, otherwise use the current value
         	if (page) $scope.definitionsPage = page;
+        	if (!query) query = null;
         	
         	// get the paged array, with flags and filter (TODO: Support filtering)
-        	$scope.pagedDefinitions = $scope.getPagedArray($scope.component.definition, $scope.definitionsPage, true, null);
-        
-        	console.debug($scope.pagedDefinitions);
+        	$scope.pagedDefinitions = $scope.getPagedArray($scope.component.definition, $scope.definitionsPage, true, query);
         }
         
-        $scope.getPagedAttributes = function(page) {
+        $scope.getPagedAttributes = function(page, query) {
         	
         	// set the page if supplied, otherwise use the current value
         	if (page) $scope.attributesPage = page;
+        	if (!query) query = null;
         	
         	// get the paged array, with flags and filter (TODO: Support filtering)
-        	$scope.pagedAttributes = $scope.getPagedArray($scope.component.attribute, $scope.attributesPage, true, null);
+        	$scope.pagedAttributes = $scope.getPagedArray($scope.component.attribute, $scope.attributesPage, true, query);
+        	
         }
         
-        $scope.getPagedSemanticTypes = function(page) {
+        $scope.getPagedSemanticTypes = function(page, query) {
         	
         	// set the page if supplied, otherwise use the current value
         	if (page) $scope.semanticTypesPage = page;
@@ -1027,6 +1043,8 @@ tsApp
          * Get a paged array with show/hide flags (ENABLED) and filtered by query string (NOT ENABLED)
          */
         $scope.getPagedArray = function(array, page, applyFlags, filterStr) {
+        	
+        	console.debug('getPagedArray', page, applyFlags, filterStr);
         		
         	var newArray = new Array();
         	
@@ -1047,7 +1065,8 @@ tsApp
         	
         	// apply filter
         	if (filterStr) {
-        		newArray = getArrayByFilter(filterStr);
+        		console.debug('filter detected', filterStr, newArray);
+        		newArray = getArrayByFilter(newArray, filterStr);
         	}
         	   	
         	// get the page indices
@@ -1085,14 +1104,40 @@ tsApp
         }
         
         /** Get array by filter text matching terminologyId or name */
-        function getArrayByFilterText(array, filter) {
-        	var newArray = array;
+        function getArrayByFilter(array, filter) {
+        	var newArray = [];
         	
-        	// TODO
-        	
+        	console.debug('getArrayByFilter', array, filter);
+        	for (var object in array) {
+
+        		if (objectContainsFilterText(array[object], filter)) {
+        			console.debug('pushing object');
+        			newArray.push(array[object]);
+        		}
+        	}
         	return newArray;
+        }
+        
+        /** Returns true if any field on object contains filter text */
+        function objectContainsFilterText(object, filter) {
+        		
+        	if (!filter || !object)
+        		return false;
         	
+        	for (var prop in object) {
+        		var value = object[prop];
+        		
+        		console.debug('checking', value.toString().toLowerCase(), filter.toLowerCase());
+        		
+        		
+        		// check property for string, note this will cover child elements
+        		// TODO May want to make this more restrictive?
+        		if (value && value.toString().toLowerCase().indexOf(filter.toLowerCase()	) != -1) {
+        			return true;
+        		}
+        	}
         	
+        	return false;
         }
     
        
