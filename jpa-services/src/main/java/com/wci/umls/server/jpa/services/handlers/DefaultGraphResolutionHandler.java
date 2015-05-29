@@ -92,12 +92,8 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
 
       // Relationships
-      for (ConceptRelationship rel : concept.getRelationships()) {
-        if (nullId) {
-          rel.setId(null);
-        }
-        resolve(rel);
-      }
+      // default behavior -- require paging of relationships
+      concept.setRelationships(new ArrayList<ConceptRelationship>());
 
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");
@@ -176,6 +172,8 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
 
       // Relationships
+      // TODO:  Atom Relationships are not currently paged
+      // Once paging (if paging) is enabled, clear set
       for (AtomRelationship rel : atom.getRelationships()) {
         if (nullId) {
           rel.setId(null);
@@ -259,12 +257,8 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
 
       // Relationships
-      for (DescriptorRelationship rel : descriptor.getRelationships()) {
-        if (nullId) {
-          rel.setId(null);
-        }
-        resolve(rel);
-      }
+      // default behavior -- require paging of relationships
+      descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
 
     } else if (descriptor == null) {
       throw new Exception("Cannot resolve a null descriptor.");
@@ -296,12 +290,8 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
 
       // Relationships
-      for (CodeRelationship rel : code.getRelationships()) {
-        if (nullId) {
-          rel.setId(null);
-        }
-        resolve(rel);
-      }
+      // default behavior -- require paging of relationships
+      code.setRelationships(new ArrayList<CodeRelationship>());
 
     } else if (code == null) {
       throw new Exception("Cannot resolve a null code.");

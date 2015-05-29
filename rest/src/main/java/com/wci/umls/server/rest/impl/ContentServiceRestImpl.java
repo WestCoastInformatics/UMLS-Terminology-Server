@@ -1696,10 +1696,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           contentService.findRelationshipsForConcept(terminologyId,
               terminology, version, Branch.ROOT, query, false, pfs);
       
-      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+      /*
+         TODO:  Closing FullTextEntityManager causes new connection, losing persistent data
+         This has been moved into the JPA layer, but not ideal
+         for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
-      }
+      }*/
 
       return list;
 
@@ -1748,7 +1751,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/relationships")
+  @Path("/dui/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given descriptor id.", response = RelationshipList.class)
   public RelationshipList findRelationshipsForDescriptor(
     @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
@@ -1761,7 +1764,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships");
+            + terminologyId + "/relationships/query/" + query);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
@@ -1769,11 +1772,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       
       RelationshipList list = contentService.findRelationshipsForDescriptor(terminologyId,
           terminology, version, Branch.ROOT, query, false, pfs);
-      
+    /*  
       GraphResolutionHandler handler =  contentService.getGraphResolutionHandler(terminology);
       for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : list.getObjects()) {
        handler.resolve(r);
-      }
+      }*/
       
       return list;
 
@@ -1811,10 +1814,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       RelationshipList list = contentService.findRelationshipsForCode(
           terminologyId, terminology, version, Branch.ROOT, query, false, pfs);
       
-      GraphResolutionHandler handler =  contentService.getGraphResolutionHandler(terminology);
+   /*   GraphResolutionHandler handler =  contentService.getGraphResolutionHandler(terminology);
       for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : list.getObjects()) {
        handler.resolve(r);
-      }
+      }*/
       return list;
 
     } catch (Exception e) {

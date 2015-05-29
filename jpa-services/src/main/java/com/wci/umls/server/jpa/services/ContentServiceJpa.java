@@ -4373,24 +4373,22 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     
     // Prepare the query string
     StringBuilder finalQuery = new StringBuilder();
-    finalQuery.append(query == null ? "" : query);
+    
+    // append the query if not null/blank, with trailing AND
+    finalQuery.append(query == null || query.equals("null") || query.isEmpty() ? "" : query + " AND ");
     
     // add id/terminology/version constraints baesd on inverse flag
     if (inverseFlag == true) {
-      finalQuery.append(" AND toTerminologyId:" + terminologyId + " AND toTerminology: " + terminology + " AND toTerminologyVersion:" + version);
+      finalQuery.append("toTerminologyId:" + terminologyId + " AND toTerminology: " + terminology + " AND toTerminologyVersion:" + version);
     } else {
-      finalQuery.append(" AND fromTerminologyId:" + terminologyId + " AND fromTerminology: " + terminology + " AND fromTerminologyVersion:" + version);
+      finalQuery.append("fromTerminologyId:" + terminologyId + " AND fromTerminology: " + terminology + " AND fromTerminologyVersion:" + version);
     }
     // add query restriction if supplied
-    if (pfs != null && pfs.getQueryRestriction() != null) {
+    if (pfs != null && pfs.getQueryRestriction() != null && !pfs.getQueryRestriction().isEmpty()) {
       finalQuery.append(" AND ");
       finalQuery.append(pfs.getQueryRestriction());
     }
-    
-    // if no query supplied, remove first AND
-    if (finalQuery.indexOf(" AND ") == 0) {
-      finalQuery.delete(0, 5);
-    }
+
     
     Logger.getLogger(getClass()).info("query for " + clazz.getName() +  ": " + finalQuery);
 
@@ -4423,6 +4421,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // execute the query
     List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationships = fullTextQuery.getResultList();
     results.setObjects(relationships);
+    
+    for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : results
+        .getObjects()) {
+      getGraphResolutionHandler(terminology).resolve(rel);
+    }
     
     fullTextEntityManager.close();
    

@@ -70,12 +70,9 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
       }
 
       // Relationships
-      for (ConceptRelationship rel : concept.getRelationships()) {
-        if (nullId) {
-          rel.setId(null);
-        }
-        resolve(rel);
-      }
+      // Default behavior -- do not return relationships, require paging calls
+      concept.setRelationships(new ArrayList<ConceptRelationship>());
+      
 
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");
@@ -107,7 +104,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
         resolveDefinition(def, nullId);
       }
 
-      // skip relationships
+      // TODO:  Align with default graph resolver
       atom.setRelationships(new ArrayList<AtomRelationship>());
 
     } else if (atom == null) {
@@ -116,7 +113,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
 
   }
 
-  /*
+  /*    
    * (non-Javadoc)
    * 
    * @see
