@@ -51,12 +51,10 @@ import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
-import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
@@ -771,7 +769,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/cui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
   @ApiOperation(value = "Find concepts matching a lucene or hql search query.", notes = "Gets a list of search results that match the lucene or hql query for the root branch.", response = SearchResultList.class)
-  public SearchResultList findConceptsForQuery(
+  public SearchResultList findConceptsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
     @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
@@ -798,7 +796,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findConceptsForQuery(luceneQueryStr, hqlQueryStr,
+          contentService.findConceptsForGeneralQuery(luceneQueryStr, hqlQueryStr,
               Branch.ROOT, pfs);
       return sr;
 
@@ -815,7 +813,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @POST
   @Path("/code/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
   @ApiOperation(value = "Find codes matching a lucene or hql search query.", notes = "Gets a list of search results that match the lucene or hql query for the root branch.", response = SearchResultList.class)
-  public SearchResultList findCodesForQuery(
+  public SearchResultList findCodesForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
     @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
@@ -842,7 +840,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findCodesForQuery(luceneQueryStr, hqlQueryStr,
+          contentService.findCodesForGeneralQuery(luceneQueryStr, hqlQueryStr,
               Branch.ROOT, pfs);
       return sr;
 
@@ -996,9 +994,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/dui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
+  @Path("/dui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}/")
   @ApiOperation(value = "Find descriptors matching a lucene or hql search query.", notes = "Gets a list of search results that match the lucene or hql query for the root branch.", response = SearchResultList.class)
-  public SearchResultList findDescriptorsForQuery(
+  public SearchResultList findDescriptorsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
     @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
@@ -1025,7 +1023,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findDescriptorsForQuery(luceneQueryStr, hqlQueryStr,
+          contentService.findDescriptorsForGeneralQuery(luceneQueryStr, hqlQueryStr,
               Branch.ROOT, pfs);
       return sr;
 
@@ -1852,7 +1850,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           contentService.getAtomSubsets(terminology, version, Branch.ROOT);
       for (int i = 0; i < list.getCount(); i++) {
         contentService.getGraphResolutionHandler(terminology).resolve(
-            (AtomSubset) list.getObjects().get(i));
+            list.getObjects().get(i));
       }
       return list;
     } catch (Exception e) {
@@ -1886,7 +1884,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           contentService.getConceptSubsets(terminology, version, Branch.ROOT);
       for (int i = 0; i < list.getCount(); i++) {
         contentService.getGraphResolutionHandler(terminology).resolve(
-            (ConceptSubset) list.getObjects().get(i));
+            list.getObjects().get(i));
       }
       return list;
     } catch (Exception e) {
@@ -1898,6 +1896,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  @Produces({
+      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+  })
   @Override
   @POST
   @Path("/aui/subset/{subsetId}/{terminology}/{version}/members/query/{query}")
@@ -1917,7 +1918,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       queryStr = "";
     }
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /aui/subest/" + subsetId + "/" + terminology
+        "RESTful call (Content): /aui/subset/" + subsetId + "/" + terminology
             + "/" + version + "/members/query/" + queryStr);
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1960,7 +1961,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       queryStr = "";
     }
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/subest/" + subsetId + "/" + terminology
+        "RESTful call (Content): /cui/subset/" + subsetId + "/" + terminology
             + "/" + version + "/members/query/" + queryStr);
     ContentService contentService = new ContentServiceJpa();
     try {
