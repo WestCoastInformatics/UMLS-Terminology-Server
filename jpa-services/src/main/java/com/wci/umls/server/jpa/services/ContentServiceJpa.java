@@ -1560,11 +1560,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    List<Concept> descendants =
+    List<Concept> ancestors =
         this.findAncestorsHelper(terminologyId, terminology, version,
             parentsOnly, branch, pfs, ConceptJpa.class, totalCt);
     ConceptList list = new ConceptListJpa();
-    list.setObjects(descendants);
+    list.setObjects(ancestors);
     list.setTotalCount((int) totalCt[0]);
     return list;
   }
@@ -1659,8 +1659,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " where sub.terminologyVersion = :version "
             + " and sub.terminology = :terminology "
             + " and sub.terminologyId = :terminologyId"
-            + " and tr.subType = sub and tr.superType = a "
-            + " and tr.superType != tr.subType ";
+            + " and tr.subType = sub" + " and tr.superType = a "
+            + " and tr.subType != tr.superType";
     javax.persistence.Query query = applyPfsToQuery(queryStr, pfs);
 
     javax.persistence.Query ctQuery =
@@ -1670,8 +1670,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " where sub.terminologyVersion = :version "
             + " and sub.terminology = :terminology "
             + " and sub.terminologyId = :terminologyId"
-            + " and tr.subType = sub and tr.superType = a "
-            + " and tr.superType != tr.subType ");
+            + " and tr.subType = sub" + " and tr.superType = a "
+            + " and tr.subType != tr.superType");
+
 
     ctQuery.setParameter("terminology", terminology);
     ctQuery.setParameter("version", version);
@@ -1751,11 +1752,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + terminology);
     long[] totalCt = new long[1];
     @SuppressWarnings("unchecked")
-    List<Descriptor> descendants =
+    List<Descriptor> ancestors =
         this.findAncestorsHelper(terminologyId, terminology, version,
             childrenOnly, branch, pfs, DescriptorJpa.class, totalCt);
     DescriptorList list = new DescriptorListJpa();
-    list.setObjects(descendants);
+    list.setObjects(ancestors);
     list.setTotalCount((int) totalCt[0]);
     return list;
   }
@@ -3299,7 +3300,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       } else {
         relBuilder.append("SELECT a.to FROM "
             + clazz.getName().replace("Jpa", "RelationshipJpa") + " a, "
-            + clazz.getName() + " b " + "WHERE a.from = b"
+            + clazz.getName() + " b " + "WHERE a.from = b "
             + "AND a.obsolete = 0 " + "AND b.terminology = :terminology "
             + "AND b.terminologyVersion = :version "
             + "AND b.terminologyId = :terminologyId");
