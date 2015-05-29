@@ -41,6 +41,36 @@ public interface PfsParameter {
    */
   public void setStartIndex(int startIndex);
 
+
+  /**
+   * Indicates whether to find only active content.
+   *
+   * @return the find active only
+   */
+  public boolean getActiveOnly();
+
+  /**
+   * Sets the find active only flag.
+   *
+   * @param activeOnly the find active only
+   */
+  public void setActiveOnly(boolean activeOnly);
+
+  /**
+   * Indicates whether to find only inactive content.
+   *
+   * @return the find inactive only
+   */
+  public boolean getInactiveOnly();
+
+  /**
+   * Sets the find inactive only flag.
+   *
+   * @param inactiveOnly the find inactive only
+   */
+  public void setInactiveOnly(boolean inactiveOnly);  
+  
+  
   /**
    * Returns the filter string.
    *
@@ -120,4 +150,11 @@ public interface PfsParameter {
    * @param searchCriteria the search criteria
    */
   public void setSearchCriteria(List<SearchCriteria> searchCriteria);
+
+  /**
+   * Adds the search criteria.
+   *
+   * @param searchCriteria the search criteria
+   */
+  public void addSearchCriteria(SearchCriteria searchCriteria);
 }

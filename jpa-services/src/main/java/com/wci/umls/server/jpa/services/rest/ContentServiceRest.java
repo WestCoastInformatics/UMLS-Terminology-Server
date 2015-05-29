@@ -186,6 +186,7 @@ public interface ContentServiceRest {
    * @param terminologyId the atom id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the relationships for atom
@@ -201,6 +202,7 @@ public interface ContentServiceRest {
    * @param terminologyId the descriptor id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the relationships for descriptor
@@ -216,6 +218,7 @@ public interface ContentServiceRest {
    * @param terminologyId the code id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the relationships for code
@@ -231,6 +234,7 @@ public interface ContentServiceRest {
    * @param terminologyId the concept id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the relationships for concept
@@ -241,7 +245,7 @@ public interface ContentServiceRest {
     throws Exception;
 
   /**
-   * Find descriptorss for query.
+   * Find descriptors for query.
    *
    * @param terminology the terminology
    * @param version the version

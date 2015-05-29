@@ -237,6 +237,7 @@ public class ModelUnit007Test {
     // Test non analyzed fields
     assertTrue(tester.testAnalyzedIndexedFields());
     tester = new IndexedFieldTester(object);
+    tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("suppressible");
     tester.include("obsolete");

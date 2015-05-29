@@ -20,8 +20,6 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
@@ -66,7 +64,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /** The concept terminology id map. */
   @ElementCollection(fetch = FetchType.EAGER)
-  // consider this: @Fetch(FetchMode.JOIN)
+  // consider this: @Fetch(sFetchMode.JOIN)
   @CollectionTable(name = "concept_terminology_ids", joinColumns = @JoinColumn(name = "atom_id"))
   @Column(nullable = false)
   Map<String, String> conceptTerminologyIds;

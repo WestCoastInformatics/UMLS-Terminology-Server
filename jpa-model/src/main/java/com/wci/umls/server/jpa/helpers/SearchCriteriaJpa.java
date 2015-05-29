@@ -14,9 +14,6 @@ import com.wci.umls.server.helpers.SearchCriteria;
 @XmlRootElement(name = "searchCriteria")
 public class SearchCriteriaJpa implements SearchCriteria {
 
-  /** The active only. */
-  private boolean activeOnly;
-
   /** The destination id. */
   private String relationshipToId;
 
@@ -34,9 +31,6 @@ public class SearchCriteriaJpa implements SearchCriteria {
 
   /** The defined only. */
   private boolean definedOnly;
-
-  /** The inactive only. */
-  private boolean inactiveOnly;
 
   /** The primitive only. */
   private boolean primitiveOnly;
@@ -57,7 +51,6 @@ public class SearchCriteriaJpa implements SearchCriteria {
    * @param searchCriteria the search criteria
    */
   public SearchCriteriaJpa(SearchCriteria searchCriteria) {
-    activeOnly = searchCriteria.getActiveOnly();
     relationshipToId = searchCriteria.getRelationshipToId();
     relationshipDescendantsFlag =
         searchCriteria.getRelationshipDescendantsFlag();
@@ -65,49 +58,8 @@ public class SearchCriteriaJpa implements SearchCriteria {
     relationshipFromId = searchCriteria.getRelationshipFromId();
     definedOnly = searchCriteria.getDefinedOnly();
     findDescendants = searchCriteria.getFindDescendants();
-    inactiveOnly = searchCriteria.getInactiveOnly();
     primitiveOnly = searchCriteria.getPrimitiveOnly();
     findSelf = searchCriteria.getFindSelf();
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#getActiveOnly()
-   */
-  @Override
-  public boolean getActiveOnly() {
-    return activeOnly;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#setActiveOnly(boolean)
-   */
-  @Override
-  public void setActiveOnly(boolean activeOnly) {
-    this.activeOnly = activeOnly;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#getInactiveOnly()
-   */
-  @Override
-  public boolean getInactiveOnly() {
-    return inactiveOnly;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#setInactiveOnly(boolean)
-   */
-  @Override
-  public void setInactiveOnly(boolean inactiveOnly) {
-    this.inactiveOnly = inactiveOnly;
   }
 
   /*
@@ -261,15 +213,18 @@ public class SearchCriteriaJpa implements SearchCriteria {
     this.relationshipDescendantsFlag = descendants;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#hashCode()
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (activeOnly ? 1231 : 1237);
     result = prime * result + (definedOnly ? 1231 : 1237);
     result = prime * result + (findDescendants ? 1231 : 1237);
     result = prime * result + (findSelf ? 1231 : 1237);
-    result = prime * result + (inactiveOnly ? 1231 : 1237);
     result = prime * result + (primitiveOnly ? 1231 : 1237);
     result = prime * result + (relationshipDescendantsFlag ? 1231 : 1237);
     result =
@@ -285,6 +240,11 @@ public class SearchCriteriaJpa implements SearchCriteria {
     return result;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -294,15 +254,11 @@ public class SearchCriteriaJpa implements SearchCriteria {
     if (getClass() != obj.getClass())
       return false;
     SearchCriteriaJpa other = (SearchCriteriaJpa) obj;
-    if (activeOnly != other.activeOnly)
-      return false;
     if (definedOnly != other.definedOnly)
       return false;
     if (findDescendants != other.findDescendants)
       return false;
     if (findSelf != other.findSelf)
-      return false;
-    if (inactiveOnly != other.inactiveOnly)
       return false;
     if (primitiveOnly != other.primitiveOnly)
       return false;
@@ -363,36 +319,65 @@ public class SearchCriteriaJpa implements SearchCriteria {
     this.relationshipFromId = findBySourceId;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#toString()
+   */
   @Override
   public String toString() {
-    return "SearchCriteriaJpa [activeOnly=" + activeOnly
-        + ", relationshipToId=" + relationshipToId
+    return "SearchCriteriaJpa [relationshipToId=" + relationshipToId
         + ", relationshipDescendantsFlag=" + relationshipDescendantsFlag
         + ", relationshipType=" + relationshipType + ", relationshipFromId="
         + relationshipFromId + ", findDescendants=" + findDescendants
-        + ", definedOnly=" + definedOnly + ", inactiveOnly=" + inactiveOnly
-        + ", primitiveOnly=" + primitiveOnly + ", findSelf=" + findSelf + "]";
+        + ", definedOnly=" + definedOnly + ", primitiveOnly=" + primitiveOnly
+        + ", findSelf=" + findSelf + "]";
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.SearchCriteria#setRelationshipFromId(java.lang
+   * .String)
+   */
   @XmlElement
   @Override
   public void setRelationshipFromId(String relationshipFromId) {
-    this.relationshipFromId = relationshipFromId;    
+    this.relationshipFromId = relationshipFromId;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.SearchCriteria#setRelationshipType(java.lang
+   * .String)
+   */
   @XmlElement
   @Override
   public void setRelationshipType(String relationshipType) {
-    this.relationshipType = relationshipType;    
+    this.relationshipType = relationshipType;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.SearchCriteria#setRelationshipToId(java.lang
+   * .String)
+   */
   @XmlElement
   @Override
   public void setRelationshipToId(String relationshipToId) {
     this.relationshipToId = relationshipToId;
   }
 
-  @Override
+  /**
+   * Sets the relationship descendants flag.
+   *
+   * @param descendants the relationship descendants flag
+   */
   public void setRelationshipDescendantsFlag(boolean descendants) {
     this.relationshipDescendantsFlag = descendants;
   }

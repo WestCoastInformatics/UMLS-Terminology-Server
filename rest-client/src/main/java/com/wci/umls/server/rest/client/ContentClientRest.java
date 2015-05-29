@@ -26,7 +26,6 @@ import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
@@ -1088,7 +1087,7 @@ public class ContentClientRest implements ContentServiceRest {
     // converting to object
     SubsetMemberListJpa subsetMemberList =
         (SubsetMemberListJpa) ConfigUtility.getGraphForString(resultString,
-            ConceptSubsetMemberJpa.class);
+            SubsetMemberListJpa.class);
     return subsetMemberList;
   }
 

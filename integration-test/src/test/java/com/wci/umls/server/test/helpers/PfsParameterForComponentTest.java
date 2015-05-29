@@ -12,10 +12,15 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.ResultList;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.LexicalClassJpa;
+import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.services.ContentService;
 
 /**
@@ -32,12 +37,10 @@ public class PfsParameterForComponentTest {
    * @return true, if successful
    * @throws Exception the exception
    */
-  @SuppressWarnings({
-      "unchecked", "rawtypes"
-  })
-  public static boolean testSort(SearchResultList results, PfsParameter pfs, 
-    Class<?> sortClass)
-    throws Exception {
+
+  @SuppressWarnings("unchecked")
+  public static boolean testSort(ResultList<?> results, PfsParameter pfs,
+    Class<?> sortClass) throws Exception {
     // instantiate content service
     ContentService contentService = new ContentServiceJpa();
 
@@ -61,29 +64,42 @@ public class PfsParameterForComponentTest {
     Object prevValue = null;
     Object thisValue = null;
 
-    List<AtomClass> components = new ArrayList<>();
+    List<Object> components = new ArrayList<>();
 
-    for (SearchResult sr : results.getObjects()) {
-      AtomClass c = null;
-      if (sortClass.getName().contains("LexicalClass")) {
-        c = contentService.getLexicalClass(sr.getTerminologyId(),
-             sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
-      } else if (sortClass.getName().contains("StringClass")) {
-          c = contentService.getStringClass(sr.getTerminologyId(),
-               sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
-      } else if (sortClass.getName().contains("Descriptor")) {
-        c = contentService.getDescriptor(sr.getTerminologyId(),
-             sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
-      } else if (sortClass.getName().contains("Code")) {
-        c = contentService.getCode(sr.getTerminologyId(),
-             sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
+    for (Object result : results.getObjects()) {
+      Object obj = null;
+      if (LexicalClassJpa.class.isAssignableFrom(sortClass)) {
+        SearchResult sr = (SearchResult) result;
+        obj =
+            contentService.getLexicalClass(sr.getTerminologyId(),
+                sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
+      } else if (StringClassJpa.class.isAssignableFrom(sortClass)) {
+        SearchResult sr = (SearchResult) result;
+        obj =
+            contentService.getStringClass(sr.getTerminologyId(),
+                sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
+      } else if (ConceptJpa.class.isAssignableFrom(sortClass)) {
+        SearchResult sr = (SearchResult) result;
+        obj =
+            contentService.getConcept(sr.getTerminologyId(),
+                sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
+      } else if (DescriptorJpa.class.isAssignableFrom(sortClass)) {
+        SearchResult sr = (SearchResult) result;
+        obj =
+            contentService.getCode(sr.getTerminologyId(), sr.getTerminology(),
+                sr.getTerminologyVersion(), Branch.ROOT);
+      } else if (CodeJpa.class.isAssignableFrom(sortClass)) {
+        SearchResult sr = (SearchResult) result;
+        obj =
+            contentService.getCode(sr.getTerminologyId(),
+                sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
       } else {
-         c = contentService.getConcept(sr.getTerminologyId(),
-              sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
+        obj = result;
       }
-      components.add(c);
+      components.add(obj);
     }
 
+    @SuppressWarnings("rawtypes")
     Comparator comparator = null;
 
     switch (field.getType().getSimpleName()) {
@@ -118,7 +134,7 @@ public class PfsParameterForComponentTest {
         return false;
     }
 
-    for (AtomClass c : components) {
+    for (Object c : components) {
 
       thisValue = field.get(c);
 
@@ -151,8 +167,8 @@ public class PfsParameterForComponentTest {
    * @param pfs the pfs
    * @return true, if successful
    */
-  public static boolean testPaging(SearchResultList results,
-    SearchResultList fullResults, PfsParameter pfs) {
+  public static boolean testPaging(ResultList<?> results,
+    ResultList<?> fullResults, PfsParameter pfs) {
     // check results size, must be less than or equal to page size
 
     int page =

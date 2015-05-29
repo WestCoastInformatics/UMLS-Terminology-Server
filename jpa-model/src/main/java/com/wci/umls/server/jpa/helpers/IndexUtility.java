@@ -47,8 +47,8 @@ public class IndexUtility {
       }
 
       // for non-embedded fields, only process strings - why would that be??
-      //if (!m.getReturnType().equals(String.class))
-      //  continue;
+      if (!m.getReturnType().equals(String.class))
+        continue;
 
       // check for @Field annotation
       if (m.isAnnotationPresent(Field.class)) {
