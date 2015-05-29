@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.KeyValuePair;
@@ -69,6 +71,7 @@ public class UmlsMetadataServiceJpaHelper extends
    */
   public UmlsMetadataServiceJpaHelper() throws Exception {
     super();
+    refreshCaches();
   }
 
   /*
@@ -87,51 +90,8 @@ public class UmlsMetadataServiceJpaHelper extends
     Logger.getLogger(getClass()).info(
         "get relationship types - " + terminology + ", " + version);
     // Cache relationship types map
-    if (relationshipTypesMap.isEmpty()) {
-      javax.persistence.Query query =
-          manager
-              .createQuery("select distinct a.terminology, a.terminologyVersion, t.abbreviation "
-                  + "from ConceptRelationshipJpa a, RelationshipTypeJpa t "
-                  + "where a.relationshipType = t.abbreviation");
-      List<Object[]> results = query.getResultList();
-      for (Object[] result : results) {
-        if (!relationshipTypesMap.containsKey(result[0].toString() + result[1])) {
-          relationshipTypesMap.put(result[0].toString() + result[1],
-              new HashSet<String>());
-        }
-        relationshipTypesMap.get(result[0].toString() + result[1]).add(
-            result[2].toString());
-      }
-      query =
-          manager
-              .createQuery("select distinct a.terminology, a.terminologyVersion, t.abbreviation "
-                  + "from DescriptorRelationshipJpa a, RelationshipTypeJpa t "
-                  + "where a.relationshipType = t.abbreviation");
-      results = query.getResultList();
-      for (Object[] result : results) {
-        if (!relationshipTypesMap.containsKey(result[0].toString() + result[1])) {
-          relationshipTypesMap.put(result[0].toString() + result[1],
-              new HashSet<String>());
-        }
-        relationshipTypesMap.get(result[0].toString() + result[1]).add(
-            result[2].toString());
-      }
-      query =
-          manager
-              .createQuery("select distinct a.terminology, a.terminologyVersion, t.abbreviation "
-                  + "from CodeRelationshipJpa a, RelationshipTypeJpa t "
-                  + "where a.relationshipType = t.abbreviation");
-      results = query.getResultList();
-      for (Object[] result : results) {
-        if (!relationshipTypesMap.containsKey(result[0].toString() + result[1])) {
-          relationshipTypesMap.put(result[0].toString() + result[1],
-              new HashSet<String>());
-        }
-        relationshipTypesMap.get(result[0].toString() + result[1]).add(
-            result[2].toString());
-      }
+    cacheRelationshipTypes();
 
-    } 
     javax.persistence.Query query =
         manager.createQuery("SELECT t from RelationshipTypeJpa t "
             + " where terminology = :terminology "
@@ -152,27 +112,12 @@ public class UmlsMetadataServiceJpaHelper extends
     "unchecked"
   })
   @Override
-  public LanguageList getLanguages(String terminology,
-    String version) throws Exception {
+  public LanguageList getLanguages(String terminology, String version)
+    throws Exception {
     Logger.getLogger(getClass()).info(
         "get languages - " + terminology + ", " + version);
-    // Cache relationship types map
-    if (languagesMap.isEmpty()) {
-      javax.persistence.Query query =
-          manager
-              .createQuery("select distinct a.terminology, a.terminologyVersion, t.abbreviation "
-                  + "from AtomJpa a, LanguageJpa t "
-                  + "where a.language = t.abbreviation");
-      List<Object[]> results = query.getResultList();
-      for (Object[] result : results) {
-        if (!languagesMap.containsKey(result[0].toString() + result[1])) {
-          languagesMap.put(result[0].toString() + result[1],
-              new HashSet<String>());
-        }
-        languagesMap.get(result[0].toString() + result[1]).add(
-            result[2].toString());
-      }     
-    } 
+    // Cache languages map
+    cacheAtoms();
     javax.persistence.Query query =
         manager.createQuery("SELECT t from LanguageJpa t "
             + " where terminology = :terminology "
@@ -187,8 +132,8 @@ public class UmlsMetadataServiceJpaHelper extends
     types.setTotalCount(types.getObjects().size());
     Logger.getLogger(getClass()).info("  results = " + types.getObjects());
     return types;
-  }  
-  
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -201,54 +146,7 @@ public class UmlsMetadataServiceJpaHelper extends
   public AdditionalRelationshipTypeList getAdditionalRelationshipTypes(
     String terminology, String version) throws Exception {
     // Cache additional relationship types map
-    if (additionalRelationshipTypesMap.isEmpty()) {
-      javax.persistence.Query query =
-          manager
-              .createQuery("select distinct a.terminology, a.terminologyVersion, t.abbreviation "
-                  + "from ConceptRelationshipJpa a, AdditionalRelationshipTypeJpa t "
-                  + "where a.additionalRelationshipType = t.abbreviation");
-      List<Object[]> results = query.getResultList();
-      for (Object[] result : results) {
-        if (!additionalRelationshipTypesMap.containsKey(result[0].toString()
-            + result[1])) {
-          additionalRelationshipTypesMap.put(result[0].toString() + result[1],
-              new HashSet<String>());
-        }
-        additionalRelationshipTypesMap.get(result[0].toString() + result[1])
-            .add(result[2].toString());
-      }
-      query =
-          manager
-              .createQuery("select distinct a.terminology, a.terminologyVersion, t.abbreviation "
-                  + "from DescriptorRelationshipJpa a, AdditionalRelationshipTypeJpa t "
-                  + "where a.additionalRelationshipType = t.abbreviation");
-      results = query.getResultList();
-      for (Object[] result : results) {
-        if (!additionalRelationshipTypesMap.containsKey(result[0].toString()
-            + result[1])) {
-          additionalRelationshipTypesMap.put(result[0].toString() + result[1],
-              new HashSet<String>());
-        }
-        additionalRelationshipTypesMap.get(result[0].toString() + result[1])
-            .add(result[2].toString());
-      }
-      query =
-          manager
-              .createQuery("select distinct a.terminology, a.terminologyVersion, t.abbreviation "
-                  + "from CodeRelationshipJpa a, AdditionalRelationshipTypeJpa t "
-                  + "where a.additionalRelationshipType = t.abbreviation");
-      results = query.getResultList();
-      for (Object[] result : results) {
-        if (!additionalRelationshipTypesMap.containsKey(result[0].toString()
-            + result[1])) {
-          additionalRelationshipTypesMap.put(result[0].toString() + result[1],
-              new HashSet<String>());
-        }
-        additionalRelationshipTypesMap.get(result[0].toString() + result[1])
-            .add(result[2].toString());
-      }
-
-    }
+    cacheRelationshipTypes();
     javax.persistence.Query query =
         manager.createQuery("SELECT t from AdditionalRelationshipTypeJpa t "
             + " where terminology = :terminology "
@@ -277,22 +175,7 @@ public class UmlsMetadataServiceJpaHelper extends
   public AttributeNameList getAttributeNames(String terminology, String version)
     throws Exception {
     // Cache attribute name map
-    if (attributeNamesMap.isEmpty()) {
-      javax.persistence.Query query =
-          manager
-              .createQuery("select distinct a.terminology, a.terminologyVersion, t.abbreviation "
-                  + "from AttributeJpa a, AttributeNameJpa t "
-                  + "where a.name = t.abbreviation");
-      List<Object[]> results = query.getResultList();
-      for (Object[] result : results) {
-        if (!attributeNamesMap.containsKey(result[0].toString() + result[1])) {
-          attributeNamesMap.put(result[0].toString() + result[1],
-              new HashSet<String>());
-        }
-        attributeNamesMap.get(result[0].toString() + result[1]).add(
-            result[2].toString());
-      }
-    }
+    cacheAttributeNames();
     javax.persistence.Query query =
         manager.createQuery("SELECT t from AttributeNameJpa t "
             + " where terminology = :terminology "
@@ -319,22 +202,8 @@ public class UmlsMetadataServiceJpaHelper extends
   public TermTypeList getTermTypes(String terminology, String version)
     throws Exception {
     // Cache term types map
-    if (termTypesMap.isEmpty()) {
-      javax.persistence.Query query =
-          manager
-              .createQuery("select distinct a.terminology, a.terminologyVersion, t.abbreviation "
-                  + "from AtomJpa a, TermTypeJpa t "
-                  + "where a.termType = t.abbreviation");
-      List<Object[]> results = query.getResultList();
-      for (Object[] result : results) {
-        if (!termTypesMap.containsKey(result[0].toString() + result[1])) {
-          termTypesMap.put(result[0].toString() + result[1],
-              new HashSet<String>());
-        }
-        termTypesMap.get(result[0].toString() + result[1]).add(
-            result[2].toString());
-      }
-    }
+    cacheAtoms();
+
     javax.persistence.Query query =
         manager.createQuery("SELECT t from TermTypeJpa t "
             + " where terminology = :terminology "
@@ -349,16 +218,19 @@ public class UmlsMetadataServiceJpaHelper extends
     return types;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.helper.StandardMetadataServiceJpaHelper#getDefaultPrecedenceList(java.lang.String, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.helper.StandardMetadataServiceJpaHelper
+   * #getDefaultPrecedenceList(java.lang.String, java.lang.String)
    */
   @Override
   public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version) throws Exception {
     javax.persistence.Query query =
-        manager
-            .createQuery("SELECT p from PrecedenceListJpa p"
-                + " where defaultList = 1");
+        manager.createQuery("SELECT p from PrecedenceListJpa p"
+            + " where defaultList = 1");
 
     PrecedenceList defaultList = (PrecedenceList) query.getSingleResult();
     // copy and prune to this terminology/version
@@ -366,7 +238,7 @@ public class UmlsMetadataServiceJpaHelper extends
     list.setId(null);
 
     // Get TTY values for this terminology/version
-    TermTypeList ttyList = getTermTypes(terminology,version);
+    TermTypeList ttyList = getTermTypes(terminology, version);
     Set<String> ttySet = new HashSet<>();
     for (TermType tty : ttyList.getObjects()) {
       ttySet.add(tty.getAbbreviation());
@@ -443,6 +315,167 @@ public class UmlsMetadataServiceJpaHelper extends
     termTypesMap = new HashMap<>();
     additionalRelationshipTypesMap = new HashMap<>();
     relationshipTypesMap = new HashMap<>();
-    chdRel = null;
+    languagesMap = new HashMap<>();
+    attributeNamesMap = new HashMap<>();
+
+    Thread t = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        cacheAtoms();
+      }
+    });
+    t.start();
+    t = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        cacheRelationshipTypes();
+        chdRel = null;
+      }
+    });
+    t.start();
+    t = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        cacheAtoms();
+      }
+    });
+    t.start();
+    t = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        cacheAttributeNames();
+      }
+    });
+    t.start();
+    // Wait
+    t.join();
+  }
+
+  /**
+   * Cache relationship types.
+   */
+  @SuppressWarnings("unchecked")
+  private void cacheRelationshipTypes() {
+    if (relationshipTypesMap.isEmpty()) {
+      EntityManager manager = factory.createEntityManager();
+      javax.persistence.Query query =
+          manager.createQuery("select distinct a.terminology, "
+              + "a.terminologyVersion, a.relationshipType, "
+              + "a.additionalRelationshipType "
+              + "from ConceptRelationshipJpa a");
+      List<Object[]> results = query.getResultList();
+      for (Object[] result : results) {
+        if (!relationshipTypesMap.containsKey(result[0].toString() + result[1])) {
+          relationshipTypesMap.put(result[0].toString() + result[1],
+              new HashSet<String>());
+        }
+        relationshipTypesMap.get(result[0].toString() + result[1]).add(
+            result[2].toString());
+        if (!additionalRelationshipTypesMap.containsKey(result[0].toString()
+            + result[1])) {
+          additionalRelationshipTypesMap.put(result[0].toString() + result[1],
+              new HashSet<String>());
+        }
+        additionalRelationshipTypesMap.get(result[0].toString() + result[1])
+            .add(result[3].toString());
+      }
+      query =
+          manager.createQuery("select distinct a.terminology, "
+              + "a.terminologyVersion, a.relationshipType, "
+              + "a.additionalRelationshipType "
+              + "from DescriptorRelationshipJpa a");
+      results = query.getResultList();
+      for (Object[] result : results) {
+        if (!relationshipTypesMap.containsKey(result[0].toString() + result[1])) {
+          relationshipTypesMap.put(result[0].toString() + result[1],
+              new HashSet<String>());
+        }
+        relationshipTypesMap.get(result[0].toString() + result[1]).add(
+            result[2].toString());
+        if (!additionalRelationshipTypesMap.containsKey(result[0].toString()
+            + result[1])) {
+          additionalRelationshipTypesMap.put(result[0].toString() + result[1],
+              new HashSet<String>());
+        }
+        additionalRelationshipTypesMap.get(result[0].toString() + result[1])
+            .add(result[3].toString());
+      }
+      query =
+          manager.createQuery("select distinct a.terminology, "
+              + "a.terminologyVersion, a.relationshipType, "
+              + "a.additionalRelationshipType from CodeRelationshipJpa a");
+      results = query.getResultList();
+      for (Object[] result : results) {
+        if (!relationshipTypesMap.containsKey(result[0].toString() + result[1])) {
+          relationshipTypesMap.put(result[0].toString() + result[1],
+              new HashSet<String>());
+        }
+        relationshipTypesMap.get(result[0].toString() + result[1]).add(
+            result[2].toString());
+        if (!additionalRelationshipTypesMap.containsKey(result[0].toString()
+            + result[1])) {
+          additionalRelationshipTypesMap.put(result[0].toString() + result[1],
+              new HashSet<String>());
+        }
+        additionalRelationshipTypesMap.get(result[0].toString() + result[1])
+            .add(result[3].toString());
+      }
+
+      manager.close();
+    }
+  }
+
+  /**
+   * Cache attribute names.
+   */
+  @SuppressWarnings("unchecked")
+  private void cacheAttributeNames() {
+    if (attributeNamesMap.isEmpty()) {
+      EntityManager manager = factory.createEntityManager();
+      javax.persistence.Query query =
+          manager
+              .createQuery("select distinct a.terminology, a.terminologyVersion, "
+                  + "a.name from AttributeJpa a");
+      List<Object[]> results = query.getResultList();
+      for (Object[] result : results) {
+        if (!attributeNamesMap.containsKey(result[0].toString() + result[1])) {
+          attributeNamesMap.put(result[0].toString() + result[1],
+              new HashSet<String>());
+        }
+        attributeNamesMap.get(result[0].toString() + result[1]).add(
+            result[2].toString());
+      }
+      manager.close();
+    }
+  }
+
+  /**
+   * Cache term types.
+   */
+  @SuppressWarnings("unchecked")
+  private void cacheAtoms() {
+    if (termTypesMap.isEmpty()) {
+      EntityManager manager = factory.createEntityManager();
+      javax.persistence.Query query =
+          manager
+              .createQuery("select distinct a.terminology, a.terminologyVersion, "
+                  + "a.termType, a.language from AtomJpa a");
+      List<Object[]> results = query.getResultList();
+      for (Object[] result : results) {
+        if (!termTypesMap.containsKey(result[0].toString() + result[1])) {
+          termTypesMap.put(result[0].toString() + result[1],
+              new HashSet<String>());
+        }
+        termTypesMap.get(result[0].toString() + result[1]).add(
+            result[2].toString());
+        if (!languagesMap.containsKey(result[0].toString() + result[1])) {
+          languagesMap.put(result[0].toString() + result[1],
+              new HashSet<String>());
+        }
+        languagesMap.get(result[0].toString() + result[1]).add(
+            result[3].toString());
+      }
+      manager.close();
+    }
   }
 }
