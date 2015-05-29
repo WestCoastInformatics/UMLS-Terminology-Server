@@ -177,7 +177,8 @@ public abstract class AbstractComponent implements Component {
    * 
    * @see org.ihtsdo.otf.ts.rf2.Component#getLastModified()
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  // TODO: resolve numeric use in string queries
+  // @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public Date getLastModified() {
     return lastModified;
