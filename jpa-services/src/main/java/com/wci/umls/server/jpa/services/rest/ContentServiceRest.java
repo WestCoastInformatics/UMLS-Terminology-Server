@@ -16,6 +16,7 @@ import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -55,13 +56,13 @@ public interface ContentServiceRest {
    * @param terminology the terminology
    * @param version the version
    * @param query the query
-   * @param pfs the pfs
+   * @param pfsc the pfsc
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findConceptsForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
+    String version, String query, PfscParameterJpa pfsc, String authToken)
     throws Exception;
 
   /**
@@ -250,13 +251,13 @@ public interface ContentServiceRest {
    * @param terminology the terminology
    * @param version the version
    * @param query the query
-   * @param pfs the pfs
+   * @param pfsc the pfsc
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findDescriptorsForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
+    String version, String query, PfscParameterJpa pfsc, String authToken)
     throws Exception;
 
   /**
@@ -336,13 +337,13 @@ public interface ContentServiceRest {
    * @param terminology the terminology
    * @param version the version
    * @param query the query
-   * @param pfs the pfs
+   * @param pfsc the pfsc
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findCodesForQuery(String terminology, String version,
-    String query, PfsParameterJpa pfs, String authToken) throws Exception;
+    String query, PfscParameterJpa pfsc, String authToken) throws Exception;
 
   /**
    * Find codes for query.

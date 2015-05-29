@@ -9,6 +9,7 @@ package com.wci.umls.server.services;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.PfscParameter;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.AtomList;
@@ -204,11 +205,11 @@ public interface ContentService extends MetadataService {
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for concept
-   * @throws Exception 
+   * @throws Exception
    */
   public RelationshipList findRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch, String query, boolean inverseFlag,
-    PfsParameter pfs) throws Exception;
+    String terminology, String version, String branch, String query,
+    boolean inverseFlag, PfsParameter pfs) throws Exception;
 
   /**
    * Find relationships for concept or any part of its graph and push them all
@@ -240,11 +241,11 @@ public interface ContentService extends MetadataService {
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for descriptor
-   * @throws Exception 
+   * @throws Exception
    */
   public RelationshipList findRelationshipsForDescriptor(String descriptorId,
-    String terminology, String version, String branch, String query, boolean inverseFlag,
-    PfsParameter pfs) throws Exception;
+    String terminology, String version, String branch, String query,
+    boolean inverseFlag, PfsParameter pfs) throws Exception;
 
   /**
    * Returns the relationships for code and query
@@ -257,11 +258,11 @@ public interface ContentService extends MetadataService {
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for code
-   * @throws Exception 
+   * @throws Exception
    */
   public RelationshipList findRelationshipsForCode(String codeId,
-    String terminology, String version, String branch, String query, boolean inverseFlag,
-    PfsParameter pfs) throws Exception;
+    String terminology, String version, String branch, String query,
+    boolean inverseFlag, PfsParameter pfs) throws Exception;
 
   /**
    * Returns the relationships for atom.
@@ -271,13 +272,13 @@ public interface ContentService extends MetadataService {
    * @param version the version
    * @param branch the branch
    * @param inverseFlag the inverse flag
-   * @param pfs the pfs
+   * @param pfs the pfsc
    * @return the relationships for atom
-   * @throws Exception 
+   * @throws Exception
    */
   public RelationshipList findRelationshipsForAtom(String conceptId,
-    String terminology, String version, String branch, String query, boolean inverseFlag,
-    PfsParameter pfs) throws Exception;
+    String terminology, String version, String branch, String query,
+    boolean inverseFlag, PfsParameter pfs) throws Exception;
 
   /**
    * Returns the descriptor.
@@ -602,16 +603,17 @@ public interface ContentService extends MetadataService {
     PfsParameter pfs) throws Exception;
 
   /**
-   * Returns the concept tree for ancestor path. The tree type is
-   * the same as the type of the idenfier passed.
+   * Returns the concept tree for ancestor path. The tree type is the same as
+   * the type of the idenfier passed.
    *
    * @param ancestorPath the ancestor path
    * @param id the id
    * @return the concept tree for ancestor path
    * @throws Exception the exception
    */
-  public Tree getTreeForAncestorPath(String ancestorPath, Long id) throws Exception;
-    
+  public Tree getTreeForAncestorPath(String ancestorPath, Long id)
+    throws Exception;
+
   /**
    * Find tree positions for descriptor.
    *
@@ -963,7 +965,7 @@ public interface ContentService extends MetadataService {
    * @throws Exception if anything goes wrong
    */
   public SearchResultList findConceptsForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
+    String version, String branch, String query, PfscParameter pfsc)
     throws Exception;
 
   /**
@@ -985,12 +987,12 @@ public interface ContentService extends MetadataService {
    * @param version the version
    * @param branch the branch
    * @param query the query
-   * @param pfs the pfs
+   * @param pfsc the pfsc
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findDescriptorsForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
+    String version, String branch, String query, PfscParameter pfsc)
     throws Exception;
 
   /**
@@ -1012,12 +1014,12 @@ public interface ContentService extends MetadataService {
    * @param version the version
    * @param branch the branch
    * @param query the query
-   * @param pfs the pfs
+   * @param pfsc the pfsc
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findCodesForQuery(String terminology, String version,
-    String branch, String query, PfsParameter pfs) throws Exception;
+    String branch, String query, PfscParameter pfsc) throws Exception;
 
   /**
    * Autocomplete codes.

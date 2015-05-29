@@ -3,14 +3,9 @@
  */
 package com.wci.umls.server.jpa.helpers;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.helpers.SearchCriteria;
 
 /**
  * The JPA enabled implementation of the paging/filtering/sorting object.
@@ -42,9 +37,6 @@ public class PfsParameterJpa implements PfsParameter {
   /** The inactive only. */
   private boolean inactiveOnly;
 
-  /** The search criteria. */
-  private List<SearchCriteria> searchCriteria = null;
-
   /**
    * The default constructor.
    */
@@ -64,7 +56,6 @@ public class PfsParameterJpa implements PfsParameter {
     branch = pfs.getBranch();
     sortField = pfs.getSortField();
     ascending = pfs.isAscending();
-    searchCriteria = pfs.getSearchCriteria();
     activeOnly = pfs.getActiveOnly();
     inactiveOnly = pfs.getInactiveOnly();
   }
@@ -212,39 +203,6 @@ public class PfsParameterJpa implements PfsParameter {
     this.sortField = sortField;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PfsParameter#getSearchCriteria()
-   */
-  @XmlElement(type = SearchCriteriaJpa.class, name = "criteria")
-  @Override
-  public List<SearchCriteria> getSearchCriteria() {
-    if (searchCriteria == null) {
-      searchCriteria = new ArrayList<SearchCriteria>();
-    }
-    return searchCriteria;
-  }
-
-  @Override
-  public void addSearchCriteria(SearchCriteria criteria) {
-    if (searchCriteria == null) {
-      searchCriteria = new ArrayList<SearchCriteria>();
-    }
-    searchCriteria.add(criteria);
-  }
-  
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.PfsParameter#setSearchCriteria(java.util.List)
-   */
-  @Override
-  public void setSearchCriteria(List<SearchCriteria> searchCriteria) {
-    this.searchCriteria = searchCriteria;
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -257,9 +215,6 @@ public class PfsParameterJpa implements PfsParameter {
     result =
         prime * result
             + ((queryRestriction == null) ? 0 : queryRestriction.hashCode());
-    result =
-        prime * result
-            + ((searchCriteria == null) ? 0 : searchCriteria.hashCode());
     result = prime * result + ((sortField == null) ? 0 : sortField.hashCode());
     result = prime * result + startIndex;
     return result;
@@ -292,11 +247,6 @@ public class PfsParameterJpa implements PfsParameter {
         return false;
     } else if (!queryRestriction.equals(other.queryRestriction))
       return false;
-    if (searchCriteria == null) {
-      if (other.searchCriteria != null)
-        return false;
-    } else if (!searchCriteria.equals(other.searchCriteria))
-      return false;
     if (sortField == null) {
       if (other.sortField != null)
         return false;
@@ -328,8 +278,7 @@ public class PfsParameterJpa implements PfsParameter {
     return "PfsParameterJpa [maxResults=" + maxResults + ", startIndex="
         + startIndex + ", queryRestriction=" + queryRestriction + ", branch="
         + branch + ", sortField=" + sortField + ", ascending=" + ascending
-        + ", activeOnly=" + activeOnly + ", inactiveOnly=" + inactiveOnly
-        + ", searchCriteria=" + searchCriteria + "]";
+        + ", activeOnly=" + activeOnly + ", inactiveOnly=" + inactiveOnly + "]";
   }
 
 }

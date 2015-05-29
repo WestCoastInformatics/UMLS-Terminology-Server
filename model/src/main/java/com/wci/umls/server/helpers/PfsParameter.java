@@ -3,8 +3,6 @@
  */
 package com.wci.umls.server.helpers;
 
-import java.util.List;
-
 import com.wci.umls.server.model.content.Concept;
 
 /**
@@ -41,7 +39,6 @@ public interface PfsParameter {
    */
   public void setStartIndex(int startIndex);
 
-
   /**
    * Indicates whether to find only active content.
    *
@@ -68,9 +65,8 @@ public interface PfsParameter {
    *
    * @param inactiveOnly the find inactive only
    */
-  public void setInactiveOnly(boolean inactiveOnly);  
-  
-  
+  public void setInactiveOnly(boolean inactiveOnly);
+
   /**
    * Returns the filter string.
    *
@@ -121,40 +117,20 @@ public interface PfsParameter {
    *
    * @param ascending the ascending
    */
-  public void setAscending(boolean ascending);  
-  
+  public void setAscending(boolean ascending);
+
   /**
    * Returns the branch.
    *
    * @return the branch
    */
   public String getBranch();
-  
+
   /**
    * Sets the branch.
    *
    * @param branch the branch
    */
   public void setBranch(String branch);
-  
-  /**
-   * Returns the search criteria.
-   *
-   * @return the search criteria
-   */
-  public List<SearchCriteria> getSearchCriteria();
-  
-  /**
-   * Sets the search criteria.
-   *
-   * @param searchCriteria the search criteria
-   */
-  public void setSearchCriteria(List<SearchCriteria> searchCriteria);
 
-  /**
-   * Adds the search criteria.
-   *
-   * @param searchCriteria the search criteria
-   */
-  public void addSearchCriteria(SearchCriteria searchCriteria);
 }

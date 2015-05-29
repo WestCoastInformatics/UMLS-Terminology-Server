@@ -35,7 +35,6 @@ public class XmlSerializationTester extends ProxyTester {
     Object obj2 =
         ConfigUtility
             .getGraphForString(xml, obj.getClass());
-
     String json = ConfigUtility.getJsonForGraph(obj);
     Logger.getLogger(getClass()).debug(json);
     Object obj3 =

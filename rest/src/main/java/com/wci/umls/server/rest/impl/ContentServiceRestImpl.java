@@ -44,6 +44,7 @@ import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
@@ -719,7 +720,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findConceptsForQuery
    * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   * com.wci.umls.server.jpa.helpers.PfscParameterJpa, java.lang.String)
    */
   @Override
   @POST
@@ -729,7 +730,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
-    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -741,7 +742,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version
             + "/query/" + queryStr + " with PFS parameter "
-            + (pfs == null ? "empty" : pfs.toString()));
+            + (pfsc == null ? "empty" : pfsc.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find concepts by query",
@@ -749,7 +750,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       SearchResultList sr =
           contentService.findConceptsForQuery(terminology, version,
-              Branch.ROOT, queryStr, pfs);
+              Branch.ROOT, queryStr, pfsc);
       return sr;
 
     } catch (Exception e) {
@@ -945,7 +946,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    * 
    * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
    * findDescriptorsForQuery(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfscParameterJpa,
    * java.lang.String)
    */
   @Override
@@ -956,7 +957,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
-    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -968,7 +969,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version
             + "/query/" + queryStr + " with PFS parameter "
-            + (pfs == null ? "empty" : pfs.toString()));
+            + (pfsc == null ? "empty" : pfsc.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find descriptors by query",
@@ -976,7 +977,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       SearchResultList sr =
           contentService.findDescriptorsForQuery(terminology, version,
-              Branch.ROOT, queryStr, pfs);
+              Branch.ROOT, queryStr, pfsc);
       return sr;
 
     } catch (Exception e) {
@@ -1126,7 +1127,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findCodesForQuery
    * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   * com.wci.umls.server.jpa.helpers.PfscParameterJpa, java.lang.String)
    */
   @Override
   @POST
@@ -1136,7 +1137,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code terminology version, e.g. 2014AB", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
-    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1148,7 +1149,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version
             + "/query/" + queryStr + " with PFS parameter "
-            + (pfs == null ? "empty" : pfs.toString()));
+            + (pfsc == null ? "empty" : pfsc.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find codes by query",
@@ -1156,7 +1157,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       SearchResultList sr =
           contentService.findCodesForQuery(terminology, version, Branch.ROOT,
-              queryStr, pfs);
+              queryStr, pfsc);
       return sr;
 
     } catch (Exception e) {

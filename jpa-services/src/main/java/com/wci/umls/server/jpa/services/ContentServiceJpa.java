@@ -40,6 +40,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.PfscParameter;
 import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -2708,16 +2709,16 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @see
    * com.wci.umls.server.services.ContentService#findConceptsForQuery(java.lang
    * .String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
+   * com.wci.umls.server.helpers.PfscParameter)
    */
   @Override
   public SearchResultList findConceptsForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
+    String version, String branch, String query, PfscParameter pfsc)
     throws Exception {
     Logger.getLogger(getClass()).info(
         "Content Service - find concepts " + terminology + "/" + version + "/"
             + query);
-    return findForQueryHelper(terminology, version, branch, query, pfs,
+    return findForQueryHelper(terminology, version, branch, query, pfsc,
         conceptFieldNames, ConceptJpa.class);
   }
 
@@ -2744,16 +2745,16 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @see
    * com.wci.umls.server.services.ContentService#findDescriptorsForQuery(java
    * .lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
+   * com.wci.umls.server.helpers.PfscParameter)
    */
   @Override
   public SearchResultList findDescriptorsForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
+    String version, String branch, String query, PfscParameter pfsc)
     throws Exception {
     Logger.getLogger(getClass()).info(
         "Content Service - find descriptors " + terminology + "/" + version
             + "/" + query);
-    return findForQueryHelper(terminology, version, branch, query, pfs,
+    return findForQueryHelper(terminology, version, branch, query, pfsc,
         descriptorFieldNames, DescriptorJpa.class);
   }
 
@@ -2775,8 +2776,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   }
 
   /**
-   * Computes whether the given query string and PFS parameter will
-   * lead to an actual lucene query.
+   * Computes whether the given query string and PFS parameter will lead to an
+   * actual lucene query.
    *
    * @param query the query
    * @param pfs the pfs
@@ -2795,14 +2796,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @param version the version
    * @param branch the branch
    * @param query the query
-   * @param pfs the pfs
+   * @param pfsc the pfsc
    * @param fieldNames the field names
    * @param clazz the clazz
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findForQueryHelper(String terminology,
-    String version, String branch, String query, PfsParameter pfs,
+    String version, String branch, String query, PfscParameter pfsc,
     String[] fieldNames, Class<?> clazz) throws Exception {
     // Prepare results
     SearchResultList results = new SearchResultListJpa();
@@ -2812,19 +2813,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Perform Lucene search (if there is anything to search for)
     List<AtomClass> queryClasses = new ArrayList<>();
     boolean queryFlag = false;
-    if (isLuceneQueryInfo(query, pfs)) {
+    if (isLuceneQueryInfo(query, pfsc)) {
       queryFlag = true;
       queryClasses =
           getLuceneQueryResults(terminology, version, branch, query,
-              fieldNames, clazz, pfs, totalCt);
-      Logger.getLogger(getClass()).debug("    lucene result count = " + queryClasses.size());
+              fieldNames, clazz, pfsc, totalCt);
+      Logger.getLogger(getClass()).debug(
+          "    lucene result count = " + queryClasses.size());
     }
 
     boolean criteriaFlag = false;
     List<AtomClass> criteriaClasses = new ArrayList<>();
-    if (pfs != null) {
+    if (pfsc != null) {
       boolean init = false;
-      for (SearchCriteria criteria : pfs.getSearchCriteria()) {
+      for (SearchCriteria criteria : pfsc.getSearchCriteria()) {
         criteriaFlag = true;
         if (!init) {
           criteriaClasses =
@@ -2836,7 +2838,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           criteriaClasses.retainAll(getSearchCriteriaResults(terminology,
               version, criteria, clazz));
         }
-        Logger.getLogger(getClass()).debug("    criteria result count = " + queryClasses.size());
+        Logger.getLogger(getClass()).debug(
+            "    criteria result count = " + queryClasses.size());
       }
     }
 
@@ -2846,7 +2849,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Start with query results if they exist
     if (queryFlag) {
       classes = queryClasses;
-      Logger.getLogger(getClass()).debug("    combined count = " + queryClasses.size());
+      Logger.getLogger(getClass()).debug(
+          "    combined count = " + queryClasses.size());
     }
 
     if (criteriaFlag) {
@@ -2858,18 +2862,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         // Otherwise, just use criteria classes
         classes = criteriaClasses;
       }
-      Logger.getLogger(getClass()).debug("    combined count = " + queryClasses.size());
+      Logger.getLogger(getClass()).debug(
+          "    combined count = " + queryClasses.size());
 
       // Here we know the total size
       totalCt[0] = classes.size();
 
       // Apply PFS sorting manually
-      if (pfs != null && pfs.getSortField() != null) {
-        Logger.getLogger(getClass()).debug("    sort results - " + pfs.getSortField());
+      if (pfsc != null && pfsc.getSortField() != null) {
+        Logger.getLogger(getClass()).debug(
+            "    sort results - " + pfsc.getSortField());
         final Method getMethod =
             clazz.getMethod("get"
-                + pfs.getSortField().substring(0, 1).toUpperCase()
-                + pfs.getSortField().substring(1));
+                + pfsc.getSortField().substring(0, 1).toUpperCase()
+                + pfsc.getSortField().substring(1));
         if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
           throw new Exception("Referenced sort field is not comparable");
         }
@@ -2894,11 +2900,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
 
       // Apply PFS paging manually
-      if (pfs != null && pfs.getStartIndex() != -1) {
-        int startIndex = pfs.getStartIndex();
+      if (pfsc != null && pfsc.getStartIndex() != -1) {
+        int startIndex = pfsc.getStartIndex();
         int toIndex = classes.size();
-        Logger.getLogger(getClass()).debug("    page results - " + startIndex + ", " + toIndex);
-        toIndex = Math.min(toIndex, startIndex + pfs.getMaxResults());
+        Logger.getLogger(getClass()).debug(
+            "    page results - " + startIndex + ", " + toIndex);
+        toIndex = Math.min(toIndex, startIndex + pfsc.getMaxResults());
         classes = classes.subList(startIndex, toIndex);
       }
 
@@ -3145,7 +3152,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         applyPfsToLuceneQuery(clazz, fieldNames, finalQuery.toString(), pfs);
 
     // Apply paging and sorting parameters - if no search criteria
-    if (pfs.getSearchCriteria().isEmpty()) {
+    if (pfs instanceof PfscParameter
+        && ((PfscParameter) pfs).getSearchCriteria().isEmpty()) {
       // Get result size if we know it.
       totalCt[0] = fullTextQuery.getResultSize();
     } else {
@@ -3418,11 +3426,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public SearchResultList findCodesForQuery(String terminology, String version,
-    String branch, String query, PfsParameter pfs) throws Exception {
+    String branch, String query, PfscParameter pfsc) throws Exception {
     Logger.getLogger(getClass()).info(
         "Content Service - find codes " + terminology + "/" + version + "/"
             + query);
-    return findForQueryHelper(terminology, version, branch, query, pfs,
+    return findForQueryHelper(terminology, version, branch, query, pfsc,
         codeFieldNames, CodeJpa.class);
   }
 
@@ -4678,14 +4686,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String[] fieldNames, String query, PfsParameter pfs) throws Exception {
 
     FullTextQuery fullTextQuery = null;
-
-    // Verify use of search criteria - only applies to concept/descriptor/code
-    if (pfs != null && !pfs.getSearchCriteria().isEmpty()
-        && fieldNames != conceptFieldNames
-        && fieldNames != descriptorFieldNames && fieldNames != codeFieldNames) {
-      throw new Exception(
-          "Search criteria can only be used for concept, descriptor, or code searches");
-    }
 
     // Build up the query
     StringBuilder pfsQuery = new StringBuilder();

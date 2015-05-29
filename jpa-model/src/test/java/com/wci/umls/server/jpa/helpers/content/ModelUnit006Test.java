@@ -64,10 +64,8 @@ public class ModelUnit006Test {
   public void testModelEqualsHashcode006() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode006");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("activeOnly");
     tester.include("definedOnly");
     tester.include("findDescendants");
-    tester.include("inactiveOnly");
     tester.include("primitiveOnly");
     tester.include("findSelf");
     // no set methods for these things:
