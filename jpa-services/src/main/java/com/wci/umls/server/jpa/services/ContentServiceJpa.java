@@ -3182,12 +3182,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Prepare the query string
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
-    if (!finalQuery.toString().isEmpty()) {
-      finalQuery.append(" AND ");
-    }
+
     if (terminology != null && !terminology.equals("") &&
         version != null && !version.equals("")) {
-      finalQuery.append("terminology:" + terminology
+      finalQuery.append(" AND ").append("terminology:" + terminology
         + " AND terminologyVersion:" + version);
     }
     

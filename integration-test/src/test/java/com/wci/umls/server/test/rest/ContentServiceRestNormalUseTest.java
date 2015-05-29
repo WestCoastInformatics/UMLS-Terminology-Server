@@ -1609,6 +1609,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(2);
     
+
     // Get descendants for MSH descriptor with paging
     Logger.getLogger(getClass()).info("  Test descriptor descendants, with paging ");
     descriptorList =
@@ -1619,6 +1620,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals(4, descriptorList.getTotalCount());
     assertEquals(2, descriptorList.getCount());
 
+  
     // Get ancestors for MSH descriptor
     Logger.getLogger(getClass()).info("  Test descriptor ancestors, with paging");
     descriptorList =
@@ -1632,6 +1634,57 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // TODO: need sort order check (by name)
     // TODO: need "parents only" and "chlidren only" checks. (this also needs implementing)
 
+  }
+
+  @Test
+  public void testNormalUseRestContent013() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+    /** Find concepts with hql query */
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
+            + authToken);
+
+    SearchResultList sml =
+        contentService.findConceptsForGeneralQuery("",
+            "SELECT c FROM ConceptJpa c", new PfsParameterJpa(), authToken);
+    assertTrue(sml.getCount() == 6942);
+
+    /** Find concepts with hql query and pfs parameter max results 20 */
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(20);
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
+            + pfs + authToken);
+    sml =
+        contentService.findConceptsForGeneralQuery("",
+            "SELECT c FROM ConceptJpa c", pfs, authToken);
+    assertTrue(sml.getCount() == 20);
+    assertTrue(sml.getTotalCount() == 6942);
+
+    /** Find concepts in intersection of lucene and hql queries */
+    Logger
+        .getLogger(getClass())
+        .info(
+            "TEST - "
+                + "name:amino, SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
+                + authToken);
+
+    sml =
+        contentService.findConceptsForGeneralQuery("name:amino",
+            "SELECT c FROM ConceptJpa c", new PfsParameterJpa(), authToken);
+    assertTrue(sml.getCount() == 10);
+    assertTrue(sml.getTotalCount() == 10);
+
+    /** Find concepts in lucene query */
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "name:amino, SNOMEDCT_US, 2014_09_01, " + authToken);
+
+    sml =
+        contentService.findConceptsForGeneralQuery("name:amino", "",
+            new PfsParameterJpa(), authToken);
+    assertTrue(sml.getCount() == 10);
+    assertTrue(sml.getTotalCount() == 10);
   }
 
   /**
