@@ -4,7 +4,11 @@
 package com.wci.umls.server.jpa.helpers.content;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -15,6 +19,7 @@ import com.wci.umls.server.jpa.content.AbstractTreePosition;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.TreePosition;
 
@@ -49,6 +54,89 @@ public class TreeJpa implements Tree {
   public TreeJpa(Tree tree) {
     self = tree.getSelf();
     children = tree.getChildren();
+  }
+
+  /**
+   * Merge tree.
+   *
+   * @param tree the tree
+   */
+  @Override
+  public void mergeTree(Tree tree) {
+    // fail if both trees do not have the same root
+    if (!self.equals(tree.getSelf())) {
+      throw new IllegalArgumentException(
+          "Unable to merge tree with different root");
+    }
+
+    Map<Long, TreePosition<? extends AtomClass>> idTreeposMap = new HashMap<>();
+    Map<Long, Set<Long>> parChdMap = new HashMap<>();
+    computeIdTreepos(this, idTreeposMap);
+    computeIdTreepos(tree, idTreeposMap);
+    computeParChd(this, parChdMap);
+    computeParChd(tree, parChdMap);
+
+    // Reassemble the tree starting with "self"
+    List<Tree> children = new ArrayList<>();
+    for (Long chdId : parChdMap.get(self.getId())) {
+      children.add(buildTree(chdId, idTreeposMap, parChdMap));
+    }
+    this.setChildren(children);
+  }
+
+  /**
+   * Builds the tree.
+   *
+   * @param id the id
+   * @param idTreeposMap the id treepos map
+   * @param parChdMap the par chd map
+   * @return the tree
+   */
+  private Tree buildTree(Long id,
+    Map<Long, TreePosition<? extends AtomClass>> idTreeposMap,
+    Map<Long, Set<Long>> parChdMap) {
+    Tree tree = new TreeJpa();
+    tree.setSelf(idTreeposMap.get(id));
+    List<Tree> children = new ArrayList<>();
+    if (parChdMap.containsKey(id)) {
+      for (Long chdId : parChdMap.get(id)) {
+        children.add(buildTree(chdId, idTreeposMap, parChdMap));
+      }
+      tree.setChildren(children);
+    } else {
+      tree.setChildren(null);
+    }
+    return tree;
+  }
+
+  /**
+   * Compute id treepos.
+   *
+   * @param tree the tree
+   * @param idTreeposMap the id treepos map
+   */
+  private void computeIdTreepos(Tree tree,
+    Map<Long, TreePosition<? extends AtomClass>> idTreeposMap) {
+    idTreeposMap.put(tree.getSelf().getId(), tree.getSelf());
+    for (Tree chdTree : tree.getChildren()) {
+      computeIdTreepos(chdTree, idTreeposMap);
+    }
+  }
+
+  /**
+   * Compute par chd.
+   *
+   * @param tree the tree
+   * @param parChdMap the par chd map
+   */
+  private void computeParChd(Tree tree, Map<Long, Set<Long>> parChdMap) {
+    for (Tree chdTree : tree.getChildren()) {
+      if (!parChdMap.containsKey(tree.getSelf().getId())) {
+        parChdMap.put(tree.getSelf().getId(), new HashSet<Long>());
+      }
+      parChdMap.get(tree.getSelf().getId()).add(chdTree.getSelf().getId());
+      computeParChd(chdTree, parChdMap);
+    }
   }
 
   /*
@@ -106,7 +194,21 @@ public class TreeJpa implements Tree {
    */
   @Override
   public String toString() {
-    return "TreeJpa [self=" + self + ", children=" + children + "]";
+    StringBuilder sb = new StringBuilder();
+    if (self == null)
+      return "null";
+    sb.append("TreeJpa = " + self.getNode().getId());
+    List<Tree> children = getChildren();
+    if (children.size() > 0) {
+      sb.append(" [ ");
+    }
+    for (Tree chd : children) {
+      sb.append(chd.toString()).append(", ");
+    }
+    if (children.size() > 0) {
+      sb.append(" ]");
+    }
+    return sb.toString();
   }
 
   /*

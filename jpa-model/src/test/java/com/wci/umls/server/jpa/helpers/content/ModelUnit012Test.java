@@ -92,9 +92,13 @@ public class ModelUnit012Test {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet012");
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("fromId");
+    tester.exclude("fromTerminology");
+    tester.exclude("fromTerminologyVersion");
     tester.exclude("fromTerminologyId");
     tester.exclude("fromName");
     tester.exclude("toId");
+    tester.exclude("toTerminology");
+    tester.exclude("toTerminologyVersion");
     tester.exclude("toTerminologyId");
     tester.exclude("toName");
     tester.test();

@@ -220,7 +220,7 @@ public abstract class AbstractComponent implements Component {
    * @see com.wci.umls.server.model.content.Component#isSuppressible()
    */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(name = "suppressible", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isSuppressible() {
     return suppressible;
   }
@@ -240,7 +240,7 @@ public abstract class AbstractComponent implements Component {
    * 
    * @see com.wci.umls.server.model.content.Component#isObsolete()
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(name = "obsolete", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public boolean isObsolete() {
     return obsolete;
@@ -262,7 +262,7 @@ public abstract class AbstractComponent implements Component {
    * @see org.ihtsdo.otf.ts.rf2.Component#isPublished()
    */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(name = "published", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isPublished() {
     return published;
   }
@@ -283,7 +283,7 @@ public abstract class AbstractComponent implements Component {
    * @see org.ihtsdo.otf.ts.rf2.Component#isPublishable()
    */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(name = "publishable", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isPublishable() {
     return publishable;
   }

@@ -19,6 +19,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -31,6 +36,7 @@ import com.wci.umls.server.model.content.ConceptRelationship;
     "terminologyId", "terminology", "terminologyVersion", "id"
 }))
 @Audited
+@Indexed
 @XmlRootElement(name = "conceptRelationship")
 public class ConceptRelationshipJpa extends
     AbstractRelationship<Concept, Concept> implements ConceptRelationship {
@@ -38,18 +44,19 @@ public class ConceptRelationshipJpa extends
   /** The from concept. */
   @ManyToOne(targetEntity = ConceptJpa.class, optional = false)
   @JoinColumn(nullable = false)
-  private Concept from;
+  private Concept from; // index the hibernate id only, rest service/jpa will
+                        // find concept
 
   /** the to concept. */
   @ManyToOne(targetEntity = ConceptJpa.class, optional = false)
   @JoinColumn(nullable = false)
-  private Concept to;
+  private Concept to; // index all methods
 
   /** The alternate terminology ids. */
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "conrel_alt_terminology_ids", joinColumns = @JoinColumn(name = "relationship_id"))
   @Column(nullable = true)
-  private Map<String, String> alternateTerminologyIds;
+  private Map<String, String> alternateTerminologyIds; // index
 
   /**
    * Instantiates an empty {@link ConceptRelationshipJpa}.
@@ -116,12 +123,57 @@ public class ConceptRelationshipJpa extends
     }
     from.setId(id);
   }
+  
+  /**
+   * Returns the from terminology.
+   *
+   * @return the from terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getFromTerminology() {
+    return from == null ? null : from.getTerminology();
+  }
+  
+  /**
+   * Sets the from terminology
+   *
+   * @param terminology the from terminology
+   */
+  public void setFromTerminology(String terminology) {
+    if (from == null) {
+      from = new ConceptJpa();
+    }
+    from.setTerminology(terminology);
+  }
+  
+  /**
+   * Returns the from version.
+   *
+   * @return the from version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getFromTerminologyVersion() {
+    return from == null ? null : from.getTerminologyVersion();
+  }
+  
+  /**
+   * Sets the from terminology id.
+   *
+   * @param terminologyVersion the from terminology id
+   */
+  public void setFromTerminologyVersion(String terminologyVersion) {
+    if (from == null) {
+      from = new ConceptJpa();
+    }
+    from.setTerminologyVersion(terminologyVersion);
+  }
 
   /**
    * Returns the from terminology id.
    *
    * @return the from terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromTerminologyId() {
     return from == null ? null : from.getTerminologyId();
   }
@@ -143,6 +195,7 @@ public class ConceptRelationshipJpa extends
    *
    * @return the from term
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromName() {
     return from == null ? null : from.getName();
   }
@@ -208,6 +261,7 @@ public class ConceptRelationshipJpa extends
    *
    * @return the to terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToTerminologyId() {
     return to == null ? null : to.getTerminologyId();
   }
@@ -225,10 +279,55 @@ public class ConceptRelationshipJpa extends
   }
 
   /**
+   * Returns the to terminology.
+   *
+   * @return the to terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getToTerminology() {
+    return to == null ? null : to.getTerminology();
+  }
+
+  /**
+   * Sets the to terminology.
+   *
+   * @param terminology the to terminology
+   */
+  public void setToTerminology(String terminology) {
+    if (to == null) {
+      to = new ConceptJpa();
+    }
+    to.setTerminology(terminology);
+  }
+
+  /**
+   * Returns the to terminology version.
+   *
+   * @return the to terminology version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getToTerminologyVersion() {
+    return to == null ? null : to.getTerminologyVersion();
+  }
+
+  /**
+   * Sets the to terminology version.
+   *
+   * @param terminologyVersion the to terminology version
+   */
+  public void setToTerminologyVersion(String terminologyVersion) {
+    if (to == null) {
+      to = new ConceptJpa();
+    }
+    to.setTerminologyVersion(terminologyVersion);
+  }
+
+  /**
    * Returns the to term. For JAXB.
    *
    * @return the to term
    */
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getToName() {
     return to == null ? null : to.getName();
   }
@@ -252,6 +351,10 @@ public class ConceptRelationshipJpa extends
    * getAlternateTerminologyIds()
    */
   @Override
+  /*
+   * TODO: Need a bridge for maps @Field(index = Index.YES, analyze =
+   * Analyze.YES, store = Store.NO)
+   */
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
@@ -374,9 +477,9 @@ public class ConceptRelationshipJpa extends
    */
   @Override
   public String toString() {
-    return "ConceptRelationshipJpa [from=" + from + ", to="
-        + to + ", alternateTerminologyIds="
-        + alternateTerminologyIds + "] " + super.toString();
+    return "ConceptRelationshipJpa [from=" + from + ", to=" + to
+        + ", alternateTerminologyIds=" + alternateTerminologyIds + "] "
+        + super.toString();
   }
 
 }

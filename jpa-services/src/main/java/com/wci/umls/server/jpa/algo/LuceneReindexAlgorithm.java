@@ -17,11 +17,14 @@ import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
@@ -125,6 +128,9 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
       objectsToReindex.add("ConceptTreePositionJpa");
       objectsToReindex.add("DescriptorTreePositionJpa");
       objectsToReindex.add("CodeTreePositionJpa");
+      objectsToReindex.add("CodeRelationshipJpa");
+      objectsToReindex.add("ConceptRelationshipJpa");
+      objectsToReindex.add("DescriptorRelationshipJpa");
 
       // otherwise, construct set of indexed objects
     } else {
@@ -286,6 +292,42 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
       objectsToReindex.remove("ProjectJpa");
     }
 
+    // ConceptRelationships
+    if (objectsToReindex.contains("ConceptRelationshipJpa")) {
+      Logger.getLogger(getClass()).info("  Creating indexes for ConceptRelationshipJpa");
+      fullTextEntityManager.purgeAll(ConceptRelationshipJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(ConceptRelationshipJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("ConceptRelationshipJpa");
+    }
+
+    // DescriptorRelationship
+    if (objectsToReindex.contains("DescriptorRelationshipJpa")) {
+      Logger.getLogger(getClass()).info("  Creating indexes for DescriptorRelationshipJpa");
+      fullTextEntityManager.purgeAll(DescriptorRelationshipJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(DescriptorRelationshipJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("DescriptorRelationshipJpa");
+    }
+
+    // CodeRelationship
+    if (objectsToReindex.contains("CodeRelationshipJpa")) {
+      Logger.getLogger(getClass()).info("  Creating indexes for CodeRelationshipJpa");
+      fullTextEntityManager.purgeAll(CodeRelationshipJpa.class);
+      fullTextEntityManager.flushToIndexes();
+      fullTextEntityManager.createIndexer(CodeRelationshipJpa.class)
+          .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
+          .threadsToLoadObjects(4).startAndWait();
+
+      objectsToReindex.remove("CodeRelationshipJpa");
+    }
+
     if (objectsToReindex.size() != 0) {
       throw new Exception(
           "The following objects were specified for re-indexing, but do not exist as indexed objects: "
@@ -309,6 +351,14 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
     fullTextEntityManager.purgeAll(LexicalClassJpa.class);
     fullTextEntityManager.purgeAll(StringClassJpa.class);
     fullTextEntityManager.purgeAll(ProjectJpa.class);
+    fullTextEntityManager.purgeAll(AtomSubsetMemberJpa.class);
+    fullTextEntityManager.purgeAll(ConceptSubsetMemberJpa.class);
+    fullTextEntityManager.purgeAll(ConceptTreePositionJpa.class);
+    fullTextEntityManager.purgeAll(DescriptorTreePositionJpa.class);
+    fullTextEntityManager.purgeAll(CodeTreePositionJpa.class);
+    fullTextEntityManager.purgeAll(CodeRelationshipJpa.class);
+    fullTextEntityManager.purgeAll(ConceptRelationshipJpa.class);
+    fullTextEntityManager.purgeAll(DescriptorRelationshipJpa.class);
   }
 
   /**

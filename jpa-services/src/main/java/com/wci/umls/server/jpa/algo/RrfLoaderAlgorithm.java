@@ -1241,6 +1241,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // attributes)
       if (!fields[3].equals(prevMetaUi)) {
         ++objectCt;
+        // Ready to commit, clear the subset member cache
+        if (objectCt % commitCt == 0) {
+          addedSubsetMembers.clear();
+        }
+        logAndCommit(objectCt);
       }
 
       // Skip everything except SUBSET_MEMBER
@@ -1357,13 +1362,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         }
 
       }
-
-      // Ready to commit, clear the subset member cache
-      if (objectCt % commitCt == 0) {
-        addedSubsetMembers.clear();
-      }
-
-      logAndCommit(objectCt);
 
       prevMetaUi = fields[3];
       //
