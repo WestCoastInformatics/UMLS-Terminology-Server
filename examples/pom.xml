@@ -18,8 +18,8 @@
   <properties>
     <skipTests>true</skipTests>
   </properties>
-  
-  
+
+
   <!-- Declare Project Dependency Versions -->
   <dependencies>
 
@@ -41,4 +41,22 @@
 
   </dependencies>
 
+  <build>
+    <plugins>
+      <!-- Add src/main/resources to the classpath -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
+          <additionalClasspathElements>
+            <additionalClasspathElement>src/main/resources</additionalClasspathElement>
+          </additionalClasspathElements>
+          <skipTests>${skipTests}</skipTests>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
