@@ -101,7 +101,7 @@ public class ResetDevDatabase {
     p.setProperty("terminology", "UMLS");
     p.setProperty("version", "latest");
     p.setProperty("input.dir",
-        "../../config/src/main/resources/data/SAMPLE_2014AB");
+        "../../config/src/main/resources/data/SCTMSH_2014AB");
         request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
