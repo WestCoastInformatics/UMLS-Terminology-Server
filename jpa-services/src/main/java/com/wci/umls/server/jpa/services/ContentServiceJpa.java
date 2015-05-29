@@ -4547,9 +4547,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     
     // add id/terminology/version constraints baesd on inverse flag
     if (inverseFlag == true) {
-      finalQuery.append("toTerminologyId:" + terminologyId + " AND toTerminology: " + terminology + " AND toTerminologyVersion:" + version);
+      finalQuery.append("toTerminologyId:" + terminologyId + " AND toTerminology:" + terminology + " AND toTerminologyVersion:" + version);
     } else {
-      finalQuery.append("fromTerminologyId:" + terminologyId + " AND fromTerminology: " + terminology + " AND fromTerminologyVersion:" + version);
+      finalQuery.append("fromTerminologyId:" + terminologyId + " AND fromTerminology:" + terminology + " AND fromTerminologyVersion:" + version);
     }
     // add query restriction if supplied
     if (pfs != null && pfs.getQueryRestriction() != null && !pfs.getQueryRestriction().isEmpty()) {

@@ -1639,7 +1639,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   }
 
   @Test
-  public void testNormalUseRestContent013() throws Exception {
+  public void testNormalUseRestContent026() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
     
     /** Find concepts with hql query */
@@ -1776,7 +1776,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   }
 
   @Test
-  public void testNormalUseRestContent014() throws Exception {
+  public void testNormalUseRestContent020() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
     
     /** Find concepts with hql query */
