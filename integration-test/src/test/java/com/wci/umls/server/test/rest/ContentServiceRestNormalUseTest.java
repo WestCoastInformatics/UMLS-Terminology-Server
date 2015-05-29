@@ -16,7 +16,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -1556,7 +1555,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestContent026() throws Exception {
+  public void testNormalUseRestContent013() throws Exception {
     // n/a - no code ancestors or descendants
   }
 
@@ -1866,7 +1865,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestContent099() throws Exception {
+  public void testNormalUseRestContent026() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
     
     /** Find concepts with hql query */

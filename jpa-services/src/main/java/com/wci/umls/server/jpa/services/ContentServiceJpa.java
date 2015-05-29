@@ -2948,7 +2948,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @return the search result list
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  @SuppressWarnings("unchecked")
   private SearchResultList findForGeneralQueryHelper(String luceneQuery,
     String hqlQuery, String branch, PfsParameter pfs, String[] fieldNames,
     Class<?> clazz) throws Exception {
@@ -3010,9 +3010,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           throw new Exception("Referenced sort field is not comparable");
         }
         Collections.sort(classes, new Comparator<AtomClass>() {
-          @SuppressWarnings({
-              "rawtypes", "unchecked"
-          })
+          @SuppressWarnings("rawtypes")
           @Override
           public int compare(AtomClass o1, AtomClass o2) {
             try {
@@ -3074,46 +3072,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
      * sr.setTerminologyId(((AtomClass)result).getTerminologyId());
      * sr.setId(((AtomClass)result).getId()); srl.addObject(sr); } return srl;
      */
-  }
-
-  /**
-   * Execute hql query.
-   *
-   * @param query the query
-   * @return the result set
-   * @throws Exception the exception
-   */
-  @SuppressWarnings({
-    "unchecked"
-  })
-  private List<Object[]> executeHqlQuery(String query) throws Exception {
-
-    // check for hql query errors -- throw as local exception
-    // this is used to propagate errors back to user when testing queries
-
-    // ensure that query begins with SELECT (i.e. prevent injection
-    // problems)
-    if (!query.toUpperCase().startsWith("SELECT")) {
-      throw new LocalException(
-          "HQL Query has bad format:  does not begin with SELECT");
-    }
-
-    // check for multiple commands (i.e. multiple semi-colons)
-    if (query.indexOf(";") != query.length() - 1 && query.endsWith(";")) {
-      throw new LocalException(
-          "HQL Query has bad format:  multiple commands detected");
-    }
-
-    // crude check: check for data manipulation commands
-    if (query.toUpperCase().matches(
-        "ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
-      throw new LocalException(
-          "HQL Query has bad format:  data manipulation request detected");
-    }
-
-    // HQL
-    javax.persistence.Query jpaQuery = manager.createQuery(query);
-    return jpaQuery.getResultList();
   }
 
   /**
@@ -4432,9 +4390,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     // add id/terminology/version constraints baesd on inverse flag
     if (inverseFlag == true) {
-      finalQuery.append("toTerminologyId:" + terminologyId + " AND toTerminology:" + terminology + " AND toTerminologyVersion:" + version);
+      finalQuery.append("toTerminologyId:" + terminologyId
+          + " AND toTerminology:" + terminology + " AND toTerminologyVersion:"
+          + version);
     } else {
-      finalQuery.append("fromTerminologyId:" + terminologyId + " AND fromTerminology:" + terminology + " AND fromTerminologyVersion:" + version);
+      finalQuery.append("fromTerminologyId:" + terminologyId
+          + " AND fromTerminology:" + terminology
+          + " AND fromTerminologyVersion:" + version);
     }
 
     FullTextQuery fullTextQuery =
