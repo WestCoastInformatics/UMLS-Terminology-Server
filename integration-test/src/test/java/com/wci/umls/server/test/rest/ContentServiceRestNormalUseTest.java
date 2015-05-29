@@ -1264,17 +1264,37 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     
     /** Find concepts with hql query */
     Logger.getLogger(getClass()).info(
-        "TEST - " + ", SNOMEDCT_US, 2014_09_01, " + authToken);
-    String snomedTerminology = "SNOMEDCT_US";
-    String snomedVersion = "2014_09_01";
+        "TEST - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, " + authToken);
 
     SearchResultList sml = contentService.findConceptsForGeneralQuery("", "SELECT c FROM ConceptJpa c", new PfsParameterJpa(), authToken);
-//SELECT c.terminologyId FROM ConceptJpa c
-    assertNotNull(sml);
-    /*assertNotEquals(c.getName(),
-        "No default preferred name found");
-*/
-    // TODO: test other findRelationshipsFor... on other components
+    assertTrue(sml.getCount() == 6942);
+    
+    /** Find concepts with hql query and pfs parameter max results 20*/
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(20);
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, " + pfs + authToken);
+    sml = contentService.findConceptsForGeneralQuery("", "SELECT c FROM ConceptJpa c", pfs, authToken);
+    assertTrue(sml.getCount() == 20);
+    assertTrue(sml.getTotalCount() == 6942);
+    
+    
+    /** Find concepts in intersection of lucene and hql queries */
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "name:amino, SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, " + authToken);
+    
+    sml = contentService.findConceptsForGeneralQuery("name:amino", "SELECT c FROM ConceptJpa c", new PfsParameterJpa(), authToken);
+    assertTrue(sml.getCount() == 10);
+    assertTrue(sml.getTotalCount() == 10);
+   
+    /** Find concepts in lucene query */
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "name:amino, SNOMEDCT_US, 2014_09_01, " + authToken);
+    
+    sml = contentService.findConceptsForGeneralQuery("name:amino", "", new PfsParameterJpa(), authToken);
+    assertTrue(sml.getCount() == 10);
+    assertTrue(sml.getTotalCount() == 10);
 }
   
   /**
