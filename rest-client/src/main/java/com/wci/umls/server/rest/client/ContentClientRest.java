@@ -485,7 +485,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
-            + "/content/dui/"
+            + "/content/dui"
             + "/luceneQuery/"
             + (luceneQuery == null || luceneQuery.isEmpty()
                 ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
@@ -654,7 +654,7 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
-            + "/content/code/"
+            + "/content/code"
             + "/luceneQuery/"
             + (luceneQuery == null || luceneQuery.isEmpty()
                 ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
@@ -1240,7 +1240,10 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
             + terminology + "/" + version + "/" + terminologyId
-            + "/relationships/query/" + query);
+            + "/relationships/query/" +   
+            (query == null || query.isEmpty()
+            ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
+                query, "UTF8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);

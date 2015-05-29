@@ -1721,7 +1721,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships");
+            + terminologyId + "/relationships/query/" + query);
+    if (query == null
+        || query.equals(ContentServiceRest.QUERY_BLANK)) {
+      query = "";
+    }
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
