@@ -19,11 +19,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -1773,6 +1775,20 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertTrue(sml.getTotalCount() == 6); 
   }
 
+  @Test
+  public void testNormalUseRestContent014() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+    
+    /** Find concepts with hql query */
+    Logger.getLogger(getClass()).info(
+        "TEST1 - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
+            + authToken);
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    RelationshipList sml =
+        contentService.findRelationshipsForConcept("118613001", snomedTerminology, snomedVersion, "", pfs, authToken);
+    //assertTrue(sml.getCount() == 6942);
+  }
+  
   /**
    * Teardown.
    *
