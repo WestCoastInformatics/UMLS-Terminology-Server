@@ -43,7 +43,7 @@ tsApp
         
         // the displayed component
         $scope.component = null;
-
+        $scope.componentType = null;
         
         // basic scope variables
         $scope.userName = null;
@@ -76,13 +76,13 @@ tsApp
           $scope.metadata = null;
           
           // clear the search result list and current component
-          $scope.component = null;
+          //$scope.component = null;
           $scope.componentError = null;
-          $scope.searchResults = null;
+          //$scope.searchResults = null;
           
           // reset the history
-          $scope.conceptHistory = [];
-          $scope.conceptHistoryIndex = -1;
+         // $scope.componentHistory = [];
+         // $scope.componentHistoryIndex = -1;
 
           // if no terminology specified, stop
           if ($scope.terminology == null) {
@@ -302,33 +302,13 @@ tsApp
           });
         }
         
-        /**
-         * Helper function to get full terminology object given terminology name
-         */
-        function getTerminologyFromName(terminologyName) {
-        	// check for full terminology object by comparing to selected terminology
-        	if (terminologyName != $scope.terminology.terminology) {
-        		
-        		// cycle over available terminologies for match
-        		for (var i = 0; i < $scope.terminologies.length; i++) {
-        			if ($scope.terminologies[i].terminology === terminologyName) {
-        				return $scope.terminologies[i];
-        			}
-        		}
-        	} else {
-        		return $scope.terminology;
-        	}
-        	
-        	
-        }
         
         /**
          * Function to get a component of the terminology's organizing class type.
-         * TODO:  Get rid of this and have conceptTErminologyIds retrieved by getConcept
          */
         $scope.getComponent = function(terminologyName, terminologyId) {
         	
-        	console.debug('getComponent', terminologyName, terminologyId);
+        	//console.debug('getComponent', terminologyName, terminologyId);
         	
         	// if terminology matches scope terminology
         	if (terminologyName === $scope.terminology.terminology) {
@@ -338,6 +318,19 @@ tsApp
         	} else {
         		var localTerminology = getTerminologyFromName(terminologyName);
         		getComponentHelper(localTerminology, terminologyId, getUrlPrefix(localTerminology.organizingClassType));
+        	}
+        }
+        
+        /**
+         * Function to get a component based on type parameter
+         */
+        $scope.getComponentFromType = function(terminologyName, terminologyId, type) {
+        	//console.debug('getComponentFromType', terminologyName, terminologyId, type);
+        	switch (type) {
+        	case 'CONCEPT': $scope.getConcept(terminologyName, terminologyId); break;
+        	case 'DESCRIPTOR': $scope.getDescriptor(terminologyName, terminologyId); break;
+        	case 'CODE': $scope.getCode(terminologyName, terminologyId); break;
+        	default: $scope.componentError = "Could not retrieve " + type + " for " + terminologyName + "/" + terminologyId;
         	}
         }
 
@@ -397,12 +390,12 @@ tsApp
          * - terminologyObj:  the full terminology object from getTerminology()
          * - terminologyId:   the terminology id of the component
          * - typePrefix:      the url prefix denoting object type (cui/dui/code)
-         * 
-         * TODO:  Add definitions from all atoms to the top level component 
          */
         function getComponentHelper(terminologyObj, terminologyId, typePrefix) {
         	
-        	console.debug('getComponentHelper', terminologyObj, terminologyId, typePrefix);
+        	$scope.componentType = getComponentTypeFromPrefix(typePrefix);
+        	
+        	//console.debug('getComponentHelper', terminologyObj, terminologyId, typePrefix, $scope.componentType);
         	
         	// clear existing component and paging
         	$scope.component = null;
@@ -410,7 +403,7 @@ tsApp
         	clearPaging();
         	
         	if (!terminologyObj || !terminologyId || !typePrefix) {
-        		$scope.componentError = "An unexpected display error occurred.<p>Click a concept or perform a new search to continue";
+        		$scope.componentError = "An unexpected display error occurred. Click a concept or perform a new search to continue";
         		return;
         	}
         	
@@ -425,10 +418,10 @@ tsApp
             }).success(function(data) {
             	
             	// update history
-                $scope.addConceptToHistory(data.terminology, data.terminologyId);
+                $scope.addConceptToHistory(data.terminology, data.terminologyId, $scope.componentType, data.name);
             	
 	            if (!data) {
-	            	$scope.componentError = "Could not retrieve " + typePrefix + " data for " + terminologyObj.terminology + "/" + terminologyId;
+	            	$scope.componentError = "Could not retrieve " + $scope.componentType + " data for " + terminologyObj.terminology + "/" + terminologyId;
 	            	$scope.glassPane--;
 	            	return;
 	            }
@@ -437,19 +430,22 @@ tsApp
 	            if ($scope.terminology === terminologyObj)
 	            	setActiveRow(terminologyId);
 	            
-	            // cycle over all atoms looking for definitions
+	            // cycle over all atoms for pre-processing
 	            for (var i = 0; i < data.atom.length; i++) {
+	            	
+	            	// assign expandable content flag
+	            	data.atom[i].hasContent = atomHasContent(data.atom[i]);
+	            	
+	            	//console.debug("Atom content", data.atom[i].hasContent, data.atom[i]);
+	            	
+	            	// push any definitions up to top level
 	            	for (var j = 0; j < data.atom[i].definition.length; j++) {
 	            		var definition = data.atom[i].definition[j];
-	            		
-	            		console.debug("Definition found on atom " + i);
-	            		
+	            	           		
 	            		// set the atom element flag
 	            		definition.atomElement = true;
 	            		
-	            		// add the atom information for tooltip display
-	            		// TODO: This is kind of clunky/hackish, consider further
-	            		// Format:  name [terminology/termType]			
+	            		// add the atom information for tooltip display		
 	            		definition.atomElementStr = data.atom[i].name + " [" + data.atom[i].terminology + "/" + data.atom[i].termType + "]";
 	            		
 	            		// add the definition to the top level component
@@ -493,10 +489,10 @@ tsApp
     
           // clear concept, history, suggestions, and paging data
           $scope.suggestions = null;
-          $scope.component = null;
-          $scope.componentError = null;
-          $scope.conceptHistory = [];
-          $scope.conceptHistoryIndex = -1;
+          //$scope.component = null;
+          //$scope.componentError = null;
+          //$scope.componentHistory = [];
+          //$scope.componentHistoryIndex = -1;
           clearPaging();
           
           // force the search box to sync with query string
@@ -525,6 +521,10 @@ tsApp
             // console.debug("Retrieved concepts:", data);
             $scope.searchResults = data.searchResult;
             $scope.pagedSearchResults = $scope.getPagedArray($scope.searchResults, 1, false, null);
+            
+            // select the first component if results returned
+            if ($scope.searchResults.length != 0)
+            	$scope.getComponent($scope.terminology.terminology, $scope.searchResults[0].terminologyId);
            
             $scope.glassPane--;
 
@@ -544,6 +544,8 @@ tsApp
           // apply the initial paging
           applyPaging();
         }
+        
+        
         
         ///////////////////////////////
         // Show/Hide List Elements
@@ -651,6 +653,36 @@ tsApp
         	applyPaging();
         }
         
+        ///////////////////////////////
+        // Expand/Collapse functions
+        ///////////////////////////////
+        $scope.toggleItemCollapse = function(item) {
+        	item.expanded = !item.expanded;
+        }
+        
+        // Return true/false whether an atom has expandable content
+        function atomHasContent(atom) {
+        	//console.debug('atomHasContent', atom);
+        	if (!atom) return false; 	
+        	if (atom.attribute.length > 0) return true;
+        	if (atom.definition.length > 0) return true;    	
+        	if (atom.relationship.length > 0) return true;   	
+        	return false;
+        }
+        
+        // Returns the css class for an item's collapsible control
+        $scope.getCollapseIcon = function(item) {
+        	
+        	//console.debug('getCollapseIcon', item.hasContent, item.expanded, item);
+        	
+        	// if no expandable content detected, return blank glyphicon (see tsMobile.css)
+        	if (!item.hasContent) return 'glyphicon glyphicon-plus glyphicon-none';
+        	
+        	// return plus/minus based on current expanded status
+        	if (item.expanded) return 'glyphicon glyphicon-minus';
+        	else return 'glyphicon glyphicon-plus';
+        }
+        
      
         ///////////////////////////////
         // Misc helper functions
@@ -659,39 +691,48 @@ tsApp
         
         /** Set selected item to active row (for formatting purposes */
         function setActiveRow(terminologyId) {
+        	if (!$scope.searchResults || $scope.searchResults.length == 0)
+        		return;
           for (var i = 0; i < $scope.searchResults.length; i++) {
             if ($scope.searchResults[i].terminologyId === terminologyId) {
-              $scope.searchResults[i].rowClass = "active";
+              $scope.searchResults[i].active = true;
             } else {
-              $scope.searchResults[i].rowClass = "";
+              $scope.searchResults[i].active = false;
             }
           }
         }
 
         /** Construct a default PFS object */
-        function getPfs() {
-          return {
-            startIndex : -1,
-            maxResults : -1,
-            sortField : null,
-            queryRestriction : null
-          };
+        function getPfs(page) {
+        	if (!page) page = 1;
+            return {
+	            startIndex : (page-1)*$scope.pageSize,
+	            maxResults : $scope.pageSize,
+	            sortField : null,
+	            queryRestriction : null
+	        };
         }
         
         /**  Helper function to get the proper html prefix based on class type  */
         function getUrlPrefix(classType) {
         	
         	switch(classType) {
-        	case 'CONCEPT':
-        		return 'cui';
-        	case 'DESCRIPTOR':
-        		return 'dui';
-        	case 'CODE':
-        		return 'code';
-        	default:
-        		return 'prefixErrorDetected';
+        	case 'CONCEPT':	return 'cui';
+        	case 'DESCRIPTOR': return 'dui';
+        	case 'CODE': return 'code';
+        	default: return 'prefixErrorDetected';
         	}
 
+        }
+        
+        /** Helper function to get the component type from the url prefix */
+        function getComponentTypeFromPrefix(prefix) {
+        	switch (prefix) {
+        	case 'cui': return 'CONCEPT';
+        	case 'dui': return 'DESCRIPTOR';
+        	case 'code': return 'CODE';
+        	default: return 'UNKNOWN COMPONENT';
+        	}
         }
            
         /** Helper function to get properties for ng-repeat */
@@ -716,78 +757,131 @@ tsApp
         	return terminology.organizingClassType;
         }
         
+        /**
+         * Function to filter viewable terminologies for picklist
+         */
+        $scope.getViewableTerminologies = function() {
+        	var viewableTerminologies = new Array();
+        	if (!$scope.terminologies) {
+        		return viewableTerminologies;
+        	}
+        	for (var i = 0; i < $scope.terminologies.length; i++) {
+        		// exclude MTH and SRC
+        		if ($scope.terminologies[i].terminology != 'MTH' && $scope.terminologies[i].terminology != 'SRC')
+        			viewableTerminologies.push($scope.terminologies[i])
+        	}
+        	return viewableTerminologies;
+        }
+        
+        /**
+         * Helper function to get full terminology object given terminology name
+         */
+        function getTerminologyFromName(terminologyName) {
+        	// check for full terminology object by comparing to selected terminology
+        	if (terminologyName != $scope.terminology.terminology) {
+        		
+        		// cycle over available terminologies for match
+        		for (var i = 0; i < $scope.terminologies.length; i++) {
+        			if ($scope.terminologies[i].terminology === terminologyName) {
+        				return $scope.terminologies[i];
+        			}
+        		}
+        	} else {
+        		return $scope.terminology;
+        	}	
+        }
+        
+        //////////////////////////////////////
+        // Metadata Helper Functions
+        //////////////////////////////////////
+        
+        var relationshipTypes = [];
+        
+        // on metadata changes
+        $scope.$watch('metadata', function() {
+        	
+        	// reset arrays
+        	relationshipTypes = [];
+        	
+        	if ($scope.metadata) {
+        		for (var i = 0; i < $scope.metadata.length; i++) {
+        			
+        			// extract relationship types for convenience
+	        		if ($scope.metadata[i].name === 'Relationship_Types') {
+	        			relationshipTypes = $scope.metadata[i].keyValuePair;
+	        		}
+	        	}
+        	}
+        	
+        });
+        
+        // get relationship type name from its abbreviation
+        $scope.getRelationshipTypeName = function(abbr) {
+        	for (var i = 0; i < relationshipTypes.length; i++) {
+        		if (relationshipTypes[i].key === abbr) {
+        			return relationshipTypes[i].value;
+        		}
+        	}
+        	return null
+        }
+        
         //////////////////////////////////////
         // Navigation History
         //////////////////////////////////////
         
         // concept navigation variables
-        $scope.conceptHistory = [];
-        $scope.conceptHistoryIndex = -1;  // index is the actual array index (e.g. 0:n-1)
+        $scope.componentHistory = [];
+        $scope.componentHistoryIndex = -1;  // index is the actual array index (e.g. 0:n-1)
         
         // add a terminology/terminologyId pair to the history stack
-        $scope.addConceptToHistory = function(terminology, terminologyId) {
+        $scope.addConceptToHistory = function(terminology, terminologyId, type, name) {
         	
-        	console.debug("Adding concept to history", terminology, terminologyId);
+        	console.debug("Adding concept to history", terminology, terminologyId, type, name);
         	
         	// if history exists
-        	if ($scope.conceptHistoryIndex != -1) {
+        	if ($scope.componentHistoryIndex != -1) {
         		
-        		// if this concept is the current historical concept, do not add
-        		if ($scope.conceptHistory[$scope.conceptHistoryIndex].terminology === terminology 
-        				&& $scope.conceptHistory[$scope.conceptHistoryIndex].terminologyId === terminologyId)
+        		// if this component currently viewed, do not add
+        		if ($scope.componentHistory[$scope.componentHistoryIndex].terminology === terminology 
+        				&& $scope.componentHistory[$scope.componentHistoryIndex].terminologyId === terminologyId)
         			return;
         	}
-        	
-        	// delete further future history if in middle of history
-        	if ($scope.conceptHistoryIndex != $scope.conceptHistory.length -1) {
         		
-        		// slice from beginning to current item
-        		$scope.conceptHistory = $scope.conceptHistory.slice(0, $scope.conceptHistoryIndex + 1);
-        	}
         	
-        	// add item and increment index
-        	$scope.conceptHistory.push({'terminology':terminology, 'terminologyId':terminologyId});
-        	$scope.conceptHistoryIndex++;
+        	// add item and set index to last
+        	$scope.componentHistory.push({'terminology':terminology, 'terminologyId':terminologyId, 'type':type, 'name':name});
+        	$scope.componentHistoryIndex = $scope.componentHistory.length - 1;
         }
         
         // get and display the previous concept
         $scope.getPreviousConcept = function() {
         	
         	// decrement the counter and get the concept
-        	$scope.conceptHistoryIndex--;
-        	$scope.getConcept(
-        			$scope.conceptHistory[$scope.conceptHistoryIndex].terminology, 
-        			$scope.conceptHistory[$scope.conceptHistoryIndex].terminologyId)
+        	$scope.componentHistoryIndex--;
         	
-        }
-        
-        // get a string representing the previous concept
-        $scope.getPreviousConceptStr = function() {
-        	
-        	if(!$scope.conceptHistory[$scope.conceptHistoryIndex-1])
-        		return null;
-        	
-        	return $scope.conceptHistory[$scope.conceptHistoryIndex-1].terminology + "/" + $scope.conceptHistory[$scope.conceptHistoryIndex-1].terminologyId;
-        }
+        	$scope.getComponentFromType(
+        			$scope.componentHistory[$scope.componentHistoryIndex].terminology, 
+        			$scope.componentHistory[$scope.componentHistoryIndex].terminologyId,
+        			$scope.componentHistory[$scope.componentHistoryIndex].type);
+    	}
         
         // get and display the next concept
         $scope.getNextConcept = function() {
         	
         	// increment the counter and get the concept
-        	$scope.conceptHistoryIndex++;
-        	$scope.getConcept(
-        			$scope.conceptHistory[$scope.conceptHistoryIndex].terminology,
-        			$scope.conceptHistory[$scope.conceptHistoryIndex].terminologyId)
+        	$scope.componentHistoryIndex++;
         	
+        	$scope.getComponentFromType(
+        			$scope.componentHistory[$scope.componentHistoryIndex].terminology,
+        			$scope.componentHistory[$scope.componentHistoryIndex].terminologyId,
+        			$scope.componentHistory[$scope.componentHistoryIndex].type);
         }
-        
-        // get a string representing the next concept
-        $scope.getNextConceptStr = function() {
-        	
-        	if(!$scope.conceptHistory[$scope.conceptHistoryIndex+1])
+
+        $scope.getComponentStr = function(component) {
+        	if (!component)
         		return null;
         	
-        	return $scope.conceptHistory[$scope.conceptHistoryIndex+1].terminology + "/" + $scope.conceptHistory[$scope.conceptHistoryIndex+1].terminologyId;
+        	return component.terminology + "/" + component.terminologyId + " " + component.type + ": " + component.name;
         }
         
         ////////////////////////////////////
@@ -795,6 +889,8 @@ tsApp
         ////////////////////////////////////
        
         // paged variable lists
+        // NOTE:  Each list must have a totalCount variable
+        //        either from ResultList object or calculated
         $scope.pagedSearchResults = null;	
         $scope.pagedSemanticTypes = null;
         $scope.pagedDescriptions = null;
@@ -834,9 +930,58 @@ tsApp
         	
         }
         
-        /**
-         * Functions to page individual elements
-         */ 
+        /////////////////////////////////////////////////////////////////
+        // Server-side Paging
+        // Functions for arrays paged by server-side find methods
+        /////////////////////////////////////////////////////////////////
+        $scope.getPagedRelationships = function(page, query) {
+        	
+        	if (!page) page = 1;
+        	if (!query) query = "null";
+        	
+        	var typePrefix = getUrlPrefix($scope.componentType);
+        	var pfs = getPfs(page);
+        	
+        	// construct query restriction if needed
+        	var qr = '';
+        	if ($scope.showSuppressible == false) {
+        		qr = qr + (qr.length > 0 ? ' AND ' : '') + 'suppressible:false';
+        	}
+        	if($scope.showObsolete == false) {
+        		qr = qr + (qr.length > 0 ? ' AND ' : '') + 'obsolete:false';
+        	}
+        	pfs['queryRestriction'] = qr;
+        	
+        	$scope.glassPane++;
+            $http(
+              {
+                url : contentUrl + typePrefix 
+                + "/" + $scope.component.terminology
+                + "/" + $scope.component.terminologyVersion 
+                + "/" + $scope.component.terminologyId 
+                + "/relationships/query/" + query,
+                method : "POST",
+                dataType : "json",
+                data : pfs,
+                headers : {
+                  "Content-Type" : "application/json"
+                }
+              }).success(function(data) {
+            	  
+            	 $scope.pagedRelationships = data.relationship;
+            	 $scope.pagedRelationships.totalCount = data.totalCount;
+            	 $scope.glassPane--;
+
+            }).error(function(data, status, headers, config) {
+              $scope.handleError(data, status, headers, config);
+              $scope.glassPane--;
+            });
+        }
+        
+        ////////////////////////////////////////////////////////////////
+        // Client-side Paging
+        // Functions for arrays retrieved in full, then paged by js.
+        ////////////////////////////////////////////////////////////////
         $scope.getPagedAtoms = function(page) {
         	
         	// set the page if supplied, otherwise use the current value
@@ -846,14 +991,6 @@ tsApp
         	$scope.pagedAtoms = $scope.getPagedArray($scope.component.atom, $scope.atomsPage, true, null);
         }
         
-        $scope.getPagedRelationships = function(page) {
-        	
-        	// set the page if supplied, otherwise use the current value
-        	if (page) $scope.relationshipsPage = page;
-        	
-        	// get the paged array, with flags and filter (TODO: Support filtering)
-        	$scope.pagedRelationships = $scope.getPagedArray($scope.component.relationship, $scope.relationshipsPage, true, null);
-        }
         
         $scope.getPagedDefinitions = function(page) {
         	
@@ -921,9 +1058,9 @@ tsApp
         	var results = newArray.slice(fromIndex, toIndex);
         	
         	// add the total count before slicing
-        	results.totalCt = newArray.length;
+        	results.totalCount = newArray.length;
         	
-        	//console.debug("  results", results.totalCt, fromIndex, toIndex, results);
+        	//console.debug("  results", results.totalCount, fromIndex, toIndex, results);
 
         	return results;
         }

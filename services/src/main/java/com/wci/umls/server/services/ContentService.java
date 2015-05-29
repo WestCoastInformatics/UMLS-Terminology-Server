@@ -194,19 +194,21 @@ public interface ContentService extends MetadataService {
     String terminology, String version, String branch);
 
   /**
-   * Gets the relationships for concept.
+   * Gets the relationships for concept and query.
    *
    * @param conceptId the concept id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param branch the branch
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for concept
+   * @throws Exception 
    */
   public RelationshipList findRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs);
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Find relationships for concept or any part of its graph and push them all
@@ -233,29 +235,33 @@ public interface ContentService extends MetadataService {
    * @param descriptorId the descriptor id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param branch the branch
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for descriptor
+   * @throws Exception 
    */
   public RelationshipList findRelationshipsForDescriptor(String descriptorId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs);
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception;
 
   /**
-   * Returns the relationships for code.
+   * Returns the relationships for code and query
    *
    * @param codeId the code id
    * @param terminology the terminology
    * @param version the version
+   * @param query the query
    * @param branch the branch
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for code
+   * @throws Exception 
    */
   public RelationshipList findRelationshipsForCode(String codeId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs);
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the relationships for atom.
@@ -267,10 +273,11 @@ public interface ContentService extends MetadataService {
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for atom
+   * @throws Exception 
    */
   public RelationshipList findRelationshipsForAtom(String conceptId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs);
+    String terminology, String version, String branch, String query, boolean inverseFlag,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Returns the descriptor.
@@ -783,7 +790,7 @@ public interface ContentService extends MetadataService {
 
   /**
    * Removes the relationship.
-   *
+   * 
    * @param id the id
    * @param relationshipClass the relationship class, null if not known
    * @throws Exception the exception
@@ -829,7 +836,7 @@ public interface ContentService extends MetadataService {
 
   /**
    * Removes the transitive relationship.
-   *
+   * 
    * @param id the id
    * @param relationshipClass the relationship class, null if unknown
    * @throws Exception the exception
@@ -902,7 +909,7 @@ public interface ContentService extends MetadataService {
 
   /**
    * Removes the subset.
-   *
+   * 
    * @param id the id
    * @param subsetClass the subset class, null if unknown
    * @throws Exception the exception
@@ -933,7 +940,7 @@ public interface ContentService extends MetadataService {
 
   /**
    * Removes the subset member.
-   *
+   * 
    * @param id the id
    * @param memberClass the member class, null if unknown
    * @throws Exception the exception
@@ -1389,7 +1396,7 @@ public interface ContentService extends MetadataService {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findCodesForQuery(String luceneQuery,
+  public SearchResultList findCodesForGeneralQuery(String luceneQuery,
     String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
 
   /**
@@ -1402,7 +1409,7 @@ public interface ContentService extends MetadataService {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findConceptsForQuery(String luceneQuery,
+  public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
     String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
 
   /**
@@ -1415,7 +1422,7 @@ public interface ContentService extends MetadataService {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findDescriptorsForQuery(String luceneQuery,
+  public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
     String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
 
 }

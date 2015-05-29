@@ -19,6 +19,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
@@ -31,6 +36,7 @@ import com.wci.umls.server.model.content.CodeRelationship;
     "terminologyId", "terminology", "terminologyVersion", "id"
 }))
 @Audited
+@Indexed
 @XmlRootElement(name = "codeRelationship")
 public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     implements CodeRelationship {
@@ -114,12 +120,57 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     }
     from.setId(id);
   }
+  
+  /**
+   * Returns the from terminology.
+   *
+   * @return the from terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getFromTerminology() {
+    return from == null ? null : from.getTerminology();
+  }
+  
+  /**
+   * Sets the from terminology
+   *
+   * @param terminology the from terminology
+   */
+  public void setFromTerminology(String terminology) {
+    if (from == null) {
+      from = new CodeJpa();
+    }
+    from.setTerminology(terminology);
+  }
+  
+  /**
+   * Returns the from version.
+   *
+   * @return the from version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getFromTerminologyVersion() {
+    return from == null ? null : from.getTerminologyVersion();
+  }
+  
+  /**
+   * Sets the from terminology id.
+   *
+   * @param terminologyVersion the from terminology id
+   */
+  public void setFromTerminologyVersion(String terminologyVersion) {
+    if (from == null) {
+      from = new CodeJpa();
+    }
+    from.setTerminologyVersion(terminologyVersion);
+  }
 
   /**
    * Returns the from terminology id.
    *
    * @return the from terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromTerminologyId() {
     return from == null ? null : from.getTerminologyId();
   }
@@ -141,6 +192,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
    *
    * @return the from term
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromName() {
     return from == null ? null : from.getName();
   }
@@ -206,6 +258,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
    *
    * @return the to terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToTerminologyId() {
     return to == null ? null : to.getTerminologyId();
   }
@@ -223,10 +276,55 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
   }
 
   /**
+   * Returns the to terminology.
+   *
+   * @return the to terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getToTerminology() {
+    return to == null ? null : to.getTerminology();
+  }
+
+  /**
+   * Sets the to terminology.
+   *
+   * @param terminology the to terminology
+   */
+  public void setToTerminology(String terminology) {
+    if (to == null) {
+      to = new CodeJpa();
+    }
+    to.setTerminology(terminology);
+  }
+
+  /**
+   * Returns the to terminology version.
+   *
+   * @return the to terminology version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getToTerminologyVersion() {
+    return to == null ? null : to.getTerminologyVersion();
+  }
+
+  /**
+   * Sets the to terminology version.
+   *
+   * @param terminologyVersion the to terminology version
+   */
+  public void setToTerminologyVersion(String terminologyVersion) {
+    if (to == null) {
+      to = new CodeJpa();
+    }
+    to.setTerminologyVersion(terminologyVersion);
+  }
+  
+  /**
    * Returns the to term. For JAXB.
    *
    * @return the to term
    */
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getToName() {
     return to == null ? null : to.getName();
   }
@@ -243,6 +341,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     to.setName(term);
   }
 
+
   /*
    * (non-Javadoc)
    * 
@@ -250,6 +349,10 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
    * getAlternateTerminologyIds()
    */
   @Override
+  /*
+   * TODO: Need a bridge for maps @Field(index = Index.YES, analyze =
+   * Analyze.YES, store = Store.NO)
+   */
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
