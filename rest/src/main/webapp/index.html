@@ -347,7 +347,10 @@
 											  see each type below for additional rules
 										 --> {{item.name}} <!--  Terminology and term type --> [ <!--  Do not show terminology if same as component terminology -->
 										<span ng-show="item.terminology != component.terminology">{{item.terminology}}
-											/</span> {{item.termType}} ] <!--  For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
+											/</span> 
+										<span class="label label-info"
+										tooltip="{{getTermTypeName(item.termType)}}">{{item.termType}}</span>
+										] <!--  For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
 										<span
 										ng-show="item.codeId != component.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
 										tooltip="{{item.terminology}} code"> <a
@@ -428,7 +431,10 @@
 										ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
 										<span class="label label-default"
 										ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
-										{{item.name}} = {{item.value}}
+										<span
+										class="label label-info"
+										tooltip="{{getAttributeNameName(item.name)}}">{{item.name}}</span>
+										= {{item.value}}
 								</ul>
 							</div>
 
@@ -467,9 +473,11 @@
 
 						<div class="row">
 							<div class="col-md-12 col-xs-12">
-								<h3>Metadata for {{terminology.terminology}}
-									{{terminology.terminologyVersion}}</h3>
+								<h3>Metadata for {{terminology.terminology}}</h3>
 								<ul>
+                                    <li>Preferred Name: {{terminology.preferredName}}</li>
+                                    <li>Version: {{terminology.terminologyVersion}}</li>
+                                    <li>Organizing Class Type:  {{terminology.organizingClassType}}</li>
 									<li ng-repeat="item in metadata"
 										ng-show="item.keyValuePair.length > 0"><b>{{item.name}}</b>
 										<ul>

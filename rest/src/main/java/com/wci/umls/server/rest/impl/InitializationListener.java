@@ -4,7 +4,6 @@
 package com.wci.umls.server.rest.impl;
 
 import java.util.Calendar;
-import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -14,10 +13,6 @@ import org.apache.log4j.Logger;
 
 import com.sun.jersey.api.model.AbstractResourceModelContext;
 import com.sun.jersey.api.model.AbstractResourceModelListener;
-import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.services.SecurityServiceJpa;
-import com.wci.umls.server.services.SecurityService;
-import com.wci.umls.server.services.handlers.ExceptionHandler;
 
 /**
  * The listener interface for receiving initialization events. The class that is
@@ -52,21 +47,21 @@ public class InitializationListener implements AbstractResourceModelListener {
     timer.scheduleAtFixedRate(task, today.getTime(), 24 * 60 * 60 * 1000);
 
     // Cache the "guest" user.
-    SecurityService service;
-    try {
-      service = new SecurityServiceJpa();
-      Properties config = ConfigUtility.getConfigProperties();
-      if (config.getProperty("security.handler").equals("DEFAULT")) {
-        service.authenticate("guest", "guest");
-      }
-    } catch (Exception e) {
-      try {
-        ExceptionHandler.handleException(e, "Cacheing guest user info");
-      } catch (Exception e1) {
-        // do nothing
-        e1.printStackTrace();
-      }
-    }
+    // SecurityService service;
+    // try {
+    // service = new SecurityServiceJpa();
+    // Properties config = ConfigUtility.getConfigProperties();
+    // if (config.getProperty("security.handler").equals("DEFAULT")) {
+    // service.authenticate("guest", "guest");
+    // }
+    // } catch (Exception e) {
+    // try {
+    // ExceptionHandler.handleException(e, "Cacheing guest user info");
+    // } catch (Exception e1) {
+    // // do nothing
+    // e1.printStackTrace();
+    // }
+    // }
   }
 
   /**
@@ -82,14 +77,12 @@ public class InitializationListener implements AbstractResourceModelListener {
     @Override
     public void run() {
       try {
-        timer.cancel(); // Terminate the timer thread
 
         // For now, the timer is not doing anything
 
       } catch (Exception e) {
         e.printStackTrace();
-        Logger.getLogger(getClass()).error(
-            "Error running the process to compute list of finished records.");
+        Logger.getLogger(getClass()).error("Error running the process to xxx.");
       }
     }
   }
