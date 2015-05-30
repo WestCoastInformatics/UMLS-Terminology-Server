@@ -52,7 +52,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     // set terminology and version
     testTerminology = "SNOMEDCT";
     testVersion = "latest";
-    testId = "121000119106";
+    testId = "102466009";
 
     // get test concept
     concept =

@@ -20,13 +20,12 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
   /** The auth token. */
   private static String authToken;
 
-  /** The test test id. */
-  private String testId;
-
   /** The test terminology. */
+  @SuppressWarnings("unused")
   private String testTerminology;
 
   /** The test version. */
+  @SuppressWarnings("unused")
   private String testVersion;
 
   /** The concept used in testing. */
@@ -48,13 +47,7 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     // set terminology and version
     testTerminology = "SNOMEDCT";
     testVersion = "latest";
-    testId = "121000119106";
-
-    // get test concept
-    concept =
-        contentService.getConcept(testId, testTerminology, testVersion,
-            authToken);
-
+   
   }
 
   /**
