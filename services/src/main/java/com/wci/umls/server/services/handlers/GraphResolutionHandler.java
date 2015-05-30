@@ -6,7 +6,9 @@ package com.wci.umls.server.services.handlers;
 import java.util.Set;
 
 import com.wci.umls.server.helpers.Configurable;
+import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
@@ -18,6 +20,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
+import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 
@@ -117,6 +120,23 @@ public interface GraphResolutionHandler extends Configurable {
   public void resolve(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
     throws Exception;
+
+  /**
+   * Resolve tree positions.
+   *
+   * @param treepos the treepos
+   * @throws Exception the exception
+   */
+  public void resolve(TreePosition<? extends AtomClass> treepos)
+    throws Exception;
+
+  /**
+   * Resolve.
+   *
+   * @param tree the tree
+   * @throws Exception the exception
+   */
+  public void resolve(Tree tree) throws Exception;
 
   /**
    * Resolve.

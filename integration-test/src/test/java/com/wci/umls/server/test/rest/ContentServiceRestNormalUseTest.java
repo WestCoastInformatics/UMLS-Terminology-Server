@@ -25,6 +25,8 @@ import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.helpers.content.Tree;
+import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -32,12 +34,14 @@ import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchCriteriaJpa;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
+import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.test.helpers.PfsParameterForComponentTest;
 
 /**
@@ -1557,6 +1561,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   @Test
   public void testNormalUseRestContent013() throws Exception {
     // n/a - no code ancestors or descendants
+    // TODO: consider sample data from SAMPLE_2014AB
   }
 
   /**
@@ -1860,6 +1865,174 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   }
 
   /**
+   * Test find trees for concepts.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestContent023() throws Exception {
+    Logger.getLogger(getClass()).info("Start test");
+
+    // tree lookup, empty pfs
+    Logger.getLogger(getClass()).info("  Tree lookup, empty pfs");
+    TreeList list =
+        contentService.findTreesForConcept("259662009", snomedTerminology,
+            snomedVersion, new PfsParameterJpa(), authToken);
+    Logger.getLogger(getClass()).info(
+        "    totalCount = " + list.getTotalCount());
+    assertEquals(5, list.getTotalCount());
+    for (Tree tree : list.getObjects()) {
+      Logger.getLogger(getClass()).info("    Result: " + tree);
+    }
+    assertEquals(5, list.getCount());
+
+    TreeList fullList = list;
+    PfsParameterJpa pfs = new PfsParameterJpa();
+
+    // tree lookup, first page
+    Logger.getLogger(getClass()).info("  Tree lookup, first page");
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(2);
+    list =
+        contentService.findTreesForConcept("259662009", snomedTerminology,
+            snomedVersion, pfs, authToken);
+    Logger.getLogger(getClass()).info(
+        "    totalCount = " + list.getTotalCount());
+    assertEquals(5, list.getTotalCount());
+    for (Tree tree : list.getObjects()) {
+      Logger.getLogger(getClass()).info("    Result: " + tree);
+    }
+    assertEquals(2, list.getCount());
+    assertTrue(PfsParameterForComponentTest.testPaging(list, fullList, pfs));
+
+    // tree lookup, second page
+    Logger.getLogger(getClass()).info("  Tree lookup, second page");
+    pfs.setStartIndex(2);
+    pfs.setMaxResults(2);
+    list =
+        contentService.findTreesForConcept("259662009", snomedTerminology,
+            snomedVersion, pfs, authToken);
+    Logger.getLogger(getClass()).info(
+        "    totalCount = " + list.getTotalCount());
+    assertEquals(5, list.getTotalCount());
+    for (Tree tree : list.getObjects()) {
+      Logger.getLogger(getClass()).info("    Result: " + tree);
+    }
+    assertEquals(2, list.getCount());
+    assertTrue(PfsParameterForComponentTest.testPaging(list, fullList, pfs));
+
+    // tree lookup, first page and sort order
+    Logger.getLogger(getClass()).info("  Tree lookup, first page");
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(2);
+    pfs.setSortField("nodeTerminologyId");
+    list =
+        contentService.findTreesForConcept("259662009", snomedTerminology,
+            snomedVersion, pfs, authToken);
+    Logger.getLogger(getClass()).info(
+        "    totalCount = " + list.getTotalCount());
+    assertEquals(5, list.getTotalCount());
+    for (Tree tree : list.getObjects()) {
+      Logger.getLogger(getClass()).info("    Result: " + tree);
+    }
+    assertEquals(2, list.getCount());
+    assertTrue(PfsParameterForComponentTest.testPaging(list, fullList, pfs));
+    // hard to verify sort order because it's based on the lowest-level node
+    // information
+
+  }
+
+  /**
+   * Test find trees for descriptors.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestContent024() throws Exception {
+    Logger.getLogger(getClass()).info("Start test");
+
+    // tree lookup, empty pfs
+    Logger.getLogger(getClass()).info("  Tree lookup, empty pfs");
+    TreeList list =
+        contentService.findTreesForDescriptor("D018410", mshTerminology,
+            mshVersion, new PfsParameterJpa(), authToken);
+    Logger.getLogger(getClass()).info(
+        "    totalCount = " + list.getTotalCount());
+    assertEquals(3, list.getTotalCount());
+    for (Tree tree : list.getObjects()) {
+      Logger.getLogger(getClass()).info("    Result: " + tree);
+    }
+    assertEquals(3, list.getCount());
+
+    TreeList fullList = list;
+    PfsParameterJpa pfs = new PfsParameterJpa();
+
+    // tree lookup, first page
+    Logger.getLogger(getClass()).info("  Tree lookup, first page");
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(1);
+    list =
+        contentService.findTreesForDescriptor("D018410", mshTerminology,
+            mshVersion, pfs, authToken);
+    Logger.getLogger(getClass()).info(
+        "    totalCount = " + list.getTotalCount());
+    assertEquals(3, list.getTotalCount());
+    for (Tree tree : list.getObjects()) {
+      Logger.getLogger(getClass()).info("    Result: " + tree);
+    }
+    assertEquals(1, list.getCount());
+    assertTrue(PfsParameterForComponentTest.testPaging(list, fullList, pfs));
+
+    // tree lookup, second page
+    Logger.getLogger(getClass()).info("  Tree lookup, second page");
+    pfs.setStartIndex(1);
+    pfs.setMaxResults(1);
+    list =
+        contentService.findTreesForDescriptor("D018410", mshTerminology,
+            mshVersion, pfs, authToken);
+    Logger.getLogger(getClass()).info(
+        "    totalCount = " + list.getTotalCount());
+    assertEquals(3, list.getTotalCount());
+    for (Tree tree : list.getObjects()) {
+      Logger.getLogger(getClass()).info("    Result: " + tree);
+    }
+    assertEquals(1, list.getCount());
+    assertTrue(PfsParameterForComponentTest.testPaging(list, fullList, pfs));
+
+    // tree lookup, first page and sort order
+    Logger.getLogger(getClass()).info("  Tree lookup, first page");
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(1);
+    pfs.setSortField("nodeTerminologyId");
+    list =
+        contentService.findTreesForDescriptor("D018410", mshTerminology,
+            mshVersion, pfs, authToken);
+    Logger.getLogger(getClass()).info(
+        "    totalCount = " + list.getTotalCount());
+    assertEquals(3, list.getTotalCount());
+    for (Tree tree : list.getObjects()) {
+      Logger.getLogger(getClass()).info("    Result: " + tree);
+    }
+    assertEquals(1, list.getCount());
+    assertTrue(PfsParameterForComponentTest.testPaging(list, fullList, pfs));
+    // hard to verify sort order because it's based on the lowest-level node
+    // information
+
+  }
+
+  /**
+   * Test find trees for codes.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestContent025() throws Exception {
+    Logger.getLogger(getClass()).info("Start test");
+    // n/a - no sample data
+    // TODO: consider sample data from SAMPLE_2014AB
+  }
+
+  /**
    * Test general query mechanism.
    *
    * @throws Exception the exception
@@ -1867,7 +2040,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   @Test
   public void testNormalUseRestContent026() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
-    
+
     /** Find concepts with hql query */
     Logger.getLogger(getClass()).info(
         "TEST1 - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
@@ -1911,7 +2084,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             new PfsParameterJpa(), authToken);
     assertTrue(sml.getCount() == 10);
     assertTrue(sml.getTotalCount() == 10);
-    
+
     /** Find descriptors with hql query */
     Logger.getLogger(getClass()).info(
         "TEST5 - " + "SELECT c FROM DescriptorJpa c, SNOMEDCT_US, 2014_09_01, "
@@ -1954,15 +2127,15 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         contentService.findDescriptorsForGeneralQuery("name:amino", "",
             new PfsParameterJpa(), authToken);
     assertTrue(sml.getCount() == 4);
-    assertTrue(sml.getTotalCount() == 4);    
-    
+    assertTrue(sml.getTotalCount() == 4);
+
     /** Find codes with hql query */
     Logger.getLogger(getClass()).info(
         "TEST9 - " + "SELECT c FROM CodeJpa c, SNOMEDCT_US, 2014_09_01, "
             + authToken);
     sml =
-        contentService.findCodesForGeneralQuery("",
-            "SELECT c FROM CodeJpa c", new PfsParameterJpa(), authToken);
+        contentService.findCodesForGeneralQuery("", "SELECT c FROM CodeJpa c",
+            new PfsParameterJpa(), authToken);
     assertTrue(sml.getCount() == 5050);
 
     /** Find codes with hql query and pfs parameter max results 20 */
@@ -1973,18 +2146,16 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         "TEST10 - " + "SELECT c FROM CodeJpa c, SNOMEDCT_US, 2014_09_01, "
             + pfs + authToken);
     sml =
-        contentService.findCodesForGeneralQuery("",
-            "SELECT c FROM CodeJpa c", pfs, authToken);
+        contentService.findCodesForGeneralQuery("", "SELECT c FROM CodeJpa c",
+            pfs, authToken);
     assertTrue(sml.getCount() == 20);
     assertTrue(sml.getTotalCount() == 5050);
 
     /** Find codes in intersection of lucene and hql queries */
-    Logger
-        .getLogger(getClass())
-        .info(
-            "TEST11 - "
-                + "name:amino, SELECT c FROM CodeJpa c, SNOMEDCT_US, 2014_09_01, "
-                + authToken);
+    Logger.getLogger(getClass()).info(
+        "TEST11 - "
+            + "name:amino, SELECT c FROM CodeJpa c, SNOMEDCT_US, 2014_09_01, "
+            + authToken);
     sml =
         contentService.findCodesForGeneralQuery("name:amino",
             "SELECT c FROM CodeJpa c", new PfsParameterJpa(), authToken);
@@ -1998,23 +2169,141 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         contentService.findCodesForGeneralQuery("name:amino", "",
             new PfsParameterJpa(), authToken);
     assertTrue(sml.getCount() == 6);
-    assertTrue(sml.getTotalCount() == 6); 
+    assertTrue(sml.getTotalCount() == 6);
   }
 
   @Test
   public void testNormalUseRestContent020() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
-    
+
     /** Find concepts with hql query */
     Logger.getLogger(getClass()).info(
         "TEST1 - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
             + authToken);
     PfsParameterJpa pfs = new PfsParameterJpa();
     RelationshipList sml =
-        contentService.findRelationshipsForConcept("118613001", snomedTerminology, snomedVersion, "", pfs, authToken);
-    //assertTrue(sml.getCount() == 6942);
+        contentService.findRelationshipsForConcept("118613001",
+            snomedTerminology, snomedVersion, "", pfs, authToken);
+    // assertTrue(sml.getCount() == 6942);
   }
-  
+
+  /**
+   * Test find concept trees for query.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestContent027() throws Exception {
+    Logger.getLogger(getClass()).info("Start test");
+
+    // tree lookup, empty pfs
+    Logger.getLogger(getClass()).info("  Simple query, empty pfs");
+    Tree tree =
+        contentService.findConceptTreeForQuery(snomedTerminology,
+            snomedVersion, "vitamin", new PfsParameterJpa(), authToken);
+    Logger.getLogger(getClass()).info(
+        "    total leaf count = " + tree.getLeafNodes().size());
+    assertEquals(5, tree.getLeafNodes().size());
+    Logger.getLogger(getClass()).info("    Result: " + tree);
+    // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
+    for (TreePosition<? extends AtomClass> leaf : tree.getLeafNodes()) {
+      assertTrue(leaf.getNode().getName().toLowerCase().contains("vitamin"));
+    }
+
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    // tree lookup, limit to 3
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(3);
+    Logger.getLogger(getClass()).info("  Simple query, limit to 3");
+    tree =
+        contentService.findConceptTreeForQuery(snomedTerminology,
+            snomedVersion, "vitamin", pfs, authToken);
+    Logger.getLogger(getClass()).info(
+        "    total leaf count = " + tree.getLeafNodes().size());
+    assertEquals(3, tree.getLeafNodes().size());
+    Logger.getLogger(getClass()).info("    Result: " + tree);
+    // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
+    for (TreePosition<? extends AtomClass> leaf : tree.getLeafNodes()) {
+      assertTrue(leaf.getNode().getName().toLowerCase().contains("vitamin"));
+    }
+
+    // wider lookup, limit to 10
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(10);
+    Logger.getLogger(getClass()).info("  Simple query, limit to 3");
+    tree =
+        contentService.findConceptTreeForQuery(snomedTerminology,
+            snomedVersion, "a*", pfs, authToken);
+    Logger.getLogger(getClass()).info(
+        "    total leaf count = " + tree.getLeafNodes().size());
+    assertEquals(8, tree.getLeafNodes().size());
+    Logger.getLogger(getClass()).info("    Result: " + tree);
+    // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
+    for (TreePosition<? extends AtomClass> leaf : tree.getLeafNodes()) {
+      assertTrue(leaf.getNode().getName().toLowerCase().contains("a"));
+    }
+
+    // TODO: consider other cases of this
+
+  }
+
+  /**
+   * Test find descriptor trees for query.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestContent028() throws Exception {
+    Logger.getLogger(getClass()).info("Start test");
+
+    // tree lookup, empty pfs
+    Logger.getLogger(getClass()).info("  Simple query, empty pfs");
+    Tree tree =
+        contentService.findDescriptorTreeForQuery(mshTerminology, mshVersion,
+            "pneumonia", new PfsParameterJpa(), authToken);
+    Logger.getLogger(getClass()).info(
+        "    total leaf count = " + tree.getLeafNodes().size());
+    assertEquals(4, tree.getLeafNodes().size());
+    Logger.getLogger(getClass()).info("    Result: " + tree);
+    // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
+    for (TreePosition<? extends AtomClass> leaf : tree.getLeafNodes()) {
+      assertTrue(leaf.getNode().getName().toLowerCase().contains("pneumonia"));
+    }
+
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    // tree lookup, limit to 3
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(3);
+    Logger.getLogger(getClass()).info("  Simple query, limit to 3");
+    tree =
+        contentService.findDescriptorTreeForQuery(mshTerminology, mshVersion,
+            "pneumonia", pfs, authToken);
+    Logger.getLogger(getClass()).info(
+        "    total leaf count = " + tree.getLeafNodes().size());
+    assertEquals(1, tree.getLeafNodes().size());
+    Logger.getLogger(getClass()).info("    Result: " + tree);
+    // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
+    for (TreePosition<? extends AtomClass> leaf : tree.getLeafNodes()) {
+      assertTrue(leaf.getNode().getName().toLowerCase().contains("pneumonia"));
+    }
+
+    // TODO: consider other cases of this, may need bigger data set
+
+  }
+
+  /**
+   * Test find code trees for query.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestContent029() throws Exception {
+    Logger.getLogger(getClass()).info("Start test");
+
+    // n/a - no sample data
+    // TODO: consider sample data from SAMPLE_2014AB
+  }
+
   /**
    * Teardown.
    *

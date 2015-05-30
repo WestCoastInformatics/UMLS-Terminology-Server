@@ -14,13 +14,14 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
+import org.apache.log4j.Logger;
+
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.jpa.content.AbstractTreePosition;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.model.content.AtomClass;
-import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
@@ -34,7 +35,7 @@ import com.wci.umls.server.model.content.TreePosition;
 public class TreeJpa implements Tree {
 
   /** The self. */
-  private TreePosition<? extends ComponentHasAttributesAndName> self;
+  private TreePosition<? extends AtomClass> self;
 
   /** The children. */
   private List<Tree> children = null;
@@ -146,7 +147,7 @@ public class TreeJpa implements Tree {
    */
   @Override
   @XmlElement(type = AbstractTreePosition.class)
-  public TreePosition<? extends ComponentHasAttributesAndName> getSelf() {
+  public TreePosition<? extends AtomClass> getSelf() {
     return self;
   }
 
@@ -158,7 +159,7 @@ public class TreeJpa implements Tree {
    * .content.TreePosition)
    */
   @Override
-  public void setSelf(TreePosition<? extends ComponentHasAttributesAndName> self) {
+  public void setSelf(TreePosition<? extends AtomClass> self) {
     this.self = self;
 
   }
@@ -185,6 +186,45 @@ public class TreeJpa implements Tree {
   @Override
   public void setChildren(List<Tree> children) {
     this.children = children;
+  }
+
+  @Override
+  public List<TreePosition<? extends AtomClass>> getLeafNodes() {
+    Set<TreePosition<? extends AtomClass>> leafNodes = new HashSet<>();
+    leafNodeHelper(this, leafNodes,
+        new HashSet<TreePosition<? extends AtomClass>>());
+    return new ArrayList<>(leafNodes);
+
+  }
+
+  /**
+   * Leaf node helper.
+   *
+   * @param tree the tree
+   * @param leafNodes the leaf nodes
+   * @param seen the seen
+   */
+  private void leafNodeHelper(Tree tree,
+    Set<TreePosition<? extends AtomClass>> leafNodes,
+    Set<TreePosition<? extends AtomClass>> seen) {
+    if (seen.contains(tree.getSelf())) {
+      // not sure what to do here, depends on the context.
+      // this is a utilty method and so probably not the right
+      // place to stop execution for this data condition
+      Logger.getLogger(getClass()).error(
+          "Cycle detected " + tree.getSelf().getId());
+    } else {
+      seen.add(tree.getSelf());
+    }
+
+    if (tree.getChildren() == null || tree.getChildren().size() == 0) {
+      leafNodes.add(tree.getSelf());
+      return;
+    } else {
+      for (Tree chdTree : tree.getChildren()) {
+        leafNodeHelper(chdTree, leafNodes, seen);
+      }
+    }
   }
 
   /*

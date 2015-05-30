@@ -271,10 +271,11 @@ public interface ContentService extends MetadataService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param query the query
    * @param inverseFlag the inverse flag
    * @param pfs the pfsc
    * @return the relationships for atom
-   * @throws Exception
+   * @throws Exception the exception
    */
   public RelationshipList findRelationshipsForAtom(String conceptId,
     String terminology, String version, String branch, String query,
@@ -593,12 +594,26 @@ public interface ContentService extends MetadataService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
-   * @param query the query
    * @param pfs the pfs parameter
    * @return the tree position list
    * @throws Exception the exception
    */
   public TreePositionList findTreePositionsForConcept(String terminologyId,
+    String terminology, String version, String branch,
+    PfsParameter pfs) throws Exception;
+
+  /**
+   * Find concept tree positions for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findConceptTreePositionsForQuery(
     String terminology, String version, String branch, String query,
     PfsParameter pfs) throws Exception;
 
@@ -621,12 +636,26 @@ public interface ContentService extends MetadataService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
-   * @param query the query
    * @param pfs the pfs parameter
    * @return the tree position list
    * @throws Exception the exception
    */
   public TreePositionList findTreePositionsForDescriptor(String descriptorId,
+    String terminology, String version, String branch,
+    PfsParameter pfs) throws Exception;
+
+  /**
+   * Find descriptor tree positions for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findDescriptorTreePositionsForQuery(
     String terminology, String version, String branch, String query,
     PfsParameter pfs) throws Exception;
 
@@ -637,12 +666,26 @@ public interface ContentService extends MetadataService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
-   * @param query the query
    * @param pfs the pfs parameter
    * @return the tree position list
    * @throws Exception the exception
    */
   public TreePositionList findTreePositionsForCode(String codeId,
+    String terminology, String version, String branch,
+    PfsParameter pfs) throws Exception;
+
+  /**
+   * Find code tree positions for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findCodeTreePositionsForQuery(
     String terminology, String version, String branch, String query,
     PfsParameter pfs) throws Exception;
 
@@ -960,7 +1003,7 @@ public interface ContentService extends MetadataService {
    * @param version the version
    * @param branch the branch
    * @param query the search string
-   * @param pfs the paging, filtering, sorting parameter
+   * @param pfsc the pfsc
    * @return the search results for the search string
    * @throws Exception if anything goes wrong
    */

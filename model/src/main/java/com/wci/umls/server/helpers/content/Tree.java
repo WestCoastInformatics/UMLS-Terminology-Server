@@ -5,7 +5,7 @@ package com.wci.umls.server.helpers.content;
 
 import java.util.List;
 
-import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
@@ -25,14 +25,14 @@ public interface Tree {
    *
    * @return the self
    */
-  public TreePosition<? extends ComponentHasAttributesAndName> getSelf();
+  public TreePosition<? extends AtomClass> getSelf();
 
   /**
    * Sets the self.
    *
    * @param self the self
    */
-  public void setSelf(TreePosition<? extends ComponentHasAttributesAndName> self);
+  public void setSelf(TreePosition<? extends AtomClass> self);
 
   /**
    * Returns the children.
@@ -48,4 +48,10 @@ public interface Tree {
    */
   public void setChildren(List<Tree> children);
 
+  /**
+   * Returns the leaf nodes.
+   *
+   * @return the leaf nodes
+   */
+  public List<TreePosition<? extends AtomClass>> getLeafNodes();
 }

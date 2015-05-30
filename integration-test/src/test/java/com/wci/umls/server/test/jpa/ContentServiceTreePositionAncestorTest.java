@@ -58,7 +58,7 @@ public class ContentServiceTreePositionAncestorTest {
     // Start by obtaining tree positions for a concept
     TreePositionList list =
         service.findTreePositionsForConcept("10944007", "SNOMEDCT_US",
-            "2014_09_01", Branch.ROOT, "", new PfsParameterJpa());
+            "2014_09_01", Branch.ROOT, new PfsParameterJpa());
 
     TreePosition<? extends AtomClass> treepos = list.getObjects().get(0);
     Logger.getLogger(getClass()).info(

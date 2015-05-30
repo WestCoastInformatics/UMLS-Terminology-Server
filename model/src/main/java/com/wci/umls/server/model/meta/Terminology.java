@@ -5,7 +5,6 @@ package com.wci.umls.server.model.meta;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.model.content.AtomClass;

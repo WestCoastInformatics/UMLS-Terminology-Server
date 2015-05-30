@@ -52,10 +52,12 @@ import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
@@ -1722,10 +1724,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
             + terminologyId + "/relationships/query/" + query);
-    if (query == null
-        || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      query = "";
+    String queryStr = query;
+    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
+      queryStr = "";
     }
+
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
@@ -1733,15 +1736,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       RelationshipList list =
           contentService.findRelationshipsForConcept(terminologyId,
-              terminology, version, Branch.ROOT, query, false, pfs);
+              terminology, version, Branch.ROOT, queryStr, false, pfs);
 
-      /*
-       * TODO: Closing FullTextEntityManager causes new connection, losing
-       * persistent data This has been moved into the JPA layer, but not ideal
-       * for (Relationship<? extends ComponentHasAttributes, ? extends
-       * ComponentHasAttributes> rel : list .getObjects()) {
-       * contentService.getGraphResolutionHandler(terminology).resolve(rel); }
-       */
+      // Use graph resolver
+      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+          .getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(rel);
+      }
 
       return list;
 
@@ -1812,12 +1813,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       RelationshipList list =
           contentService.findRelationshipsForDescriptor(terminologyId,
               terminology, version, Branch.ROOT, query, false, pfs);
-      /*
-       * GraphResolutionHandler handler =
-       * contentService.getGraphResolutionHandler(terminology); for
-       * (Relationship<? extends ComponentHasAttributes, ? extends
-       * ComponentHasAttributes> r : list.getObjects()) { handler.resolve(r); }
-       */
+
+      // Use graph resolver
+      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+          .getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(rel);
+      }
 
       return list;
 
@@ -1856,12 +1857,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           contentService.findRelationshipsForCode(terminologyId, terminology,
               version, Branch.ROOT, query, false, pfs);
 
-      /*
-       * GraphResolutionHandler handler =
-       * contentService.getGraphResolutionHandler(terminology); for
-       * (Relationship<? extends ComponentHasAttributes, ? extends
-       * ComponentHasAttributes> r : list.getObjects()) { handler.resolve(r); }
-       */
+      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+          .getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(rel);
+      }
       return list;
 
     } catch (Exception e) {
@@ -2066,10 +2065,145 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/trees/query/{query}")
+  @Path("/cui/{terminology}/{version}/{terminologyId}/trees")
   @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given concept id.", response = TreeList.class)
   public TreeList findTreesForConcept(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+            + terminologyId + "/trees");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve trees for the concept ", UserRole.VIEWER);
+
+      TreePositionList list =
+          contentService.findTreePositionsForConcept(terminologyId,
+              terminology, version, Branch.ROOT, pfs);
+
+      final TreeList treeList = new TreeListJpa();
+      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
+          .getObjects()) {
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getNode().getId());
+        contentService.getGraphResolutionHandler(terminology).resolve(tree);
+        treeList.addObject(tree);
+      }
+      treeList.setTotalCount(list.getTotalCount());
+      return treeList;
+
+    } catch (Exception e) {
+      handleException(e, "trying to trees relationships for a concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @Override
+  @POST
+  @Path("/dui/{terminology}/{version}/{terminologyId}/trees/")
+  @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given descriptor id.", response = TreeList.class)
+  public TreeList findTreesForDescriptor(
+    @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Descriptor terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+            + terminologyId + "/trees");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve trees for the descriptor ", UserRole.VIEWER);
+
+      TreePositionList list =
+          contentService.findTreePositionsForDescriptor(terminologyId,
+              terminology, version, Branch.ROOT, pfs);
+
+      final TreeList treeList = new TreeListJpa();
+      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
+          .getObjects()) {
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getNode().getId());
+        contentService.getGraphResolutionHandler(terminology).resolve(tree);
+        treeList.addObject(tree);
+      }
+      treeList.setTotalCount(list.getTotalCount());
+      return treeList;
+
+    } catch (Exception e) {
+      handleException(e, "trying to trees relationships for a descriptor");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @Override
+  @POST
+  @Path("/code/{terminology}/{version}/{terminologyId}/trees")
+  @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given code id.", response = TreeList.class)
+  public TreeList findTreesForCode(
+    @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Code terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /code/" + terminology + "/" + version + "/"
+            + terminologyId + "/trees");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "retrieve trees for the code",
+          UserRole.VIEWER);
+
+      TreePositionList list =
+          contentService.findTreePositionsForCode(terminologyId, terminology,
+              version, Branch.ROOT, pfs);
+      final TreeList treeList = new TreeListJpa();
+      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
+          .getObjects()) {
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getNode().getId());
+        contentService.getGraphResolutionHandler(terminology).resolve(tree);
+        treeList.addObject(tree);
+      }
+      treeList.setTotalCount(list.getTotalCount());
+      return treeList;
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve trees for a code");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @Override
+  @POST
+  @Path("/cui/{terminology}/{version}/trees/query/{query}")
+  @ApiOperation(value = "Find concept trees matching the query", notes = "Finds all merged trees matching the specified parameters.", response = Tree.class)
+  public Tree findConceptTreeForQuery(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query search term, e.g. 'sulphur'", required = true) @PathParam("query") String query,
@@ -2083,31 +2217,44 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       queryStr = "";
     }
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
-            + terminologyId + "/trees/query/" + queryStr);
+        "RESTful call (Content): /cui/" + terminology + "/" + version
+            + "/trees/query/ + query");
     ContentService contentService = new ContentServiceJpa();
     try {
-      authenticate(securityService, authToken,
-          "retrieve trees for the concept ", UserRole.VIEWER);
+      authenticate(securityService, authToken, "find trees for the concept",
+          UserRole.VIEWER);
 
       TreePositionList list =
-          contentService.findTreePositionsForConcept(terminologyId,
-              terminology, version, Branch.ROOT, queryStr, pfs);
-
-      final TreeList treeList = new TreeListJpa();
+          contentService.findConceptTreePositionsForQuery(terminology, version,
+              Branch.ROOT, queryStr, pfs);
+      Tree firstTree = null;
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
         final Tree tree =
             contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
-                treepos.getId());
-        treeList.addObject(tree);
+                treepos.getNode().getId());
+        contentService.getGraphResolutionHandler(terminology).resolve(tree);
+        if (firstTree == null) {
+          firstTree = tree;
+        }
+        // if top-level nodes are different, we do not expect this. so fake it
+        else if (!firstTree.getSelf().getNode().getId()
+            .equals(tree.getSelf().getNode().getId())) {
+          // TODO: need to figure out what to do
+          // Options:
+          // 1. fake it (e.g. create a "fake root" and merge below that)
+          // 2. fix the data so this never happens (hard to do)
+          // 3. ignore anything not matching the firstTree (done here)
+          continue;
+        } else {
+          firstTree.mergeTree(tree);
+        }
       }
-      // NOTE: to merge trees use tree.merge(tree2).
-
-      return treeList;
+      // No need for graph resolution because the node is XmlTransient
+      return firstTree;
 
     } catch (Exception e) {
-      handleException(e, "trying to retrieve relationships for a concept");
+      handleException(e, "trying to find trees for a query");
       return null;
     } finally {
       contentService.close();
@@ -2118,47 +2265,60 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/trees/query/{query}")
-  @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given descriptor id.", response = TreeList.class)
-  public TreeList findTreesForDescriptor(
-    @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+  @Path("/dui/{terminology}/{version}/trees/query/{query}")
+  @ApiOperation(value = "Find descriptor trees matching the query", notes = "Finds all merged trees matching the specified parameters.", response = Tree.class)
+  public Tree findDescriptorTreeForQuery(
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query search term, e.g. 'sulphur'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
+
     // Fix query
     String queryStr = query;
     if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
       queryStr = "";
     }
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
-            + terminologyId + "/trees/query/" + queryStr);
+        "RESTful call (Content): /cui/" + terminology + "/" + version
+            + "/trees/query/ + query");
     ContentService contentService = new ContentServiceJpa();
     try {
-      authenticate(securityService, authToken,
-          "retrieve trees for the descriptor ", UserRole.VIEWER);
+      authenticate(securityService, authToken, "find trees for the descriptor",
+          UserRole.VIEWER);
 
       TreePositionList list =
-          contentService.findTreePositionsForDescriptor(terminologyId,
-              terminology, version, Branch.ROOT, queryStr, pfs);
-
-      final TreeList treeList = new TreeListJpa();
+          contentService.findDescriptorTreePositionsForQuery(terminology,
+              version, Branch.ROOT, queryStr, pfs);
+      Tree firstTree = null;
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
         final Tree tree =
             contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
-                treepos.getId());
-        treeList.addObject(tree);
+                treepos.getNode().getId());
+        contentService.getGraphResolutionHandler(terminology).resolve(tree);
+        if (firstTree == null) {
+          firstTree = tree;
+        }
+        // if top-level nodes are different, we do not expect this. so fake it
+        else if (!firstTree.getSelf().getNode().getId()
+            .equals(tree.getSelf().getNode().getId())) {
+          // TODO: need to figure out what to do
+          // Options:
+          // 1. fake it (e.g. create a "fake root" and merge below that)
+          // 2. fix the data so this never happens (hard to do)
+          // 3. ignore anything not matching the firstTree (done here)
+          continue;
+        } else {
+          firstTree.mergeTree(tree);
+        }
       }
-      // NOTE: to merge trees use tree.merge(tree2).
-
-      return treeList;
+      // No need for graph resolution because the node is XmlTransient
+      return firstTree;
 
     } catch (Exception e) {
-      handleException(e, "trying to retrieve relationships for a descriptor");
+      handleException(e, "trying to find trees for a query");
       return null;
     } finally {
       contentService.close();
@@ -2169,12 +2329,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/code/{terminology}/{version}/{terminologyId}/trees/query/{query}")
-  @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given code id.", response = TreeList.class)
-  public TreeList findTreesForCode(
-    @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+  @Path("/code/{terminology}/{version}/trees/query/{query}")
+  @ApiOperation(value = "Find code trees matching the query", notes = "Finds all merged trees matching the specified parameters.", response = Tree.class)
+  public Tree findCodeTreeForQuery(
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Code terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Codeterminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query search term, e.g. 'sulphur'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -2186,34 +2345,48 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       queryStr = "";
     }
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /code/" + terminology + "/" + version + "/"
-            + terminologyId + "/trees/query/ + query");
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+            + "/trees/query/ + query");
     ContentService contentService = new ContentServiceJpa();
     try {
-      authenticate(securityService, authToken, "retrieve trees for the code",
+      authenticate(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
 
       TreePositionList list =
-          contentService.findTreePositionsForCode(terminologyId, terminology,
+          contentService.findDescriptorTreePositionsForQuery(terminology,
               version, Branch.ROOT, queryStr, pfs);
-      final TreeList treeList = new TreeListJpa();
+      Tree firstTree = null;
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
         final Tree tree =
             contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
-                treepos.getId());
-        treeList.addObject(tree);
+                treepos.getNode().getId());
+        contentService.getGraphResolutionHandler(terminology).resolve(tree);
+
+        if (firstTree == null) {
+          firstTree = tree;
+        }
+        // if top-level nodes are different, we do not expect this. so fake it
+        else if (!firstTree.getSelf().getNode().getId()
+            .equals(tree.getSelf().getNode().getId())) {
+          // TODO: need to figure out what to do
+          // Options:
+          // 1. fake it (e.g. create a "fake root" and merge below that)
+          // 2. fix the data so this never happens (hard to do)
+          // 3. ignore anything not matching the firstTree (done here)
+          continue;
+        } else {
+          firstTree.mergeTree(tree);
+        }
       }
-      // NOTE: to merge trees use tree.merge(tree2).
-      return treeList;
+      return firstTree;
 
     } catch (Exception e) {
-      handleException(e, "trying to retrieve relationships for a code");
+      handleException(e, "trying to find trees for a query");
       return null;
     } finally {
       contentService.close();
       securityService.close();
     }
-
   }
 }

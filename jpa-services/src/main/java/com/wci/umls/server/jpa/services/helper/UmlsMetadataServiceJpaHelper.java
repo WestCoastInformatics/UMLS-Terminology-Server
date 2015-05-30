@@ -354,8 +354,10 @@ public class UmlsMetadataServiceJpaHelper extends
   /**
    * Cache relationship types.
    */
-  @SuppressWarnings("unchecked")
-  private void cacheRelationshipTypes() {
+  @SuppressWarnings({
+      "unchecked", "static-method"
+  })
+  void cacheRelationshipTypes() {
     if (relationshipTypesMap.isEmpty()) {
       EntityManager manager = factory.createEntityManager();
       javax.persistence.Query query =
@@ -428,8 +430,10 @@ public class UmlsMetadataServiceJpaHelper extends
   /**
    * Cache attribute names.
    */
-  @SuppressWarnings("unchecked")
-  private void cacheAttributeNames() {
+  @SuppressWarnings({
+      "unchecked", "static-method"
+  })
+  void cacheAttributeNames() {
     if (attributeNamesMap.isEmpty()) {
       EntityManager manager = factory.createEntityManager();
       javax.persistence.Query query =
@@ -452,8 +456,10 @@ public class UmlsMetadataServiceJpaHelper extends
   /**
    * Cache term types.
    */
-  @SuppressWarnings("unchecked")
-  private void cacheAtoms() {
+  @SuppressWarnings({
+      "unchecked", "static-method"
+  })
+  void cacheAtoms() {
     if (termTypesMap.isEmpty()) {
       EntityManager manager = factory.createEntityManager();
       javax.persistence.Query query =

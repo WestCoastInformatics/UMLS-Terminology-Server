@@ -2802,16 +2802,16 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findForQueryHelper(String terminology,
-    String version, String branch, String query, PfscParameter pfsc,
-    String[] fieldNames, Class<?> clazz) throws Exception {
+  public <T extends AtomClass> SearchResultList findForQueryHelper(
+    String terminology, String version, String branch, String query,
+    PfscParameter pfsc, String[] fieldNames, Class<T> clazz) throws Exception {
     // Prepare results
     SearchResultList results = new SearchResultListJpa();
-    List<AtomClass> classes = null;
+    List<T> classes = null;
     int totalCt[] = new int[1];
 
     // Perform Lucene search (if there is anything to search for)
-    List<AtomClass> queryClasses = new ArrayList<>();
+    List<T> queryClasses = new ArrayList<>();
     boolean queryFlag = false;
     if (isLuceneQueryInfo(query, pfsc)) {
       queryFlag = true;
@@ -2823,7 +2823,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     boolean criteriaFlag = false;
-    List<AtomClass> criteriaClasses = new ArrayList<>();
+    List<T> criteriaClasses = new ArrayList<>();
     if (pfsc != null) {
       boolean init = false;
       for (SearchCriteria criteria : pfsc.getSearchCriteria()) {
@@ -2879,12 +2879,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
           throw new Exception("Referenced sort field is not comparable");
         }
-        Collections.sort(classes, new Comparator<AtomClass>() {
+        Collections.sort(classes, new Comparator<T>() {
           @SuppressWarnings({
               "rawtypes", "unchecked"
           })
           @Override
-          public int compare(AtomClass o1, AtomClass o2) {
+          public int compare(T o1, T o2) {
             try {
               Comparable f1 =
                   (Comparable) getMethod.invoke(o1, new Object[] {});
@@ -2949,16 +2949,16 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private SearchResultList findForGeneralQueryHelper(String luceneQuery,
-    String hqlQuery, String branch, PfsParameter pfs, String[] fieldNames,
-    Class<?> clazz) throws Exception {
+  private <T extends AtomClass> SearchResultList findForGeneralQueryHelper(
+    String luceneQuery, String hqlQuery, String branch, PfsParameter pfs,
+    String[] fieldNames, Class<T> clazz) throws Exception {
     // Prepare results
     SearchResultList results = new SearchResultListJpa();
-    List<AtomClass> classes = null;
+    List<T> classes = null;
     int totalCt[] = new int[1];
 
     // Perform Lucene search
-    List<AtomClass> luceneQueryClasses = new ArrayList<>();
+    List<T> luceneQueryClasses = new ArrayList<>();
     boolean luceneQueryFlag = false;
     if (luceneQuery != null && !luceneQuery.equals("")
         && !luceneQuery.equals("null")) {
@@ -2969,11 +2969,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     boolean hqlQueryFlag = false;
-    List<AtomClass> hqlQueryClasses = new ArrayList<>();
+    List<T> hqlQueryClasses = new ArrayList<>();
     if (hqlQuery != null && !hqlQuery.equals("") && !hqlQuery.equals("null")) {
-      List<AtomClass> hqlResults =
-          manager.createQuery(hqlQuery).getResultList();
-      for (AtomClass r : hqlResults) {
+      List<T> hqlResults = manager.createQuery(hqlQuery).getResultList();
+      for (T r : hqlResults) {
         hqlQueryClasses.add(r);
       }
       hqlQueryFlag = true;
@@ -3088,9 +3087,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @return the query results
    * @throws Exception the exception
    */
-  private List<AtomClass> getLuceneQueryResults(String terminology,
-    String version, String branch, String query, String[] fieldNames,
-    Class<?> clazz, PfsParameter pfs, int[] totalCt) throws Exception {
+  private <T extends Component> List<T> getLuceneQueryResults(
+    String terminology, String version, String branch, String query,
+    String[] fieldNames, Class<T> clazz, PfsParameter pfs, int[] totalCt)
+    throws Exception {
 
     // Prepare the query string
     StringBuilder finalQuery = new StringBuilder();
@@ -3122,7 +3122,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     // execute the query
     @SuppressWarnings("unchecked")
-    List<AtomClass> classes = fullTextQuery.getResultList();
+    List<T> classes = fullTextQuery.getResultList();
     return classes;
   }
 
@@ -3137,8 +3137,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private List<AtomClass> getSearchCriteriaResults(String terminology,
-    String version, SearchCriteria criteria, Class<?> clazz) throws Exception {
+  private <T extends AtomClass> List<T> getSearchCriteriaResults(
+    String terminology, String version, SearchCriteria criteria, Class<T> clazz)
+    throws Exception {
     StringBuilder builder = new StringBuilder();
     builder.append("SELECT a FROM " + clazz.getName() + " a "
         + "WHERE terminology = :terminology "
@@ -3266,7 +3267,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (relType != null) {
       query.setParameter("type", relType);
     }
-    List<AtomClass> classes = query.getResultList();
+    List<T> classes = query.getResultList();
 
     return classes;
 
@@ -4359,8 +4360,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   }
 
   /**
-   * Find relationships helper. TODO: Enable search criteria for relationships
-   * searching
+   * Find relationships helper.
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
@@ -4421,35 +4421,35 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   @Override
   public TreePositionList findTreePositionsForConcept(String terminologyId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
+    String terminology, String version, String branch, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for concept " + terminologyId
             + "/" + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        query, pfs, ConceptTreePositionJpa.class);
+        "", pfs, ConceptTreePositionJpa.class);
   }
 
   @Override
   public TreePositionList findTreePositionsForDescriptor(String terminologyId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
+    String terminology, String version, String branch, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for descriptor " + terminologyId
             + "/" + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        query, pfs, DescriptorTreePositionJpa.class);
+        "", pfs, DescriptorTreePositionJpa.class);
   }
 
   @Override
   public TreePositionList findTreePositionsForCode(String terminologyId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
+    String terminology, String version, String branch, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Service - find relationships for code " + terminologyId + "/"
             + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        query, pfs, CodeTreePositionJpa.class);
+        "", pfs, CodeTreePositionJpa.class);
 
   }
 
@@ -4479,7 +4479,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       finalQuery.append(" AND ");
     }
     finalQuery.append("terminology:" + terminology + " AND terminologyVersion:"
-        + version + " AND nodeTerminologyId:" + terminologyId);
+        + version);
+    if (terminologyId != null) {
+      finalQuery.append(" AND nodeTerminologyId:" + terminologyId);
+    }
     FullTextQuery fullTextQuery =
         applyPfsToLuceneQuery(clazz, treePositionFieldNames,
             finalQuery.toString(), pfs);
@@ -4563,9 +4566,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (manager.find(ConceptJpa.class, id) != null) {
       clazz = ConceptTreePositionJpa.class;
     } else if (manager.find(DescriptorJpa.class, id) != null) {
-      clazz = ConceptTreePositionJpa.class;
+      clazz = DescriptorTreePositionJpa.class;
     } else if (manager.find(CodeJpa.class, id) != null) {
-      clazz = ConceptTreePositionJpa.class;
+      clazz = CodeTreePositionJpa.class;
     } else {
       throw new Exception("Unknown tree position type.");
     }
@@ -4768,5 +4771,38 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       query.setMaxResults(pfs.getMaxResults());
     }
     return query;
+  }
+
+  @Override
+  public TreePositionList findConceptTreePositionsForQuery(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Content Service - find concept tree positions " + terminology + "/"
+            + version + "/" + query);
+    return this.findTreePositionsHelper(null, terminology, version, branch,
+        query, pfs, ConceptTreePositionJpa.class);
+  }
+
+  @Override
+  public TreePositionList findDescriptorTreePositionsForQuery(
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Content Service - find descriptor tree positions " + terminology + "/"
+            + version + "/" + query);
+    return this.findTreePositionsHelper(null, terminology, version, branch,
+        query, pfs, DescriptorTreePositionJpa.class);
+  }
+
+  @Override
+  public TreePositionList findCodeTreePositionsForQuery(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Content Service - find code tree positions " + terminology + "/"
+            + version + "/" + query);
+    return this.findTreePositionsHelper(null, terminology, version, branch,
+        query, pfs, CodeTreePositionJpa.class);
   }
 }
