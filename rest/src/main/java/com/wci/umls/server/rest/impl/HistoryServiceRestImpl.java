@@ -34,7 +34,7 @@ import com.wordnik.swagger.annotations.ApiParam;
  * REST implementation for {@link HistoryServiceRest}.
  */
 @Path("/history")
-@Api(value = "/history", description = "Operations to retrieve historical RF2 content for a terminology.")
+@Api(value = "/history", description = "Operations to retrieve historical RF2 content for a terminology")
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
@@ -66,9 +66,9 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/releases/{terminology}")
-  @ApiOperation(value = "Get release history", notes = "Gets all release info objects.", response = ReleaseInfoList.class)
+  @ApiOperation(value = "Get release history", notes = "Gets all release info objects", response = ReleaseInfoList.class)
   public ReleaseInfoList getReleaseHistory(
-    @ApiParam(value = "Release info terminology , e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
@@ -103,7 +103,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   @Path("/release/{terminology}/current")
   @ApiOperation(value = "Get current release info", notes = "Gets release info for current release", response = ReleaseInfo.class)
   public ReleaseInfo getCurrentReleaseInfo(
-    @ApiParam(value = "Release info terminology , e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
@@ -138,7 +138,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   @Path("/release/{terminology}/previous")
   @ApiOperation(value = "Get previous release info", notes = "Gets release info for previous release", response = ReleaseInfo.class)
   public ReleaseInfo getPreviousReleaseInfo(
-    @ApiParam(value = "Release info terminology , e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
@@ -173,7 +173,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   @Path("/release/{terminology}/planned")
   @ApiOperation(value = "Get planned release info", notes = "Gets release info for planned release", response = ReleaseInfo.class)
   public ReleaseInfo getPlannedReleaseInfo(
-    @ApiParam(value = "Release info terminology , e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
@@ -208,7 +208,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   @Path("/release/{terminology}/{name}")
   @ApiOperation(value = "Get release info", notes = "Gets release info for specified release name and terminology", response = ReleaseInfo.class)
   public ReleaseInfo getReleaseInfo(
-    @ApiParam(value = "Release info terminology , e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Release version info, e.g. 'latest'", required = true) @PathParam("name") String name,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {

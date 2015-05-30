@@ -4383,11 +4383,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     // Prepare the query string
     StringBuilder finalQuery = new StringBuilder();
-
-    // append the query if not null/blank, with trailing AND
-    finalQuery.append(query == null || query.equals("null") || query.isEmpty()
-        ? "" : query + " AND ");
-
+    finalQuery.append(query == null ? "" : query);
+    if (!finalQuery.toString().isEmpty()) {
+      finalQuery.append(" AND ");
+    }
+    
     // add id/terminology/version constraints baesd on inverse flag
     if (inverseFlag == true) {
       finalQuery.append("toTerminologyId:" + terminologyId
@@ -4658,7 +4658,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       if (pfs.getInactiveOnly()) {
         pfsQuery.append(" AND obsolete:true");
       }
-      if (pfs.getQueryRestriction() != null) {
+      if (pfs.getQueryRestriction() != null && !pfs.getQueryRestriction().isEmpty()) {
         pfsQuery.append(" AND " + pfs.getQueryRestriction());
       }
     }
