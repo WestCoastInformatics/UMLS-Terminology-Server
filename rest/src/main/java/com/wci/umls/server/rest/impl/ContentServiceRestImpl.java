@@ -1802,9 +1802,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
+    String queryStr = query;
+    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
+      queryStr = "";
+    }
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships/query/" + query);
+            + terminologyId + "/relationships/query/" + queryStr);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
@@ -1812,7 +1816,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       RelationshipList list =
           contentService.findRelationshipsForDescriptor(terminologyId,
-              terminology, version, Branch.ROOT, query, false, pfs);
+              terminology, version, Branch.ROOT, queryStr, false, pfs);
 
       // Use graph resolver
       for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
@@ -1845,9 +1849,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
+    String queryStr = query;
+    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
+      queryStr = "";
+    }
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships/query" + query);
+            + terminologyId + "/relationships/query" + queryStr);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
@@ -1855,7 +1863,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       RelationshipList list =
           contentService.findRelationshipsForCode(terminologyId, terminology,
-              version, Branch.ROOT, query, false, pfs);
+              version, Branch.ROOT, queryStr, false, pfs);
 
       for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
           .getObjects()) {

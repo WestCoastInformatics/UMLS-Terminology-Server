@@ -342,15 +342,16 @@
 										class="label label-warning"
 										ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
 										<span class="label label-default"
-										ng-show="item.obsolete == true" tooltip="Obsolete">O</span> <!--  Format:  name [terminology/termType] codeId componentId descriptorId conceptTerminologyIds
-											  NOTE: codeId, componentId, descriptorId automatically shown if of differing terminology, 
-											  see each type below for additional rules
-										 --> {{item.name}} <!--  Terminology and term type --> [ <!--  Do not show terminology if same as component terminology -->
-										<span ng-show="item.terminology != component.terminology">{{item.terminology}}
-											/</span> 
-										<span class="label label-info"
-										tooltip="{{getTermTypeName(item.termType)}}">{{item.termType}}</span>
-										] <!--  For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
+										ng-show="item.obsolete == true" tooltip="Obsolete">O</span> 
+                                        <!--  Format:  termType name [ terminology ] codeId componentId descriptorId conceptTerminologyIds
+                                                NOTE: codeId, componentId, descriptorId automatically shown if of differing terminology, 
+                                                see each type below for additional rules -->
+										{{item.name}}
+                                        <!--  Terminology and term type --> [
+										<span ng-show="item.terminology != component.terminology">
+                                              {{item.terminology}} /</span>
+                                        <span tooltip="{{getTermTypeName(item.termType)}}">{{item.termType}}</span> ]                                              
+										<!--  For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
 										<span
 										ng-show="item.codeId != component.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
 										tooltip="{{item.terminology}} code"> <a
@@ -391,7 +392,10 @@
 												<strong>Attributes</strong>
 												<ul>
 													<li ng-repeat="attribute in item.attribute">
-														{{attribute.name}} = {{attribute.value}}</li>
+		  								            <span
+										               class="label label-info"
+										               tooltip="{{getAttributeNameName(item.name)}}">{{attribute.name}}</span>
+                                                      = {{attribute.value}}</li>
 												</ul>
 											</div>
 

@@ -966,7 +966,7 @@ tsApp
         $scope.getPagedRelationships = function(page, query) {
         	
         	if (!page) page = 1;
-        	if (!query) query = "null";
+        	if (!query) query = "~BLANK~";
         	
         	var typePrefix = getUrlPrefix($scope.componentType);
         	var pfs = getPfs(page);
