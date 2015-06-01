@@ -796,12 +796,16 @@ tsApp
         //////////////////////////////////////
         
         var relationshipTypes = [];
+        var attributeNames = [];
+        var termTypes = [];
         
         // on metadata changes
         $scope.$watch('metadata', function() {
         	
         	// reset arrays
         	relationshipTypes = [];
+        	attributeNames = [];
+        	termTypes = [];
         	
         	if ($scope.metadata) {
         		for (var i = 0; i < $scope.metadata.length; i++) {
@@ -810,9 +814,14 @@ tsApp
 	        		if ($scope.metadata[i].name === 'Relationship_Types') {
 	        			relationshipTypes = $scope.metadata[i].keyValuePair;
 	        		}
+	        		if ($scope.metadata[i].name === 'Attribute_Names') {
+	        			attributeNames = $scope.metadata[i].keyValuePair;
+	        		}
+	        		if ($scope.metadata[i].name === 'Term_Types') {
+	        			termTypes = $scope.metadata[i].keyValuePair;
+	        		}
 	        	}
-        	}
-        	
+        	}        	
         });
         
         // get relationship type name from its abbreviation
@@ -824,7 +833,27 @@ tsApp
         	}
         	return null
         }
-        
+
+        // get attribute name name from its abbreviation
+        $scope.getAttributeNameName = function(abbr) {
+        	for (var i = 0; i < attributeNames.length; i++) {
+        		if (attributeNames[i].key === abbr) {
+        			return attributeNames[i].value;
+        		}
+        	}
+        	return null
+        }
+
+        // get term type name from its abbreviation
+        $scope.getTermTypeName = function(abbr) {
+        	for (var i = 0; i < termTypes.length; i++) {
+        		if (termTypes[i].key === abbr) {
+        			return termTypes[i].value;
+        		}
+        	}
+        	return null
+        }
+
         //////////////////////////////////////
         // Navigation History
         //////////////////////////////////////
@@ -951,7 +980,7 @@ tsApp
         $scope.getPagedRelationships = function(page, query) {
         	
         	if (!page) page = 1;
-        	if (!query) query = "null";
+        	if (!query) query = "~BLANK~";
         	
         	var typePrefix = getUrlPrefix($scope.componentType);
         	var pfs = getPfs(page);

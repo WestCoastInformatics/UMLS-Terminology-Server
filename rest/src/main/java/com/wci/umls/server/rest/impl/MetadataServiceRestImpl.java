@@ -37,7 +37,7 @@ import com.wordnik.swagger.annotations.ApiParam;
  * REST implementation for {@link MetadataServiceRest}.
  */
 @Path("/metadata")
-@Api(value = "/metadata", description = "Operations providing terminology metadata.")
+@Api(value = "/metadata", description = "Operations providing terminology metadata")
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
@@ -59,9 +59,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/terminology/id/{terminology}/{version}")
-  @ApiOperation(value = "Get terminology", notes = "Gets the terminology for the specified parameters.", response = TerminologyJpa.class)
+  @ApiOperation(value = "Get terminology", notes = "Gets the terminology for the specified parameters", response = TerminologyJpa.class)
   public Terminology getTerminology(
-    @ApiParam(value = "Terminology name, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -79,7 +79,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       UserRole role = securityService.getApplicationRoleForToken(authToken);
       if (!role.hasPrivilegesOf(UserRole.VIEWER))
         throw new WebApplicationException(Response.status(401)
-            .entity("User does not have permissions to retrieve the metadata.")
+            .entity("User does not have permissions to retrieve the metadata")
             .build());
 
       Terminology termInfo =
@@ -108,9 +108,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/all/terminology/id/{terminology}/{version}")
-  @ApiOperation(value = "Get metadata for terminology and version.", notes = "Gets the key-value pairs representing all metadata for a particular terminology and version.", response = KeyValuePairLists.class)
+  @ApiOperation(value = "Get metadata for terminology and version", notes = "Gets the key-value pairs representing all metadata for a particular terminology and version", response = KeyValuePairLists.class)
   public KeyValuePairLists getAllMetadata(
-    @ApiParam(value = "Terminology name, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -128,7 +128,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       UserRole role = securityService.getApplicationRoleForToken(authToken);
       if (!role.hasPrivilegesOf(UserRole.VIEWER))
         throw new WebApplicationException(Response.status(401)
-            .entity("User does not have permissions to retrieve the metadata.")
+            .entity("User does not have permissions to retrieve the metadata")
             .build());
 
       return getMetadataHelper(terminology, version);
@@ -224,7 +224,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/terminology/terminologies/latest")
-  @ApiOperation(value = "Get all terminologies and their latest versions.", notes = "Gets the list of terminologies and their latest versions.", response = KeyValuePairList.class)
+  @ApiOperation(value = "Get all terminologies and their latest versions", notes = "Gets the list of terminologies and their latest versions", response = KeyValuePairList.class)
   public KeyValuePairList getAllTerminologiesLatestVersions(
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -244,7 +244,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
             Response
                 .status(401)
                 .entity(
-                    "User does not have permissions to retrieve the latest versions of all terminologies.")
+                    "User does not have permissions to retrieve the latest versions of all terminologies")
                 .build());
 
       List<Terminology> list =
@@ -297,7 +297,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
             Response
                 .status(401)
                 .entity(
-                    "User does not have permissions to retrieve the versions of all terminologies.")
+                    "User does not have permissions to retrieve the versions of all terminologies")
                 .build());
 
       KeyValuePairLists keyValuePairLists = new KeyValuePairLists();

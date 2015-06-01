@@ -192,5 +192,5 @@ public interface Terminology extends HasLastModified {
    * @param flag the description logic terminology
    */
   public void setDescriptionLogicTerminology(boolean flag);
-
+  
 }

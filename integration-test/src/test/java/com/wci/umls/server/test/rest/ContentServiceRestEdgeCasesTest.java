@@ -13,29 +13,24 @@ import org.junit.Test;
 import com.wci.umls.server.model.content.Concept;
 
 /**
- * Implementation of the "Content Service REST Degenerate Use" Test Cases.
+ * Implementation of the "Content Service REST Edge Cases" Test Cases.
  */
-public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest {
+public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
 
   /** The auth token. */
   private static String authToken;
 
-  /** The test test id. */
-  private String testId;
-
   /** The test terminology. */
+  @SuppressWarnings("unused")
   private String testTerminology;
 
   /** The test version. */
+  @SuppressWarnings("unused")
   private String testVersion;
 
   /** The concept used in testing. */
   @SuppressWarnings("unused")
   private Concept concept;
-
-  /** The valid parameters used for reflection testing. */
-  @SuppressWarnings("unused")
-  private Object[] validParameters;
 
   /**
    * Create test fixtures per test.
@@ -52,44 +47,16 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     // set terminology and version
     testTerminology = "SNOMEDCT";
     testVersion = "latest";
-    testId = "102466009";
-
-    // get test concept
-    concept =
-        contentService.getConcept(testId, testTerminology, testVersion,
-            authToken);
-
+   
   }
 
   /**
-   * Test Get and Find methods for concepts.
+   * Test edge cases for "get concept"
    *
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUseRestContent001() throws Exception {
-
-    // SAMPLE USAGE
-
-//    // get concepts
-//    validParameters = new Object[] {
-//        testId, testTerminology, testVersion, authToken
-//    };
-//
-//    DegenerateUseMethodTestHelper.testDegenerateArguments(
-//        contentService,
-//        contentService.getClass().getMethod("getConcepts",
-//            getParameterTypes(validParameters)), validParameters,
-//
-//        // String fields will fail on empty strings, return no results on null
-//        // (correct behavior)
-//        new ExpectedFailure[] {
-//            ExpectedFailure.STRING_INVALID_EXCEPTION_NULL_NO_RESULTS,
-//            ExpectedFailure.STRING_INVALID_EXCEPTION_NULL_NO_RESULTS,
-//            ExpectedFailure.STRING_INVALID_EXCEPTION_NULL_NO_RESULTS,
-//            ExpectedFailure.EXCEPTION
-//        });
-
+  public void testEdgeCasesRestContent001() throws Exception {
     
     // TODO: Implement these methods exactly in order according to the spreadsheet
   }

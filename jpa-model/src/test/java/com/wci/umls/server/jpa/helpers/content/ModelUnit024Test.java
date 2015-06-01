@@ -18,20 +18,20 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
-import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.PfscParameter;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.XmlSerializationTester;
-import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchCriteriaJpa;
 
 /**
- * Unit testing for {@link PfsParameterJpa}.
+ * Unit testing for {@link PfscParameterJpa}.
  */
 public class ModelUnit024Test {
 
   /** The model object to test. */
-  private PfsParameterJpa object;
+  private PfscParameterJpa object;
 
   /** test fixture */
   private SearchCriteria sc1;
@@ -59,7 +59,7 @@ public class ModelUnit024Test {
    */
   @Before
   public void setup() throws Exception {
-    object = new PfsParameterJpa();
+    object = new PfscParameterJpa();
     ProxyTester tester = new ProxyTester(new SearchCriteriaJpa());
     sc1 = (SearchCriteria) tester.createObject(1);
     sc2 = (SearchCriteria) tester.createObject(2);
@@ -67,6 +67,7 @@ public class ModelUnit024Test {
     list1.add(sc1);
     list2 = new ArrayList<>();
     list2.add(sc2);
+    object.addSearchCriteria(sc1);
   }
 
   /**
@@ -90,6 +91,8 @@ public class ModelUnit024Test {
   public void testModelEqualsHashcode024() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode024");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
+    tester.include("activeOnly");
+    tester.include("inactiveOnly");
     tester.include("maxResults");
     tester.include("startIndex");
     tester.include("queryRestriction");
@@ -118,7 +121,7 @@ public class ModelUnit024Test {
   public void testModelCopy024() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelCopy024");
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructor(PfsParameter.class));
+    assertTrue(tester.testCopyConstructor(PfscParameter.class));
   }
 
   /**
@@ -130,10 +133,9 @@ public class ModelUnit024Test {
   public void testModelXmlSerialization024() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient024");
     XmlSerializationTester tester = new XmlSerializationTester(object);
-    SearchCriteria c = new SearchCriteriaJpa();
-    List<SearchCriteria> list = new ArrayList<>();
-    list.add(c);
-    object.setSearchCriteria(list);
+    tester.proxy(List.class, 1, list1);
+    tester.proxy(List.class, 2, list2);
+
     assertTrue(tester.testXmlSerialization());
   }
 

@@ -23,14 +23,15 @@ import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
+import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
@@ -38,6 +39,7 @@ import com.wci.umls.server.jpa.helpers.content.DescriptorListJpa;
 import com.wci.umls.server.jpa.helpers.content.RelationshipListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
+import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.Code;
@@ -250,16 +252,16 @@ public class ContentClientRest implements ContentServiceRest {
    * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findConceptsForQuery
    * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   * com.wci.umls.server.jpa.helpers.PfscParameterJpa, java.lang.String)
    */
   @Override
   public SearchResultList findConceptsForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
+    String version, String query, PfscParameterJpa pfsc, String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).debug(
         "Content Client - find concepts " + terminology + ", " + version + ", "
-            + query + ", " + pfs);
+            + query + ", " + pfsc);
 
     Client client = Client.create();
     // TODO: figure out how to remove this
@@ -271,10 +273,11 @@ public class ContentClientRest implements ContentServiceRest {
             + version
             + "/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                    "UTF-8").replaceAll("\\+", "%20")));
     String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
+        ConfigUtility.getStringForGraph(pfsc == null ? new PfscParameterJpa()
+            : pfsc);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -317,12 +320,12 @@ public class ContentClientRest implements ContentServiceRest {
             + "/content/cui"
             + "/luceneQuery/"
             + (luceneQuery == null || luceneQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( luceneQuery , "UTF8" ).replaceAll("\\+", "%20")
-)
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
+                    luceneQuery, "UTF8").replaceAll("\\+", "%20"))
             + "/hqlQuery/"
             + (hqlQuery == null || hqlQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( hqlQuery , "UTF8" ).replaceAll("\\+", "%20")
-));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(hqlQuery,
+                    "UTF8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -422,16 +425,16 @@ public class ContentClientRest implements ContentServiceRest {
    * 
    * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
    * findDescriptorsForQuery(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfscParameterJpa,
    * java.lang.String)
    */
   @Override
   public SearchResultList findDescriptorsForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
+    String version, String query, PfscParameterJpa pfsc, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find descriptors " + terminology + ", " + version
-            + ", " + query + ", " + pfs);
+            + ", " + query + ", " + pfsc);
 
     Client client = Client.create();
     WebResource resource =
@@ -442,10 +445,11 @@ public class ContentClientRest implements ContentServiceRest {
             + version
             + "/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                    "UTF-8").replaceAll("\\+", "%20")));
     String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
+        ConfigUtility.getStringForGraph(pfsc == null ? new PfscParameterJpa()
+            : pfsc);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -479,17 +483,19 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find descriptors " + luceneQuery + ", " + hqlQuery
             + ", " + pfs);
-    
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
-            + "/content/dui/"
+            + "/content/dui"
             + "/luceneQuery/"
             + (luceneQuery == null || luceneQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( luceneQuery , "UTF8" ).replaceAll("\\+", "%20"))
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
+                    luceneQuery, "UTF8").replaceAll("\\+", "%20"))
             + "/hqlQuery/"
             + (hqlQuery == null || hqlQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( hqlQuery , "UTF8" ).replaceAll("\\+", "%20")));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(hqlQuery,
+                    "UTF8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -589,14 +595,14 @@ public class ContentClientRest implements ContentServiceRest {
    * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findCodesForQuery
    * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   * com.wci.umls.server.jpa.helpers.PfscParameterJpa, java.lang.String)
    */
   @Override
   public SearchResultList findCodesForQuery(String terminology, String version,
-    String query, PfsParameterJpa pfs, String authToken) throws Exception {
+    String query, PfscParameterJpa pfsc, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find codes " + terminology + ", " + version + ", "
-            + query + ", " + pfs);
+            + query + ", " + pfsc);
 
     Client client = Client.create();
     WebResource resource =
@@ -607,10 +613,11 @@ public class ContentClientRest implements ContentServiceRest {
             + version
             + "/query/"
             + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                    "UTF-8").replaceAll("\\+", "%20")));
     String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
+        ConfigUtility.getStringForGraph(pfsc == null ? new PfscParameterJpa()
+            : pfsc);
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
@@ -649,13 +656,15 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
-            + "/content/code/"
+            + "/content/code"
             + "/luceneQuery/"
             + (luceneQuery == null || luceneQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( luceneQuery , "UTF8" ).replaceAll("\\+", "%20"))
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
+                    luceneQuery, "UTF8").replaceAll("\\+", "%20"))
             + "/hqlQuery/"
             + (hqlQuery == null || hqlQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode( hqlQuery , "UTF8" ).replaceAll("\\+", "%20")));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(hqlQuery,
+                    "UTF8").replaceAll("\\+", "%20")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -795,16 +804,17 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public ConceptList findAncestorConcepts(String terminologyId,
-    String terminology, String version, boolean childrenOnly,
+    String terminology, String version, boolean parentsOnly,
     PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find ancestor concepts " + terminologyId + ", "
-            + terminology + ", " + version + ", " + childrenOnly + ", " + pfs);
+            + terminology + ", " + version + ", " + parentsOnly + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
-            + terminologyId + "/" + terminology + "/" + version + "/ancestors");
+            + terminology + "/" + version + "/" + terminologyId + "/ancestors/"
+            + parentsOnly);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -848,7 +858,7 @@ public class ContentClientRest implements ContentServiceRest {
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
             + terminology + "/" + version + "/" + terminologyId
-            + "/descendants");
+            + "/descendants/" + childrenOnly);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -882,16 +892,17 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public DescriptorList findAncestorDescriptors(String terminologyId,
-    String terminology, String version, boolean childrenOnly,
+    String terminology, String version, boolean parentsOnly,
     PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find ancestor descriptors " + terminologyId + ", "
-            + terminology + ", " + version + ", " + childrenOnly + ", " + pfs);
+            + terminology + ", " + version + ", " + parentsOnly + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
-            + terminologyId + "/" + terminology + "/" + version + "/ancestors");
+            + terminology + "/" + version + "/" + terminologyId + "/ancestors/"
+            + parentsOnly);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -934,8 +945,8 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
-            + terminologyId + "/" + terminology + "/" + version
-            + "/descendants");
+            + terminology + "/" + version + "/" + terminologyId
+            + "/descendants/" + childrenOnly);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -969,16 +980,18 @@ public class ContentClientRest implements ContentServiceRest {
    */
   @Override
   public CodeList findAncestorCodes(String terminologyId, String terminology,
-    String version, boolean childrenOnly, PfsParameterJpa pfs, String authToken)
+    String version, boolean parentsOnly, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find ancestor codes " + terminologyId + ", "
-            + terminology + ", " + version + ", " + childrenOnly + ", " + pfs);
+            + terminology + ", " + version + ", " + parentsOnly + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
-            + terminologyId + "/" + terminology + "/" + version + "/ancestors");
+            + terminology + "/" + version + "/" + terminologyId + "/ancestors/"
+            + parentsOnly);
+
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1021,8 +1034,8 @@ public class ContentClientRest implements ContentServiceRest {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
-            + terminologyId + "/" + terminology + "/" + version
-            + "/descendants");
+            + terminology + "/" + version + "/" + terminologyId
+            + "/descendants/" + childrenOnly);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1045,6 +1058,7 @@ public class ContentClientRest implements ContentServiceRest {
             CodeListJpa.class);
     return list;
   }
+  
 
   /*
    * (non-Javadoc)
@@ -1075,10 +1089,10 @@ public class ContentClientRest implements ContentServiceRest {
     }
 
     // converting to object
-    SubsetMemberListJpa subsetMemberList =
+    SubsetMemberListJpa list =
         (SubsetMemberListJpa) ConfigUtility.getGraphForString(resultString,
-            ConceptSubsetMemberJpa.class);
-    return subsetMemberList;
+            SubsetMemberListJpa.class);
+    return list;
   }
 
   /*
@@ -1110,10 +1124,10 @@ public class ContentClientRest implements ContentServiceRest {
     }
 
     // converting to object
-    SubsetMemberListJpa subsetMemberList =
+    SubsetMemberListJpa list =
         (SubsetMemberListJpa) ConfigUtility.getGraphForString(resultString,
             SubsetMemberListJpa.class);
-    return subsetMemberList;
+    return list;
   }
 
   /*
@@ -1213,23 +1227,99 @@ public class ContentClientRest implements ContentServiceRest {
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * getRelationshipsForConcept(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getAtomSubsets
+   * (java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public RelationshipList findRelationshipsForConcept(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+  public SubsetList getAtomSubsets(String terminology, String version,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find relationships for concept " + terminologyId
-            + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
+        "Content Client - get atom subsets " + terminology + ", " + version);
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/cui/"
-            + terminology + "/" + version + "/" + terminologyId
-            + "/relationships/query/" + query);
+        client.resource(config.getProperty("base.url")
+            + "/content/aui/subset/all/" + terminology + "/" + version);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get(ClientResponse.class);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    SubsetListJpa list =
+        (SubsetListJpa) ConfigUtility.getGraphForString(resultString,
+            SubsetListJpa.class);
+    return list;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getConceptSubsets
+   * (java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public SubsetList getConceptSubsets(String terminology, String version,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get concept subsets " + terminology + ", " + version);
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url")
+            + "/content/cui/subset/all/" + terminology + "/" + version);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get(ClientResponse.class);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    SubsetListJpa list =
+        (SubsetListJpa) ConfigUtility.getGraphForString(resultString,
+            SubsetListJpa.class);
+    return list;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAtomSubsetMembers
+   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
+  @Override
+  public SubsetMemberList findAtomSubsetMembers(String subsetId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get atom subset members " + terminology + ", "
+            + version);
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url")
+            + "/content/aui/subset/"
+            + subsetId
+            + "/"
+            + terminology
+            + "/"
+            + version
+            + "/members/query/"
+            + (query == null || query.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                    "UTF-8")));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1245,12 +1335,53 @@ public class ContentClientRest implements ContentServiceRest {
     } else {
       throw new Exception(response.toString());
     }
-
     // converting to object
-    RelationshipListJpa relList =
-        (RelationshipListJpa) ConfigUtility.getGraphForString(resultString,
-            RelationshipListJpa.class);
-    return relList;
+    SubsetMemberListJpa list =
+        (SubsetMemberListJpa) ConfigUtility.getGraphForString(resultString,
+            SubsetMemberListJpa.class);
+    return list;
+  }
+
+  @Override
+  public SubsetMemberList findConceptSubsetMembers(String subsetId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get concept subset members " + terminology + ", "
+            + version);
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url")
+            + "/content/cui/subset/"
+            + subsetId
+            + "/"
+            + terminology
+            + "/"
+            + version
+            + "/members/query/"
+            + (query == null || query.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                    "UTF-8").replaceAll("\\+", "%20")));
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    // converting to object
+    SubsetMemberListJpa list =
+        (SubsetMemberListJpa) ConfigUtility.getGraphForString(resultString,
+            SubsetMemberListJpa.class);
+    return list;
   }
 
   @Override
@@ -1282,276 +1413,89 @@ public class ContentClientRest implements ContentServiceRest {
     }
 
     // converting to object
-    RelationshipListJpa relList =
+    RelationshipListJpa list =
         (RelationshipListJpa) ConfigUtility.getGraphForString(resultString,
             RelationshipListJpa.class);
-    return relList;
+    return list;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * getRelationshipsForDescriptor(java.lang.String, java.lang.String,
+   * getRelationshipsForConcept(java.lang.String, java.lang.String,
    * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
    * java.lang.String)
    */
   @Override
+  public RelationshipList findRelationshipsForConcept(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find relationships for concept " + terminologyId
+            + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
+    return findRelationshipsHelper("cui", terminologyId, terminology, version,
+        query, pfs, authToken);
+  }
+
+  @Override
   public RelationshipList findRelationshipsForDescriptor(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find relationships for descriptor " + terminologyId
             + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/dui/"
-            + terminology + "/" + version + "/" + terminologyId
-            + "/relationships/query/" + query);
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .post(ClientResponse.class, pfsString);
-
-    String resultString = response.getEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    RelationshipListJpa relList =
-        (RelationshipListJpa) ConfigUtility.getGraphForString(resultString,
-            RelationshipListJpa.class);
-    return relList;
+    return findRelationshipsHelper("dui", terminologyId, terminology, version,
+        query, pfs, authToken);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * getRelationshipsForCode(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
   @Override
   public RelationshipList findRelationshipsForCode(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find relationships for code " + terminologyId + ", "
             + terminology + ", " + version + ", " + pfs + ", " + query);
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/code/"
-            + terminology + "/" + version + "/" + terminologyId
-            + "/relationships/query/" + query);
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .post(ClientResponse.class, pfsString);
-
-    String resultString = response.getEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    RelationshipListJpa relList =
-        (RelationshipListJpa) ConfigUtility.getGraphForString(resultString,
-            RelationshipListJpa.class);
-    return relList;
+    return findRelationshipsHelper("code", terminologyId, terminology, version,
+        query, pfs, authToken);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getAtomSubsets
-   * (java.lang.String, java.lang.String, java.lang.String)
-   */
-  @Override
-  public SubsetList getAtomSubsets(String terminology, String version,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get atom subsets " + terminology + ", " + version);
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/content/aui/subset/all/" + terminology + "/" + version);
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get(ClientResponse.class);
-
-    String resultString = response.getEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    SubsetListJpa subsetList =
-        (SubsetListJpa) ConfigUtility.getGraphForString(resultString,
-            SubsetListJpa.class);
-    return subsetList;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getConceptSubsets
-   * (java.lang.String, java.lang.String, java.lang.String)
-   */
-  @Override
-  public SubsetList getConceptSubsets(String terminology, String version,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get concept subsets " + terminology + ", " + version);
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/content/cui/subset/all/" + terminology + "/" + version);
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get(ClientResponse.class);
-
-    String resultString = response.getEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    SubsetListJpa subsetList =
-        (SubsetListJpa) ConfigUtility.getGraphForString(resultString,
-            SubsetListJpa.class);
-    return subsetList;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAtomSubsetMembers
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
-  @Override
-  public SubsetMemberList findAtomSubsetMembers(String subsetId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get atom subset members " + terminology + ", "
-            + version);
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/content/aui/subset/"
-            + subsetId
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/members/query/"
-            + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .post(ClientResponse.class, pfsString);
-
-    String resultString = response.getEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-    // converting to object
-    SubsetMemberListJpa subsetList =
-        (SubsetMemberListJpa) ConfigUtility.getGraphForString(resultString,
-            SubsetMemberListJpa.class);
-    return subsetList;
-  }
-
-  @Override
-  public SubsetMemberList findConceptSubsetMembers(String subsetId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get concept subset members " + terminology + ", "
-            + version);
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/content/cui/subset/"
-            + subsetId
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/members/query/"
-            + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .post(ClientResponse.class, pfsString);
-
-    String resultString = response.getEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-    // converting to object
-    SubsetMemberListJpa subsetList =
-        (SubsetMemberListJpa) ConfigUtility.getGraphForString(resultString,
-            SubsetMemberListJpa.class);
-    return subsetList;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findRelationshipsForAtom(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
   @Override
   public RelationshipList findRelationshipsForAtom(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find relationships for atom " + terminologyId + ", "
             + terminology + ", " + version + ", " + query + ", " + pfs);
+    return findRelationshipsHelper("aui", terminologyId, terminology, version,
+        query, pfs, authToken);
+  }
+
+  /**
+   * Find relationships helper.
+   *
+   * @param type the type
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  private RelationshipList findRelationshipsHelper(String type,
+    String terminologyId, String terminology, String version, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception {
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/aui/"
-            + terminology + "/" + version + "/" + terminologyId
-            + "/relationships");
+        client.resource(config.getProperty("base.url") + "/content/" + type
+            + "/" + terminology + "/" + version + "/" + terminologyId
+            + "/relationships/query/" 
+            + (query == null || query.isEmpty()
+            ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                "UTF-8").replaceAll("\\+", "%20")));
+
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1569,124 +1513,72 @@ public class ContentClientRest implements ContentServiceRest {
     }
 
     // converting to object
-    RelationshipListJpa relList =
+    RelationshipListJpa list =
         (RelationshipListJpa) ConfigUtility.getGraphForString(resultString,
             RelationshipListJpa.class);
-    return relList;
+    return list;
   }
 
   @Override
   public TreeList findTreesForConcept(String terminologyId, String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
+    String version, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get tree positions for concept " + terminologyId
             + ", " + terminology + ", " + version + ", " + pfs);
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/content/cui/"
-            + terminology
-            + "/"
-            + version
-            + "/"
-            + terminologyId
-            + "/trees/query/"
-            + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
-
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .post(ClientResponse.class, pfsString);
-
-    String resultString = response.getEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    TreeListJpa relList =
-        (TreeListJpa) ConfigUtility.getGraphForString(resultString,
-            TreeListJpa.class);
-    return relList;
+    return findTreesHelper("cui", terminologyId, terminology, version,
+        pfs, authToken);
   }
 
   @Override
   public TreeList findTreesForDescriptor(String terminologyId,
-    String terminology, String query, String version, PfsParameterJpa pfs,
+    String terminology, String version, PfsParameterJpa pfs,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get tree positions for descriptor " + terminologyId
             + ", " + terminology + ", " + version + ", " + pfs);
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/content/dui/"
-            + terminology
-            + "/"
-            + version
-            + "/"
-            + terminologyId
-            + "/trees/query/"
-            + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .post(ClientResponse.class, pfsString);
-
-    String resultString = response.getEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    TreeListJpa relList =
-        (TreeListJpa) ConfigUtility.getGraphForString(resultString,
-            TreeListJpa.class);
-    return relList;
+    return findTreesHelper("dui", terminologyId, terminology, version,
+        pfs, authToken);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findTreesForCode
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
   @Override
   public TreeList findTreesForCode(String terminologyId, String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
+    String version, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get tree positions for code " + terminologyId + ", "
             + terminology + ", " + version + ", " + pfs);
+    return findTreesHelper("code", terminologyId, terminology, version,
+        pfs, authToken);
+  }
+
+  /**
+   * Find trees helper.
+   *
+   * @param type the type
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception the exception
+   */
+  private TreeList findTreesHelper(String type, String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs,
+    String authToken) throws Exception {
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
-            + "/content/code/"
+            + "/content/"
+            + type
+            + "/"
             + terminology
             + "/"
             + version
             + "/"
             + terminologyId
-            + "/trees/query/"
-            + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : query));
+            + "/trees");
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1704,11 +1596,91 @@ public class ContentClientRest implements ContentServiceRest {
     }
 
     // converting to object
-    TreeListJpa relList =
+    TreeListJpa list =
         (TreeListJpa) ConfigUtility.getGraphForString(resultString,
             TreeListJpa.class);
-    return relList;
+    return list;
 
   }
 
+  @Override
+  public Tree findConceptTreeForQuery(String terminology, String version,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get concept tree for query " + ", " + terminology
+            + ", " + version + ", " + query + ", " + pfs);
+    return findTreeForQueryHelper("cui", terminology, version, query, pfs,
+        authToken);
+  }
+
+  @Override
+  public Tree findDescriptorTreeForQuery(String terminology, String version,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get descriptor tree for query " + ", " + terminology
+            + ", " + version + ", " + query + ", " + pfs);
+    return findTreeForQueryHelper("dui", terminology, version, query, pfs,
+        authToken);
+  }
+
+  @Override
+  public Tree findCodeTreeForQuery(String terminology, String version,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get code tree for query " + ", " + terminology + ", "
+            + version + ", " + query + ", " + pfs);
+    return findTreeForQueryHelper("code", terminology, version, query, pfs,
+        authToken);
+  }
+
+  /**
+   * Find tree for query helper.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree
+   * @throws Exception the exception
+   */
+  private Tree findTreeForQueryHelper(String type, String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception {
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url")
+            + "/content/"
+            + type
+            + "/"
+            + terminology
+            + "/"
+            + version
+            + "/trees/query/"
+            + (query == null || query.isEmpty()
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                    "UTF-8").replaceAll("\\+", "%20")));
+
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    TreeJpa tree =
+        (TreeJpa) ConfigUtility.getGraphForString(resultString, TreeJpa.class);
+    return tree;
+  }
 }

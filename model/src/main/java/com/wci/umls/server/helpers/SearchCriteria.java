@@ -10,33 +10,6 @@ package com.wci.umls.server.helpers;
 public interface SearchCriteria {
 
 
-  /**
-   * Indicates whether to find only active content.
-   *
-   * @return the find active only
-   */
-  public boolean getActiveOnly();
-
-  /**
-   * Sets the find active only flag.
-   *
-   * @param activeOnly the find active only
-   */
-  public void setActiveOnly(boolean activeOnly);
-
-  /**
-   * Indicates whether to find only inactive content.
-   *
-   * @return the find inactive only
-   */
-  public boolean getInactiveOnly();
-
-  /**
-   * Sets the find inactive only flag.
-   *
-   * @param inactiveOnly the find inactive only
-   */
-  public void setInactiveOnly(boolean inactiveOnly);
 
   /**
    * Indicates whether to find descendants of matches.
@@ -147,13 +120,6 @@ public interface SearchCriteria {
    */
   public boolean getRelationshipDescendantsFlag();
   
-  /**
-   * Sets the relationship descendants flag.
-   *
-   * @param descendants the relationship descendants flag
-   */
-  public void setRelationshipDescendantsFlag(boolean descendants);
-
   /**
    * Indicates that the search should return from concepts connected by the
    * specified type id to the specified to id and (optionally) all of

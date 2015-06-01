@@ -44,7 +44,7 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-@Api(value = "/project", description = "Operations to retrieve project info.")
+@Api(value = "/project", description = "Operations to retrieve project info")
 public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     ProjectServiceRest {
 
@@ -70,7 +70,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/add")
-  @ApiOperation(value = "Add new project", notes = "Creates a new project.", response = Project.class)
+  @ApiOperation(value = "Add new project", notes = "Creates a new project", response = Project.class)
   public Project addProject(
     @ApiParam(value = "Project, e.g. newProject", required = true) ProjectJpa project,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -88,7 +88,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
         if (p.getName().equals(project.getName())
             && p.getDescription().equals(project.getDescription())) {
           throw new Exception(
-              "A project with this name and description already exists.");
+              "A project with this name and description already exists");
         }
       }
 
@@ -116,7 +116,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/update")
-  @ApiOperation(value = "Update project", notes = "Updates the specified project.")
+  @ApiOperation(value = "Update project", notes = "Updates the specified project")
   public void updateProject(
     @ApiParam(value = "Project, e.g. existingProject", required = true) ProjectJpa project,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -139,7 +139,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
         }
       }
       if (!found) {
-        throw new Exception("Project " + project.getId() + " does not exist.");
+        throw new Exception("Project " + project.getId() + " does not exist");
       }
 
       // Update project
@@ -165,7 +165,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @DELETE
   @Path("/remove/id/{id}")
-  @ApiOperation(value = "Remove project", notes = "Removes the project with the specified id.")
+  @ApiOperation(value = "Remove project", notes = "Removes the project with the specified id")
   public void removeProject(
     @ApiParam(value = "Project id, e.g. 3", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -200,7 +200,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/scope/id/{id}")
-  @ApiOperation(value = "Find project scope for the project id", notes = "Gets all concpets in scope for this project.", response = ConceptList.class)
+  @ApiOperation(value = "Find project scope for the project id", notes = "Gets all concpets in scope for this project", response = ConceptList.class)
   public ConceptList findConceptsInScope(
     @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
@@ -243,7 +243,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/id/{id}")
-  @ApiOperation(value = "Get project for id", notes = "Gets the project for the specified id.", response = Project.class)
+  @ApiOperation(value = "Get project for id", notes = "Gets the project for the specified id", response = Project.class)
   public Project getProject(
     @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -277,7 +277,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/projects")
-  @ApiOperation(value = "Get all projects", notes = "Gets all projects.", response = ProjectList.class)
+  @ApiOperation(value = "Get all projects", notes = "Gets all projects", response = ProjectList.class)
   public ProjectList getProjects(
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {

@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Set;
 
+import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
@@ -27,6 +29,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
+import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
@@ -170,7 +173,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
 
       // Relationships
-      // TODO:  Atom Relationships are not currently paged
+      // TODO: Atom Relationships are not currently paged
       // Once paging (if paging) is enabled, clear set
       for (AtomRelationship rel : atom.getRelationships()) {
         if (nullId) {
@@ -209,6 +212,43 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       resolveAttributes(relationship, relationship.getId() == null);
     } else if (relationship == null) {
       throw new Exception("Cannot resolve a null relationship.");
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.model.content.TreePosition)
+   */
+  @Override
+  public void resolve(TreePosition<? extends AtomClass> treepos)
+    throws Exception {
+    if (treepos != null) {
+      treepos.getAncestorPath();
+      // Tree positions don't have attributes yet.
+      treepos.setAttributes(new ArrayList<Attribute>());
+    }
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
+   * .wci.umls.server.helpers.content.Tree)
+   */
+  @Override
+  public void resolve(Tree tree) throws Exception {
+    if (tree != null) {
+      resolve(tree.getSelf());
+    }
+    if (tree.getChildren() != null) {
+      for (Tree chdTree : tree.getChildren()) {
+        resolve(chdTree);
+      }
     }
   }
 

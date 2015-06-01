@@ -44,7 +44,7 @@ import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.helpers.content.TreeJpa;
+import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
@@ -66,7 +66,6 @@ import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
-import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -154,8 +153,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Path("/terminology/closure/compute/{terminology}/{version}")
   @ApiOperation(value = "Computes terminology transitive closure", notes = "Computes transitive closure for the latest version of the specified terminology")
   public void computeTransitiveClosure(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
 
   throws Exception {
@@ -209,8 +208,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Path("/terminology/treepos/compute/{terminology}/{version}")
   @ApiOperation(value = "Computes terminology tree positions", notes = "Computes tree positions for the latest version of the specified terminology")
   public void computeTreePositions(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
 
   throws Exception {
@@ -266,7 +265,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Load all terminologies from an RRF directory", notes = "Loads terminologies from an RRF directory for specified terminology and version")
   public void loadTerminologyRrf(
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. 2014AB", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Single mode, e.g. false", required = true) @PathParam("singleMode") boolean singleMode,
     @ApiParam(value = "RRF input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -384,7 +383,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Consumes(MediaType.TEXT_PLAIN)
   @ApiOperation(value = "Loads terminology RF2 delta from directory", notes = "Loads terminology RF2 delta from directory for specified terminology and version")
   public void loadTerminologyRf2Delta(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "RF2 input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -481,8 +480,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   })
   @ApiOperation(value = "Loads terminology RF2 snapshot from directory", notes = "Loads terminology RF2 snapshot from directory for specified terminology and version")
   public void loadTerminologyRf2Snapshot(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. 20140731", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "RF2 input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -573,8 +572,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   })
   @ApiOperation(value = "Loads ClaML terminology from file", notes = "Loads terminology from ClaML file, assigning specified version")
   public void loadTerminologyClaml(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. 20140731", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "ClaML input file", required = true) String inputFile,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -631,10 +630,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @DELETE
   @Path("/terminology/remove/{terminology}/{version}")
-  @ApiOperation(value = "Removes a terminology", notes = "Removes all elements for a specified terminology and version")
+  @ApiOperation(value = "Remove a terminology", notes = "Removes all elements for a specified terminology and version")
   public void removeTerminology(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. 20140731", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -678,10 +677,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/cui/{terminology}/{version}/{terminologyId}")
-  @ApiOperation(value = "Get concept by id, terminology, and version", notes = "Get the root branch concept matching the specified parameters.", response = Concept.class)
+  @ApiOperation(value = "Get concept by id, terminology, and version", notes = "Get the root branch concept matching the specified parameters", response = Concept.class)
   public Concept getConcept(
-    @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
-    @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Concept terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -723,17 +722,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findConceptsForQuery
    * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   * com.wci.umls.server.jpa.helpers.PfscParameterJpa, java.lang.String)
    */
   @Override
   @POST
   @Path("/cui/{terminology}/{version}/query/{query}")
-  @ApiOperation(value = "Find concepts matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
+  @ApiOperation(value = "Find concepts matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultList.class)
   public SearchResultList findConceptsForQuery(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
-    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -745,7 +744,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version
             + "/query/" + queryStr + " with PFS parameter "
-            + (pfs == null ? "empty" : pfs.toString()));
+            + (pfsc == null ? "empty" : pfsc.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find concepts by query",
@@ -753,7 +752,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       SearchResultList sr =
           contentService.findConceptsForQuery(terminology, version,
-              Branch.ROOT, queryStr, pfs);
+              Branch.ROOT, queryStr, pfsc);
       return sr;
 
     } catch (Exception e) {
@@ -768,7 +767,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/cui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
-  @ApiOperation(value = "Find concepts matching a lucene or hql search query.", notes = "Gets a list of search results that match the lucene or hql query for the root branch.", response = SearchResultList.class)
+  @ApiOperation(value = "Find concepts matching a lucene or hql search query", notes = "Gets a list of search results that match the lucene or hql query for the root branch", response = SearchResultList.class)
   public SearchResultList findConceptsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
     @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
@@ -796,8 +795,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findConceptsForGeneralQuery(luceneQueryStr, hqlQueryStr,
-              Branch.ROOT, pfs);
+          contentService.findConceptsForGeneralQuery(luceneQueryStr,
+              hqlQueryStr, Branch.ROOT, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -812,7 +811,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/code/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
-  @ApiOperation(value = "Find codes matching a lucene or hql search query.", notes = "Gets a list of search results that match the lucene or hql query for the root branch.", response = SearchResultList.class)
+  @ApiOperation(value = "Find codes matching a lucene or hql search query", notes = "Gets a list of search results that match the lucene or hql query for the root branch", response = SearchResultList.class)
   public SearchResultList findCodesForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
     @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
@@ -852,7 +851,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-  
+
   /*
    * (non-Javadoc)
    * 
@@ -863,10 +862,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/cui/{terminology}/{version}/autocomplete/{searchTerm}")
-  @ApiOperation(value = "Find autocomplete matches for concept searches.", notes = "Gets a list of search autocomplete matches for the specified search term.", response = StringList.class)
+  @ApiOperation(value = "Find autocomplete matches for concept searches", notes = "Gets a list of search autocomplete matches for the specified search term", response = StringList.class)
   public StringList autocompleteConcepts(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Search term, e.g. 'sul'", required = true) @PathParam("searchTerm") String searchTerm,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -901,7 +900,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/dui/{terminology}/{version}/{terminologyId}")
-  @ApiOperation(value = "Get descriptor by id, terminology, and version", notes = "Get the root branch descriptor matching the specified parameters.", response = Descriptor.class)
+  @ApiOperation(value = "Get descriptor by id, terminology, and version", notes = "Get the root branch descriptor matching the specified parameters", response = Descriptor.class)
   public Descriptor getDescriptor(
     @ApiParam(value = "Descriptor terminology id, e.g. D003933", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
@@ -949,18 +948,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    * 
    * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
    * findDescriptorsForQuery(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfscParameterJpa,
    * java.lang.String)
    */
   @Override
   @POST
   @Path("/dui/{terminology}/{version}/query/{query}")
-  @ApiOperation(value = "Find descriptors matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
+  @ApiOperation(value = "Find descriptors matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultList.class)
   public SearchResultList findDescriptorsForQuery(
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
-    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -972,7 +971,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version
             + "/query/" + queryStr + " with PFS parameter "
-            + (pfs == null ? "empty" : pfs.toString()));
+            + (pfsc == null ? "empty" : pfsc.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find descriptors by query",
@@ -980,7 +979,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       SearchResultList sr =
           contentService.findDescriptorsForQuery(terminology, version,
-              Branch.ROOT, queryStr, pfs);
+              Branch.ROOT, queryStr, pfsc);
       return sr;
 
     } catch (Exception e) {
@@ -995,7 +994,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/dui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}/")
-  @ApiOperation(value = "Find descriptors matching a lucene or hql search query.", notes = "Gets a list of search results that match the lucene or hql query for the root branch.", response = SearchResultList.class)
+  @ApiOperation(value = "Find descriptors matching a lucene or hql search query", notes = "Gets a list of search results that match the lucene or hql query for the root branch", response = SearchResultList.class)
   public SearchResultList findDescriptorsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
     @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
@@ -1023,8 +1022,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findDescriptorsForGeneralQuery(luceneQueryStr, hqlQueryStr,
-              Branch.ROOT, pfs);
+          contentService.findDescriptorsForGeneralQuery(luceneQueryStr,
+              hqlQueryStr, Branch.ROOT, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1035,7 +1034,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-  
+
   /*
    * (non-Javadoc)
    * 
@@ -1046,10 +1045,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/dui/{terminology}/{version}/autocomplete/{searchTerm}")
-  @ApiOperation(value = "Find autocomplete matches for descriptor searches.", notes = "Gets a list of search autocomplete matches for the specified search term.", response = StringList.class)
+  @ApiOperation(value = "Find autocomplete matches for descriptor searches", notes = "Gets a list of search autocomplete matches for the specified search term", response = StringList.class)
   public StringList autocompleteDescriptors(
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Terminology, e.g. MSH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
     @ApiParam(value = "Search term, e.g. 'sul'", required = true) @PathParam("searchTerm") String searchTerm,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1084,7 +1083,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/code/{terminology}/{version}/{terminologyId}")
-  @ApiOperation(value = "Get code by id, terminology, and version", notes = "Get the root branch code matching the specified parameters.", response = Code.class)
+  @ApiOperation(value = "Get code by id, terminology, and version", notes = "Get the root branch code matching the specified parameters", response = Code.class)
   public Code getCode(
     @ApiParam(value = "Code terminology id, e.g. U002135", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
@@ -1130,17 +1129,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    * @see
    * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findCodesForQuery
    * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   * com.wci.umls.server.jpa.helpers.PfscParameterJpa, java.lang.String)
    */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/query/{query}")
-  @ApiOperation(value = "Find codes matching a search query.", notes = "Gets a list of search results that match the lucene query for the root branch.", response = SearchResultList.class)
+  @ApiOperation(value = "Find codes matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultList.class)
   public SearchResultList findCodesForQuery(
     @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code terminology version, e.g. 2014AB", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
-    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1152,7 +1151,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version
             + "/query/" + queryStr + " with PFS parameter "
-            + (pfs == null ? "empty" : pfs.toString()));
+            + (pfsc == null ? "empty" : pfsc.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find codes by query",
@@ -1160,7 +1159,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       SearchResultList sr =
           contentService.findCodesForQuery(terminology, version, Branch.ROOT,
-              queryStr, pfs);
+              queryStr, pfsc);
       return sr;
 
     } catch (Exception e) {
@@ -1182,7 +1181,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/code/{terminology}/{version}/autocomplete/{searchTerm}")
-  @ApiOperation(value = "Find autocomplete matches for code searches.", notes = "Gets a list of search autocomplete matches for the specified search term.", response = StringList.class)
+  @ApiOperation(value = "Find autocomplete matches for code searches", notes = "Gets a list of search autocomplete matches for the specified search term", response = StringList.class)
   public StringList autocompleteCodes(
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -1219,7 +1218,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/lui/{terminology}/{version}/{terminologyId}")
-  @ApiOperation(value = "Get lexical class by id, terminology, and version", notes = "Get the root branch lexical class matching the specified parameters.", response = LexicalClass.class)
+  @ApiOperation(value = "Get lexical class by id, terminology, and version", notes = "Get the root branch lexical class matching the specified parameters", response = LexicalClass.class)
   public LexicalClass getLexicalClass(
     @ApiParam(value = "Lexical class terminology id, e.g. L0356926", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Lexical class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
@@ -1268,9 +1267,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/sui/{terminology}/{version}/{terminologyId}")
-  @ApiOperation(value = "Get string class by id, terminology, and version", notes = "Get the root branch string class matching the specified parameters.", response = StringClass.class)
+  @ApiOperation(value = "Get string class by id, terminology, and version", notes = "Get the root branch string class matching the specified parameters", response = StringClass.class)
   public StringClass getStringClass(
-    @ApiParam(value = "String class terminology id, e.g. L0356926", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "String class terminology id, e.g. S0356926", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "String class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "String class terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -1316,8 +1315,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/ancestors")
-  @ApiOperation(value = "Find ancestor concepts.", notes = "Gets a list of ancestor concepts.", response = ConceptList.class)
+  @Path("/cui/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
+  @ApiOperation(value = "Find ancestor concepts", notes = "Gets a list of ancestor concepts", response = ConceptList.class)
   public ConceptList findAncestorConcepts(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -1338,7 +1337,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       ConceptList list =
           contentService.findAncestorConcepts(terminologyId, terminology,
-          version, parentsOnly, Branch.ROOT, pfs);
+              version, parentsOnly, Branch.ROOT, pfs);
 
       for (Concept concept : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(
@@ -1368,13 +1367,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/descendants")
-  @ApiOperation(value = "Find descendant concepts.", notes = "Gets a list of descendant concepts.", response = ConceptList.class)
+  @Path("/cui/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
+  @ApiOperation(value = "Find descendant concepts", notes = "Gets a list of descendant concepts", response = ConceptList.class)
   public ConceptList findDescendantConcepts(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1390,7 +1389,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       ConceptList list =
           contentService.findDescendantConcepts(terminologyId, terminology,
-          version, parentsOnly, Branch.ROOT, pfs);
+              version, childrenOnly, Branch.ROOT, pfs);
 
       for (Concept concept : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(
@@ -1420,12 +1419,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/ancestors")
-  @ApiOperation(value = "Find ancestor descriptors.", notes = "Gets a list of ancestor descriptors.", response = DescriptorList.class)
+  @Path("/dui/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
+  @ApiOperation(value = "Find ancestor descriptors", notes = "Gets a list of ancestor descriptors", response = DescriptorList.class)
   public DescriptorList findAncestorDescriptors(
-    @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Descriptor terminology id, e.g. D003423", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Terminology, e.g. MSH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
     @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -1440,9 +1439,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find ancestor descriptors",
           UserRole.VIEWER);
 
-      return contentService.findAncestorDescriptors(terminologyId, terminology,
-          version, parentsOnly, Branch.ROOT, pfs);
+      DescriptorList list =
+          contentService.findAncestorDescriptors(terminologyId, terminology,
+              version, parentsOnly, Branch.ROOT, pfs);
 
+      for (Descriptor descriptor : list.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology)
+            .resolve(
+                descriptor,
+                TerminologyUtility.getHierarchicalIsaRels(
+                    descriptor.getTerminology(),
+                    descriptor.getTerminologyVersion()));
+      }
+
+      return list;
     } catch (Exception e) {
       handleException(e, "trying to find the ancestor descriptors");
       return null;
@@ -1462,13 +1472,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/descendants")
-  @ApiOperation(value = "Find descendant descriptors.", notes = "Gets a list of descendant descriptors.", response = DescriptorList.class)
+  @Path("/dui/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
+  @ApiOperation(value = "Find descendant descriptors", notes = "Gets a list of descendant descriptors", response = DescriptorList.class)
   public DescriptorList findDescendantDescriptors(
-    @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
-    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
+    @ApiParam(value = "Descriptor terminology id, e.g. D002342", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Terminology, e.g. MSH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1482,9 +1492,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find descendant descriptors",
           UserRole.VIEWER);
 
-      return contentService.findDescendantDescriptors(terminologyId,
-          terminology, version, parentsOnly, Branch.ROOT, pfs);
+      DescriptorList list =
+          contentService.findDescendantDescriptors(terminologyId, terminology,
+              version, childrenOnly, Branch.ROOT, pfs);
 
+      for (Descriptor descriptor : list.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology)
+            .resolve(
+                descriptor,
+                TerminologyUtility.getHierarchicalIsaRels(
+                    descriptor.getTerminology(),
+                    descriptor.getTerminologyVersion()));
+      }
+
+      return list;
     } catch (Exception e) {
       handleException(e, "trying to find the descendant descriptors");
       return null;
@@ -1504,8 +1525,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/code/{terminology}/{version}/{terminologyId}/ancestors")
-  @ApiOperation(value = "Find ancestor codes.", notes = "Gets a list of ancestor codes.", response = CodeList.class)
+  @Path("/code/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
+  @ApiOperation(value = "Find ancestor codes", notes = "Gets a list of ancestor codes", response = CodeList.class)
   public CodeList findAncestorCodes(
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -1524,9 +1545,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find ancestor codes",
           UserRole.VIEWER);
 
-      return contentService.findAncestorCodes(terminologyId, terminology,
-          version, parentsOnly, Branch.ROOT, pfs);
+      CodeList list =
+          contentService.findAncestorCodes(terminologyId, terminology, version,
+              parentsOnly, Branch.ROOT, pfs);
 
+      for (Code code : list.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(
+            code,
+            TerminologyUtility.getHierarchicalIsaRels(code.getTerminology(),
+                code.getTerminologyVersion()));
+      }
+
+      return list;
     } catch (Exception e) {
       handleException(e, "trying to find the ancestor codes");
       return null;
@@ -1546,13 +1576,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/code/{terminology}/{version}/{terminologyId}/descendants")
-  @ApiOperation(value = "Find descendant codes.", notes = "Gets a list of descendant codes.", response = CodeList.class)
+  @Path("/code/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
+  @ApiOperation(value = "Find descendant codes", notes = "Gets a list of descendant codes", response = CodeList.class)
   public CodeList findDescendantCodes(
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("parentsOnly") boolean parentsOnly,
+    @ApiParam(value = "Children only flag, e.g. true", required = true) @PathParam("childrenOnly") boolean childrenOnly,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1566,9 +1596,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find descendant codes",
           UserRole.VIEWER);
 
-      return contentService.findDescendantCodes(terminologyId, terminology,
-          version, parentsOnly, Branch.ROOT, pfs);
+      CodeList list =
+          contentService.findDescendantCodes(terminologyId, terminology,
+              version, childrenOnly, Branch.ROOT, pfs);
 
+      for (Code code : list.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(
+            code,
+            TerminologyUtility.getHierarchicalIsaRels(code.getTerminology(),
+                code.getTerminologyVersion()));
+      }
+
+      return list;
     } catch (Exception e) {
       handleException(e, "trying to find the descendant codes");
       return null;
@@ -1588,7 +1627,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/cui/{terminology}/{version}/{terminologyId}/members")
-  @ApiOperation(value = "Get subset members with this terminologyId", notes = "Get the subset members with the given concept id.", response = SubsetMemberList.class)
+  @ApiOperation(value = "Get subset members with this terminologyId", notes = "Get the subset members with the given concept id", response = SubsetMemberList.class)
   public SubsetMemberList getSubsetMembersForConcept(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -1634,9 +1673,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/aui/{terminology}/{version}/{terminologyId}/members")
-  @ApiOperation(value = "Get subset members with this terminologyId", notes = "Get the subset members with the given atom id.", response = SubsetMemberList.class)
+  @ApiOperation(value = "Get subset members with this terminologyId", notes = "Get the subset members with the given atom id", response = SubsetMemberList.class)
   public SubsetMemberList getSubsetMembersForAtom(
-    @ApiParam(value = "Atom terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Atom terminology id, e.g. 102751015", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Atom terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Atom terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -1672,11 +1711,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/cui/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
-  @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given concept id.", response = RelationshipList.class)
+  @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given concept id", response = RelationshipList.class)
   public RelationshipList findRelationshipsForConcept(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Concept terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -1684,23 +1723,26 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships");
+            + terminologyId + "/relationships/query/" + query);
+    String queryStr = query;
+    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
+      queryStr = "";
+    }
+
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
           "retrieve relationships for the concept", UserRole.VIEWER);
-      
+
       RelationshipList list =
           contentService.findRelationshipsForConcept(terminologyId,
-              terminology, version, Branch.ROOT, query, false, pfs);
-      
-      /*
-         TODO:  Closing FullTextEntityManager causes new connection, losing persistent data
-         This has been moved into the JPA layer, but not ideal
-         for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+              terminology, version, Branch.ROOT, queryStr, false, pfs);
+
+      // Use graph resolver
+      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
-      }*/
+      }
 
       return list;
 
@@ -1717,10 +1759,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/cui/{terminology}/{version}/{terminologyId}/relationships/deep")
-  @ApiOperation(value = "Get deep relationships with this terminologyId", notes = "Get the relationships for the concept and also for any other atoms, concepts, descirptors, or codes in its graph for the specified concept id.", response = RelationshipList.class)
+  @ApiOperation(value = "Get deep relationships with this terminologyId", notes = "Get the relationships for the concept and also for any other atoms, concepts, descirptors, or codes in its graph for the specified concept id", response = RelationshipList.class)
   public RelationshipList findDeepRelationshipsForConcept(
-    @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
-    @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Concept terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -1750,32 +1792,38 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/dui/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
-  @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given descriptor id.", response = RelationshipList.class)
+  @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given descriptor id", response = RelationshipList.class)
   public RelationshipList findRelationshipsForDescriptor(
-    @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
-    @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Descriptor terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Descriptor terminology id, e.g. D042033", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Descriptor terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
+    String queryStr = query;
+    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
+      queryStr = "";
+    }
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships/query/" + query);
+            + terminologyId + "/relationships/query/" + queryStr);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
           "retrieve relationships for the descriptor", UserRole.VIEWER);
-      
-      RelationshipList list = contentService.findRelationshipsForDescriptor(terminologyId,
-          terminology, version, Branch.ROOT, query, false, pfs);
-    /*  
-      GraphResolutionHandler handler =  contentService.getGraphResolutionHandler(terminology);
-      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : list.getObjects()) {
-       handler.resolve(r);
-      }*/
-      
+
+      RelationshipList list =
+          contentService.findRelationshipsForDescriptor(terminologyId,
+              terminology, version, Branch.ROOT, queryStr, false, pfs);
+
+      // Use graph resolver
+      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+          .getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(rel);
+      }
+
       return list;
 
     } catch (Exception e) {
@@ -1791,31 +1839,36 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
-  @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given code id.", response = RelationshipList.class)
+  @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given code id", response = RelationshipList.class)
   public RelationshipList findRelationshipsForCode(
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Code terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Code terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
+    String queryStr = query;
+    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
+      queryStr = "";
+    }
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships/query" + query);
+            + terminologyId + "/relationships/query" + queryStr);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
           "retrieve relationships for the code", UserRole.VIEWER);
 
-      RelationshipList list = contentService.findRelationshipsForCode(
-          terminologyId, terminology, version, Branch.ROOT, query, false, pfs);
-      
-   /*   GraphResolutionHandler handler =  contentService.getGraphResolutionHandler(terminology);
-      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> r : list.getObjects()) {
-       handler.resolve(r);
-      }*/
+      RelationshipList list =
+          contentService.findRelationshipsForCode(terminologyId, terminology,
+              version, Branch.ROOT, queryStr, false, pfs);
+
+      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+          .getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(rel);
+      }
       return list;
 
     } catch (Exception e) {
@@ -1831,7 +1884,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/aui/subset/all/{terminology}/{version}")
-  @ApiOperation(value = "Get atom subsets", notes = "Get the atom level subsets.", response = SubsetList.class)
+  @ApiOperation(value = "Get atom subsets", notes = "Get the atom level subsets", response = SubsetList.class)
   public SubsetList getAtomSubsets(
     @ApiParam(value = "Atom terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Atom terminology version, e.g. latest", required = true) @PathParam("version") String version,
@@ -1865,7 +1918,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/cui/subset/all/{terminology}/{version}")
-  @ApiOperation(value = "Get concept subsets", notes = "Get the concept level subsets.", response = SubsetList.class)
+  @ApiOperation(value = "Get concept subsets", notes = "Get the concept level subsets", response = SubsetList.class)
   public SubsetList getConceptSubsets(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
@@ -1902,12 +1955,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/aui/subset/{subsetId}/{terminology}/{version}/members/query/{query}")
-  @ApiOperation(value = "Find atom subset members", notes = "Get the members for the indicated atom subset.", response = SubsetMemberList.class)
+  @ApiOperation(value = "Find atom subset members", notes = "Get the members for the indicated atom subset", response = SubsetMemberList.class)
   public SubsetMemberList findAtomSubsetMembers(
-    @ApiParam(value = "Subset id, e.g. 341823433", required = true) @PathParam("subsetId") String subsetId,
+    @ApiParam(value = "Subset id, e.g. 341823003", required = true) @PathParam("subsetId") String subsetId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query, e.g. 'iron'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1945,12 +1998,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/cui/subset/{subsetId}/{terminology}/{version}/members/query/{query}")
-  @ApiOperation(value = "Find concept subset members", notes = "Get the members for the indicated concept subset.", response = SubsetMemberList.class)
+  @ApiOperation(value = "Find concept subset members", notes = "Get the members for the indicated concept subset", response = SubsetMemberList.class)
   public SubsetMemberList findConceptSubsetMembers(
-    @ApiParam(value = "Subset id, e.g. 341823433", required = true) @PathParam("subsetId") String subsetId,
+    @ApiParam(value = "Subset id, e.g. 341823003", required = true) @PathParam("subsetId") String subsetId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query, e.g. 'iron'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1995,8 +2048,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   public RelationshipList findRelationshipsForAtom(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Atom): /aui/" + terminology + "/" + version + "/"
@@ -2020,12 +2073,275 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/trees/query/{query}")
-  @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given concept id.", response = TreeList.class)
+  @Path("/cui/{terminology}/{version}/{terminologyId}/trees")
+  @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given concept id", response = TreeList.class)
   public TreeList findTreesForConcept(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Concept terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Concept terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+            + terminologyId + "/trees");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve trees for the concept ", UserRole.VIEWER);
+
+      TreePositionList list =
+          contentService.findTreePositionsForConcept(terminologyId,
+              terminology, version, Branch.ROOT, pfs);
+
+      final TreeList treeList = new TreeListJpa();
+      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
+          .getObjects()) {
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getNode().getId());
+        contentService.getGraphResolutionHandler(terminology).resolve(tree);
+        treeList.addObject(tree);
+      }
+      treeList.setTotalCount(list.getTotalCount());
+      return treeList;
+
+    } catch (Exception e) {
+      handleException(e, "trying to trees relationships for a concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @Override
+  @POST
+  @Path("/dui/{terminology}/{version}/{terminologyId}/trees/")
+  @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given descriptor id", response = TreeList.class)
+  public TreeList findTreesForDescriptor(
+    @ApiParam(value = "Descriptor terminology id, e.g. D002943", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Descriptor terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+            + terminologyId + "/trees");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken,
+          "retrieve trees for the descriptor ", UserRole.VIEWER);
+
+      TreePositionList list =
+          contentService.findTreePositionsForDescriptor(terminologyId,
+              terminology, version, Branch.ROOT, pfs);
+
+      final TreeList treeList = new TreeListJpa();
+      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
+          .getObjects()) {
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getNode().getId());
+        contentService.getGraphResolutionHandler(terminology).resolve(tree);
+        treeList.addObject(tree);
+      }
+      treeList.setTotalCount(list.getTotalCount());
+      return treeList;
+
+    } catch (Exception e) {
+      handleException(e, "trying to trees relationships for a descriptor");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @Override
+  @POST
+  @Path("/code/{terminology}/{version}/{terminologyId}/trees")
+  @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given code id", response = TreeList.class)
+  public TreeList findTreesForCode(
+    @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Code terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /code/" + terminology + "/" + version + "/"
+            + terminologyId + "/trees");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "retrieve trees for the code",
+          UserRole.VIEWER);
+
+      TreePositionList list =
+          contentService.findTreePositionsForCode(terminologyId, terminology,
+              version, Branch.ROOT, pfs);
+      final TreeList treeList = new TreeListJpa();
+      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
+          .getObjects()) {
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getNode().getId());
+        contentService.getGraphResolutionHandler(terminology).resolve(tree);
+        treeList.addObject(tree);
+      }
+      treeList.setTotalCount(list.getTotalCount());
+      return treeList;
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve trees for a code");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @Override
+  @POST
+  @Path("/cui/{terminology}/{version}/trees/query/{query}")
+  @ApiOperation(value = "Find concept trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = Tree.class)
+  public Tree findConceptTreeForQuery(
+    @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    // Fix query
+    String queryStr = query;
+    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
+      queryStr = "";
+    }
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/" + terminology + "/" + version
+            + "/trees/query/ + query");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find trees for the concept",
+          UserRole.VIEWER);
+
+      TreePositionList list =
+          contentService.findConceptTreePositionsForQuery(terminology, version,
+              Branch.ROOT, queryStr, pfs);
+      Tree firstTree = null;
+      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
+          .getObjects()) {
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getNode().getId());
+        contentService.getGraphResolutionHandler(terminology).resolve(tree);
+        if (firstTree == null) {
+          firstTree = tree;
+        }
+        // if top-level nodes are different, we do not expect this. so fake it
+        else if (!firstTree.getSelf().getNode().getId()
+            .equals(tree.getSelf().getNode().getId())) {
+          // TODO: need to figure out what to do
+          // Options:
+          // 1. fake it (e.g. create a "fake root" and merge below that)
+          // 2. fix the data so this never happens (hard to do)
+          // 3. ignore anything not matching the firstTree (done here)
+          continue;
+        } else {
+          firstTree.mergeTree(tree);
+        }
+      }
+      // No need for graph resolution because the node is XmlTransient
+      return firstTree;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find trees for a query");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @Override
+  @POST
+  @Path("/dui/{terminology}/{version}/trees/query/{query}")
+  @ApiOperation(value = "Find descriptor trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = Tree.class)
+  public Tree findDescriptorTreeForQuery(
+    @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Descriptor terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query search term, e.g. 'pneumonia'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    // Fix query
+    String queryStr = query;
+    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
+      queryStr = "";
+    }
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/" + terminology + "/" + version
+            + "/trees/query/ + query");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find trees for the descriptor",
+          UserRole.VIEWER);
+
+      TreePositionList list =
+          contentService.findDescriptorTreePositionsForQuery(terminology,
+              version, Branch.ROOT, queryStr, pfs);
+      Tree firstTree = null;
+      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
+          .getObjects()) {
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getNode().getId());
+        contentService.getGraphResolutionHandler(terminology).resolve(tree);
+        if (firstTree == null) {
+          firstTree = tree;
+        }
+        // if top-level nodes are different, we do not expect this. so fake it
+        else if (!firstTree.getSelf().getNode().getId()
+            .equals(tree.getSelf().getNode().getId())) {
+          // TODO: need to figure out what to do
+          // Options:
+          // 1. fake it (e.g. create a "fake root" and merge below that)
+          // 2. fix the data so this never happens (hard to do)
+          // 3. ignore anything not matching the firstTree (done here)
+          continue;
+        } else {
+          firstTree.mergeTree(tree);
+        }
+      }
+      // No need for graph resolution because the node is XmlTransient
+      return firstTree;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find trees for a query");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @Override
+  @POST
+  @Path("/code/{terminology}/{version}/trees/query/{query}")
+  @ApiOperation(value = "Find code trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = Tree.class)
+  public Tree findCodeTreeForQuery(
+    @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Codeterminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query search term, e.g. 'sulphur'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -2038,126 +2354,47 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
-            + terminologyId + "/trees/query/" + queryStr);
+            + "/trees/query/ + query");
     ContentService contentService = new ContentServiceJpa();
     try {
-      authenticate(securityService, authToken,
-          "retrieve trees for the concept ", UserRole.VIEWER);
-
-      TreePositionList list =
-          contentService.findTreePositionsForConcept(terminologyId,
-              terminology, version, Branch.ROOT, queryStr, pfs);
-      // TODO: do something to form a tree
-      final TreeList treeList = new TreeListJpa();
-      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
-          .getObjects()) {
-        final Tree tree = new TreeJpa();
-        tree.setSelf(treepos);
-      }
-      return treeList;
-
-    } catch (Exception e) {
-      handleException(e, "trying to retrieve relationships for a concept");
-      return null;
-    } finally {
-      contentService.close();
-      securityService.close();
-    }
-
-  }
-
-  @Override
-  @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/trees/query/{query}")
-  @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given descriptor id.", response = TreeList.class)
-  public TreeList findTreesForDescriptor(
-    @ApiParam(value = "Descriptor terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
-    @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Descriptor terminology version, e.g. latest", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query search term, e.g. 'sulphur'", required = true) @PathParam("query") String query,
-    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    // Fix query
-    String queryStr = query;
-    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      queryStr = "";
-    }
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
-            + terminologyId + "/trees/query/" + queryStr);
-    ContentService contentService = new ContentServiceJpa();
-    try {
-      authenticate(securityService, authToken,
-          "retrieve trees for the descriptor ", UserRole.VIEWER);
-
-      TreePositionList list =
-          contentService.findTreePositionsForDescriptor(terminologyId,
-              terminology, version, Branch.ROOT, queryStr, pfs);
-      // TODO: do something to form a tree
-      final TreeList treeList = new TreeListJpa();
-      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
-          .getObjects()) {
-        final Tree tree = new TreeJpa();
-        tree.setSelf(treepos);
-      }
-      return treeList;
-
-    } catch (Exception e) {
-      handleException(e, "trying to retrieve relationships for a descriptor");
-      return null;
-    } finally {
-      contentService.close();
-      securityService.close();
-    }
-
-  }
-
-  @Override
-  @POST
-  @Path("/code/{terminology}/{version}/{terminologyId}/trees/query/{query}")
-  @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given code id.", response = TreeList.class)
-  public TreeList findTreesForCode(
-    @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
-    @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Code terminology version, e.g. latest", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query search term, e.g. 'sulphur'", required = true) @PathParam("query") String query,
-    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-
-    // Fix query
-    String queryStr = query;
-    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      queryStr = "";
-    }
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /code/" + terminology + "/" + version + "/"
-            + terminologyId + "/trees/query/ + query");
-    ContentService contentService = new ContentServiceJpa();
-    try {
-      authenticate(securityService, authToken, "retrieve trees for the code",
+      authenticate(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
 
       TreePositionList list =
-          contentService.findTreePositionsForCode(terminologyId, terminology,
+          contentService.findDescriptorTreePositionsForQuery(terminology,
               version, Branch.ROOT, queryStr, pfs);
-      // TODO: do something to form a tree
-      final TreeList treeList = new TreeListJpa();
+      Tree firstTree = null;
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
-        final Tree tree = new TreeJpa();
-        tree.setSelf(treepos);
+        final Tree tree =
+            contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
+                treepos.getNode().getId());
+        contentService.getGraphResolutionHandler(terminology).resolve(tree);
+
+        if (firstTree == null) {
+          firstTree = tree;
+        }
+        // if top-level nodes are different, we do not expect this. so fake it
+        else if (!firstTree.getSelf().getNode().getId()
+            .equals(tree.getSelf().getNode().getId())) {
+          // TODO: need to figure out what to do
+          // Options:
+          // 1. fake it (e.g. create a "fake root" and merge below that)
+          // 2. fix the data so this never happens (hard to do)
+          // 3. ignore anything not matching the firstTree (done here)
+          continue;
+        } else {
+          firstTree.mergeTree(tree);
+        }
       }
-      return treeList;
+      return firstTree;
 
     } catch (Exception e) {
-      handleException(e, "trying to retrieve relationships for a code");
+      handleException(e, "trying to find trees for a query");
       return null;
     } finally {
       contentService.close();
       securityService.close();
     }
-
   }
 }

@@ -3,14 +3,9 @@
  */
 package com.wci.umls.server.jpa.helpers;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.helpers.SearchCriteria;
 
 /**
  * The JPA enabled implementation of the paging/filtering/sorting object.
@@ -36,8 +31,11 @@ public class PfsParameterJpa implements PfsParameter {
   /** The ascending flag. */
   private boolean ascending = true;
 
-  /** The search criteria. */
-  private List<SearchCriteria> searchCriteria = new ArrayList<>();
+  /** The active only. */
+  private boolean activeOnly;
+
+  /** The inactive only. */
+  private boolean inactiveOnly;
 
   /**
    * The default constructor.
@@ -58,7 +56,8 @@ public class PfsParameterJpa implements PfsParameter {
     branch = pfs.getBranch();
     sortField = pfs.getSortField();
     ascending = pfs.isAscending();
-    searchCriteria = pfs.getSearchCriteria();
+    activeOnly = pfs.getActiveOnly();
+    inactiveOnly = pfs.getInactiveOnly();
   }
 
   /*
@@ -99,6 +98,26 @@ public class PfsParameterJpa implements PfsParameter {
   @Override
   public void setStartIndex(int startIndex) {
     this.startIndex = startIndex;
+  }
+
+  @Override
+  public boolean getActiveOnly() {
+    return activeOnly;
+  }
+
+  @Override
+  public void setActiveOnly(boolean activeOnly) {
+    this.activeOnly = activeOnly;
+  }
+
+  @Override
+  public boolean getInactiveOnly() {
+    return inactiveOnly;
+  }
+
+  @Override
+  public void setInactiveOnly(boolean inactiveOnly) {
+    this.inactiveOnly = inactiveOnly;
   }
 
   /*
@@ -184,44 +203,18 @@ public class PfsParameterJpa implements PfsParameter {
     this.sortField = sortField;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PfsParameter#getSearchCriteria()
-   */
-  @XmlElement(type = SearchCriteriaJpa.class, name = "criteria")
-  @Override
-  public List<SearchCriteria> getSearchCriteria() {
-    if (searchCriteria == null) {
-      searchCriteria = new ArrayList<SearchCriteria>();
-    }
-    return searchCriteria;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.PfsParameter#setSearchCriteria(java.util.List)
-   */
-  @Override
-  public void setSearchCriteria(List<SearchCriteria> searchCriteria) {
-    this.searchCriteria = searchCriteria;
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + (ascending ? 1231 : 1237);
+    result = prime * result + (activeOnly ? 1231 : 1237);
+    result = prime * result + (inactiveOnly ? 1231 : 1237);
     result = prime * result + ((branch == null) ? 0 : branch.hashCode());
     result = prime * result + maxResults;
     result =
         prime * result
             + ((queryRestriction == null) ? 0 : queryRestriction.hashCode());
-    result =
-        prime * result
-            + ((searchCriteria == null) ? 0 : searchCriteria.hashCode());
     result = prime * result + ((sortField == null) ? 0 : sortField.hashCode());
     result = prime * result + startIndex;
     return result;
@@ -238,6 +231,10 @@ public class PfsParameterJpa implements PfsParameter {
     PfsParameterJpa other = (PfsParameterJpa) obj;
     if (ascending != other.ascending)
       return false;
+    if (activeOnly != other.activeOnly)
+      return false;
+    if (inactiveOnly != other.inactiveOnly)
+      return false;
     if (branch == null) {
       if (other.branch != null)
         return false;
@@ -249,11 +246,6 @@ public class PfsParameterJpa implements PfsParameter {
       if (other.queryRestriction != null)
         return false;
     } else if (!queryRestriction.equals(other.queryRestriction))
-      return false;
-    if (searchCriteria == null) {
-      if (other.searchCriteria != null)
-        return false;
-    } else if (!searchCriteria.equals(other.searchCriteria))
       return false;
     if (sortField == null) {
       if (other.sortField != null)
@@ -276,12 +268,17 @@ public class PfsParameterJpa implements PfsParameter {
         && i >= getStartIndex() && i < (getStartIndex() + getMaxResults());
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#toString()
+   */
   @Override
   public String toString() {
     return "PfsParameterJpa [maxResults=" + maxResults + ", startIndex="
         + startIndex + ", queryRestriction=" + queryRestriction + ", branch="
         + branch + ", sortField=" + sortField + ", ascending=" + ascending
-        + ", searchCriteria=" + searchCriteria + "]";
+        + ", activeOnly=" + activeOnly + ", inactiveOnly=" + inactiveOnly + "]";
   }
 
 }
