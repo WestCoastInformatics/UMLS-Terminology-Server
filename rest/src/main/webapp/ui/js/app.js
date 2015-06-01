@@ -486,13 +486,7 @@ tsApp
             alert("You must use at least three characters to search");
             return;
           }
-    
-          // clear concept, history, suggestions, and paging data
-          $scope.suggestions = null;
-          //$scope.component = null;
-          //$scope.componentError = null;
-          //$scope.componentHistory = [];
-          //$scope.componentHistoryIndex = -1;
+
           clearPaging();
           
           // force the search box to sync with query string
@@ -878,30 +872,64 @@ tsApp
         		
         	
         	// add item and set index to last
-        	$scope.componentHistory.push({'terminology':terminology, 'terminologyId':terminologyId, 'type':type, 'name':name});
+        	$scope.componentHistory.push({'terminology':terminology, 'terminologyId':terminologyId, 'type':type, 'name':name, 'index':$scope.componentHistory.length});
         	$scope.componentHistoryIndex = $scope.componentHistory.length - 1;
         }
         
-        // get and display the previous concept
-        $scope.getPreviousConcept = function() {
+        // local history variables for dorp down list
+        $scope.localHistory = null;
+        $scope.localHistoryPageSize = 10; // NOTE: must be even number!
+        $scope.localHistoryPreviousCt = 0;
+        $scope.localHistoryNextCt = 0;
+        
+        // get the local history for the currently viewed concept
+        $scope.$watch('componentHistoryIndex', function() {
+        	console.debug('componentHistoryIndex changed');
         	
-        	// decrement the counter and get the concept
-        	$scope.componentHistoryIndex--;
+        	setComponentLocalHistory($scope.componentHistoryIndex);
+        });
+        
+        /** 
+         * Function to set the local history for drop down list based on an index
+         * For cases where history > page size, returns array [index - pageSize / 2 + 1 : index + pageSize]
+         */
+        function setComponentLocalHistory(index) {
         	
+        	console.debug('getting local history', index, $scope.componentHistory.length, $scope.localHistoryPageSize);
+        	
+        	// if not a full page of history, simply set to component history and stop
+        	if ($scope.componentHistory.length <= $scope.localHistoryPageSize) {
+        		$scope.localHistory = $scope.componentHistory;
+        		return;
+        	}
+        	
+        	// get upper bound
+        	var upperBound = Math.min(index + $scope.localHistoryPageSize / 2, $scope.componentHistory.length);
+        	var lowerBound = Math.max(upperBound - $scope.localHistoryPageSize, 0);
+
+        	// resize upper bound to ensure full page (for cases near beginning of history)
+        	upperBound = lowerBound + $scope.localHistoryPageSize;
+        	
+        	// calculate unshown element numbers
+        	$scope.localHistoryNextCt = $scope.componentHistory.length - upperBound;
+        	$scope.localHistoryPreviousCt = lowerBound;
+	
+        	console.debug('indices', lowerBound, upperBound, 'remaining', $scope.localHistoryPreviousCt, $scope.localHistoryNextCt);
+        	
+        	// return the local history
+        	$scope.localHistory = $scope.componentHistory.slice(lowerBound, upperBound);
+        };
+        
+        $scope.getComponentFromHistory = function(index) {
+        	
+        	// if currently viewed do nothing
+        	if (index === $scope.componentHistoryIndex)
+        		return;
+        	
+        	// set the index and get the component from history information
+        	$scope.componentHistoryIndex = index;
         	$scope.getComponentFromType(
         			$scope.componentHistory[$scope.componentHistoryIndex].terminology, 
-        			$scope.componentHistory[$scope.componentHistoryIndex].terminologyId,
-        			$scope.componentHistory[$scope.componentHistoryIndex].type);
-    	}
-        
-        // get and display the next concept
-        $scope.getNextConcept = function() {
-        	
-        	// increment the counter and get the concept
-        	$scope.componentHistoryIndex++;
-        	
-        	$scope.getComponentFromType(
-        			$scope.componentHistory[$scope.componentHistoryIndex].terminology,
         			$scope.componentHistory[$scope.componentHistoryIndex].terminologyId,
         			$scope.componentHistory[$scope.componentHistoryIndex].type);
         }
@@ -913,6 +941,28 @@ tsApp
         	return component.terminology + "/" + component.terminologyId + " " + component.type + ": " + component.name;
         }
         
+        // UNTESTED
+        $scope.viewHistoryInTable = function() {
+        	var searchResults = [];
+        	
+        	for (var i = 0; i < $scope.componentHistory.length; i++) {
+        		var comp = $scope.componentHistory[i];
+        		var searchResult = {'terminology':comp['terminology'], 'terminologyVersion':comp['terminologyVersion'], 'name':comp['name']}
+        		searchResults.push(searchResult);
+        	}
+        	
+        	$scope.searchResults = searchResults;
+        	$scope.pagedSearchResults = $scope.getPagedArray($scope.searchResults, 1, false, null);
+        }
+        
+        // UNTESTED
+        $scope.clearHistory = function() {
+        	 $scope.componentHistory = [];
+             $scope.componentHistoryIndex = -1;
+             
+             // set currently viewed item as first history item
+             $scope.addConceptToHistory($scope.component.terminology, $scope.component.terminologyId, $scope.componentType, $scope.component.name);
+        }
         ////////////////////////////////////
         // Pagination
         ////////////////////////////////////
@@ -980,12 +1030,21 @@ tsApp
         $scope.getPagedRelationships = function(page, query) {
         	
         	if (!page) page = 1;
+        	
+        	// hack for wildcard searching, may impair other lucene functionality
+        	if (query) {
+        		// append wildcard to end of query string if not present and not quoted
+        		if (query.indexOf("*") == -1 && query.indexOf("\"") == -1) {
+        			query = query + "*";
+        		}
+        	}
         	if (!query) query = "~BLANK~";
         	
         	var typePrefix = getUrlPrefix($scope.componentType);
         	var pfs = getPfs(page);
         	
         	// construct query restriction if needed
+        	// TODO Change these to use pfs object parameters
         	var qr = '';
         	if ($scope.showSuppressible == false) {
         		qr = qr + (qr.length > 0 ? ' AND ' : '') + 'suppressible:false';
@@ -994,6 +1053,7 @@ tsApp
         		qr = qr + (qr.length > 0 ? ' AND ' : '') + 'obsolete:false';
         	}
         	pfs['queryRestriction'] = qr;
+        	pfs['sortField'] = 'relationshipType';
         	
         	$scope.glassPane++;
             $http(
@@ -1035,7 +1095,6 @@ tsApp
         	$scope.pagedAtoms = $scope.getPagedArray($scope.component.atom, $scope.atomsPage, true, query);
         }
         
-        
         $scope.getPagedDefinitions = function(page, query) {
         	
         	console.debug('paged definitions', page, $scope.definitionsPage);
@@ -1045,7 +1104,14 @@ tsApp
         	if (!query) query = null;
         	
         	// get the paged array, with flags and filter (TODO: Support filtering)
-        	$scope.pagedDefinitions = $scope.getPagedArray($scope.component.definition, $scope.definitionsPage, true, query);
+        	$scope.pagedDefinitions = 
+        		$scope.getPagedArray(
+        				$scope.component.definition, 
+        				$scope.definitionsPage, 
+        				true, 
+        				query,
+        				'value',
+        				false);
         }
         
         $scope.getPagedAttributes = function(page, query) {
@@ -1055,7 +1121,14 @@ tsApp
         	if (!query) query = null;
         	
         	// get the paged array, with flags and filter (TODO: Support filtering)
-        	$scope.pagedAttributes = $scope.getPagedArray($scope.component.attribute, $scope.attributesPage, true, query);
+        	$scope.pagedAttributes =
+        		$scope.getPagedArray(
+        				$scope.component.attribute, 
+        				$scope.attributesPage, 
+        				true, 
+        				query,
+        				'name',
+        				false);
         	
         }
         
@@ -1065,13 +1138,20 @@ tsApp
         	if (page) $scope.semanticTypesPage = page;
         	
         	// get the paged array, with flags and filter (TODO: Support filtering)
-        	$scope.pagedSemanticTypes = $scope.getPagedArray($scope.component.semanticType, $scope.semanticTypesPage, true, null);
+        	$scope.pagedSemanticTypes = 
+        		$scope.getPagedArray(
+        				$scope.component.semanticType, 
+        				$scope.semanticTypesPage, 
+        				true, 
+        				null,
+        				'semanticType',
+        				false);
         }
         
         /**
          * Get a paged array with show/hide flags (ENABLED) and filtered by query string (NOT ENABLED)
          */
-        $scope.getPagedArray = function(array, page, applyFlags, filterStr) {
+        $scope.getPagedArray = function(array, page, applyFlags, filterStr, sortField, ascending) {
         	
         	console.debug('getPagedArray', page, applyFlags, filterStr);
         		
@@ -1086,6 +1166,12 @@ tsApp
         		page = 1;
         	
         	newArray = array;
+        	
+        	// apply sort if specified
+        	if (sortField) {
+        		// if ascending specified, use that value, otherwise use false
+        		newArray.sort($scope.sort_by(sortField, ascending ? ascending : false))
+        	}
         	
         	// apply flags
         	if (applyFlags) {
@@ -1112,6 +1198,20 @@ tsApp
 
         	return results;
         }
+        
+        /** function for sorting an array by (string) field and direction */
+        $scope.sort_by = function(field, reverse){
+
+           // key: function to return field value from object
+    	   var key = function(x) { return x[field] };
+
+    	   // convert reverse to integer (1 = ascending, -1 = descending)
+    	   reverse = !reverse ? 1 : -1;
+
+    	   return function (a, b) {
+    	       return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+    	     } 
+    	}
         
         /** Filter array by show/hide flags */
         function getArrayByFlags(array) {
