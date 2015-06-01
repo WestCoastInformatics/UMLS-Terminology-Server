@@ -181,7 +181,7 @@ public class RrfFullLoadAndUnloadTest {
           && project.getDescription().equals("Sample project.")
           && project.getScopeDescendantsFlag()
           && project.getTerminology().equals("UMLS")
-          && project.getTerminologyVersion().equals("latest")) {
+          && project.getVersion().equals("latest")) {
         // Scope ignored for now -  && project.getScopeConcepts().iterator().next().equals("138875005")) {
         found = true;
       }

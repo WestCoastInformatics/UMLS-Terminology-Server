@@ -31,7 +31,7 @@ import com.wci.umls.server.model.content.SubsetMember;
  */
 @Entity
 @Table(name = "atom_subset_members", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @Indexed
@@ -163,20 +163,20 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
    * @return the member terminology version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getMemberTerminologyVersion() {
-    return member == null ? null : member.getTerminologyVersion();
+  public String getMemberVersion() {
+    return member == null ? null : member.getVersion();
   }
 
   /**
    * Sets the member terminology version. For JAXB.
    *
-   * @param terminologyVersion the member terminology version
+   * @param version the member terminology version
    */
-  public void setMemberTerminologyVersion(String terminologyVersion) {
+  public void setMemberVersion(String version) {
     if (member == null) {
       member = new AtomJpa();
     }
-    member.setTerminologyVersion(terminologyVersion);
+    member.setVersion(version);
   }
 
   /**
@@ -297,20 +297,20 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
    * @return the subset terminology version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getSubsetTerminologyVersion() {
-    return subset == null ? null : subset.getTerminologyVersion();
+  public String getSubsetVersion() {
+    return subset == null ? null : subset.getVersion();
   }
 
   /**
    * Sets the subset terminology version. For JAXB.
    *
-   * @param terminologyVersion the subset terminology version
+   * @param version the subset terminology version
    */
-  public void setSubsetTerminologyVersion(String terminologyVersion) {
+  public void setSubsetVersion(String version) {
     if (subset == null) {
       subset = new AtomSubsetJpa();
     }
-    subset.setTerminologyVersion(terminologyVersion);
+    subset.setVersion(version);
   }
 
   /**

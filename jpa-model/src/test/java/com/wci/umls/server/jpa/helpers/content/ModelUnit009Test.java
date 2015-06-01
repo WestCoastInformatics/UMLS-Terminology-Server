@@ -84,7 +84,7 @@ public class ModelUnit009Test {
     tester.include("published");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("alternateTerminologyIds");
     tester.include("name");
     tester.include("value");
@@ -145,7 +145,7 @@ public class ModelUnit009Test {
     tester.include("publishable");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("name");
     tester.include("value");
 

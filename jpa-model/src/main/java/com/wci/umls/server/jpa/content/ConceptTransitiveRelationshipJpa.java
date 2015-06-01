@@ -22,7 +22,7 @@ import com.wci.umls.server.model.content.ConceptTransitiveRelationship;
  */
 @Entity
 @Table(name = "concept_transitive_rels", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "conceptTransitiveRel")
@@ -157,20 +157,20 @@ public class ConceptTransitiveRelationshipJpa extends
    *
    * @return the super type terminology
    */
-  public String getSuperTypeTerminologyVersion() {
-    return superType == null ? null : superType.getTerminologyVersion();
+  public String getSuperTypeVersion() {
+    return superType == null ? null : superType.getVersion();
   }
 
   /**
    * Sets the super type terminology version.
    *
-   * @param terminologyVersion the super type terminology version
+   * @param version the super type terminology version
    */
-  public void setSuperTypeTerminologyVersion(String terminologyVersion) {
+  public void setSuperTypeVersion(String version) {
     if (superType == null) {
       superType = new ConceptJpa();
     }
-    superType.setTerminologyVersion(terminologyVersion);
+    superType.setVersion(version);
   }
   /**
    * Returns the super type term. For JAXB.
@@ -263,20 +263,20 @@ public class ConceptTransitiveRelationshipJpa extends
    *
    * @return the sub type terminology
    */
-  public String getSubTypeTerminologyVersion() {
-    return subType == null ? null : subType.getTerminologyVersion();
+  public String getSubTypeVersion() {
+    return subType == null ? null : subType.getVersion();
   }
 
   /**
    * Sets the sub type terminology version.
    *
-   * @param terminologyVersion the sub type terminology version
+   * @param version the sub type terminology version
    */
-  public void setSubTypeTerminologyVersion(String terminologyVersion) {
+  public void setSubTypeVersion(String version) {
     if (subType == null) {
       subType = new ConceptJpa();
     }
-    subType.setTerminologyVersion(terminologyVersion);
+    subType.setVersion(version);
   }
   
   /**

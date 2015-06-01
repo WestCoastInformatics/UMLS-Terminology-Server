@@ -77,7 +77,7 @@ public class ReleaseInfoJpa implements ReleaseInfo {
 
   /** The terminology version. */
   @Column(nullable = false)
-  private String terminologyVersion;
+  private String version;
 
   /** The last modified by. */
   @Column(nullable = false)
@@ -112,7 +112,7 @@ public class ReleaseInfoJpa implements ReleaseInfo {
     planned = releaseInfo.isPlanned();
     published = releaseInfo.isPublished();
     terminology = releaseInfo.getTerminology();
-    terminologyVersion = releaseInfo.getTerminologyVersion();
+    version = releaseInfo.getVersion();
   }
 
   /*
@@ -281,23 +281,23 @@ public class ReleaseInfoJpa implements ReleaseInfo {
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#getTerminologyVersion()
+   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#getVersion()
    */
   @Override
-  public String getTerminologyVersion() {
-    return terminologyVersion;
+  public String getVersion() {
+    return version;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * org.ihtsdo.otf.ts.helpers.ReleaseInfo#setTerminologyVersion(java.lang.String
+   * org.ihtsdo.otf.ts.helpers.ReleaseInfo#setVersion(java.lang.String
    * )
    */
   @Override
-  public void setTerminologyVersion(String terminologyVersion) {
-    this.terminologyVersion = terminologyVersion;
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   /*
@@ -354,7 +354,7 @@ public class ReleaseInfoJpa implements ReleaseInfo {
     result =
         prime
             * result
-            + ((terminologyVersion == null) ? 0 : terminologyVersion.hashCode());
+            + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
@@ -407,10 +407,10 @@ public class ReleaseInfoJpa implements ReleaseInfo {
         return false;
     } else if (!terminology.equals(other.terminology))
       return false;
-    if (terminologyVersion == null) {
-      if (other.terminologyVersion != null)
+    if (version == null) {
+      if (other.version != null)
         return false;
-    } else if (!terminologyVersion.equals(other.terminologyVersion))
+    } else if (!version.equals(other.version))
       return false;
     return true;
   }
@@ -423,7 +423,7 @@ public class ReleaseInfoJpa implements ReleaseInfo {
   @Override
   public String toString() {
     return name + ", " + description + ", " + effectiveTime + ", " + planned
-        + ", " + published + ", " + terminology + ", " + terminologyVersion;
+        + ", " + published + ", " + terminology + ", " + version;
   }
 
 }

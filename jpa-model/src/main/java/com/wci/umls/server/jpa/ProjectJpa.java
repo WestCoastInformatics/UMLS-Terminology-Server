@@ -79,7 +79,7 @@ public class ProjectJpa implements Project {
 
   /** The terminology version. */
   @Column(nullable = false)
-  private String terminologyVersion;
+  private String version;
 
   /** The leads. */
   @ManyToMany(targetEntity = UserJpa.class, fetch = FetchType.LAZY)
@@ -152,7 +152,7 @@ public class ProjectJpa implements Project {
     description = project.getDescription();
     isPublic = project.isPublic();
     terminology = project.getTerminology();
-    terminologyVersion = project.getTerminologyVersion();
+    version = project.getVersion();
     leads = new HashSet<>(project.getLeads());
     authors = new HashSet<>(project.getAuthors());
     administrators = new HashSet<>(project.getAdministrators());
@@ -393,22 +393,22 @@ public class ProjectJpa implements Project {
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.Project#getTerminologyVersion()
+   * @see org.ihtsdo.otf.ts.Project#getVersion()
    */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getTerminologyVersion() {
-    return terminologyVersion;
+  public String getVersion() {
+    return version;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.Project#setTerminologyVersion(java.lang.String)
+   * @see org.ihtsdo.otf.ts.Project#setVersion(java.lang.String)
    */
   @Override
-  public void setTerminologyVersion(String terminologyVersion) {
-    this.terminologyVersion = terminologyVersion;
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   /*
@@ -669,7 +669,7 @@ public class ProjectJpa implements Project {
     result =
         prime
             * result
-            + ((terminologyVersion == null) ? 0 : terminologyVersion.hashCode());
+            + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
@@ -711,10 +711,10 @@ public class ProjectJpa implements Project {
         return false;
     } else if (!terminology.equals(other.terminology))
       return false;
-    if (terminologyVersion == null) {
-      if (other.terminologyVersion != null)
+    if (version == null) {
+      if (other.version != null)
         return false;
-    } else if (!terminologyVersion.equals(other.terminologyVersion))
+    } else if (!version.equals(other.version))
       return false;
     return true;
   }

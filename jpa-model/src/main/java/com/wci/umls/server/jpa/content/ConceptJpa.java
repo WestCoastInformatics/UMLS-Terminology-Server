@@ -33,7 +33,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
  */
 @Entity
 @Table(name = "concepts", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "concept")

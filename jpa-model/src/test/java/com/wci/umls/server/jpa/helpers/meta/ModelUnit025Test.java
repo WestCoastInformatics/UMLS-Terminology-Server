@@ -96,8 +96,8 @@ public class ModelUnit025Test {
     tester.include("abbreviation");
     tester.include("expandedForm");
     tester.include("terminology");
-    tester.include("terminologyVersion");
-    tester.include("terminologyVersion");
+    tester.include("version");
+    tester.include("version");
     tester.include("publishable");
     tester.include("published");
     tester.include("asymmetric");
@@ -162,7 +162,7 @@ public class ModelUnit025Test {
     tester.include("abbreviation");
     tester.include("expandedForm");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("publishable");
     tester.include("published");
     tester.include("timestamp");

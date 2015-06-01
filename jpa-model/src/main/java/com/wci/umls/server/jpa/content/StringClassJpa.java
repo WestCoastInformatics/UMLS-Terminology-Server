@@ -18,7 +18,7 @@ import com.wci.umls.server.model.content.StringClass;
  */
 @Entity
 @Table(name = "string_classes", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "stringClass")

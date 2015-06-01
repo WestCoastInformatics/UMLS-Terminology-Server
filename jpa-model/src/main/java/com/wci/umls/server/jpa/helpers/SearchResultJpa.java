@@ -24,7 +24,7 @@ public class SearchResultJpa implements SearchResult {
   private String terminology;
 
   /** The terminology version. */
-  private String terminologyVersion;
+  private String version;
 
   /** The value. */
   private String value;
@@ -45,7 +45,7 @@ public class SearchResultJpa implements SearchResult {
     id = result.getId();
     terminology = result.getTerminology();
     terminologyId = result.getTerminologyId();
-    terminologyVersion = result.getTerminologyVersion();
+    version = result.getVersion();
     value = result.getValue();
   }
 
@@ -118,23 +118,23 @@ public class SearchResultJpa implements SearchResult {
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.mapping.helpers.SearchResult#getTerminologyVersion()
+   * @see org.ihtsdo.otf.mapping.helpers.SearchResult#getVersion()
    */
   @Override
-  public String getTerminologyVersion() {
-    return this.terminologyVersion;
+  public String getVersion() {
+    return this.version;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * org.ihtsdo.otf.mapping.helpers.SearchResult#setTerminologyVersion(java.
+   * org.ihtsdo.otf.mapping.helpers.SearchResult#setVersion(java.
    * lang.String)
    */
   @Override
-  public void setTerminologyVersion(String terminologyVersion) {
-    this.terminologyVersion = terminologyVersion;
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   /**
@@ -176,7 +176,7 @@ public class SearchResultJpa implements SearchResult {
     result =
         prime
             * result
-            + ((terminologyVersion == null) ? 0 : terminologyVersion.hashCode());
+            + ((version == null) ? 0 : version.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
     return result;
   }
@@ -205,10 +205,10 @@ public class SearchResultJpa implements SearchResult {
         return false;
     } else if (!terminologyId.equals(other.terminologyId))
       return false;
-    if (terminologyVersion == null) {
-      if (other.terminologyVersion != null)
+    if (version == null) {
+      if (other.version != null)
         return false;
-    } else if (!terminologyVersion.equals(other.terminologyVersion))
+    } else if (!version.equals(other.version))
       return false;
     if (value == null) {
       if (other.value != null)
@@ -226,7 +226,7 @@ public class SearchResultJpa implements SearchResult {
   @Override
   public String toString() {
     return "SearchResultJpa [id=" + id + ", terminologyId=" + terminologyId
-        + ", terminology=" + terminology + ", version=" + terminologyVersion
+        + ", terminology=" + terminology + ", version=" + version
         + ", value=" + value + "]";
   }
 

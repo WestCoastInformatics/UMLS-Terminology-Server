@@ -95,7 +95,7 @@ public class UmlsMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager.createQuery("SELECT t from RelationshipTypeJpa t "
             + " where terminology = :terminology "
-            + "   and terminologyVersion = :version"
+            + "   and version = :version"
             + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
@@ -121,7 +121,7 @@ public class UmlsMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager.createQuery("SELECT t from LanguageJpa t "
             + " where terminology = :terminology "
-            + "   and terminologyVersion = :version"
+            + "   and version = :version"
             + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
@@ -150,7 +150,7 @@ public class UmlsMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager.createQuery("SELECT t from AdditionalRelationshipTypeJpa t "
             + " where terminology = :terminology "
-            + "   and terminologyVersion = :version"
+            + "   and version = :version"
             + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
@@ -179,7 +179,7 @@ public class UmlsMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager.createQuery("SELECT t from AttributeNameJpa t "
             + " where terminology = :terminology "
-            + "   and terminologyVersion = :version"
+            + "   and version = :version"
             + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
@@ -207,7 +207,7 @@ public class UmlsMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager.createQuery("SELECT t from TermTypeJpa t "
             + " where terminology = :terminology "
-            + "   and terminologyVersion = :version"
+            + "   and version = :version"
             + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
@@ -362,7 +362,7 @@ public class UmlsMetadataServiceJpaHelper extends
       EntityManager manager = factory.createEntityManager();
       javax.persistence.Query query =
           manager.createQuery("select distinct a.terminology, "
-              + "a.terminologyVersion, a.relationshipType, "
+              + "a.version, a.relationshipType, "
               + "a.additionalRelationshipType "
               + "from ConceptRelationshipJpa a");
       List<Object[]> results = query.getResultList();
@@ -383,7 +383,7 @@ public class UmlsMetadataServiceJpaHelper extends
       }
       query =
           manager.createQuery("select distinct a.terminology, "
-              + "a.terminologyVersion, a.relationshipType, "
+              + "a.version, a.relationshipType, "
               + "a.additionalRelationshipType "
               + "from DescriptorRelationshipJpa a");
       results = query.getResultList();
@@ -404,7 +404,7 @@ public class UmlsMetadataServiceJpaHelper extends
       }
       query =
           manager.createQuery("select distinct a.terminology, "
-              + "a.terminologyVersion, a.relationshipType, "
+              + "a.version, a.relationshipType, "
               + "a.additionalRelationshipType from CodeRelationshipJpa a");
       results = query.getResultList();
       for (Object[] result : results) {
@@ -438,7 +438,7 @@ public class UmlsMetadataServiceJpaHelper extends
       EntityManager manager = factory.createEntityManager();
       javax.persistence.Query query =
           manager
-              .createQuery("select distinct a.terminology, a.terminologyVersion, "
+              .createQuery("select distinct a.terminology, a.version, "
                   + "a.name from AttributeJpa a");
       List<Object[]> results = query.getResultList();
       for (Object[] result : results) {
@@ -464,7 +464,7 @@ public class UmlsMetadataServiceJpaHelper extends
       EntityManager manager = factory.createEntityManager();
       javax.persistence.Query query =
           manager
-              .createQuery("select distinct a.terminology, a.terminologyVersion, "
+              .createQuery("select distinct a.terminology, a.version, "
                   + "a.termType, a.language from AtomJpa a");
       List<Object[]> results = query.getResultList();
       for (Object[] result : results) {

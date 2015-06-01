@@ -43,7 +43,7 @@ import com.wci.umls.server.model.content.Definition;
 // @UniqueConstraint here is being used to create an index, not to enforce
 // uniqueness
 @Table(name = "atoms", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "atom")

@@ -82,7 +82,7 @@ public class ProjectServiceRestEdgeCasesTest extends ProjectServiceRestTest {
     project2.setDescription("Sample");
     project2.setName("Sample");
     project2.setTerminology("UMLS");
-    project2.setTerminologyVersion("latest");
+    project2.setVersion("latest");
 
     project2 = (ProjectJpa) projectService.addProject(project2, adminAuthToken);
 

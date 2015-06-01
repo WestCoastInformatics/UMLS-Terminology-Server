@@ -173,7 +173,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       Terminology term = null;
       for (Terminology t : metadataService.getVersions(terminology)
           .getObjects()) {
-        if (t.getTerminologyVersion().equals(version)) {
+        if (t.getVersion().equals(version)) {
           term = t;
           break;
         }
@@ -253,7 +253,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       for (Terminology terminology : list) {
         final KeyValuePair pair = new KeyValuePair();
         pair.setKey(terminology.getTerminology());
-        pair.setValue(terminology.getTerminologyVersion());
+        pair.setValue(terminology.getVersion());
         keyValuePairList.addKeyValuePair(pair);
       }
       return keyValuePairList;
@@ -310,7 +310,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
         KeyValuePairList keyValuePairList = new KeyValuePairList();
         for (Terminology version : versions) {
           keyValuePairList.addKeyValuePair(new KeyValuePair(terminology
-              .getTerminology(), version.getTerminologyVersion()));
+              .getTerminology(), version.getVersion()));
         }
         keyValuePairList.setName(terminology.getTerminology());
         keyValuePairLists.addKeyValuePairList(keyValuePairList);

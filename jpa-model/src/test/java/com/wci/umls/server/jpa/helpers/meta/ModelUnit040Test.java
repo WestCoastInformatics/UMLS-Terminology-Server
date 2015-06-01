@@ -150,7 +150,7 @@ public class ModelUnit040Test {
     tester.include("startDate");
     tester.include("synonymousNames");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("descriptionLogicTerminology");
 
     
@@ -234,7 +234,7 @@ public class ModelUnit040Test {
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("organizingClassType");
     tester.include("preferredName");
     tester.include("rootTerminology");

@@ -68,7 +68,7 @@ public class ContentDeepRelsTest {
         .getObjects()) {
       Logger.getLogger(getClass()).info(
           "  " + rel.getFrom().getTerminologyId() + ", " + rel.getTerminology()
-              + ", " + rel.getTerminologyVersion() + ", "
+              + ", " + rel.getVersion() + ", "
               + rel.getRelationshipType() + ", "
               + rel.getAdditionalRelationshipType() + ", "
               + rel.getTo().getTerminologyId());
@@ -89,7 +89,7 @@ public class ContentDeepRelsTest {
         .getObjects()) {
       Logger.getLogger(getClass()).info(
           "  " + rel.getFrom().getTerminologyId() + ", " + rel.getTerminology()
-              + ", " + rel.getTerminologyVersion() + ", "
+              + ", " + rel.getVersion() + ", "
               + rel.getRelationshipType() + ", "
               + rel.getAdditionalRelationshipType() + ", "
               + rel.getTo().getTerminologyId());

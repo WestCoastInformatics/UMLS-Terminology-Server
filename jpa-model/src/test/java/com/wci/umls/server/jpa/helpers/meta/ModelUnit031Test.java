@@ -70,7 +70,7 @@ public class ModelUnit031Test {
     tester.include("publishable");
     tester.include("published");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("isoCode");
     tester.include("iso3Code");
 
@@ -118,7 +118,7 @@ public class ModelUnit031Test {
     tester.include("abbreviation");
     tester.include("expandedForm");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("publishable");
     tester.include("published");
     tester.include("timestamp");

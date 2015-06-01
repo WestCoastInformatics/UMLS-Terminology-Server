@@ -176,7 +176,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Logger.getLogger(getClass()).info(
           "  Compute transitive closure for  " + terminology + "/" + version);
       algo.setTerminology(terminology);
-      algo.setTerminologyVersion(version);
+      algo.setVersion(version);
       algo.setIdType(service.getTerminology(terminology, version)
           .getOrganizingClassType());
       algo.reset();
@@ -231,7 +231,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Logger.getLogger(getClass()).info(
           "  Compute tree positions for " + terminology + "/" + version);
       algo.setTerminology(terminology);
-      algo.setTerminologyVersion(version);
+      algo.setVersion(version);
       algo.setIdType(service.getTerminology(terminology, version)
           .getOrganizingClassType());
       algo.reset();
@@ -306,7 +306,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // Load snapshot
       RrfLoaderAlgorithm algorithm = new RrfLoaderAlgorithm();
       algorithm.setTerminology(terminology);
-      algorithm.setTerminologyVersion(version);
+      algorithm.setVersion(version);
       algorithm.setSingleMode(singleMode);
       algorithm.setReleaseVersion(releaseVersion);
       algorithm.setReaders(readers);
@@ -326,7 +326,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         if (t.getOrganizingClassType() != null) {
           TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
           algo.setTerminology(t.getTerminology());
-          algo.setTerminologyVersion(t.getTerminologyVersion());
+          algo.setVersion(t.getVersion());
           algo.setIdType(t.getOrganizingClassType());
           // some terminologies may have cycles, allow these for now.
           algo.setCycleTolerant(true);
@@ -343,7 +343,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         if (t.getOrganizingClassType() != null) {
           TreePositionAlgorithm algo = new TreePositionAlgorithm();
           algo.setTerminology(t.getTerminology());
-          algo.setTerminologyVersion(t.getTerminologyVersion());
+          algo.setVersion(t.getVersion());
           algo.setIdType(t.getOrganizingClassType());
           // some terminologies may have cycles, allow these for now.
           algo.setCycleTolerant(true);
@@ -434,7 +434,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // Load delta
       Rf2DeltaLoaderAlgorithm algorithm = new Rf2DeltaLoaderAlgorithm();
       algorithm.setTerminology(terminology);
-      algorithm.setTerminologyVersion(version);
+      algorithm.setVersion(version);
       algorithm.setReleaseVersion(sorter.getFileVersion());
       algorithm.setReaders(readers);
       algorithm.compute();
@@ -445,7 +445,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "  Compute transitive closure from  " + terminology + "/" + version);
       TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
       algo.setTerminology(terminology);
-      algo.setTerminologyVersion(version);
+      algo.setVersion(version);
       algo.reset();
       algo.compute();
 
@@ -522,7 +522,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // Load snapshot
       Rf2SnapshotLoaderAlgorithm algorithm = new Rf2SnapshotLoaderAlgorithm();
       algorithm.setTerminology(terminology);
-      algorithm.setTerminologyVersion(version);
+      algorithm.setVersion(version);
       algorithm.setReleaseVersion(releaseVersion);
       algorithm.setReaders(readers);
       algorithm.compute();
@@ -534,7 +534,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           "  Compute transitive closure from  " + terminology + "/" + version);
       TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
       algo.setTerminology(terminology);
-      algo.setTerminologyVersion(version);
+      algo.setVersion(version);
       algo.reset();
       algo.compute();
 
@@ -595,14 +595,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // Load snapshot
       Logger.getLogger(getClass()).info("Load ClaML data from " + inputFile);
       clamlAlgorithm.setTerminology(terminology);
-      clamlAlgorithm.setTerminologyVersion(version);
+      clamlAlgorithm.setVersion(version);
       clamlAlgorithm.setInputFile(inputFile);
       clamlAlgorithm.compute();
 
       // Let service begin its own transaction
       Logger.getLogger(getClass()).info("Start computing transtive closure");
       transitiveClosureAlgorithm.setTerminology(terminology);
-      transitiveClosureAlgorithm.setTerminologyVersion(version);
+      transitiveClosureAlgorithm.setVersion(version);
       transitiveClosureAlgorithm.reset();
       transitiveClosureAlgorithm.compute();
 
@@ -701,7 +701,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         contentService.getGraphResolutionHandler(terminology).resolve(
             concept,
             TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
-                concept.getTerminologyVersion()));
+                concept.getVersion()));
         concept.setAtoms(contentService.getComputePreferredNameHandler(
             concept.getTerminology()).sortByPreference(concept.getAtoms()));
       }
@@ -926,7 +926,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                 descriptor,
                 TerminologyUtility.getHierarchicalIsaRels(
                     descriptor.getTerminology(),
-                    descriptor.getTerminologyVersion()));
+                    descriptor.getVersion()));
         descriptor.setAtoms(contentService.getComputePreferredNameHandler(
             descriptor.getTerminology())
             .sortByPreference(descriptor.getAtoms()));
@@ -1107,7 +1107,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         contentService.getGraphResolutionHandler(terminology).resolve(
             code,
             TerminologyUtility.getHierarchicalIsaRels(code.getTerminology(),
-                code.getTerminologyVersion()));
+                code.getVersion()));
         code.setAtoms(contentService.getComputePreferredNameHandler(
             code.getTerminology()).sortByPreference(code.getAtoms()));
 
@@ -1343,7 +1343,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         contentService.getGraphResolutionHandler(terminology).resolve(
             concept,
             TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
-                concept.getTerminologyVersion()));
+                concept.getVersion()));
       }
 
       return list;
@@ -1395,7 +1395,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         contentService.getGraphResolutionHandler(terminology).resolve(
             concept,
             TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
-                concept.getTerminologyVersion()));
+                concept.getVersion()));
       }
 
       return list;
@@ -1449,7 +1449,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                 descriptor,
                 TerminologyUtility.getHierarchicalIsaRels(
                     descriptor.getTerminology(),
-                    descriptor.getTerminologyVersion()));
+                    descriptor.getVersion()));
       }
 
       return list;
@@ -1502,7 +1502,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                 descriptor,
                 TerminologyUtility.getHierarchicalIsaRels(
                     descriptor.getTerminology(),
-                    descriptor.getTerminologyVersion()));
+                    descriptor.getVersion()));
       }
 
       return list;
@@ -1553,7 +1553,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         contentService.getGraphResolutionHandler(terminology).resolve(
             code,
             TerminologyUtility.getHierarchicalIsaRels(code.getTerminology(),
-                code.getTerminologyVersion()));
+                code.getVersion()));
       }
 
       return list;
@@ -1604,7 +1604,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         contentService.getGraphResolutionHandler(terminology).resolve(
             code,
             TerminologyUtility.getHierarchicalIsaRels(code.getTerminology(),
-                code.getTerminologyVersion()));
+                code.getVersion()));
       }
 
       return list;

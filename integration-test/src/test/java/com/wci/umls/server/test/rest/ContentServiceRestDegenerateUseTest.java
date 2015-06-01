@@ -50,8 +50,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     authToken = securityService.authenticate(testUser, testPassword);
 
     // set terminology and version
-    testTerminology = "SNOMEDCT";
-    testVersion = "latest";
+    testTerminology = "SNOMEDCT_US";
+    testVersion = "2014_09_01";
     testId = "102466009";
 
     // get test concept

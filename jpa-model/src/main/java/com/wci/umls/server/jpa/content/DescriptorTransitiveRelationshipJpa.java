@@ -22,7 +22,7 @@ import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
  */
 @Entity
 @Table(name = "descriptor_transitive_rels", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "descriptorTransitiveRel")
@@ -156,20 +156,20 @@ public class DescriptorTransitiveRelationshipJpa extends
    *
    * @return the super type terminology
    */
-  public String getSuperTypeTerminologyVersion() {
-    return superType == null ? null : superType.getTerminologyVersion();
+  public String getSuperTypeVersion() {
+    return superType == null ? null : superType.getVersion();
   }
 
   /**
    * Sets the super type terminology version.
    *
-   * @param terminologyVersion the super type terminology version
+   * @param version the super type terminology version
    */
-  public void setSuperTypeTerminologyVersion(String terminologyVersion) {
+  public void setSuperTypeVersion(String version) {
     if (superType == null) {
       superType = new DescriptorJpa();
     }
-    superType.setTerminologyVersion(terminologyVersion);
+    superType.setVersion(version);
   }
 
   /**
@@ -287,20 +287,20 @@ public class DescriptorTransitiveRelationshipJpa extends
    *
    * @return the sub type terminology
    */
-  public String getSubTypeTerminologyVersion() {
-    return subType == null ? null : subType.getTerminologyVersion();
+  public String getSubTypeVersion() {
+    return subType == null ? null : subType.getVersion();
   }
 
   /**
    * Sets the sub type terminology version.
    *
-   * @param terminologyVersion the sub type terminology version
+   * @param version the sub type terminology version
    */
-  public void setSubTypeTerminologyVersion(String terminologyVersion) {
+  public void setSubTypeVersion(String version) {
     if (subType == null) {
       subType = new DescriptorJpa();
     }
-    subType.setTerminologyVersion(terminologyVersion);
+    subType.setVersion(version);
   }
 
   /**

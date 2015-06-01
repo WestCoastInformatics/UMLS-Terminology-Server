@@ -35,7 +35,7 @@ import com.wci.umls.server.model.content.CodeRelationship;
  */
 @Entity
 @Table(name = "code_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @Indexed
@@ -151,20 +151,20 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
    * @return the from version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getFromTerminologyVersion() {
-    return from == null ? null : from.getTerminologyVersion();
+  public String getFromVersion() {
+    return from == null ? null : from.getVersion();
   }
   
   /**
    * Sets the from terminology id.
    *
-   * @param terminologyVersion the from terminology id
+   * @param version the from terminology id
    */
-  public void setFromTerminologyVersion(String terminologyVersion) {
+  public void setFromVersion(String version) {
     if (from == null) {
       from = new CodeJpa();
     }
-    from.setTerminologyVersion(terminologyVersion);
+    from.setVersion(version);
   }
 
   /**
@@ -305,20 +305,20 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
    * @return the to terminology version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getToTerminologyVersion() {
-    return to == null ? null : to.getTerminologyVersion();
+  public String getToVersion() {
+    return to == null ? null : to.getVersion();
   }
 
   /**
    * Sets the to terminology version.
    *
-   * @param terminologyVersion the to terminology version
+   * @param version the to terminology version
    */
-  public void setToTerminologyVersion(String terminologyVersion) {
+  public void setToVersion(String version) {
     if (to == null) {
       to = new CodeJpa();
     }
-    to.setTerminologyVersion(terminologyVersion);
+    to.setVersion(version);
   }
   
   /**

@@ -22,7 +22,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
  */
 @Entity
 @Table(name = "semantic_type_components", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "semanticTypeComponent")

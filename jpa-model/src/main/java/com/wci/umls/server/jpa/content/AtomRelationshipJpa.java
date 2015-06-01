@@ -28,7 +28,7 @@ import com.wci.umls.server.model.content.AtomRelationship;
  */
 @Entity
 @Table(name = "atom_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "atomRelationship")

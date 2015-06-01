@@ -116,7 +116,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals(0, c.getRelationships().size());
     assertEquals(0, c.getSemanticTypes().size());
     assertEquals(mshTerminology, c.getTerminology());
-    assertEquals(mshVersion, c.getTerminologyVersion());
+    assertEquals(mshVersion, c.getVersion());
     assertEquals("M0028634", c.getTerminologyId());
     assertFalse(c.getUsesRelationshipUnion());
     assertTrue(c.getUsesRelationshipIntersection());
@@ -146,7 +146,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals(0, c.getRelationships().size());
     assertEquals(0, c.getSemanticTypes().size());
     assertEquals(snomedTerminology, c.getTerminology());
-    assertEquals(snomedVersion, c.getTerminologyVersion());
+    assertEquals(snomedVersion, c.getVersion());
     assertEquals("40667002", c.getTerminologyId());
     assertFalse(c.getUsesRelationshipUnion());
     assertTrue(c.getUsesRelationshipIntersection());
@@ -178,7 +178,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals(0, c.getRelationships().size());
     assertEquals(1, c.getSemanticTypes().size());
     assertEquals(umlsTerminology, c.getTerminology());
-    assertEquals(umlsVersion, c.getTerminologyVersion());
+    assertEquals(umlsVersion, c.getVersion());
     assertEquals("C0018787", c.getTerminologyId());
     assertFalse(c.getUsesRelationshipUnion());
     assertTrue(c.getUsesRelationshipIntersection());
@@ -216,7 +216,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // relationships require a callback by default
     assertEquals(0, d.getRelationships().size());
     assertEquals(mshTerminology, d.getTerminology());
-    assertEquals(mshVersion, d.getTerminologyVersion());
+    assertEquals(mshVersion, d.getVersion());
     assertEquals("D019226", d.getTerminologyId());
     assertEquals("PUBLISHED", d.getWorkflowStatus());
     assertEquals("loader", d.getLastModifiedBy());
@@ -251,7 +251,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // atom definitions still used
     assertEquals(0, c.getRelationships().size());
     assertEquals(mshTerminology, c.getTerminology());
-    assertEquals(mshVersion, c.getTerminologyVersion());
+    assertEquals(mshVersion, c.getVersion());
     assertEquals("D019226", c.getTerminologyId());
     assertEquals("PUBLISHED", c.getWorkflowStatus());
     assertEquals("loader", c.getLastModifiedBy());
@@ -274,7 +274,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals(0, c.getAttributes().size());
     assertEquals(0, c.getRelationships().size());
     assertEquals(snomedTerminology, c.getTerminology());
-    assertEquals(snomedVersion, c.getTerminologyVersion());
+    assertEquals(snomedVersion, c.getVersion());
     assertEquals("40667002", c.getTerminologyId());
     assertEquals("PUBLISHED", c.getWorkflowStatus());
     assertEquals("loader", c.getLastModifiedBy());
@@ -325,7 +325,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       assertEquals(0, subset.getAttributes().size());
       assertEquals(subset.getDescription(), subset.getName());
       assertEquals(snomedTerminology, subset.getTerminology());
-      assertEquals(snomedVersion, subset.getTerminologyVersion());
+      assertEquals(snomedVersion, subset.getVersion());
       if (subset.getName().equals("GB English")) {
         foundCt++;
         assertEquals("900000000000508004", subset.getTerminologyId());
@@ -366,7 +366,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         // Not completely equal because of XmlTransient
         assertEquals(member.getSubset().getName(), subset.getName());
         assertEquals(snomedTerminology, member.getTerminology());
-        assertEquals(snomedVersion, member.getTerminologyVersion());
+        assertEquals(snomedVersion, member.getVersion());
       } else if (subset.getName().equals(
           "REFERS TO concept association reference set")) {
         assertEquals("900000000000531004", subset.getTerminologyId());
@@ -409,7 +409,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       assertEquals(0, subset.getAttributes().size());
       assertEquals(subset.getDescription(), subset.getName());
       assertEquals(snomedTerminology, subset.getTerminology());
-      assertEquals(snomedVersion, subset.getTerminologyVersion());
+      assertEquals(snomedVersion, subset.getVersion());
       if (subset.getName().equals("SAME AS association reference set")) {
         foundCt++;
         assertFalse(subset.isObsolete());
@@ -466,7 +466,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         // Not completely equal because of XmlTransient
         assertEquals(member.getSubset().getName(), subset.getName());
         assertEquals(snomedTerminology, member.getTerminology());
-        assertEquals(snomedVersion, member.getTerminologyVersion());
+        assertEquals(snomedVersion, member.getVersion());
       }
     }
     assertEquals(3, foundCt);
@@ -2048,7 +2048,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     SearchResultList sml =
         contentService.findConceptsForGeneralQuery("",
             "SELECT c FROM ConceptJpa c", new PfsParameterJpa(), authToken);
-    assertTrue(sml.getCount() == 6942);
+    assertEquals(6942, sml.getCount());
 
     /** Find concepts with hql query and pfs parameter max results 20 */
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -2060,8 +2060,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findConceptsForGeneralQuery("",
             "SELECT c FROM ConceptJpa c", pfs, authToken);
-    assertTrue(sml.getCount() == 20);
-    assertTrue(sml.getTotalCount() == 6942);
+    assertEquals(20, sml.getCount());
+    assertEquals(6942, sml.getTotalCount());
 
     /** Find concepts in intersection of lucene and hql queries */
     Logger
@@ -2073,8 +2073,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findConceptsForGeneralQuery("name:amino",
             "SELECT c FROM ConceptJpa c", new PfsParameterJpa(), authToken);
-    assertTrue(sml.getCount() == 10);
-    assertTrue(sml.getTotalCount() == 10);
+    assertEquals(10,sml.getCount());
+    assertEquals(10, sml.getTotalCount());
 
     /** Find concepts in lucene query */
     Logger.getLogger(getClass()).info(
@@ -2082,8 +2082,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findConceptsForGeneralQuery("name:amino", "",
             new PfsParameterJpa(), authToken);
-    assertTrue(sml.getCount() == 10);
-    assertTrue(sml.getTotalCount() == 10);
+    assertEquals(10,sml.getCount());
+    assertEquals(10,sml.getTotalCount());
 
     /** Find descriptors with hql query */
     Logger.getLogger(getClass()).info(
@@ -2092,7 +2092,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findDescriptorsForGeneralQuery("",
             "SELECT c FROM DescriptorJpa c", new PfsParameterJpa(), authToken);
-    assertTrue(sml.getCount() == 997);
+    assertEquals(997, sml.getCount());
 
     /** Find descriptors with hql query and pfs parameter max results 20 */
     pfs = new PfsParameterJpa();
@@ -2104,8 +2104,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findDescriptorsForGeneralQuery("",
             "SELECT c FROM DescriptorJpa c", pfs, authToken);
-    assertTrue(sml.getCount() == 20);
-    assertTrue(sml.getTotalCount() == 997);
+    assertEquals(20,sml.getCount());
+    assertEquals(997,sml.getTotalCount());
 
     /** Find descriptors in intersection of lucene and hql queries */
     Logger
@@ -2117,8 +2117,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findDescriptorsForGeneralQuery("name:amino",
             "SELECT c FROM DescriptorJpa c", new PfsParameterJpa(), authToken);
-    assertTrue(sml.getCount() == 4);
-    assertTrue(sml.getTotalCount() == 4);
+    assertEquals(4,sml.getCount());
+    assertEquals(4,sml.getTotalCount());
 
     /** Find descriptors in lucene query */
     Logger.getLogger(getClass()).info(
@@ -2126,8 +2126,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findDescriptorsForGeneralQuery("name:amino", "",
             new PfsParameterJpa(), authToken);
-    assertTrue(sml.getCount() == 4);
-    assertTrue(sml.getTotalCount() == 4);
+    assertEquals(4,sml.getCount());
+    assertEquals(4,sml.getTotalCount());
 
     /** Find codes with hql query */
     Logger.getLogger(getClass()).info(
@@ -2136,7 +2136,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findCodesForGeneralQuery("", "SELECT c FROM CodeJpa c",
             new PfsParameterJpa(), authToken);
-    assertTrue(sml.getCount() == 5050);
+    assertEquals(5049,sml.getCount());
 
     /** Find codes with hql query and pfs parameter max results 20 */
     pfs = new PfsParameterJpa();
@@ -2148,8 +2148,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findCodesForGeneralQuery("", "SELECT c FROM CodeJpa c",
             pfs, authToken);
-    assertTrue(sml.getCount() == 20);
-    assertTrue(sml.getTotalCount() == 5050);
+    assertEquals(20,sml.getCount());
+    assertEquals(5049,sml.getTotalCount());
 
     /** Find codes in intersection of lucene and hql queries */
     Logger.getLogger(getClass()).info(
@@ -2159,8 +2159,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findCodesForGeneralQuery("name:amino",
             "SELECT c FROM CodeJpa c", new PfsParameterJpa(), authToken);
-    assertTrue(sml.getCount() == 6);
-    assertTrue(sml.getTotalCount() == 6);
+    assertEquals(6,sml.getCount());
+    assertEquals(6,sml.getTotalCount());
 
     /** Find codes in lucene query */
     Logger.getLogger(getClass()).info(
@@ -2168,77 +2168,81 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findCodesForGeneralQuery("name:amino", "",
             new PfsParameterJpa(), authToken);
-    assertTrue(sml.getCount() == 6);
-    assertTrue(sml.getTotalCount() == 6);
+    assertEquals(6,sml.getCount());
+    assertEquals(6,sml.getTotalCount());
   }
 
+  /**
+   * Test finding relationships for a concept.
+   *
+   * @throws Exception the exception
+   */
   @Test
   public void testNormalUseRestContent020() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
     /** Find relationships for given concept */
     Logger.getLogger(getClass()).info(
-        "TEST1 - " + "C0000737, UMLS, latest, "
-            + authToken);
+        "TEST1 - " + "C0000737, UMLS, latest, " + authToken);
     PfsParameterJpa pfs = new PfsParameterJpa();
     RelationshipList l =
-        contentService.findRelationshipsForConcept("C0000737",
-            umlsTerminology, umlsVersion, "", pfs, authToken);
-     assertTrue(l.getCount() == 20);
-     
-     /** Find relationships for given descriptor */
-     Logger.getLogger(getClass()).info(
-         "TEST2 - " + "D000015, MSH, mshVersion, "
-             + authToken);
-     pfs = new PfsParameterJpa();
-     l = contentService.findRelationshipsForDescriptor("D000015",
-             mshTerminology, mshVersion, "", pfs, authToken);
-      assertTrue(l.getCount() == 50);
-     
-      /** Find relationships for given code */
-      Logger.getLogger(getClass()).info(
-          "TEST3 - " + "U000019, MSH, mshVersion, "
-              + authToken);
-      pfs = new PfsParameterJpa();
-      l = contentService.findRelationshipsForCode("U000019",
-              mshTerminology, mshVersion, "", pfs, authToken);
-       assertTrue(l.getCount() == 15);
-       
-       /** Find relationships for given concept with pfs*/
-       Logger.getLogger(getClass()).info(
-           "TEST4 - " + "C0000737, UMLS, latest, "
-               + authToken);
-       pfs = new PfsParameterJpa();
-       pfs.setStartIndex(0);
-       pfs.setMaxResults(3);
-       l = contentService.findRelationshipsForConcept("C0000737",
-               umlsTerminology, umlsVersion, "", pfs, authToken);
-        assertTrue(l.getCount() == 3);
-        assertTrue(l.getTotalCount() == 20);
-        
-        /** Find relationships for given descriptor with pfs*/
-        Logger.getLogger(getClass()).info(
-            "TEST5 - " + "D000015, MSH, mshVersion, "
-                + authToken);
-        pfs = new PfsParameterJpa();
-        pfs.setStartIndex(0);
-        pfs.setMaxResults(3);
-        l = contentService.findRelationshipsForDescriptor("D000015",
-                mshTerminology, mshVersion, "", pfs, authToken);
-         assertTrue(l.getCount() == 3);
-         assertTrue(l.getTotalCount() == 50);
-        
-         /** Find relationships for given code with pfs*/
-         Logger.getLogger(getClass()).info(
-             "TEST6 - " + "U000019, MSH, mshVersion, "
-                 + authToken);
-         pfs = new PfsParameterJpa();
-         pfs.setStartIndex(0);
-         pfs.setMaxResults(3);
-         l = contentService.findRelationshipsForCode("U000019",
-                 mshTerminology, mshVersion, "", pfs, authToken);
-          assertTrue(l.getCount() == 3);
-          assertTrue(l.getTotalCount() == 15);
+        contentService.findRelationshipsForConcept("C0000737", umlsTerminology,
+            umlsVersion, "", pfs, authToken);
+    assertEquals(20,l.getCount());
+
+    /** Find relationships for given descriptor */
+    Logger.getLogger(getClass()).info(
+        "TEST2 - " + "D000015, MSH, mshVersion, " + authToken);
+    pfs = new PfsParameterJpa();
+    l =
+        contentService.findRelationshipsForDescriptor("D000015",
+            mshTerminology, mshVersion, "", pfs, authToken);
+    assertEquals(50,l.getCount());
+
+    /** Find relationships for given code */
+    Logger.getLogger(getClass()).info(
+        "TEST3 - " + "U000019, MSH, mshVersion, " + authToken);
+    pfs = new PfsParameterJpa();
+    l =
+        contentService.findRelationshipsForCode("U000019", mshTerminology,
+            mshVersion, "", pfs, authToken);
+    assertEquals(15,l.getCount());
+
+    /** Find relationships for given concept with pfs */
+    Logger.getLogger(getClass()).info(
+        "TEST4 - " + "C0000737, UMLS, latest, " + authToken);
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(3);
+    l =
+        contentService.findRelationshipsForConcept("C0000737", umlsTerminology,
+            umlsVersion, "", pfs, authToken);
+    assertEquals(3,l.getCount());
+    assertEquals(20,l.getTotalCount());
+
+    /** Find relationships for given descriptor with pfs */
+    Logger.getLogger(getClass()).info(
+        "TEST5 - " + "D000015, MSH, mshVersion, " + authToken);
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(3);
+    l =
+        contentService.findRelationshipsForDescriptor("D000015",
+            mshTerminology, mshVersion, "", pfs, authToken);
+    assertEquals(3,l.getCount());
+    assertEquals(50,l.getTotalCount());
+
+    /** Find relationships for given code with pfs */
+    Logger.getLogger(getClass()).info(
+        "TEST6 - " + "U000019, MSH, mshVersion, " + authToken);
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(3);
+    l =
+        contentService.findRelationshipsForCode("U000019", mshTerminology,
+            mshVersion, "", pfs, authToken);
+    assertEquals(3,l.getCount());
+    assertEquals(15,l.getTotalCount());
   }
 
   /**

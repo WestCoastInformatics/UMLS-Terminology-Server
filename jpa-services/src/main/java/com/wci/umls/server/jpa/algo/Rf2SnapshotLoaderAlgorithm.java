@@ -63,7 +63,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   private String terminology;
 
   /** The terminology version. */
-  private String terminologyVersion;
+  private String version;
 
   /** The release version. */
   private String releaseVersion;
@@ -127,10 +127,10 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   /**
    * Sets the terminology version.
    *
-   * @param terminologyVersion the terminology version
+   * @param version the terminology version
    */
-  public void setTerminologyVersion(String terminologyVersion) {
-    this.terminologyVersion = terminologyVersion;
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   /**
@@ -166,7 +166,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     try {
       Logger.getLogger(getClass()).info("Start loading snapshot");
       Logger.getLogger(getClass()).info("  terminology = " + terminology);
-      Logger.getLogger(getClass()).info("  version = " + terminologyVersion);
+      Logger.getLogger(getClass()).info("  version = " + version);
       Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
       releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
 
@@ -346,7 +346,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         info.setReleaseBeginDate(releaseVersionDate);
         info.setReleaseFinishDate(releaseVersionDate);
         info.setTerminology(terminology);
-        info.setTerminologyVersion(terminologyVersion);
+        info.setVersion(version);
         info.setLastModified(releaseVersionDate);
         info.setLastModifiedBy(loader);
         addReleaseInfo(info);
@@ -361,7 +361,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       conceptCache.clear();
 
       Logger.getLogger(getClass()).info(
-          getComponentStats(terminology, terminologyVersion, Branch.ROOT));
+          getComponentStats(terminology, version, Branch.ROOT));
 
       // Final logging messages
       Logger.getLogger(getClass()).info(
@@ -502,7 +502,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         concept.setSuppressible(concept.isObsolete());
         concept.setFullyDefined(fields[4].equals("900000000000073002"));
         concept.setTerminology(terminology);
-        concept.setTerminologyVersion(terminologyVersion);
+        concept.setVersion(version);
         concept.setName(initPrefName);
         concept.setLastModified(date);
         concept.setLastModifiedBy(loader);
@@ -581,7 +581,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         relationship.setStated(fields[8].equals("900000000000010007"));
         relationship.setInferred(fields[8].equals("900000000000011006"));
         relationship.setTerminology(terminology);
-        relationship.setTerminologyVersion(terminologyVersion);
+        relationship.setVersion(version);
         relationship.setLastModified(releaseVersionDate);
         relationship.setLastModifiedBy(loader);
         relationship.setPublished(true);
@@ -698,7 +698,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         atom.setTermType(fields[6].intern());
         atom.setName(fields[7]);
         atom.setTerminology(terminology);
-        atom.setTerminologyVersion(terminologyVersion);
+        atom.setVersion(version);
         atom.setPublished(true);
         atom.setPublishable(true);
         atom.setWorkflowStatus(published);
@@ -811,7 +811,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         member.setObsolete(fields[2].equals("0"));
         member.setSuppressible(member.isObsolete());
         member.setTerminology(terminology);
-        member.setTerminologyVersion(terminologyVersion);
+        member.setVersion(version);
         member.setPublished(true);
         member.setPublishable(true);
 
@@ -954,7 +954,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
         // Terminology attributes
         member.setTerminology(terminology);
-        member.setTerminologyVersion(terminologyVersion);
+        member.setVersion(version);
 
         logAndCommit(++objectCt);
 
@@ -1065,7 +1065,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
         // Terminology attributes
         member.setTerminology(terminology);
-        member.setTerminologyVersion(terminologyVersion);
+        member.setVersion(version);
 
         logAndCommit(++objectCt);
 
@@ -1145,7 +1145,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
         // Terminology attributes
         member.setTerminology(terminology);
-        member.setTerminologyVersion(terminologyVersion);
+        member.setVersion(version);
 
         logAndCommit(++objectCt);
 
@@ -1233,7 +1233,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
         // Terminology attributes
         member.setTerminology(terminology);
-        member.setTerminologyVersion(terminologyVersion);
+        member.setVersion(version);
 
         logAndCommit(++objectCt);
 
@@ -1357,7 +1357,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
         // Terminology attributes
         member.setTerminology(terminology);
-        member.setTerminologyVersion(terminologyVersion);
+        member.setVersion(version);
 
         logAndCommit(++objectCt);
 
@@ -1453,7 +1453,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
         // Terminology attributes
         member.setTerminology(terminology);
-        member.setTerminologyVersion(terminologyVersion);
+        member.setVersion(version);
 
         logAndCommit(++objectCt);
 
@@ -1549,7 +1549,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
         // Terminology attributes
         member.setTerminology(terminology);
-        member.setTerminologyVersion(terminologyVersion);
+        member.setVersion(version);
 
         logAndCommit(++objectCt);
 

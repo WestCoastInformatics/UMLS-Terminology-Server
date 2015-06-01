@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.LexicalClass;
  */
 @Entity
 @Table(name = "lexical_classes", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "lexicalClass")

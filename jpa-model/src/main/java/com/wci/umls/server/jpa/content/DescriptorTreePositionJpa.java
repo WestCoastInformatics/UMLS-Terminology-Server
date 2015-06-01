@@ -31,7 +31,7 @@ import com.wci.umls.server.model.content.DescriptorTreePosition;
  */
 @Entity
 @Table(name = "descriptor_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @Indexed
@@ -171,20 +171,20 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
    * @return the node terminology version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getNodeTerminologyVersion() {
-    return node == null ? null : node.getTerminologyVersion();
+  public String getNodeVersion() {
+    return node == null ? null : node.getVersion();
   }
 
   /**
    * Sets the node terminology version. For JAXB.
    *
-   * @param terminologyVersion the node terminology version
+   * @param version the node terminology version
    */
-  public void setNodeTerminologyVersion(String terminologyVersion) {
+  public void setNodeVersion(String version) {
     if (node == null) {
       node = new DescriptorJpa();
     }
-    node.setTerminologyVersion(terminologyVersion);
+    node.setVersion(version);
   }
 
   /*

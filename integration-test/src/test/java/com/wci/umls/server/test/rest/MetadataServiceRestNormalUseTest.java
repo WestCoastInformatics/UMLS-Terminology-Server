@@ -184,7 +184,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertEquals(IdType.CONCEPT, umls.getOrganizingClassType());
     assertEquals("UMLS", umls.getPreferredName());
     assertEquals("UMLS", umls.getTerminology());
-    assertEquals("latest", umls.getTerminologyVersion());
+    assertEquals("latest", umls.getVersion());
 
     assertEquals("UMLS", umls.getRootTerminology().getTerminology());
     // Because of XML Transient
@@ -211,7 +211,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertEquals("US Edition of SNOMED CT, 2014_09_01",
         snomed.getPreferredName());
     assertEquals("SNOMEDCT_US", snomed.getTerminology());
-    assertEquals("2014_09_01", snomed.getTerminologyVersion());
+    assertEquals("2014_09_01", snomed.getVersion());
 
     assertEquals("SNOMEDCT_US", snomed.getRootTerminology().getTerminology());
     // Because of XML Transient
@@ -238,7 +238,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertEquals("Medical Subject Headings, 2015_2014_09_08",
         msh.getPreferredName());
     assertEquals("MSH", msh.getTerminology());
-    assertEquals("2015_2014_09_08", msh.getTerminologyVersion());
+    assertEquals("2015_2014_09_08", msh.getVersion());
 
     assertEquals("MSH", msh.getRootTerminology().getTerminology());
     // Because of XML Transient

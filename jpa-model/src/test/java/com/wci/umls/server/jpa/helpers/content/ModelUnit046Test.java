@@ -57,13 +57,13 @@ public class ModelUnit046Test {
     concept1.setName("1");
     concept1.setTerminologyId("1");
     concept1.setTerminology("1");
-    concept1.setTerminologyVersion("1");
+    concept1.setVersion("1");
     concept2 = new ConceptJpa();
     concept2.setId(2L);
     concept2.setName("2");
     concept2.setTerminologyId("2");
     concept2.setTerminology("2");
-    concept2.setTerminologyVersion("2");
+    concept2.setVersion("2");
   }
 
   /**
@@ -78,7 +78,7 @@ public class ModelUnit046Test {
     tester.exclude("nodeId");
     tester.exclude("nodeTerminologyId");
     tester.exclude("nodeTerminology");
-    tester.exclude("nodeTerminologyVersion");
+    tester.exclude("nodeVersion");
     tester.exclude("nodeName");
     tester.test();
   }
@@ -98,7 +98,7 @@ public class ModelUnit046Test {
     tester.include("published");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("additionalRelationshipType");
     tester.include("ancestorPath");
     tester.include("childCt");
@@ -171,7 +171,7 @@ public class ModelUnit046Test {
     assertTrue(xml.contains("<nodeName>"));
     assertTrue(xml.contains("<nodeTerminologyId>"));
     assertTrue(xml.contains("<nodeTerminology>"));
-    assertTrue(xml.contains("<nodeTerminologyVersion>"));
+    assertTrue(xml.contains("<nodeVersion>"));
     assertFalse(xml.contains("<node>"));
   }
 
@@ -192,7 +192,7 @@ public class ModelUnit046Test {
     tester.include("publishable");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("node");
     tester.include("childCt");
     tester.include("descendantCt");

@@ -38,7 +38,7 @@ import com.wci.umls.server.model.meta.Terminology;
  */
 @Entity
 @Table(name = "terminologies", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminology", "terminologyVersion"
+    "terminology", "version"
 }))
 @Audited
 @XmlRootElement(name = "terminology")
@@ -84,7 +84,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
 
   /** The terminology version. */
   @Column(nullable = false)
-  private String terminologyVersion;
+  private String version;
 
   /** The is asserts rel direction. */
   @Column(nullable = false)
@@ -124,7 +124,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     rootTerminology = terminology.getRootTerminology();
     startDate = terminology.getStartDate();
     synonymousNames = terminology.getSynonymousNames();
-    terminologyVersion = terminology.getTerminologyVersion();
+    version = terminology.getVersion();
     assertsRelDirection = terminology.isAssertsRelDirection();
     current = terminology.isCurrent();
     metathesaurus = terminology.isMetathesaurus();
@@ -352,23 +352,23 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.model.meta.Terminology#getTerminologyVersion()
+   * @see com.wci.umls.server.model.meta.Terminology#getVersion()
    */
   @Override
-  public String getTerminologyVersion() {
-    return terminologyVersion;
+  public String getVersion() {
+    return version;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.model.meta.Terminology#setTerminologyVersion(java.lang
+   * com.wci.umls.server.model.meta.Terminology#setVersion(java.lang
    * .String)
    */
   @Override
-  public void setTerminologyVersion(String terminologyVersion) {
-    this.terminologyVersion = terminologyVersion;
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   /*
@@ -482,7 +482,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     result =
         prime
             * result
-            + ((terminologyVersion == null) ? 0 : terminologyVersion.hashCode());
+            + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
@@ -538,10 +538,10 @@ public class TerminologyJpa extends AbstractHasLastModified implements
         return false;
     } else if (!terminology.equals(other.terminology))
       return false;
-    if (terminologyVersion == null) {
-      if (other.terminologyVersion != null)
+    if (version == null) {
+      if (other.version != null)
         return false;
-    } else if (!terminologyVersion.equals(other.terminologyVersion))
+    } else if (!version.equals(other.version))
       return false;
     return true;
   }
@@ -552,7 +552,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
         + citation + ", endDate=" + endDate + ", organizingClassType="
         + organizingClassType + ", preferredName=" + preferredName
         + ", startDate=" + startDate + ", synonymousNames=" + synonymousNames
-        + ", terminologyVersion=" + terminologyVersion
+        + ", version=" + version
         + ", assertsRelDirection=" + assertsRelDirection + ", current="
         + current + ", metathesaurus=" + metathesaurus
         + ", descriptionLogicTerminology=" + descriptionLogicTerminology + "]";

@@ -91,13 +91,13 @@ tsApp
           }
           
           // set the autocomplete url, with pattern: /type/{terminology}/{version}/autocomplete/{searchTerm}
-          $scope.autocompleteUrl = contentUrl + getUrlPrefix($scope.terminology.organizingClassType) + '/' + $scope.terminology.terminology + '/' + $scope.terminology.terminologyVersion + "/autocomplete/";
+          $scope.autocompleteUrl = contentUrl + getUrlPrefix($scope.terminology.organizingClassType) + '/' + $scope.terminology.terminology + '/' + $scope.terminology.version + "/autocomplete/";
        
           $scope.glassPane++;
           $http(
             {
               url : metadataUrl + 'all/terminology/id/' + $scope.terminology.terminology
-                + '/' + $scope.terminology.terminologyVersion,
+                + '/' + $scope.terminology.version,
               method : "GET",
               headers : {
                 "Content-Type" : "application/json"
@@ -411,7 +411,7 @@ tsApp
             $scope.glassPane++;
             $http(
             {
-              url : contentUrl + typePrefix + "/" + terminologyObj.terminology + "/" + terminologyObj.terminologyVersion + "/"
+              url : contentUrl + typePrefix + "/" + terminologyObj.terminology + "/" + terminologyObj.version + "/"
                 + terminologyId,
               method : "GET",
 
@@ -504,7 +504,7 @@ tsApp
           $http(
             {
               url : contentUrl + getUrlPrefix($scope.terminology.organizingClassType) + "/" + $scope.terminology.terminology + "/"
-                + $scope.terminology.terminologyVersion + "/query/" + queryStr,
+                + $scope.terminology.version + "/query/" + queryStr,
               method : "POST",
               dataType : "json",
               data : pfs,
@@ -947,7 +947,7 @@ tsApp
         	
         	for (var i = 0; i < $scope.componentHistory.length; i++) {
         		var comp = $scope.componentHistory[i];
-        		var searchResult = {'terminology':comp['terminology'], 'terminologyVersion':comp['terminologyVersion'], 'name':comp['name']}
+        		var searchResult = {'terminology':comp['terminology'], 'version':comp['version'], 'name':comp['name']}
         		searchResults.push(searchResult);
         	}
         	
@@ -1060,7 +1060,7 @@ tsApp
               {
                 url : contentUrl + typePrefix 
                 + "/" + $scope.component.terminology
-                + "/" + $scope.component.terminologyVersion 
+                + "/" + $scope.component.version 
                 + "/" + $scope.component.terminologyId 
                 + "/relationships/query/" + query,
                 method : "POST",

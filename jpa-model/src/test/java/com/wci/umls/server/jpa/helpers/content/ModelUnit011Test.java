@@ -75,7 +75,7 @@ public class ModelUnit011Test {
     tester.include("published");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
 
     tester.include("name");
     tester.include("fullyDefined");
@@ -132,7 +132,7 @@ public class ModelUnit011Test {
     tester.include("publishable");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("name");
     tester.include("fullyDefined");
     tester.include("anonymous");
@@ -167,7 +167,7 @@ public class ModelUnit011Test {
     tester.include("publishable");
     tester.include("terminologyId");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("fullyDefined");
     tester.include("anonymous");
     tester.include("nameSort");

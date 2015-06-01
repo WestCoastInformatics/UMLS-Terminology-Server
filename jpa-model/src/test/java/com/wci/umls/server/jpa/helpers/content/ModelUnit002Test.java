@@ -70,7 +70,7 @@ public class ModelUnit002Test {
     tester.include("planned");
     tester.include("published");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
@@ -118,7 +118,7 @@ public class ModelUnit002Test {
     tester.include("planned");
     tester.include("published");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
 

@@ -52,7 +52,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
   private String terminology;
 
   /** The terminology version. */
-  private String terminologyVersion;
+  private String version;
 
   /** The id type. */
   private IdType idType;
@@ -86,10 +86,10 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
   /**
    * Sets the terminology version.
    *
-   * @param terminologyVersion the terminology version
+   * @param version the terminology version
    */
-  public void setTerminologyVersion(String terminologyVersion) {
-    this.terminologyVersion = terminologyVersion;
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   /**
@@ -145,11 +145,11 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     Logger.getLogger(getClass())
         .info(
             "  Get hierarchical rel for " + terminology + ", "
-                + terminologyVersion);
+                + version);
     fireProgressEvent(0, "Starting...");
     MetadataService service = new MetadataServiceJpa();
     if (service
-        .getHierarchicalRelationshipTypes(terminology, terminologyVersion)
+        .getHierarchicalRelationshipTypes(terminology, version)
         .getObjects().size() == 0) {
       fireProgressEvent(100, "NO hierarchical rels, exiting...");
       Logger.getLogger(getClass()).info("  NO hierarchical rels, exiting...");
@@ -157,7 +157,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     }
     String chdRel =
         service
-            .getHierarchicalRelationshipTypes(terminology, terminologyVersion)
+            .getHierarchicalRelationshipTypes(terminology, version)
             .getObjects().iterator().next().getAbbreviation();
     service.close();
     Logger.getLogger(getClass()).info("    hierarchical rel = " + chdRel);
@@ -181,13 +181,13 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
                 "select r.from.id, r.to.id from "
                     + tableName
                     + " r where "
-                    + "terminologyVersion = :terminologyVersion and terminology = :terminology "
+                    + "version = :version and terminology = :terminology "
                     + "and relationshipType = :relationshipType and obsolete = 0 "
                     + "and r.from in (select o from " + tableName2
                     + " o where obsolete = 0)")
             .setParameter("relationshipType", chdRel)
             .setParameter("terminology", terminology)
-            .setParameter("terminologyVersion", terminologyVersion)
+            .setParameter("version", version)
             .getResultList();
 
     int ct = 0;
@@ -321,7 +321,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     tp.setPublished(false);
     tp.setAncestorPath(ancestorPath);
     tp.setTerminology(terminology);
-    tp.setTerminologyVersion(terminologyVersion);
+    tp.setVersion(version);
     // No ids if computing - only if loading
     tp.setTerminologyId("");
 
@@ -394,7 +394,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
    */
   @Override
   public void reset() throws Exception {
-    clearTreePositions(terminology, terminologyVersion);
+    clearTreePositions(terminology, version);
   }
 
   /**

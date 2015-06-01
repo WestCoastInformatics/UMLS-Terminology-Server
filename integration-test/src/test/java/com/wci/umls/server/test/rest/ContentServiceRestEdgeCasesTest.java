@@ -45,8 +45,8 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
     authToken = securityService.authenticate(testUser, testPassword);
 
     // set terminology and version
-    testTerminology = "SNOMEDCT";
-    testVersion = "latest";
+    testTerminology = "SNOMEDCT_US";
+    testVersion = "2014_09_01";
    
   }
 

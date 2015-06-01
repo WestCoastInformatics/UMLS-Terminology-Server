@@ -72,27 +72,27 @@ public class PfsParameterForComponentTest {
         SearchResult sr = (SearchResult) result;
         obj =
             contentService.getLexicalClass(sr.getTerminologyId(),
-                sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
+                sr.getTerminology(), sr.getVersion(), Branch.ROOT);
       } else if (StringClassJpa.class.isAssignableFrom(sortClass)) {
         SearchResult sr = (SearchResult) result;
         obj =
             contentService.getStringClass(sr.getTerminologyId(),
-                sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
+                sr.getTerminology(), sr.getVersion(), Branch.ROOT);
       } else if (ConceptJpa.class.isAssignableFrom(sortClass)) {
         SearchResult sr = (SearchResult) result;
         obj =
             contentService.getConcept(sr.getTerminologyId(),
-                sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
+                sr.getTerminology(), sr.getVersion(), Branch.ROOT);
       } else if (DescriptorJpa.class.isAssignableFrom(sortClass)) {
         SearchResult sr = (SearchResult) result;
         obj =
             contentService.getCode(sr.getTerminologyId(), sr.getTerminology(),
-                sr.getTerminologyVersion(), Branch.ROOT);
+                sr.getVersion(), Branch.ROOT);
       } else if (CodeJpa.class.isAssignableFrom(sortClass)) {
         SearchResult sr = (SearchResult) result;
         obj =
             contentService.getCode(sr.getTerminologyId(),
-                sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
+                sr.getTerminology(), sr.getVersion(), Branch.ROOT);
       } else {
         obj = result;
       }

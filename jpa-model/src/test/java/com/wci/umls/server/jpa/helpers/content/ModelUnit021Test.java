@@ -93,12 +93,12 @@ public class ModelUnit021Test {
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("fromId");
     tester.exclude("fromTerminology");
-    tester.exclude("fromTerminologyVersion");
+    tester.exclude("fromVersion");
     tester.exclude("fromTerminologyId");
     tester.exclude("fromName");
     tester.exclude("toId");
     tester.exclude("toTerminology");
-    tester.exclude("toTerminologyVersion");
+    tester.exclude("toVersion");
     tester.exclude("toTerminologyId");
     tester.exclude("toName");
     tester.test();
@@ -119,7 +119,7 @@ public class ModelUnit021Test {
     tester.include("published");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("alternateTerminologyIds");
     tester.include("assertedDirection");
     tester.include("additionalRelationshipType");
@@ -267,7 +267,7 @@ public class ModelUnit021Test {
     tester.include("publishable");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("assertedDirection");
     tester.include("relationshipType");
     tester.include("inferred");

@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.DescriptorRelationship;
  */
 @Entity
 @Table(name = "descriptors", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @Indexed

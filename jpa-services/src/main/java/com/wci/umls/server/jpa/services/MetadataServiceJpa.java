@@ -377,7 +377,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       javax.persistence.Query query =
           manager
               .createQuery("SELECT t FROM TerminologyJpa t "
-                  + "WHERE terminology = :terminology AND terminologyVersion = :version");
+                  + "WHERE terminology = :terminology AND version = :version");
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       return (Terminology) query.getSingleResult();
@@ -423,7 +423,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
         "Metadata service - get latest version " + terminology);
     javax.persistence.Query query =
         manager
-            .createQuery("SELECT max(t.terminologyVersion) from TerminologyJpa t where terminology = :terminology");
+            .createQuery("SELECT max(t.version) from TerminologyJpa t where terminology = :terminology");
 
     query.setParameter("terminology", terminology);
     Object o = query.getSingleResult();
@@ -447,7 +447,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     javax.persistence.TypedQuery<Object[]> query =
         manager
             .createQuery(
-                "SELECT t.terminology, max(t.terminologyVersion) from TerminologyJpa t group by t.terminology",
+                "SELECT t.terminology, max(t.version) from TerminologyJpa t group by t.terminology",
                 Object[].class);
 
     List<Object[]> resultList = query.getResultList();
@@ -784,7 +784,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
           query =
               manager.createQuery("DELETE FROM " + jpaTable
                   + " WHERE terminology = :terminology "
-                  + " AND terminologyVersion = :version");
+                  + " AND version = :version");
           query.setParameter("terminology", terminology);
           query.setParameter("version", version);
         }
@@ -1287,7 +1287,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   public Terminology addTerminology(Terminology terminology) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Metadata Service - add terminology " + terminology.getTerminology()
-            + " " + terminology.getTerminologyVersion());
+            + " " + terminology.getVersion());
 
     // Add component
     Terminology newTerminology = addMetadata(terminology);
