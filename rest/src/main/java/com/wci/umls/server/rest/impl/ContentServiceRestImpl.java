@@ -731,7 +731,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   public SearchResultList findConceptsForQuery(
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -958,7 +958,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   public SearchResultList findDescriptorsForQuery(
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -1138,7 +1138,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   public SearchResultList findCodesForQuery(
     @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code terminology version, e.g. 2014AB", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'sulfur'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2248,10 +2248,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // if top-level nodes are different, we do not expect this. so fake it
         else if (!firstTree.getSelf().getNode().getId()
             .equals(tree.getSelf().getNode().getId())) {
-          // TODO: need to figure out what to do
-          // Options:
+          // Several options for handling this case (which should not exist in
+          // non-test data):
           // 1. fake it (e.g. create a "fake root" and merge below that)
-          // 2. fix the data so this never happens (hard to do)
+          // 2. fix the test data so this never happens (hard to do)
           // 3. ignore anything not matching the firstTree (done here)
           continue;
         } else {
@@ -2312,11 +2312,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // if top-level nodes are different, we do not expect this. so fake it
         else if (!firstTree.getSelf().getNode().getId()
             .equals(tree.getSelf().getNode().getId())) {
-          // TODO: need to figure out what to do
-          // Options:
-          // 1. fake it (e.g. create a "fake root" and merge below that)
-          // 2. fix the data so this never happens (hard to do)
-          // 3. ignore anything not matching the firstTree (done here)
+        // Several options for handling this case (which should not exist in non-test data):
+        // 1. fake it (e.g. create a "fake root" and merge below that)
+        // 2. fix the test data so this never happens (hard to do)
+        // 3. ignore anything not matching the firstTree (done here)
           continue;
         } else {
           firstTree.mergeTree(tree);
@@ -2342,7 +2341,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   public Tree findCodeTreeForQuery(
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Codeterminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query search term, e.g. 'sulphur'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query search term, e.g. 'aspirin'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2377,11 +2376,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // if top-level nodes are different, we do not expect this. so fake it
         else if (!firstTree.getSelf().getNode().getId()
             .equals(tree.getSelf().getNode().getId())) {
-          // TODO: need to figure out what to do
-          // Options:
-          // 1. fake it (e.g. create a "fake root" and merge below that)
-          // 2. fix the data so this never happens (hard to do)
-          // 3. ignore anything not matching the firstTree (done here)
+        // Several options for handling this case (which should not exist in non-test data):
+        // 1. fake it (e.g. create a "fake root" and merge below that)
+        // 2. fix the test data so this never happens (hard to do)
+        // 3. ignore anything not matching the firstTree (done here)
           continue;
         } else {
           firstTree.mergeTree(tree);

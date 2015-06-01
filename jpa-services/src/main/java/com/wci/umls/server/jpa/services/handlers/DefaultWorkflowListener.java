@@ -28,102 +28,100 @@ public class DefaultWorkflowListener implements WorkflowListener {
 
   @Override
   public void setProperties(Properties p) throws Exception {
-    // TODO Auto-generated method stub
-
+    // n/a
   }
 
   @Override
   public void beginTransaction() throws Exception {
-    // TODO Auto-generated method stub
-
+    // n/a
   }
 
   @Override
   public void preCommit() throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void postCommit() throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void classificationStarted() throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void classificationFinished() throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void preClassificationStarted() throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void preClassificationFinished() throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void conceptChanged(Concept concept, Action action) throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void descriptorChanged(Descriptor descriptor, Action action)
     throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void codeChanged(Code code, Action action) throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void stringClassChanged(StringClass stringClass, Action action)
     throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void lexicalClassChanged(LexicalClass lexicalClass, Action action)
     throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void atomChanged(Atom atom, Action action) throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void attributeChanged(Attribute attribute, Action action)
     throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void definitionChanged(Definition definition, Action action)
     throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
@@ -131,39 +129,39 @@ public class DefaultWorkflowListener implements WorkflowListener {
   public void relationshipChanged(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship,
     Action action) throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void semanticTypeChanged(SemanticTypeComponent sty, Action action)
     throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void subsetChanged(Subset subset, Action action) {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void subsetMemberChanged(
     SubsetMember<? extends ComponentHasAttributes, ? extends Subset> subsetMember, Action action) {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void cancel() {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void metadataChanged() {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 

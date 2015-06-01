@@ -115,12 +115,9 @@ public class RelationshipTypeJpa extends AbstractAbbreviation implements
     inverse.setId(inverseId);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#toString()
-   */
   @Override
   public String toString() {
-    return "RelationshipTypeJpa [] " + super.toString();
+    return "RelationshipTypeJpa [" + super.toString() + "]";
   }
 
 }

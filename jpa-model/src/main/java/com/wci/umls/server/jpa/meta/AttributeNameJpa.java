@@ -290,11 +290,7 @@ public class AttributeNameJpa extends AbstractAbbreviation implements
    */
   @Override
   public String toString() {
-    return "AttributeNameJpa [domainId=" + domainId + ", rangeId=" + rangeId
-        + ", equivalentName=" + equivalentName + ", superName=" + superName
-        + ", existentialQuantification=" + existentialQuantification
-        + ", universalQuantification=" + universalQuantification
-        + ", functional=" + functional + "]";
+    return "AttributeNameJpa [" + super.toString() + "]";
   }
 
 }

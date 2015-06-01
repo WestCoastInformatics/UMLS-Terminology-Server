@@ -240,14 +240,4 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractTreePosition#toString()
-   */
-  @Override
-  public String toString() {
-    return "CodeTreePositionJpa [code=" + node + "]";
-  }
-
 }

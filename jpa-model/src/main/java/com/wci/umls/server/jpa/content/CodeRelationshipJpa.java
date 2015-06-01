@@ -21,10 +21,12 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 
@@ -349,10 +351,8 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
    * getAlternateTerminologyIds()
    */
   @Override
-  /*
-   * TODO: Need a bridge for maps @Field(index = Index.YES, analyze =
-   * Analyze.YES, store = Store.NO)
-   */
+  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
@@ -467,17 +467,6 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
       return false;
     return true;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractRelationship#toString()
-   */
-  @Override
-  public String toString() {
-    return "CodeRelationshipJpa [from=" + from + ", to="
-        + to + "]";
   }
 
 }

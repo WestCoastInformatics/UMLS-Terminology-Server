@@ -356,10 +356,4 @@ public class DescriptorTransitiveRelationshipJpa extends
     return true;
   }
 
-  @Override
-  public String toString() {
-    return "DescriptorTransitiveRelationshipJpa [superType=" + superType
-        + ", subType=" + subType + "]";
-  }
-
 }

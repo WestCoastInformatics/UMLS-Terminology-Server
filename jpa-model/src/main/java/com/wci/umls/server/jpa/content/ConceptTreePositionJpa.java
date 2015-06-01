@@ -241,14 +241,4 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractTreePosition#toString()
-   */
-  @Override
-  public String toString() {
-    return "ConceptTreePositionJpa [concept=" + node + "]";
-  }
-
 }

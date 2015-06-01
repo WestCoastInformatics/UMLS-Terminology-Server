@@ -33,7 +33,7 @@ import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
-import com.wci.umls.server.services.helpers.ConceptReportHelper;
+import com.wci.umls.server.services.helpers.ReportHelper;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
@@ -230,7 +230,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         // Mark all cached concepts for update
         if (existingConceptCache.containsKey(terminologyId)) {
           Logger.getLogger(getClass()).debug(
-              ConceptReportHelper.getConceptReport(concept));
+              ReportHelper.getConceptReport(concept));
           updateConcept(concept);
         }
       }

@@ -225,9 +225,7 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.model.content.AtomClass#setName(java
-   * .lang.String)
+   * @see com.wci.umls.server.model.content.AtomClass#setName(java .lang.String)
    */
   /**
    * Sets the name.
@@ -287,11 +285,7 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((name == null) ? 0 : name
-                .hashCode());
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
     return result;
   }
 
@@ -322,17 +316,6 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
     } else if (!name.equals(other.name))
       return false;
     return true;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
-  @Override
-  public String toString() {
-    return "AbstractAtomClass [atoms=" + atoms + ", name="
-        + name + "]";
   }
 
   /*
@@ -392,6 +375,17 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
               + branchedTo.substring(index + closedBranch.length() + 1);
     }
 
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
+   */
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + " [" + super.toString() + ", name=" + name
+        + "]";
   }
 
 }

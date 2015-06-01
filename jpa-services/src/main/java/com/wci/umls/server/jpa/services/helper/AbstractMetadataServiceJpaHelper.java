@@ -61,7 +61,7 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
   @Override
   public Terminology getTerminology(String terminology, String version)
     throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
     return null;
   }
 
@@ -430,7 +430,7 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
 
   @Override
   public void updateTermType(TermType termType) throws Exception {
-    // n/a TODO Auto-generated method stub
+    // n/a 
   }
 
   @Override
@@ -441,21 +441,20 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
   @Override
   public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry)
     throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
     return null;
   }
 
   @Override
   public void updateGeneralMetadataEntry(GeneralMetadataEntry entry)
     throws Exception {
-    // TODO Auto-generated method stub
+    // n/a
 
   }
 
   @Override
   public void removeGeneralMetadataEntry(Long id) throws Exception {
-    // TODO Auto-generated method stub
-
+    // n/a
   }
 
   @Override

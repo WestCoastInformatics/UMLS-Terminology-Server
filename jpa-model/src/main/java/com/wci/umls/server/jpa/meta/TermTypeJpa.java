@@ -279,4 +279,13 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
       return false;
     return true;
   }
+
+  @Override
+  public String toString() {
+    return "TermTypeJpa [" + super.toString() + "codeVariantType="
+        + codeVariantType + ", hierarchicalType=" + hierarchicalType
+        + ", nameVariantType=" + nameVariantType + ", obsolete=" + obsolete
+        + ", suppressible=" + suppressible + ", style=" + style
+        + ", usageType=" + usageType + "]";
+  }
 }

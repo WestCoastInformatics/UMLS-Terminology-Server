@@ -236,8 +236,8 @@ public class RrfFullLoadAndUnloadTest {
 //    p = new Properties();
 //    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
 //    p.setProperty("server", server);
-//    p.setProperty("terminology", "UMLS");
-//    p.setProperty("version", "latest");
+//    p.setProperty("terminology", "SNOMEDCT_US");
+//    p.setProperty("version", "2014_09_01");
 //    request.setProperties(p);
 //    invoker = new DefaultInvoker();
 //    result = invoker.execute(request);
@@ -247,7 +247,7 @@ public class RrfFullLoadAndUnloadTest {
 //
 //    // Verify no contents
 //    service = new ContentServiceJpa();
-//    Assert.assertEquals(0, service.getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
+//    Assert.assertEquals(0, service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT).getCount());
 //    service.close();
 //    service.closeFactory();
 //

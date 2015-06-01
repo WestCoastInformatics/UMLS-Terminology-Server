@@ -43,4 +43,15 @@ public abstract class AbstractSubsetMember<T extends ComponentHasAttributesAndNa
     super(member, deepCopy);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
+   */
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + " [" + super.toString() + ", member="
+        + getMember() + ", subset=" + getSubset() + "]";
+  }
+
 }

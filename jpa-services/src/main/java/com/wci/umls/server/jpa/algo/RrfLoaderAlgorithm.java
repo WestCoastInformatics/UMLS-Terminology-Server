@@ -823,7 +823,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       term.setTerminology(terminology);
       term.setTerminologyVersion(terminologyVersion);
       term.setDescriptionLogicTerminology(false);
-
+      term.setMetathesaurus(true);
+      
       RootTerminology root = new RootTerminologyJpa();
       root.setFamily(terminology);
       root.setPreferredName(terminology);

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import javax.persistence.metamodel.EntityType;
 
@@ -221,9 +222,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Metadata service - get all metadata " + terminology + ", " + version);
 
-    // TODO: need to sort the results.
-
-    Map<String, Map<String, String>> abbrMapList = new HashMap<>();
+    Map<String, Map<String, String>> abbrMapList = new TreeMap<>();
 
     Map<String, String> additionalRelTypeMap =
         getAbbreviationMap(getAdditionalRelationshipTypes(terminology, version)

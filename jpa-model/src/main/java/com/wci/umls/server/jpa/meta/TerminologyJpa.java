@@ -94,6 +94,10 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   @Column(nullable = false)
   private boolean current = false;
 
+  /**  The metathesaurus flag. */
+  @Column(nullable = false)
+  private boolean metathesaurus = false;
+
   /** The flag indicating whether this is a DL terminology. */
   @Column(nullable = false)
   private boolean descriptionLogicTerminology = false;
@@ -123,6 +127,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     terminologyVersion = terminology.getTerminologyVersion();
     assertsRelDirection = terminology.isAssertsRelDirection();
     current = terminology.isCurrent();
+    metathesaurus = terminology.isMetathesaurus();
   }
 
   /*
@@ -410,6 +415,26 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   /*
    * (non-Javadoc)
    * 
+   * @see com.wci.umls.server.model.meta.Terminology#isMetathesaurus()
+   */
+  @Override
+  public boolean isMetathesaurus() {
+    return metathesaurus;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.meta.Terminology#setMetathesaurus(boolean)
+   */
+  @Override
+  public void setMetathesaurus(boolean metathesaurus) {
+    this.metathesaurus = metathesaurus;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see
    * com.wci.umls.server.model.meta.Terminology#isDescriptionLogicTerminology()
    */
@@ -437,6 +462,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     result = prime * result + (assertsRelDirection ? 1231 : 1237);
     result = prime * result + ((citation == null) ? 0 : citation.hashCode());
     result = prime * result + (current ? 1231 : 1237);
+    result = prime * result + (metathesaurus ? 1231 : 1237);
     result = prime * result + (descriptionLogicTerminology ? 1231 : 1237);
     result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
     result =
@@ -477,6 +503,8 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     } else if (!citation.equals(other.citation))
       return false;
     if (current != other.current)
+      return false;
+    if (metathesaurus != other.metathesaurus)
       return false;
     if (descriptionLogicTerminology != other.descriptionLogicTerminology)
       return false;
@@ -526,8 +554,8 @@ public class TerminologyJpa extends AbstractHasLastModified implements
         + ", startDate=" + startDate + ", synonymousNames=" + synonymousNames
         + ", terminologyVersion=" + terminologyVersion
         + ", assertsRelDirection=" + assertsRelDirection + ", current="
-        + current + ", descriptionLogicTerminology="
-        + descriptionLogicTerminology + "]";
+        + current + ", metathesaurus=" + metathesaurus
+        + ", descriptionLogicTerminology=" + descriptionLogicTerminology + "]";
   }
 
 }

@@ -106,7 +106,7 @@ public class Rf2ComputePreferredNameHandler implements
    * @throws Exception the exception
    */
   private boolean isPreferredName(Atom atom) throws Exception {
-    // TODO: need to be able to ask an atom for its subset members.
+    // Find active, synonym from desired refset with desired acceptability id
     for (AtomSubsetMember member : atom.getMembers()) {
       // Check if this language refset and description form the
       // defaultPreferredName

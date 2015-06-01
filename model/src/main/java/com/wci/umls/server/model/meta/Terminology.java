@@ -178,19 +178,32 @@ public interface Terminology extends HasLastModified {
    * @param organizingClassType the organizing class type
    */
   public void setOrganizingClassType(IdType organizingClassType);
-  
+
   /**
    * Indicates whether or not description logic terminology is the case.
    *
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   public boolean isDescriptionLogicTerminology();
-  
+
   /**
    * Sets the description logic terminology.
    *
    * @param flag the description logic terminology
    */
   public void setDescriptionLogicTerminology(boolean flag);
-  
+
+  /**
+   * Indicates whether or not metathesaurus is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isMetathesaurus();
+
+  /**
+   * Sets the metathesaurus.
+   *
+   * @param metathesaurus the metathesaurus
+   */
+  public void setMetathesaurus(boolean metathesaurus);
 }

@@ -1560,7 +1560,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " and super.terminology = :terminology "
             + " and super.terminologyId = :terminologyId"
             + " and tr.superType = super" + " and tr.subType = a "
-            + " and tr.superType != tr.subType";
+            + " and tr.superType != tr.subType" +
+            (childrenOnly ? " and depth = 1" : "");
     javax.persistence.Query query = applyPfsToHqlQuery(queryStr, pfs);
 
     javax.persistence.Query ctQuery =
@@ -1571,7 +1572,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " and super.terminology = :terminology "
             + " and super.terminologyId = :terminologyId"
             + " and tr.superType = super" + " and tr.subType = a "
-            + " and tr.superType != tr.subType");
+            + " and tr.superType != tr.subType" +
+            (childrenOnly ? " and depth = 1" : ""));
 
     ctQuery.setParameter("terminology", terminology);
     ctQuery.setParameter("version", version);
@@ -1603,7 +1605,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private List findAncestorsHelper(String terminologyId, String terminology,
     String version, boolean parentsOnly, String branch, PfsParameter pfs,
     Class<?> clazz, long[] totalCt) throws Exception {
-    // TODO: implement "parents only" flag
+
     if (pfs != null && pfs.getQueryRestriction() != null) {
       throw new IllegalArgumentException(
           "Query restriction is not implemented for this call: "
@@ -1617,7 +1619,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " and sub.terminology = :terminology "
             + " and sub.terminologyId = :terminologyId"
             + " and tr.subType = sub" + " and tr.superType = a "
-            + " and tr.subType != tr.superType";
+            + " and tr.subType != tr.superType" +
+            (parentsOnly ? " and depth = 1" : "");
     javax.persistence.Query query = applyPfsToHqlQuery(queryStr, pfs);
 
     javax.persistence.Query ctQuery =
@@ -1628,7 +1631,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " and sub.terminology = :terminology "
             + " and sub.terminologyId = :terminologyId"
             + " and tr.subType = sub" + " and tr.superType = a "
-            + " and tr.subType != tr.superType");
+            + " and tr.subType != tr.superType" +
+            (parentsOnly ? " and depth = 1" : ""));
 
     ctQuery.setParameter("terminology", terminology);
     ctQuery.setParameter("version", version);

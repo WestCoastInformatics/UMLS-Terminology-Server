@@ -33,27 +33,27 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
 
   /** The relationship type. */
   @Column(nullable = false)
-  private String relationshipType; // index
+  private String relationshipType;
 
   /** The additional relationship type. */
   @Column(nullable = true)
-  private String additionalRelationshipType; // index
+  private String additionalRelationshipType;
 
   /** The group. */
   @Column(name = "relGroup", nullable = true)
-  private String group; // index
+  private String group; 
 
   /** The inferred. */
   @Column(nullable = false)
-  private boolean inferred; // index
+  private boolean inferred; 
 
   /** The stated. */
-  @Column(nullable = false) // index
+  @Column(nullable = false) 
   private boolean stated;
 
   /** The asserted direction flag. */
   @Column(nullable = false)
-  private boolean assertedDirection; // index
+  private boolean assertedDirection; 
 
   /**
    * Instantiates an empty {@link AbstractRelationship}.
@@ -280,8 +280,9 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
    */
   @Override
   public String toString() {
-    return "AbstractRelationship [relationshipType=" + relationshipType
-        + ", additionalRelationshipType=" + additionalRelationshipType
+    return getClass().getSimpleName() + " [from = " + getFrom() + ", to = "
+        + getTo() + ", " + super.toString() + ", relationshipType="
+        + relationshipType + ", additionalRelationshipType=" + additionalRelationshipType
         + ", group=" + group + ", inferred=" + inferred + ", stated=" + stated
         + ", assertedDirection=" + assertedDirection + "]";
   }

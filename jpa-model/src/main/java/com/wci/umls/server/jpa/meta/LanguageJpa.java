@@ -132,4 +132,10 @@ public class LanguageJpa extends AbstractAbbreviation implements Language {
     return true;
   }
 
+  @Override
+  public String toString() {
+    return "LanguageJpa [" + super.toString() + "isoCode=" + isoCode
+        + ", iso3Code=" + iso3Code + "]";
+  }
+
 }

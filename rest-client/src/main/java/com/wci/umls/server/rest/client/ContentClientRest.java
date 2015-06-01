@@ -264,7 +264,7 @@ public class ContentClientRest implements ContentServiceRest {
             + query + ", " + pfsc);
 
     Client client = Client.create();
-    // TODO: figure out how to remove this
+
     WebResource resource =
         client.resource(config.getProperty("base.url")
             + "/content/cui/"

@@ -692,14 +692,8 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
 
   @Override
   public String toString() {
-    return "AdditionalRelationshipTypeJpa [asymmetric=" + asymmetric
-        + ", equivalentClasses=" + equivalentClasses
-        + ", existentialQuantification=" + existentialQuantification
-        + ", functional=" + functional + ", inverseFunctional="
-        + inverseFunctional + ", irreflexive=" + irreflexive + ", reflexive="
-        + reflexive + ", symmetric=" + symmetric + ", transitive=" + transitive
-        + ", universalQuantification=" + universalQuantification
-        + ", domainId=" + domainId + ", rangeId=" + rangeId + "]";
+    return "AdditionalRelationshipTypeJpa [" + super.toString() + "]";
+
   }
 
 }

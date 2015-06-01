@@ -121,7 +121,6 @@ public class ResetDevDatabase {
     p.setProperty("description", "Sample project.");
     p.setProperty("terminology", "UMLS");
     p.setProperty("version", "latest");
-    // TODO: p.setProperty("scope.concepts", "");
     p.setProperty("scope.descendants.flag", "true");
     p.setProperty("admin.user", "admin");
     request.setProperties(p);
