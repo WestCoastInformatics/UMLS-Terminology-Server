@@ -459,12 +459,12 @@ public abstract class AbstractComponent implements Component {
    */
   @Override
   public String toString() {
-    return "AbstractComponent [id=" + id + ", lastModified=" + lastModified
-        + ", lastModifiedBy=" + lastModifiedBy + ", suppressible="
-        + suppressible + ", obsolete=" + obsolete + ", published=" + published
-        + ", publishable=" + publishable + ", terminology=" + terminology
-        + ", terminologyId=" + terminologyId + ", terminologyVersion="
-        + terminologyVersion + ", branch=" + branch + "]";
+    return "id=" + id + ", terminologyId=" + terminologyId + ", lastModified="
+        + lastModified + ", lastModifiedBy=" + lastModifiedBy
+        + ", suppressible=" + suppressible + ", obsolete=" + obsolete
+        + ", published=" + published + ", publishable=" + publishable
+        + ", terminology=" + terminology + ", terminologyVersion="
+        + terminologyVersion + ", branch=" + branch;
   }
 
 }

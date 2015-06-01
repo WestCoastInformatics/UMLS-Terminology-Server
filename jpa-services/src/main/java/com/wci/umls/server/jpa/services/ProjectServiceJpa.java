@@ -48,7 +48,15 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     throws Exception {
     Logger.getLogger(getClass()).info(
         "Project Service - get project scope - " + project);
+
     // TODO
+    // Likely we want a more expansive scope definition that
+    // can include concepts, terminologies, and/or semantic types.
+    // the use cases
+    // * editor only allowed to work on a certain sourcde
+    // * editor only allowed to work in a particular content area
+    // * editor of a terminology can only work in a subtree.
+
     return null;
   }
 

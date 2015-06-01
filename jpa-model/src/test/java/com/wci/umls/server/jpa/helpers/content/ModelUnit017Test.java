@@ -202,6 +202,7 @@ public class ModelUnit017Test {
     tester.include("obsolete");
     tester.include("published");
     tester.include("publishable");
+    tester.include("depth");
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("terminologyVersion");

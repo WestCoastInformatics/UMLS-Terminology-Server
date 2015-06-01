@@ -28,10 +28,10 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
-import com.wci.umls.server.services.helpers.ConceptReportHelper;
+import com.wci.umls.server.services.helpers.ReportHelper;
 
 /**
- * Unit testing for {@link ConceptReportHelper}.
+ * Unit testing for {@link ReportHelper}.
  */
 public class HelperUnit007Test {
 
@@ -69,18 +69,18 @@ public class HelperUnit007Test {
     concept.setName("1");
 
     Logger.getLogger(getClass()).info(
-        ConceptReportHelper.getConceptReport(concept));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains(
+        ReportHelper.getConceptReport(concept));
+    assertTrue(ReportHelper.getConceptReport(concept).contains(
         "CONCEPT = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept)
+    assertFalse(ReportHelper.getConceptReport(concept)
         .contains("STY = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept).contains(
+    assertFalse(ReportHelper.getConceptReport(concept).contains(
         "ATOM = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept)
+    assertFalse(ReportHelper.getConceptReport(concept)
         .contains("ATT = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept)
+    assertFalse(ReportHelper.getConceptReport(concept)
         .contains("REL = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept).contains("DEF ="));
+    assertFalse(ReportHelper.getConceptReport(concept).contains("DEF ="));
 
     SemanticTypeComponent sty = new SemanticTypeComponentJpa();
     sty.setId(1L);
@@ -88,17 +88,17 @@ public class HelperUnit007Test {
     sty.setSemanticType("Clinical Drug");
     concept.addSemanticType(sty);
     Logger.getLogger(getClass()).info(
-        ConceptReportHelper.getConceptReport(concept));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains(
+        ReportHelper.getConceptReport(concept));
+    assertTrue(ReportHelper.getConceptReport(concept).contains(
         "CONCEPT = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("STY = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept).contains(
+    assertTrue(ReportHelper.getConceptReport(concept).contains("STY = "));
+    assertFalse(ReportHelper.getConceptReport(concept).contains(
         "ATOM = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept)
+    assertFalse(ReportHelper.getConceptReport(concept)
         .contains("ATT = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept)
+    assertFalse(ReportHelper.getConceptReport(concept)
         .contains("REL = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept).contains("DEF ="));
+    assertFalse(ReportHelper.getConceptReport(concept).contains("DEF ="));
 
     Atom atom = new AtomJpa();
     atom.setId(1L);
@@ -109,17 +109,17 @@ public class HelperUnit007Test {
     concept.addAtom(atom);
 
     Logger.getLogger(getClass()).info(
-        ConceptReportHelper.getConceptReport(concept));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains(
+        ReportHelper.getConceptReport(concept));
+    assertTrue(ReportHelper.getConceptReport(concept).contains(
         "CONCEPT = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("STY = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept)
+    assertTrue(ReportHelper.getConceptReport(concept).contains("STY = "));
+    assertTrue(ReportHelper.getConceptReport(concept)
         .contains("ATOM = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept)
+    assertFalse(ReportHelper.getConceptReport(concept)
         .contains("ATT = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept)
+    assertFalse(ReportHelper.getConceptReport(concept)
         .contains("REL = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept).contains("DEF ="));
+    assertFalse(ReportHelper.getConceptReport(concept).contains("DEF ="));
 
     ConceptRelationship r = new ConceptRelationshipJpa();
     r.setId(1L);
@@ -129,16 +129,16 @@ public class HelperUnit007Test {
     r.setTo(concept);
     concept.addRelationship(r);
     Logger.getLogger(getClass()).info(
-        ConceptReportHelper.getConceptReport(concept));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains(
+        ReportHelper.getConceptReport(concept));
+    assertTrue(ReportHelper.getConceptReport(concept).contains(
         "CONCEPT = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("STY = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept)
+    assertTrue(ReportHelper.getConceptReport(concept).contains("STY = "));
+    assertTrue(ReportHelper.getConceptReport(concept)
         .contains("ATOM = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept)
+    assertFalse(ReportHelper.getConceptReport(concept)
         .contains("ATT = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("REL = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept).contains("DEF ="));
+    assertTrue(ReportHelper.getConceptReport(concept).contains("REL = "));
+    assertFalse(ReportHelper.getConceptReport(concept).contains("DEF ="));
 
     Definition def = new DefinitionJpa();
     def.setId(1L);
@@ -146,31 +146,31 @@ public class HelperUnit007Test {
     def.setValue("1");
     concept.addDefinition(def);
     Logger.getLogger(getClass()).info(
-        ConceptReportHelper.getConceptReport(concept));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains(
+        ReportHelper.getConceptReport(concept));
+    assertTrue(ReportHelper.getConceptReport(concept).contains(
         "CONCEPT = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("STY = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept)
+    assertTrue(ReportHelper.getConceptReport(concept).contains("STY = "));
+    assertTrue(ReportHelper.getConceptReport(concept)
         .contains("ATOM = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept)
+    assertFalse(ReportHelper.getConceptReport(concept)
         .contains("ATT = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("REL = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("DEF ="));
+    assertTrue(ReportHelper.getConceptReport(concept).contains("REL = "));
+    assertTrue(ReportHelper.getConceptReport(concept).contains("DEF ="));
 
     concept.removeDefinition(def);
     atom.addDefinition(def);
     Logger.getLogger(getClass()).info(
-        ConceptReportHelper.getConceptReport(concept));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains(
+        ReportHelper.getConceptReport(concept));
+    assertTrue(ReportHelper.getConceptReport(concept).contains(
         "CONCEPT = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("STY = "));
+    assertTrue(ReportHelper.getConceptReport(concept).contains("STY = "));
 
-    assertTrue(ConceptReportHelper.getConceptReport(concept)
+    assertTrue(ReportHelper.getConceptReport(concept)
         .contains("ATOM = "));
-    assertFalse(ConceptReportHelper.getConceptReport(concept)
+    assertFalse(ReportHelper.getConceptReport(concept)
         .contains("ATT = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("REL = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("DEF ="));
+    assertTrue(ReportHelper.getConceptReport(concept).contains("REL = "));
+    assertTrue(ReportHelper.getConceptReport(concept).contains("DEF ="));
 
     Attribute att = new AttributeJpa();
     att.setId(1L);
@@ -178,29 +178,29 @@ public class HelperUnit007Test {
     att.setValue("1");
     concept.addAttribute(att);
     Logger.getLogger(getClass()).info(
-        ConceptReportHelper.getConceptReport(concept));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains(
+        ReportHelper.getConceptReport(concept));
+    assertTrue(ReportHelper.getConceptReport(concept).contains(
         "CONCEPT = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("STY = "));
+    assertTrue(ReportHelper.getConceptReport(concept).contains("STY = "));
 
-    assertTrue(ConceptReportHelper.getConceptReport(concept)
+    assertTrue(ReportHelper.getConceptReport(concept)
         .contains("ATOM = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("ATT = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("REL = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("DEF ="));
+    assertTrue(ReportHelper.getConceptReport(concept).contains("ATT = "));
+    assertTrue(ReportHelper.getConceptReport(concept).contains("REL = "));
+    assertTrue(ReportHelper.getConceptReport(concept).contains("DEF ="));
 
     concept.removeAttribute(att);
     atom.addAttribute(att);
     Logger.getLogger(getClass()).info(
-        ConceptReportHelper.getConceptReport(concept));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains(
+        ReportHelper.getConceptReport(concept));
+    assertTrue(ReportHelper.getConceptReport(concept).contains(
         "CONCEPT = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("STY = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept)
+    assertTrue(ReportHelper.getConceptReport(concept).contains("STY = "));
+    assertTrue(ReportHelper.getConceptReport(concept)
         .contains("ATOM = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("ATT = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("REL = "));
-    assertTrue(ConceptReportHelper.getConceptReport(concept).contains("DEF ="));
+    assertTrue(ReportHelper.getConceptReport(concept).contains("ATT = "));
+    assertTrue(ReportHelper.getConceptReport(concept).contains("REL = "));
+    assertTrue(ReportHelper.getConceptReport(concept).contains("DEF ="));
 
     AtomRelationship ar = new AtomRelationshipJpa();
     ar.setId(1L);
@@ -209,11 +209,11 @@ public class HelperUnit007Test {
     ar.setFrom(atom);
     ar.setTo(atom);
     atom.addRelationship(ar);
-    Logger.getLogger(getClass()).info(ConceptReportHelper.getAtomReport(atom));
-    assertTrue(ConceptReportHelper.getAtomReport(atom).contains("ATOM = "));
-    assertTrue(ConceptReportHelper.getAtomReport(atom).contains("ATT = "));
-    assertTrue(ConceptReportHelper.getAtomReport(atom).contains("REL = "));
-    assertTrue(ConceptReportHelper.getAtomReport(atom).contains("DEF ="));
+    Logger.getLogger(getClass()).info(ReportHelper.getAtomReport(atom));
+    assertTrue(ReportHelper.getAtomReport(atom).contains("ATOM = "));
+    assertTrue(ReportHelper.getAtomReport(atom).contains("ATT = "));
+    assertTrue(ReportHelper.getAtomReport(atom).contains("REL = "));
+    assertTrue(ReportHelper.getAtomReport(atom).contains("DEF ="));
 
   }
 
@@ -232,14 +232,14 @@ public class HelperUnit007Test {
   public void testHelperDegenerateUse007() throws Exception {
     // provide a null concept
     try {
-      ConceptReportHelper.getConceptReport(null);
+      ReportHelper.getConceptReport(null);
       fail("Attempt to getConceptReport() on null concept should throw an error.");
     } catch (Exception e) {
       // do nothing
     }
 
     try {
-      ConceptReportHelper.getAtomReport(null);
+      ReportHelper.getAtomReport(null);
       fail("Attempt to getAtomReport() on null atom should throw an error.");
     } catch (Exception e) {
       // do nothing

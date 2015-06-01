@@ -149,7 +149,7 @@ public class CodeTransitiveRelationshipJpa extends
     }
     superType.setTerminology(terminology);
   }
-  
+
   /**
    * Returns the super type terminology. For JAXB.
    *
@@ -170,6 +170,7 @@ public class CodeTransitiveRelationshipJpa extends
     }
     superType.setTerminologyVersion(terminologyVersion);
   }
+
   /**
    * Returns the super type term. For JAXB.
    *
@@ -348,12 +349,6 @@ public class CodeTransitiveRelationshipJpa extends
     } else if (!superType.equals(other.superType))
       return false;
     return true;
-  }
-
-  @Override
-  public String toString() {
-    return "CodeTransitiveRelationshipJpa [superType=" + superType
-        + ", subType=" + subType + "]";
   }
 
 }

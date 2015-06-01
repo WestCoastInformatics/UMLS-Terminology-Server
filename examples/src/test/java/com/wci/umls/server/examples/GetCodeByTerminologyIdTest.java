@@ -12,13 +12,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.services.helpers.ReportHelper;
 
 /**
- * Example demonstrating loading concepts by terminology id.
+ * Example demonstrating loading codes by terminology id.
  */
-public class GetConceptByTerminologyIdTest extends ExampleSupport {
+public class GetCodeByTerminologyIdTest extends ExampleSupport {
 
   /** The auth token. */
   private static String authToken;
@@ -38,12 +38,12 @@ public class GetConceptByTerminologyIdTest extends ExampleSupport {
   }
 
   /**
-   * Demonstrates how to find a SNOMED concept by its concept id.
+   * Demonstrates how to find a SNOMED code by its code id.
    *
    * @throws Exception the exception
    */
   @Test
-  public void getSnomedConceptByConceptIdTest() throws Exception {
+  public void getSnomedCodeByCodeIdTest() throws Exception {
 
     // Identify
     String terminologyId = "80891009";
@@ -51,51 +51,49 @@ public class GetConceptByTerminologyIdTest extends ExampleSupport {
     String version = "2014_09_01";
 
     // contentClient is defined and initialized in the superclass
-    Concept concept =
-        contentClient
-            .getConcept(terminologyId, terminology, version, authToken);
+    Code code =
+        contentClient.getCode(terminologyId, terminology, version, authToken);
 
-    // Output the concept as XML
+    // Output the code as XML
     Logger.getLogger(getClass()).info(
-        "xml = " + ConfigUtility.getStringForGraph(concept));
+        "xml = " + ConfigUtility.getStringForGraph(code));
 
-    // Output the concept as JSON
+    // Output the code as JSON
     Logger.getLogger(getClass()).info(
-        "json = " + ConfigUtility.getJsonForGraph(concept));
+        "json = " + ConfigUtility.getJsonForGraph(code));
 
-    // Report of the concept
-    Logger.getLogger(getClass()).info(ReportHelper.getConceptReport(concept));
+    // Report of the code
+    Logger.getLogger(getClass()).info(ReportHelper.getCodeReport(code));
 
   }
 
   /**
-   * Demonstrates how to find a UMLS concept by CUI.
+   * Demonstrates how to find a MSH code by D#.
    * 
    * @throws Exception the exception
    */
   @Test
-  public void getUmlsConceptByCuiTest() throws Exception {
+  public void getMshCodeByCodeTest() throws Exception {
 
     // Identify
-    String terminologyId = "C0018787";
-    String terminology = "UMLS";
-    String version = "latest";
+    String terminologyId = "D002319";
+    String terminology = "MSH";
+    String version = "2015_2014_09_08";
 
     // contentClient is defined and initialized in the superclass
-    Concept concept =
-        contentClient
-            .getConcept(terminologyId, terminology, version, authToken);
+    Code code =
+        contentClient.getCode(terminologyId, terminology, version, authToken);
 
-    // Output the concept as XML
+    // Output the code as XML
     Logger.getLogger(getClass()).info(
-        "xml = " + ConfigUtility.getStringForGraph(concept));
+        "xml = " + ConfigUtility.getStringForGraph(code));
 
-    // Output the concept as JSON
+    // Output the code as JSON
     Logger.getLogger(getClass()).info(
-        "json = " + ConfigUtility.getJsonForGraph(concept));
+        "json = " + ConfigUtility.getJsonForGraph(code));
 
-    // Report of the concept
-    Logger.getLogger(getClass()).info(ReportHelper.getConceptReport(concept));
+    // Report of the code
+    Logger.getLogger(getClass()).info(ReportHelper.getCodeReport(code));
 
   }
 

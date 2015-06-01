@@ -280,8 +280,9 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
    */
   @Override
   public String toString() {
-    return "AbstractRelationship [relationshipType=" + relationshipType
-        + ", additionalRelationshipType=" + additionalRelationshipType
+    return getClass().getSimpleName() + " [from = " + getFrom() + ", to = "
+        + getTo() + ", " + super.toString() + ", relationshipType="
+        + relationshipType + ", additionalRelationshipType=" + additionalRelationshipType
         + ", group=" + group + ", inferred=" + inferred + ", stated=" + stated
         + ", assertedDirection=" + assertedDirection + "]";
   }

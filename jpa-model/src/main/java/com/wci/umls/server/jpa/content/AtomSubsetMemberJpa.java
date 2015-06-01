@@ -392,15 +392,4 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
-  @Override
-  public String toString() {
-    return "AtomSubsetMemberJpa [" + super.toString() + ", member=" + member
-        + ", subset=" + subset + "]";
-  }
-
 }

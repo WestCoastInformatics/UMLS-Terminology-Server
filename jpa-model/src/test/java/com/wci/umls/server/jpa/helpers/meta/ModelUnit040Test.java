@@ -143,6 +143,7 @@ public class ModelUnit040Test {
     tester.include("assertsRelDirection");
     tester.include("citation");
     tester.include("current");
+    tester.include("metathesaurus");
     tester.include("endDate");
     tester.include("organizingClassType");
     tester.include("preferredName");
@@ -238,7 +239,9 @@ public class ModelUnit040Test {
     tester.include("preferredName");
     tester.include("rootTerminology");
     tester.include("assertsRelDirection");
+    tester.include("assertsRelDirection");
     tester.include("current");
+    tester.include("metathesaurus");
     tester.include("descriptionLogicTerminology");
 
     assertTrue(tester.testNotNullFields());

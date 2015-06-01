@@ -10,6 +10,20 @@ package com.wci.umls.server.model.content;
 public interface TransitiveRelationship<T extends AtomClass> extends ComponentHasAttributes {
  
   /**
+   * Returns the depth.
+   *s
+   * @return the depth
+   */
+  public int getDepth();
+  
+  /**
+   * Sets the depth.
+   *
+   * @param depth the depth
+   */
+  public void setDepth(int depth);
+
+  /**
    * Returns the super type.
    *
    * @return the super type

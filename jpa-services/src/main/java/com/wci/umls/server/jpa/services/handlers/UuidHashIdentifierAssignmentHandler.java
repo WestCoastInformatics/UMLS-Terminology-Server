@@ -289,8 +289,13 @@ public class UuidHashIdentifierAssignmentHandler implements
   public String getTerminologyId(
     TreePosition<? extends ComponentHasAttributesAndName> treepos)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    StringBuilder hashKey = new StringBuilder();
+    // terminologyId, terminology, superType, subType
+    hashKey.append(treepos.getTerminology())
+        .append(treepos.getTerminologyId())
+        .append(treepos.getAncestorPath())
+        .append(treepos.getNode().getTerminologyId());
+    return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
   /*

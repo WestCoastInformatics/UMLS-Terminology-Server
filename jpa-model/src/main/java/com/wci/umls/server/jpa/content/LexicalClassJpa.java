@@ -117,16 +117,4 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
-   */
-  @Override
-  public String toString() {
-    return "LexicalClassJpa [isObsolete()=" + isObsolete()
-        + ", getTerminologyVersion()=" + getTerminologyVersion()
-        + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
-        + getTerminologyId() + "]";
-  }
 }

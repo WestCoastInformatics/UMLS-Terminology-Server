@@ -296,11 +296,13 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
       tr.setTerminologyId("");
       tr.setTerminology(terminology);
       tr.setTerminologyVersion(version);
+      tr.setDepth(0);
       addTransitiveRelationship(tr);
 
       List<Long> ancPath = new ArrayList<>();
       ancPath.add(code);
       final Set<Long> descs = getDescendants(code, parChd, ancPath);
+      final Set<Long> children = parChd.get(code);
       for (final Long desc : descs) {
         tr = null;
         if (idType == IdType.CONCEPT) {
@@ -337,6 +339,11 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
           throw new Exception("Illegal id type: " + idType);
         }
 
+        if (children.contains(desc)) {
+          tr.setDepth(1);
+        } else {
+          tr.setDepth(2);
+        }
         tr.setObsolete(false);
         tr.setTimestamp(startDate);
         tr.setLastModified(startDate);

@@ -108,16 +108,4 @@ public class CodeJpa extends AbstractAtomClass implements Code {
     relationships.remove(relationship);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
-   */
-  @Override
-  public String toString() {
-    return "CodeJpa [isObsolete()=" + isObsolete()
-        + ", getTerminologyVersion()=" + getTerminologyVersion()
-        + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
-        + getTerminologyId() + "]";
-  }
 }

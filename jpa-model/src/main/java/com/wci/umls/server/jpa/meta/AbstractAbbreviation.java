@@ -349,12 +349,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
    */
   @Override
   public String toString() {
-    return "AbstractAbbreviation [id=" + getId() + ", timestamp="
-        + getTimestamp() + ", lastModified=" + getLastModified()
-        + ", lastModifiedBy=" + getLastModifiedBy() + ", published="
-        + published + ", publishable=" + publishable + ", abbreviation="
-        + abbreviation + ", expandedForm=" + expandedForm + ", terminology="
-        + terminology + ", terminologyVersion=" + terminologyVersion + "]";
+    return getAbbreviation() + " = " + getExpandedForm();
   }
 
 }

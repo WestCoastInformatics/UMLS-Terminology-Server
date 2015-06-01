@@ -309,19 +309,6 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     semanticTypes.remove(semanticType);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
-   */
-  @Override
-  public String toString() {
-    return "ConceptJpa [semanticTypes=" + semanticTypes + ", fullyDefined="
-        + fullyDefined + ", isObsolete()=" + isObsolete()
-        + ", getTerminologyVersion()=" + getTerminologyVersion()
-        + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
-        + getTerminologyId() + "]";
-  }
 
   /*
    * (non-Javadoc)
@@ -463,5 +450,6 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       return false;
     return true;
   }
+
 
 }

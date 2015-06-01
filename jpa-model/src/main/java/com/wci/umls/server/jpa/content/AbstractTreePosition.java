@@ -215,9 +215,8 @@ public abstract class AbstractTreePosition<T extends AtomClass> extends
    */
   @Override
   public String toString() {
-    return "AbstractTreePosition [additionalRelationshipType="
-        + additionalRelationshipType + ", ancestorPath=" + ancestorPath
-        + ", childCt=" + childCt + ", descendantCt=" + descendantCt + "]";
+    return getClass().getSimpleName() + "[node=" + getNode() + ", "
+        + super.toString() + ", ancestorPath=" + ancestorPath + "]";
   }
 
 }

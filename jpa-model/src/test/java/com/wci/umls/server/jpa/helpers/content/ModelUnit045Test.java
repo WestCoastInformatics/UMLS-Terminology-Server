@@ -135,8 +135,7 @@ public class ModelUnit045Test {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Code.class, 1, code1);
     tester.proxy(Code.class, 2, code2);
-    assertTrue(tester
-        .testCopyConstructorDeep(CodeTransitiveRelationship.class));
+    assertTrue(tester.testCopyConstructorDeep(CodeTransitiveRelationship.class));
   }
 
   /**
@@ -202,6 +201,7 @@ public class ModelUnit045Test {
     tester.include("obsolete");
     tester.include("published");
     tester.include("publishable");
+    tester.include("depth");
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("terminologyVersion");

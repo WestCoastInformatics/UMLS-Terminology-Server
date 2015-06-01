@@ -104,7 +104,8 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
         resolveDefinition(def, nullId);
       }
 
-      // TODO:  Align with default graph resolver
+      // for UMLS view don't read relationship sas these are teminology-specific rels
+      // they can show when browsing that terminology
       atom.setRelationships(new ArrayList<AtomRelationship>());
 
     } else if (atom == null) {

@@ -394,15 +394,4 @@ public class ConceptSubsetMemberJpa extends
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
-  @Override
-  public String toString() {
-    return "ConceptSubsetMemberJpa [id = " + getId() + ", member=" + member
-        + ", subset=" + subset + "]";
-  }
-
 }

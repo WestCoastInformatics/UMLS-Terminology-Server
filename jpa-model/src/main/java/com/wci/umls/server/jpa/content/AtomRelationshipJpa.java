@@ -367,14 +367,4 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractRelationship#toString()
-   */
-  @Override
-  public String toString() {
-    return "AtomRelationshipJpa [from=" + from + ", to=" + to + "]";
-  }
-
 }

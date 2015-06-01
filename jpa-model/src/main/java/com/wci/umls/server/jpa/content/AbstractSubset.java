@@ -193,7 +193,7 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
    */
   @Override
   public String toString() {
-    return "AbstractSubset [name=" + name + ", description=" + description
+    return getClass().getSimpleName() + " [name=" + name + ", description=" + description
         + ", disjointSubset=" + disjointSubset + "]";
   }
 

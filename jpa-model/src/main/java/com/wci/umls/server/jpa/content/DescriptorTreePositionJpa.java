@@ -242,14 +242,5 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractTreePosition#toString()
-   */
-  @Override
-  public String toString() {
-    return "DescriptorTreePositionJpa [descriptor=" + node + "]";
-  }
 
 }
