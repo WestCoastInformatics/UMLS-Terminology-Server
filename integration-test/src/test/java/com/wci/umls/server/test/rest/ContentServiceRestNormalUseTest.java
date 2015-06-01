@@ -2176,15 +2176,33 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   public void testNormalUseRestContent020() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
-    /** Find concepts with hql query */
+    /** Find relationships for given concept */
     Logger.getLogger(getClass()).info(
-        "TEST1 - " + "SELECT c FROM ConceptJpa c, SNOMEDCT_US, 2014_09_01, "
+        "TEST1 - " + "C0000737, UMLS, latest, "
             + authToken);
     PfsParameterJpa pfs = new PfsParameterJpa();
-    RelationshipList sml =
-        contentService.findRelationshipsForConcept("118613001",
-            snomedTerminology, snomedVersion, "", pfs, authToken);
-    // assertTrue(sml.getCount() == 6942);
+    RelationshipList l =
+        contentService.findRelationshipsForConcept("C0000737",
+            umlsTerminology, umlsVersion, "", pfs, authToken);
+     assertTrue(l.getCount() == 20);
+     
+     /** Find relationships for given descriptor */
+     Logger.getLogger(getClass()).info(
+         "TEST2 - " + "D000015, MSH, mshVersion, "
+             + authToken);
+     pfs = new PfsParameterJpa();
+     l = contentService.findRelationshipsForDescriptor("D000015",
+             mshTerminology, mshVersion, "", pfs, authToken);
+      assertTrue(l.getCount() == 50);
+     
+      /** Find relationships for given code */
+      Logger.getLogger(getClass()).info(
+          "TEST3 - " + "U000019, MSH, mshVersion, "
+              + authToken);
+      pfs = new PfsParameterJpa();
+      l = contentService.findRelationshipsForCode("U000019",
+              mshTerminology, mshVersion, "", pfs, authToken);
+       assertTrue(l.getCount() == 15);
   }
 
   /**
