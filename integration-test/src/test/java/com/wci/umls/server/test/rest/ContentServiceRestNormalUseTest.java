@@ -2203,6 +2203,42 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       l = contentService.findRelationshipsForCode("U000019",
               mshTerminology, mshVersion, "", pfs, authToken);
        assertTrue(l.getCount() == 15);
+       
+       /** Find relationships for given concept with pfs*/
+       Logger.getLogger(getClass()).info(
+           "TEST4 - " + "C0000737, UMLS, latest, "
+               + authToken);
+       pfs = new PfsParameterJpa();
+       pfs.setStartIndex(0);
+       pfs.setMaxResults(3);
+       l = contentService.findRelationshipsForConcept("C0000737",
+               umlsTerminology, umlsVersion, "", pfs, authToken);
+        assertTrue(l.getCount() == 3);
+        assertTrue(l.getTotalCount() == 20);
+        
+        /** Find relationships for given descriptor with pfs*/
+        Logger.getLogger(getClass()).info(
+            "TEST5 - " + "D000015, MSH, mshVersion, "
+                + authToken);
+        pfs = new PfsParameterJpa();
+        pfs.setStartIndex(0);
+        pfs.setMaxResults(3);
+        l = contentService.findRelationshipsForDescriptor("D000015",
+                mshTerminology, mshVersion, "", pfs, authToken);
+         assertTrue(l.getCount() == 3);
+         assertTrue(l.getTotalCount() == 50);
+        
+         /** Find relationships for given code with pfs*/
+         Logger.getLogger(getClass()).info(
+             "TEST6 - " + "U000019, MSH, mshVersion, "
+                 + authToken);
+         pfs = new PfsParameterJpa();
+         pfs.setStartIndex(0);
+         pfs.setMaxResults(3);
+         l = contentService.findRelationshipsForCode("U000019",
+                 mshTerminology, mshVersion, "", pfs, authToken);
+          assertTrue(l.getCount() == 3);
+          assertTrue(l.getTotalCount() == 15);
   }
 
   /**
