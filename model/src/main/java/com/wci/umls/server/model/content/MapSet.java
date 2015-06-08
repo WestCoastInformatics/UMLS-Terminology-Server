@@ -34,20 +34,6 @@ public interface MapSet extends ComponentHasAttributes {
   public void setName(String name);
 
   /**
-   * Returns the version.
-   * 
-   * @return the version
-   */
-  public String getVersion();
-
-  /**
-   * Sets the version.
-   * 
-   * @param version the version
-   */
-  public void setVersion(String version);
-
-  /**
    * Returns the "to" source.
    * 
    * @return the "to" source
