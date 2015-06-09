@@ -183,22 +183,6 @@ public interface ContentServiceRest {
     throws Exception;
 
   /**
-   * Returns the relationships for atom.
-   *
-   * @param terminologyId the atom id
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the relationships for atom
-   * @throws Exception the exception
-   */
-  public RelationshipList findRelationshipsForAtom(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception;
-
-  /**
    * Returns the relationships for descriptor.
    *
    * @param terminologyId the descriptor id
