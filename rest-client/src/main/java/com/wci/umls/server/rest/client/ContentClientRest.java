@@ -1608,28 +1608,6 @@ public class ContentClientRest extends RootClientRest implements
         query, pfs, authToken);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findRelationshipsForAtom(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
-  @Override
-  public RelationshipList findRelationshipsForAtom(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find relationships for atom " + terminologyId + ", "
-            + terminology + ", " + version + ", " + query + ", " + pfs);
-    validateNotEmpty(terminologyId, "terminologyId");
-    validateNotEmpty(terminology, "terminology");
-    validateNotEmpty(version, "version");
-    return findRelationshipsHelper("aui", terminologyId, terminology, version,
-        query, pfs, authToken);
-  }
-
   /**
    * Find relationships helper.
    *
