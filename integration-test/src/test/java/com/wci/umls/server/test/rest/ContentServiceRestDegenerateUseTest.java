@@ -6,9 +6,6 @@
  */
 package com.wci.umls.server.test.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.apache.log4j.Logger;
@@ -16,15 +13,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.SubsetList;
-import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
-import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Subset;
-import com.wci.umls.server.model.content.SubsetMember;
 
 /**
  * Implementation of the "Content Service REST Degenerate Use" Test Cases.
@@ -1872,6 +1865,11 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
   }  
   
+  /**
+   * Test degenerate use rest content013.
+   *
+   * @throws Exception the exception
+   */
   @Test
   public void testDegenerateUseRestContent013() throws Exception {
     // n/a - no code ancestors or descendants

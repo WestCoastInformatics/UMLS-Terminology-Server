@@ -77,6 +77,9 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void loadTerminologyRrf(String terminology, String version,
     boolean singleMode, String inputDir, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - load terminology rrf " + terminology + ", " + version
+            + ", " + inputDir);
 
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -111,7 +114,9 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void computeTransitiveClosure(String terminology, String version,
     String authToken) throws Exception {
-
+    Logger.getLogger(getClass()).debug(
+        "Content Client - compute transitive closure " + terminology + ", "
+            + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
@@ -144,7 +149,9 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void computeTreePositions(String terminology, String version,
     String authToken) throws Exception {
-
+    Logger.getLogger(getClass()).debug(
+        "Content Client - compute tree positions " + terminology + ", "
+            + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
@@ -177,6 +184,8 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void luceneReindex(String indexedObjects, String authToken)
     throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - lucene reindex " + indexedObjects);
     validateNotEmpty(indexedObjects, "indexedObjects");
 
     Client client = Client.create();
@@ -208,8 +217,7 @@ public class ContentClientRest extends RootClientRest implements
   public void removeTerminology(String terminology, String version,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - remove terminology " +  terminology
-            + ", " + version);
+        "Content Client - remove terminology " + terminology + ", " + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
@@ -217,16 +225,16 @@ public class ContentClientRest extends RootClientRest implements
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/terminology/remove/"
             + terminology + "/" + version);
-    /*ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .delete(ClientResponse.class);*/
+    /*
+     * ClientResponse response = resource.accept(MediaType.APPLICATION_XML)
+     * .header("Authorization", authToken) .header("Content-type",
+     * MediaType.APPLICATION_XML) .delete(ClientResponse.class);
+     */
 
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).delete(ClientResponse.class);
-    
+
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
     } else {
@@ -1553,6 +1561,9 @@ public class ContentClientRest extends RootClientRest implements
   public RelationshipList findRelationshipsForConcept(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find relationships for concept " + terminologyId
+            + ", " + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");

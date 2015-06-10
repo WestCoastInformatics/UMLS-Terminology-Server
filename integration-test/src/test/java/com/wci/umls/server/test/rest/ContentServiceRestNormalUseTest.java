@@ -2386,6 +2386,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   }
 
   
+  /**
+   * Test normal use rest content030.
+   *
+   * @throws Exception the exception
+   */
   @Test
   public void testNormalUseRestContent030() throws Exception {
     Logger.getLogger(getClass()).info("Start test");

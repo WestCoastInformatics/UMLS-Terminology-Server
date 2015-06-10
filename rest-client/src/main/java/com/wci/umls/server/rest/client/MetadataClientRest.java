@@ -8,6 +8,8 @@ import java.util.Properties;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status.Family;
 
+import org.apache.log4j.Logger;
+
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -21,7 +23,7 @@ import com.wci.umls.server.model.meta.Terminology;
 /**
  * A client for connecting to a metadata REST service.
  */
-public class MetadataClientRest implements MetadataServiceRest {
+public class MetadataClientRest extends RootClientRest implements MetadataServiceRest {
 
   /** The config. */
   private Properties config = null;
@@ -45,6 +47,11 @@ public class MetadataClientRest implements MetadataServiceRest {
   @Override
   public KeyValuePairLists getAllMetadata(String terminology, String version,
     String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Client - get all metadata " + terminology + ", " + version);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
@@ -76,6 +83,8 @@ public class MetadataClientRest implements MetadataServiceRest {
   @Override
   public KeyValuePairList getAllTerminologiesLatestVersions(String authToken)
     throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Client - get all terminologies latest versions");
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
@@ -108,6 +117,8 @@ public class MetadataClientRest implements MetadataServiceRest {
   @Override
   public KeyValuePairLists getAllTerminologiesVersions(String authToken)
     throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Client - get all terminologyies versions");
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
@@ -140,6 +151,11 @@ public class MetadataClientRest implements MetadataServiceRest {
   @Override
   public Terminology getTerminology(String terminology, String version,
     String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Client - get terminology " + terminology + ", " + version);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
@@ -153,7 +169,7 @@ public class MetadataClientRest implements MetadataServiceRest {
       // n/a
     } else {
       throw new Exception(response.toString());
-}
+    }
     // converting to object
     Terminology result =
         (Terminology) ConfigUtility.getGraphForString(resultString,
