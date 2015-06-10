@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Language" content="en" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UMLS Terminology Server Demo</title>
+<title>Terminology Server Demo</title>
 <style type="text/css" media="all"></style>
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="images/favicon.png" />
@@ -200,7 +200,7 @@
 										ng-repeat="searchResult in pagedSearchResults"
 										ng-click="getComponent(searchResult.terminology, searchResult.terminologyId)">
 										<td><span ng-show="searchResult.terminology != terminology.terminology">{{searchResult.terminology}}/</span>{{searchResult.terminologyId}}</td>
-										<td style="word-break: break-all; word-wrap: break-word;">{{searchResult.value}}</td>
+										<td style="word-break: break-word; ">{{searchResult.value}}</td>
 									</tr>
 								</tbody>
 							</table>
