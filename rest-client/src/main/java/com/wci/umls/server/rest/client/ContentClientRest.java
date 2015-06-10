@@ -207,6 +207,9 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void removeTerminology(String terminology, String version,
     String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - remove terminology " +  terminology
+            + ", " + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
@@ -214,12 +217,16 @@ public class ContentClientRest extends RootClientRest implements
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/terminology/remove/"
             + terminology + "/" + version);
-    ClientResponse response =
+    /*ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
             .header("Authorization", authToken)
             .header("Content-type", MediaType.APPLICATION_XML)
-            .delete(ClientResponse.class);
+            .delete(ClientResponse.class);*/
 
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).delete(ClientResponse.class);
+    
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
     } else {

@@ -2974,10 +2974,21 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     boolean hqlQueryFlag = false;
     List<T> hqlQueryClasses = new ArrayList<>();
     if (hqlQuery != null && !hqlQuery.equals("")) {
-      List<T> hqlResults = manager.createQuery(hqlQuery).getResultList();
-      for (T r : hqlResults) {
-        hqlQueryClasses.add(r);
+      if (!hqlQuery.toLowerCase().startsWith("select"))
+        throw new Exception("The hql query did not start with the keyword 'select'. " + hqlQuery);
+      if (hqlQuery.contains(";"))
+        throw new Exception("The hql query must not contain the ';'. " + hqlQuery);
+      javax.persistence.Query hQuery = manager.createQuery(hqlQuery);
+      hQuery.setHint("javax.persistence.query.timeout", 1000);
+      try {
+        List<T> hqlResults = hQuery.getResultList();
+        for (T r : hqlResults) {       
+          hqlQueryClasses.add(r);
+        }
+      } catch (ClassCastException e) {
+        throw new Exception("The hql query returned items of an unexpected type. ", e);
       }
+
       hqlQueryFlag = true;
     }
 
@@ -3660,16 +3671,57 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * java.lang.String)
    */
   @Override
-  public void clearContent(String terminology, String version) {
+  public void clearContent(String terminology, String version)  throws Exception {
 
-    Logger.getLogger(getClass()).info("Metadata service - clear metadata");
+    Logger.getLogger(getClass()).info("Content service - clear content");
     try {
       if (getTransactionPerOperation()) {
         // remove simple ref set member
         tx.begin();
       }
 
-      for (EntityType<?> type : manager.getMetamodel().getEntities()) {
+      // Truncate Terminology Elements
+      // before removing attributes, get rid of related map of alternateTerminologyIds
+      List<AttributeJpa> attList = getComponents(terminology, version, AttributeJpa.class);
+      for (AttributeJpa att : attList) {
+        att.removeAlternateTerminologyId(terminology);
+      }
+      javax.persistence.Query query =
+          manager
+              .createQuery("DELETE From AttributeJpa d where terminology = :terminology");
+      query.setParameter("terminology", terminology);
+      int deleteRecords = query.executeUpdate();
+      Logger.getLogger(getClass()).info("attribute records deleted: " + deleteRecords);
+      query =
+          manager
+              .createQuery("DELETE From DefinitionJpa r where terminology = :terminology");
+      query.setParameter("terminology", terminology);
+      deleteRecords = query.executeUpdate();
+      Logger.getLogger(getClass()).info("definition records deleted: " + deleteRecords);
+      query =
+          manager
+              .createQuery("DELETE From SemanticTypeComponentJpa c where terminology = :terminology");
+      query.setParameter("terminology", terminology);
+      deleteRecords = query.executeUpdate();
+      Logger.getLogger(getClass()).info("concept records deleted: " + deleteRecords);
+
+      clearTreePositions(terminology, version);
+      clearTransitiveClosure(terminology, version);
+      
+      query =
+          manager
+              .createQuery("DELETE From RelationshipJpa r where terminology = :terminology");
+      query.setParameter("terminology", terminology);
+      deleteRecords = query.executeUpdate();
+      Logger.getLogger(getClass()).info("relationship records deleted: " + deleteRecords);
+      query =
+          manager
+              .createQuery("DELETE From AtomJpa c where terminology = :terminology");
+      query.setParameter("terminology", terminology);
+      deleteRecords = query.executeUpdate();
+      Logger.getLogger(getClass()).info("atom records deleted: " + deleteRecords);      
+      
+      /*for (EntityType<?> type : manager.getMetamodel().getEntities()) {
         String jpaTable = type.getName();
         // Skip audit trail tables
         if (jpaTable.toUpperCase().indexOf("_AUD") != -1) {
@@ -3695,7 +3747,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             "    " + jpaTable + " records deleted: " + deleteRecords);
 
       }
-
+*/
       if (getTransactionPerOperation()) {
         // remove simple ref set member
         tx.commit();
@@ -3897,6 +3949,33 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return stats;
   }
 
+  /**
+   * Returns the components.
+   *
+   * @param <T> the
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param clazz the clazz
+   * @return the components
+   */
+  @SuppressWarnings("rawtypes")
+  private <T extends Component> List getComponents(
+    String terminology, String version, Class<T> clazz) {
+    try {
+      javax.persistence.Query query =
+          manager
+              .createQuery("select a from "
+                  + clazz.getName()
+                  + " a where version = :version and terminology = :terminology");
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      return query.getResultList();
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+  
   /**
    * Returns the components.
    *
@@ -4343,25 +4422,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findRelationshipsForAtom(java
-   * .lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * boolean, com.wci.umls.server.helpers.PfsParameter)
-   */
-  @Override
-  public RelationshipList findRelationshipsForAtom(String atomId,
-    String terminology, String version, String branch, String query,
-    boolean inverseFlag, PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - find relationships for atom " + atomId + "/"
-            + terminology + "/" + version + "/" + branch + "/" + query + "/"
-            + inverseFlag);
-    return findRelationshipsForComponentHelper(atomId, terminology, version,
-        branch, query, inverseFlag, pfs, AtomJpa.class);
-  }
 
   /**
    * Find relationships helper.
@@ -4679,6 +4739,21 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
               searchFactory.getAnalyzer(clazz));
       Logger.getLogger(getClass()).info("query = " + pfsQuery);
       luceneQuery = queryParser.parse(pfsQuery.toString());
+      Set<Term> terms = new HashSet<>();
+      luceneQuery.extractTerms(terms);
+      for (Term t : terms) {
+        if (t.field() != null && !t.field().isEmpty()) {
+          boolean found = false;
+          for (String s : fieldNames) {
+            if (t.field().equals(s)) {
+              found = true;
+              break;
+            }
+          }
+          if (!found)
+            throw new Exception("Query references invalid field name " + t.field());
+        }
+      }
     } catch (ParseException e) {
       throw new LocalException(
           "The specified search terms cannot be parsed.  Please check syntax and try again.");
@@ -4688,7 +4763,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     if (pfs != null) {
       // if start index and max results are set, set paging
-      if (pfs.getStartIndex() != -1 && pfs.getMaxResults() != -1) {
+      if (pfs.getStartIndex() >= 0  && pfs.getMaxResults() >= 0) {
         fullTextQuery.setFirstResult(pfs.getStartIndex());
         fullTextQuery.setMaxResults(pfs.getMaxResults());
       }
