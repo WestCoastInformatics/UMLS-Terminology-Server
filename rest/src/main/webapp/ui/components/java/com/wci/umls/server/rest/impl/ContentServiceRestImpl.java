@@ -654,7 +654,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "start editing cycle",
           UserRole.ADMINISTRATOR);
 
-      metadataService.clearMetadata(terminology, version);
+      //metadataService.clearMetadata(terminology, version);
       contentService.clearContent(terminology, version);
 
       // Final logging messages
@@ -750,13 +750,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + "/query/" + queryStr + " with PFS parameter "
             + (pfsc == null ? "empty" : pfsc.toString()));
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken, "find concepts by query",
           UserRole.VIEWER);
 
-      SearchResultList sr =
-          contentService.findConceptsForQuery(terminology, version,
-              Branch.ROOT, queryStr, pfsc);
+      // TODO: needed to add this for ContentServiceDegenerateUseCase008 to work
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+            throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
+      SearchResultList sr =  contentService.findConceptsForQuery(terminology, version,
+        Branch.ROOT, queryStr, pfsc);
       return sr;
 
     } catch (Exception e) {
@@ -765,6 +770,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
@@ -882,6 +888,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find concepts by query",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase006 to work
+      if (searchTerm == null || searchTerm.equals("") || searchTerm.equals("null"))
+        throw new Exception("Error due to invalid searchTerm: " + searchTerm);
+      
       return contentService.autocompleteConcepts(terminology, version,
           searchTerm);
 
@@ -975,10 +985,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + "/query/" + queryStr + " with PFS parameter "
             + (pfsc == null ? "empty" : pfsc.toString()));
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken, "find descriptors by query",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase008 to work
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+            throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       SearchResultList sr =
           contentService.findDescriptorsForQuery(terminology, version,
               Branch.ROOT, queryStr, pfsc);
@@ -990,6 +1006,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
@@ -1063,6 +1080,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find descriptors by query",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase006 to work
+      if (searchTerm == null || searchTerm.equals("") || searchTerm.equals("null"))
+        throw new Exception("Error due to invalid searchTerm: " + searchTerm);
+      
       return contentService.autocompleteDescriptors(terminology, version,
           searchTerm);
 
@@ -1155,10 +1176,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + "/query/" + queryStr + " with PFS parameter "
             + (pfsc == null ? "empty" : pfsc.toString()));
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken, "find codes by query",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase008 to work
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+            throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       SearchResultList sr =
           contentService.findCodesForQuery(terminology, version, Branch.ROOT,
               queryStr, pfsc);
@@ -1170,6 +1197,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
@@ -1199,6 +1227,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find code by query",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase006 to work
+      if (searchTerm == null || searchTerm.equals("") || searchTerm.equals("null"))
+        throw new Exception("Error due to invalid searchTerm: " + searchTerm);
+      
       return contentService.autocompleteCodes(terminology, version, searchTerm);
 
     } catch (Exception e) {
@@ -1333,10 +1365,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken, "find ancestor concepts",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase011 to work
+      if (terminologyId == null || terminologyId.equals("") || terminologyId.equals("null"))
+        throw new Exception("Error due to invalid terminology id: " + terminologyId);
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+        throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       ConceptList list =
           contentService.findAncestorConcepts(terminologyId, terminology,
               version, parentsOnly, Branch.ROOT, pfs);
@@ -1356,6 +1396,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
@@ -1385,10 +1426,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken, "find descendant concepts",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase006 to work
+      if (terminologyId == null || terminologyId.equals("") || terminologyId.equals("null"))
+        throw new Exception("Error due to invalid terminology id: " + terminologyId);
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+        throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       ConceptList list =
           contentService.findDescendantConcepts(terminologyId, terminology,
               version, childrenOnly, Branch.ROOT, pfs);
@@ -1408,6 +1457,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
@@ -1437,10 +1487,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken, "find ancestor descriptors",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase006 to work
+      if (terminologyId == null || terminologyId.equals("") || terminologyId.equals("null"))
+        throw new Exception("Error due to invalid terminology id: " + terminologyId);
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+        throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       DescriptorList list =
           contentService.findAncestorDescriptors(terminologyId, terminology,
               version, parentsOnly, Branch.ROOT, pfs);
@@ -1459,6 +1517,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
@@ -1488,10 +1547,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
+    
     try {
       authenticate(securityService, authToken, "find descendant descriptors",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase006 to work
+      if (terminologyId == null || terminologyId.equals("") || terminologyId.equals("null"))
+        throw new Exception("Error due to invalid terminology id: " + terminologyId);
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+        throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       DescriptorList list =
           contentService.findDescendantDescriptors(terminologyId, terminology,
               version, childrenOnly, Branch.ROOT, pfs);
@@ -1510,6 +1578,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
@@ -1539,10 +1608,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken, "find ancestor codes",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase011 to work
+      if (terminologyId == null || terminologyId.equals("") || terminologyId.equals("null"))
+        throw new Exception("Error due to invalid terminology id: " + terminologyId);
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+        throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       CodeList list =
           contentService.findAncestorCodes(terminologyId, terminology, version,
               parentsOnly, Branch.ROOT, pfs);
@@ -1561,6 +1638,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
@@ -1590,10 +1668,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken, "find descendant codes",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase006 to work
+      if (terminologyId == null || terminologyId.equals("") || terminologyId.equals("null"))
+        throw new Exception("Error due to invalid terminology id: " + terminologyId);
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+        throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       CodeList list =
           contentService.findDescendantCodes(terminologyId, terminology,
               version, childrenOnly, Branch.ROOT, pfs);
@@ -1612,6 +1698,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
@@ -1637,10 +1724,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
             + terminologyId + "/members");
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken,
           "retrieve subset members for the concept", UserRole.VIEWER);
 
+
+      // TODO: needed to add this for ContentServiceDegenerateUseCase006 to work
+      if (terminologyId == null || terminologyId.equals("") || terminologyId.equals("null"))
+        throw new Exception("Error due to invalid terminology id: " + terminologyId);
+      
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+        throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       SubsetMemberList list =
           contentService.getSubsetMembersForConcept(terminologyId, terminology,
               version, Branch.ROOT);
@@ -1657,6 +1754,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
 
   }
@@ -1683,10 +1781,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         "RESTful call (Content): /aui/" + terminology + "/" + version + "/"
             + terminologyId + "/members");
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken,
           "retrieve subset members for the atom", UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase006 to work
+      if (terminologyId == null || terminologyId.equals("") || terminologyId.equals("null"))
+      throw new Exception("Error due to invalid terminology id: " + terminologyId);
+      
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+        throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       SubsetMemberList list =
           contentService.getSubsetMembersForAtom(terminologyId, terminology,
               version, Branch.ROOT);
@@ -1703,6 +1810,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
@@ -1893,10 +2001,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         "RESTful call (Content): /aui/" + terminology + "/" + version
             + "/subsets");
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken, "retrieve atom subsets",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase006 to work
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+        throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       SubsetList list =
           contentService.getAtomSubsets(terminology, version, Branch.ROOT);
       for (int i = 0; i < list.getCount(); i++) {
@@ -1910,6 +2024,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
@@ -1927,10 +2042,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         "RESTful call (Content): /cui/" + terminology + "/" + version
             + "/subsets");
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken, "retrieve concept subsets",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase007 to work
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+        throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       SubsetList list =
           contentService.getConceptSubsets(terminology, version, Branch.ROOT);
       for (int i = 0; i < list.getCount(); i++) {
@@ -1944,6 +2065,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
@@ -1972,10 +2094,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         "RESTful call (Content): /aui/subset/" + subsetId + "/" + terminology
             + "/" + version + "/members/query/" + queryStr);
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken, "find atom subset members",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase006 to work
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+        throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       SubsetMemberList list =
           contentService.findAtomSubsetMembers(subsetId, terminology, version,
               Branch.ROOT, queryStr, pfs);
@@ -1990,6 +2118,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
@@ -2015,10 +2144,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         "RESTful call (Content): /cui/subset/" + subsetId + "/" + terminology
             + "/" + version + "/members/query/" + queryStr);
     ContentService contentService = new ContentServiceJpa();
+    MetadataService metadataService = new MetadataServiceJpa();
     try {
       authenticate(securityService, authToken, "find concept subset members",
           UserRole.VIEWER);
 
+      // TODO: needed to add this for ContentServiceDegenerateUseCase006 to work
+      Terminology t = metadataService.getTerminology(terminology, version);
+      if (t == null)
+        throw new Exception("Error retrieving terminology/version combination " + terminology + ":" + version);
+      
       SubsetMemberList list =
           contentService.findConceptSubsetMembers(subsetId, terminology,
               version, Branch.ROOT, queryStr, pfs);
@@ -2033,41 +2168,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       contentService.close();
       securityService.close();
+      metadataService.close();
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findRelationshipsForAtom(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
-  @Override
-  public RelationshipList findRelationshipsForAtom(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception {
-
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Atom): /aui/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships");
-    ContentService contentService = new ContentServiceJpa();
-    try {
-      authenticate(securityService, authToken,
-          "retrieve relationships for the atom", UserRole.VIEWER);
-
-      return contentService.findRelationshipsForAtom(terminologyId,
-          terminology, version, Branch.ROOT, query, false, pfs);
-
-    } catch (Exception e) {
-      handleException(e, "trying to retrieve relationships for a atom");
-      return null;
-    } finally {
-      contentService.close();
-      securityService.close();
-    }
-  }
 
   @Override
   @POST

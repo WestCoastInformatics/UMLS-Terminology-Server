@@ -1982,6 +1982,14 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (atom.getCodeId() == null || atom.getCodeId().isEmpty()) {
         continue;
       }
+      // skip where code == concept - problem because rels connect to the code
+      //if (atom.getCodeId().equals(atom.getConceptId())) {
+      //  continue;
+      //}
+      // skip where code == descriptor
+      //if (atom.getCodeId().equals(atom.getDescriptorId())) {
+      //  continue;
+      //}
       if (prevCode == null || !prevCode.equals(atom.getCodeId())) {
         if (code != null) {
           // compute preferred name

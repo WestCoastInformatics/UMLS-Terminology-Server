@@ -264,22 +264,7 @@ public interface ContentService extends MetadataService {
     String terminology, String version, String branch, String query,
     boolean inverseFlag, PfsParameter pfs) throws Exception;
 
-  /**
-   * Returns the relationships for atom.
-   *
-   * @param conceptId the concept id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param inverseFlag the inverse flag
-   * @param pfs the pfsc
-   * @return the relationships for atom
-   * @throws Exception the exception
-   */
-  public RelationshipList findRelationshipsForAtom(String conceptId,
-    String terminology, String version, String branch, String query,
-    boolean inverseFlag, PfsParameter pfs) throws Exception;
+
 
   /**
    * Returns the descriptor.
@@ -1145,8 +1130,9 @@ public interface ContentService extends MetadataService {
    *
    * @param terminology the terminology
    * @param version the terminology version
+   * @throws Exception the exception
    */
-  public void clearContent(String terminology, String version);
+  public void clearContent(String terminology, String version) throws Exception;
 
   /**
    * Clear all content in the (non null) branch.

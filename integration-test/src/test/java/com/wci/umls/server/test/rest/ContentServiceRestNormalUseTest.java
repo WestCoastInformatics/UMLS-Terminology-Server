@@ -2190,27 +2190,9 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             umlsVersion, "", pfs, authToken);
     assertEquals(20,l.getCount());
 
-    /** Find relationships for given descriptor */
-    Logger.getLogger(getClass()).info(
-        "TEST2 - " + "D000015, MSH, mshVersion, " + authToken);
-    pfs = new PfsParameterJpa();
-    l =
-        contentService.findRelationshipsForDescriptor("D000015",
-            mshTerminology, mshVersion, "", pfs, authToken);
-    assertEquals(50,l.getCount());
-
-    /** Find relationships for given code */
-    Logger.getLogger(getClass()).info(
-        "TEST3 - " + "U000019, MSH, mshVersion, " + authToken);
-    pfs = new PfsParameterJpa();
-    l =
-        contentService.findRelationshipsForCode("U000019", mshTerminology,
-            mshVersion, "", pfs, authToken);
-    assertEquals(15,l.getCount());
-
     /** Find relationships for given concept with pfs */
     Logger.getLogger(getClass()).info(
-        "TEST4 - " + "C0000737, UMLS, latest, " + authToken);
+        "TEST2 - " + "C0000737, UMLS, latest, " + authToken);
     pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(3);
@@ -2220,9 +2202,29 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals(3,l.getCount());
     assertEquals(20,l.getTotalCount());
 
+  }
+
+  /**
+   * Test finding relationships for a descriptor.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestContent021() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    /** Find relationships for given descriptor */
+    Logger.getLogger(getClass()).info(
+        "TEST1 - " + "D000015, MSH, mshVersion, " + authToken);
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    RelationshipList l =
+        contentService.findRelationshipsForDescriptor("D000015",
+            mshTerminology, mshVersion, "", pfs, authToken);
+    assertEquals(50,l.getCount());
+
     /** Find relationships for given descriptor with pfs */
     Logger.getLogger(getClass()).info(
-        "TEST5 - " + "D000015, MSH, mshVersion, " + authToken);
+        "TEST2 - " + "D000015, MSH, mshVersion, " + authToken);
     pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(3);
@@ -2231,10 +2233,31 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             mshTerminology, mshVersion, "", pfs, authToken);
     assertEquals(3,l.getCount());
     assertEquals(50,l.getTotalCount());
+  }
+
+  /**
+   * Test finding relationships for a code.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestContent022() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+
+    /** Find relationships for given code */
+    Logger.getLogger(getClass()).info(
+        "TEST1 - " + "U000019, MSH, mshVersion, " + authToken);
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    RelationshipList l =
+        contentService.findRelationshipsForCode("U000019", mshTerminology,
+            mshVersion, "", pfs, authToken);
+    assertEquals(15,l.getCount());
+
 
     /** Find relationships for given code with pfs */
     Logger.getLogger(getClass()).info(
-        "TEST6 - " + "U000019, MSH, mshVersion, " + authToken);
+        "TEST2 - " + "U000019, MSH, mshVersion, " + authToken);
     pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(3);
@@ -2362,6 +2385,17 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // TODO: consider sample data from SAMPLE_2014AB
   }
 
+  
+  /**
+   * Test normal use rest content030.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testNormalUseRestContent030() throws Exception {
+    Logger.getLogger(getClass()).info("Start test");
+    contentService.removeTerminology(snomedTerminology, snomedVersion, authToken);
+  }
   /**
    * Teardown.
    *

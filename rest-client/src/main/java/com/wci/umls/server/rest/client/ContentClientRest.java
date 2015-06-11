@@ -51,7 +51,8 @@ import com.wci.umls.server.model.content.StringClass;
 /**
  * A client for connecting to a content REST service.
  */
-public class ContentClientRest implements ContentServiceRest {
+public class ContentClientRest extends RootClientRest implements
+    ContentServiceRest {
 
   /** The config. */
   private Properties config = null;
@@ -76,6 +77,13 @@ public class ContentClientRest implements ContentServiceRest {
   @Override
   public void loadTerminologyRrf(String terminology, String version,
     boolean singleMode, String inputDir, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - load terminology rrf " + terminology + ", " + version
+            + ", " + inputDir);
+
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    validateNotEmpty(inputDir, "inputDir");
 
     Client client = Client.create();
     WebResource resource =
@@ -106,6 +114,12 @@ public class ContentClientRest implements ContentServiceRest {
   @Override
   public void computeTransitiveClosure(String terminology, String version,
     String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - compute transitive closure " + terminology + ", "
+            + version);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
@@ -135,6 +149,12 @@ public class ContentClientRest implements ContentServiceRest {
   @Override
   public void computeTreePositions(String terminology, String version,
     String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - compute tree positions " + terminology + ", "
+            + version);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
@@ -164,8 +184,11 @@ public class ContentClientRest implements ContentServiceRest {
   @Override
   public void luceneReindex(String indexedObjects, String authToken)
     throws Exception {
-    Client client = Client.create();
+    Logger.getLogger(getClass()).debug(
+        "Content Client - lucene reindex " + indexedObjects);
+    validateNotEmpty(indexedObjects, "indexedObjects");
 
+    Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/reindex");
     ClientResponse response =
@@ -193,15 +216,24 @@ public class ContentClientRest implements ContentServiceRest {
   @Override
   public void removeTerminology(String terminology, String version,
     String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - remove terminology " + terminology + ", " + version);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/terminology/remove/"
             + terminology + "/" + version);
+    /*
+     * ClientResponse response = resource.accept(MediaType.APPLICATION_XML)
+     * .header("Authorization", authToken) .header("Content-type",
+     * MediaType.APPLICATION_XML) .delete(ClientResponse.class);
+     */
+
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .delete(ClientResponse.class);
+            .header("Authorization", authToken).delete(ClientResponse.class);
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -224,6 +256,9 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - get concept " + terminologyId + ", " + terminology
             + ", " + version);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
@@ -258,10 +293,11 @@ public class ContentClientRest implements ContentServiceRest {
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String query, PfscParameterJpa pfsc, String authToken)
     throws Exception {
-
     Logger.getLogger(getClass()).debug(
         "Content Client - find concepts " + terminology + ", " + version + ", "
             + query + ", " + pfsc);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
     Client client = Client.create();
 
@@ -309,7 +345,6 @@ public class ContentClientRest implements ContentServiceRest {
   @Override
   public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
     String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception {
-
     Logger.getLogger(getClass()).debug(
         "Content Client - find concepts " + luceneQuery + ", " + hqlQuery
             + ", " + pfs);
@@ -362,6 +397,9 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - autocomplete concepts " + terminology + ", "
             + version + ", " + searchTerm);
+    validateNotEmpty(searchTerm, "searchTerm");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
     Client client = Client.create();
     WebResource resource =
@@ -398,6 +436,10 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - get descriptor " + terminologyId + ", " + terminology
             + ", " + version);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/dui/"
@@ -435,6 +477,8 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find descriptors " + terminology + ", " + version
             + ", " + query + ", " + pfsc);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
     Client client = Client.create();
     WebResource resource =
@@ -532,6 +576,9 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - autocomplete descriptors " + terminology + ", "
             + version + ", " + searchTerm);
+    validateNotEmpty(searchTerm, "searchTerm");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
     Client client = Client.create();
     WebResource resource =
@@ -568,6 +615,10 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - get code " + terminologyId + ", " + terminology
             + ", " + version);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/code/"
@@ -603,6 +654,8 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find codes " + terminology + ", " + version + ", "
             + query + ", " + pfsc);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
     Client client = Client.create();
     WebResource resource =
@@ -701,6 +754,9 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - autocomplete codes " + terminology + ", " + version
             + ", " + searchTerm);
+    validateNotEmpty(searchTerm, "searchTerm");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
     Client client = Client.create();
     WebResource resource =
@@ -737,6 +793,10 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - get lexical class " + terminologyId + ", "
             + terminology + ", " + version);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/lui/"
@@ -772,6 +832,10 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - get string class " + terminologyId + ", "
             + terminology + ", " + version);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/sui/"
@@ -809,6 +873,9 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find ancestor concepts " + terminologyId + ", "
             + terminology + ", " + version + ", " + parentsOnly + ", " + pfs);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
     Client client = Client.create();
     WebResource resource =
@@ -853,6 +920,9 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find descendant concepts " + terminologyId + ", "
             + terminology + ", " + version + ", " + childrenOnly + ", " + pfs);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
     Client client = Client.create();
     WebResource resource =
@@ -897,6 +967,9 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find ancestor descriptors " + terminologyId + ", "
             + terminology + ", " + version + ", " + parentsOnly + ", " + pfs);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
     Client client = Client.create();
     WebResource resource =
@@ -941,6 +1014,9 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find descendant descriptors " + terminologyId + ", "
             + terminology + ", " + version + ", " + childrenOnly + ", " + pfs);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
     Client client = Client.create();
     WebResource resource =
@@ -985,6 +1061,9 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find ancestor codes " + terminologyId + ", "
             + terminology + ", " + version + ", " + parentsOnly + ", " + pfs);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
     Client client = Client.create();
     WebResource resource =
@@ -1030,6 +1109,9 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find descendant codes " + terminologyId + ", "
             + terminology + ", " + version + ", " + childrenOnly + ", " + pfs);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
     Client client = Client.create();
     WebResource resource =
@@ -1058,7 +1140,6 @@ public class ContentClientRest implements ContentServiceRest {
             CodeListJpa.class);
     return list;
   }
-  
 
   /*
    * (non-Javadoc)
@@ -1073,7 +1154,11 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - get subset members for concept " + terminologyId
             + ", " + terminology + ", " + version);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
     Client client = Client.create();
+
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
             + terminology + "/" + version + "/" + terminologyId + "/members");
@@ -1108,6 +1193,10 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - get subset members for atom " + terminologyId + ", "
             + terminology + ", " + version);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/aui/"
@@ -1143,6 +1232,8 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - load terminology rf2 snapshot " + terminology + ", "
             + version);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
     Client client = Client.create();
     WebResource resource =
@@ -1174,6 +1265,8 @@ public class ContentClientRest implements ContentServiceRest {
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - load terminology rf2 delta " + terminology);
+    validateNotEmpty(inputDir, "inputDir");
+    validateNotEmpty(terminology, "terminology");
 
     Client client = Client.create();
     WebResource resource =
@@ -1206,6 +1299,9 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - load terminology ClaML " + terminology + ", "
             + version);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    validateNotEmpty(inputFile, "inputFile");
 
     Client client = Client.create();
     WebResource resource =
@@ -1236,6 +1332,9 @@ public class ContentClientRest implements ContentServiceRest {
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get atom subsets " + terminology + ", " + version);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
@@ -1270,6 +1369,9 @@ public class ContentClientRest implements ContentServiceRest {
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get concept subsets " + terminology + ", " + version);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
@@ -1307,6 +1409,10 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - get atom subset members " + terminology + ", "
             + version);
+    validateNotEmpty(subsetId, "subsetId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
@@ -1342,6 +1448,14 @@ public class ContentClientRest implements ContentServiceRest {
     return list;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findConceptSubsetMembers(java.lang.String, java.lang.String,
+   * java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
   @Override
   public SubsetMemberList findConceptSubsetMembers(String subsetId,
     String terminology, String version, String query, PfsParameterJpa pfs,
@@ -1349,6 +1463,10 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - get concept subset members " + terminology + ", "
             + version);
+    validateNotEmpty(subsetId, "subsetId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
@@ -1384,6 +1502,14 @@ public class ContentClientRest implements ContentServiceRest {
     return list;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findDeepRelationshipsForConcept(java.lang.String, java.lang.String,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
+   */
   @Override
   public RelationshipList findDeepRelationshipsForConcept(String terminologyId,
     String terminology, String version, PfsParameterJpa pfs, String authToken)
@@ -1391,6 +1517,10 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find deep relationships for concept " + terminologyId
             + ", " + terminology + ", " + version + ", " + pfs);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url") + "/content/cui/"
@@ -1433,11 +1563,26 @@ public class ContentClientRest implements ContentServiceRest {
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find relationships for concept " + terminologyId
+            + ", " + terminology + ", " + version);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find relationships for concept " + terminologyId
             + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
     return findRelationshipsHelper("cui", terminologyId, terminology, version,
         query, pfs, authToken);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findRelationshipsForDescriptor(java.lang.String, java.lang.String,
+   * java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
   @Override
   public RelationshipList findRelationshipsForDescriptor(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
@@ -1445,10 +1590,21 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find relationships for descriptor " + terminologyId
             + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
     return findRelationshipsHelper("dui", terminologyId, terminology, version,
         query, pfs, authToken);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findRelationshipsForCode(java.lang.String, java.lang.String,
+   * java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
   @Override
   public RelationshipList findRelationshipsForCode(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
@@ -1456,18 +1612,10 @@ public class ContentClientRest implements ContentServiceRest {
     Logger.getLogger(getClass()).debug(
         "Content Client - find relationships for code " + terminologyId + ", "
             + terminology + ", " + version + ", " + pfs + ", " + query);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
     return findRelationshipsHelper("code", terminologyId, terminology, version,
-        query, pfs, authToken);
-  }
-
-  @Override
-  public RelationshipList findRelationshipsForAtom(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find relationships for atom " + terminologyId + ", "
-            + terminology + ", " + version + ", " + query + ", " + pfs);
-    return findRelationshipsHelper("aui", terminologyId, terminology, version,
         query, pfs, authToken);
   }
 
@@ -1489,12 +1637,19 @@ public class ContentClientRest implements ContentServiceRest {
     PfsParameterJpa pfs, String authToken) throws Exception {
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/content/" + type
-            + "/" + terminology + "/" + version + "/" + terminologyId
-            + "/relationships/query/" 
+        client.resource(config.getProperty("base.url")
+            + "/content/"
+            + type
+            + "/"
+            + terminology
+            + "/"
+            + version
+            + "/"
+            + terminologyId
+            + "/relationships/query/"
             + (query == null || query.isEmpty()
-            ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
-                "UTF-8").replaceAll("\\+", "%20")));
+                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
+                    "UTF-8").replaceAll("\\+", "%20")));
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -1519,37 +1674,68 @@ public class ContentClientRest implements ContentServiceRest {
     return list;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findTreesForConcept
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
   @Override
   public TreeList findTreesForConcept(String terminologyId, String terminology,
-    String version, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String version, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get tree positions for concept " + terminologyId
             + ", " + terminology + ", " + version + ", " + pfs);
-    return findTreesHelper("cui", terminologyId, terminology, version,
-        pfs, authToken);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    return findTreesHelper("cui", terminologyId, terminology, version, pfs,
+        authToken);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findTreesForDescriptor
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
   @Override
   public TreeList findTreesForDescriptor(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs,
-    String authToken) throws Exception {
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get tree positions for descriptor " + terminologyId
             + ", " + terminology + ", " + version + ", " + pfs);
-    return findTreesHelper("dui", terminologyId, terminology, version,
-        pfs, authToken);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    return findTreesHelper("dui", terminologyId, terminology, version, pfs,
+        authToken);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findTreesForCode
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
   @Override
   public TreeList findTreesForCode(String terminologyId, String terminology,
-    String version, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+    String version, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get tree positions for code " + terminologyId + ", "
             + terminology + ", " + version + ", " + pfs);
-    return findTreesHelper("code", terminologyId, terminology, version,
-        pfs, authToken);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    return findTreesHelper("code", terminologyId, terminology, version, pfs,
+        authToken);
   }
 
   /**
@@ -1565,19 +1751,12 @@ public class ContentClientRest implements ContentServiceRest {
    * @throws Exception the exception
    */
   private TreeList findTreesHelper(String type, String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs,
-    String authToken) throws Exception {
+    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    throws Exception {
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/content/"
-            + type
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/"
-            + terminologyId
+        client.resource(config.getProperty("base.url") + "/content/" + type
+            + "/" + terminology + "/" + version + "/" + terminologyId
             + "/trees");
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -1603,32 +1782,62 @@ public class ContentClientRest implements ContentServiceRest {
 
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findConceptTreeForQuery(java.lang.String, java.lang.String,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
+   */
   @Override
   public Tree findConceptTreeForQuery(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get concept tree for query " + ", " + terminology
             + ", " + version + ", " + query + ", " + pfs);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
     return findTreeForQueryHelper("cui", terminology, version, query, pfs,
         authToken);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findDescriptorTreeForQuery(java.lang.String, java.lang.String,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
+   */
   @Override
   public Tree findDescriptorTreeForQuery(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get descriptor tree for query " + ", " + terminology
             + ", " + version + ", " + query + ", " + pfs);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
     return findTreeForQueryHelper("dui", terminology, version, query, pfs,
         authToken);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findCodeTreeForQuery
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+   */
   @Override
   public Tree findCodeTreeForQuery(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get code tree for query " + ", " + terminology + ", "
             + version + ", " + query + ", " + pfs);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
     return findTreeForQueryHelper("code", terminology, version, query, pfs,
         authToken);
   }
