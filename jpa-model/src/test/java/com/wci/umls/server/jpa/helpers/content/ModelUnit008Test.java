@@ -115,7 +115,7 @@ public class ModelUnit008Test {
     tester.include("published");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("alternateTerminologyIds");
     tester.include("assertedDirection");
     tester.include("additionalRelationshipType");
@@ -260,7 +260,7 @@ public class ModelUnit008Test {
     tester.include("publishable");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("assertedDirection");
     tester.include("relationshipType");
     tester.include("inferred");

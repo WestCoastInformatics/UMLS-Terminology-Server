@@ -29,7 +29,7 @@ import com.wci.umls.server.model.content.Definition;
  */
 @Entity
 @Table(name = "definitions", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "definition")

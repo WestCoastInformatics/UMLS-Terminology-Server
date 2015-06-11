@@ -22,7 +22,7 @@ import com.wci.umls.server.model.content.CodeTransitiveRelationship;
  */
 @Entity
 @Table(name = "code_transitive_rels", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "codeTransitiveRel")
@@ -149,27 +149,28 @@ public class CodeTransitiveRelationshipJpa extends
     }
     superType.setTerminology(terminology);
   }
-  
+
   /**
    * Returns the super type terminology. For JAXB.
    *
    * @return the super type terminology
    */
-  public String getSuperTypeTerminologyVersion() {
-    return superType == null ? null : superType.getTerminologyVersion();
+  public String getSuperTypeVersion() {
+    return superType == null ? null : superType.getVersion();
   }
 
   /**
    * Sets the super type terminology version.
    *
-   * @param terminologyVersion the super type terminology version
+   * @param version the super type terminology version
    */
-  public void setSuperTypeTerminologyVersion(String terminologyVersion) {
+  public void setSuperTypeVersion(String version) {
     if (superType == null) {
       superType = new CodeJpa();
     }
-    superType.setTerminologyVersion(terminologyVersion);
+    superType.setVersion(version);
   }
+
   /**
    * Returns the super type term. For JAXB.
    *
@@ -282,20 +283,20 @@ public class CodeTransitiveRelationshipJpa extends
    *
    * @return the sub type terminology
    */
-  public String getSubTypeTerminologyVersion() {
-    return subType == null ? null : subType.getTerminologyVersion();
+  public String getSubTypeVersion() {
+    return subType == null ? null : subType.getVersion();
   }
 
   /**
    * Sets the sub type terminology version.
    *
-   * @param terminologyVersion the sub type terminology version
+   * @param version the sub type terminology version
    */
-  public void setSubTypeTerminologyVersion(String terminologyVersion) {
+  public void setSubTypeVersion(String version) {
     if (subType == null) {
       subType = new CodeJpa();
     }
-    subType.setTerminologyVersion(terminologyVersion);
+    subType.setVersion(version);
   }
 
   /**
@@ -348,12 +349,6 @@ public class CodeTransitiveRelationshipJpa extends
     } else if (!superType.equals(other.superType))
       return false;
     return true;
-  }
-
-  @Override
-  public String toString() {
-    return "CodeTransitiveRelationshipJpa [superType=" + superType
-        + ", subType=" + subType + "]";
   }
 
 }

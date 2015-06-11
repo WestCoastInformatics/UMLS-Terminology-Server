@@ -127,8 +127,9 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
     // Call "remove project" using a null project id.
     try {
       projectService.removeProject(null, adminAuthToken);
+      fail("Cannot remove a null project");
     } catch (Exception e) {
-      fail("Exception should not be thrown when removing a project with a null id.");
+      // do nothing
     }
   }
 
@@ -161,7 +162,7 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
     project.setScopeExcludesConcepts(null);
     project.setScopeExcludesDescendantsFlag(true);
     project.setTerminology("terminology");
-    project.setTerminologyVersion("version");
+    project.setVersion("version");
     project.setLastModifiedBy("some_user");
 
     User user = new UserJpa();

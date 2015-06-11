@@ -91,7 +91,7 @@ public class ModelUnit001Test {
     //tester.include("scopeExcludesConcepts");
     tester.include("scopeExcludesDescendantsFlag");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
 
     // Set up objects
     tester.proxy(Set.class, 1, s1);
@@ -179,7 +179,7 @@ public class ModelUnit001Test {
     tester.include("description");
     tester.include("isPublic");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("scopeDescendantsFlag");
     tester.include("scopeExcludesDescendantsFlag");
     assertTrue(tester.testNotNullFields());
@@ -204,7 +204,7 @@ public class ModelUnit001Test {
     assertTrue(tester.testAnalyzedIndexedFields());
     tester = new IndexedFieldTester(object);
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     assertTrue(tester.testNotAnalyzedIndexedFields());

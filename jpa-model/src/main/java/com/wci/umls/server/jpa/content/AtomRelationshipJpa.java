@@ -28,7 +28,7 @@ import com.wci.umls.server.model.content.AtomRelationship;
  */
 @Entity
 @Table(name = "atom_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "atomRelationship")
@@ -365,16 +365,6 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
       return false;
     return true;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractRelationship#toString()
-   */
-  @Override
-  public String toString() {
-    return "AtomRelationshipJpa [from=" + from + ", to=" + to + "]";
   }
 
 }

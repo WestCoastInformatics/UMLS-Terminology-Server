@@ -54,7 +54,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
   private String terminology;
 
   /** The terminology version. */
-  private String terminologyVersion;
+  private String version;
 
   /** The descendants map. */
   private Map<Long, Set<Long>> descendantsMap = new HashMap<>();
@@ -88,10 +88,10 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
   /**
    * Sets the terminology version.
    *
-   * @param terminologyVersion the terminology version
+   * @param version the terminology version
    */
-  public void setTerminologyVersion(String terminologyVersion) {
-    this.terminologyVersion = terminologyVersion;
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   /**
@@ -142,7 +142,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
    */
   @Override
   public void compute() throws Exception {
-    computeTransitiveClosure(terminology, terminologyVersion, idType);
+    computeTransitiveClosure(terminology, version, idType);
   }
 
   /*
@@ -152,7 +152,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
    */
   @Override
   public void reset() throws Exception {
-    clearTransitiveClosure(terminology, terminologyVersion);
+    clearTransitiveClosure(terminology, version);
   }
 
   /**
@@ -206,7 +206,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
                 "select r.from.id, r.to.id from " + tableName
                     + " r where obsolete = 0 "
                     + "and terminology = :terminology "
-                    + "and terminologyVersion = :version "
+                    + "and version = :version "
                     + "and relationshipType = :relationshipType")
             .setParameter("terminology", terminology)
             .setParameter("version", version)
@@ -295,12 +295,14 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
       tr.setPublished(false);
       tr.setTerminologyId("");
       tr.setTerminology(terminology);
-      tr.setTerminologyVersion(version);
+      tr.setVersion(version);
+      tr.setDepth(0);
       addTransitiveRelationship(tr);
 
       List<Long> ancPath = new ArrayList<>();
       ancPath.add(code);
       final Set<Long> descs = getDescendants(code, parChd, ancPath);
+      final Set<Long> children = parChd.get(code);
       for (final Long desc : descs) {
         tr = null;
         if (idType == IdType.CONCEPT) {
@@ -337,6 +339,11 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
           throw new Exception("Illegal id type: " + idType);
         }
 
+        if (children.contains(desc)) {
+          tr.setDepth(1);
+        } else {
+          tr.setDepth(2);
+        }
         tr.setObsolete(false);
         tr.setTimestamp(startDate);
         tr.setLastModified(startDate);
@@ -345,7 +352,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
         tr.setPublished(false);
         tr.setTerminologyId("");
         tr.setTerminology(terminology);
-        tr.setTerminologyVersion(version);
+        tr.setVersion(version);
         addTransitiveRelationship(tr);
       }
       if (ct % commitCt == 0) {

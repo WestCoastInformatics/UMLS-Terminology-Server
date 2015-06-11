@@ -34,7 +34,7 @@ import com.wordnik.swagger.annotations.ApiParam;
  * REST implementation for {@link SecurityServiceRest}.
  */
 @Path("/security")
-@Api(value = "/security", description = "Operations supporting security.")
+@Api(value = "/security", description = "Operations supporting security")
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
@@ -57,7 +57,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Consumes({
     MediaType.TEXT_PLAIN
   })
-  @ApiOperation(value = "Authenticate a user.", notes = "Performs authentication on specified username and password and returns a token upon successful authentication. Throws 401 error if not.", response = String.class)
+  @ApiOperation(value = "Authenticate a user", notes = "Performs authentication on specified username and password and returns a token upon successful authentication. Throws 401 error if not.", response = String.class)
   public String authenticate(
     @ApiParam(value = "Username, e.g. 'guest'", required = true) @PathParam("username") String username,
     @ApiParam(value = "Password, as string post data, e.g. 'guest'", required = true) String password)
@@ -95,7 +95,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/logout/{authToken}")
-  @ApiOperation(value = "Logs out an auth token.", notes = "Performs logout on specified auth token.", response = Boolean.class)
+  @ApiOperation(value = "Log out an auth token", notes = "Performs logout on specified auth token", response = Boolean.class)
   public boolean logout(
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @PathParam("authToken") String authToken)
     throws Exception {
@@ -128,7 +128,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/user/id/{id}")
-  @ApiOperation(value = "Get user by id", notes = "Gets the user for the specified id.", response = User.class)
+  @ApiOperation(value = "Get user by id", notes = "Gets the user for the specified id", response = User.class)
   public User getUser(
     @ApiParam(value = "User internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -158,7 +158,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/user/name/{username}")
-  @ApiOperation(value = "Get user by name", notes = "Gets the user for the specified name.", response = User.class)
+  @ApiOperation(value = "Get user by name", notes = "Gets the user for the specified name", response = User.class)
   public User getUser(
     @ApiParam(value = "Username, e.g. \"guest\"", required = true) @PathParam("username") String username,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -187,7 +187,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/user/users")
-  @ApiOperation(value = "Get all users", notes = "Gets all users.", response = UserList.class)
+  @ApiOperation(value = "Get all users", notes = "Gets all users", response = UserList.class)
   public UserList getUsers(
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -216,7 +216,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/user/add")
-  @ApiOperation(value = "Add new user", notes = "Creates a new user.", response = User.class)
+  @ApiOperation(value = "Add new user", notes = "Creates a new user", response = User.class)
   public User addUser(
     @ApiParam(value = "User, e.g. newUser", required = true) UserJpa user,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -250,7 +250,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @DELETE
   @Path("/user/remove/{id}")
-  @ApiOperation(value = "Remove user by id", notes = "Removes the user for the specified id.")
+  @ApiOperation(value = "Remove user by id", notes = "Removes the user for the specified id")
   public void removeUser(
     @ApiParam(value = "User internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -282,7 +282,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/user/update")
-  @ApiOperation(value = "Update user", notes = "Updates the specified user.")
+  @ApiOperation(value = "Update user", notes = "Updates the specified user")
   public void updateUser(
     @ApiParam(value = "User, e.g. update", required = true) UserJpa user,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)

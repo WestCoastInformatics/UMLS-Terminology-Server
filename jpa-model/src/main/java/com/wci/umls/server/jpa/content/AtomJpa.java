@@ -43,7 +43,7 @@ import com.wci.umls.server.model.content.Definition;
 // @UniqueConstraint here is being used to create an index, not to enforce
 // uniqueness
 @Table(name = "atoms", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "atom")
@@ -587,6 +587,60 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasMembers#getMembers()
+   */
+  @Override
+  @XmlElement(type = AtomSubsetMemberJpa.class, name = "member")
+  public List<AtomSubsetMember> getMembers() {
+    if (members == null) {
+      members = new ArrayList<AtomSubsetMember>();
+    }
+    return members;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasMembers#setMembers(java.util.List)
+   */
+  @Override
+  public void setMembers(List<AtomSubsetMember> members) {
+    this.members = members;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMembers#addMember(com.wci.umls.server.model
+   * .content.SubsetMember)
+   */
+  @Override
+  public void addMember(AtomSubsetMember member) {
+    if (members == null) {
+      members = new ArrayList<AtomSubsetMember>();
+    }
+    members.add(member);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMembers#removeMember(com.wci.umls.server
+   * .model.content.SubsetMember)
+   */
+  @Override
+  public void removeMember(AtomSubsetMember member) {
+    if (members == null) {
+      members = new ArrayList<AtomSubsetMember>();
+    }
+    members.remove(member);
+  }
+
   /**
    * CUSTOM equals: uses .toString() on the concept terminology ids map.
    *
@@ -698,67 +752,12 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    */
   @Override
   public String toString() {
-    return "AtomJpa [conceptTerminologyIds=" + conceptTerminologyIds
-        + ", alternateTerminologyIds=" + alternateTerminologyIds + ", codeId="
-        + codeId + ", descriptorId=" + descriptorId + ", conceptId="
-        + conceptId + ", language=" + language + ", lexicalClassId="
-        + lexicalClassId + ", stringClassId=" + stringClassId + ", name="
-        + name + ", termType=" + termType + ", workflowStatus="
+    return "AtomJpa [name=" + name + ", conceptTerminologyIds="
+        + conceptTerminologyIds + ", alternateTerminologyIds="
+        + alternateTerminologyIds + ", codeId=" + codeId + ", descriptorId="
+        + descriptorId + ", conceptId=" + conceptId + ", language=" + language
+        + ", lexicalClassId=" + lexicalClassId + ", stringClassId="
+        + stringClassId + ", termType=" + termType + ", workflowStatus="
         + workflowStatus + "] - " + super.toString();
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasMembers#getMembers()
-   */
-  @Override
-  @XmlElement(type = AtomSubsetMemberJpa.class, name = "member")
-  public List<AtomSubsetMember> getMembers() {
-    if (members == null) {
-      members = new ArrayList<AtomSubsetMember>();
-    }
-    return members;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasMembers#setMembers(java.util.List)
-   */
-  @Override
-  public void setMembers(List<AtomSubsetMember> members) {
-    this.members = members;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasMembers#addMember(com.wci.umls.server.model
-   * .content.SubsetMember)
-   */
-  @Override
-  public void addMember(AtomSubsetMember member) {
-    if (members == null) {
-      members = new ArrayList<AtomSubsetMember>();
-    }
-    members.add(member);
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasMembers#removeMember(com.wci.umls.server
-   * .model.content.SubsetMember)
-   */
-  @Override
-  public void removeMember(AtomSubsetMember member) {
-    if (members == null) {
-      members = new ArrayList<AtomSubsetMember>();
-    }
-    members.remove(member);
-  }
-
 }

@@ -29,7 +29,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
   String terminology;
 
   /** The terminology version. */
-  String terminologyVersion;
+  String version;
 
   /** hash set for storing default preferred names. */
   Map<Long, String> defaultPreferredNames = new HashMap<>();
@@ -75,10 +75,10 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
   /**
    * Sets the terminology version.
    *
-   * @param terminologyVersion the terminology version
+   * @param version the terminology version
    */
-  public void setTerminologyVersion(String terminologyVersion) {
-    this.terminologyVersion = terminologyVersion;
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   /**

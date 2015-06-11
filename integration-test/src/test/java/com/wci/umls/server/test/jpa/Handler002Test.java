@@ -72,12 +72,15 @@ public class Handler002Test {
   public void testHandlerNormalUse002() throws Exception {
     Logger.getLogger(getClass()).info("TEST testHandlerNormalUse002");
 
-    // TODO: - and also need a test of Umls resolver
+    // Test a UMLS concept
+    // Test a UMLS atom
      
-    // Test a SNOMED case
+    // Test a SNOMED concept
+    // Test a SNOMED atom
+    // Test a SNOMED subset
 
-    // Test a MSH case (descriptor)
-
+    // Test a MSH descriptor
+    // Test a MSH atom
   }
 
   /*

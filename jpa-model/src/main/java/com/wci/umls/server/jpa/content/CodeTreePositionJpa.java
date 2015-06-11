@@ -31,7 +31,7 @@ import com.wci.umls.server.model.content.CodeTreePosition;
  */
 @Entity
 @Table(name = "code_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @Indexed
@@ -169,20 +169,20 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
    * @return the node terminology version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getNodeTerminologyVersion() {
-    return node == null ? null : node.getTerminologyVersion();
+  public String getNodeVersion() {
+    return node == null ? null : node.getVersion();
   }
 
   /**
    * Sets the node terminology version. For JAXB.
    *
-   * @param terminologyVersion the node terminology version
+   * @param version the node terminology version
    */
-  public void setNodeTerminologyVersion(String terminologyVersion) {
+  public void setNodeVersion(String version) {
     if (node == null) {
       node = new CodeJpa();
     }
-    node.setTerminologyVersion(terminologyVersion);
+    node.setVersion(version);
   }
 
   /*
@@ -238,16 +238,6 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
     } else if (!node.getTerminologyId().equals(other.node.getTerminologyId()))
       return false;
     return true;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractTreePosition#toString()
-   */
-  @Override
-  public String toString() {
-    return "CodeTreePositionJpa [code=" + node + "]";
   }
 
 }

@@ -54,7 +54,7 @@ public class StandardMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager
             .createQuery("SELECT r from RelationshipTypeJpa r where terminology = :terminology"
-                + " and terminologyVersion = :version");
+                + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -73,7 +73,7 @@ public class StandardMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager
             .createQuery("SELECT r from LanguageJpa r where terminology = :terminology"
-                + " and terminologyVersion = :version");
+                + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -89,7 +89,7 @@ public class StandardMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager
             .createQuery("SELECT r from PropertyChainJpa r where terminology = :terminology"
-                + " and terminologyVersion = :version");
+                + " and version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     PropertyChainList types = new PropertyChainListJpa();
@@ -112,7 +112,7 @@ public class StandardMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager
             .createQuery("SELECT r from AdditionalRelationshipTypeJpa r where terminology = :terminology"
-                + " and terminologyVersion = :version");
+                + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -138,7 +138,7 @@ public class StandardMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager
             .createQuery("SELECT a from AttributeNameJpa a where terminology = :terminology"
-                + " and terminologyVersion = :version");
+                + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -162,7 +162,7 @@ public class StandardMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager
             .createQuery("SELECT s from SemanticTypeJpa s where terminology = :terminology"
-                + " and terminologyVersion = :version");
+                + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -186,7 +186,7 @@ public class StandardMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager
             .createQuery("SELECT t from TermTypeJpa t where terminology = :terminology"
-                + " and terminologyVersion = :version");
+                + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -211,7 +211,7 @@ public class StandardMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager.createQuery("SELECT r from RelationshipTypeJpa r "
             + "where abbreviation = :rel " + "and terminology = :terminology"
-            + " and terminologyVersion = :version");
+            + " and version = :version");
     query.setParameter("rel", "CHD");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -274,7 +274,7 @@ public class StandardMetadataServiceJpaHelper extends
             .createQuery("SELECT r from RelationshipTypeJpa r "
                 + " where groupingType = 0"
                 + " and terminology = :terminology"
-                + " and terminologyVersion = :version");
+                + " and version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     RelationshipTypeList types = new RelationshipTypeListJpa();
@@ -298,7 +298,7 @@ public class StandardMetadataServiceJpaHelper extends
         manager
             .createQuery("SELECT g from GeneralMetadataEntryJpa g"
                 + " where terminology = :terminology"
-                + " and terminologyVersion = :version");
+                + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);

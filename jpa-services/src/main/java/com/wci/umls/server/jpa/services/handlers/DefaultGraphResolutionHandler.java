@@ -173,8 +173,6 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
 
       // Relationships
-      // TODO: Atom Relationships are not currently paged
-      // Once paging (if paging) is enabled, clear set
       for (AtomRelationship rel : atom.getRelationships()) {
         if (nullId) {
           rel.setId(null);

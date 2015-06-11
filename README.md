@@ -13,10 +13,11 @@ https://umls.terminology.tools/
 Project Structure
 -----------------
 
-* top-level: aggregator for sub-modules:
+* top-level: aggregator for sub-modules (alphabetically):
   * admin: admin tools as maven plugins and poms
   * config: sample config files and data for windows dev environment and the reference deployment.
-  * custom: sample code for customizing this tool
+  * custom: project for demonstrating how to extend the platform
+  * examples: sample code for learning how to use the API
   * integration-test: integration tests (JPA, REST, and mojo)
   * jpa-model: a JPA enabled implementation of "model"
   * jpa-services: a JPA enabled implementation of "services"
@@ -34,20 +35,6 @@ License
 -------
 See the included LICENSE.txt file.
 
-
-Note about Dependencies
------------------------
-The "custom" package contains a reference to an LVG library.  In order to
-properly resolve this, you must download and install the 2014 edition of LVG
-and use Maven to install the .jar file to your local repository, e.g.
-
-mvn install:install-file -Dfile=lvg2014dist.jar -DgroupId=gov.nih.nlm.lvg 
-      -DartifactId=lvgdist -Dversion=2014 -Dpackaging=jar
-      
-Alternatively, you could simply remove "custom" from the "modules" section
-of the top-level pom.
-
-We hope that LVG will soon be available as a standard Maven artifact.
 
 
 

@@ -40,7 +40,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
 
   /** The expandedForm. */
   @Column(nullable = false)
-  private String terminologyVersion;
+  private String version;
 
   /** The branch. */
   @Column(nullable = true)
@@ -63,7 +63,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
     this.abbreviation = abbreviation.getAbbreviation();
     expandedForm = abbreviation.getExpandedForm();
     terminology = abbreviation.getTerminology();
-    terminologyVersion = abbreviation.getTerminologyVersion();
+    version = abbreviation.getVersion();
     publishable = abbreviation.isPublishable();
     published = abbreviation.isPublished();
   }
@@ -247,7 +247,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.helpers.HasTerminology#getTerminologyVersion()
+   * @see com.wci.umls.server.helpers.HasTerminology#getVersion()
    */
   /**
    * Returns the terminology version.
@@ -255,25 +255,25 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
    * @return the terminology version
    */
   @Override
-  public String getTerminologyVersion() {
-    return terminologyVersion;
+  public String getVersion() {
+    return version;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.helpers.HasTerminology#setTerminologyVersion(java.lang
+   * com.wci.umls.server.helpers.HasTerminology#setVersion(java.lang
    * .String)
    */
   /**
    * Sets the terminology version.
    *
-   * @param terminologyVersion the terminology version
+   * @param version the terminology version
    */
   @Override
-  public void setTerminologyVersion(String terminologyVersion) {
-    this.terminologyVersion = terminologyVersion;
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   /**
@@ -296,7 +296,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
     result =
         prime
             * result
-            + ((terminologyVersion == null) ? 0 : terminologyVersion.hashCode());
+            + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
@@ -334,10 +334,10 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
         return false;
     } else if (!terminology.equals(other.terminology))
       return false;
-    if (terminologyVersion == null) {
-      if (other.terminologyVersion != null)
+    if (version == null) {
+      if (other.version != null)
         return false;
-    } else if (!terminologyVersion.equals(other.terminologyVersion))
+    } else if (!version.equals(other.version))
       return false;
     return true;
   }
@@ -349,12 +349,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
    */
   @Override
   public String toString() {
-    return "AbstractAbbreviation [id=" + getId() + ", timestamp="
-        + getTimestamp() + ", lastModified=" + getLastModified()
-        + ", lastModifiedBy=" + getLastModifiedBy() + ", published="
-        + published + ", publishable=" + publishable + ", abbreviation="
-        + abbreviation + ", expandedForm=" + expandedForm + ", terminology="
-        + terminology + ", terminologyVersion=" + terminologyVersion + "]";
+    return getAbbreviation() + " = " + getExpandedForm();
   }
 
 }

@@ -1,5 +1,4 @@
 /* quick style for horiontal placement with padding */
-
 body {
 	padding-bottom: 100px;
 }
@@ -17,9 +16,9 @@ a {
 }
 
 .alert {
-  margin-top: 5px;
-  margin-bottom: 5px;
-  padding: 5px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding: 5px;
 }
 
 .btn-structure {
@@ -57,13 +56,31 @@ a {
 }
 
 .icon-list {
-	list-style: none;
+	display: block; list-style : none;
 	padding-left: 0;
 	margin-left: 1em;
+	list-style: none;
 }
 
 .glyphicon-none:before {
-    color: transparent;
-    
+	color: transparent;
 }
 
+.pagination {
+	display: inline; /* override from inline-block to allow multiple items */
+	padding-left: 0;
+	margin-right: 10px;
+	margin-bottom: 20px;
+	margin-left: 0px;
+	border-radius: 4px;
+}
+
+.input-filter {
+	display: inline;
+	padding-left: 0;
+	margin-bottom: 20px; /* to match the padding of pagination */
+	margin-left: 0px;
+	border-radius: 4px;
+	font-size: 14px;	/* to match font-size of pagination */
+	line-height: 1.42857143; /* to match line-height of pagination */
+}

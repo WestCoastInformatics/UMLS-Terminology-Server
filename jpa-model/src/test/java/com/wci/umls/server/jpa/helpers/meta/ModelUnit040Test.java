@@ -143,13 +143,14 @@ public class ModelUnit040Test {
     tester.include("assertsRelDirection");
     tester.include("citation");
     tester.include("current");
+    tester.include("metathesaurus");
     tester.include("endDate");
     tester.include("organizingClassType");
     tester.include("preferredName");
     tester.include("startDate");
     tester.include("synonymousNames");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("descriptionLogicTerminology");
 
     
@@ -233,12 +234,14 @@ public class ModelUnit040Test {
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("organizingClassType");
     tester.include("preferredName");
     tester.include("rootTerminology");
     tester.include("assertsRelDirection");
+    tester.include("assertsRelDirection");
     tester.include("current");
+    tester.include("metathesaurus");
     tester.include("descriptionLogicTerminology");
 
     assertTrue(tester.testNotNullFields());

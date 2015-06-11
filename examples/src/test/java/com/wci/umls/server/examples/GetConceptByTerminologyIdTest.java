@@ -13,12 +13,12 @@ import org.junit.Test;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.services.helpers.ConceptReportHelper;
+import com.wci.umls.server.services.helpers.ReportHelper;
 
 /**
- * Implementation of the "Content Service REST Degenerate Use" Test Cases.
+ * Example demonstrating loading concepts by terminology id.
  */
-public class GetConceptByTerminologyIdTest extends TestSupport {
+public class GetConceptByTerminologyIdTest extends ExampleSupport {
 
   /** The auth token. */
   private static String authToken;
@@ -64,13 +64,13 @@ public class GetConceptByTerminologyIdTest extends TestSupport {
         "json = " + ConfigUtility.getJsonForGraph(concept));
 
     // Report of the concept
-    Logger.getLogger(getClass()).info(
-        ConceptReportHelper.getConceptReport(concept));
+    Logger.getLogger(getClass()).info(ReportHelper.getConceptReport(concept));
 
   }
 
   /**
    * Demonstrates how to find a UMLS concept by CUI.
+   * 
    * @throws Exception the exception
    */
   @Test
@@ -95,8 +95,7 @@ public class GetConceptByTerminologyIdTest extends TestSupport {
         "json = " + ConfigUtility.getJsonForGraph(concept));
 
     // Report of the concept
-    Logger.getLogger(getClass()).info(
-        ConceptReportHelper.getConceptReport(concept));
+    Logger.getLogger(getClass()).info(ReportHelper.getConceptReport(concept));
 
   }
 

@@ -31,7 +31,7 @@ import com.wci.umls.server.model.content.ConceptTreePosition;
  */
 @Entity
 @Table(name = "concept_tree_positions", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @Indexed
@@ -182,20 +182,20 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    * @return the node terminology version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getNodeTerminologyVersion() {
-    return node == null ? null : node.getTerminologyVersion();
+  public String getNodeVersion() {
+    return node == null ? null : node.getVersion();
   }
 
   /**
    * Sets the node terminology version. For JAXB.
    *
-   * @param terminologyVersion the node terminology version
+   * @param version the node terminology version
    */
-  public void setNodeTerminologyVersion(String terminologyVersion) {
+  public void setNodeVersion(String version) {
     if (node == null) {
       node = new ConceptJpa();
     }
-    node.setTerminologyVersion(terminologyVersion);
+    node.setVersion(version);
   }
 
   /*
@@ -239,16 +239,6 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
     } else if (!node.getTerminologyId().equals(other.node.getTerminologyId()))
       return false;
     return true;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractTreePosition#toString()
-   */
-  @Override
-  public String toString() {
-    return "ConceptTreePositionJpa [concept=" + node + "]";
   }
 
 }

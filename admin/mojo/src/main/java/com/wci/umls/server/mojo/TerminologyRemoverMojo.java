@@ -108,7 +108,7 @@ public class TerminologyRemoverMojo extends AbstractMojo {
           // Need to open a second one to reopen security service
           HistoryServiceRest historyService2 = new HistoryServiceRestImpl();
           if (info.getTerminology().equals(terminology)
-              && info.getTerminologyVersion().equals(version)) {
+              && info.getVersion().equals(version)) {
             historyService2.removeReleaseInfo(info.getId(), authToken);
           }
         }
@@ -125,7 +125,7 @@ public class TerminologyRemoverMojo extends AbstractMojo {
         for (ReleaseInfo info : historyService.getReleaseHistory(terminology,
             authToken).getObjects()) {
           if (info.getTerminology().equals(terminology)
-              && info.getTerminologyVersion().equals(version)) {
+              && info.getVersion().equals(version)) {
             historyService.removeReleaseInfo(info.getId(), authToken);
           }
         }

@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.LexicalClass;
  */
 @Entity
 @Table(name = "lexical_classes", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "lexicalClass")
@@ -117,16 +117,4 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
-   */
-  @Override
-  public String toString() {
-    return "LexicalClassJpa [isObsolete()=" + isObsolete()
-        + ", getTerminologyVersion()=" + getTerminologyVersion()
-        + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
-        + getTerminologyId() + "]";
-  }
 }

@@ -176,7 +176,7 @@ public class ProjectLoaderMojo extends AbstractMojo {
       // no scope excludes concepts
       project.setScopeExcludesDescendantsFlag(scopeExcludesDescendantsFlag);
       project.setTerminology(terminology);
-      project.setTerminologyVersion(version);
+      project.setVersion(version);
       project.setLastModifiedBy("admin");
 
       // check for this project

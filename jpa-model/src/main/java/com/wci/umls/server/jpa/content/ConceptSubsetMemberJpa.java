@@ -32,7 +32,7 @@ import com.wci.umls.server.model.content.SubsetMember;
  */
 @Entity
 @Table(name = "concept_subset_members", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @Indexed
@@ -165,20 +165,20 @@ public class ConceptSubsetMemberJpa extends
    * @return the member terminology version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getMemberTerminologyVersion() {
-    return member == null ? null : member.getTerminologyVersion();
+  public String getMemberVersion() {
+    return member == null ? null : member.getVersion();
   }
 
   /**
    * Sets the member terminology version. For JAXB.
    *
-   * @param terminologyVersion the member terminology version
+   * @param version the member terminology version
    */
-  public void setMemberTerminologyVersion(String terminologyVersion) {
+  public void setMemberVersion(String version) {
     if (member == null) {
       member = new ConceptJpa();
     }
-    member.setTerminologyVersion(terminologyVersion);
+    member.setVersion(version);
   }
 
   /**
@@ -300,20 +300,20 @@ public class ConceptSubsetMemberJpa extends
    * @return the subset terminology version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getSubsetTerminologyVersion() {
-    return subset == null ? null : subset.getTerminologyVersion();
+  public String getSubsetVersion() {
+    return subset == null ? null : subset.getVersion();
   }
 
   /**
    * Sets the subset terminology version. For JAXB.
    *
-   * @param terminologyVersion the subset terminology version
+   * @param version the subset terminology version
    */
-  public void setSubsetTerminologyVersion(String terminologyVersion) {
+  public void setSubsetVersion(String version) {
     if (subset == null) {
       subset = new ConceptSubsetJpa();
     }
-    subset.setTerminologyVersion(terminologyVersion);
+    subset.setVersion(version);
   }
   /**
    * Returns the subset name. For JAXB.
@@ -392,17 +392,6 @@ public class ConceptSubsetMemberJpa extends
         other.subset.getTerminologyId()))
       return false;
     return true;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
-  @Override
-  public String toString() {
-    return "ConceptSubsetMemberJpa [id = " + getId() + ", member=" + member
-        + ", subset=" + subset + "]";
   }
 
 }

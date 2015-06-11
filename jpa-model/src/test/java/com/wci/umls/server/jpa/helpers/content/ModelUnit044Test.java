@@ -65,26 +65,26 @@ public class ModelUnit044Test {
     concept1.setId(1L);
     concept1.setTerminologyId("1");
     concept1.setTerminology("1");
-    concept1.setTerminologyVersion("1");
+    concept1.setVersion("1");
     concept1.setName("1");
     concept2 = new ConceptJpa();
     concept2.setId(2L);
     concept2.setTerminologyId("2");
     concept2.setTerminology("2");
-    concept2.setTerminologyVersion("2");
+    concept2.setVersion("2");
     concept1.setName("2");
 
     subset1 = new ConceptSubsetJpa();
     subset1.setId(1L);
     subset1.setTerminologyId("1");
     subset1.setTerminology("1");
-    subset1.setTerminologyVersion("1");
+    subset1.setVersion("1");
     subset1.setName("2");
     subset2 = new ConceptSubsetJpa();
     subset2.setId(2L);
     subset2.setTerminologyId("2");
     subset2.setTerminology("2");
-    subset2.setTerminologyVersion("2");
+    subset2.setVersion("2");
     subset2.setName("2");
   }
 
@@ -100,12 +100,12 @@ public class ModelUnit044Test {
     tester.exclude("memberId");
     tester.exclude("memberTerminologyId");
     tester.exclude("memberTerminology");
-    tester.exclude("memberTerminologyVersion");
+    tester.exclude("memberVersion");
     tester.exclude("memberName");
     tester.exclude("subsetId");
     tester.exclude("subsetTerminologyId");
     tester.exclude("subsetTerminology");
-    tester.exclude("subsetTerminologyVersion");
+    tester.exclude("subsetVersion");
     tester.exclude("subsetName");
     tester.test();
   }
@@ -125,7 +125,7 @@ public class ModelUnit044Test {
     tester.include("published");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("member");
     tester.include("subset");
 
@@ -192,13 +192,13 @@ public class ModelUnit044Test {
     assertTrue(xml.contains("<subsetId>"));
     assertTrue(xml.contains("<subsetTerminologyId>"));
     assertTrue(xml.contains("<subsetTerminology>"));
-    assertTrue(xml.contains("<subsetTerminologyVersion>"));
+    assertTrue(xml.contains("<subsetVersion>"));
     assertTrue(xml.contains("<subsetName>"));
     assertFalse(xml.contains("<subset>"));
     assertTrue(xml.contains("<memberId>"));
     assertTrue(xml.contains("<memberTerminologyId>"));
     assertTrue(xml.contains("<memberTerminology>"));
-    assertTrue(xml.contains("<memberTerminologyVersion>"));
+    assertTrue(xml.contains("<memberVersion>"));
     assertTrue(xml.contains("<memberName>"));
     assertFalse(xml.contains("<member>"));
 
@@ -237,7 +237,7 @@ public class ModelUnit044Test {
     tester.include("publishable");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("member");
     tester.include("subset");
     assertTrue(tester.testNotNullFields());

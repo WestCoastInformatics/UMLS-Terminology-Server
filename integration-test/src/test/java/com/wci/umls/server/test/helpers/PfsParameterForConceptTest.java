@@ -65,7 +65,7 @@ public class PfsParameterForConceptTest {
     for (SearchResult sr : results.getObjects()) {
       Concept c =
           contentService.getConcept(sr.getTerminologyId(),
-              sr.getTerminology(), sr.getTerminologyVersion(), Branch.ROOT);
+              sr.getTerminology(), sr.getVersion(), Branch.ROOT);
       concepts.add(c);
     }
 

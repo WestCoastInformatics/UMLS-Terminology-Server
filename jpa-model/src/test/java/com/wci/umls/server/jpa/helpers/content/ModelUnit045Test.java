@@ -75,12 +75,12 @@ public class ModelUnit045Test {
     tester.exclude("superTypeId");
     tester.exclude("superTypeTerminologyId");
     tester.exclude("superTypeTerminology");
-    tester.exclude("superTypeTerminologyVersion");
+    tester.exclude("superTypeVersion");
     tester.exclude("superTypeName");
     tester.exclude("subTypeId");
     tester.exclude("subTypeTerminologyId");
     tester.exclude("subTypeTerminology");
-    tester.exclude("subTypeTerminologyVersion");
+    tester.exclude("subTypeVersion");
     tester.exclude("subTypeName");
     tester.test();
   }
@@ -100,7 +100,7 @@ public class ModelUnit045Test {
     tester.include("published");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("superType");
     tester.include("subType");
 
@@ -135,8 +135,7 @@ public class ModelUnit045Test {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Code.class, 1, code1);
     tester.proxy(Code.class, 2, code2);
-    assertTrue(tester
-        .testCopyConstructorDeep(CodeTransitiveRelationship.class));
+    assertTrue(tester.testCopyConstructorDeep(CodeTransitiveRelationship.class));
   }
 
   /**
@@ -175,12 +174,12 @@ public class ModelUnit045Test {
     assertTrue(xml.contains("<subTypeId>"));
     assertTrue(xml.contains("<subTypeTerminologyId>"));
     assertTrue(xml.contains("<subTypeTerminology>"));
-    assertTrue(xml.contains("<subTypeTerminologyVersion>"));
+    assertTrue(xml.contains("<subTypeVersion>"));
     assertTrue(xml.contains("<subTypeName>"));
     assertTrue(xml.contains("<superTypeId>"));
     assertTrue(xml.contains("<superTypeTerminologyId>"));
     assertTrue(xml.contains("<superTypeTerminology>"));
-    assertTrue(xml.contains("<superTypeTerminologyVersion>"));
+    assertTrue(xml.contains("<superTypeVersion>"));
     assertTrue(xml.contains("<superTypeName>"));
     assertFalse(xml.contains("<subType>"));
     assertFalse(xml.contains("<superType>"));
@@ -202,9 +201,10 @@ public class ModelUnit045Test {
     tester.include("obsolete");
     tester.include("published");
     tester.include("publishable");
+    tester.include("depth");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("subType");
     tester.include("superType");
     assertTrue(tester.testNotNullFields());

@@ -21,10 +21,12 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 
@@ -33,7 +35,7 @@ import com.wci.umls.server.model.content.ConceptRelationship;
  */
 @Entity
 @Table(name = "concept_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @Indexed
@@ -152,20 +154,20 @@ public class ConceptRelationshipJpa extends
    * @return the from version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getFromTerminologyVersion() {
-    return from == null ? null : from.getTerminologyVersion();
+  public String getFromVersion() {
+    return from == null ? null : from.getVersion();
   }
   
   /**
    * Sets the from terminology id.
    *
-   * @param terminologyVersion the from terminology id
+   * @param version the from terminology id
    */
-  public void setFromTerminologyVersion(String terminologyVersion) {
+  public void setFromVersion(String version) {
     if (from == null) {
       from = new ConceptJpa();
     }
-    from.setTerminologyVersion(terminologyVersion);
+    from.setVersion(version);
   }
 
   /**
@@ -306,20 +308,20 @@ public class ConceptRelationshipJpa extends
    * @return the to terminology version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getToTerminologyVersion() {
-    return to == null ? null : to.getTerminologyVersion();
+  public String getToVersion() {
+    return to == null ? null : to.getVersion();
   }
 
   /**
    * Sets the to terminology version.
    *
-   * @param terminologyVersion the to terminology version
+   * @param version the to terminology version
    */
-  public void setToTerminologyVersion(String terminologyVersion) {
+  public void setToVersion(String version) {
     if (to == null) {
       to = new ConceptJpa();
     }
-    to.setTerminologyVersion(terminologyVersion);
+    to.setVersion(version);
   }
 
   /**
@@ -351,10 +353,8 @@ public class ConceptRelationshipJpa extends
    * getAlternateTerminologyIds()
    */
   @Override
-  /*
-   * TODO: Need a bridge for maps @Field(index = Index.YES, analyze =
-   * Analyze.YES, store = Store.NO)
-   */
+  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
@@ -468,18 +468,6 @@ public class ConceptRelationshipJpa extends
     } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
       return false;
     return true;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractRelationship#toString()
-   */
-  @Override
-  public String toString() {
-    return "ConceptRelationshipJpa [from=" + from + ", to=" + to
-        + ", alternateTerminologyIds=" + alternateTerminologyIds + "] "
-        + super.toString();
   }
 
 }

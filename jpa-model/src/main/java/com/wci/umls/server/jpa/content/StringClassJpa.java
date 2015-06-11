@@ -18,7 +18,7 @@ import com.wci.umls.server.model.content.StringClass;
  */
 @Entity
 @Table(name = "string_classes", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "stringClass")
@@ -40,19 +40,6 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
    */
   public StringClassJpa(StringClass code, boolean deepCopy) {
     super(code, deepCopy);
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
-   */
-  @Override
-  public String toString() {
-    return "StringClassJpa [isObsolete()=" + isObsolete()
-        + ", getTerminologyVersion()=" + getTerminologyVersion()
-        + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
-        + getTerminologyId() + "]";
   }
 
 }

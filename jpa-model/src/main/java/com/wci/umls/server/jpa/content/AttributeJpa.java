@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.Attribute;
  */
 @Entity
 @Table(name = "attributes", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "attribute")

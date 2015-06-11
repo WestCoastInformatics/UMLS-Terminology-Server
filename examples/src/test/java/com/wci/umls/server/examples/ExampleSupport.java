@@ -17,7 +17,7 @@ import com.wci.umls.server.rest.client.SecurityClientRest;
 /**
  * Integration test for REST content service.
  */
-public class TestSupport {
+public class ExampleSupport {
 
   /** The service. */
   protected static ContentClientRest contentClient;

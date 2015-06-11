@@ -28,13 +28,13 @@ public interface HasTerminology {
    * 
    * @return the terminology version
    */
-  public String getTerminologyVersion();
+  public String getVersion();
 
   /**
    * Sets the terminology version.
    * 
-   * @param terminologyVersion the terminology version
+   * @param version the terminology version
    */
-  public void setTerminologyVersion(String terminologyVersion);
+  public void setVersion(String version);
 
 }

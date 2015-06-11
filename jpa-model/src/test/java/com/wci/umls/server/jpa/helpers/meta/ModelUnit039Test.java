@@ -71,7 +71,7 @@ public class ModelUnit039Test {
     tester.include("abbreviation");
     tester.include("expandedForm");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("publishable");
     tester.include("published");
     tester.include("codeVariantType");
@@ -128,7 +128,7 @@ public class ModelUnit039Test {
     tester.include("abbreviation");
     tester.include("expandedForm");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("publishable");
     tester.include("published");
     tester.include("timestamp");

@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.DescriptorRelationship;
  */
 @Entity
 @Table(name = "descriptors", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @Indexed
@@ -167,19 +167,6 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
       relationships = new ArrayList<>(1);
     }
     relationships.remove(relationship);
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#toString()
-   */
-  @Override
-  public String toString() {
-    return "DescriptorJpa [isObsolete()=" + isObsolete()
-        + ", getTerminologyVersion()=" + getTerminologyVersion()
-        + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
-        + getTerminologyId() + "]";
   }
 
 }

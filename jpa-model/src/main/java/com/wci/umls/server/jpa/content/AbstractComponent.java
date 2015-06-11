@@ -78,7 +78,7 @@ public abstract class AbstractComponent implements Component {
 
   /** The terminology version. */
   @Column(nullable = false)
-  private String terminologyVersion;
+  private String version;
 
   /** The branch set to include empty branch */
   @Column(nullable = true)
@@ -102,7 +102,7 @@ public abstract class AbstractComponent implements Component {
     lastModifiedBy = component.getLastModifiedBy();
     terminology = component.getTerminology();
     terminologyId = component.getTerminologyId();
-    terminologyVersion = component.getTerminologyVersion();
+    version = component.getVersion();
     publishable = component.isPublishable();
     published = component.isPublished();
     obsolete = component.isObsolete();
@@ -323,23 +323,23 @@ public abstract class AbstractComponent implements Component {
   /*
    * (non-Javadoc)
    * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#getTerminologyVersion()
+   * @see org.ihtsdo.otf.ts.rf2.Component#getVersion()
    */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getTerminologyVersion() {
-    return terminologyVersion;
+  public String getVersion() {
+    return version;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * org.ihtsdo.otf.ts.rf2.Component#setTerminologyVersion(java.lang.String)
+   * org.ihtsdo.otf.ts.rf2.Component#setVersion(java.lang.String)
    */
   @Override
-  public void setTerminologyVersion(String terminologyVersion) {
-    this.terminologyVersion = terminologyVersion;
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   /*
@@ -407,7 +407,7 @@ public abstract class AbstractComponent implements Component {
     result =
         prime
             * result
-            + ((terminologyVersion == null) ? 0 : terminologyVersion.hashCode());
+            + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
@@ -444,10 +444,10 @@ public abstract class AbstractComponent implements Component {
         return false;
     } else if (!terminologyId.equals(other.terminologyId))
       return false;
-    if (terminologyVersion == null) {
-      if (other.terminologyVersion != null)
+    if (version == null) {
+      if (other.version != null)
         return false;
-    } else if (!terminologyVersion.equals(other.terminologyVersion))
+    } else if (!version.equals(other.version))
       return false;
     return true;
   }
@@ -459,12 +459,12 @@ public abstract class AbstractComponent implements Component {
    */
   @Override
   public String toString() {
-    return "AbstractComponent [id=" + id + ", lastModified=" + lastModified
-        + ", lastModifiedBy=" + lastModifiedBy + ", suppressible="
-        + suppressible + ", obsolete=" + obsolete + ", published=" + published
-        + ", publishable=" + publishable + ", terminology=" + terminology
-        + ", terminologyId=" + terminologyId + ", terminologyVersion="
-        + terminologyVersion + ", branch=" + branch + "]";
+    return "id=" + id + ", terminologyId=" + terminologyId + ", lastModified="
+        + lastModified + ", lastModifiedBy=" + lastModifiedBy
+        + ", suppressible=" + suppressible + ", obsolete=" + obsolete
+        + ", published=" + published + ", publishable=" + publishable
+        + ", terminology=" + terminology + ", version="
+        + version + ", branch=" + branch;
   }
 
 }

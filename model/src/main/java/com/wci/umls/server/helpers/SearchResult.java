@@ -53,16 +53,16 @@ public interface SearchResult {
   /**
    * Returns the terminology version.
    *
-   * @return the terminologyVersion
+   * @return the version
    */
-  public String getTerminologyVersion();
+  public String getVersion();
 
   /**
    * Sets the terminology version.
    *
-   * @param terminologyVersion the terminologyVersion to set
+   * @param version the version to set
    */
-  public void setTerminologyVersion(String terminologyVersion);
+  public void setVersion(String version);
 
   /**
    * Returns the value.

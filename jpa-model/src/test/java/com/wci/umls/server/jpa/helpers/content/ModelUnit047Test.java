@@ -58,13 +58,13 @@ public class ModelUnit047Test {
     descriptor1.setName("1");
     descriptor1.setTerminologyId("1");
     descriptor1.setTerminology("1");
-    descriptor1.setTerminologyVersion("1");
+    descriptor1.setVersion("1");
     descriptor2 = new DescriptorJpa();
     descriptor2.setId(2L);
     descriptor2.setName("2");
     descriptor2.setTerminologyId("2");
     descriptor2.setTerminology("2");
-    descriptor2.setTerminologyVersion("2");
+    descriptor2.setVersion("2");
   }
 
   /**
@@ -79,7 +79,7 @@ public class ModelUnit047Test {
     tester.exclude("nodeId");
     tester.exclude("nodeTerminologyId");
     tester.exclude("nodeTerminology");
-    tester.exclude("nodeTerminologyVersion");
+    tester.exclude("nodeVersion");
     tester.exclude("nodeName");
     tester.test();
   }
@@ -99,7 +99,7 @@ public class ModelUnit047Test {
     tester.include("published");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("additionalRelationshipType");
     tester.include("ancestorPath");
     tester.include("childCt");
@@ -172,7 +172,7 @@ public class ModelUnit047Test {
     assertTrue(xml.contains("<nodeName>"));
     assertTrue(xml.contains("<nodeTerminologyId>"));
     assertTrue(xml.contains("<nodeTerminology>"));
-    assertTrue(xml.contains("<nodeTerminologyVersion>"));
+    assertTrue(xml.contains("<nodeVersion>"));
     assertFalse(xml.contains("<node>"));
   }
 
@@ -193,7 +193,7 @@ public class ModelUnit047Test {
     tester.include("publishable");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("node");
     tester.include("childCt");
     tester.include("descendantCt");

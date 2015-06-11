@@ -66,7 +66,7 @@ public class ModelUnit023Test {
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("value");
 
     assertTrue(tester.testIdentitiyFieldEquals());

@@ -68,7 +68,7 @@ public class TerminologyUtility {
     throws Exception {
     Set<String> isaRels =
         cacheIsaRels(relationship.getTerminology(),
-            relationship.getTerminologyVersion());
+            relationship.getVersion());
     return relationship != null
         && isaRels.contains(relationship.getRelationshipType());
   }
@@ -111,7 +111,7 @@ public class TerminologyUtility {
     }
     final List<Concept> results = new ArrayList<>();
     final Set<String> isaRels =
-        cacheIsaRels(concept.getTerminology(), concept.getTerminologyVersion());
+        cacheIsaRels(concept.getTerminology(), concept.getVersion());
     for (ConceptRelationship rel : concept.getRelationships()) {
       if (isaRels.contains(rel.getRelationshipType()) && !rel.isObsolete()) {
         results.add(rel.getTo());
@@ -136,7 +136,7 @@ public class TerminologyUtility {
     final List<Descriptor> results = new ArrayList<>();
     final Set<String> isaRels =
         cacheIsaRels(descriptor.getTerminology(),
-            descriptor.getTerminologyVersion());
+            descriptor.getVersion());
     for (DescriptorRelationship rel : descriptor.getRelationships()) {
       if (isaRels.contains(rel.getRelationshipType()) && !rel.isObsolete()) {
         results.add(rel.getTo());
@@ -159,7 +159,7 @@ public class TerminologyUtility {
     }
     final List<Code> results = new ArrayList<>();
     final Set<String> isaRels =
-        cacheIsaRels(code.getTerminology(), code.getTerminologyVersion());
+        cacheIsaRels(code.getTerminology(), code.getVersion());
     for (CodeRelationship rel : code.getRelationships()) {
       if (isaRels.contains(rel.getRelationshipType()) && !rel.isObsolete()) {
         results.add(rel.getTo());

@@ -25,7 +25,7 @@ import com.wci.umls.server.model.content.Subset;
  */
 @Entity
 @Table(name = "atom_subsets", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "terminologyVersion", "id"
+    "terminologyId", "terminology", "version", "id"
 }))
 @Audited
 @XmlRootElement(name = "atomSubset")

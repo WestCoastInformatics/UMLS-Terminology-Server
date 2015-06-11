@@ -75,7 +75,7 @@ public class ModelUnit015Test {
     tester.include("published");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
 
     tester.include("name");
 
@@ -128,7 +128,7 @@ public class ModelUnit015Test {
     tester.include("publishable");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("name");
 
     assertTrue(tester.testNotNullFields());
@@ -159,7 +159,7 @@ public class ModelUnit015Test {
     tester.include("publishable");
     tester.include("terminologyId");
     tester.include("terminology");
-    tester.include("terminologyVersion");
+    tester.include("version");
     tester.include("nameSort");
     tester.include("workflowStatus");
     tester.include("branch");
