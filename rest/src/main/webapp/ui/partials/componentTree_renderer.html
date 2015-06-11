@@ -1,0 +1,29 @@
+
+<div ui-tree-handle>
+	<!-- Expand/collapse controls -->
+	<a ng-if="tree.child && tree.child.length > 0" data-nodrag
+		ng-click="toggle(this)"><span class="glyphicon"
+		ng-class="{
+          'glyphicon-chevron-right': collapsed,
+          'glyphicon-chevron-down': !collapsed
+        }"></span></a>
+
+	<!--  if a dummy node, only render the terminology and 'top' label -->
+	<span ng-show="tree.self.id == null">{{terminology.terminology}}
+		Top</span>
+
+	<!-- if not a dummy node, render the full information -->
+	<span ng-show="tree.self.id"> <i
+		class="glyphicon glyphicon-leaf"
+		ng-if="!tree.child || tree.child.length == 0"></i> <a
+		ng-click="getComponent(tree.self.node.terminology, tree.self.node.terminologyId)">
+		{{tree.self.node.terminologyId}}</a>: {{tree.self.node.name}}
+		
+	</span>
+
+	<ol ui-tree-nodes="" ng-model="tree.child"
+		ng-class="{hidden: collapsed}">
+		<li ng-repeat="tree in tree.child" ui-tree-node
+			ng-include="'ui/partials/componentTree_renderer.html'"></li>
+	</ol>
+</div>

@@ -67,11 +67,11 @@ a {
 }
 
 .pagination {
-	display: inline; /* override from inline-block to allow multiple items */
+	display: inline; /* override from inline-block to allow multiple items per line */
 	padding-left: 0;
-	margin-right: 10px;
-	margin-bottom: 20px;
-	margin-left: 0px;
+	padding-right: 10px;
+	padding-bottom: 20px;
+	padding-left: 0px;
 	border-radius: 4px;
 }
 
@@ -85,21 +85,15 @@ a {
 	line-height: 1.42857143; /* to match line-height of pagination */
 }
 
-/* Angular tree view overrides */
-div[data-tree-model] li .expanded {
-  padding: 1px 10px;
-  background-image: url("../img/folder.png");
-  background-repeat: no-repeat;
+.highlighted { background: yellow }
+
+/* Angular UI Tree overrides */
+.angular-ui-tree-handle {
+	font-weight: normal; /* originally 700 */
+	cursor: auto; /* originally move */
 }
 
-div[data-tree-model] li .collapsed {
-  padding: 1px 10px;
-  background-image: url("../img/folder-closed.png");
-  background-repeat: no-repeat;
+.glyphicon-leaf {
+	opacity: 0.5;	
 }
 
-div[data-tree-model] li .normal {
-  padding: 1px 10px;
-  background-image: url("../img/file.png");
-  background-repeat: no-repeat;
-}

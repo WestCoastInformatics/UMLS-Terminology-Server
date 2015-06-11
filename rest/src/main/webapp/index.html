@@ -172,16 +172,16 @@
 								<td>Query</td>
 								<td><form width="100%">
 
-										<input type="text" ng-model="conceptQuery"
+										<input type="text" ng-model="componentQuery"
 											placeholder="Enter search terms"
-											typeahead="suggestion for suggestion in autocomplete(conceptQuery)"
+											typeahead="suggestion for suggestion in autocomplete(componentQuery)"
 											typeahead-loading="loadingSuggestions"
 											typeahead-focus-first="false"
-											typeahead-on-select="findComponents(conceptQuery, 1)"
+											typeahead-on-select="findComponents(componentQuery, 1)"
 											typeahead-editable="true" typeahead-min-length="3">
 
 										<button class="btn btn-small btn-primary" type="submit"
-											ng-click="findComponents(conceptQuery, 1)">Search</button>
+											ng-click="findComponents(componentQuery, 1)">Search</button>
 
 									</form></td>
 							</tr>
@@ -191,7 +191,7 @@
 					<div class="row">
 
 						<!-- search results field is 3 columns -->
-						<div class="col-md-3 col-xs-12">
+						<div class="col-md-4 col-xs-12">
 
 
 
@@ -201,7 +201,7 @@
 								<div class="alert alert-success"
 									ng-show="searchResults.length > 0">
 									{{searchResults.totalCount}} Results (Click a row for details)
-									<a class="pull-right glyphicon-tree-conifer"
+									<a class="pull-right glyphicon glyphicon-tree-conifer"
 										ng-click="setTreeView()" tooltip="Switch to tree view"></a>
 								</div>
 								<div class="alert alert-danger"
@@ -209,17 +209,17 @@
 									returned no results.</div>
 
 								<!--  Margin added to prevent crowding -->
-								<pagination style="margin-bottom: 10px" max-size="5"
+								<pagination items-per-page="pageSize" max-size="5"
 									boundary-links="true" class="pagination-sm"
 									previous-text="&lsaquo;" next-text="&rsaquo;"
 									first-text="&laquo;" last-text="&raquo;"
 									ng-show="searchResults.totalCount > pageSize"
 									total-items="searchResults.totalCount"
 									ng-model="searchResultsPage"
-									ng-change="findComponents(conceptQuery, searchResultsPage)"></pagination>
+									ng-change="findComponents(componentQuery, searchResultsPage)"></pagination>
 
 
-								<table class="table table-hover"
+								<table class="table table-hover" style="margin-top:10px;"
 									ng-show="searchResults.length > 0">
 
 									<tbody>
@@ -228,7 +228,7 @@
 											ng-click="getComponent(searchResult.terminology, searchResult.terminologyId)">
 											<td><span
 												ng-show="searchResult.terminology != terminology.terminology">{{searchResult.terminology}}/</span>{{searchResult.terminologyId}}</td>
-										<td style="word-break: break-word; ">{{searchResult.value}}</td>
+											<td style="word-break: break-word;">{{searchResult.value}}</td>
 										</tr>
 									</tbody>
 								</table>
@@ -236,34 +236,35 @@
 							<div ng-show="queryForTree">
 								<div class="alert alert-success">
 									<!-- ng-show="searchResultsTree.totalCount > 0" -->
-									
+
 									{{searchResultsTree.totalCount}} Results (Click a row for
-									details) <a class="pull-right glyphicon-tree-conifer"
+									details) <a class="pull-right glyphicon glyphicon-th-list"
 										ng-click="setListView()" tooltip="Switch to list view"></a>
 								</div>
 								<div class="alert alert-danger"
 									ng-show="searchResultsTree && searchResultsTree.totalCount == 0">Search
 									returned no results.</div>
 
-<!--  <a ng-click="getComponent(component.terminology, tree.self.node.terminologyId)">{{tree.self.node.terminologyId}}</a>: {{tree.self.node.name}}
-   -->
-								<script type="text/ng-template" id="searchResultsTree_renderer.html">
-  <div ui-tree-handle>
-    <a ng-click="getComponent(component.terminology, tree.self.node.terminologyId)"> {{tree.self.node.terminologyId}}</a>: {{tree.self.node.name}}
-  </div>
-  <ol ui-tree-nodes="" ng-model="tree.child">
-    <li ng-repeat="tree in tree.child" ui-tree-node ng-include="'searchResultsTree_renderer.html'">
-    </li>
-  </ol>
-	</script>
-								<div ui-tree>
-									<ol ui-tree-nodes="" ng-model="searchResultsTree" id="tree-root"
-										data-nodrop-enabled="true">
-										<li ng-repeat="tree in searchResultsTree" ui-tree-node data-nodrag
-											ng-include="'searchResultsTree_renderer.html'"></li>
+								<pagination display="block" items-per-page="treePageSize" max-size="5"
+									boundary-links="true" class="pagination-sm"
+									previous-text="&lsaquo;" next-text="&rsaquo;"
+									first-text="&laquo;" last-text="&raquo;"
+									ng-show="searchResultsTree.totalCount > treePageSize"
+									total-items="searchResultsTree.totalCount"
+									ng-model="searchResultsTreePage"
+									ng-change="findComponentsAsTree(componentQuery, searchResultsTreePage)"></pagination>
+								
+								<p display="block">&nbsp</p> <!-- Included as tree will try to wrap, some css difficulties -->
+
+								<div display="block" ui-tree>
+									<ol ui-tree-nodes="" ng-model="searchResultsTree"
+										id="tree-root" data-nodrop-enabled="true">
+										<li ng-repeat="tree in searchResultsTree" ui-tree-node
+											data-nodrag
+											ng-include="'ui/partials/searchResultsTree_renderer.html'"></li>
 									</ol>
 								</div>
-							
+
 
 							</div>
 
@@ -272,7 +273,7 @@
 
 
 						<!-- Component display -->
-						<div class="col-md-9 col-xs-12" ng-show="component != null">
+						<div class="col-md-8 col-xs-12" ng-show="component != null">
 
 							<div ng-show="componentError != null" class="alert alert-warning">
 								{{componentError}}
@@ -331,7 +332,7 @@
 							</button>
 
 							<!-- Hierarchical Tree -->
-							<div>
+							<div ng-show="treeCount > 0">
 
 								<h4>
 									Hierarchies (<a class="glyphicon glyphicon-step-backward"
@@ -340,20 +341,11 @@
 										ng-click="getTreeByOffset(1)"></a>)
 								</h4>
 
-								<script type="text/ng-template" id="componentTree_renderer.html">
-  <div ui-tree-handle>
-    <a ng-click="getComponent(component.terminology, tree.self.node.terminologyId)"> {{tree.self.node.terminologyId}}</a>: {{tree.self.node.name}}
-  </div>
-  <ol ui-tree-nodes="" ng-model="tree.child">
-    <li ng-repeat="tree in tree.child" ui-tree-node ng-include="'componentTree_renderer.html'">
-    </li>
-  </ol>
-	</script>
 								<div ui-tree>
 									<ol ui-tree-nodes="" ng-model="componentTree" id="tree-root"
 										data-nodrop-enabled="true">
 										<li ng-repeat="tree in componentTree" ui-tree-node data-nodrag
-											ng-include="'componentTree_renderer.html'"></li>
+											ng-include="'ui/partials/componentTree_renderer.html'"></li>
 									</ol>
 								</div>
 
@@ -367,7 +359,7 @@
 
 
 
-								<pagination max-size="5" boundary-links="true"
+								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
 									ng-show="pagedSemanticTypes.totalCount > pageSize"
@@ -402,7 +394,7 @@
 								ng-show="pagedDefinitions.totalCount > 0 || definitionsFilter">
 								<h4>Definitions ({{pagedDefinitions.totalCount}})</h4>
 
-								<pagination max-size="5" boundary-links="true"
+								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
 									ng-show="pagedDefinitions.totalCount > pageSize"
@@ -440,7 +432,7 @@
 							<div ng-show="pagedAtoms.totalCount > 0 || atomsFilter">
 								<h4>Atoms ({{pagedAtoms.totalCount}})</h4>
 
-								<pagination max-size="5" boundary-links="true"
+								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
 									ng-show="component.atom.length > pageSize"
@@ -558,7 +550,7 @@
 							<!--  Attributes -->
 							<div ng-show="component.attribute.length > 0 || attributesFilter">
 								<h4>Attributes ({{pagedAttributes.totalCount}})</h4>
-								<pagination max-size="5" boundary-links="true"
+								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
 									ng-show="pagedAttributes.totalCount > pageSize"
@@ -595,7 +587,7 @@
 								ng-show="pagedRelationships.totalCount > 0 || relationshipsFilter">
 								<h4>Relationships ({{pagedRelationships.totalCount}})</h4>
 
-								<pagination max-size="5" boundary-links="true"
+								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
 									ng-show="pagedRelationships.totalCount > pageSize"

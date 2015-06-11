@@ -15,6 +15,16 @@ tsApp.run(function($http) {
 	// nothing yet -- may want to put metadata retrieval here
 })
 
+tsApp.filter('highlight', function($sce) {
+    return function(text, phrase) {
+      if (text && phrase) text = text.replace(new RegExp('('+phrase+')', 'gi'),
+        '<span class="highlighted">$1</span>')
+
+      return $sce.trustAsHtml(text)
+    }
+  })
+  
+
 tsApp
   .controller(
     'tsIndexCtrl',
@@ -23,62 +33,7 @@ tsApp
       '$http',
       '$q',
       function($scope, $http, $q) {
-    	  
-    	//test tree model 1
-    	    $scope.roleList1 = [
-    	        { "roleName" : "User", "roleId" : "role1", "children" : [
-    	          { "roleName" : "subUser1", "roleId" : "role11", "children" : [] },
-    	          { "roleName" : "subUser2", "roleId" : "role12", "children" : [
-    	            { "roleName" : "subUser2-1", "roleId" : "role121", "children" : [
-    	              { "roleName" : "subUser2-1-1", "roleId" : "role1211", "children" : [] },
-    	              { "roleName" : "subUser2-1-2", "roleId" : "role1212", "children" : [] }
-    	            ]}
-    	          ]}
-    	        ]},
-
-    	        { "roleName" : "Admin", "roleId" : "role2", "children" : [] },
-
-    	        { "roleName" : "Guest", "roleId" : "role3", "children" : [] }
-    	      ];
-
-    	  	//test tree model 2
-    	    $scope.roleList2 = [
-    	        { "roleName" : "User", "roleId" : "role1", "children" : [
-    	          { "roleName" : "subUser1", "roleId" : "role11", "collapsed" : true, "children" : [] },
-    	          { "roleName" : "subUser2", "roleId" : "role12", "collapsed" : true, "children" : [
-    	            { "roleName" : "subUser2-1", "roleId" : "role121", "children" : [
-    	              { "roleName" : "subUser2-1-1", "roleId" : "role1211", "children" : [] },
-    	              { "roleName" : "subUser2-1-2", "roleId" : "role1212", "children" : [] }
-    	            ]}
-    	          ]}
-    	        ]},
-
-    	        { "roleName" : "Admin", "roleId" : "role2", "children" : [
-    	          { "roleName" : "subAdmin1", "roleId" : "role11", "collapsed" : true, "children" : [] },
-    	          { "roleName" : "subAdmin2", "roleId" : "role12", "children" : [
-    	            { "roleName" : "subAdmin2-1", "roleId" : "role121", "children" : [
-    	              { "roleName" : "subAdmin2-1-1", "roleId" : "role1211", "children" : [] },
-    	              { "roleName" : "subAdmin2-1-2", "roleId" : "role1212", "children" : [] }
-    	            ]}
-    	          ]}
-    	        ]},
-
-    	        { "roleName" : "Guest", "roleId" : "role3", "children" : [
-    	          { "roleName" : "subGuest1", "roleId" : "role11", "children" : [] },
-    	          { "roleName" : "subGuest2", "roleId" : "role12", "collapsed" : true, "children" : [
-    	            { "roleName" : "subGuest2-1", "roleId" : "role121", "children" : [
-    	              { "roleName" : "subGuest2-1-1", "roleId" : "role1211", "children" : [] },
-    	              { "roleName" : "subGuest2-1-2", "roleId" : "role1212", "children" : [] }
-    	            ]}
-    	          ]}
-    	        ]}
-    	      ];
-
-    	      
-    	      
-    	    //roleList1 to treeview
-    	    $scope.roleList = $scope.roleList1;
-
+    	
     	  
     	// the default viewed terminology, if available
         var defaultTerminology = 'UMLS';
@@ -92,7 +47,7 @@ tsApp
         $scope.terminology = null;
 
         // query base variables
-        $scope.conceptQuery = null;
+        $scope.componentQuery = null;
         $scope.autocompleteUrl = null; // set on terminology change
         
         // query boolean variables for return types
@@ -614,6 +569,7 @@ tsApp
             	$scope.treeCount = data.totalCount;
             	if (data.count > 0)
             		$scope.treeViewed = startIndex;
+            	else $scope.treeViewed = 0;
             }).error(function(data, status, headers, config) {
             	 $scope.glassPane--;
             	 $scope.handleError(data, status, headers, config);
@@ -628,7 +584,7 @@ tsApp
          */
         $scope.clearQuery = function() {
         	$scope.suggestions = null;
-        	$scope.conceptQuery = null;
+        	$scope.componentQuery = null;
         }
         
         /////////////////////////////////////////////
@@ -642,14 +598,14 @@ tsApp
         	$scope.queryForTree = true;
         	$scope.queryForList = false
         	
-        	$scope.findComponentsAsTree($scope.conceptQuery);
+        	$scope.findComponentsAsTree($scope.componentQuery);
         }
         
         $scope.setListView = function() {
         	$scope.queryForList = true;
         	$scope.queryForTree = false;
         	
-            $scope.findComponentsAsList($scope.conceptQuery);	
+            $scope.findComponentsAsList($scope.componentQuery);	
         }
         
         /**
@@ -684,7 +640,7 @@ tsApp
           clearPaging();
           
           // force the search box to sync with query string
-          $scope.conceptQuery = queryStr;
+          $scope.componentQuery = queryStr;
 
           // TODO Enable paging
           var pfs = {
@@ -744,11 +700,11 @@ tsApp
             clearPaging();
             
             // force the search box to sync with query string
-            $scope.conceptQuery = queryStr;
+            $scope.componentQuery = queryStr;
 
-            // TODO Enable paging
+            // construct the pfs
             var pfs = {
-              startIndex : -1,
+              startIndex : (page-1)*$scope.pageSize,
               maxResults : $scope.pageSize,
               sortField : null,
               queryRestriction : null
@@ -767,16 +723,23 @@ tsApp
                   "Content-Type" : "application/json"
                 }
               }).success(function(data) {
-             console.debug("Retrieved component trees:", data);
-              $scope.searchResultsTree = [];
-              $scope.searchResultsTree.push(data); // force into array form for ui-tree
-
-              $scope.glassPane--;
-
-            }).error(function(data, status, headers, config) {
-              $scope.handleError(data, status, headers, config);
-              $scope.glassPane--;
-            });
+	              console.debug("Retrieved component trees:", data);
+	             
+	              // for ease and consistency of use of the ui tree directive
+	              // force the single tree into a TreeList data structure
+	              $scope.searchResultsTree = [];
+	              $scope.searchResultsTree.push(data); // treeList array of size 1
+	              $scope.searchResultsTree.totalCount = data.totalCount;
+	              $scope.searchResultsTree.count = data.count;
+	              
+	              console.debug($scope.searchResultsTree);
+	
+	              $scope.glassPane--;
+	
+	            }).error(function(data, status, headers, config) {
+	              $scope.handleError(data, status, headers, config);
+	              $scope.glassPane--;
+	            });
         }
 
         /**
@@ -1248,6 +1211,7 @@ tsApp
         
         // default page size
         $scope.pageSize = 10;
+        $scope.treePageSize = 5;
         
         // reset all paginator pages
         function clearPaging() {
