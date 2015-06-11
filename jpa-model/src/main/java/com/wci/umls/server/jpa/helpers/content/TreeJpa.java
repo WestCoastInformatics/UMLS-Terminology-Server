@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.log4j.Logger;
 
@@ -24,8 +25,11 @@ import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.TreePosition;
 
+// TODO: Auto-generated Javadoc
 /**
  * JAXB enabled implementation of {@link Tree}.
+ *
+ * @author ${author}
  */
 @XmlRootElement(name = "tree")
 @XmlSeeAlso({
@@ -39,6 +43,12 @@ public class TreeJpa implements Tree {
 
   /** The children. */
   private List<Tree> children = null;
+
+  /**  The count of tree positions represented by this tree. */
+  int count;
+
+  /**  The total count of tree positions matching this tree's criteria. */
+  int totalCount;
 
   /**
    * Instantiates an empty {@link TreeJpa}.
@@ -188,7 +198,11 @@ public class TreeJpa implements Tree {
     this.children = children;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.content.Tree#getLeafNodes()
+   */
   @Override
+  @XmlTransient
   public List<TreePosition<? extends AtomClass>> getLeafNodes() {
     Set<TreePosition<? extends AtomClass>> leafNodes = new HashSet<>();
     leafNodeHelper(this, leafNodes,
@@ -284,6 +298,46 @@ public class TreeJpa implements Tree {
     } else if (!self.equals(other.self))
       return false;
     return true;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.content.Tree#getTotalCount()
+   */
+  @Override
+  public int getTotalCount() {
+    return totalCount;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.content.Tree#setTotalCount(int)
+   */
+  @Override
+  public void setTotalCount(int totalCount) {
+    this.totalCount = totalCount;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.content.Tree#getCount()
+   */
+  @Override
+  public int getCount() {
+    return count;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.content.Tree#setCount(int)
+   */
+  @Override
+  public void setCount(int count) {
+    this.count = count;
+  }
+  
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.content.Tree#addChild(com.wci.umls.server.helpers.content.Tree)
+   */
+  @Override
+  public void addChild(Tree child) {
+    this.children.add(child);
   }
 
 }

@@ -7,7 +7,7 @@ var metadataUrl = baseUrl + 'metadata/';
 var historyUrl = baseUrl + 'history/';
 var glassPane = 0;
 
-var tsApp = angular.module('tsApp', [ 'ui.bootstrap' ]).config(function() {
+var tsApp = angular.module('tsApp', [ 'ui.bootstrap', 'ui.tree' ]).config(function() {
 
 })
 
@@ -24,7 +24,61 @@ tsApp
       '$q',
       function($scope, $http, $q) {
     	  
-    	  $scope.test = ["1", "2", "3"];
+    	//test tree model 1
+    	    $scope.roleList1 = [
+    	        { "roleName" : "User", "roleId" : "role1", "children" : [
+    	          { "roleName" : "subUser1", "roleId" : "role11", "children" : [] },
+    	          { "roleName" : "subUser2", "roleId" : "role12", "children" : [
+    	            { "roleName" : "subUser2-1", "roleId" : "role121", "children" : [
+    	              { "roleName" : "subUser2-1-1", "roleId" : "role1211", "children" : [] },
+    	              { "roleName" : "subUser2-1-2", "roleId" : "role1212", "children" : [] }
+    	            ]}
+    	          ]}
+    	        ]},
+
+    	        { "roleName" : "Admin", "roleId" : "role2", "children" : [] },
+
+    	        { "roleName" : "Guest", "roleId" : "role3", "children" : [] }
+    	      ];
+
+    	  	//test tree model 2
+    	    $scope.roleList2 = [
+    	        { "roleName" : "User", "roleId" : "role1", "children" : [
+    	          { "roleName" : "subUser1", "roleId" : "role11", "collapsed" : true, "children" : [] },
+    	          { "roleName" : "subUser2", "roleId" : "role12", "collapsed" : true, "children" : [
+    	            { "roleName" : "subUser2-1", "roleId" : "role121", "children" : [
+    	              { "roleName" : "subUser2-1-1", "roleId" : "role1211", "children" : [] },
+    	              { "roleName" : "subUser2-1-2", "roleId" : "role1212", "children" : [] }
+    	            ]}
+    	          ]}
+    	        ]},
+
+    	        { "roleName" : "Admin", "roleId" : "role2", "children" : [
+    	          { "roleName" : "subAdmin1", "roleId" : "role11", "collapsed" : true, "children" : [] },
+    	          { "roleName" : "subAdmin2", "roleId" : "role12", "children" : [
+    	            { "roleName" : "subAdmin2-1", "roleId" : "role121", "children" : [
+    	              { "roleName" : "subAdmin2-1-1", "roleId" : "role1211", "children" : [] },
+    	              { "roleName" : "subAdmin2-1-2", "roleId" : "role1212", "children" : [] }
+    	            ]}
+    	          ]}
+    	        ]},
+
+    	        { "roleName" : "Guest", "roleId" : "role3", "children" : [
+    	          { "roleName" : "subGuest1", "roleId" : "role11", "children" : [] },
+    	          { "roleName" : "subGuest2", "roleId" : "role12", "collapsed" : true, "children" : [
+    	            { "roleName" : "subGuest2-1", "roleId" : "role121", "children" : [
+    	              { "roleName" : "subGuest2-1-1", "roleId" : "role1211", "children" : [] },
+    	              { "roleName" : "subGuest2-1-2", "roleId" : "role1212", "children" : [] }
+    	            ]}
+    	          ]}
+    	        ]}
+    	      ];
+
+    	      
+    	      
+    	    //roleList1 to treeview
+    	    $scope.roleList = $scope.roleList1;
+
     	  
     	// the default viewed terminology, if available
         var defaultTerminology = 'UMLS';
@@ -37,13 +91,19 @@ tsApp
         // the currently viewed terminology (set by default or user)
         $scope.terminology = null;
 
-        // query autocomplete variables
+        // query base variables
         $scope.conceptQuery = null;
         $scope.autocompleteUrl = null; // set on terminology change
         
+        // query boolean variables for return types
+        // add others here and update findComponents() method
+        $scope.queryForList = true // whether to query for list, default
+        $scope.queryForTree = false; // whether to query for tree
+             
         // the displayed component
         $scope.component = null;
-        $scope.componentType = null;
+        $scope.componentType = null; 		// the type, e.g. CONCEPT
+        $scope.componentTypePrefix = null;	// the type previx, e.g. cui
         
         // basic scope variables
         $scope.userName = null;
@@ -53,6 +113,7 @@ tsApp
         
         // full variable arrays
         $scope.searchResults = null;
+        $scope.searchResultsTree = null;
         
         $scope.handleError = function(data, status, headers, config) {
           $scope.error = data.replace(/"/g, '');
@@ -74,19 +135,9 @@ tsApp
           // clear the terminology-specific variables
           $scope.autoCompleteUrl = null;
           $scope.metadata = null;
-          
-          // clear the search result list and current component
-          //$scope.component = null;
-          $scope.componentError = null;
-          //$scope.searchResults = null;
-          
-          // reset the history
-         // $scope.componentHistory = [];
-         // $scope.componentHistoryIndex = -1;
 
           // if no terminology specified, stop
           if ($scope.terminology == null) {
-            // console.debug("Returning")
             return;
           }
           
@@ -394,6 +445,7 @@ tsApp
         function getComponentHelper(terminologyObj, terminologyId, typePrefix) {
         	
         	$scope.componentType = getComponentTypeFromPrefix(typePrefix);
+        	$scope.componentTypePrefix = typePrefix;
         	
         	//console.debug('getComponentHelper', terminologyObj, terminologyId, typePrefix, $scope.componentType);
         	
@@ -454,7 +506,7 @@ tsApp
 	            }
 	            
 	            // set the component
-	            $scope.setComponent(data);
+	            $scope.setComponent(data, typePrefix);
 
 	            $scope.glassPane--;
 
@@ -464,6 +516,113 @@ tsApp
           });
         }
         
+        ///////////////////////////////////
+        // Tree Display
+        ///////////////////////////////////
+        
+        $scope.treeCount = null;
+        $scope.treeViewed = null;
+        $scope.treedataExpandedNodes = null; // for pre-expanding
+        
+        // display options
+        $scope.treeOptions = {
+        	    nodeChildren: "child"
+        	    /*dirSelectable: true,
+        	    injectClasses: {
+        	        ul: "a1",
+        	        li: "a2",
+        	        liSelected: "a7",
+        	        iExpanded: "a3",
+        	        iCollapsed: "a4",
+        	        iLeaf: "a5",
+        	        label: "a6",
+        	        labelSelected: "a8"
+        	    }*/
+        	}
+        
+        // function to expand all nodes on a tree-control tree
+       
+        function expandAllNodes(tree) {
+    	    console.log(tree)
+    	    if (!tree || typeof(tree) == "array" && tree.length == 0) {
+    	      return;
+    	    }
+    	    var nodes = [];
+    	    for (var i = 0; i < tree.length; i++) {
+    	      nodes.push(tree[i]);
+    	      nodes.concat(expandAllNodes(tree[i].child));
+    	    }
+    	    console.debug('nodes', nodes);
+    	    return nodes;
+    	}
+        
+        /**
+         * Helper function to get previous or next tree by offset
+         */
+        $scope.getTreeByOffset = function(offset) {
+        	var treeViewed = $scope.treeViewed + offset;
+        	
+        	// ensure number is in circular index
+        	if (!treeViewed)
+        		treeViewed = 0;
+        	if (treeViewed >= $scope.treeCount)
+        		treeViewed = treeViewed - $scope.treeCount;
+        	if (treeViewed < 0)
+        		treeViewed = treeViewed + $scope.treeCount;
+        	
+        	$scope.getTreesForComponent($scope.component, $scope.componentTypePrefix, treeViewed, 1);
+        	
+        	
+        }
+        	
+        /**
+         * Function to get hierarchical trees for the current component
+         */
+        $scope.getTreesForComponent = function(component, typePrefix, startIndex, maxResults) {
+        	
+        	console.debug('getTreesForComponent', component, typePrefix, startIndex, maxResults);
+        	
+        	$scope.glassPane++;
+        	
+        	if(!startIndex) startIndex = 0;
+        	if(!maxResults) maxResults = 1;
+        	
+        	var pfs = {
+                    startIndex : startIndex,
+                    maxResults : maxResults,
+                    sortField : 'ancestorPath',
+                    queryRestriction : null
+                  } 
+        	
+            $http({
+              url : contentUrl + typePrefix + '/' + component.terminology + '/' + component.version + '/' + component.terminologyId + '/trees',
+              method : "POST",
+              dataType: 'json',
+              data: pfs,
+              headers : {
+                "Content-Type" : "application/json"
+              }
+            }).success(function(data) {
+            	$scope.glassPane--;
+            	
+            	// set the displayed data
+            	$scope.componentTree = data.tree;
+            	
+            	console.debug($scope.componentTree);
+            	
+            	// set the count and position variables
+            	$scope.treeCount = data.totalCount;
+            	if (data.count > 0)
+            		$scope.treeViewed = startIndex;
+            }).error(function(data, status, headers, config) {
+            	 $scope.glassPane--;
+            	 $scope.handleError(data, status, headers, config);
+               
+              });
+        	
+        	
+        }
+        
         /**
          * Clear the search box and perform any additional operations required
          */
@@ -471,15 +630,50 @@ tsApp
         	$scope.suggestions = null;
         	$scope.conceptQuery = null;
         }
+        
+        /////////////////////////////////////////////
+        // Search Results View
+        /////////////////////////////////////////////
+        
+        /**
+         * Functions to set the results list view
+         */
+        $scope.setTreeView = function() {
+        	$scope.queryForTree = true;
+        	$scope.queryForList = false
+        	
+        	$scope.findComponentsAsTree($scope.conceptQuery);
+        }
+        
+        $scope.setListView = function() {
+        	$scope.queryForList = true;
+        	$scope.queryForTree = false;
+        	
+            $scope.findComponentsAsList($scope.conceptQuery);	
+        }
+        
+        /**
+         * Find concepts based on current search type
+         * e.g. list or tree based on booleans
+         */
+        $scope.findComponents = function(queryStr, page) {
+        	if ($scope.queryForList)
+        		$scope.findComponentsAsList(queryStr, page);
+        	if ($scope.queryForTree)
+        		$scope.findComponentsAsTree(queryStr, page);
+        }
 
         /**
          * Find concepts based on terminology and queryStr
+         * Expected return type is List
          * Does not currently use any p/f/s settings
          * NOTE: Always uses the selected terminology
          */
-        $scope.findConcepts = function(queryStr) {
+        $scope.findComponentsAsList = function(queryStr, page) {
         	
         	console.debug('find concepts', queryStr);
+        	
+        	if (!page) page = 1;
 
           // ensure query string has minimum length
           if (queryStr == null || queryStr.length < 3) {
@@ -492,12 +686,13 @@ tsApp
           // force the search box to sync with query string
           $scope.conceptQuery = queryStr;
 
+          // TODO Enable paging
           var pfs = {
-            startIndex : -1,
-            maxResults : -1,
+            startIndex : (page-1) * $scope.pageSize,
+            maxResults : $scope.pageSize,
             sortField : null,
             queryRestriction : null
-          } // 'terminologyId:' + queryStr }
+          } 
 
           // find concepts
           $scope.glassPane++;
@@ -514,7 +709,7 @@ tsApp
             }).success(function(data) {
             // console.debug("Retrieved concepts:", data);
             $scope.searchResults = data.searchResult;
-            $scope.pagedSearchResults = $scope.getPagedArray($scope.searchResults, 1, false, null);
+            $scope.searchResults.totalCount = data.totalCount;
             
             // select the first component if results returned
             if ($scope.searchResults.length != 0)
@@ -527,13 +722,73 @@ tsApp
             $scope.glassPane--;
           });
         }
+        
+        /**
+         * Performs query 
+        * Find concepts based on terminology and queryStr
+        * Expected return type is List
+        * Does not currently use any p/f/s settings
+        * NOTE: Always uses the selected terminology
+         */
+        $scope.findComponentsAsTree = function(queryStr, page) {
+        	console.debug('findComponentsTree', queryStr);
+        	
+        	if (!page) page = 1;
+        	
+        	// ensure query string has minimum length
+            if (queryStr == null || queryStr.length < 3) {
+              alert("You must use at least three characters to search");
+              return;
+            }
+
+            clearPaging();
+            
+            // force the search box to sync with query string
+            $scope.conceptQuery = queryStr;
+
+            // TODO Enable paging
+            var pfs = {
+              startIndex : -1,
+              maxResults : $scope.pageSize,
+              sortField : null,
+              queryRestriction : null
+            } // 'terminologyId:' + queryStr }
+
+            // find concepts
+            $scope.glassPane++;
+            $http(
+              {
+                url : contentUrl + getUrlPrefix($scope.terminology.organizingClassType) + "/" + $scope.terminology.terminology + "/"
+                  + $scope.terminology.version + "/trees/query/" + queryStr,
+                method : "POST",
+                dataType : "json",
+                data : pfs,
+                headers : {
+                  "Content-Type" : "application/json"
+                }
+              }).success(function(data) {
+             console.debug("Retrieved component trees:", data);
+              $scope.searchResultsTree = [];
+              $scope.searchResultsTree.push(data); // force into array form for ui-tree
+
+              $scope.glassPane--;
+
+            }).error(function(data, status, headers, config) {
+              $scope.handleError(data, status, headers, config);
+              $scope.glassPane--;
+            });
+        }
 
         /**
          * Sets the component and performs any operations required
          */
-        $scope.setComponent = function(component, componentType) {
+        $scope.setComponent = function(component, typePrefix) {
+        	
           // set the component
           $scope.component = component;
+          
+          // get the initial tree
+          $scope.getTreesForComponent(component, typePrefix, 0, 1);
           
           // apply the initial paging
           applyPaging();

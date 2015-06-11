@@ -84,3 +84,22 @@ a {
 	font-size: 14px;	/* to match font-size of pagination */
 	line-height: 1.42857143; /* to match line-height of pagination */
 }
+
+/* Angular tree view overrides */
+div[data-tree-model] li .expanded {
+  padding: 1px 10px;
+  background-image: url("../img/folder.png");
+  background-repeat: no-repeat;
+}
+
+div[data-tree-model] li .collapsed {
+  padding: 1px 10px;
+  background-image: url("../img/folder-closed.png");
+  background-repeat: no-repeat;
+}
+
+div[data-tree-model] li .normal {
+  padding: 1px 10px;
+  background-image: url("../img/file.png");
+  background-repeat: no-repeat;
+}

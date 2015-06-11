@@ -4428,7 +4428,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String terminology, String version, String branch, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - find relationships for concept " + terminologyId
+        "Content Service - find tree positions for concept " + terminologyId
             + "/" + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
         "", pfs, ConceptTreePositionJpa.class);
@@ -4439,7 +4439,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String terminology, String version, String branch, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - find relationships for descriptor " + terminologyId
+        "Content Service - find tree positionss for descriptor " + terminologyId
             + "/" + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
         "", pfs, DescriptorTreePositionJpa.class);
@@ -4450,7 +4450,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String terminology, String version, String branch, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - find relationships for code " + terminologyId + "/"
+        "Content Service - find tree positions for code " + terminologyId + "/"
             + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
         "", pfs, CodeTreePositionJpa.class);

@@ -8,6 +8,9 @@ import java.util.Properties;
 import java.util.Set;
 
 import com.wci.umls.server.helpers.content.Tree;
+import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -225,12 +228,13 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     throws Exception {
     if (treepos != null) {
       treepos.getAncestorPath();
+      
       // Tree positions don't have attributes yet.
       treepos.setAttributes(new ArrayList<Attribute>());
     }
 
   }
-
+  
   /*
    * (non-Javadoc)
    * 
@@ -242,6 +246,19 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   public void resolve(Tree tree) throws Exception {
     if (tree != null) {
       resolve(tree.getSelf());
+      
+      // resolve each tree position's node 
+      // TODO This is not an ideal solution, but don't really want ConceptTree, DescriptorTree, etc....
+      if (tree.getSelf().getNode() instanceof ConceptJpa) {
+        resolveEmpty((ConceptJpa) tree.getSelf().getNode());
+      } else if (tree.getSelf().getNode() instanceof DescriptorJpa) {
+        resolveEmpty((DescriptorJpa) tree.getSelf().getNode());
+      } else if (tree.getSelf().getNode() instanceof CodeJpa) {
+        resolveEmpty((CodeJpa) tree.getSelf().getNode());
+      }
+      
+      
+      
     }
     if (tree.getChildren() != null) {
       for (Tree chdTree : tree.getChildren()) {

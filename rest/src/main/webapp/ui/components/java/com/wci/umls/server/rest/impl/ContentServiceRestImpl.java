@@ -43,8 +43,11 @@ import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
@@ -55,6 +58,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
@@ -921,12 +925,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               Branch.ROOT);
 
       if (descriptor != null) {
-        contentService.getGraphResolutionHandler(terminology)
-            .resolve(
-                descriptor,
-                TerminologyUtility.getHierarchicalIsaRels(
-                    descriptor.getTerminology(),
-                    descriptor.getVersion()));
+        contentService.getGraphResolutionHandler(terminology).resolve(
+            descriptor,
+            TerminologyUtility.getHierarchicalIsaRels(
+                descriptor.getTerminology(), descriptor.getVersion()));
         descriptor.setAtoms(contentService.getComputePreferredNameHandler(
             descriptor.getTerminology())
             .sortByPreference(descriptor.getAtoms()));
@@ -1444,12 +1446,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               version, parentsOnly, Branch.ROOT, pfs);
 
       for (Descriptor descriptor : list.getObjects()) {
-        contentService.getGraphResolutionHandler(terminology)
-            .resolve(
-                descriptor,
-                TerminologyUtility.getHierarchicalIsaRels(
-                    descriptor.getTerminology(),
-                    descriptor.getVersion()));
+        contentService.getGraphResolutionHandler(terminology).resolve(
+            descriptor,
+            TerminologyUtility.getHierarchicalIsaRels(
+                descriptor.getTerminology(), descriptor.getVersion()));
       }
 
       return list;
@@ -1497,12 +1497,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               version, childrenOnly, Branch.ROOT, pfs);
 
       for (Descriptor descriptor : list.getObjects()) {
-        contentService.getGraphResolutionHandler(terminology)
-            .resolve(
-                descriptor,
-                TerminologyUtility.getHierarchicalIsaRels(
-                    descriptor.getTerminology(),
-                    descriptor.getVersion()));
+        contentService.getGraphResolutionHandler(terminology).resolve(
+            descriptor,
+            TerminologyUtility.getHierarchicalIsaRels(
+                descriptor.getTerminology(), descriptor.getVersion()));
       }
 
       return list;
@@ -2147,6 +2145,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
                 treepos.getNode().getId());
         contentService.getGraphResolutionHandler(terminology).resolve(tree);
+
         treeList.addObject(tree);
       }
       treeList.setTotalCount(list.getTotalCount());
@@ -2192,6 +2191,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
                 treepos.getNode().getId());
         contentService.getGraphResolutionHandler(terminology).resolve(tree);
+
         treeList.addObject(tree);
       }
       treeList.setTotalCount(list.getTotalCount());
@@ -2236,30 +2236,52 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           contentService.findConceptTreePositionsForQuery(terminology, version,
               Branch.ROOT, queryStr, pfs);
       Tree firstTree = null;
+
+      // dummy variables for construction of artificial root
+      Tree dummyTree = null;
+      ConceptTreePosition dummyTreePosition = null;
+      
+      // construct a dummy tree position to serve as self
+      dummyTreePosition = new ConceptTreePositionJpa();
+      dummyTreePosition.setAncestorPath("");
+      dummyTreePosition.setId(null);
+      dummyTreePosition.setTerminology(terminology);
+      dummyTreePosition.setVersion(version);
+      dummyTreePosition.setTerminologyId("Top");
+      dummyTreePosition.setNode(new ConceptJpa());
+
+      // construct the top-level tree and add the existing tree
+      dummyTree = new TreeJpa();
+      dummyTree.setCount(list.getCount());
+      dummyTree.setTotalCount(list.getTotalCount());
+
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
         final Tree tree =
             contentService.getTreeForAncestorPath(treepos.getAncestorPath(),
                 treepos.getNode().getId());
         contentService.getGraphResolutionHandler(terminology).resolve(tree);
-        if (firstTree == null) {
-          firstTree = tree;
-        }
-        // if top-level nodes are different, we do not expect this. so fake it
-        else if (!firstTree.getSelf().getNode().getId()
-            .equals(tree.getSelf().getNode().getId())) {
-          // Several options for handling this case (which should not exist in
-          // non-test data):
-          // 1. fake it (e.g. create a "fake root" and merge below that)
-          // 2. fix the test data so this never happens (hard to do)
-          // 3. ignore anything not matching the firstTree (done here)
-          continue;
-        } else {
-          firstTree.mergeTree(tree);
-        }
+
+        // construct a new dummy-root tree
+        Tree treeForTreePos = new TreeJpa(dummyTree);
+        treeForTreePos.addChild(tree);
+        dummyTree.mergeTree(treeForTreePos);
       }
-      // No need for graph resolution because the node is XmlTransient
-      return firstTree;
+      
+      // if only one child, dummy root not necessary
+      if (dummyTree.getChildren().size() == 1) {
+        
+        Tree tree = dummyTree.getChildren().get(0);
+        
+        // set the count and total count
+        tree.setCount(dummyTree.getCount());
+        tree.setTotalCount(dummyTree.getTotalCount());
+
+        return tree;
+      }
+      
+      // otherwise return the populated dummy root tree
+      return dummyTree;
 
     } catch (Exception e) {
       handleException(e, "trying to find trees for a query");
@@ -2312,10 +2334,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // if top-level nodes are different, we do not expect this. so fake it
         else if (!firstTree.getSelf().getNode().getId()
             .equals(tree.getSelf().getNode().getId())) {
-        // Several options for handling this case (which should not exist in non-test data):
-        // 1. fake it (e.g. create a "fake root" and merge below that)
-        // 2. fix the test data so this never happens (hard to do)
-        // 3. ignore anything not matching the firstTree (done here)
+          // Several options for handling this case (which should not exist in
+          // non-test data):
+          // 1. fake it (e.g. create a "fake root" and merge below that)
+          // 2. fix the test data so this never happens (hard to do)
+          // 3. ignore anything not matching the firstTree (done here)
           continue;
         } else {
           firstTree.mergeTree(tree);
@@ -2376,10 +2399,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // if top-level nodes are different, we do not expect this. so fake it
         else if (!firstTree.getSelf().getNode().getId()
             .equals(tree.getSelf().getNode().getId())) {
-        // Several options for handling this case (which should not exist in non-test data):
-        // 1. fake it (e.g. create a "fake root" and merge below that)
-        // 2. fix the test data so this never happens (hard to do)
-        // 3. ignore anything not matching the firstTree (done here)
+          // Several options for handling this case (which should not exist in
+          // non-test data):
+          // 1. fake it (e.g. create a "fake root" and merge below that)
+          // 2. fix the test data so this never happens (hard to do)
+          // 3. ignore anything not matching the firstTree (done here)
           continue;
         } else {
           firstTree.mergeTree(tree);

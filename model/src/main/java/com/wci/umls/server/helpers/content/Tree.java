@@ -8,8 +8,11 @@ import java.util.List;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.TreePosition;
 
+// TODO: Auto-generated Javadoc
 /**
  * Represents a tree of {@link TreePosition} objects.
+ *
+ * @author ${author}
  */
 public interface Tree {
 
@@ -54,4 +57,39 @@ public interface Tree {
    * @return the leaf nodes
    */
   public List<TreePosition<? extends AtomClass>> getLeafNodes();
+
+  /**
+   * Returns the total count of tree positions used to build the tree.
+   *
+   * @return the total count of tree positions
+   */
+  public int getTotalCount();
+  
+  /**
+   * Sets the total count.
+   *
+   * @return the int
+   */
+  public void setTotalCount(int totalCount);
+  
+  /**
+   * Returns the count.
+   *
+   * @return the count
+   */
+  public int getCount();
+  
+  /**
+   * Sets the count.
+   *
+   * @return the int
+   */
+  public void setCount(int count);
+  
+  /**
+   * Adds the child.
+   *
+   * @param child the child
+   */
+  public void addChild(Tree child);
 }
