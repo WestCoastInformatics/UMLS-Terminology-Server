@@ -1601,11 +1601,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   @Override
   public void refreshCaches() throws Exception {
     for (MetadataService service : helperMap.values()) {
-      // reset transaction scope in case there are new database changes
-      service.setTransactionPerOperation(false);
-      service.beginTransaction();
-      service.commit();
-      service.setTransactionPerOperation(true);
       service.refreshCaches();
     }
   }

@@ -328,7 +328,8 @@ public class StandardMetadataServiceJpaHelper extends
 
   @Override
   public void refreshCaches() throws Exception {
-    // n/a
+    close();
+    manager = factory.createEntityManager();
   }
 
 }
