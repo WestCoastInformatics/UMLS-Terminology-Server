@@ -80,6 +80,7 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 
+// TODO: Auto-generated Javadoc
 /**
  * REST implementation for {@link ContentServiceRest}..
  */
@@ -795,6 +796,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+	 * findConceptsForGeneralQuery(java.lang.String, java.lang.String,
+	 * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/cui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
@@ -839,6 +847,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+	 * findCodesForGeneralQuery(java.lang.String, java.lang.String,
+	 * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/code/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
@@ -1038,6 +1053,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+	 * findDescriptorsForGeneralQuery(java.lang.String, java.lang.String,
+	 * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/dui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}/")
@@ -1907,6 +1929,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+	 * findRelationshipsForConcept(java.lang.String, java.lang.String,
+	 * java.lang.String, java.lang.String,
+	 * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/cui/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
@@ -1957,6 +1987,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+	 * findDeepRelationshipsForConcept(java.lang.String, java.lang.String,
+	 * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+	 * java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/cui/{terminology}/{version}/{terminologyId}/relationships/deep")
@@ -1993,6 +2031,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+	 * findRelationshipsForDescriptor(java.lang.String, java.lang.String,
+	 * java.lang.String, java.lang.String,
+	 * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/dui/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
@@ -2044,6 +2090,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+	 * findRelationshipsForCode(java.lang.String, java.lang.String,
+	 * java.lang.String, java.lang.String,
+	 * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/code/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
@@ -2091,6 +2145,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getAtomSubsets
+	 * (java.lang.String, java.lang.String, java.lang.String)
+	 */
 	@Override
 	@GET
 	@Path("/aui/subset/all/{terminology}/{version}")
@@ -2136,6 +2197,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getConceptSubsets
+	 * (java.lang.String, java.lang.String, java.lang.String)
+	 */
 	@Override
 	@GET
 	@Path("/cui/subset/all/{terminology}/{version}")
@@ -2181,6 +2249,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+	 * findAtomSubsetMembers(java.lang.String, java.lang.String,
+	 * java.lang.String, java.lang.String,
+	 * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+	 */
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Override
 	@POST
@@ -2237,6 +2313,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+	 * findConceptSubsetMembers(java.lang.String, java.lang.String,
+	 * java.lang.String, java.lang.String,
+	 * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/cui/subset/{subsetId}/{terminology}/{version}/members/query/{query}")
@@ -2292,6 +2376,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findTreesForConcept
+	 * (java.lang.String, java.lang.String, java.lang.String,
+	 * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/cui/{terminology}/{version}/{terminologyId}/trees")
@@ -2337,6 +2429,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+	 * findTreesForDescriptor(java.lang.String, java.lang.String,
+	 * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+	 * java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/dui/{terminology}/{version}/{terminologyId}/trees/")
@@ -2383,6 +2483,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findTreesForCode
+	 * (java.lang.String, java.lang.String, java.lang.String,
+	 * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/code/{terminology}/{version}/{terminologyId}/trees")
@@ -2428,6 +2536,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+	 * findConceptTreeForQuery(java.lang.String, java.lang.String,
+	 * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+	 * java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/cui/{terminology}/{version}/trees/query/{query}")
@@ -2514,6 +2630,90 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+	 * findConceptTreeChildren(java.lang.String, java.lang.String,
+	 * java.lang.String, java.lang.String,
+	 * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+	 */
+	@Override
+	@POST
+	@Path("/cui/{terminology}/{version}/{terminologyId}/{ancestorPath}/trees/children")
+	@ApiOperation(value = "Get children of a concept as a tree", notes = "Returns paged children of a concept as a tree structure, with the given concept as the root", response = Tree.class)
+	public Tree findConceptTreeChildren(
+			@ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+			@ApiParam(value = "Concept terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+			@ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
+			@ApiParam(value = "Concept ancestor path, e.g. C000001~C000002", required = true) @PathParam("ancestorPath") String ancestorPath,
+			@ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+			@ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+			throws Exception {
+
+		Logger.getLogger(getClass()).info(
+				"RESTful call (Content): /cui/" + terminology + "/" + version
+						+ "/" + terminologyId + "/" + ancestorPath
+						+ "/trees/children");
+		ContentService contentService = new ContentServiceJpa();
+		try {
+			authenticate(securityService, authToken,
+					"get children tree for concept", UserRole.VIEWER);
+
+			// check for blank ancestor path
+			String localAncestorPath = ancestorPath
+					.equals(ContentServiceRest.QUERY_BLANK) ? "" : ancestorPath;
+
+			// get the concept
+			Concept concept = contentService.getConcept(terminologyId, terminology,
+					version, Branch.ROOT);
+
+			Tree tree = contentService.getTreeForAncestorPath(localAncestorPath,
+					concept.getId());
+
+			// get the children for this concept (with paging)
+			ConceptList conceptList = contentService.findDescendantConcepts(
+					terminologyId, terminology, version, true, Branch.ROOT,
+					pfs);
+
+			// cycle over concepts and get their trees
+			for (Concept child : conceptList.getObjects()) {
+				// get the childTree
+				Tree childTree = contentService.getTreeForAncestorPath(
+						(localAncestorPath == "" ? "" : localAncestorPath + "~") + concept.getId(),
+						child.getId());
+
+				// add the tree to the returned tree
+				tree.mergeTree(childTree);
+			}
+			
+			// returned trees go all the way to the top, only want the "local" tree
+			// where the specified concept is the node of the root tree
+			tree = tree.getSubTreeForAtomClass(concept, localAncestorPath);
+
+			contentService.getGraphResolutionHandler(terminology).resolve(tree);
+
+			return tree;
+
+		} catch (Exception e) {
+			handleException(e, "trying to find trees for a query");
+			return null;
+		} finally {
+			contentService.close();
+			securityService.close();
+		}
+
+	}
+	
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+	 * findDescriptorTreeForQuery(java.lang.String, java.lang.String,
+	 * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+	 * java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/dui/{terminology}/{version}/trees/query/{query}")
@@ -2600,6 +2800,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findCodeTreeForQuery
+	 * (java.lang.String, java.lang.String, java.lang.String,
+	 * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
+	 */
 	@Override
 	@POST
 	@Path("/code/{terminology}/{version}/trees/query/{query}")
@@ -2683,5 +2891,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 			contentService.close();
 			securityService.close();
 		}
+	}
+
+	@Override
+	public Tree findCodeTreeChildren(String terminology, String version,
+			String terminologyId, PfsParameterJpa pfs, String authToken) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Tree findDescriptorTreeChildren(String terminology, String version,
+			String terminologyId, PfsParameterJpa pfs, String authToken) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

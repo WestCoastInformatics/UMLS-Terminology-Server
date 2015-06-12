@@ -25,6 +25,7 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
 
+// TODO: Auto-generated Javadoc
 /**
  * Represents a content available via a REST service.
  */
@@ -595,6 +596,46 @@ public interface ContentServiceRest {
   public Tree findCodeTreeForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
+  
+  /**
+   * Gets the code's children as a tree
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param terminologyId the terminology id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the code tree children
+   */
+  public Tree findCodeTreeChildren(String terminology, String version, String terminologyId, PfsParameterJpa pfs, String authToken);
+  
+  /**
+   * Gets the concept's children as a tree.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param terminologyId the terminology id
+   * @param ancestorPath the ancestor path for this tree
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the concept tree children
+   * @throws Exception the exception
+   */
+  public Tree findConceptTreeChildren(String terminology, String version, String terminologyId, String ancestorPath, PfsParameterJpa pfs, String authToken) throws Exception;
+  
+  /**
+   * Gets the descriptor's children as a tree.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param terminologyId the terminology id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the descriptor tree children
+   */
+  public Tree findDescriptorTreeChildren(String terminology, String version, String terminologyId,  PfsParameterJpa pfs, String authToken);
+  
+  
 /**
    * Gets the atom subsets.
    *

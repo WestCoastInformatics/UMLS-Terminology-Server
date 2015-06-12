@@ -92,4 +92,13 @@ public interface Tree {
    * @param child the child
    */
   public void addChild(Tree child);
+
+  /**
+   * Returns a full subtree with root matching atomclass a.
+   *
+   * @param a the atom class
+   * @param ancestorPath the ancestor path matching this atomclass
+   * @return the subtree starting with the given atomclass
+   */
+  public Tree getSubTreeForAtomClass(AtomClass a, String ancestorPath);
 }
