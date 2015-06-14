@@ -673,6 +673,8 @@ tsApp
               	
               	console.debug('new tree node: ', data)
               	
+              	// TODO:  Only replace children that don't already exist
+              	// in order to preserve any previously loaded data
               	tree.child = data.child;
               	tree.childrenRetrieved = true;
 
