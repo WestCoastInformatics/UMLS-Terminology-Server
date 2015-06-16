@@ -346,11 +346,12 @@ public class TreeJpa implements Tree {
   }
   
   /**
-   * Helper function to recursively check a tree for a matching subtree
+   * Helper function to recursively check a tree for a matching subtree.
+   *
    * @param tree the tree-portion to check
    * @param a the atom class to be matched (node)
    * @param ancestorPath the ancestor path to be matched
-   * @return
+   * @return the sub tree for atom class helper
    */
   private Tree getSubTreeForAtomClassHelper(Tree tree, AtomClass a, String ancestorPath) {
 	  

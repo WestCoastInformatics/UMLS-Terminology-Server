@@ -14,7 +14,6 @@ import javax.persistence.OneToMany;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -35,12 +34,17 @@ public class IndexUtility {
   public static Set<String> getIndexedStringFieldNames(Class<?> clazz,
     boolean stringOnly) throws Exception {
 
-    
+    // Avoid ngram and sort fields (these have special uses)
     Set<String> exclusions = new HashSet<>();
     exclusions.add("Sort");
     exclusions.add("nGram");
     exclusions.add("NGram");
-     
+
+    // When looking for default fields, exclude definitions and branches
+    Set<String> stringExclusions = new HashSet<>();
+    stringExclusions.add("definitions");
+    stringExclusions.add("branch");
+
     Set<String> fieldNames = new HashSet<>();
 
     // first cycle over all methods
@@ -104,15 +108,11 @@ public class IndexUtility {
 
           for (String embeddedField : getIndexedStringFieldNames(jpaType,
               stringOnly)) {
-            Logger.getLogger(IndexUtility.class).info(
-                "  add " + f.getName() + "." + embeddedField);
             fieldNames.add(f.getName() + "." + embeddedField);
           }
         } else {
           for (String embeddedField : getIndexedStringFieldNames(f.getClass(),
               stringOnly)) {
-            Logger.getLogger(IndexUtility.class).info(
-                "  add " + f.getName() + "." + embeddedField);
             fieldNames.add(f.getName() + "." + embeddedField);
           }
         }
@@ -139,12 +139,21 @@ public class IndexUtility {
       }
 
     }
-    
+
+    // Apply filters
     Set<String> filteredFieldNames = new HashSet<>();
-    for (String fieldName : fieldNames) {
-      if (!exclusions.contains(fieldName)) {
-        filteredFieldNames.add(fieldName);
+    OUTER: for (String fieldName : fieldNames) {
+      for (String exclusion : exclusions) {
+        if (fieldName.contains(exclusion)) {
+          continue OUTER;
+        }
       }
+      for (String exclusion : stringExclusions) {
+        if (stringOnly && fieldName.contains(exclusion)) {
+          continue OUTER;
+        }
+      }
+      filteredFieldNames.add(fieldName);
     }
 
     return filteredFieldNames;

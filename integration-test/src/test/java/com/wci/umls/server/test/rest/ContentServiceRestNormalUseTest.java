@@ -493,11 +493,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             "care", null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(178, searchResults.getTotalCount());
+    assertEquals(19, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(178, searchResults.getCount());
+    assertEquals(19, searchResults.getCount());
 
     // Simple query with spaces, empty pfs
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
@@ -506,11 +506,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             "heart disease", null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(133, searchResults.getTotalCount());
+    assertEquals(210, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(133, searchResults.getCount());
+    assertEquals(210, searchResults.getCount());
 
     // Complex fielded query, empty pfs
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
@@ -523,11 +523,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
                 null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(133, searchResults.getTotalCount());
+    assertEquals(210, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(133, searchResults.getCount());
+    assertEquals(210, searchResults.getCount());
 
     // Simple query, sorted on name
     Logger.getLogger(getClass()).info("  Simple query, sorted on name");
@@ -706,7 +706,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             "disease", pfsc, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(133, searchResults.getTotalCount());
+    assertEquals(210, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
@@ -748,7 +748,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             "disease", pfsc, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(133, searchResults.getTotalCount());
+    assertEquals(210, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
@@ -949,11 +949,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             query, pfss, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
+    assertEquals(21, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(9, searchResults.getCount());
+    assertEquals(21, searchResults.getCount());
 
     // Simple query, sort by name
     Logger.getLogger(getClass()).info("  Simple query, sort by name");
@@ -963,11 +963,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             query, pfss, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
+    assertEquals(21, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(9, searchResults.getCount());
+    assertEquals(21, searchResults.getCount());
     assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfss,
         DescriptorJpa.class));
 
@@ -980,11 +980,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             query, pfss, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
+    assertEquals(21, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(9, searchResults.getCount());
+    assertEquals(21, searchResults.getCount());
     assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfss,
         DescriptorJpa.class));
 
@@ -1002,7 +1002,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             query, pfss, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
+    assertEquals(21, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
@@ -1022,7 +1022,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             query, pfss, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
+    assertEquals(21, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
@@ -1123,14 +1123,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             "disease", pfss, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(8, searchResults.getTotalCount());
+    assertEquals(69, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(8, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("isease"));
-    }
+    assertEquals(10, searchResults.getCount());
 
     // Simple query and inactive active only with paging
     Logger.getLogger(getClass()).info(
@@ -1162,14 +1159,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             "disease", pfss, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(8, searchResults.getTotalCount());
+    assertEquals(69, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(8, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("isease"));
-    }
+    assertEquals(10, searchResults.getCount());
 
     // TODO: need to test search criteria for descriptor relationships
     // TODO: need to test multiple search criteria in conjunction
@@ -1195,11 +1189,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             pfsc, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
+    assertEquals(21, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(9, searchResults.getCount());
+    assertEquals(21, searchResults.getCount());
 
     // Simple query, sort by name
     Logger.getLogger(getClass()).info("  Simple query, sort by name");
@@ -1209,11 +1203,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             pfsc, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
+    assertEquals(21, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(9, searchResults.getCount());
+    assertEquals(21, searchResults.getCount());
     assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
         CodeJpa.class));
 
@@ -1226,11 +1220,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             pfsc, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
+    assertEquals(21, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(9, searchResults.getCount());
+    assertEquals(21, searchResults.getCount());
     assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
         CodeJpa.class));
 
@@ -1248,7 +1242,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             pfsc, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
+    assertEquals(21, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
@@ -1268,7 +1262,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             pfsc, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
+    assertEquals(21, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
@@ -1371,14 +1365,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             pfsc, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(8, searchResults.getTotalCount());
+    assertEquals(69, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(8, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("isease"));
-    }
+    assertEquals(10, searchResults.getCount());
 
     // Simple query and inactive active only with paging
     Logger.getLogger(getClass()).info(
@@ -1410,14 +1401,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             pfsc, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(8, searchResults.getTotalCount());
+    assertEquals(69, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(8, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("isease"));
-    }
+    assertEquals(10, searchResults.getCount());
 
     // TODO: test pfs parameter "active only" and "inactive only" features
 
@@ -2073,7 +2061,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findConceptsForGeneralQuery("name:amino",
             "SELECT c FROM ConceptJpa c", new PfsParameterJpa(), authToken);
-    assertEquals(10,sml.getCount());
+    assertEquals(10, sml.getCount());
     assertEquals(10, sml.getTotalCount());
 
     /** Find concepts in lucene query */
@@ -2082,8 +2070,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findConceptsForGeneralQuery("name:amino", "",
             new PfsParameterJpa(), authToken);
-    assertEquals(10,sml.getCount());
-    assertEquals(10,sml.getTotalCount());
+    assertEquals(10, sml.getCount());
+    assertEquals(10, sml.getTotalCount());
 
     /** Find descriptors with hql query */
     Logger.getLogger(getClass()).info(
@@ -2104,8 +2092,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findDescriptorsForGeneralQuery("",
             "SELECT c FROM DescriptorJpa c", pfs, authToken);
-    assertEquals(20,sml.getCount());
-    assertEquals(997,sml.getTotalCount());
+    assertEquals(20, sml.getCount());
+    assertEquals(997, sml.getTotalCount());
 
     /** Find descriptors in intersection of lucene and hql queries */
     Logger
@@ -2117,8 +2105,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findDescriptorsForGeneralQuery("name:amino",
             "SELECT c FROM DescriptorJpa c", new PfsParameterJpa(), authToken);
-    assertEquals(4,sml.getCount());
-    assertEquals(4,sml.getTotalCount());
+    assertEquals(4, sml.getCount());
+    assertEquals(4, sml.getTotalCount());
 
     /** Find descriptors in lucene query */
     Logger.getLogger(getClass()).info(
@@ -2126,8 +2114,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findDescriptorsForGeneralQuery("name:amino", "",
             new PfsParameterJpa(), authToken);
-    assertEquals(4,sml.getCount());
-    assertEquals(4,sml.getTotalCount());
+    assertEquals(4, sml.getCount());
+    assertEquals(4, sml.getTotalCount());
 
     /** Find codes with hql query */
     Logger.getLogger(getClass()).info(
@@ -2136,7 +2124,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findCodesForGeneralQuery("", "SELECT c FROM CodeJpa c",
             new PfsParameterJpa(), authToken);
-    assertEquals(5049,sml.getCount());
+    assertEquals(5049, sml.getCount());
 
     /** Find codes with hql query and pfs parameter max results 20 */
     pfs = new PfsParameterJpa();
@@ -2148,8 +2136,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findCodesForGeneralQuery("", "SELECT c FROM CodeJpa c",
             pfs, authToken);
-    assertEquals(20,sml.getCount());
-    assertEquals(5049,sml.getTotalCount());
+    assertEquals(20, sml.getCount());
+    assertEquals(5049, sml.getTotalCount());
 
     /** Find codes in intersection of lucene and hql queries */
     Logger.getLogger(getClass()).info(
@@ -2159,8 +2147,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findCodesForGeneralQuery("name:amino",
             "SELECT c FROM CodeJpa c", new PfsParameterJpa(), authToken);
-    assertEquals(6,sml.getCount());
-    assertEquals(6,sml.getTotalCount());
+    assertEquals(6, sml.getCount());
+    assertEquals(6, sml.getTotalCount());
 
     /** Find codes in lucene query */
     Logger.getLogger(getClass()).info(
@@ -2168,8 +2156,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     sml =
         contentService.findCodesForGeneralQuery("name:amino", "",
             new PfsParameterJpa(), authToken);
-    assertEquals(6,sml.getCount());
-    assertEquals(6,sml.getTotalCount());
+    assertEquals(6, sml.getCount());
+    assertEquals(6, sml.getTotalCount());
   }
 
   /**
@@ -2188,7 +2176,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     RelationshipList l =
         contentService.findRelationshipsForConcept("C0000737", umlsTerminology,
             umlsVersion, "", pfs, authToken);
-    assertEquals(20,l.getCount());
+    assertEquals(20, l.getCount());
 
     /** Find relationships for given concept with pfs */
     Logger.getLogger(getClass()).info(
@@ -2199,8 +2187,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     l =
         contentService.findRelationshipsForConcept("C0000737", umlsTerminology,
             umlsVersion, "", pfs, authToken);
-    assertEquals(3,l.getCount());
-    assertEquals(20,l.getTotalCount());
+    assertEquals(3, l.getCount());
+    assertEquals(20, l.getTotalCount());
 
   }
 
@@ -2220,7 +2208,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     RelationshipList l =
         contentService.findRelationshipsForDescriptor("D000015",
             mshTerminology, mshVersion, "", pfs, authToken);
-    assertEquals(50,l.getCount());
+    assertEquals(50, l.getCount());
 
     /** Find relationships for given descriptor with pfs */
     Logger.getLogger(getClass()).info(
@@ -2231,8 +2219,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     l =
         contentService.findRelationshipsForDescriptor("D000015",
             mshTerminology, mshVersion, "", pfs, authToken);
-    assertEquals(3,l.getCount());
-    assertEquals(50,l.getTotalCount());
+    assertEquals(3, l.getCount());
+    assertEquals(50, l.getTotalCount());
   }
 
   /**
@@ -2244,7 +2232,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   public void testNormalUseRestContent022() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
-
     /** Find relationships for given code */
     Logger.getLogger(getClass()).info(
         "TEST1 - " + "U000019, MSH, mshVersion, " + authToken);
@@ -2252,8 +2239,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     RelationshipList l =
         contentService.findRelationshipsForCode("U000019", mshTerminology,
             mshVersion, "", pfs, authToken);
-    assertEquals(15,l.getCount());
-
+    assertEquals(15, l.getCount());
 
     /** Find relationships for given code with pfs */
     Logger.getLogger(getClass()).info(
@@ -2264,8 +2250,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     l =
         contentService.findRelationshipsForCode("U000019", mshTerminology,
             mshVersion, "", pfs, authToken);
-    assertEquals(3,l.getCount());
-    assertEquals(15,l.getTotalCount());
+    assertEquals(3, l.getCount());
+    assertEquals(15, l.getTotalCount());
   }
 
   /**
@@ -2361,7 +2347,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             "pneumonia", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    total leaf count = " + tree.getLeafNodes().size());
-    assertEquals(1, tree.getLeafNodes().size());
+    assertEquals(2, tree.getLeafNodes().size());
     Logger.getLogger(getClass()).info("    Result: " + tree);
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
     for (TreePosition<? extends AtomClass> leaf : tree.getLeafNodes()) {
@@ -2384,7 +2370,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // n/a - no sample data
     // TODO: consider sample data from SAMPLE_2014AB
   }
-
 
   /**
    * Teardown.

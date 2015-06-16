@@ -68,7 +68,7 @@ public interface Tree {
   /**
    * Sets the total count.
    *
-   * @return the int
+   * @param totalCount the total count
    */
   public void setTotalCount(int totalCount);
   
@@ -82,7 +82,7 @@ public interface Tree {
   /**
    * Sets the count.
    *
-   * @return the int
+   * @param count the count
    */
   public void setCount(int count);
   

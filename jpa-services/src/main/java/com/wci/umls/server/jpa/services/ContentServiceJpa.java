@@ -2908,7 +2908,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // Some result has been found, even if empty
-    assert classes != null;
+    if (classes == null) {
+      results.setTotalCount(0);
+      return results;
+    }
 
     // construct the search results
     for (AtomClass atomClass : classes) {
