@@ -5,22 +5,20 @@
 		 Open if collapsed flag false AND children have already been loaded
 		 Toggling behavior determined in js
 	-->
-	<a ng-if="tree.self.childCt > 0" data-nodrag ng-click="getTreeChildren(tree, this)"><span
+	<a ng-if="tree.childCt > 0" data-nodrag ng-click="getTreeChildren(tree, this)"><span
 		class="glyphicon"
 		ng-class="getTreeNodeIcon(tree, collapsed)"></span></a>
 		
-
-	<!--  Leaf display for terminal nodes -->
-	<i class="glyphicon glyphicon-leaf" ng-if="tree.self.childCt == 0"></i>
-
+	<i ng-show="tree.childCt == 0" class="glyphicon glyphicon-leaf"></i>
+	
 	<!-- if not the component viewed, render with hyperlink -->
-	<span ng-show="tree.self.node.terminologyId != component.terminologyId"><a
-		ng-click="getComponent(tree.self.node.terminology, tree.self.node.terminologyId)">
-			{{tree.self.node.terminologyId}}</a>: {{tree.self.node.name}} </span>
+	<span ng-show="tree.terminologyId != component.terminologyId"><a
+		ng-click="getComponent(tree.terminology, tree.terminologyId)">
+			{{tree.terminologyId}}</a>: {{tree.name}} </span>
 
 	<!-- if the component displayed, render in bold without hyperlink -->
-	<span ng-show="tree.self.node.terminologyId === component.terminologyId">
-		<span class="highlighted">{{tree.self.node.terminologyId}}: {{tree.self.node.name}}</span>
+	<span ng-show="tree.terminologyId === component.terminologyId">
+		<span class="highlighted">{{tree.terminologyId}}: {{tree.name}}</span>
 	</span>
 
 	<!-- recursive display of next level of tree -->
@@ -32,7 +30,9 @@
 			ng-include="'ui/partials/componentTree_renderer.html'"></li>
 			
 		<!-- if not all children displayed, display a message -->
-		<li ng-show="hasHiddenSiblings(tree, component.terminologyId) == true"><i class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <span tooltip="Future improvement: paged display of hidden siblings">... {{tree.self.childCt - tree.child.length}} additional siblings not displayed</span></li>
+		<li ng-show="hasHiddenSiblings(tree, component.terminologyId) == true">
+		<i class="glyphicon glyphicon-leaf" style="opacity: 0"></i> 
+		<a ng-click="getAndSetTreeChildren(tree, tree.child.length)">... {{tree.childCt - tree.child.length}} more</a></li>
 	</ol>
 	
 </div>

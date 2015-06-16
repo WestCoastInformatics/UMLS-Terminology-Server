@@ -603,18 +603,6 @@ public interface ContentService extends MetadataService {
     PfsParameter pfs) throws Exception;
 
   /**
-   * Returns the concept tree for ancestor path. The tree type is the same as
-   * the type of the idenfier passed.
-   *
-   * @param ancestorPath the ancestor path
-   * @param id the id
-   * @return the concept tree for ancestor path
-   * @throws Exception the exception
-   */
-  public Tree getTreeForAncestorPath(String ancestorPath, Long id)
-    throws Exception;
-
-  /**
    * Find tree positions for descriptor.
    *
    * @param descriptorId the descriptor id
@@ -1455,5 +1443,16 @@ public interface ContentService extends MetadataService {
    */
   public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
     String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+  
+  /**
+   * Returns the tree for tree position. The tree position type is the same
+   * as the atomclass passed.
+   *
+   * @param treePosition the tree position
+   * @return the tree structure for the tree position
+   * @throws Exception the exception
+   */
+  public Tree getTreeForTreePosition(TreePosition<? extends AtomClass> treePosition)
+    throws Exception;
 
 }

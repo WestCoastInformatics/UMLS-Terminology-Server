@@ -59,12 +59,10 @@ public class ListUnit028Test extends
     ConceptTreePosition tp = new ConceptTreePositionJpa();
     tp.setId(1L);
     tp.setTerminologyId("1");
-    t1.setSelf(tp);
     List<Tree> list = new ArrayList<>();
     Tree chdTree = new TreeJpa();
     ConceptTreePosition chdTreePos = new ConceptTreePositionJpa();
     chdTreePos.setId(11L);
-    chdTree.setSelf(chdTreePos);
     list.add(chdTree);
     t1.setChildren(list);
     
@@ -72,12 +70,10 @@ public class ListUnit028Test extends
     ConceptTreePosition tp2 = new ConceptTreePositionJpa();
     tp2.setId(2L);
     tp2.setTerminologyId("2");
-    t2.setSelf(tp2);
     List<Tree> list2 = new ArrayList<>();
     Tree chdTree2 = new TreeJpa();
     ConceptTreePosition chdTreePos2 = new ConceptTreePositionJpa();
     chdTreePos2.setId(22L);
-    chdTree2.setSelf(chdTreePos2);
     list2.add(chdTree2);
     t2.setChildren(list2);
 

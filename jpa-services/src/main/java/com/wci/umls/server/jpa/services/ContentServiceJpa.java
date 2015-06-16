@@ -4605,35 +4605,35 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
         descriptorFieldNames, DescriptorJpa.class);
   }
-
+  
   @SuppressWarnings("unchecked")
   @Override
-  public Tree getTreeForAncestorPath(String ancestorPath, Long id)
+  public Tree getTreeForTreePosition(TreePosition<? extends AtomClass> treePosition)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "Content Service - get tree for ancestor path " + ancestorPath);
+        "Content Service - get tree for tree position");
+    
+    Long tpId = treePosition.getNode().getId();
 
-    if (ancestorPath == null) {
-      throw new Exception(
-          "Null ancestor path is not allowed, pass a blank value");
-    }
     // Determine type
     Class<?> clazz = null;
-    if (manager.find(ConceptJpa.class, id) != null) {
+    if (manager.find(ConceptJpa.class, tpId) != null) {
       clazz = ConceptTreePositionJpa.class;
-    } else if (manager.find(DescriptorJpa.class, id) != null) {
+    } else if (manager.find(DescriptorJpa.class, tpId) != null) {
       clazz = DescriptorTreePositionJpa.class;
-    } else if (manager.find(CodeJpa.class, id) != null) {
+    } else if (manager.find(CodeJpa.class, tpId) != null) {
       clazz = CodeTreePositionJpa.class;
     } else {
       throw new Exception("Unknown tree position type.");
     }
     Logger.getLogger(getClass()).debug("  type = " + clazz.getName());
 
+    // tree to return
     Tree tree = new TreeJpa();
-    // Split ancestor path and build up tree. finally add the "self" entry;
-    String partAncPath = "";
-    Tree partTree = tree;
+    
+    // the current tree variables (ancestor path and local tree)
+    String partAncPath = "";    // initially top-level
+    Tree partTree = tree;       // initially the empty tree
 
     // Prepare lucene
     FullTextEntityManager fullTextEntityManager =
@@ -4643,7 +4643,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         new MultiFieldQueryParser(treePositionFieldNames,
             searchFactory.getAnalyzer(clazz));
     String fullAncPath =
-        ancestorPath + (ancestorPath.isEmpty() ? "" : "~") + id;
+        treePosition.getAncestorPath() + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
+    
     // Iterate over ancestor path
     for (String pathPart : fullAncPath.split("~")) {
       Long partId = Long.parseLong(pathPart);
@@ -4662,7 +4663,31 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       Query luceneQuery = queryParser.parse(finalQuery.toString());
       FullTextQuery fullTextQuery =
           fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
+      
+      // projection approach -- don't want to have to instantiate node Jpa object
+      fullTextQuery.setProjection("nodeId", "nodeTerminologyId", "nodeName", "childCt", "ancestorPath");
+      
+      List<Object[]> results = fullTextQuery.getResultList();
+      
+      if (fullTextQuery.getResultSize() != 1) {
+        throw new Exception("Unexpected number of results: "
+            + fullTextQuery.getResultSize());
+      }
+      Object[] result = (Object[]) results.get(0);
 
+      // fill in the tree object
+      partTree.setId((Long) result[0]); 
+      partTree.setTerminologyId((String) result[1]);
+      partTree.setName((String) result[2]);
+      partTree.setChildCt((Integer) result[3]);
+      partTree.setAncestorPath((String) result[4]);
+      partTree.setTerminology(treePosition.getTerminology());
+
+      partTree.setVersion(treePosition.getVersion());
+
+
+
+      /*// original approach
       if (fullTextQuery.getResultSize() != 1) {
         throw new Exception("Unexpected number of results: "
             + fullTextQuery.getResultSize());
@@ -4672,14 +4697,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           (TreePosition<? extends AtomClass>) fullTextQuery.getResultList()
               .get(0);
 
-      partTree.setSelf(treepos);
+      partTree.setFromTreePosition(treepos);*/
+      
+      
       Tree nextPart = new TreeJpa();
-
-      if (!partId.equals(id)) {
-        List<Tree> list = new ArrayList<Tree>();
-        list.add(nextPart);
-        partTree.setChildren(list);
-      }
+      
+      // if not end of sequence, add the new blank object as a child)
+      if (!partId.equals(tpId)) {
+        partTree.addChild(nextPart);
+      } 
+      
+      // set current tree to the just retrieved tree
       partTree = nextPart;
 
       partAncPath += (partAncPath.equals("") ? "" : "~");
