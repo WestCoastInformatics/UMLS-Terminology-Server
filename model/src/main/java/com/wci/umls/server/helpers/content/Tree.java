@@ -8,7 +8,6 @@ import java.util.List;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.TreePosition;
 
-// TODO: Auto-generated Javadoc
 /**
  * Represents a tree of {@link TreePosition} objects.
  *
@@ -22,20 +21,6 @@ public interface Tree {
    * @param tree the tree
    */
   public void mergeTree(Tree tree);
-
-  /**
-   * Returns the self.
-   *
-   * @return the self
-   */
-  public TreePosition<? extends AtomClass> getSelf();
-
-  /**
-   * Sets the self.
-   *
-   * @param self the self
-   */
-  public void setSelf(TreePosition<? extends AtomClass> self);
 
   /**
    * Returns the children.
@@ -52,40 +37,19 @@ public interface Tree {
   public void setChildren(List<Tree> children);
 
   /**
-   * Returns the leaf nodes.
-   *
-   * @return the leaf nodes
-   */
-  public List<TreePosition<? extends AtomClass>> getLeafNodes();
-
-  /**
    * Returns the total count of tree positions used to build the tree.
    *
    * @return the total count of tree positions
    */
   public int getTotalCount();
-  
+
   /**
    * Sets the total count.
    *
    * @param totalCount the total count
    */
   public void setTotalCount(int totalCount);
-  
-  /**
-   * Returns the count.
-   *
-   * @return the count
-   */
-  public int getCount();
-  
-  /**
-   * Sets the count.
-   *
-   * @param count the count
-   */
-  public void setCount(int count);
-  
+
   /**
    * Adds the child.
    *
@@ -96,9 +60,116 @@ public interface Tree {
   /**
    * Returns a full subtree with root matching atomclass a.
    *
-   * @param a the atom class
+   * @param terminologyId the terminology id
    * @param ancestorPath the ancestor path matching this atomclass
    * @return the subtree starting with the given atomclass
    */
-  public Tree getSubTreeForAtomClass(AtomClass a, String ancestorPath);
+  public Tree getSubTree(String terminologyId, String ancestorPath);
+
+  /**
+   * Returns the id.
+   *
+   * @return the id
+   */
+  public Long getId();
+
+  /**
+   * Sets the id.
+   *
+   * @param id the id
+   */
+  public void setId(Long id);
+
+  /**
+   * Returns the terminology.
+   *
+   * @return the terminology
+   */
+  public String getTerminology();
+
+  /**
+   * Sets the terminology.
+   *
+   * @param terminology the terminology
+   */
+  public void setTerminology(String terminology);
+
+  /**
+   * Returns the version.
+   *
+   * @return the version
+   */
+  public String getVersion();
+
+  /**
+   * Sets the version.
+   *
+   * @param version the version
+   */
+  public void setVersion(String version);
+
+  /**
+   * Returns the terminology id.
+   *
+   * @return the terminology id
+   */
+  public String getTerminologyId();
+
+  /**
+   * Sets the terminology id.
+   *
+   * @param terminologyId the terminology id
+   */
+  public void setTerminologyId(String terminologyId);
+
+  /**
+   * Returns the name.
+   *
+   * @return the name
+   */
+  public String getName();
+
+  /**
+   * Sets the name.
+   *
+   * @param name the name
+   */
+  public void setName(String name);
+
+  /**
+   * Returns the ancestor path.
+   *
+   * @return the ancestor path
+   */
+  public String getAncestorPath();
+
+  /**
+   * Sets the ancestor path.
+   *
+   * @param ancestorPath the ancestor path
+   */
+  public void setAncestorPath(String ancestorPath);
+
+  /**
+   * Returns the child ct.
+   *
+   * @return the child ct
+   */
+  public int getChildCt();
+
+  /**
+   * Sets the child ct.
+   *
+   * @param childCt the child ct
+   */
+  public void setChildCt(int childCt);
+
+  
+  /**
+   * Sets fields from a tree position
+   *
+   * @param treePosition the from tree position
+   */
+  public void setFromTreePosition(TreePosition<? extends AtomClass> treePosition);
+
 }

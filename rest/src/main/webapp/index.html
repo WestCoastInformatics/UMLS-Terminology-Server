@@ -166,7 +166,10 @@
 								<td width="15%;">Terminology</td>
 								<td width="85%;"><select ng-model="terminology"
 									ng-change="setTerminology(terminology)"
-									ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select></td>
+									ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
+									
+									<button class="btn btn-sm btn-primary" ng-click="browseHierarchy(1)">Browse</button>
+									</td>
 							</tr>
 							<tr>
 								<td>Query</td>
@@ -180,7 +183,7 @@
 											typeahead-on-select="findComponents(componentQuery, 1)"
 											typeahead-editable="true" typeahead-min-length="3">
 
-										<button class="btn btn-small btn-primary" type="submit"
+										<button class="btn btn-sm btn-primary" type="submit"
 											ng-click="findComponents(componentQuery, 1)">Search</button>
 
 									</form></td>
@@ -192,9 +195,6 @@
 
 						<!-- search results field is 3 columns -->
 						<div class="col-md-4 col-xs-12">
-
-
-
 
 							<div ng-show="queryForList">
 
@@ -252,11 +252,11 @@
 									ng-show="searchResultsTree.totalCount > treePageSize"
 									total-items="searchResultsTree.totalCount"
 									ng-model="searchResultsTreePage"
-									ng-change="findComponentsAsTree(componentQuery, searchResultsTreePage)"></pagination>
+									ng-change="findComponents(componentQuery, searchResultsTreePage)"></pagination>
 								
 								<p display="block">&nbsp</p> <!-- Included as tree will try to wrap, some css difficulties -->
 
-								<div display="block" ui-tree>
+								<div ng-if="searchResultsTree" display="block" ui-tree>
 									<ol ui-tree-nodes="" ng-model="searchResultsTree"
 										id="tree-root" data-nodrop-enabled="true">
 										<li ng-repeat="tree in searchResultsTree" ui-tree-node

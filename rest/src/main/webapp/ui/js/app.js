@@ -478,8 +478,8 @@ tsApp
         $scope.treeCount = null;
         $scope.treeViewed = null;
         $scope.siblingPageSize = 10; // the number of siblings to display in component hierarchy view
+       
         
-      
         /**
          * Function to get a single (paged) hierarchical tree for the displayed component
          */
@@ -532,7 +532,7 @@ tsApp
             	
             	// if parent tree cannot be read, clear the component tree
             	if (!parentTree) {
-            		console.debug('parent tree cannot be read')
+            		console.error('parent tree cannot be read')
             		$scope.componentTree = null;
             		return;
             	}
@@ -545,13 +545,9 @@ tsApp
             			break;
             		parentTree = parentTree.child[0];
             	} 
-            	
-            	console.debug('before get and set');
-            	
-            	// replace the parent tree of the lowest level with (capped) siblings computed
-            	$scope.getAndSetTreeChildren(parentTree, typePrefix);
-            	
-            	console.debug('done with get and set');
+           	
+            	// replace the parent tree of the lowest level with first page of siblings computed
+            	$scope.getAndSetTreeChildren(parentTree, 0);
             	
             }).error(function(data, status, headers, config) {
             	 $scope.glassPane--;
@@ -560,42 +556,6 @@ tsApp
               });
         	
         	
-        }
-        
-        /**
-         * Helper function to determine whether this level of a tree contains the displayed component
-         */      
-        $scope.hasHiddenSiblings = function(tree) {  	
-        	// if not more than one child, children have not been retrieved
-        	if (tree.child.length < 2)
-        		return false;       	
-        	else return (tree.self.childCt > tree.child.length);
-        }
-        
-        /**
-         * Helper function to determine what icon to show for a tree node
-         * Case 1: Has children, none loaded -> use right chevron
-         * Case 2: Has children, incompletely loaded (below pagesize) -> expandable (plus)
-         * Case 3: Has children, completely loaded (or above pagesize) -> not expandable (right/down))
-         */
-        $scope.getTreeNodeIcon = function(tree, collapsed) {
-        	// case 1:  no children loaded, but children exist
-        	if (tree.self.childCt > 0 && tree.child.length == 0) {
-        		return 'glyphicon-chevron-right';
-        	}
-        
-        	// case 2:  some children loaded, but less than child ct AND child ct lte pagesize
-        	if (tree.child.length < tree.self.childCt && tree.child.length <= $scope.siblingPageSize) {
-        		return 'glyphicon-plus';
-        	}
-        	
-        	// case 3:  all children loaded, up to pagesize
-        	if (tree.child.length == tree.self.childCt || 
-        			tree.self.childCt > $scope.siblingPageSize && tree.child.length == $scope.siblingPageSize) {
-        		if (collapsed) return 'glyphicon-chevron-right';
-        		else return 'glyphicon-chevron-down';
-        	}
-   
         }
         
         
@@ -620,6 +580,84 @@ tsApp
         	
         }
         
+        /** Fake "enum" for clarity.  Could use freeze, but meh */
+        var TreeNodeExpansionState = {
+        		'Undefined': -1,
+        		'Unloaded': 0, 
+        		'ExpandableFromNode' : 1, 
+        		'ExpandableFromList' : 2,
+        		'Loaded' : 3};
+        
+        /**
+         * Helper function to determine what icon to show for a tree node
+         * Case 1: Has children, none loaded -> use right chevron
+         * Case 2: Has children, incompletely loaded (below pagesize) -> expandable (plus)
+         * Case 3: Has children, completely loaded (or above pagesize) -> not expandable (right/down))
+         */
+        $scope.getTreeNodeExpansionState = function(tree) {
+        	
+        	// case 1:  no children loaded, but children exist
+        	if (tree.childCt > 0 && tree.child.length == 0) {
+        		return TreeNodeExpansionState.Unloaded;
+        	}
+        
+        	// case 2:  some children loaded, not by user, expandable from node
+        	else if (tree.child.length < tree.childCt && tree.child.length < $scope.siblingPageSize) {
+        		return TreeNodeExpansionState.ExpandableFromNode;
+        	}
+        	
+        	// case 3:  some children loaded by user, expandable from list
+        	else if (tree.child.length < tree.childCt && tree.child.length >= $scope.siblingPageSize) {
+        		return TreeNodeExpansionState.ExpandableFromList;
+        	}
+        	
+        	// case 4:  all children loaded
+        	else if (tree.child.length == tree.childCt) {
+        		return TreeNodeExpansionState.Loaded;
+        	}
+        
+        	else return TreeNodeExpansionState.Undefined;
+   
+        }
+        
+        $scope.getTreeNodeIcon = function(tree, collapsed) {
+        	
+        	// if childCt is zero, return leaf
+        	if (tree.childCt == 0)
+        		return 'glyphicon-leaf';
+        	
+        	// otherwise, switch on expansion state
+        	switch ($scope.getTreeNodeExpansionState(tree)) {
+        	case TreeNodeExpansionState.Unloaded:
+        		return 'glyphicon-chevron-right';
+        	case TreeNodeExpansionState.ExpandableFromNode:
+        		return 'glyphicon-plus';
+        	case TreeNodeExpansionState.ExpandableFromList:
+        	case TreeNodeExpansionState.Loaded:
+        		if (collapsed) return 'glyphicon-chevron-right';
+        		else return 'glyphicon-chevron-down';
+    		default:
+    			return 'glyphicon-question-sign';
+        	}
+        }
+        
+
+        /**
+         * Helper function to determine whether siblings are hidden
+         * on a user-expanded list
+         */      
+        $scope.hasHiddenSiblings = function(tree) {  	
+        	switch ($scope.getTreeNodeExpansionState(tree)) {
+        	case TreeNodeExpansionState.ExpandableFromList:
+        		return true; 	
+    		default:
+    			return false;
+        	}
+        }
+        
+        
+       
+        
         /**
          * Function to determine whether to toggle children
          * and/or retrieve children if necessary
@@ -628,40 +666,50 @@ tsApp
         	
         	console.debug('toggleChildren', tree);
         	
-        	// check if children already loaded
-        	if (tree.childrenRetrieved == true) {
-        		console.debug("children already loaded, toggling");
+        	switch ($scope.getTreeNodeExpansionState(tree)) {
+        	
+        	// if fully loaded or expandable from list, simply toggle
+        	case TreeNodeExpansionState.Loaded:
+        	case TreeNodeExpansionState.ExpandableFromList:
+        		console.debug("expanded by user or fully loaded, toggling")
         		treeHandleScope.toggle();
-        	}
-        	
-        	// otherwise, load children and do not toggle (already expanded, but icon overriden)
-        	else {
-        		console.debug("children not loaded, retrieving");
-        		$scope.getAndSetTreeChildren(tree, null); // type prefix auto set
-        	
-        	}
-        	
-        	
+        		return;
+        		
+        	default:
+        		console.debug("node expansion, retrieving from beginning");
+    			$scope.getAndSetTreeChildren(tree, 0); // type prefix auto set
+    	
+        	} 	
         }
         
         /** Get a tree node's children  */
-        $scope.getAndSetTreeChildren = function(tree, typePrefix) {
+        $scope.getAndSetTreeChildren = function(tree, startIndex) {
+          
+          // TODO Fix children retrieval
+          return;
         	
-        	if (!typePrefix) {
-        		typePrefix = getTypePrefix($scope.componentType);
+        	if (!tree) {
+        		console.error("Can't set tree children without tree!")
+        		return;
         	}
+        	
+        	// set default for startIndex if not specified
+        	if (!startIndex) startIndex = 0;
+        	
+        	// get the type prefix for displayed component
+        	var typePrefix = getTypePrefix($scope.componentType);
         	
         	console.debug("getAndSetTreeChildren", tree, typePrefix);
         	
         	// NOTE: Currently hard-coded to only return siblingPageSize items
         	var pfs = getPfs();
-        	pfs.startIndex = 0;
+        	pfs.startIndex = startIndex;
         	pfs.maxResults = $scope.siblingPageSize;
         	
         	$scope.glassPane++;	
         	
         	$http({
-                url : contentUrl + typePrefix + '/' + tree.self.node.terminology + '/' + tree.self.node.version + '/' + tree.self.node.terminologyId + '/' + (tree.self.ancestorPath === "" ? '~BLANK~' : tree.self.ancestorPath) + '/trees/children',
+                url : contentUrl + typePrefix + '/' + tree.terminology + '/' + tree.version + '/' + tree.terminologyId + '/' + (tree.ancestorPath === "" ? '~BLANK~' : tree.ancestorPath) + '/trees/children',
                 method : "POST",
                 dataType: 'json',
                 data: pfs,
@@ -673,10 +721,19 @@ tsApp
               	
               	console.debug('new tree node: ', data)
               	
-              	// TODO:  Only replace children that don't already exist
+              	// Only replace children that don't already exist
               	// in order to preserve any previously loaded data
-              	tree.child = data.child;
-              	tree.childrenRetrieved = true;
+              	for (var i = 0; i < data.child.length; i++) {
+              		var childExists = false;
+              		for (var j = 0; j < tree.child.length; j++) {
+              			if (data.child[i].terminologyId === tree.child[j].terminologyId)
+              				childExists = true;
+              		}
+              		if (!childExists)
+              			tree.child.push(data.child[i]);
+              	}
+              	
+              	tree.childrenRetrieved = true; // currently unused
 
               }).error(function(data, status, headers, config) {
               	 $scope.glassPane--;
@@ -703,7 +760,8 @@ tsApp
          */
         $scope.setTreeView = function() {
         	$scope.queryForTree = true;
-        	$scope.queryForList = false
+        	$scope.queryForList = false;
+        	$scope.queryForHierarchy = false;
         	
         	$scope.findComponentsAsTree($scope.componentQuery);
         }
@@ -711,8 +769,22 @@ tsApp
         $scope.setListView = function() {
         	$scope.queryForList = true;
         	$scope.queryForTree = false;
+        	$scope.queryForHierarchy = false;
         	
             $scope.findComponentsAsList($scope.componentQuery);	
+        }
+        
+        
+        /**
+         * TODO: Currently hierarchy view shares interface with tree view
+         * May want to reconsider this
+         */
+        $scope.setHierarchyView = function() {
+        	$scope.queryForList = false;
+        	$scope.queryForTree = true;
+        	$scope.queryForHierarchy = true;
+        	
+        	$scope.browseHierarchy(1);
         }
         
         /**
@@ -720,10 +792,17 @@ tsApp
          * e.g. list or tree based on booleans
          */
         $scope.findComponents = function(queryStr, page) {
+        	
+        	// if a query is supplied, disable hierarchy view
+        	if (queryStr != "")
+        		$scope.queryForHierarchy = false;
+        	
         	if ($scope.queryForList)
         		$scope.findComponentsAsList(queryStr, page);
-        	if ($scope.queryForTree)
+        	if ($scope.queryForTree && !$scope.queryForHierarchy)
         		$scope.findComponentsAsTree(queryStr, page);
+        	if ($scope.queryForTree && $scope.queryForHierarchy)
+        		$scope.browseHierarchy(page);
         }
 
         /**
@@ -735,6 +814,9 @@ tsApp
         $scope.findComponentsAsList = function(queryStr, page) {
         	
         	console.debug('find concepts', queryStr);
+        	
+        	// disable hierarchy view
+        	$scope.queryForHierarchy = false;
         	
         	if (!page) page = 1;
 
@@ -785,6 +867,53 @@ tsApp
             $scope.glassPane--;
           });
         }
+
+        /**
+         * Helper function to browse terminology
+         */
+        $scope.browseHierarchy = function(page) {
+        	$scope.queryForTree = true;
+        	$scope.queryForList = false
+        	$scope.queryForHierarchy = true;
+        	
+        	if (!page) page = 1;
+        	
+        	// construct the pfs
+            var pfs = {
+              startIndex : (page-1)*$scope.pageSize,
+              maxResults : $scope.pageSize,
+              sortField : null,
+              queryRestriction : null
+            } 
+        	
+        	 // find concepts
+            $scope.glassPane++;
+            $http(
+              {
+                url : contentUrl + getTypePrefix($scope.terminology.organizingClassType) + "/" + $scope.terminology.terminology + "/"
+                  + $scope.terminology.version + "/trees/top",
+                method : "POST",
+                dataType : "json",
+                data : pfs,
+                headers : {
+                  "Content-Type" : "application/json"
+                }
+              }).success(function(data) {
+	              console.debug("Retrieved component trees:", data);
+	             
+	              // for ease and consistency of use of the ui tree directive
+	              // force the single tree into a TreeList data structure
+	              $scope.searchResultsTree = data;
+	              
+	              console.debug($scope.searchResultsTree);
+	
+	              $scope.glassPane--;
+	
+	            }).error(function(data, status, headers, config) {
+	              $scope.handleError(data, status, headers, config);
+	              $scope.glassPane--;
+	            });
+        }
         
         /**
          * Performs query 
@@ -798,8 +927,11 @@ tsApp
         	
         	if (!page) page = 1;
         	
+        	// disable hierarchy view
+        	$scope.queryForHierarchy = false;
+        	
         	// ensure query string has minimum length
-            if (queryStr == null || queryStr.length < 3) {
+            if (!queryStr || queryStr.length < 1) {
               alert("You must use at least three characters to search");
               return;
             }

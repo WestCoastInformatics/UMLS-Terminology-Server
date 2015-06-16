@@ -24,7 +24,7 @@ import com.wci.umls.server.services.ContentService;
 /**
  * Sample test to get auto complete working
  */
-public class ContentServiceTreePositionAncestorTest {
+public class ContentServiceTreePositionFromTreeTest {
 
   /** The service. */
   ContentService service = null;
@@ -47,12 +47,12 @@ public class ContentServiceTreePositionAncestorTest {
   }
 
   /**
-   * Test ability to extract a tree based on the ancestor path and id.
+   * Test ability to extract a tree based on a tree position.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testAncestorPathConceptTreePosition() throws Exception {
+  public void testConceptTreePositionFromTree() throws Exception {
     Logger.getLogger(getClass()).info("Start test");
 
     // Start by obtaining tree positions for a concept
@@ -66,14 +66,12 @@ public class ContentServiceTreePositionAncestorTest {
             + treepos.getAncestorPath());
 
     Tree tree =
-        service.getTreeForAncestorPath(treepos.getAncestorPath(), treepos
-            .getNode().getId());
+        service.getTreeForTreePosition(treepos);
     Logger.getLogger(getClass()).debug("  tree = " + tree);
 
     treepos = list.getObjects().get(1);
     Tree tree2 =
-        service.getTreeForAncestorPath(treepos.getAncestorPath(), treepos
-            .getNode().getId());
+        service.getTreeForTreePosition(treepos);
     Logger.getLogger(getClass()).debug("  tree2 = " + tree2);
 
     tree.mergeTree(tree2);

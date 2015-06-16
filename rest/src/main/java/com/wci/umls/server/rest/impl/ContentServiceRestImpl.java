@@ -4,6 +4,7 @@
 package com.wci.umls.server.rest.impl;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -43,12 +44,6 @@ import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
-import com.wci.umls.server.jpa.content.CodeJpa;
-import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
-import com.wci.umls.server.jpa.content.DescriptorJpa;
-import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeJpa;
@@ -59,13 +54,10 @@ import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.CodeTreePosition;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Descriptor;
-import com.wci.umls.server.model.content.DescriptorTreePosition;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.StringClass;
@@ -80,7 +72,6 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 
-// TODO: Auto-generated Javadoc
 /**
  * REST implementation for {@link ContentServiceRest}..
  */
@@ -2185,17 +2176,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 			final TreeList treeList = new TreeListJpa();
 			for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
 					.getObjects()) {
-				final Tree tree = contentService.getTreeForAncestorPath(
-						treepos.getAncestorPath(), treepos.getNode().getId());
-				contentService.getGraphResolutionHandler(terminology).resolve(
-						tree);
+				final Tree tree = contentService.getTreeForTreePosition(treepos);
 				treeList.addObject(tree);
 			}
 			treeList.setTotalCount(list.getTotalCount());
 			return treeList;
 
 		} catch (Exception e) {
-			handleException(e, "trying to trees relationships for a concept");
+			handleException(e, "trying to retrieve trees for a concept");
 			return null;
 		} finally {
 			contentService.close();
@@ -2238,10 +2226,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 			final TreeList treeList = new TreeListJpa();
 			for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
 					.getObjects()) {
-				final Tree tree = contentService.getTreeForAncestorPath(
-						treepos.getAncestorPath(), treepos.getNode().getId());
-				contentService.getGraphResolutionHandler(terminology).resolve(
-						tree);
+				final Tree tree = contentService.getTreeForTreePosition(treepos);
 
 				treeList.addObject(tree);
 			}
@@ -2291,10 +2276,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 			final TreeList treeList = new TreeListJpa();
 			for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
 					.getObjects()) {
-				final Tree tree = contentService.getTreeForAncestorPath(
-						treepos.getAncestorPath(), treepos.getNode().getId());
-				contentService.getGraphResolutionHandler(terminology).resolve(
-						tree);
+				final Tree tree = contentService.getTreeForTreePosition(treepos);
 
 				treeList.addObject(tree);
 			}
@@ -2338,7 +2320,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 		}
 		Logger.getLogger(getClass()).info(
 				"RESTful call (Content): /cui/" + terminology + "/" + version
-						+ "/trees/query/ + query");
+						+ "/trees/query/" + query);
 		ContentService contentService = new ContentServiceJpa();
 		try {
 			authenticate(securityService, authToken,
@@ -2349,35 +2331,30 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 							Branch.ROOT, queryStr, pfs);
 
 			// dummy variables for construction of artificial root
-			Tree dummyTree = null;
-			ConceptTreePosition dummyTreePosition = null;
-
-			// construct a dummy tree position to serve as self
-			dummyTreePosition = new ConceptTreePositionJpa();
-			dummyTreePosition.setAncestorPath("");
-			dummyTreePosition.setId(null);
-			dummyTreePosition.setTerminology(terminology);
-			dummyTreePosition.setVersion(version);
-			dummyTreePosition.setTerminologyId("Top");
-			dummyTreePosition.setNode(new ConceptJpa());
-
-			// construct the top-level tree and add the existing tree
-			dummyTree = new TreeJpa();
-			dummyTree.setSelf(dummyTreePosition);
-			dummyTree.setCount(list.getCount());
-			dummyTree.setTotalCount(list.getTotalCount());
+			Tree dummyTree = new TreeJpa();
+			dummyTree.setTerminology(terminology);
+			dummyTree.setVersion(version);
+			dummyTree.setTerminologyId("dummy id");
+			dummyTree.setName("Top");
+			
+			// initialize the return tree with dummy root and set total count
+			Tree returnTree = new TreeJpa(dummyTree);
+			returnTree.setTotalCount(list.getTotalCount());
 
 			for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
 					.getObjects()) {
-				final Tree tree = contentService.getTreeForAncestorPath(
-						treepos.getAncestorPath(), treepos.getNode().getId());
-				contentService.getGraphResolutionHandler(terminology).resolve(
-						tree);
+			  
+			    // get tree for tree position
+				final Tree tree = contentService.getTreeForTreePosition(treepos);
 
-				// construct a new dummy-root tree
+				// construct a new dummy-root tree for merging with existing tree
 				Tree treeForTreePos = new TreeJpa(dummyTree);
+	            
+	            // add retrieved tree to dummy root level
 				treeForTreePos.addChild(tree);
-				dummyTree.mergeTree(treeForTreePos);
+				
+				// merge into the top-level dummy tree
+				returnTree.mergeTree(treeForTreePos);
 			}
 
 			// if only one child, dummy root not necessary
@@ -2386,7 +2363,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 				Tree tree = dummyTree.getChildren().get(0);
 
 				// set the count and total count
-				tree.setCount(dummyTree.getCount());
 				tree.setTotalCount(dummyTree.getTotalCount());
 
 				return tree;
@@ -2404,82 +2380,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 		}
 
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-	 * findConceptTreeChildren(java.lang.String, java.lang.String,
-	 * java.lang.String, java.lang.String,
-	 * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-	 */
-	@Override
-	@POST
-	@Path("/cui/{terminology}/{version}/{terminologyId}/{ancestorPath}/trees/children")
-	@ApiOperation(value = "Get children of a concept as a tree", notes = "Returns paged children of a concept as a tree structure, with the given concept as the root", response = Tree.class)
-	public Tree findConceptTreeChildren(
-			@ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-			@ApiParam(value = "Concept terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-			@ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
-			@ApiParam(value = "Concept ancestor path, e.g. C000001~C000002", required = true) @PathParam("ancestorPath") String ancestorPath,
-			@ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
-			@ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-			throws Exception {
-
-		Logger.getLogger(getClass()).info(
-				"RESTful call (Content): /cui/" + terminology + "/" + version
-						+ "/" + terminologyId + "/" + ancestorPath
-						+ "/trees/children");
-		ContentService contentService = new ContentServiceJpa();
-		try {
-			authenticate(securityService, authToken,
-					"get children tree for concept", UserRole.VIEWER);
-
-			// check for blank ancestor path
-			String localAncestorPath = ancestorPath
-					.equals(ContentServiceRest.QUERY_BLANK) ? "" : ancestorPath;
-
-			// get the concept
-			Concept concept = contentService.getConcept(terminologyId, terminology,
-					version, Branch.ROOT);
-
-			Tree tree = contentService.getTreeForAncestorPath(localAncestorPath,
-					concept.getId());
-
-			// get the children for this concept (with paging)
-			ConceptList conceptList = contentService.findDescendantConcepts(
-					terminologyId, terminology, version, true, Branch.ROOT,
-					pfs);
-
-			// cycle over concepts and get their trees
-			for (Concept child : conceptList.getObjects()) {
-				// get the childTree
-				Tree childTree = contentService.getTreeForAncestorPath(
-						(localAncestorPath == "" ? "" : localAncestorPath + "~") + concept.getId(),
-						child.getId());
-
-				// add the tree to the returned tree
-				tree.mergeTree(childTree);
-			}
-			
-			// returned trees go all the way to the top, only want the "local" tree
-			// where the specified concept is the node of the root tree
-			tree = tree.getSubTreeForAtomClass(concept, localAncestorPath);
-
-			contentService.getGraphResolutionHandler(terminology).resolve(tree);
-
-			return tree;
-
-		} catch (Exception e) {
-			handleException(e, "trying to find trees for a query");
-			return null;
-		} finally {
-			contentService.close();
-			securityService.close();
-		}
-
-	}
-	
 
 	/*
 	 * (non-Javadoc)
@@ -2518,31 +2418,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 					.findDescriptorTreePositionsForQuery(terminology, version,
 							Branch.ROOT, queryStr, pfs);
 
-			// dummy variables for construction of artificial root
-			Tree dummyTree = null;
-			DescriptorTreePosition dummyTreePosition = null;
 
-			// construct a dummy tree position to serve as self
-			dummyTreePosition = new DescriptorTreePositionJpa();
-			dummyTreePosition.setAncestorPath("");
-			dummyTreePosition.setId(null);
-			dummyTreePosition.setTerminology(terminology);
-			dummyTreePosition.setVersion(version);
-			dummyTreePosition.setTerminologyId("Top");
-			dummyTreePosition.setNode(new DescriptorJpa());
+            // dummy variables for construction of artificial root
+            Tree dummyTree = new TreeJpa();
+            dummyTree.setTerminology(terminology);
+            dummyTree.setVersion(version);
+            dummyTree.setName("Top");
 
-			// construct the top-level tree and add the existing tree
-			dummyTree = new TreeJpa();
-			dummyTree.setSelf(dummyTreePosition);
-			dummyTree.setCount(list.getCount());
-			dummyTree.setTotalCount(list.getTotalCount());
+            dummyTree = new TreeJpa();
+            dummyTree.setTotalCount(list.getTotalCount());
 
 			for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
 					.getObjects()) {
-				final Tree tree = contentService.getTreeForAncestorPath(
-						treepos.getAncestorPath(), treepos.getNode().getId());
-				contentService.getGraphResolutionHandler(terminology).resolve(
-						tree);
+				final Tree tree = contentService.getTreeForTreePosition(treepos);
 
 				// construct a new dummy-root tree
 				Tree treeForTreePos = new TreeJpa(dummyTree);
@@ -2554,11 +2442,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 			if (dummyTree.getChildren().size() == 1) {
 
 				Tree tree = dummyTree.getChildren().get(0);
-
-				// set the count and total count
-				tree.setCount(dummyTree.getCount());
 				tree.setTotalCount(dummyTree.getTotalCount());
-
 				return tree;
 			}
 
@@ -2612,31 +2496,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 					.findCodeTreePositionsForQuery(terminology, version,
 							Branch.ROOT, queryStr, pfs);
 
-			// dummy variables for construction of artificial root
-			Tree dummyTree = null;
-			CodeTreePosition dummyTreePosition = null;
 
-			// construct a dummy tree position to serve as self
-			dummyTreePosition = new CodeTreePositionJpa();
-			dummyTreePosition.setAncestorPath("");
-			dummyTreePosition.setId(null);
-			dummyTreePosition.setTerminology(terminology);
-			dummyTreePosition.setVersion(version);
-			dummyTreePosition.setTerminologyId("Top");
-			dummyTreePosition.setNode(new CodeJpa());
+            // dummy variables for construction of artificial root
+            Tree dummyTree = new TreeJpa();
+            dummyTree.setTerminology(terminology);
+            dummyTree.setVersion(version);
+            dummyTree.setName("Top");
 
-			// construct the top-level tree and add the existing tree
-			dummyTree = new TreeJpa();
-			dummyTree.setSelf(dummyTreePosition);
-			dummyTree.setCount(list.getCount());
-			dummyTree.setTotalCount(list.getTotalCount());
+            dummyTree = new TreeJpa();
+            dummyTree.setTotalCount(list.getTotalCount());
 
 			for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
 					.getObjects()) {
-				final Tree tree = contentService.getTreeForAncestorPath(
-						treepos.getAncestorPath(), treepos.getNode().getId());
-				contentService.getGraphResolutionHandler(terminology).resolve(
-						tree);
+				final Tree tree = contentService.getTreeForTreePosition(treepos);
 
 				// construct a new dummy-root tree
 				Tree treeForTreePos = new TreeJpa(dummyTree);
@@ -2650,7 +2522,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 				Tree tree = dummyTree.getChildren().get(0);
 
 				// set the count and total count
-				tree.setCount(dummyTree.getCount());
 				tree.setTotalCount(dummyTree.getTotalCount());
 
 				return tree;
@@ -2668,17 +2539,4 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 		}
 	}
 
-	@Override
-	public Tree findCodeTreeChildren(String terminology, String version,
-			String terminologyId, PfsParameterJpa pfs, String authToken) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Tree findDescriptorTreeChildren(String terminology, String version,
-			String terminologyId, PfsParameterJpa pfs, String authToken) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }
