@@ -106,7 +106,7 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.ihtsdo.otf.term-server</groupId>
+            <groupId>com.wci.umls.server</groupId>
             <artifactId>term-server-admin-mojo</artifactId>
             <version>${project.version}</version>
             <executions>
@@ -135,7 +135,7 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.ihtsdo.otf.term-server</groupId>
+            <groupId>com.wci.umls.server</groupId>
             <artifactId>term-server-admin-mojo</artifactId>
             <version>${project.version}</version>
             <executions>
@@ -165,7 +165,7 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.ihtsdo.otf.term-server</groupId>
+            <groupId>com.wci.umls.server</groupId>
             <artifactId>term-server-admin-mojo</artifactId>
             <version>${project.version}</version>
             <executions>
@@ -193,7 +193,7 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.ihtsdo.otf.term-server</groupId>
+            <groupId>com.wci.umls.server</groupId>
             <artifactId>term-server-admin-mojo</artifactId>
             <version>${project.version}</version>
             <executions>

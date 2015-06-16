@@ -71,7 +71,7 @@ public class UmlsMetadataServiceJpaHelper extends
    */
   public UmlsMetadataServiceJpaHelper() throws Exception {
     super();
-    refreshCaches();
+    refreshCachesHelper();
   }
 
   /*
@@ -312,6 +312,17 @@ public class UmlsMetadataServiceJpaHelper extends
    */
   @Override
   public void refreshCaches() throws Exception {
+    close();
+    manager = factory.createEntityManager();
+    refreshCachesHelper();
+  }
+
+  /**
+   * Refresh caches helper.
+   *
+   * @throws Exception the exception
+   */
+  private void refreshCachesHelper() throws Exception {
     termTypesMap = new HashMap<>();
     additionalRelationshipTypesMap = new HashMap<>();
     relationshipTypesMap = new HashMap<>();

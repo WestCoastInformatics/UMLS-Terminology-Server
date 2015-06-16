@@ -596,6 +596,8 @@ public interface ContentServiceRest {
   public Tree findCodeTreeForQuery(String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
+  
+  
 /**
    * Gets the atom subsets.
    *
@@ -651,5 +653,6 @@ public interface ContentServiceRest {
   public SubsetMemberList findConceptSubsetMembers(String subsetId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
-
+  
+ 
 }

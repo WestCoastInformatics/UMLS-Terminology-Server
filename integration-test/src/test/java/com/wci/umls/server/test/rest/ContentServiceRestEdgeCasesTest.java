@@ -7,30 +7,19 @@
 package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.wci.umls.server.helpers.SearchCriteria;
-import com.wci.umls.server.helpers.SearchResult;
-import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
-import com.wci.umls.server.jpa.content.CodeJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
-import com.wci.umls.server.jpa.helpers.SearchCriteriaJpa;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.Subset;
-import com.wci.umls.server.model.content.SubsetMember;
-import com.wci.umls.server.test.helpers.PfsParameterForComponentTest;
 
 /**
  * Implementation of the "Content Service REST Edge Cases" Test Cases.
@@ -39,6 +28,15 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
 
   /** The auth token. */
   private static String authToken;
+
+  /** The test test id. */
+  private String testId;
+
+  /** The test terminology. */
+  private String testTerminology;
+
+  /** The test version. */
+  private String testVersion;
 
   /** The snomed terminology. */
   private String snomedTerminology = "SNOMEDCT_US";
@@ -58,10 +56,13 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
   /** The umls version. */
   private String umlsVersion = "latest";
 
-
   /** The concept used in testing. */
   @SuppressWarnings("unused")
   private Concept concept;
+
+  /** The valid parameters used for reflection testing. */
+  @SuppressWarnings("unused")
+  private Object[] validParameters;
 
   /**
    * Create test fixtures per test.
@@ -74,100 +75,280 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
 
     // authentication
     authToken = securityService.authenticate(testUser, testPassword);
-   
+
+    // set terminology and version
+    testTerminology = "SNOMEDCT_US";
+    testVersion = "2014_09_01";
+    testId = "102466009";
+
+    // get test concept
+    concept =
+        contentService.getConcept(testId, testTerminology, testVersion,
+            authToken);
+
   }
 
   /**
-   * Test edge cases for getConcept(...)
+   * Test "get" methods for concepts.
    *
    * @throws Exception the exception
    */
   @Test
   public void testEdgeCasesRestContent001() throws Exception {
-    // n/a
-  }
-
-  /**
-   * Test edge cases for getDescriptor(...)
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testEdgeCasesRestContent002() throws Exception {
-    // n/a
-  }
-
-  /**
-   * Test Test edge cases for getCode(...)
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testEdgeCasesRestContent003() throws Exception {
-    // n/a
-  }
-
-  /**
-   * Test edge cases for getLexicalClass(...)
-   * @throws Exception
-   */
-  @Test
-  public void testEdgeCasesRestContent004() throws Exception {
-    // n/a
-  }
-
-  /**
-   * Test edge cases for getStringClass(...)
-   * @throws Exception
-   */
-  @Test
-  public void testEdgeCasesRestContent005() throws Exception {
-    // n/a
-  }
-
-  /**
-   * Test edge cases for "get" methods for atom subsets
-   * @throws Exception
-   */
-  @Test
-  public void testEdgeCasesRestContent006() throws Exception {
-
     Logger.getLogger(getClass()).debug("Start test");
 
-    // test high end of pfs retrieval with pfs.setStartIndex()
-    SubsetList list =
-        contentService.getAtomSubsets(snomedTerminology, snomedVersion,
-            authToken);
-    assertEquals(3, list.getCount());
-    PfsParameterJpa pfs = new PfsParameterJpa();
-    pfs.setStartIndex(12680);
-    pfs.setMaxResults(20);
-    for (Subset subset : list.getObjects()) {
-      assertTrue(subset.isPublished());
-      assertTrue(subset.isPublishable());
-      assertFalse(subset.isObsolete());
-      assertFalse(subset.isSuppressible());
-      assertFalse(subset.isDisjointSubset());
-      assertEquals(0, subset.getAttributes().size());
-      assertEquals(subset.getDescription(), subset.getName());
-      assertEquals(snomedTerminology, subset.getTerminology());
-      assertEquals(snomedVersion, subset.getVersion());
-      if (subset.getName().equals("GB English")) {
-        assertEquals("900000000000508004", subset.getTerminologyId());
-        // Get members
-        SubsetMemberList memberList =
-            contentService.findAtomSubsetMembers(subset.getTerminologyId(),
-                snomedTerminology, snomedVersion, null, pfs, authToken);
-        assertEquals(20, memberList.getCount());
-        assertEquals(12694, memberList.getTotalCount());
+    // Test with invalid terminologyId
+    Logger.getLogger(getClass()).info(
+        "TEST invalid terminology id - " + "-1, SNOMEDCT, 2014_09_01, "
+            + authToken);
+    try {
+      contentService.getConcept("-1", snomedTerminology, snomedVersion,
+          authToken);
+      fail("Exception should be thrown when trying to get a concept with invalid terminologyId.");
+    } catch (Exception e) {
+      // do nothing
+    }
 
-      } 
+    // Test with invalid terminology
+    Logger.getLogger(getClass()).info(
+        "TEST invalid terminology - " + "M0028634, TTT, 2015_2014_09_08, "
+            + authToken);
+    try {
+      contentService.getConcept("M0028634", "TTT", mshVersion, authToken);
+      fail("Exception should be thrown when trying to get a concept with invalid terminology.");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+    // Test with invalid version
+    Logger.getLogger(getClass()).info(
+        "TEST invalid version - " + "M0028634, MSH, TTT , " + authToken);
+    try {
+      contentService.getConcept("M0028634", "MSH", "TTT", authToken);
+      fail("Exception should be thrown when trying to get a concept with invalid version.");
+    } catch (Exception e) {
+      // do nothing
     }
 
   }
 
   /**
-   * Test edge cases for "get" methods for concept subsets
+   * Test "get" methods for descriptors.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testEdgeCasesRestContent002() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    // Test invalid SNOMEDCT_US descriptor
+    Logger.getLogger(getClass()).info(
+        "TEST invalid SNOMEDCT_US descriptor - " + "-1, SNOMEDCT, 2014_09_01, "
+            + authToken);
+    try {
+      contentService.getDescriptor("-1", snomedTerminology, snomedVersion,
+          authToken);
+      fail("Exception should be thrown when trying to get a descriptor with invalid terminologyId.");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+    // Test with invalid terminology
+    Logger.getLogger(getClass()).info(
+        "TEST invalid termionlogy - " + "M0028634, TTT, 2015_2014_09_08, "
+            + authToken);
+    try {
+      contentService.getDescriptor("M0028634", "TTT", mshVersion, authToken);
+      fail("Exception should be thrown when trying to get a descriptor with invalid terminology.");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+    // Test with invalid version
+    Logger.getLogger(getClass()).info(
+        "TEST invalid version - " + "M0028634, MSH, TTT , " + authToken);
+    try {
+      contentService.getDescriptor("M0028634", "MSH", "TTT", authToken);
+      fail("Exception should be thrown when trying to get a descriptor with invalid version.");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+  }
+
+  /**
+   * Test "get" methods for concepts.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testEdgeCasesRestContent003() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    // Test invalid MSH code
+    Logger.getLogger(getClass()).info(
+        "TEST invalid MSH code - " + "ABC, MSH, 2015_2014_09_08, " + authToken);
+    try {
+      contentService.getCode("ABC", mshTerminology, mshVersion, authToken);
+      fail("Exception should be thrown when trying to get a code with null terminologyId.");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+    // Test invalid SNOMEDCT_US code
+    Logger.getLogger(getClass()).info(
+        "TEST invalid SNOMEDCT_US code - " + "ABC, SNOMEDCT, 2014_09_01, "
+            + authToken);
+    try {
+      contentService
+          .getCode("ABC", snomedTerminology, snomedVersion, authToken);
+      fail("Exception should be thrown when trying to get a code with invalid terminologyId.");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+    // Test invalid UMLS code
+    Logger.getLogger(getClass()).info(
+        "TEST invalid UMLS code - " + "ABC, UMLS, latest, " + authToken);
+    try {
+      contentService.getCode("ABC", umlsTerminology, umlsVersion, authToken);
+      fail("Exception should be thrown when trying to get a code with empty string terminologyId.");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+    // Test with invalid version
+    Logger.getLogger(getClass()).info(
+        "TEST invalid version - " + "M0028634, MSH, TTT , " + authToken);
+    try {
+      contentService.getCode("M0028634", "MSH", "TTT", authToken);
+      fail("Exception should be thrown when trying to get a code with invalid version.");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+  }
+
+  /**
+   * Test "get" method for lexical classes.
+   * @throws Exception
+   */
+  @Test
+  public void testEdgeCasesRestContent004() throws Exception {
+    // n/a - no data in sample
+  }
+
+  /**
+   * Test "get" method for string classes.
+   * @throws Exception
+   */
+  @Test
+  public void testEdgeCasesRestContent005() throws Exception {
+    // n/a - no data in sample
+  }
+
+  /**
+   * Test "get" methods for atom subsets
+   * @throws Exception
+   */
+  @Test
+  public void testEdgeCasesRestContent006() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    // Test terminology is invalid - empty results
+    Logger.getLogger(getClass()).info(
+        "TEST invalid terminology - " + "TTT, 2014_09_01, " + authToken);
+    assertEquals(0,
+        contentService.getAtomSubsets("TTT", snomedVersion, authToken)
+            .getObjects().size());
+
+    // Test version is invalid - empty results
+    Logger.getLogger(getClass()).info(
+        "TEST invalid version - " + "SNOMEDCT_US, TTT, " + authToken);
+    assertEquals(0,
+        contentService.getAtomSubsets(snomedTerminology, "TTT", authToken)
+            .getObjects().size());
+
+    SubsetList list =
+        contentService.getAtomSubsets(snomedTerminology, snomedVersion,
+            authToken);
+
+    // Test negative start index - indicates not to use paging
+    Logger.getLogger(getClass()).info("TEST negative PFS start index");
+    PfsParameterJpa pfs = new PfsParameterJpa();
+    pfs.setStartIndex(-20);
+    Subset subset = list.getObjects().get(0);
+    try {
+      contentService.findAtomSubsetMembers(subset.getTerminologyId(),
+          snomedTerminology, snomedVersion, null, pfs, authToken);
+    } catch (Exception e) {
+      fail("Exception should NOT be thrown when trying to find atom subset members with negative pfs start index.");
+    }
+
+    // Test invalid pfs max results - indicates not to use paging
+    Logger.getLogger(getClass()).info("TEST negative PFS max results");
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(-20);
+    try {
+      contentService.findAtomSubsetMembers(subset.getTerminologyId(),
+          snomedTerminology, snomedVersion, null, pfs, authToken);
+    } catch (Exception e) {
+      fail("Exception should NOT be thrown when trying to find atom subset members with negative pfs max results.");
+    }
+
+    // Test invalid pfs sort field
+    Logger.getLogger(getClass()).info("TEST invalid PFS sort field");
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(20);
+    pfs.setSortField("TTT");
+    try {
+      contentService.findAtomSubsetMembers(subset.getTerminologyId(),
+          snomedTerminology, snomedVersion, null, pfs, authToken);
+      fail("Exception should be thrown when trying to find atom subset members with empty string sort field.");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+    // Test invalid query restriction
+
+    Logger.getLogger(getClass()).info("TEST invalid PFS query restrictiohn");
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(20);
+    pfs.setQueryRestriction("TTT:TTT");
+    try {
+      contentService.findAtomSubsetMembers(subset.getTerminologyId(),
+          snomedTerminology, snomedVersion, null, pfs, authToken);
+      fail("Exception should be thrown when trying to find atom subset members with invalid query restriction.");
+    } catch (Exception e) { // do nothing
+    }
+
+    // Test terminology is invalid - empty result
+    Logger.getLogger(getClass()).info(
+        "TEST invalid terminology - " + "TTT, 2014_09_01, " + authToken);
+    assertEquals(
+        0,
+        contentService
+            .findAtomSubsetMembers(subset.getTerminologyId(), "TTT",
+                snomedVersion, null, new PfsParameterJpa(), authToken)
+            .getObjects().size());
+
+    // Test version is invalid - empty result
+    Logger.getLogger(getClass()).info(
+        "TEST invalid version- " + "SNOMEDCT_US, TTT, " + authToken);
+    assertEquals(
+        0,
+        contentService
+            .findAtomSubsetMembers(subset.getTerminologyId(),
+                snomedTerminology, "TTT", null, new PfsParameterJpa(),
+                authToken).getObjects().size());
+
+  }
+
+  /**
+   * Test "get" methods for concept subsets
    * @throws Exception
    */
   @Test
@@ -175,958 +356,405 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
 
     Logger.getLogger(getClass()).debug("Start test");
 
-    // test high end of pfs retrieval with pfs.setStartIndex()    
+    // Test terminology is invalid - empty result
+    Logger.getLogger(getClass()).info(
+        "TEST invalid terminology - " + "TTT, 2014_09_01, " + authToken);
+    assertEquals(0,
+        contentService.getConceptSubsets("TTT", snomedVersion, authToken)
+            .getObjects().size());
+
+    // Test version is invalid - empty result
+    Logger.getLogger(getClass()).info(
+        "TEST invalid version - " + "SNOMEDCT_US, TTT, " + authToken);
+    assertEquals(0,
+        contentService.getConceptSubsets(snomedTerminology, "TTT", authToken)
+            .getObjects().size());
+
     SubsetList list =
         contentService.getConceptSubsets(snomedTerminology, snomedVersion,
             authToken);
-    assertEquals(14, list.getCount());
+
+    // Test negative start index - indicates not to use paging
+    Logger.getLogger(getClass()).info("TEST negative PFS start index");
     PfsParameterJpa pfs = new PfsParameterJpa();
-    pfs.setStartIndex(1009);
-    pfs.setMaxResults(20);
-    for (Subset subset : list.getObjects()) {
-      System.out.println(subset.getName());
-      assertTrue(subset.isPublished());
-      assertTrue(subset.isPublishable());
-      assertFalse(subset.isDisjointSubset());
-      assertEquals(0, subset.getAttributes().size());
-      assertEquals(subset.getDescription(), subset.getName());
-      assertEquals(snomedTerminology, subset.getTerminology());
-      assertEquals(snomedVersion, subset.getVersion());
-      if (subset.getName().equals("SAME AS association reference set")) {
-        assertFalse(subset.isObsolete());
-        assertFalse(subset.isSuppressible());
-        assertEquals("900000000000527005", subset.getTerminologyId());
-        // Get members
-        SubsetMemberList memberList =
-            contentService.findConceptSubsetMembers(subset.getTerminologyId(),
-                snomedTerminology, snomedVersion, null, pfs, authToken);
-        assertEquals(20, memberList.getCount());
-        assertEquals(1029, memberList.getTotalCount());
-      } 
+    pfs.setStartIndex(-20);
+    Subset subset = list.getObjects().get(0);
+    try {
+      contentService.findConceptSubsetMembers(subset.getTerminologyId(),
+          snomedTerminology, snomedVersion, null, pfs, authToken);
+    } catch (Exception e) {
+      fail("Exception should NOT be thrown when trying to find concept subset members with negative pfs start index.");
     }
+
+    // Test invalid pfs max results - indicates not to use paging
+    Logger.getLogger(getClass()).info("TEST negative PFS max results");
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(-20);
+    try {
+      contentService.findConceptSubsetMembers(subset.getTerminologyId(),
+          snomedTerminology, snomedVersion, null, pfs, authToken);
+    } catch (Exception e) {
+      fail("Exception should NOT be thrown when trying to find concept subset members with negative pfs max results.");
+    }
+
+    // Test invalid pfs sort field
+    Logger.getLogger(getClass()).info("TEST invalid PFS sort field");
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(20);
+    pfs.setSortField("TTT");
+    try {
+      contentService.findConceptSubsetMembers(subset.getTerminologyId(),
+          snomedTerminology, snomedVersion, null, pfs, authToken);
+      fail("Exception should be thrown when trying to find concept subset members with empty string sort field.");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+    // Test invalid query restriction
+    Logger.getLogger(getClass()).info("TEST invalid PFS query restriction");
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(20);
+    pfs.setQueryRestriction("TTT:TTT");
+    try {
+      contentService.findConceptSubsetMembers(subset.getTerminologyId(),
+          snomedTerminology, snomedVersion, null, pfs, authToken);
+      fail("Exception should be thrown when trying to find concept subset members with invalid query restriction.");
+    } catch (Exception e) { // do nothing
+    }
+
+    // Test terminology is invalid - empty result
+    Logger.getLogger(getClass()).info(
+        "TEST invalid terminology - " + "TTT, 2014_09_01, " + authToken);
+    assertEquals(
+        0,
+        contentService
+            .findConceptSubsetMembers(subset.getTerminologyId(), "TTT",
+                snomedVersion, null, new PfsParameterJpa(), authToken)
+            .getObjects().size());
+
+    // Test version is invalid - empty result
+    Logger.getLogger(getClass()).info(
+        "TEST invalid version - " + "SNOMEDCT_US, TTT, " + authToken);
+    assertEquals(
+        0,
+        contentService
+            .findConceptSubsetMembers(subset.getTerminologyId(),
+                snomedTerminology, "TTT", null, new PfsParameterJpa(),
+                authToken).getObjects().size());
+
   }
 
   /**
-   * Test edge cases for "find" concepts for query.
+   * Test find concepts for query.
    * @throws Exception
    */
   @Test
   public void testEdgeCasesRestContent008() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
-    PfscParameterJpa pfsc = new PfscParameterJpa();
-    SearchResultList searchResults;
+    // Test terminology is invalid - empty result
+    Logger.getLogger(getClass()).info("TEST invalid termionlogy - ");
+    assertEquals(
+        0,
+        contentService
+            .findConceptsForQuery("TTT", snomedVersion, "care",
+                new PfscParameterJpa(), authToken).getObjects().size());
 
+    // Test version is invalid - empty result
+    Logger.getLogger(getClass()).info("TEST invalid version - ");
+    assertEquals(
+        0,
+        contentService
+            .findConceptsForQuery(snomedTerminology, "TTT", "care",
+                new PfscParameterJpa(), authToken).getObjects().size());
 
-    // Simple query with spaces, empty pfs
-    Logger.getLogger(getClass()).info("  Simple query, empty pfs");
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "heart disease", null, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(133, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(133, searchResults.getCount());
+    // Test query is null - empty results
+    Logger.getLogger(getClass()).info("TEST null query - ");
+    assertEquals(
+        0,
+        contentService
+            .findConceptsForQuery(snomedTerminology, snomedVersion, null,
+                new PfscParameterJpa(), authToken).getObjects().size());
 
-
-
-    // Simple query, sorted on name
-    Logger.getLogger(getClass()).info("  Simple query, sorted on name");
-    pfsc.setSortField("name");
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "care", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(19, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(19, searchResults.getCount());
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
-        ConceptJpa.class));
-
-    // Simple query, sorted on name, descending order
-    Logger.getLogger(getClass()).info(
-        "  Simple query, sorted on name, descending order");
-    pfsc.setAscending(false);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "care", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(19, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(19, searchResults.getCount());
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
-        ConceptJpa.class));
-
-    // store the sorted results for later comparison
-    SearchResultList sortedResults = searchResults;
-
-    // Simple query, paged and sorted results, first page
-    Logger.getLogger(getClass()).info(
-        "  Simple query, paged and sorted results, first page");
-    pfsc.setSortField("name");
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(5);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "care", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(19, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
-        ConceptJpa.class));
-    assertTrue(PfsParameterForComponentTest.testPaging(searchResults,
-        sortedResults, pfsc));
-
-    // Simple query, paged and sorted results, second page
-    Logger.getLogger(getClass()).info(
-        "  Simple query, paged and sorted results, second page");
-    pfsc.setSortField("name");
-    pfsc.setStartIndex(5);
-    pfsc.setMaxResults(5);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "care", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(19, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertTrue(PfsParameterForComponentTest.testPaging(searchResults,
-        sortedResults, pfsc));
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
-        ConceptJpa.class));
-
-    // Simple query, query restriction
-    Logger.getLogger(getClass()).info("  Simple query, query restriction");
-    pfsc = new PfscParameterJpa();
-    pfsc.setQueryRestriction("terminologyId:169559003");
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "care", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(1, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(1, searchResults.getCount());
-    assertTrue(searchResults.getObjects().get(0).getTerminologyId()
-        .equals("169559003"));
-
-    SearchCriteria sc = new SearchCriteriaJpa();
-
-    // Simple query, for "active only", empty pfs
-    Logger.getLogger(getClass()).info(
-        "  Simple query, for \"active only\", empty pfs");
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "care", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(19, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-
-    // No query active only, first page
-    Logger.getLogger(getClass()).info("  No query active only, first page");
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            null, pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(3902, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-
-    // No query, inactive only, first page
-    Logger.getLogger(getClass()).info("  No query, inactive only, first page");
-    pfsc = new PfscParameterJpa();
-    pfsc.setInactiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            null, pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(0, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(0, searchResults.getCount());
-
-    // No query, active and primitive only, first page
-    Logger.getLogger(getClass()).info(
-        "  No query, active and primitive only, first page");
-    sc = new SearchCriteriaJpa();
-    sc.setPrimitiveOnly(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(3902, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-
-    // Simple query, active only, first page
-    Logger.getLogger(getClass())
-        .info("  Simple query, active only, first page");
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "disease", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(133, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("disease"));
-    }
-
-    // Simple query, inactive only, first page
-    Logger.getLogger(getClass()).info(
-        "  Simple query, inactive only, first page");
-    pfsc = new PfscParameterJpa();
-    pfsc.setInactiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "disease", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(0, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(0, searchResults.getCount());
-
-    // Simple query, active and primitive only, first page
-    Logger.getLogger(getClass()).info(
-        "  Simple query, active and primitive only, first page");
-    sc = new SearchCriteriaJpa();
-    sc.setPrimitiveOnly(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "disease", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(133, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("disease"));
-    }
-
-    // No query, find "to" relationship from/type specified, first page
-    Logger.getLogger(getClass()).info(
-        "  No query, find \"to\" relationship from/type specified, first page");
-    sc = new SearchCriteriaJpa();
-    sc.setFindToByRelationshipFromAndType("isa", "361352008", false);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(2, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(2, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("muscle"));
-    }
-
-    // No query, find "to" relationship from/type specified (with descendants),
-    // first page
-    Logger
-        .getLogger(getClass())
-        .info(
-            "  No query, find \"to\" relationship from/type specified (with descendants), first page");
-    sc = new SearchCriteriaJpa();
-    sc.setFindToByRelationshipFromAndType("isa", "195879000", true);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(4, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(4, searchResults.getCount());
-
-    // No query, find "to" and descendants, relationship from/type specified,
-    // first page
-    Logger
-        .getLogger(getClass())
-        .info(
-            "  No query, find \"to\" and descendants, relationship from/type specified, first page");
-    sc = new SearchCriteriaJpa();
-    sc.setFindToByRelationshipFromAndType("isa", "361352008", false);
-    sc.setFindDescendants(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(8, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(8, searchResults.getCount());
-
-    // No query, find "to" and descendants and self, relationship from/type
-    // specified, first page
-    Logger
-        .getLogger(getClass())
-        .info(
-            "  No query, find \"to\" and descendants and self, relationship from/type specified, first page");
-    sc = new SearchCriteriaJpa();
-    sc.setFindToByRelationshipFromAndType("isa", "361352008", false);
-    sc.setFindDescendants(true);
-    sc.setFindSelf(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(10, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-
-    // No query, find "to" and descendants, relationship type/from specified
-    // with desc, first page
-    Logger
-        .getLogger(getClass())
-        .info(
-            "  No query, find \"to\" and descendants, relationship type/from specified with desc, first page");
-    sc = new SearchCriteriaJpa();
-    sc.setFindToByRelationshipFromAndType("isa", "195879000", true);
-    sc.setFindDescendants(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(45, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-
-    // No query, find "from", relationships type/to specified
-    Logger.getLogger(getClass()).info(
-        "  No query, find \"from\", relationships type/to specified");
-    sc = new SearchCriteriaJpa();
-    sc.setFindFromByRelationshipTypeAndTo("isa", "195879000", false);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(1, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(1, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("muscle"));
-    }
-
-    // No query, find "from", relationships type/to specified include
-    // descendants
-    Logger
-        .getLogger(getClass())
-        .info(
-            "  No query, find \"from\", relationships type/to specified include descendants");
-    sc = new SearchCriteriaJpa();
-    sc.setFindFromByRelationshipTypeAndTo("isa", "195879000", true);
-    pfsc = new PfscParameterJpa();
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
-            "", pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(1, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(1, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-
-    // TODO: test pfs parameter "active only" and "inactive only" features
-    // TODO: need to test multiple search criteria in conjunction
+    // Test query is empty string - empty results
+    Logger.getLogger(getClass()).info("TEST empty query - ");
+    assertEquals(
+        0,
+        contentService
+            .findConceptsForQuery(snomedTerminology, snomedVersion, "",
+                new PfscParameterJpa(), authToken).getObjects().size());
 
   }
 
   /**
-   * Test "find" descriptors by query.
+   * Test find descriptors for query.
    * @throws Exception
    */
   @Test
   public void testEdgeCasesRestContent009() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
-    String query = "amino*";
-    PfscParameterJpa pfss = new PfscParameterJpa();
-    SearchResultList searchResults;
+    // Test terminology is invalid - empty result
+    Logger.getLogger(getClass()).info("TEST invalid terminology - ");
+    assertEquals(
+        0,
+        contentService
+            .findDescriptorsForQuery("TTT", snomedVersion, "care",
+                new PfscParameterJpa(), authToken).getObjects().size());
 
-    // Simple query, empty pfs
-    Logger.getLogger(getClass()).info("  Simple query, empty pfs");
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
-            query, pfss, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(9, searchResults.getCount());
+    // Test version is invalid - empty results
+    Logger.getLogger(getClass()).info("TEST invalid version - ");
+    assertEquals(
+        0,
+        contentService
+            .findDescriptorsForQuery(snomedTerminology, "TTT", "care",
+                new PfscParameterJpa(), authToken).getObjects().size());
 
-    // Simple query, sort by name
-    Logger.getLogger(getClass()).info("  Simple query, sort by name");
-    pfss.setSortField("name");
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
-            query, pfss, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(9, searchResults.getCount());
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfss,
-        DescriptorJpa.class));
+    // Test query is null - empty results
+    Logger.getLogger(getClass()).info("TEST null query - ");
+    assertEquals(
+        0,
+        contentService
+            .findDescriptorsForQuery(snomedTerminology, snomedVersion, null,
+                new PfscParameterJpa(), authToken).getObjects().size());
 
-    // Simple query, sort by name descending
-    Logger.getLogger(getClass())
-        .info("  Simple query, sort by name, descending");
-    pfss.setAscending(false);
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
-            query, pfss, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(9, searchResults.getCount());
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfss,
-        DescriptorJpa.class));
-
-    // store the sorted results
-    SearchResultList sortedResults = searchResults;
-
-    // Simple query, sort by name, page
-    Logger.getLogger(getClass()).info(
-        "  Simple query, sort by name, first page");
-    pfss.setSortField("name");
-    pfss.setStartIndex(0);
-    pfss.setMaxResults(5);
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
-            query, pfss, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfss,
-        DescriptorJpa.class));
-    assertTrue(PfsParameterForComponentTest.testPaging(searchResults,
-        sortedResults, pfss));
-
-    // Simple query, sort by name, page
-    Logger.getLogger(getClass()).info(
-        "  Simple query, sort by name, second page");
-    pfss.setSortField("name");
-    pfss.setStartIndex(5);
-    pfss.setMaxResults(5);
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
-            query, pfss, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertTrue(PfsParameterForComponentTest.testPaging(searchResults,
-        sortedResults, pfss));
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfss,
-        DescriptorJpa.class));
-
-    // More complex query using query restriction
-    Logger.getLogger(getClass()).info("  Simple query with query restriction");
-    pfss = new PfscParameterJpa();
-    pfss.setQueryRestriction("terminologyId:C118284");
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
-            query, pfss, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(1, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(1, searchResults.getCount());
-    assertTrue(searchResults.getObjects().get(0).getTerminologyId()
-        .equals("C118284"));
-
-    // search criteria tests
-    SearchCriteria sc = new SearchCriteriaJpa();
-
-    pfss = new PfscParameterJpa();
-    pfss.setActiveOnly(true);
-
-    // No query, ia active only
-    Logger.getLogger(getClass()).info("  No query, active only");
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion, "",
-            pfss, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(997, searchResults.getTotalCount());
-
-    // No query, active only with paging
-    Logger.getLogger(getClass()).info("  No query, active only with paging");
-    pfss = new PfscParameterJpa();
-    pfss.setActiveOnly(true);
-    pfss.setStartIndex(0);
-    pfss.setMaxResults(10);
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion, "",
-            pfss, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(997, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-
-    // No query, inactive only with paging
-    Logger.getLogger(getClass()).info("  No query, inactive only with paging");
-    pfss = new PfscParameterJpa();
-    pfss.setInactiveOnly(true);
-    pfss.setStartIndex(0);
-    pfss.setMaxResults(10);
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion, "",
-            pfss, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(0, searchResults.getCount());
-
-    // No query, active only and primitive only
-    Logger.getLogger(getClass()).info(
-        "  No query, active only and primitive only");
-    pfss = new PfscParameterJpa();
-    pfss.setActiveOnly(true);
-    pfss.setStartIndex(0);
-    pfss.setMaxResults(10);
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion, "",
-            pfss, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(997, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-
-    // Simple query and active only with paging
-    Logger.getLogger(getClass()).info(
-        "  Simple query and active only with paging");
-    pfss = new PfscParameterJpa();
-    pfss.setActiveOnly(true);
-    pfss.setStartIndex(0);
-    pfss.setMaxResults(10);
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
-            "disease", pfss, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(8, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(8, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("isease"));
-    }
-
-    // Simple query and inactive active only with paging
-    Logger.getLogger(getClass()).info(
-        "  Simple query and inactive only with paging");
-    pfss = new PfscParameterJpa();
-    pfss.setInactiveOnly(true);
-    pfss.setStartIndex(0);
-    pfss.setMaxResults(10);
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
-            "disease", pfss, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(0, searchResults.getTotalCount());
-    assertEquals(0, searchResults.getCount());
-
-    // Simple query and active only and primitive only
-    Logger.getLogger(getClass()).info(
-        "  Simple query and active only and primitive only with paging");
-    sc = new SearchCriteriaJpa();
-    sc.setPrimitiveOnly(true);
-    pfss = new PfscParameterJpa();
-    pfss.setActiveOnly(true);
-    pfss.addSearchCriteria(sc);
-    pfss.setStartIndex(0);
-    pfss.setMaxResults(10);
-    searchResults =
-        contentService.findDescriptorsForQuery(mshTerminology, mshVersion,
-            "disease", pfss, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(8, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(8, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("isease"));
-    }
-
-    // TODO: need to test search criteria for descriptor relationships
-    // TODO: need to test multiple search criteria in conjunction
-    // TODO: test pfs parameter "active only" and "inactive only" features
+    // Test query is empty string - empty results
+    Logger.getLogger(getClass()).info("TEST empty query - ");
+    assertEquals(
+        0,
+        contentService
+            .findDescriptorsForQuery(snomedTerminology, snomedVersion, "",
+                new PfscParameterJpa(), authToken).getObjects().size());
   }
 
   /**
-   * Test "find" codes by query.
+   * Test find codes for query.
    * @throws Exception
    */
   @Test
   public void testEdgeCasesRestContent010() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
-    String query = "amino*";
-    PfscParameterJpa pfsc = new PfscParameterJpa();
-    SearchResultList searchResults;
+    // Test terminology is invalid - empty results
+    Logger.getLogger(getClass()).info("TEST invalid terminology - ");
+    assertEquals(
+        0,
+        contentService
+            .findCodesForQuery("TTT", snomedVersion, "care",
+                new PfscParameterJpa(), authToken).getObjects().size());
 
-    // Simple query, empty pfs
-    Logger.getLogger(getClass()).info("  Simple query, empty pfs");
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, query,
-            pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(9, searchResults.getCount());
+    // Test version is invalid - empty result
+    Logger.getLogger(getClass()).info("TEST invalid version - ");
+    assertEquals(
+        0,
+        contentService
+            .findCodesForQuery(snomedTerminology, "TTT", "care",
+                new PfscParameterJpa(), authToken).getObjects().size());
 
-    // Simple query, sort by name
-    Logger.getLogger(getClass()).info("  Simple query, sort by name");
-    pfsc.setSortField("name");
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, query,
-            pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(9, searchResults.getCount());
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
-        CodeJpa.class));
+    // Test query is null - no results
+    Logger.getLogger(getClass()).info("TEST null query - ");
+    assertEquals(
+        0,
+        contentService
+            .findCodesForQuery(snomedTerminology, snomedVersion, null,
+                new PfscParameterJpa(), authToken).getObjects().size());
 
-    // Simple query, sort by name descending
-    Logger.getLogger(getClass())
-        .info("  Simple query, sor by name, descending");
-    pfsc.setAscending(false);
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, query,
-            pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(9, searchResults.getCount());
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
-        CodeJpa.class));
-
-    // store the sorted results
-    SearchResultList sortedResults = searchResults;
-
-    // Simple query, sort by name, page
-    Logger.getLogger(getClass()).info(
-        "  Simple query, sort by name, first page");
-    pfsc.setSortField("name");
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(5);
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, query,
-            pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
-        CodeJpa.class));
-    assertTrue(PfsParameterForComponentTest.testPaging(searchResults,
-        sortedResults, pfsc));
-
-    // Simple query, sort by name, page
-    Logger.getLogger(getClass()).info(
-        "  Simple query, sort by name, second page");
-    pfsc.setSortField("name");
-    pfsc.setStartIndex(5);
-    pfsc.setMaxResults(5);
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, query,
-            pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(9, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertTrue(PfsParameterForComponentTest.testPaging(searchResults,
-        sortedResults, pfsc));
-    assertTrue(PfsParameterForComponentTest.testSort(searchResults, pfsc,
-        CodeJpa.class));
-
-    // More complex query using query restriction
-    Logger.getLogger(getClass()).info("  Simple query with query restriction");
-    pfsc = new PfscParameterJpa();
-    pfsc.setQueryRestriction("terminologyId:C118284");
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, query,
-            pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(1, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(1, searchResults.getCount());
-    assertTrue(searchResults.getObjects().get(0).getTerminologyId()
-        .equals("C118284"));
-
-    // search criteria tests
-    SearchCriteria sc = new SearchCriteriaJpa();
-
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    // No query, ia active only
-    Logger.getLogger(getClass()).info("  No query, active only");
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfsc,
-            authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(997, searchResults.getTotalCount());
-
-    // No query, active only with paging
-    Logger.getLogger(getClass()).info("  No query, active only with paging");
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfsc,
-            authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(997, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-
-    // No query, inactive only with paging
-    Logger.getLogger(getClass()).info("  No query, inactive only with paging");
-    pfsc = new PfscParameterJpa();
-    pfsc.setInactiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfsc,
-            authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(0, searchResults.getCount());
-
-    // No query, active only and primitive only
-    Logger.getLogger(getClass()).info(
-        "  No query, active only and primitive only");
-    sc = new SearchCriteriaJpa();
-    sc.setPrimitiveOnly(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "", pfsc,
-            authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(997, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(10, searchResults.getCount());
-
-    // Simple query and active only with paging
-    Logger.getLogger(getClass()).info(
-        "  Simple query and active only with paging");
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "disease",
-            pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(8, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(8, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("isease"));
-    }
-
-    // Simple query and inactive active only with paging
-    Logger.getLogger(getClass()).info(
-        "  Simple query and inactive only with paging");
-    pfsc = new PfscParameterJpa();
-    pfsc.setInactiveOnly(true);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "disease",
-            pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(0, searchResults.getTotalCount());
-    assertEquals(0, searchResults.getCount());
-
-    // Simple query and active only and primitive only
-    Logger.getLogger(getClass()).info(
-        "  Simple query and active only and primitive only with paging");
-    sc = new SearchCriteriaJpa();
-    sc.setPrimitiveOnly(true);
-    pfsc = new PfscParameterJpa();
-    pfsc.setActiveOnly(true);
-    pfsc.addSearchCriteria(sc);
-    pfsc.setStartIndex(0);
-    pfsc.setMaxResults(10);
-    searchResults =
-        contentService.findCodesForQuery(mshTerminology, mshVersion, "disease",
-            pfsc, authToken);
-    Logger.getLogger(getClass()).info(
-        "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(8, searchResults.getTotalCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
-    }
-    assertEquals(8, searchResults.getCount());
-    for (SearchResult sr : searchResults.getObjects()) {
-      assertTrue(sr.getValue().contains("isease"));
-    }
-
-    // TODO: test pfs parameter "active only" and "inactive only" features
+    // Test query is empty string - empty result
+    Logger.getLogger(getClass()).info("TEST empty query - ");
+    assertEquals(
+        0,
+        contentService
+            .findCodesForQuery(snomedTerminology, snomedVersion, "",
+                new PfscParameterJpa(), authToken).getObjects().size());
 
   }
 
+  /**
+   * Test find descendant concepts.
+   * @throws Exception
+   */
+  @Test
+  public void testEdgeCasesRestContent011() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    // Test terminology is invalid - empty result
+    Logger.getLogger(getClass()).info("TEST invalid terminology - ");
+    assertEquals(
+        0,
+        contentService
+            .findDescendantConcepts("105590001", "TTT", snomedVersion, false,
+                new PfsParameterJpa(), authToken).getObjects().size());
+
+    // Test version is invalid - empty result
+    Logger.getLogger(getClass()).info("TEST invalid version - ");
+    assertEquals(
+        0,
+        contentService
+            .findDescendantConcepts("105590001", snomedTerminology, "TTT",
+                false, new PfsParameterJpa(), authToken).getObjects().size());
+
+    // Test terminology is invalid - empty result
+    Logger.getLogger(getClass()).info("TEST invalid terminology - ");
+    assertEquals(
+        0,
+        contentService
+            .findAncestorConcepts("105590001", "TTT", snomedVersion, false,
+                new PfsParameterJpa(), authToken).getObjects().size());
+
+    // Test version is invalid - empty result
+    Logger.getLogger(getClass()).info("TEST invalid version - ");
+    assertEquals(
+        0,
+        contentService
+            .findAncestorConcepts("105590001", snomedTerminology, "TTT", false,
+                new PfsParameterJpa(), authToken).getObjects().size());
+
+  }
+
+  /**
+   * Test find descendant descriptors.
+   * @throws Exception
+   */
+  @Test
+  public void testEdgeCasesRestContent012() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    // Test terminology is invalid - empty result
+    Logger.getLogger(getClass()).info("TEST invalid terminology - ");
+    assertEquals(
+        0,
+        contentService
+            .findDescendantDescriptors("D000005", "TTT", mshVersion, false,
+                new PfsParameterJpa(), authToken).getObjects().size());
+
+    // Test version is invalid - empty result
+    Logger.getLogger(getClass()).info("TEST invalid version - ");
+    assertEquals(
+        0,
+        contentService
+            .findDescendantDescriptors("D000005", mshTerminology, "TTT", false,
+                new PfsParameterJpa(), authToken).getObjects().size());
+
+    // Test terminology is invalid - empty result
+    Logger.getLogger(getClass()).info("TEST invalid terminology - ");
+    assertEquals(
+        0,
+        contentService
+            .findAncestorDescriptors("D000005", "TTT", mshVersion, false,
+                new PfsParameterJpa(), authToken).getObjects().size());
+
+    // Test version is invalid - empty result
+    Logger.getLogger(getClass()).info("TEST invalid version - ");
+    assertEquals(
+        0,
+        contentService
+            .findAncestorDescriptors("D000005", mshTerminology, "TTT", false,
+                new PfsParameterJpa(), authToken).getObjects().size());
+  }
+
+  /**
+   * Test degenerate use rest content013.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testEdgeCasesRestContent013() throws Exception {
+    // n/a - no code ancestors or descendants
+  }
+
+  /**
+   * Test "get" subset members for atom or concept.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testEdgeCasesRestContent014() throws Exception {
+    Logger.getLogger(getClass()).info("Start test");
+
+    // Test invalid concept id - empty list
+    Logger.getLogger(getClass()).info("  Test get subset members for concept");
+    SubsetMemberList list =
+        contentService.getSubsetMembersForConcept("-1", snomedTerminology,
+            snomedVersion, authToken);
+    Logger.getLogger(getClass()).info(
+        "    totalCount = " + list.getTotalCount());
+    assertEquals(0, list.getTotalCount());
+    assertEquals(0, list.getCount());
+
+    Logger.getLogger(getClass()).debug("Start test");
+
+    // Test with invalid terminologyId
+
+    Logger.getLogger(getClass()).info("TEST invalid terminologyId ");
+    list =
+        contentService.getSubsetMembersForAtom("-1", snomedTerminology,
+            snomedVersion, authToken);
+    Logger.getLogger(getClass()).info(
+        "    totalCount = " + list.getTotalCount());
+    assertEquals(0, list.getTotalCount());
+    assertEquals(0, list.getCount());
+
+    // Test with invalid terminology - empty results
+    Logger.getLogger(getClass()).info("TEST invalid terminology ");
+    assertEquals(
+        0,
+        contentService
+            .getSubsetMembersForAtom("166113012", "TTT", snomedVersion,
+                authToken).getObjects().size());
+
+    // Test with invalid version - empty result
+    Logger.getLogger(getClass()).info("TEST invalid version");
+    assertEquals(
+        0,
+        contentService
+            .getSubsetMembersForAtom("166113012", "MSH", "TTT", authToken)
+            .getObjects().size());
+
+    // Test with invalid terminologyId - empty result
+    Logger.getLogger(getClass()).info("TEST invalid terminologyId ");
+    assertEquals(
+        0,
+        contentService
+            .getSubsetMembersForConcept("-1", snomedTerminology, snomedVersion,
+                authToken).getObjects().size());
+
+    // Test with invalid terminology - empty result
+    Logger.getLogger(getClass()).info("TEST invalid terminology ");
+    assertEquals(
+        0,
+        contentService
+            .getSubsetMembersForConcept("10123006", "TTT", snomedVersion,
+                authToken).getObjects().size());
+
+    // Test with invalid version - empty result
+    Logger.getLogger(getClass()).info("TEST invalid version");
+    assertEquals(
+        0,
+        contentService
+            .getSubsetMembersForConcept("10123006", "MSH", "TTT", authToken)
+            .getObjects().size());
+  }
+
+  /**
+   * Test autocomplete for concepts.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testEdgeCasesRestContent015() throws Exception {
+    Logger.getLogger(getClass()).info("Start test");
+
+    // Test with invalid searchTerm - empty results
+    Logger.getLogger(getClass()).info("TEST invalid searchTerm ");
+    assertEquals(
+        0,
+        contentService
+            .autocompleteConcepts(snomedTerminology, snomedVersion, "qrs",
+                authToken).getObjects().size());
+  }
 
   /**
    * Teardown.
@@ -1151,7 +779,11 @@ public class ContentServiceRestEdgeCasesTest extends ContentServiceRestTest {
   public Class<?>[] getParameterTypes(Object[] parameters) {
     Class<?>[] types = new Class<?>[parameters.length];
     for (int i = 0; i < parameters.length; i++) {
-      types[i] = parameters[i].getClass();
+      if (parameters[i].toString().contains("oolean"))
+        types[i] = boolean.class;
+      else
+        types[i] = parameters[i].getClass();
+
     }
     return types;
   }

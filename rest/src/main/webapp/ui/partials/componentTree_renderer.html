@@ -1,0 +1,38 @@
+
+<div ui-tree-handle>
+	<!-- Expand/collapse controls 
+		 Closed if collapsed flag OR children have not been loaded
+		 Open if collapsed flag false AND children have already been loaded
+		 Toggling behavior determined in js
+	-->
+	<a ng-if="tree.childCt > 0" data-nodrag ng-click="getTreeChildren(tree, this)"><span
+		class="glyphicon"
+		ng-class="getTreeNodeIcon(tree, collapsed)"></span></a>
+		
+	<i ng-show="tree.childCt == 0" class="glyphicon glyphicon-leaf"></i>
+	
+	<!-- if not the component viewed, render with hyperlink -->
+	<span ng-show="tree.terminologyId != component.terminologyId"><a
+		ng-click="getComponent(tree.terminology, tree.terminologyId)">
+			{{tree.terminologyId}}</a>: {{tree.name}} </span>
+
+	<!-- if the component displayed, render in bold without hyperlink -->
+	<span ng-show="tree.terminologyId === component.terminologyId">
+		<span class="highlighted">{{tree.terminologyId}}: {{tree.name}}</span>
+	</span>
+
+	<!-- recursive display of next level of tree -->
+	<ol ui-tree-nodes="" ng-model="tree.child"
+		ng-class="{hidden: collapsed}">
+		
+		<!--  render the children -->
+		<li ng-repeat="tree in tree.child" ui-tree-node
+			ng-include="'ui/partials/componentTree_renderer.html'"></li>
+			
+		<!-- if not all children displayed, display a message -->
+		<li ng-show="hasHiddenSiblings(tree, component.terminologyId) == true">
+		<i class="glyphicon glyphicon-leaf" style="opacity: 0"></i> 
+		<a ng-click="getAndSetTreeChildren(tree, tree.child.length)">... {{tree.childCt - tree.child.length}} more</a></li>
+	</ol>
+	
+</div>

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Set;
 
-import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -225,31 +224,13 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     throws Exception {
     if (treepos != null) {
       treepos.getAncestorPath();
+      
       // Tree positions don't have attributes yet.
       treepos.setAttributes(new ArrayList<Attribute>());
     }
 
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.helpers.content.Tree)
-   */
-  @Override
-  public void resolve(Tree tree) throws Exception {
-    if (tree != null) {
-      resolve(tree.getSelf());
-    }
-    if (tree.getChildren() != null) {
-      for (Tree chdTree : tree.getChildren()) {
-        resolve(chdTree);
-      }
-    }
-  }
-
+  
   /*
    * (non-Javadoc)
    * 

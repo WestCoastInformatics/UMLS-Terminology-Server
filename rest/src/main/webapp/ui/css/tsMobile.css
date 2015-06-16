@@ -67,11 +67,11 @@ a {
 }
 
 .pagination {
-	display: inline; /* override from inline-block to allow multiple items */
+	display: inline; /* override from inline-block to allow multiple items per line */
 	padding-left: 0;
-	margin-right: 10px;
-	margin-bottom: 20px;
-	margin-left: 0px;
+	padding-right: 10px;
+	padding-bottom: 20px;
+	padding-left: 0px;
 	border-radius: 4px;
 }
 
@@ -84,3 +84,16 @@ a {
 	font-size: 14px;	/* to match font-size of pagination */
 	line-height: 1.42857143; /* to match line-height of pagination */
 }
+
+.highlighted { background: yellow }
+
+/* Angular UI Tree overrides */
+.angular-ui-tree-handle {
+	font-weight: normal; /* originally 700 */
+	cursor: auto; /* originally move */
+}
+
+.glyphicon-leaf {
+	opacity: 0.5;	
+}
+

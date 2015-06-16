@@ -8,10 +8,6 @@ import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.hibernate.envers.Audited;
-import org.hibernate.search.annotations.Analyze;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Index;
-import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.TreePosition;
@@ -95,7 +91,7 @@ public abstract class AbstractTreePosition<T extends AtomClass> extends
    * 
    * @see com.wci.umls.server.model.content.TreePosition#getAncestorPath()
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  // TODO:  Removed for projection testing @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public String getAncestorPath() {
     return ancestorPath;

@@ -12,13 +12,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.meta.TermTypeList;
-import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
-import com.wci.umls.server.model.content.ConceptTreePosition;
 
 /**
  * Unit testing for {@link TermTypeList}.
@@ -55,31 +54,17 @@ public class ListUnit028Test extends
     list1 = new TreeListJpa();
     list2 = new TreeListJpa();
 
-    t1 = new TreeJpa();
-    ConceptTreePosition tp = new ConceptTreePositionJpa();
-    tp.setId(1L);
-    tp.setTerminologyId("1");
-    t1.setSelf(tp);
+    ProxyTester tester = new ProxyTester(new TreeJpa());
+    t1 = (TreeJpa) tester.createObject(1);
+    TreeJpa t11 = (TreeJpa) tester.createObject(11);
+    t2 = (TreeJpa) tester.createObject(1);
+    TreeJpa t22 = (TreeJpa) tester.createObject(22);
     List<Tree> list = new ArrayList<>();
-    Tree chdTree = new TreeJpa();
-    ConceptTreePosition chdTreePos = new ConceptTreePositionJpa();
-    chdTreePos.setId(11L);
-    chdTree.setSelf(chdTreePos);
-    list.add(chdTree);
+    list.add(t11);    
     t1.setChildren(list);
-    
-    t2 = new TreeJpa();
-    ConceptTreePosition tp2 = new ConceptTreePositionJpa();
-    tp2.setId(2L);
-    tp2.setTerminologyId("2");
-    t2.setSelf(tp2);
-    List<Tree> list2 = new ArrayList<>();
-    Tree chdTree2 = new TreeJpa();
-    ConceptTreePosition chdTreePos2 = new ConceptTreePositionJpa();
-    chdTreePos2.setId(22L);
-    chdTree2.setSelf(chdTreePos2);
-    list2.add(chdTree2);
-    t2.setChildren(list2);
+    list = new ArrayList<>();
+    list.add(t22);    
+    t2.setChildren(list);
 
   }
 

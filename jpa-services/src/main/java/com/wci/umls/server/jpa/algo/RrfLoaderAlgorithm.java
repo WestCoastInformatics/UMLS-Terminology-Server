@@ -1107,6 +1107,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         addAttribute(att, code);
       } else if (fields[4].equals("CUI")) {
         // Get the concept for the terminology and CUI
+        att.setTerminology(terminology);
+        att.setVersion(version);
         Concept concept = getConcept(conceptIdMap.get(terminology + fields[0]));
         concept.addAttribute(att);
         addAttribute(att, concept);
@@ -1444,7 +1446,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       } else if (fields[2].equals("CUI") && fields[6].equals("CUI")) {
         final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
-
+        
         final Concept fromConcept =
             getConcept(conceptIdMap.get(terminology + fields[4]));
         conceptRel.setFrom(fromConcept);
@@ -1454,6 +1456,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         conceptRel.setTo(toConcept);
 
         setRelationshipFields(fields, conceptRel);
+        conceptRel.setTerminology(terminology);
+        conceptRel.setVersion(version);
         addRelationship(conceptRel);
         relationshipMap.put(fields[8], conceptRel.getId());
 
@@ -1982,6 +1986,14 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (atom.getCodeId() == null || atom.getCodeId().isEmpty()) {
         continue;
       }
+      // skip where code == concept - problem because rels connect to the code
+      //if (atom.getCodeId().equals(atom.getConceptId())) {
+      //  continue;
+      //}
+      // skip where code == descriptor
+      //if (atom.getCodeId().equals(atom.getDescriptorId())) {
+      //  continue;
+      //}
       if (prevCode == null || !prevCode.equals(atom.getCodeId())) {
         if (code != null) {
           // compute preferred name
