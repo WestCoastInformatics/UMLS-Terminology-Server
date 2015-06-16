@@ -4682,12 +4682,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       partTree.setChildCt((Integer) result[3]);
       partTree.setAncestorPath((String) result[4]);
       partTree.setTerminology(treePosition.getTerminology());
-
       partTree.setVersion(treePosition.getVersion());
 
 
-
-      /*// original approach
+/*
+      // original approach
       if (fullTextQuery.getResultSize() != 1) {
         throw new Exception("Unexpected number of results: "
             + fullTextQuery.getResultSize());
@@ -4699,21 +4698,27 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
       partTree.setFromTreePosition(treepos);*/
       
-      
       Tree nextPart = new TreeJpa();
       
       // if not end of sequence, add the new blank object as a child)
       if (!partId.equals(tpId)) {
         partTree.addChild(nextPart);
-      } 
+      }  
       
-      // set current tree to the just retrieved tree
+      // if the terminal node, check for sibling and children requests
+      else {
+        
+      }
+      
+      // set current tree to the just constructed (blank) tree
       partTree = nextPart;
 
       partAncPath += (partAncPath.equals("") ? "" : "~");
       partAncPath += pathPart;
     }
-
+    
+    
+    
     return tree;
   }
 

@@ -62,26 +62,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
     super(treepos, deepCopy);
     node = treepos.getNode();
   }
-  
  
-  /**
-   * Override for Hibernate search projection retrieval
-   */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.YES)
-  @Override
-  public String getAncestorPath() {
-    return super.getAncestorPath();
-  }
-  
- 
-  /**
-   * Override for Hibernate search projection retrieval
-   */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.YES)
-  @Override
-  public int getChildCt() {
-    return super.getChildCt();
-  }
 
   /*
    * (non-Javadoc)

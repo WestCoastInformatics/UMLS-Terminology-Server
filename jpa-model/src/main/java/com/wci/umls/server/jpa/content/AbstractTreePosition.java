@@ -95,7 +95,7 @@ public abstract class AbstractTreePosition<T extends AtomClass> extends
    * 
    * @see com.wci.umls.server.model.content.TreePosition#getAncestorPath()
    */
-  // TODO:  Removed for projection testing @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public String getAncestorPath() {
     return ancestorPath;

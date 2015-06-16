@@ -1874,7 +1874,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // tree lookup, empty pfs
     Logger.getLogger(getClass()).info("  Tree lookup, empty pfs");
     TreeList list =
-        contentService.findTreesForConcept("259662009", snomedTerminology,
+        contentService.findConceptTrees("259662009", snomedTerminology,
             snomedVersion, new PfsParameterJpa(), authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
@@ -1892,7 +1892,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(2);
     list =
-        contentService.findTreesForConcept("259662009", snomedTerminology,
+        contentService.findConceptTrees("259662009", snomedTerminology,
             snomedVersion, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
@@ -1908,7 +1908,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(2);
     pfs.setMaxResults(2);
     list =
-        contentService.findTreesForConcept("259662009", snomedTerminology,
+        contentService.findConceptTrees("259662009", snomedTerminology,
             snomedVersion, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
@@ -1925,7 +1925,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setMaxResults(2);
     pfs.setSortField("nodeTerminologyId");
     list =
-        contentService.findTreesForConcept("259662009", snomedTerminology,
+        contentService.findConceptTrees("259662009", snomedTerminology,
             snomedVersion, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
@@ -1952,7 +1952,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // tree lookup, empty pfs
     Logger.getLogger(getClass()).info("  Tree lookup, empty pfs");
     TreeList list =
-        contentService.findTreesForDescriptor("D018410", mshTerminology,
+        contentService.findDescriptorTrees("D018410", mshTerminology,
             mshVersion, new PfsParameterJpa(), authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
@@ -1970,7 +1970,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(1);
     list =
-        contentService.findTreesForDescriptor("D018410", mshTerminology,
+        contentService.findDescriptorTrees("D018410", mshTerminology,
             mshVersion, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
@@ -1986,7 +1986,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(1);
     pfs.setMaxResults(1);
     list =
-        contentService.findTreesForDescriptor("D018410", mshTerminology,
+        contentService.findDescriptorTrees("D018410", mshTerminology,
             mshVersion, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
@@ -2003,7 +2003,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setMaxResults(1);
     pfs.setSortField("nodeTerminologyId");
     list =
-        contentService.findTreesForDescriptor("D018410", mshTerminology,
+        contentService.findDescriptorTrees("D018410", mshTerminology,
             mshVersion, pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());

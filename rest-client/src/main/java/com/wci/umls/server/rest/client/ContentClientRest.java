@@ -1683,7 +1683,7 @@ public class ContentClientRest extends RootClientRest implements
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public TreeList findTreesForConcept(String terminologyId, String terminology,
+  public TreeList findConceptTrees(String terminologyId, String terminology,
     String version, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get tree positions for concept " + terminologyId
@@ -1704,7 +1704,7 @@ public class ContentClientRest extends RootClientRest implements
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public TreeList findTreesForDescriptor(String terminologyId,
+  public TreeList findDescriptorTrees(String terminologyId,
     String terminology, String version, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1726,7 +1726,7 @@ public class ContentClientRest extends RootClientRest implements
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public TreeList findTreesForCode(String terminologyId, String terminology,
+  public TreeList findCodeTrees(String terminologyId, String terminology,
     String version, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get tree positions for code " + terminologyId + ", "
@@ -1891,6 +1891,30 @@ public class ContentClientRest extends RootClientRest implements
     TreeJpa tree =
         (TreeJpa) ConfigUtility.getGraphForString(resultString, TreeJpa.class);
     return tree;
+  }
+
+  @Override
+  public TreeList findConceptTreeChildren(String terminology, String version,
+    String terminologyId, PfsParameterJpa pfs, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public TreeList findDescriptorTreeChildren(String terminology,
+    String version, String terminologyId, PfsParameterJpa pfs, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public TreeList findCodeTreeChildren(String terminology, String version,
+    String terminologyId, PfsParameterJpa pfs, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }
