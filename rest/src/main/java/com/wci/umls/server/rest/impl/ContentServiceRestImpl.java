@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -34,6 +35,7 @@ import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
+import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2FileSorter;
 import com.wci.umls.server.jpa.algo.Rf2Readers;
@@ -45,6 +47,7 @@ import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
@@ -628,43 +631,49 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    * (java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  @DELETE
+  @GET
   @Path("/terminology/remove/{terminology}/{version}")
   @ApiOperation(value = "Remove a terminology", notes = "Removes all elements for a specified terminology and version")
-  public void removeTerminology(
+  public SearchResult removeTerminology(
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Content): /terminology/remove/" + terminology + "/"
+        "RESTful GET call (Content): /terminology/remove/" + terminology + "/"
             + version);
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
-    MetadataService metadataService = new MetadataServiceJpa();
-    ContentService contentService = new ContentServiceJpa();
+    RemoveTerminologyAlgorithm algo = new RemoveTerminologyAlgorithm();
+    MetadataService service = new MetadataServiceJpa();
     try {
-      authenticate(securityService, authToken, "start editing cycle",
+      authenticate(securityService, authToken, "remove terminology",
           UserRole.ADMINISTRATOR);
 
-      //metadataService.clearMetadata(terminology, version);
-      contentService.clearContent(terminology, version);
+      // Compute transitive closure
+      Logger.getLogger(getClass()).info(
+          "  Remove terminology for  " + terminology + "/" + version);
+      algo.setTerminology(terminology);
+      algo.setVersion(version);
+      algo.compute();
 
       // Final logging messages
       Logger.getLogger(getClass()).info(
           "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
       Logger.getLogger(getClass()).info("done ...");
 
+      
     } catch (Exception e) {
-      handleException(e, "trying to load terminology from ClaML file");
+      handleException(e, "trying to remove terminology");
     } finally {
-      metadataService.close();
-      contentService.close();
+      algo.close();
+      service.close();
       securityService.close();
     }
+    return null;
   }
 
   /*

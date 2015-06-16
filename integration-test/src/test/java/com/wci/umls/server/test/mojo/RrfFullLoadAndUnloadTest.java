@@ -50,7 +50,7 @@ public class RrfFullLoadAndUnloadTest {
   public static void setupClass() throws Exception {
     config = ConfigUtility.getConfigProperties();
     if (ConfigUtility.isServerActive()) {
-      server = "true";
+      server = "false";
     }
   }
 
@@ -229,52 +229,75 @@ public class RrfFullLoadAndUnloadTest {
 
     // TODO: implement this properly (e.g. foreign key constraint issues) and redo.
     // Remove terminology
-//    request = new DefaultInvocationRequest();
-//    request.setPomFile(new File("../admin/remover/pom.xml"));
-//    request.setProfiles(Arrays.asList("Terminology"));
-//    request.setGoals(Arrays.asList("clean", "install"));
-//    p = new Properties();
-//    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
-//    p.setProperty("server", server);
-//    p.setProperty("terminology", "SNOMEDCT_US");
-//    p.setProperty("version", "2014_09_01");
-//    request.setProperties(p);
-//    invoker = new DefaultInvoker();
-//    result = invoker.execute(request);
-//    if (result.getExitCode() != 0) {
-//      throw result.getExecutionException();
-//    }
-//
-//    // Verify no contents
-//    service = new ContentServiceJpa();
-//    Assert.assertEquals(0, service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT).getCount());
-//    service.close();
-//    service.closeFactory();
-//
-//
-//    // Remove SNOMEDCT_US terminology
-//    request = new DefaultInvocationRequest();
-//    request.setPomFile(new File("../admin/remover/pom.xml"));
-//    request.setProfiles(Arrays.asList("Terminology"));
-//    request.setGoals(Arrays.asList("clean", "install"));
-//    p = new Properties();
-//    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
-//    p.setProperty("server", server);
-//    p.setProperty("terminology", "SNOMEDCT_US");
-//    p.setProperty("version", "2014_09_01");
-//    request.setProperties(p);
-//    invoker = new DefaultInvoker();
-//    result = invoker.execute(request);
-//    if (result.getExitCode() != 0) {
-//      throw result.getExecutionException();
-//    }
-//
-//    // Verify no contents
-//    service = new ContentServiceJpa();
-//    Assert.assertEquals(0, service.getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
-//    service.close();
-//    service.closeFactory();
-//    
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/remover/pom.xml"));
+    request.setProfiles(Arrays.asList("Terminology"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("terminology", "SNOMEDCT_US");
+    p.setProperty("version", "2014_09_01");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+
+    // Verify no contents
+    service = new ContentServiceJpa();
+    Assert.assertEquals(0, service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT).getCount());
+    service.close();
+    service.closeFactory();
+
+
+    // Remove MSH terminology
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/remover/pom.xml"));
+    request.setProfiles(Arrays.asList("Terminology"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("terminology", "MSH");
+    p.setProperty("version", "2015_2014_09_08");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+    // Verify no contents
+    service = new ContentServiceJpa();
+    Assert.assertEquals(0, service.getAllConcepts("MSH", "2015_2014_09_08", Branch.ROOT).getCount());
+    Assert.assertEquals(0, service.getAllDescriptors("MSH", "2015_2014_09_08", Branch.ROOT).getCount());
+    Assert.assertEquals(0, service.getAllCodes("MSH", "2015_2014_09_08", Branch.ROOT).getCount());
+    service.close();
+    service.closeFactory();
+    
+    // Remove SRC terminology
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/remover/pom.xml"));
+    request.setProfiles(Arrays.asList("Terminology"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("terminology", "SRC");
+    p.setProperty("version", "latest");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+    // Verify no contents
+    service = new ContentServiceJpa();
+    Assert.assertEquals(0, service.getAllConcepts("SRC", "latest", Branch.ROOT).getCount());
+    service.close();
+    service.closeFactory();
+    
     // Finish by clearing the DB again
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));

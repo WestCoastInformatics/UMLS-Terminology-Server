@@ -2386,11 +2386,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   }
 
   
-  @Test
-  public void testNormalUseRestContent030() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
-    contentService.removeTerminology(snomedTerminology, snomedVersion, authToken);
-  }
   /**
    * Teardown.
    *

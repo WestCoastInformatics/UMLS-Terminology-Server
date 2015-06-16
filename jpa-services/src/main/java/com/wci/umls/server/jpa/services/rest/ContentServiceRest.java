@@ -6,6 +6,7 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -503,7 +504,7 @@ public interface ContentServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeTerminology(String terminology, String version,
+  public SearchResult removeTerminology(String terminology, String version,
     String authToken) throws Exception;
 
   /**

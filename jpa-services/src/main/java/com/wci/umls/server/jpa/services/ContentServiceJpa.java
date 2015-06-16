@@ -82,6 +82,7 @@ import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.IndexUtility;
+import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.AtomListJpa;
@@ -107,6 +108,8 @@ import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.ComponentHasDefinitions;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.ConceptSubsetMember;
+import com.wci.umls.server.model.content.ConceptTransitiveRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
@@ -221,6 +224,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /** The tree position field names. */
   private static String[] treePositionFieldNames = {};
+  
+  /** The commit ct. */
+  private int commitCt = 2000;
+  
+  /** The log ct. */
+  private int logCt = 2000;
 
   static {
 
@@ -2979,7 +2988,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       if (hqlQuery.contains(";"))
         throw new Exception("The hql query must not contain the ';'. " + hqlQuery);
       javax.persistence.Query hQuery = manager.createQuery(hqlQuery);
-      hQuery.setHint("javax.persistence.query.timeout", 1000);
+      hQuery.setHint("javax.persistence.query.timeout", 50);
       try {
         List<T> hqlResults = hQuery.getResultList();
         for (T r : hqlResults) {       
@@ -3674,90 +3683,314 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public void clearContent(String terminology, String version)  throws Exception {
 
     Logger.getLogger(getClass()).info("Content service - clear content");
-    try {
-      if (getTransactionPerOperation()) {
-        // remove simple ref set member
-        tx.begin();
-      }
 
-      // Truncate Terminology Elements
-      // before removing attributes, get rid of related map of alternateTerminologyIds
-      List<AttributeJpa> attList = getComponents(terminology, version, AttributeJpa.class);
-      for (AttributeJpa att : attList) {
-        att.removeAlternateTerminologyId(terminology);
-      }
-      javax.persistence.Query query =
-          manager
-              .createQuery("DELETE From AttributeJpa d where terminology = :terminology");
-      query.setParameter("terminology", terminology);
-      int deleteRecords = query.executeUpdate();
-      Logger.getLogger(getClass()).info("attribute records deleted: " + deleteRecords);
-      query =
-          manager
-              .createQuery("DELETE From DefinitionJpa r where terminology = :terminology");
-      query.setParameter("terminology", terminology);
-      deleteRecords = query.executeUpdate();
-      Logger.getLogger(getClass()).info("definition records deleted: " + deleteRecords);
-      query =
-          manager
-              .createQuery("DELETE From SemanticTypeComponentJpa c where terminology = :terminology");
-      query.setParameter("terminology", terminology);
-      deleteRecords = query.executeUpdate();
-      Logger.getLogger(getClass()).info("concept records deleted: " + deleteRecords);
+    setTransactionPerOperation(false);
+    beginTransaction();
 
-      clearTreePositions(terminology, version);
-      clearTransitiveClosure(terminology, version);
-      
-      query =
-          manager
-              .createQuery("DELETE From RelationshipJpa r where terminology = :terminology");
-      query.setParameter("terminology", terminology);
-      deleteRecords = query.executeUpdate();
-      Logger.getLogger(getClass()).info("relationship records deleted: " + deleteRecords);
-      query =
-          manager
-              .createQuery("DELETE From AtomJpa c where terminology = :terminology");
-      query.setParameter("terminology", terminology);
-      deleteRecords = query.executeUpdate();
-      Logger.getLogger(getClass()).info("atom records deleted: " + deleteRecords);      
-      
-      /*for (EntityType<?> type : manager.getMetamodel().getEntities()) {
-        String jpaTable = type.getName();
-        // Skip audit trail tables
-        if (jpaTable.toUpperCase().indexOf("_AUD") != -1) {
-          continue;
-        }
-        // skip all abstract abbreviations and terminology classes
-        if (!AbstractComponent.class.isAssignableFrom(type
-            .getBindableJavaType())) {
-          continue;
-        }
-        Logger.getLogger(getClass()).info("  Remove " + jpaTable);
-        javax.persistence.Query query = null;
-
-        query =
-            manager.createQuery("DELETE FROM " + jpaTable
-                + " WHERE terminology = :terminology "
+      // remove concept subset members
+      javax.persistence.Query query = manager.createQuery("SELECT a.id FROM ConceptSubsetMemberJpa a WHERE terminology = :terminology "
                 + " AND version = :version");
         query.setParameter("terminology", terminology);
         query.setParameter("version", version);
+      List<Long> csmIds = query.getResultList();
+      for (int ct=0; ct<csmIds.size(); ct++) {
+        removeSubsetMember(csmIds.get(ct), ConceptSubsetMemberJpa.class);
+        logAndCommit(ct, "remove subset members");
+      }
+      commitClearBegin();
+      
+      // remove concept subsets
+      query = manager.createQuery("SELECT a.id FROM ConceptSubsetJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> csIds = query.getResultList();
+      for (int ct=0; ct<csIds.size(); ct++) {
+        removeSubset(csIds.get(ct), ConceptSubsetJpa.class);
+        logAndCommit(ct, "remove concept subsets");
+      }
+      commitClearBegin();
+      
+      // remove atom subset members
+      query = manager.createQuery("SELECT a.id FROM AtomSubsetMemberJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> asmIds = query.getResultList();
+      for (int ct=0; ct<asmIds.size(); ct++) {
+        removeSubsetMember(asmIds.get(ct), AtomSubsetMemberJpa.class);
+        logAndCommit(ct, "remove atom subset members");
+      }
+      commitClearBegin();
+      
+      // remove atom subsets
+      query = manager.createQuery("SELECT a.id FROM AtomSubsetJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> amIds = query.getResultList();
+      for (int ct=0; ct<amIds.size(); ct++) {
+        removeSubset(amIds.get(ct), AtomSubsetJpa.class);
+        logAndCommit(ct, "remove atom subsets");
+      }   
+      commitClearBegin();   
+      
+      // remove concept relationships
+      query = manager.createQuery("SELECT a.id FROM ConceptRelationshipJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> crIds = query.getResultList();
+      for (int ct=0; ct<crIds.size(); ct++) {
+        removeRelationship(crIds.get(ct), ConceptRelationshipJpa.class);
+        logAndCommit(ct, "remove concept relationships");
+      }    
+      commitClearBegin(); 
+      
+  
+ 
+      // remove definitions from the concepts; definitions cannot be removed yet, because they are used by atoms
+      query = manager.createQuery("SELECT a.id FROM ConceptJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> cIds = query.getResultList();
+      for (int ct=0; ct<cIds.size(); ct++) {
+        Concept c = getConcept(cIds.get(ct));
+        c.setDefinitions(new ArrayList<Definition>());
+        updateConcept(c);
+        logAndCommit(ct, "remove definitions from concepts");
+      }   
+      commitClearBegin();
+      
+      // remove the concept transitive relationships
+      query = manager.createQuery("SELECT a.id FROM ConceptTransitiveRelationshipJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> ctrIds = query.getResultList();
+      for (int ct=0; ct<ctrIds.size(); ct++) {
+        removeTransitiveRelationship(ctrIds.get(ct), ConceptTransitiveRelationshipJpa.class);
+        logAndCommit(ct, "remove concept transitive relationships");
+      }   
+      commitClearBegin();
+      
+      // remove the concept tree positions
+      query = manager.createQuery("SELECT a.id FROM ConceptTreePositionJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> ctpIds = query.getResultList();
+      for (int ct=0; ct<ctpIds.size(); ct++) {
+        removeTreePosition(ctpIds.get(ct), ConceptTreePositionJpa.class);
+        logAndCommit(ct, "remove concept tree positions");
+      }   
+      commitClearBegin();
+      
+      // remove the concepts
+      for (int ct=0; ct<cIds.size(); ct++) {
+        removeConcept(cIds.get(ct));
+        logAndCommit(ct, "remove concepts");
+      }   
+      commitClearBegin();
+      
+      // go through all remaining concepts and remove atoms with matching terminology and version
+      // concepts may have UMLS terminology and matching atoms wouldn't otherwise be removed
+      // not using this code bc of invalid field names
+      /*SearchResultList results = findConceptsForQuery(null, null, Branch.ROOT, 
+          "atoms.terminology:" + terminology + " atoms.version:" + version, 
+          new PfscParameterJpa());
+      for (SearchResult result : results.getObjects()) {
+        Concept concept = getConcept(result.getId());
+      */
+      query = manager.createQuery("SELECT a.id FROM ConceptJpa a");
+      List<Long> allConceptIds = query.getResultList();
+      for (int ct=0; ct<allConceptIds.size(); ct++) {
+        Concept concept = getConcept(allConceptIds.get(ct));
+        List<Atom> keepAtoms = new ArrayList<Atom>();
+        for (Atom atom : concept.getAtoms()) {
+          if (!atom.getTerminology().equals(terminology) || !atom.getVersion().equals(version)) {
+            keepAtoms.add(atom);   
+          }
+        }
+        concept.setAtoms(keepAtoms);
+        updateConcept(concept);
+        logAndCommit(ct, "remove atoms from remaining concepts");
+      }
+      commitClearBegin();
 
-        int deleteRecords = query.executeUpdate();
-        Logger.getLogger(getClass()).info(
-            "    " + jpaTable + " records deleted: " + deleteRecords);
 
-      }
-*/
-      if (getTransactionPerOperation()) {
-        // remove simple ref set member
-        tx.commit();
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+      // remove definitions from the atoms
+      query = manager.createQuery("SELECT a.id FROM AtomJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> aIds = query.getResultList();
+      for (int ct=0; ct<aIds.size(); ct++) {
+        Atom a = getAtom(aIds.get(ct));
+        a.setDefinitions(new ArrayList<Definition>());
+        updateAtom(a);
+        logAndCommit(ct, "remove definitions from atoms");
+      }   
+      commitClearBegin();
+      
+
+      
+      // remove atom relationships
+      query = manager.createQuery("SELECT a.id FROM AtomRelationshipJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> arIds = query.getResultList();
+      for (int ct=0; ct<arIds.size(); ct++) {
+        removeRelationship(arIds.get(ct), AtomRelationshipJpa.class);
+        logAndCommit(ct, "remove atom relationships");
+      }    
+      commitClearBegin();       
+    
+      // remove descriptor relationships
+      query = manager.createQuery("SELECT a.id FROM DescriptorRelationshipJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> drIds = query.getResultList();
+      for (int ct=0; ct<drIds.size(); ct++) {
+        removeRelationship(drIds.get(ct), DescriptorRelationshipJpa.class);
+        logAndCommit(ct, "remove descriptor relationships");
+      }    
+      commitClearBegin();   
+      
+      // remove the descriptor transitive relationships
+      query = manager.createQuery("SELECT a.id FROM DescriptorTransitiveRelationshipJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> dtrIds = query.getResultList();
+      for (int ct=0; ct<dtrIds.size(); ct++) {
+        removeTransitiveRelationship(dtrIds.get(ct), DescriptorTransitiveRelationshipJpa.class);
+        logAndCommit(ct, "remove descriptor transitive relationships");
+      }   
+      commitClearBegin();
+      
+      // remove the descriptor tree positions
+      query = manager.createQuery("SELECT a.id FROM DescriptorTreePositionJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> dtpIds = query.getResultList();
+      for (int ct=0; ct<dtpIds.size(); ct++) {
+        removeTreePosition(dtpIds.get(ct), DescriptorTreePositionJpa.class);
+        logAndCommit(ct, "remove descriptor tree positions");
+      }   
+      commitClearBegin();
+      
+      // remove descriptors
+      query = manager.createQuery("SELECT a.id FROM DescriptorJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> dscIds = query.getResultList();
+      for (int ct=0; ct<dscIds.size(); ct++) {
+        removeDescriptor(dscIds.get(ct));
+        logAndCommit(ct, "remove descriptors");
+      }    
+      commitClearBegin();       
+      
+      // remove code relationships
+      query = manager.createQuery("SELECT a.id FROM CodeRelationshipJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> cdrIds = query.getResultList();
+      for (int ct=0; ct<cdrIds.size(); ct++) {
+        removeRelationship(cdrIds.get(ct), CodeRelationshipJpa.class);
+        logAndCommit(ct, "remove code relationships");
+      }    
+      commitClearBegin();    
+      
+      // remove the code transitive relationships
+      query = manager.createQuery("SELECT a.id FROM CodeTransitiveRelationshipJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> cdtrIds = query.getResultList();
+      for (int ct=0; ct<cdtrIds.size(); ct++) {
+        removeTransitiveRelationship(cdtrIds.get(ct), CodeTransitiveRelationshipJpa.class);
+        logAndCommit(ct, "remove code transitive relationships");
+      }   
+      commitClearBegin();
+      
+      // remove the code tree positions
+      query = manager.createQuery("SELECT a.id FROM CodeTreePositionJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> cdtpIds = query.getResultList();
+      for (int ct=0; ct<cdtpIds.size(); ct++) {
+        removeTreePosition(cdtpIds.get(ct), CodeTreePositionJpa.class);
+        logAndCommit(ct, "remove tree positions");
+      }   
+      commitClearBegin();
+      
+      // remove codes
+      query = manager.createQuery("SELECT a.id FROM CodeJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> c = query.getResultList();
+      for (int ct=0; ct<c.size(); ct++) {
+        removeCode(c.get(ct));
+        logAndCommit(ct, "remove codes");
+      }    
+      commitClearBegin();       
+      
+      
+      
+      // remove atoms - don't do this until after removing codes
+      for (int ct=0; ct<aIds.size(); ct++) {
+        removeAtom(aIds.get(ct));
+        logAndCommit(ct, "remove atoms");
+      }   
+      commitClearBegin(); 
+      
+      // remove semantic type components, definitions and attributes last
+      query = manager.createQuery("SELECT a.id FROM SemanticTypeComponentJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> stIds = query.getResultList();
+      for (int ct=0; ct<stIds.size(); ct++) {
+        removeSemanticTypeComponent(stIds.get(ct));
+        logAndCommit(ct, "remove semantic type components");
+      }   
+      commitClearBegin();   
+      
+      // remove the definitions
+      query = manager.createQuery("SELECT a.id FROM DefinitionJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> dIds = query.getResultList();
+      for (int ct=0; ct<dIds.size(); ct++) {
+        removeDefinition(dIds.get(ct));
+        logAndCommit(ct, "remove definitions");
+      }   
+      commitClearBegin();
+      
+      // remove the attributes
+      query = manager.createQuery("SELECT a.id FROM AttributeJpa a WHERE terminology = :terminology "
+          + " AND version = :version");
+        query.setParameter("terminology", terminology);
+        query.setParameter("version", version);
+      List<Long> attIds = query.getResultList();
+      for (int ct=0; ct<attIds.size(); ct++) {
+        removeAttribute(attIds.get(ct));
+        logAndCommit(ct, "remove attributes");
+      }   
+      commitClearBegin();
+      
+      commit();
+      clear();
 
   }
 
@@ -4883,5 +5116,32 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + version + "/" + query);
     return this.findTreePositionsHelper(null, terminology, version, branch,
         query, pfs, CodeTreePositionJpa.class);
+  }
+  
+  /**
+   * Commit clear begin transaction.
+   *
+   * @throws Exception the exception
+   */
+  private void commitClearBegin() throws Exception {
+    commit();
+    clear();
+    beginTransaction();
+  }
+
+  /**
+   * Log and commit.
+   *
+   * @param objectCt the object ct
+   * @throws Exception the exception
+   */
+  private void logAndCommit(int objectCt, String msg) throws Exception {
+    // log at regular intervals
+    if (objectCt % logCt == 0) {
+      Logger.getLogger(getClass()).info("    count = " + objectCt + " " + msg);
+    }
+    if (objectCt % commitCt == 0) {
+      commitClearBegin();
+    }
   }
 }

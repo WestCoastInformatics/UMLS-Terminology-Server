@@ -15,6 +15,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -32,6 +33,7 @@ import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
@@ -191,27 +193,24 @@ public class ContentClientRest implements ContentServiceRest {
    * (java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public void removeTerminology(String terminology, String version,
+  public SearchResult removeTerminology(String terminology, String version,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - remove terminology " +  terminology
             + ", " + version);
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/terminology/remove/"
+        client.resource(config.getProperty("base.url") + "/content/terminology/remove/"
             + terminology + "/" + version);
-    /*ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .delete(ClientResponse.class);*/
 
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).delete(ClientResponse.class);
+            .header("Authorization", authToken).get(ClientResponse.class);
+    
+    
     
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // do nothing
+      return new SearchResultJpa();
     } else {
       throw new Exception("Unexpected status " + response.getStatus());
     }
