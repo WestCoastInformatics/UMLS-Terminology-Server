@@ -8,6 +8,10 @@ import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.TreePosition;
