@@ -25,11 +25,8 @@ import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.TreePosition;
 
-// TODO: Auto-generated Javadoc
 /**
  * JAXB enabled implementation of {@link Tree}.
- *
- * @author ${author}
  */
 @XmlRootElement(name = "tree")
 @XmlSeeAlso({

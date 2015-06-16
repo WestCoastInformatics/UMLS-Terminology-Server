@@ -2732,7 +2732,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 			queryStr = "";
 		}
 		Logger.getLogger(getClass()).info(
-				"RESTful call (Content): /cui/" + terminology + "/" + version
+				"RESTful call (Content): /dui/" + terminology + "/" + version
 						+ "/trees/query/ + query");
 		ContentService contentService = new ContentServiceJpa();
 		try {
