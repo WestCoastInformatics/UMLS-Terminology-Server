@@ -25,11 +25,8 @@ import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.TreePosition;
 
-// TODO: Auto-generated Javadoc
 /**
  * JAXB enabled implementation of {@link Tree}.
- *
- * @author ${author}
  */
 @XmlRootElement(name = "tree")
 @XmlSeeAlso({
@@ -339,5 +336,38 @@ public class TreeJpa implements Tree {
   public void addChild(Tree child) {
     this.children.add(child);
   }
+  
+  @Override
+  public Tree getSubTreeForAtomClass(AtomClass a, String ancestorPath) {
+	
+	  // call the helper
+	  return getSubTreeForAtomClassHelper(this, a, ancestorPath);
+
+  }
+  
+  /**
+   * Helper function to recursively check a tree for a matching subtree
+   * @param tree the tree-portion to check
+   * @param a the atom class to be matched (node)
+   * @param ancestorPath the ancestor path to be matched
+   * @return
+   */
+  private Tree getSubTreeForAtomClassHelper(Tree tree, AtomClass a, String ancestorPath) {
+	  
+	  // check this tree for matching node and ancestor path
+	  if (tree.getSelf().getNode().getId().equals(a.getId()) && tree.getSelf().getAncestorPath().equals(ancestorPath))
+		  return tree;
+	  
+	  // recursively check this tree's children
+	  for (Tree childTree : tree.getChildren()) {
+		  Tree matchingTree = getSubTreeForAtomClassHelper(childTree, a, ancestorPath);
+		  if (matchingTree != null)
+			  return matchingTree;
+	  }
+	  
+	  // otherwise, return null -- no match on this tree
+	  return null;
+  }
+
 
 }

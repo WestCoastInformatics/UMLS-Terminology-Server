@@ -97,7 +97,7 @@ tsApp
           }
           
           // set the autocomplete url, with pattern: /type/{terminology}/{version}/autocomplete/{searchTerm}
-          $scope.autocompleteUrl = contentUrl + getUrlPrefix($scope.terminology.organizingClassType) + '/' + $scope.terminology.terminology + '/' + $scope.terminology.version + "/autocomplete/";
+          $scope.autocompleteUrl = contentUrl + getTypePrefix($scope.terminology.organizingClassType) + '/' + $scope.terminology.terminology + '/' + $scope.terminology.version + "/autocomplete/";
        
           $scope.glassPane++;
           $http(
@@ -299,7 +299,6 @@ tsApp
              
             }
 
-            // select SNOMEDCT terminology if present
             $scope.glassPane--;
 
           }).error(function(data, status, headers, config) {
@@ -318,12 +317,12 @@ tsApp
         	
         	// if terminology matches scope terminology
         	if (terminologyName === $scope.terminology.terminology) {
-        		getComponentHelper($scope.terminology, terminologyId, getUrlPrefix($scope.terminology.organizingClassType));
+        		getComponentHelper($scope.terminology, terminologyId, getTypePrefix($scope.terminology.organizingClassType));
         	
         	// otherwise get the terminology first
         	} else {
         		var localTerminology = getTerminologyFromName(terminologyName);
-        		getComponentHelper(localTerminology, terminologyId, getUrlPrefix(localTerminology.organizingClassType));
+        		getComponentHelper(localTerminology, terminologyId, getTypePrefix(localTerminology.organizingClassType));
         	}
         }
         
@@ -349,12 +348,12 @@ tsApp
         	
         	// if terminology matches scope terminology
         	if (terminologyName === $scope.terminology.terminology) {
-        		getComponentHelper($scope.terminology, terminologyId, getUrlPrefix('CONCEPT'));
+        		getComponentHelper($scope.terminology, terminologyId, getTypePrefix('CONCEPT'));
         	
         	// otherwise get the terminology first
         	} else {
         		var localTerminology = getTerminologyFromName(terminologyName);
-        		getComponentHelper(localTerminology, terminologyId, getUrlPrefix('CONCEPT'));
+        		getComponentHelper(localTerminology, terminologyId, getTypePrefix('CONCEPT'));
         	}
         }
         
@@ -367,10 +366,10 @@ tsApp
         	
         	// if terminology matches scope terminology
         	if (terminologyName === $scope.terminology.terminology) {
-        		getComponentHelper($scope.terminology, terminologyId, getUrlPrefix('DESCRIPTOR'));
+        		getComponentHelper($scope.terminology, terminologyId, getTypePrefix('DESCRIPTOR'));
         	} else {
         		var localTerminology = getTerminologyFromName(terminologyName);
-        		getComponentHelper(localTerminology, terminologyId, getUrlPrefix('DESCRIPTOR'));
+        		getComponentHelper(localTerminology, terminologyId, getTypePrefix('DESCRIPTOR'));
         	}
         	
         }
@@ -384,10 +383,10 @@ tsApp
         	
         	// if terminology matches scope terminology
         	if (terminologyName === $scope.terminology.terminology) {
-        		getComponentHelper($scope.terminology, terminologyId, getUrlPrefix('CODE'));
+        		getComponentHelper($scope.terminology, terminologyId, getTypePrefix('CODE'));
         	} else {
         		var localTerminology = getTerminologyFromName(terminologyName);
-        		getComponentHelper(localTerminology, terminologyId, getUrlPrefix('CODE'));
+        		getComponentHelper(localTerminology, terminologyId, getTypePrefix('CODE'));
         	}
         }
         
@@ -424,12 +423,14 @@ tsApp
 
             }).success(function(data) {
             	
+            	$scope.glassPane--;
+            	
             	// update history
                 $scope.addConceptToHistory(data.terminology, data.terminologyId, $scope.componentType, data.name);
             	
 	            if (!data) {
 	            	$scope.componentError = "Could not retrieve " + $scope.componentType + " data for " + terminologyObj.terminology + "/" + terminologyId;
-	            	$scope.glassPane--;
+	            	
 	            	return;
 	            }
 	            
@@ -463,7 +464,6 @@ tsApp
 	            // set the component
 	            $scope.setComponent(data, typePrefix);
 
-	            $scope.glassPane--;
 
           }).error(function(data, status, headers, config) {
             $scope.handleError(data, status, headers, config);
@@ -477,74 +477,27 @@ tsApp
         
         $scope.treeCount = null;
         $scope.treeViewed = null;
-        $scope.treedataExpandedNodes = null; // for pre-expanding
+        $scope.siblingPageSize = 10; // the number of siblings to display in component hierarchy view
         
-        // display options
-        $scope.treeOptions = {
-        	    nodeChildren: "child"
-        	    /*dirSelectable: true,
-        	    injectClasses: {
-        	        ul: "a1",
-        	        li: "a2",
-        	        liSelected: "a7",
-        	        iExpanded: "a3",
-        	        iCollapsed: "a4",
-        	        iLeaf: "a5",
-        	        label: "a6",
-        	        labelSelected: "a8"
-        	    }*/
-        	}
-        
-        // function to expand all nodes on a tree-control tree
-       
-        function expandAllNodes(tree) {
-    	    console.log(tree)
-    	    if (!tree || typeof(tree) == "array" && tree.length == 0) {
-    	      return;
-    	    }
-    	    var nodes = [];
-    	    for (var i = 0; i < tree.length; i++) {
-    	      nodes.push(tree[i]);
-    	      nodes.concat(expandAllNodes(tree[i].child));
-    	    }
-    	    console.debug('nodes', nodes);
-    	    return nodes;
-    	}
-        
+      
         /**
-         * Helper function to get previous or next tree by offset
+         * Function to get a single (paged) hierarchical tree for the displayed component
          */
-        $scope.getTreeByOffset = function(offset) {
-        	var treeViewed = $scope.treeViewed + offset;
+        $scope.getSingleTreeForComponent = function(component, typePrefix, startIndex) {
         	
-        	// ensure number is in circular index
-        	if (!treeViewed)
-        		treeViewed = 0;
-        	if (treeViewed >= $scope.treeCount)
-        		treeViewed = treeViewed - $scope.treeCount;
-        	if (treeViewed < 0)
-        		treeViewed = treeViewed + $scope.treeCount;
-        	
-        	$scope.getTreesForComponent($scope.component, $scope.componentTypePrefix, treeViewed, 1);
-        	
-        	
-        }
-        	
-        /**
-         * Function to get hierarchical trees for the current component
-         */
-        $scope.getTreesForComponent = function(component, typePrefix, startIndex, maxResults) {
-        	
-        	console.debug('getTreesForComponent', component, typePrefix, startIndex, maxResults);
+        	console.debug('getSingleTreeForComponent', component, typePrefix, startIndex);
         	
         	$scope.glassPane++;
         	
-        	if(!startIndex) startIndex = 0;
-        	if(!maxResults) maxResults = 1;
+        	if (startIndex === undefined) {
+        		console.debug('start index undefined')
+        		startIndex = 0;
+        	}
+        	
         	
         	var pfs = {
                     startIndex : startIndex,
-                    maxResults : maxResults,
+                    maxResults : 1,
                     sortField : 'ancestorPath',
                     queryRestriction : null
                   } 
@@ -560,22 +513,176 @@ tsApp
             }).success(function(data) {
             	$scope.glassPane--;
             	
-            	// set the displayed data
+            	console.debug('single tree returned: ', data.tree);
+            	
             	$scope.componentTree = data.tree;
-            	
-            	console.debug($scope.componentTree);
-            	
+
             	// set the count and position variables
             	$scope.treeCount = data.totalCount;
             	if (data.count > 0)
             		$scope.treeViewed = startIndex;
             	else $scope.treeViewed = 0;
+            	
+            	console.debug('setting initial parent tree');
+            
+            	
+            	// get the ancestor path of the bottom element (the component)
+            	// ASSUMES: unilinear path (e.g. A~B~C~D, no siblings)
+            	var parentTree = $scope.componentTree[0];
+            	
+            	// if parent tree cannot be read, clear the component tree
+            	if (!parentTree) {
+            		console.debug('parent tree cannot be read')
+            		$scope.componentTree = null;
+            		return;
+            	}
+            	
+            	console.debug('checking parent trees children');
+            	
+            	while (parentTree.child.length > 0) {
+                	// check if child has no children
+            		if (parentTree.child[0].child.length == 0)
+            			break;
+            		parentTree = parentTree.child[0];
+            	} 
+            	
+            	console.debug('before get and set');
+            	
+            	// replace the parent tree of the lowest level with (capped) siblings computed
+            	$scope.getAndSetTreeChildren(parentTree, typePrefix);
+            	
+            	console.debug('done with get and set');
+            	
             }).error(function(data, status, headers, config) {
             	 $scope.glassPane--;
             	 $scope.handleError(data, status, headers, config);
                
               });
         	
+        	
+        }
+        
+        /**
+         * Helper function to determine whether this level of a tree contains the displayed component
+         */      
+        $scope.hasHiddenSiblings = function(tree) {  	
+        	// if not more than one child, children have not been retrieved
+        	if (tree.child.length < 2)
+        		return false;       	
+        	else return (tree.self.childCt > tree.child.length);
+        }
+        
+        /**
+         * Helper function to determine what icon to show for a tree node
+         * Case 1: Has children, none loaded -> use right chevron
+         * Case 2: Has children, incompletely loaded (below pagesize) -> expandable (plus)
+         * Case 3: Has children, completely loaded (or above pagesize) -> not expandable (right/down))
+         */
+        $scope.getTreeNodeIcon = function(tree, collapsed) {
+        	// case 1:  no children loaded, but children exist
+        	if (tree.self.childCt > 0 && tree.child.length == 0) {
+        		return 'glyphicon-chevron-right';
+        	}
+        
+        	// case 2:  some children loaded, but less than child ct AND child ct lte pagesize
+        	if (tree.child.length < tree.self.childCt && tree.child.length <= $scope.siblingPageSize) {
+        		return 'glyphicon-plus';
+        	}
+        	
+        	// case 3:  all children loaded, up to pagesize
+        	if (tree.child.length == tree.self.childCt || 
+        			tree.self.childCt > $scope.siblingPageSize && tree.child.length == $scope.siblingPageSize) {
+        		if (collapsed) return 'glyphicon-chevron-right';
+        		else return 'glyphicon-chevron-down';
+        	}
+   
+        }
+        
+        
+        /**
+         * Helper function to get previous or next tree by offset
+         */
+        $scope.getTreeByOffset = function(offset) {
+        	
+        	console.debug('getTreeByOffset', $scope.treeViewed, offset, $scope.treeCount);
+        	var treeViewed = $scope.treeViewed + offset;
+        	
+        	// ensure number is in circular index
+        	if (!treeViewed)
+        		treeViewed = 0;
+        	if (treeViewed >= $scope.treeCount)
+        		treeViewed = treeViewed - $scope.treeCount;
+        	if (treeViewed < 0)
+        		treeViewed = treeViewed + $scope.treeCount;
+        	
+        	$scope.getSingleTreeForComponent($scope.component, $scope.componentTypePrefix, treeViewed);
+        	
+        	
+        }
+        
+        /**
+         * Function to determine whether to toggle children
+         * and/or retrieve children if necessary
+         */
+        $scope.getTreeChildren = function(tree, treeHandleScope) {
+        	
+        	console.debug('toggleChildren', tree);
+        	
+        	// check if children already loaded
+        	if (tree.childrenRetrieved == true) {
+        		console.debug("children already loaded, toggling");
+        		treeHandleScope.toggle();
+        	}
+        	
+        	// otherwise, load children and do not toggle (already expanded, but icon overriden)
+        	else {
+        		console.debug("children not loaded, retrieving");
+        		$scope.getAndSetTreeChildren(tree, null); // type prefix auto set
+        	
+        	}
+        	
+        	
+        }
+        
+        /** Get a tree node's children  */
+        $scope.getAndSetTreeChildren = function(tree, typePrefix) {
+        	
+        	if (!typePrefix) {
+        		typePrefix = getTypePrefix($scope.componentType);
+        	}
+        	
+        	console.debug("getAndSetTreeChildren", tree, typePrefix);
+        	
+        	// NOTE: Currently hard-coded to only return siblingPageSize items
+        	var pfs = getPfs();
+        	pfs.startIndex = 0;
+        	pfs.maxResults = $scope.siblingPageSize;
+        	
+        	$scope.glassPane++;	
+        	
+        	$http({
+                url : contentUrl + typePrefix + '/' + tree.self.node.terminology + '/' + tree.self.node.version + '/' + tree.self.node.terminologyId + '/' + (tree.self.ancestorPath === "" ? '~BLANK~' : tree.self.ancestorPath) + '/trees/children',
+                method : "POST",
+                dataType: 'json',
+                data: pfs,
+                headers : {
+                  "Content-Type" : "application/json"
+                }
+              }).success(function(data) {
+              	$scope.glassPane--;
+              	
+              	console.debug('new tree node: ', data)
+              	
+              	// TODO:  Only replace children that don't already exist
+              	// in order to preserve any previously loaded data
+              	tree.child = data.child;
+              	tree.childrenRetrieved = true;
+
+              }).error(function(data, status, headers, config) {
+              	 $scope.glassPane--;
+              	 $scope.handleError(data, status, headers, config);
+                 
+                });
         	
         }
         
@@ -654,7 +761,7 @@ tsApp
           $scope.glassPane++;
           $http(
             {
-              url : contentUrl + getUrlPrefix($scope.terminology.organizingClassType) + "/" + $scope.terminology.terminology + "/"
+              url : contentUrl + getTypePrefix($scope.terminology.organizingClassType) + "/" + $scope.terminology.terminology + "/"
                 + $scope.terminology.version + "/query/" + queryStr,
               method : "POST",
               dataType : "json",
@@ -714,7 +821,7 @@ tsApp
             $scope.glassPane++;
             $http(
               {
-                url : contentUrl + getUrlPrefix($scope.terminology.organizingClassType) + "/" + $scope.terminology.terminology + "/"
+                url : contentUrl + getTypePrefix($scope.terminology.organizingClassType) + "/" + $scope.terminology.terminology + "/"
                   + $scope.terminology.version + "/trees/query/" + queryStr,
                 method : "POST",
                 dataType : "json",
@@ -751,7 +858,7 @@ tsApp
           $scope.component = component;
           
           // get the initial tree
-          $scope.getTreesForComponent(component, typePrefix, 0, 1);
+          $scope.getSingleTreeForComponent(component, typePrefix, 0);
           
           // apply the initial paging
           applyPaging();
@@ -926,7 +1033,7 @@ tsApp
         }
         
         /**  Helper function to get the proper html prefix based on class type  */
-        function getUrlPrefix(classType) {
+        function getTypePrefix(classType) {
         	
         	switch(classType) {
         	case 'CONCEPT':	return 'cui';
@@ -1259,7 +1366,7 @@ tsApp
         	}
         	if (!query) query = "~BLANK~";
         	
-        	var typePrefix = getUrlPrefix($scope.componentType);
+        	var typePrefix = getTypePrefix($scope.componentType);
         	var pfs = getPfs(page);
         	
         	// construct query restriction if needed

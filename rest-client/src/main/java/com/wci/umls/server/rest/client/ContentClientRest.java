@@ -1892,4 +1892,26 @@ public class ContentClientRest extends RootClientRest implements
         (TreeJpa) ConfigUtility.getGraphForString(resultString, TreeJpa.class);
     return tree;
   }
+
+@Override
+public Tree findCodeTreeChildren(String terminology, String version,
+		String terminologyId, PfsParameterJpa pfs, String authToken) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public Tree findConceptTreeChildren(String terminology, String version,
+		String terminologyId, String ancestorPath, PfsParameterJpa pfs,
+		String authToken) throws Exception {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public Tree findDescriptorTreeChildren(String terminology, String version,
+		String terminologyId, PfsParameterJpa pfs, String authToken) {
+	// TODO Auto-generated method stub
+	return null;
+}
 }
