@@ -6,7 +6,6 @@
  */
 package com.wci.umls.server.test.rest;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.apache.log4j.Logger;
@@ -98,7 +97,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with null terminologyId
     Logger.getLogger(getClass()).info(
-        "TEST1 - " + "null, MSH, 2015_2014_09_08, " + authToken);
+        "TEST null terminologyId - " + "null, MSH, 2015_2014_09_08, "
+            + authToken);
     try {
       contentService.getConcept(null, mshTerminology, mshVersion, authToken);
       fail("Exception should be thrown when trying to get a concept with null terminologyId.");
@@ -106,20 +106,9 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid terminologyId
-    Logger.getLogger(getClass()).info(
-        "TEST2 - " + "-1, SNOMEDCT, 2014_09_01, " + authToken);
-    try {
-      contentService.getConcept("-1", snomedTerminology, snomedVersion,
-          authToken);
-      fail("Exception should be thrown when trying to get a concept with invalid terminologyId.");
-    } catch (Exception e) {
-      // do nothing
-    }
-
     // Test with empty string terminologyId
     Logger.getLogger(getClass()).info(
-        "TEST3 - " + ", UMLS, latest, " + authToken);
+        "TEST empty terminologyId - " + ", UMLS, latest, " + authToken);
     try {
       contentService.getConcept("", umlsTerminology, umlsVersion, authToken);
       fail("Exception should be thrown when trying to get a concept with empty string terminologyId.");
@@ -129,7 +118,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with null terminology
     Logger.getLogger(getClass()).info(
-        "TEST4 - " + "M0028634, null, 2015_2014_09_08, " + authToken);
+        "TEST null terminology - " + "M0028634, null, 2015_2014_09_08, "
+            + authToken);
     try {
       contentService.getConcept("M0028634", null, mshVersion, authToken);
       fail("Exception should be thrown when trying to get a concept with null terminology.");
@@ -137,19 +127,10 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid terminology
-    Logger.getLogger(getClass()).info(
-        "TEST5 - " + "M0028634, TTT, 2015_2014_09_08, " + authToken);
-    try {
-      contentService.getConcept("M0028634", "TTT", mshVersion, authToken);
-      fail("Exception should be thrown when trying to get a concept with invalid terminology.");
-    } catch (Exception e) {
-      // do nothing
-    }
-
     // Test with empty string terminology
     Logger.getLogger(getClass()).info(
-        "TEST6 - " + "M0028634, , 2015_2014_09_08, " + authToken);
+        "TEST empty terminology - " + "M0028634, , 2015_2014_09_08, "
+            + authToken);
     try {
       contentService.getConcept("M0028634", "", mshVersion, authToken);
       fail("Exception should be thrown when trying to get a concept with emtpy string terminology.");
@@ -159,7 +140,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with null version
     Logger.getLogger(getClass()).info(
-        "TEST7 - " + "M0028634, MSH, null, " + authToken);
+        "TEST null version - " + "M0028634, MSH, null, " + authToken);
     try {
       contentService.getConcept("M0028634", mshTerminology, null, authToken);
       fail("Exception should be thrown when trying to get a concept with null version.");
@@ -167,19 +148,9 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid version
-    Logger.getLogger(getClass()).info(
-        "TEST8 - " + "M0028634, MSH, TTT , " + authToken);
-    try {
-      contentService.getConcept("M0028634", "MSH", "TTT", authToken);
-      fail("Exception should be thrown when trying to get a concept with invalid version.");
-    } catch (Exception e) {
-      // do nothing
-    }
-
     // Test with empty string version
     Logger.getLogger(getClass()).info(
-        "TEST9 - " + "M0028634, MSH, , " + authToken);
+        "TEST empty version - " + "M0028634, MSH, , " + authToken);
     try {
       contentService.getConcept("M0028634", "MSH", "", authToken);
       fail("Exception should be thrown when trying to get a concept with empty string version.");
@@ -189,7 +160,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with null authToken
     Logger.getLogger(getClass()).info(
-        "TEST10 - " + "M0028634, MSH, 2015_2014_09_08, ");
+        "TEST null authToken - " + "M0028634, MSH, 2015_2014_09_08, ");
     try {
       contentService.getConcept("M0028634", "MSH", "2015_2014_09_08", null);
       fail("Exception should be thrown when trying to get a concept with null authToken.");
@@ -199,7 +170,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with invalid authToken
     Logger.getLogger(getClass()).info(
-        "TEST11 - " + "M0028634, MSH, 2015_2014_09_08, TTT");
+        "TEST invalid authToken - " + "M0028634, MSH, 2015_2014_09_08, TTT");
     try {
       contentService.getConcept("M0028634", "MSH", "2015_2014_09_08", "TTT");
       fail("Exception should be thrown when trying to get a concept with invalid authToken.");
@@ -209,7 +180,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with empty string authToken
     Logger.getLogger(getClass()).info(
-        "TEST12 - " + "M0028634, MSH, 2015_2014_09_08, TTT");
+        "TEST empty authToken - " + "M0028634, MSH, 2015_2014_09_08, TTT");
     try {
       contentService.getConcept("M0028634", "MSH", "2015_2014_09_08", "");
       fail("Exception should be thrown when trying to get a concept with empty string authToken.");
@@ -228,9 +199,9 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).debug("Start test");
 
     // Test MSH descriptor
-
     Logger.getLogger(getClass()).info(
-        "TEST1 - " + "null, MSH, 2015_2014_09_08, " + authToken);
+        "TEST null terminologyId - " + "null, MSH, 2015_2014_09_08, "
+            + authToken);
     try {
       contentService.getDescriptor(null, mshTerminology, mshVersion, authToken);
       fail("Exception should be thrown when trying to get a descriptor with null terminologyId.");
@@ -238,31 +209,10 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test SNOMEDCT_US descriptor
-    Logger.getLogger(getClass()).info(
-        "TEST2 - " + "-1, SNOMEDCT, 2014_09_01, " + authToken);
-    try {
-      contentService.getDescriptor("-1", snomedTerminology, snomedVersion,
-          authToken);
-      fail("Exception should be thrown when trying to get a descriptor with invalid terminologyId.");
-    } catch (Exception e) {
-      // do nothing
-    }
-
-    // Test UMLS descriptor
-
-    Logger.getLogger(getClass()).info(
-        "TEST3 - " + ", UMLS, latest, " + authToken);
-    try {
-      contentService.getDescriptor("", umlsTerminology, umlsVersion, authToken);
-      fail("Exception should be thrown when trying to get a descriptor with empty string terminologyId.");
-    } catch (Exception e) {
-      // do nothing
-    }
-
     // Test with null terminology
     Logger.getLogger(getClass()).info(
-        "TEST4 - " + "M0028634, null, 2015_2014_09_08, " + authToken);
+        "TEST null terminology - " + "M0028634, null, 2015_2014_09_08, "
+            + authToken);
     try {
       contentService.getDescriptor("M0028634", null, mshVersion, authToken);
       fail("Exception should be thrown when trying to get a descriptor with null terminology.");
@@ -270,19 +220,10 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid terminology
-    Logger.getLogger(getClass()).info(
-        "TEST5 - " + "M0028634, TTT, 2015_2014_09_08, " + authToken);
-    try {
-      contentService.getDescriptor("M0028634", "TTT", mshVersion, authToken);
-      fail("Exception should be thrown when trying to get a descriptor with invalid terminology.");
-    } catch (Exception e) {
-      // do nothing
-    }
-
     // Test with empty string terminology
     Logger.getLogger(getClass()).info(
-        "TEST6 - " + "M0028634, , 2015_2014_09_08, " + authToken);
+        "TEST empty terminology - " + "M0028634, , 2015_2014_09_08, "
+            + authToken);
     try {
       contentService.getDescriptor("M0028634", "", mshVersion, authToken);
       fail("Exception should be thrown when trying to get a descriptor with emtpy string terminology.");
@@ -292,7 +233,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with null version
     Logger.getLogger(getClass()).info(
-        "TEST7 - " + "M0028634, MSH, null, " + authToken);
+        "TEST null version - " + "M0028634, MSH, null, " + authToken);
     try {
       contentService.getDescriptor("M0028634", mshTerminology, null, authToken);
       fail("Exception should be thrown when trying to get a descriptor with null version.");
@@ -300,19 +241,9 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid version
-    Logger.getLogger(getClass()).info(
-        "TEST8 - " + "M0028634, MSH, TTT , " + authToken);
-    try {
-      contentService.getDescriptor("M0028634", "MSH", "TTT", authToken);
-      fail("Exception should be thrown when trying to get a descriptor with invalid version.");
-    } catch (Exception e) {
-      // do nothing
-    }
-
     // Test with empty string version
     Logger.getLogger(getClass()).info(
-        "TEST9 - " + "M0028634, MSH, , " + authToken);
+        "TEST empty version - " + "M0028634, MSH, , " + authToken);
     try {
       contentService.getDescriptor("M0028634", "MSH", "", authToken);
       fail("Exception should be thrown when trying to get a descriptor with empty string version.");
@@ -322,7 +253,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with null authToken
     Logger.getLogger(getClass()).info(
-        "TEST10 - " + "M0028634, MSH, 2015_2014_09_08, ");
+        "TEST null authToken - " + "M0028634, MSH, 2015_2014_09_08, ");
     try {
       contentService.getDescriptor("M0028634", "MSH", "2015_2014_09_08", null);
       fail("Exception should be thrown when trying to get a descriptor with null authToken.");
@@ -332,7 +263,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with invalid authToken
     Logger.getLogger(getClass()).info(
-        "TEST11 - " + "M0028634, MSH, 2015_2014_09_08, TTT");
+        "TEST invalid authToken - " + "M0028634, MSH, 2015_2014_09_08, TTT");
     try {
       contentService.getDescriptor("M0028634", "MSH", "2015_2014_09_08", "TTT");
       fail("Exception should be thrown when trying to get a descriptor with invalid authToken.");
@@ -342,7 +273,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with empty string authToken
     Logger.getLogger(getClass()).info(
-        "TEST12 - " + "M0028634, MSH, 2015_2014_09_08, TTT");
+        "TEST empty authToken - " + "M0028634, MSH, 2015_2014_09_08, TTT");
     try {
       contentService.getDescriptor("M0028634", "MSH", "2015_2014_09_08", "");
       fail("Exception should be thrown when trying to get a descriptor with empty string authToken.");
@@ -360,10 +291,10 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
   public void testDegenerateUseRestContent003() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
-    // Test MSH code
-
+    // Test null MSH code
     Logger.getLogger(getClass()).info(
-        "TEST1 - " + "null, MSH, 2015_2014_09_08, " + authToken);
+        "TEST null terminologyId - " + "null, MSH, 2015_2014_09_08, "
+            + authToken);
     try {
       contentService.getCode(null, mshTerminology, mshVersion, authToken);
       fail("Exception should be thrown when trying to get a code with null terminologyId.");
@@ -371,30 +302,10 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test SNOMEDCT_US code
-    Logger.getLogger(getClass()).info(
-        "TEST2 - " + "-1, SNOMEDCT, 2014_09_01, " + authToken);
-    try {
-      contentService.getCode("-1", snomedTerminology, snomedVersion, authToken);
-      fail("Exception should be thrown when trying to get a code with invalid terminologyId.");
-    } catch (Exception e) {
-      // do nothing
-    }
-
-    // Test UMLS code
-
-    Logger.getLogger(getClass()).info(
-        "TEST3 - " + ", UMLS, latest, " + authToken);
-    try {
-      contentService.getCode("", umlsTerminology, umlsVersion, authToken);
-      fail("Exception should be thrown when trying to get a code with empty string terminologyId.");
-    } catch (Exception e) {
-      // do nothing
-    }
-
     // Test with null terminology
     Logger.getLogger(getClass()).info(
-        "TEST4 - " + "M0028634, null, 2015_2014_09_08, " + authToken);
+        "TEST null terminology - " + "M0028634, null, 2015_2014_09_08, "
+            + authToken);
     try {
       contentService.getCode("M0028634", null, mshVersion, authToken);
       fail("Exception should be thrown when trying to get a code with null terminology.");
@@ -402,19 +313,10 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid terminology
-    Logger.getLogger(getClass()).info(
-        "TEST5 - " + "M0028634, TTT, 2015_2014_09_08, " + authToken);
-    try {
-      contentService.getCode("M0028634", "TTT", mshVersion, authToken);
-      fail("Exception should be thrown when trying to get a code with invalid terminology.");
-    } catch (Exception e) {
-      // do nothing
-    }
-
     // Test with empty string terminology
     Logger.getLogger(getClass()).info(
-        "TEST6 - " + "M0028634, , 2015_2014_09_08, " + authToken);
+        "TEST empty terminology - " + "M0028634, , 2015_2014_09_08, "
+            + authToken);
     try {
       contentService.getCode("M0028634", "", mshVersion, authToken);
       fail("Exception should be thrown when trying to get a code with emtpy string terminology.");
@@ -424,7 +326,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with null version
     Logger.getLogger(getClass()).info(
-        "TEST7 - " + "M0028634, MSH, null, " + authToken);
+        "TEST null version - " + "M0028634, MSH, null, " + authToken);
     try {
       contentService.getCode("M0028634", mshTerminology, null, authToken);
       fail("Exception should be thrown when trying to get a code with null version.");
@@ -432,19 +334,9 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid version
-    Logger.getLogger(getClass()).info(
-        "TEST8 - " + "M0028634, MSH, TTT , " + authToken);
-    try {
-      contentService.getCode("M0028634", "MSH", "TTT", authToken);
-      fail("Exception should be thrown when trying to get a code with invalid version.");
-    } catch (Exception e) {
-      // do nothing
-    }
-
     // Test with empty string version
     Logger.getLogger(getClass()).info(
-        "TEST9 - " + "M0028634, MSH, , " + authToken);
+        "TEST empty version - " + "M0028634, MSH, , " + authToken);
     try {
       contentService.getCode("M0028634", "MSH", "", authToken);
       fail("Exception should be thrown when trying to get a code with empty string version.");
@@ -454,7 +346,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with null authToken
     Logger.getLogger(getClass()).info(
-        "TEST10 - " + "M0028634, MSH, 2015_2014_09_08, ");
+        "TEST null authToken - " + "M0028634, MSH, 2015_2014_09_08, ");
     try {
       contentService.getCode("M0028634", "MSH", "2015_2014_09_08", null);
       fail("Exception should be thrown when trying to get a code with null authToken.");
@@ -464,7 +356,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with invalid authToken
     Logger.getLogger(getClass()).info(
-        "TEST11 - " + "M0028634, MSH, 2015_2014_09_08, TTT");
+        "TEST invalid authToken - " + "M0028634, MSH, 2015_2014_09_08, TTT");
     try {
       contentService.getCode("M0028634", "MSH", "2015_2014_09_08", "TTT");
       fail("Exception should be thrown when trying to get a code with invalid authToken.");
@@ -474,7 +366,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with empty string authToken
     Logger.getLogger(getClass()).info(
-        "TEST12 - " + "M0028634, MSH, 2015_2014_09_08, TTT");
+        "TEST empty authToken - " + "M0028634, MSH, 2015_2014_09_08, TTT");
     try {
       contentService.getCode("M0028634", "MSH", "2015_2014_09_08", "");
       fail("Exception should be thrown when trying to get a code with empty string authToken.");
@@ -489,7 +381,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
    */
   @Test
   public void testDegenerateUseRestContent004() throws Exception {
-    // n/a
+    // n/a - no data in sample
   }
 
   /**
@@ -498,7 +390,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
    */
   @Test
   public void testDegenerateUseRestContent005() throws Exception {
-    // n/a
+    // n/a - no data in sample
   }
 
   /**
@@ -507,12 +399,11 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
    */
   @Test
   public void testDegenerateUseRestContent006() throws Exception {
-
     Logger.getLogger(getClass()).debug("Start test");
 
     // Test terminology is null
     Logger.getLogger(getClass()).info(
-        "TEST1 - " + "null, 2014_09_01, " + authToken);
+        "TEST null terminology - " + "null, 2014_09_01, " + authToken);
     try {
       contentService.getAtomSubsets(null, snomedVersion, authToken);
       fail("Exception should be thrown when trying to get an atom subset with null terminology.");
@@ -520,16 +411,9 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test terminology is invalid - empty results
-    Logger.getLogger(getClass()).info(
-        "TEST2 - " + "TTT, 2014_09_01, " + authToken);
-    assertEquals(0,
-        contentService.getAtomSubsets("TTT", snomedVersion, authToken)
-            .getObjects().size());
-
     // Test terminology is empty string - exception
-    Logger.getLogger(getClass())
-        .info("TEST3 - " + ", 2014_09_01, " + authToken);
+    Logger.getLogger(getClass()).info(
+        "TEST empty terminology - " + ", 2014_09_01, " + authToken);
     try {
       contentService.getAtomSubsets("", snomedVersion, authToken);
       fail("Exception should be thrown when trying to get an atom subset with empty string terminology.");
@@ -539,7 +423,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test version is null - exception
     Logger.getLogger(getClass()).info(
-        "TEST4 - " + "SNOMEDCT_US, null, " + authToken);
+        "TEST null version - " + "SNOMEDCT_US, null, " + authToken);
     try {
       contentService.getAtomSubsets(snomedTerminology, null, authToken);
       fail("Exception should be thrown when trying to get an atom subset with null terminology.");
@@ -547,16 +431,9 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test version is invalid - empty results
-    Logger.getLogger(getClass()).info(
-        "TEST5 - " + "SNOMEDCT_US, TTT, " + authToken);
-    assertEquals(0,
-        contentService.getAtomSubsets(snomedTerminology, "TTT", authToken)
-            .getObjects().size());
-
     // Test version is empty string - exception
     Logger.getLogger(getClass()).info(
-        "TEST6 - " + "SNOMEDCT_US, , " + authToken);
+        "TEST empty version- " + "SNOMEDCT_US, , " + authToken);
     try {
       contentService.getAtomSubsets(snomedTerminology, "", authToken);
       fail("Exception should be thrown when trying to get an atom subset with empty string terminology.");
@@ -567,60 +444,11 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     SubsetList list =
         contentService.getAtomSubsets(snomedTerminology, snomedVersion,
             authToken);
-
-    // Test negative start index - indicates not to use paging
-    Logger.getLogger(getClass()).info("TEST7");
-    PfsParameterJpa pfs = new PfsParameterJpa();
-    pfs.setStartIndex(-20);
     Subset subset = list.getObjects().get(0);
-    try {
-      contentService.findAtomSubsetMembers(subset.getTerminologyId(),
-          snomedTerminology, snomedVersion, null, pfs, authToken);
-    } catch (Exception e) {
-      fail("Exception should NOT be thrown when trying to find atom subset members with negative pfs start index.");
-    }
-
-    // Test invalid pfs max results - indicates not to use paging
-    Logger.getLogger(getClass()).info("TEST8");
-    pfs = new PfsParameterJpa();
-    pfs.setStartIndex(0);
-    pfs.setMaxResults(-20);
-    try {
-      contentService.findAtomSubsetMembers(subset.getTerminologyId(),
-          snomedTerminology, snomedVersion, null, pfs, authToken);
-    } catch (Exception e) {
-      fail("Exception should NOT be thrown when trying to find atom subset members with negative pfs max results.");
-    }
-
-    // Test invalid pfs sort field
-    Logger.getLogger(getClass()).info("TEST9");
-    pfs = new PfsParameterJpa();
-    pfs.setStartIndex(0);
-    pfs.setMaxResults(20);
-    pfs.setSortField("TTT");
-    try {
-      contentService.findAtomSubsetMembers(subset.getTerminologyId(),
-          snomedTerminology, snomedVersion, null, pfs, authToken);
-      fail("Exception should be thrown when trying to find atom subset members with empty string sort field.");
-    } catch (Exception e) {
-      // do nothing
-    }
-
-    // Test invalid query restriction
-    // TODO: why does this not throw a ParseException? don't do for now
-    /*
-     * Logger.getLogger(getClass()).info("TEST10"); pfs = new PfsParameterJpa();
-     * pfs.setStartIndex(0); pfs.setMaxResults(20);
-     * pfs.setQueryRestriction("TTT:TTT"); try {
-     * contentService.findAtomSubsetMembers(subset.getTerminologyId(),
-     * snomedTerminology, snomedVersion, null, pfs, authToken); fail(
-     * "Exception should be thrown when trying to find atom subset members with invalid query restriction."
-     * ); } catch (Exception e) { // do nothing }
-     */
 
     // Test terminology is null
     Logger.getLogger(getClass()).info(
-        "TEST11 - " + "null, 2014_09_01, " + authToken);
+        "TEST null terminology - " + "null, 2014_09_01, " + authToken);
     try {
       contentService.findAtomSubsetMembers(subset.getTerminologyId(), null,
           snomedVersion, null, new PfsParameterJpa(), authToken);
@@ -629,19 +457,9 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test terminology is invalid - empty result
-    Logger.getLogger(getClass()).info(
-        "TEST12 - " + "TTT, 2014_09_01, " + authToken);
-    assertEquals(
-        0,
-        contentService
-            .findAtomSubsetMembers(subset.getTerminologyId(), "TTT",
-                snomedVersion, null, new PfsParameterJpa(), authToken)
-            .getObjects().size());
-
     // Test terminology is empty string - exception
     Logger.getLogger(getClass()).info(
-        "TEST13 - " + ", 2014_09_01, " + authToken);
+        "TEST empty terminology - " + ", 2014_09_01, " + authToken);
     try {
       contentService.findAtomSubsetMembers(subset.getTerminologyId(), "",
           snomedVersion, null, new PfsParameterJpa(), authToken);
@@ -652,7 +470,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test version is null - exception
     Logger.getLogger(getClass()).info(
-        "TEST14 - " + "SNOMEDCT_US, null, " + authToken);
+        "TEST null version - " + "SNOMEDCT_US, null, " + authToken);
     try {
       contentService.findAtomSubsetMembers(subset.getTerminologyId(),
           snomedTerminology, null, null, new PfsParameterJpa(), authToken);
@@ -661,19 +479,9 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test version is invalid - empty result
-    Logger.getLogger(getClass()).info(
-        "TEST15 - " + "SNOMEDCT_US, TTT, " + authToken);
-    assertEquals(
-        0,
-        contentService
-            .findAtomSubsetMembers(subset.getTerminologyId(),
-                snomedTerminology, "TTT", null, new PfsParameterJpa(),
-                authToken).getObjects().size());
-
     // Test version is empty string - exception
     Logger.getLogger(getClass()).info(
-        "TEST16 - " + "SNOMEDCT_US, , " + authToken);
+        "TEST empty version - " + "SNOMEDCT_US, , " + authToken);
     try {
       contentService.findAtomSubsetMembers(subset.getTerminologyId(),
           snomedTerminology, "", null, new PfsParameterJpa(), authToken);
@@ -689,12 +497,11 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
    */
   @Test
   public void testDegenerateUseRestContent007() throws Exception {
-
     Logger.getLogger(getClass()).debug("Start test");
 
     // Test terminology is null - exception
     Logger.getLogger(getClass()).info(
-        "TEST1 - " + "null, 2014_09_01, " + authToken);
+        "TEST null terminology - " + "null, 2014_09_01, " + authToken);
     try {
       contentService.getConceptSubsets(null, snomedVersion, authToken);
       fail("Exception should be thrown when trying to get an concept subset with null terminology.");
@@ -702,16 +509,9 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test terminology is invalid - empty result
-    Logger.getLogger(getClass()).info(
-        "TEST2 - " + "TTT, 2014_09_01, " + authToken);
-    assertEquals(0,
-        contentService.getConceptSubsets("TTT", snomedVersion, authToken)
-            .getObjects().size());
-
     // Test terminology is empty string - exception
-    Logger.getLogger(getClass())
-        .info("TEST3 - " + ", 2014_09_01, " + authToken);
+    Logger.getLogger(getClass()).info(
+        "TEST empty terminology - " + ", 2014_09_01, " + authToken);
     try {
       contentService.getConceptSubsets("", snomedVersion, authToken);
       fail("Exception should be thrown when trying to get an concept subset with empty string terminology.");
@@ -721,7 +521,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test version is null - exception
     Logger.getLogger(getClass()).info(
-        "TEST4 - " + "SNOMEDCT_US, null, " + authToken);
+        "TEST null version - " + "SNOMEDCT_US, null, " + authToken);
     try {
       contentService.getConceptSubsets(snomedTerminology, null, authToken);
       fail("Exception should be thrown when trying to get an concept subset with null terminology.");
@@ -729,16 +529,9 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test version is invalid - empty result
-    Logger.getLogger(getClass()).info(
-        "TEST5 - " + "SNOMEDCT_US, TTT, " + authToken);
-    assertEquals(0,
-        contentService.getConceptSubsets(snomedTerminology, "TTT", authToken)
-            .getObjects().size());
-
     // Test version is empty string - exception
     Logger.getLogger(getClass()).info(
-        "TEST6 - " + "SNOMEDCT_US, , " + authToken);
+        "TEST empty version - " + "SNOMEDCT_US, , " + authToken);
     try {
       contentService.getConceptSubsets(snomedTerminology, "", authToken);
       fail("Exception should be thrown when trying to get an concept subset with empty string terminology.");
@@ -749,60 +542,11 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     SubsetList list =
         contentService.getConceptSubsets(snomedTerminology, snomedVersion,
             authToken);
-
-    // Test negative start index - indicates not to use paging
-    Logger.getLogger(getClass()).info("TEST7");
-    PfsParameterJpa pfs = new PfsParameterJpa();
-    pfs.setStartIndex(-20);
     Subset subset = list.getObjects().get(0);
-    try {
-      contentService.findConceptSubsetMembers(subset.getTerminologyId(),
-          snomedTerminology, snomedVersion, null, pfs, authToken);
-    } catch (Exception e) {
-      fail("Exception should NOT be thrown when trying to find concept subset members with negative pfs start index.");
-    }
-
-    // Test invalid pfs max results - indicates not to use paging
-    Logger.getLogger(getClass()).info("TEST8");
-    pfs = new PfsParameterJpa();
-    pfs.setStartIndex(0);
-    pfs.setMaxResults(-20);
-    try {
-      contentService.findConceptSubsetMembers(subset.getTerminologyId(),
-          snomedTerminology, snomedVersion, null, pfs, authToken);
-    } catch (Exception e) {
-      fail("Exception should NOT be thrown when trying to find concept subset members with negative pfs max results.");
-    }
-
-    // Test invalid pfs sort field
-    Logger.getLogger(getClass()).info("TEST9");
-    pfs = new PfsParameterJpa();
-    pfs.setStartIndex(0);
-    pfs.setMaxResults(20);
-    pfs.setSortField("TTT");
-    try {
-      contentService.findConceptSubsetMembers(subset.getTerminologyId(),
-          snomedTerminology, snomedVersion, null, pfs, authToken);
-      fail("Exception should be thrown when trying to find concept subset members with empty string sort field.");
-    } catch (Exception e) {
-      // do nothing
-    }
-
-    // Test invalid query restriction
-    // TODO: why does this not throw a ParseException?
-    /*
-     * Logger.getLogger(getClass()).info("TEST10"); pfs = new PfsParameterJpa();
-     * pfs.setStartIndex(0); pfs.setMaxResults(20);
-     * pfs.setQueryRestriction("TTT:TTT"); try {
-     * contentService.findConceptSubsetMembers(subset.getTerminologyId(),
-     * snomedTerminology, snomedVersion, null, pfs, authToken); fail(
-     * "Exception should be thrown when trying to find concept subset members with invalid query restriction."
-     * ); } catch (Exception e) { // do nothing }
-     */
 
     // Test terminology is null
     Logger.getLogger(getClass()).info(
-        "TEST11 - " + "null, 2014_09_01, " + authToken);
+        "TEST null terminology - " + "null, 2014_09_01, " + authToken);
     try {
       contentService.findConceptSubsetMembers(subset.getTerminologyId(), null,
           snomedVersion, null, new PfsParameterJpa(), authToken);
@@ -811,19 +555,9 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test terminology is invalid - empty result
-    Logger.getLogger(getClass()).info(
-        "TEST12 - " + "TTT, 2014_09_01, " + authToken);
-    assertEquals(
-        0,
-        contentService
-            .findConceptSubsetMembers(subset.getTerminologyId(), "TTT",
-                snomedVersion, null, new PfsParameterJpa(), authToken)
-            .getObjects().size());
-
     // Test terminology is empty string - exception
     Logger.getLogger(getClass()).info(
-        "TEST13 - " + ", 2014_09_01, " + authToken);
+        "TEST empty terminology - " + ", 2014_09_01, " + authToken);
     try {
       contentService.findConceptSubsetMembers(subset.getTerminologyId(), "",
           snomedVersion, null, new PfsParameterJpa(), authToken);
@@ -834,7 +568,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test version is null - exception
     Logger.getLogger(getClass()).info(
-        "TEST14 - " + "SNOMEDCT_US, null, " + authToken);
+        "TEST null version - " + "SNOMEDCT_US, null, " + authToken);
     try {
       contentService.findConceptSubsetMembers(subset.getTerminologyId(),
           snomedTerminology, null, null, new PfsParameterJpa(), authToken);
@@ -843,19 +577,9 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test version is invalid - empty result
-    Logger.getLogger(getClass()).info(
-        "TEST15 - " + "SNOMEDCT_US, TTT, " + authToken);
-    assertEquals(
-        0,
-        contentService
-            .findConceptSubsetMembers(subset.getTerminologyId(),
-                snomedTerminology, "TTT", null, new PfsParameterJpa(),
-                authToken).getObjects().size());
-
     // Test version is empty string - exception
     Logger.getLogger(getClass()).info(
-        "TEST16 - " + "SNOMEDCT_US, , " + authToken);
+        "TEST empty version - " + "SNOMEDCT_US, , " + authToken);
     try {
       contentService.findConceptSubsetMembers(subset.getTerminologyId(),
           snomedTerminology, "", null, new PfsParameterJpa(), authToken);
@@ -871,11 +595,10 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
    */
   @Test
   public void testDegenerateUseRestContent008() throws Exception {
-
     Logger.getLogger(getClass()).debug("Start test");
 
     // Test terminology is null
-    Logger.getLogger(getClass()).info("TEST1 - ");
+    Logger.getLogger(getClass()).info("TEST null terminology - ");
     try {
       contentService.findConceptsForQuery(null, snomedVersion, "care",
           new PfscParameterJpa(), authToken);
@@ -884,16 +607,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test terminology is invalid - empty result
-    Logger.getLogger(getClass()).info("TEST2 - ");
-    assertEquals(
-        0,
-        contentService
-            .findConceptsForQuery("TTT", snomedVersion, "care",
-                new PfscParameterJpa(), authToken).getObjects().size());
-
     // Test terminology is empty string - exception
-    Logger.getLogger(getClass()).info("TEST3 - ");
+    Logger.getLogger(getClass()).info("TEST empty terminology - ");
     try {
       contentService.findConceptsForQuery("", snomedVersion, "care",
           new PfscParameterJpa(), authToken);
@@ -903,7 +618,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test version is null - exception
-    Logger.getLogger(getClass()).info("TEST4 - ");
+    Logger.getLogger(getClass()).info("TEST null version - ");
     try {
       contentService.findConceptsForQuery(snomedTerminology, null, "care",
           new PfscParameterJpa(), authToken);
@@ -912,16 +627,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test version is invalid - empty result
-    Logger.getLogger(getClass()).info("TEST5 - ");
-    assertEquals(
-        0,
-        contentService
-            .findConceptsForQuery(snomedTerminology, "TTT", "care",
-                new PfscParameterJpa(), authToken).getObjects().size());
-
     // Test version is empty string - exception
-    Logger.getLogger(getClass()).info("TEST6 - ");
+    Logger.getLogger(getClass()).info("TEST empty version - ");
     try {
       contentService.findConceptsForQuery(snomedTerminology, "", "care",
           new PfscParameterJpa(), authToken);
@@ -930,24 +637,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test query is null - empty results
-    Logger.getLogger(getClass()).info("TEST7 - ");
-    assertEquals(
-        0,
-        contentService
-            .findConceptsForQuery(snomedTerminology, snomedVersion, null,
-                new PfscParameterJpa(), authToken).getObjects().size());
-
-    // Test query is empty string - empty results
-    Logger.getLogger(getClass()).info("TEST8 - ");
-    assertEquals(
-        0,
-        contentService
-            .findConceptsForQuery(snomedTerminology, snomedVersion, "",
-                new PfscParameterJpa(), authToken).getObjects().size());
-
     // Test with null authToken
-    Logger.getLogger(getClass()).info("TEST9 - ");
+    Logger.getLogger(getClass()).info("TEST null authToken - ");
     try {
       contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
           "care", new PfscParameterJpa(), null);
@@ -957,7 +648,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with invalid authToken
-    Logger.getLogger(getClass()).info("TEST10 - ");
+    Logger.getLogger(getClass()).info("TEST invalid authToken - ");
     try {
       contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
           "care", new PfscParameterJpa(), "TTT");
@@ -967,7 +658,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with empty string authToken
-    Logger.getLogger(getClass()).info("TEST11 - ");
+    Logger.getLogger(getClass()).info("TEST empty authToken - ");
     try {
       contentService.findConceptsForQuery(snomedTerminology, snomedVersion,
           "care", new PfscParameterJpa(), "");
@@ -983,11 +674,10 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
    */
   @Test
   public void testDegenerateUseRestContent009() throws Exception {
-
     Logger.getLogger(getClass()).debug("Start test");
 
     // Test terminology is null
-    Logger.getLogger(getClass()).info("TEST1 - ");
+    Logger.getLogger(getClass()).info("TEST null terminology - ");
     try {
       contentService.findDescriptorsForQuery(null, snomedVersion, "care",
           new PfscParameterJpa(), authToken);
@@ -996,16 +686,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test terminology is invalid - empty result
-    Logger.getLogger(getClass()).info("TEST2 - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescriptorsForQuery("TTT", snomedVersion, "care",
-                new PfscParameterJpa(), authToken).getObjects().size());
-
     // Test terminology is empty string - exception
-    Logger.getLogger(getClass()).info("TEST3 - ");
+    Logger.getLogger(getClass()).info("TEST empty terminology - ");
     try {
       contentService.findDescriptorsForQuery("", snomedVersion, "care",
           new PfscParameterJpa(), authToken);
@@ -1015,7 +697,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test version is null - exception
-    Logger.getLogger(getClass()).info("TEST4 - ");
+    Logger.getLogger(getClass()).info("TEST null version - ");
     try {
       contentService.findDescriptorsForQuery(snomedTerminology, null, "care",
           new PfscParameterJpa(), authToken);
@@ -1024,16 +706,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test version is invalid - empty results
-    Logger.getLogger(getClass()).info("TEST5 - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescriptorsForQuery(snomedTerminology, "TTT", "care",
-                new PfscParameterJpa(), authToken).getObjects().size());
-
     // Test version is empty string - exception
-    Logger.getLogger(getClass()).info("TEST6 - ");
+    Logger.getLogger(getClass()).info("TEST empty version - ");
     try {
       contentService.findDescriptorsForQuery(snomedTerminology, "", "care",
           new PfscParameterJpa(), authToken);
@@ -1042,24 +716,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test query is null - empty results
-    Logger.getLogger(getClass()).info("TEST7 - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescriptorsForQuery(snomedTerminology, snomedVersion, null,
-                new PfscParameterJpa(), authToken).getObjects().size());
-
-    // Test query is empty string - empty results
-    Logger.getLogger(getClass()).info("TEST8 - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescriptorsForQuery(snomedTerminology, snomedVersion, "",
-                new PfscParameterJpa(), authToken).getObjects().size());
-
     // Test with null authToken
-    Logger.getLogger(getClass()).info("TEST9 - ");
+    Logger.getLogger(getClass()).info("TEST null authToken - ");
     try {
       contentService.findDescriptorsForQuery(snomedTerminology, snomedVersion,
           "care", new PfscParameterJpa(), null);
@@ -1069,7 +727,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with invalid authToken
-    Logger.getLogger(getClass()).info("TEST10 - ");
+    Logger.getLogger(getClass()).info("TEST invalid authToken - ");
     try {
       contentService.findDescriptorsForQuery(snomedTerminology, snomedVersion,
           "care", new PfscParameterJpa(), "TTT");
@@ -1079,7 +737,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with empty string authToken
-    Logger.getLogger(getClass()).info("TEST11 - ");
+    Logger.getLogger(getClass()).info("TEST empty authToken - ");
     try {
       contentService.findDescriptorsForQuery(snomedTerminology, snomedVersion,
           "care", new PfscParameterJpa(), "");
@@ -1095,11 +753,10 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
    */
   @Test
   public void testDegenerateUseRestContent010() throws Exception {
-
     Logger.getLogger(getClass()).debug("Start test");
 
     // Test terminology is null
-    Logger.getLogger(getClass()).info("TEST1 - ");
+    Logger.getLogger(getClass()).info("TEST null terminology - ");
     try {
       contentService.findCodesForQuery(null, snomedVersion, "care",
           new PfscParameterJpa(), authToken);
@@ -1108,16 +765,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test terminology is invalid - empty results
-    Logger.getLogger(getClass()).info("TEST2 - ");
-    assertEquals(
-        0,
-        contentService
-            .findCodesForQuery("TTT", snomedVersion, "care",
-                new PfscParameterJpa(), authToken).getObjects().size());
-
     // Test terminology is empty string
-    Logger.getLogger(getClass()).info("TEST3 - ");
+    Logger.getLogger(getClass()).info("TEST empty terminology - ");
     try {
       contentService.findCodesForQuery("", snomedVersion, "care",
           new PfscParameterJpa(), authToken);
@@ -1127,7 +776,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test version is null
-    Logger.getLogger(getClass()).info("TEST4 - ");
+    Logger.getLogger(getClass()).info("TEST  null version - ");
     try {
       contentService.findCodesForQuery(snomedTerminology, null, "care",
           new PfscParameterJpa(), authToken);
@@ -1136,16 +785,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test version is invalid - empty result
-    Logger.getLogger(getClass()).info("TEST5 - ");
-    assertEquals(
-        0,
-        contentService
-            .findCodesForQuery(snomedTerminology, "TTT", "care",
-                new PfscParameterJpa(), authToken).getObjects().size());
-
     // Test version is empty string - exception
-    Logger.getLogger(getClass()).info("TEST6 - ");
+    Logger.getLogger(getClass()).info("TEST empty version - ");
     try {
       contentService.findCodesForQuery(snomedTerminology, "", "care",
           new PfscParameterJpa(), authToken);
@@ -1154,24 +795,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test query is null - no results
-    Logger.getLogger(getClass()).info("TEST7 - ");
-    assertEquals(
-        0,
-        contentService
-            .findCodesForQuery(snomedTerminology, snomedVersion, null,
-                new PfscParameterJpa(), authToken).getObjects().size());
-
-    // Test query is empty string - empty result
-    Logger.getLogger(getClass()).info("TEST8 - ");
-    assertEquals(
-        0,
-        contentService
-            .findCodesForQuery(snomedTerminology, snomedVersion, "",
-                new PfscParameterJpa(), authToken).getObjects().size());
-
     // Test with null authToken
-    Logger.getLogger(getClass()).info("TEST9 - ");
+    Logger.getLogger(getClass()).info("TEST null authToken - ");
     try {
       contentService.findCodesForQuery(snomedTerminology, snomedVersion,
           "care", new PfscParameterJpa(), null);
@@ -1181,7 +806,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with invalid authToken
-    Logger.getLogger(getClass()).info("TEST10 - ");
+    Logger.getLogger(getClass()).info("TEST invalid authToken - ");
     try {
       contentService.findCodesForQuery(snomedTerminology, snomedVersion,
           "care", new PfscParameterJpa(), "TTT");
@@ -1191,7 +816,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with empty string authToken
-    Logger.getLogger(getClass()).info("TEST11 - ");
+    Logger.getLogger(getClass()).info("TEST empty authToken - ");
     try {
       contentService.findCodesForQuery(snomedTerminology, snomedVersion,
           "care", new PfscParameterJpa(), "");
@@ -1207,11 +832,10 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
    */
   @Test
   public void testDegenerateUseRestContent011() throws Exception {
-
     Logger.getLogger(getClass()).debug("Start test");
 
     // Test terminology is null
-    Logger.getLogger(getClass()).info("TEST1 - ");
+    Logger.getLogger(getClass()).info("TEST null terminology - ");
     try {
       contentService.findDescendantConcepts("105590001", null, snomedVersion,
           false, new PfsParameterJpa(), authToken);
@@ -1220,16 +844,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test terminology is invalid - empty result
-    Logger.getLogger(getClass()).info("TEST2 - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescendantConcepts("105590001", "TTT", snomedVersion, false,
-                new PfsParameterJpa(), authToken).getObjects().size());
-
     // Test terminology is empty string
-    Logger.getLogger(getClass()).info("TEST3 - ");
+    Logger.getLogger(getClass()).info("TEST empty terminology - ");
     try {
       contentService.findDescendantConcepts("105590001", "", snomedVersion,
           false, new PfsParameterJpa(), authToken);
@@ -1239,7 +855,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test version is null
-    Logger.getLogger(getClass()).info("TEST4 - ");
+    Logger.getLogger(getClass()).info("TEST null version - ");
     try {
       contentService.findDescendantConcepts("105590001", snomedTerminology,
           null, false, new PfsParameterJpa(), authToken);
@@ -1248,16 +864,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test version is invalid - empty result
-    Logger.getLogger(getClass()).info("TEST5 - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescendantConcepts("105590001", snomedTerminology, "TTT",
-                false, new PfsParameterJpa(), authToken).getObjects().size());
-
     // Test version is empty string
-    Logger.getLogger(getClass()).info("TEST6 - ");
+    Logger.getLogger(getClass()).info("TEST empty version - ");
     try {
       contentService.findDescendantConcepts("105590001", snomedTerminology, "",
           false, new PfsParameterJpa(), authToken);
@@ -1267,7 +875,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test self id is null
-    Logger.getLogger(getClass()).info("TEST7 - ");
+    Logger.getLogger(getClass()).info("TEST null selfId - ");
     try {
       contentService.findDescendantConcepts(null, snomedTerminology,
           snomedVersion, false, new PfsParameterJpa(), authToken);
@@ -1277,7 +885,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test self id is empty string
-    Logger.getLogger(getClass()).info("TEST8 - ");
+    Logger.getLogger(getClass()).info("TEST empty selfId - ");
     try {
       contentService.findDescendantConcepts("", snomedTerminology,
           snomedVersion, false, new PfsParameterJpa(), authToken);
@@ -1287,7 +895,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with null authToken
-    Logger.getLogger(getClass()).info("TEST9 - ");
+    Logger.getLogger(getClass()).info("TEST null authToken - ");
     try {
       contentService.findDescendantConcepts("105590001", snomedTerminology,
           snomedVersion, false, new PfsParameterJpa(), null);
@@ -1297,7 +905,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with invalid authToken
-    Logger.getLogger(getClass()).info("TEST10 - ");
+    Logger.getLogger(getClass()).info("TEST invalid authToken - ");
     try {
       contentService.findDescendantConcepts("105590001", snomedTerminology,
           null, false, new PfsParameterJpa(), "TTT");
@@ -1307,7 +915,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with empty string authToken
-    Logger.getLogger(getClass()).info("TEST11 - ");
+    Logger.getLogger(getClass()).info("TEST empty authToken - ");
     try {
       contentService.findDescendantConcepts("105590001", snomedTerminology,
           null, false, new PfsParameterJpa(), "");
@@ -1317,7 +925,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test terminology is null
-    Logger.getLogger(getClass()).info("TEST12 - ");
+    Logger.getLogger(getClass()).info("TEST null terminology - ");
     try {
       contentService.findAncestorConcepts("105590001", null, snomedVersion,
           false, new PfsParameterJpa(), authToken);
@@ -1326,16 +934,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test terminology is invalid - empty result
-    Logger.getLogger(getClass()).info("TEST13 - ");
-    assertEquals(
-        0,
-        contentService
-            .findAncestorConcepts("105590001", "TTT", snomedVersion, false,
-                new PfsParameterJpa(), authToken).getObjects().size());
-
     // Test terminology is empty string
-    Logger.getLogger(getClass()).info("TEST14 - ");
+    Logger.getLogger(getClass()).info("TEST empty terminology - ");
     try {
       contentService.findAncestorConcepts("105590001", "", snomedVersion,
           false, new PfsParameterJpa(), authToken);
@@ -1345,7 +945,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test version is null
-    Logger.getLogger(getClass()).info("TEST15 - ");
+    Logger.getLogger(getClass()).info("TEST null version - ");
     try {
       contentService.findAncestorConcepts("105590001", snomedTerminology, null,
           false, new PfsParameterJpa(), authToken);
@@ -1354,16 +954,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test version is invalid - empty result
-    Logger.getLogger(getClass()).info("TEST16 - ");
-    assertEquals(
-        0,
-        contentService
-            .findAncestorConcepts("105590001", snomedTerminology, "TTT", false,
-                new PfsParameterJpa(), authToken).getObjects().size());
-
     // Test version is empty string
-    Logger.getLogger(getClass()).info("TEST17 - ");
+    Logger.getLogger(getClass()).info("TEST empty version - ");
     try {
       contentService.findAncestorConcepts("105590001", snomedTerminology, "",
           false, new PfsParameterJpa(), authToken);
@@ -1373,7 +965,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test self id is null
-    Logger.getLogger(getClass()).info("TEST18 - ");
+    Logger.getLogger(getClass()).info("TEST null selfId - ");
     try {
       contentService.findAncestorConcepts(null, snomedTerminology,
           snomedVersion, false, new PfsParameterJpa(), authToken);
@@ -1383,7 +975,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test self id is empty string
-    Logger.getLogger(getClass()).info("TEST19 - ");
+    Logger.getLogger(getClass()).info("TEST empty selfId - ");
     try {
       contentService.findAncestorConcepts("", snomedTerminology, snomedVersion,
           false, new PfsParameterJpa(), authToken);
@@ -1393,7 +985,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with null authToken
-    Logger.getLogger(getClass()).info("TEST20 - ");
+    Logger.getLogger(getClass()).info("TEST null authToken - ");
     try {
       contentService.findAncestorConcepts("105590001", snomedTerminology,
           snomedVersion, false, new PfsParameterJpa(), null);
@@ -1403,7 +995,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with invalid authToken
-    Logger.getLogger(getClass()).info("TEST21 - ");
+    Logger.getLogger(getClass()).info("TEST invalid authToken - ");
     try {
       contentService.findAncestorConcepts("105590001", snomedTerminology, null,
           false, new PfsParameterJpa(), "TTT");
@@ -1413,7 +1005,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with empty string authToken
-    Logger.getLogger(getClass()).info("TEST22 - ");
+    Logger.getLogger(getClass()).info("TEST empty authToken - ");
     try {
       contentService.findAncestorConcepts("105590001", snomedTerminology, null,
           false, new PfsParameterJpa(), "");
@@ -1429,11 +1021,10 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
    */
   @Test
   public void testDegenerateUseRestContent012() throws Exception {
-
     Logger.getLogger(getClass()).debug("Start test");
 
     // Test terminology is null
-    Logger.getLogger(getClass()).info("TEST1 - ");
+    Logger.getLogger(getClass()).info("TEST null terminology - ");
     try {
       contentService.findDescendantDescriptors("D000005", null, mshVersion,
           false, new PfsParameterJpa(), authToken);
@@ -1442,16 +1033,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test terminology is invalid - empty result
-    Logger.getLogger(getClass()).info("TEST2 - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescendantDescriptors("D000005", "TTT", mshVersion, false,
-                new PfsParameterJpa(), authToken).getObjects().size());
-
     // Test terminology is empty string
-    Logger.getLogger(getClass()).info("TEST3 - ");
+    Logger.getLogger(getClass()).info("TEST empty terminology - ");
     try {
       contentService.findDescendantDescriptors("D000005", "", mshVersion,
           false, new PfsParameterJpa(), authToken);
@@ -1461,7 +1044,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test version is null
-    Logger.getLogger(getClass()).info("TEST4 - ");
+    Logger.getLogger(getClass()).info("TEST null version - ");
     try {
       contentService.findDescendantDescriptors("D000005", mshTerminology, null,
           false, new PfsParameterJpa(), authToken);
@@ -1470,16 +1053,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test version is invalid - empty result
-    Logger.getLogger(getClass()).info("TEST5 - ");
-    assertEquals(
-        0,
-        contentService
-            .findDescendantDescriptors("D000005", mshTerminology, "TTT", false,
-                new PfsParameterJpa(), authToken).getObjects().size());
-
     // Test version is empty string
-    Logger.getLogger(getClass()).info("TEST6 - ");
+    Logger.getLogger(getClass()).info("TEST empty version - ");
     try {
       contentService.findDescendantDescriptors("D000005", mshTerminology, "",
           false, new PfsParameterJpa(), authToken);
@@ -1489,7 +1064,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test self id is null
-    Logger.getLogger(getClass()).info("TEST7 - ");
+    Logger.getLogger(getClass()).info("TEST null selfId - ");
     try {
       contentService.findDescendantDescriptors(null, mshTerminology,
           mshVersion, false, new PfsParameterJpa(), authToken);
@@ -1499,7 +1074,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test self id is empty string
-    Logger.getLogger(getClass()).info("TEST8 - ");
+    Logger.getLogger(getClass()).info("TEST empty selfId - ");
     try {
       contentService.findDescendantDescriptors("", mshTerminology, mshVersion,
           false, new PfsParameterJpa(), authToken);
@@ -1509,7 +1084,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with null authToken
-    Logger.getLogger(getClass()).info("TEST9 - ");
+    Logger.getLogger(getClass()).info("TEST null authToken - ");
     try {
       contentService.findDescendantDescriptors("D000005", mshTerminology,
           mshVersion, false, new PfsParameterJpa(), null);
@@ -1519,7 +1094,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with invalid authToken
-    Logger.getLogger(getClass()).info("TEST10 - ");
+    Logger.getLogger(getClass()).info("TEST invalid authToken - ");
     try {
       contentService.findDescendantDescriptors("D000005", mshTerminology, null,
           false, new PfsParameterJpa(), "TTT");
@@ -1529,7 +1104,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with empty string authToken
-    Logger.getLogger(getClass()).info("TEST11 - ");
+    Logger.getLogger(getClass()).info("TEST empty authToken - ");
     try {
       contentService.findDescendantDescriptors("D000005", mshTerminology, null,
           false, new PfsParameterJpa(), "");
@@ -1539,7 +1114,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test terminology is null
-    Logger.getLogger(getClass()).info("TEST12 - ");
+    Logger.getLogger(getClass()).info("TEST null terminology - ");
     try {
       contentService.findAncestorDescriptors("D000005", null, mshVersion,
           false, new PfsParameterJpa(), authToken);
@@ -1548,16 +1123,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test terminology is invalid - empty result
-    Logger.getLogger(getClass()).info("TEST13 - ");
-    assertEquals(
-        0,
-        contentService
-            .findAncestorDescriptors("D000005", "TTT", mshVersion, false,
-                new PfsParameterJpa(), authToken).getObjects().size());
-
     // Test terminology is empty string
-    Logger.getLogger(getClass()).info("TEST14 - ");
+    Logger.getLogger(getClass()).info("TEST empty terminology - ");
     try {
       contentService.findAncestorDescriptors("D000005", "", mshVersion, false,
           new PfsParameterJpa(), authToken);
@@ -1567,7 +1134,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test version is null
-    Logger.getLogger(getClass()).info("TEST15 - ");
+    Logger.getLogger(getClass()).info("TEST null version - ");
     try {
       contentService.findAncestorDescriptors("D000005", mshTerminology, null,
           false, new PfsParameterJpa(), authToken);
@@ -1576,16 +1143,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test version is invalid - empty result
-    Logger.getLogger(getClass()).info("TEST16 - ");
-    assertEquals(
-        0,
-        contentService
-            .findAncestorDescriptors("D000005", mshTerminology, "TTT", false,
-                new PfsParameterJpa(), authToken).getObjects().size());
-
     // Test version is empty string
-    Logger.getLogger(getClass()).info("TEST17 - ");
+    Logger.getLogger(getClass()).info("TEST empty version - ");
     try {
       contentService.findAncestorDescriptors("D000005", mshTerminology, "",
           false, new PfsParameterJpa(), authToken);
@@ -1595,7 +1154,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test self id is null
-    Logger.getLogger(getClass()).info("TEST18 - ");
+    Logger.getLogger(getClass()).info("TEST null selfId - ");
     try {
       contentService.findAncestorDescriptors(null, mshTerminology, mshVersion,
           false, new PfsParameterJpa(), authToken);
@@ -1605,7 +1164,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test self id is empty string
-    Logger.getLogger(getClass()).info("TEST19 - ");
+    Logger.getLogger(getClass()).info("TEST empty selfId - ");
     try {
       contentService.findAncestorDescriptors("", mshTerminology, mshVersion,
           false, new PfsParameterJpa(), authToken);
@@ -1615,7 +1174,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with null authToken
-    Logger.getLogger(getClass()).info("TEST20 - ");
+    Logger.getLogger(getClass()).info("TEST null authToken - ");
     try {
       contentService.findAncestorDescriptors("D000005", mshTerminology,
           mshVersion, false, new PfsParameterJpa(), null);
@@ -1625,7 +1184,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with invalid authToken
-    Logger.getLogger(getClass()).info("TEST21 - ");
+    Logger.getLogger(getClass()).info("TEST invalid authToken - ");
     try {
       contentService.findAncestorDescriptors("D000005", mshTerminology, null,
           false, new PfsParameterJpa(), "TTT");
@@ -1635,7 +1194,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with empty string authToken
-    Logger.getLogger(getClass()).info("TEST22 - ");
+    Logger.getLogger(getClass()).info("TEST empty authToken - ");
     try {
       contentService.findAncestorDescriptors("D000005", mshTerminology, null,
           false, new PfsParameterJpa(), "");
@@ -1653,7 +1212,6 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
   @Test
   public void testDegenerateUseRestContent013() throws Exception {
     // n/a - no code ancestors or descendants
-    // TODO: consider sample data from SAMPLE_2014AB
   }
 
   /**
@@ -1663,21 +1221,10 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
    */
   @Test
   public void testDegenerateUseRestContent014() throws Exception {
-    /*
-     * Logger.getLogger(getClass()).info("Start test");
-     * 
-     * Logger.getLogger(getClass()).info("  Test get subset members for concept")
-     * ; list = contentService.getSubsetMembersForConcept("10123006",
-     * snomedTerminology, snomedVersion, authToken);
-     * Logger.getLogger(getClass()).info( "    totalCount = " +
-     * list.getTotalCount()); assertEquals(5, list.getTotalCount());
-     * assertEquals(5, list.getCount());
-     */
-
     Logger.getLogger(getClass()).debug("Start test");
 
     // Test with null terminologyId
-    Logger.getLogger(getClass()).info("TEST1");
+    Logger.getLogger(getClass()).info("TEST null terminologyId");
     try {
       contentService.getSubsetMembersForAtom(null, snomedTerminology,
           snomedVersion, authToken);
@@ -1686,18 +1233,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid terminologyId
-    // TODO: why is this not throwing NoResultException?
-    /*
-     * Logger.getLogger(getClass()).info( "TEST2 "); try {
-     * contentService.getSubsetMembersForAtom("-1", snomedTerminology,
-     * snomedVersion, authToken); fail(
-     * "Exception should be thrown when trying to get a concept with invalid terminologyId."
-     * ); } catch (Exception e) { // do nothing }
-     */
-
     // Test with empty string terminologyId
-    Logger.getLogger(getClass()).info("TEST3 ");
+    Logger.getLogger(getClass()).info("TEST empty terminologyId ");
     try {
       contentService.getSubsetMembersForAtom("", umlsTerminology, umlsVersion,
           authToken);
@@ -1707,7 +1244,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with null terminology
-    Logger.getLogger(getClass()).info("TEST4");
+    Logger.getLogger(getClass()).info("TEST null terminology");
     try {
       contentService.getSubsetMembersForAtom("166113012", null, snomedVersion,
           authToken);
@@ -1716,16 +1253,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid terminology - empty results
-    Logger.getLogger(getClass()).info("TEST5 ");
-    assertEquals(
-        0,
-        contentService
-            .getSubsetMembersForAtom("166113012", "TTT", snomedVersion,
-                authToken).getObjects().size());
-
     // Test with empty string terminology - no results
-    Logger.getLogger(getClass()).info("TEST6 ");
+    Logger.getLogger(getClass()).info("TEST empty terminology ");
     try {
       contentService.getSubsetMembersForAtom("166113012", "", snomedVersion,
           authToken);
@@ -1735,7 +1264,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with null version
-    Logger.getLogger(getClass()).info("TEST7");
+    Logger.getLogger(getClass()).info("TEST null version");
     try {
       contentService.getSubsetMembersForAtom("166113012", snomedTerminology,
           null, authToken);
@@ -1744,16 +1273,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid version - empty result
-    Logger.getLogger(getClass()).info("TEST8");
-    assertEquals(
-        0,
-        contentService
-            .getSubsetMembersForAtom("166113012", "MSH", "TTT", authToken)
-            .getObjects().size());
-
     // Test with empty string version
-    Logger.getLogger(getClass()).info("TEST9");
+    Logger.getLogger(getClass()).info("TEST empty version");
     try {
       contentService.getSubsetMembersForAtom("166113012", "MSH", "", authToken);
       fail("Exception should be thrown when trying to get a concept with empty string version.");
@@ -1762,7 +1283,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with null authToken
-    Logger.getLogger(getClass()).info("TEST10");
+    Logger.getLogger(getClass()).info("TEST null authToken");
     try {
       contentService.getSubsetMembersForAtom("166113012", "MSH",
           "2015_2014_09_08", null);
@@ -1772,7 +1293,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with invalid authToken
-    Logger.getLogger(getClass()).info("TEST11");
+    Logger.getLogger(getClass()).info("TEST invalid authToken");
     try {
       contentService.getSubsetMembersForAtom("166113012", "MSH",
           "2015_2014_09_08", "TTT");
@@ -1782,7 +1303,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with empty string authToken
-    Logger.getLogger(getClass()).info("TEST12 ");
+    Logger.getLogger(getClass()).info("TEST empty authToken ");
     try {
       contentService.getSubsetMembersForAtom("166113012", "MSH",
           "2015_2014_09_08", "");
@@ -1792,7 +1313,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with null terminologyId
-    Logger.getLogger(getClass()).info("TEST13");
+    Logger.getLogger(getClass()).info("TEST null terminologyId");
     try {
       contentService.getSubsetMembersForConcept(null, snomedTerminology,
           snomedVersion, authToken);
@@ -1801,16 +1322,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid terminologyId - empty result
-    Logger.getLogger(getClass()).info("TEST14 ");
-    assertEquals(
-        0,
-        contentService
-            .getSubsetMembersForConcept("-1", snomedTerminology, snomedVersion,
-                authToken).getObjects().size());
-
     // Test with empty string terminologyId
-    Logger.getLogger(getClass()).info("TEST15 ");
+    Logger.getLogger(getClass()).info("TEST empty terminologyId ");
     try {
       contentService.getSubsetMembersForConcept("", umlsTerminology,
           umlsVersion, authToken);
@@ -1820,7 +1333,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with null terminology
-    Logger.getLogger(getClass()).info("TEST16");
+    Logger.getLogger(getClass()).info("TEST null terminology");
     try {
       contentService.getSubsetMembersForConcept("10123006", null,
           snomedVersion, authToken);
@@ -1829,16 +1342,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid terminology - empty result
-    Logger.getLogger(getClass()).info("TEST17 ");
-    assertEquals(
-        0,
-        contentService
-            .getSubsetMembersForConcept("10123006", "TTT", snomedVersion,
-                authToken).getObjects().size());
-
     // Test with empty string terminology
-    Logger.getLogger(getClass()).info("TEST18 ");
+    Logger.getLogger(getClass()).info("TEST empty terminology ");
     try {
       contentService.getSubsetMembersForConcept("10123006", "", snomedVersion,
           authToken);
@@ -1848,7 +1353,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with null version
-    Logger.getLogger(getClass()).info("TEST19");
+    Logger.getLogger(getClass()).info("TEST null version");
     try {
       contentService.getSubsetMembersForConcept("10123006", snomedTerminology,
           null, authToken);
@@ -1857,16 +1362,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid version - empty result
-    Logger.getLogger(getClass()).info("TEST20");
-    assertEquals(
-        0,
-        contentService
-            .getSubsetMembersForConcept("10123006", "MSH", "TTT", authToken)
-            .getObjects().size());
-
     // Test with empty string version
-    Logger.getLogger(getClass()).info("TEST21");
+    Logger.getLogger(getClass()).info("TEST empty version");
     try {
       contentService.getSubsetMembersForConcept("10123006", "MSH", "",
           authToken);
@@ -1876,7 +1373,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with null authToken
-    Logger.getLogger(getClass()).info("TEST22");
+    Logger.getLogger(getClass()).info("TEST null authToken");
     try {
       contentService.getSubsetMembersForConcept("10123006", "MSH",
           "2015_2014_09_08", null);
@@ -1886,7 +1383,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with invalid authToken
-    Logger.getLogger(getClass()).info("TEST23");
+    Logger.getLogger(getClass()).info("TEST invalid authToken");
     try {
       contentService.getSubsetMembersForConcept("10123006", "MSH",
           "2015_2014_09_08", "TTT");
@@ -1896,7 +1393,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with empty string authToken
-    Logger.getLogger(getClass()).info("TEST24 ");
+    Logger.getLogger(getClass()).info("TEST empty authToken ");
     try {
       contentService.getSubsetMembersForConcept("10123006", "MSH",
           "2015_2014_09_08", "");
@@ -1916,8 +1413,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     Logger.getLogger(getClass()).info("Start test");
 
     // Test with empty string searchTerm
-    Logger.getLogger(getClass()).info("TEST1 ");
-    // TODO: should an exception be thrown here?
+    Logger.getLogger(getClass()).info("TEST empty searchTerm ");
     try {
       contentService.autocompleteConcepts(snomedTerminology, snomedVersion, "",
           authToken);
@@ -1927,7 +1423,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
     }
 
     // Test with null searchTerm
-    Logger.getLogger(getClass()).info("TEST2 ");
+    Logger.getLogger(getClass()).info("TEST null searchTerm ");
     try {
       contentService.autocompleteConcepts(snomedTerminology, snomedVersion,
           null, authToken);
@@ -1936,13 +1432,6 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
       // do nothing
     }
 
-    // Test with invalid searchTerm - empty results
-    Logger.getLogger(getClass()).info("TEST3 ");
-    assertEquals(
-        0,
-        contentService
-            .autocompleteConcepts(snomedTerminology, snomedVersion, "qrs",
-                authToken).getObjects().size());
   }
 
   /**
