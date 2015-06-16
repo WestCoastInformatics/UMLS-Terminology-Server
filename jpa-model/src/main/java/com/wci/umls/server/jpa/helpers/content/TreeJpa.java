@@ -249,7 +249,7 @@ public class TreeJpa implements Tree {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    if (self == null)
+    if (self == null || self.getNode() == null)
       return "null";
     sb.append("TreeJpa = " + self.getNode().getId());
     List<Tree> children = getChildren();

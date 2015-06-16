@@ -4,29 +4,44 @@
 package com.wci.umls.server.jpa.helpers;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.IndexedEmbedded;
 
 /**
- * The Class IndexUtility Performs utility functions relating to Lucene indexes
- * and Hibernate Search
+ * Performs utility functions relating to Lucene indexes and Hibernate Search.
  */
 public class IndexUtility {
 
   /**
-   * Returns the indexed field names for a given class
+   * Returns the indexed field names for a given class.
    *
    * @param clazz the clazz
+   * @param stringOnly the string only flag
    * @return the indexed field names
+   * @throws Exception the exception
    */
-  public static List<String> getIndexedStringFieldNames(Class<?> clazz) {
+  public static Set<String> getIndexedStringFieldNames(Class<?> clazz,
+    boolean stringOnly) throws Exception {
 
-    List<String> fieldNames = new ArrayList<>();
+    
+    Set<String> exclusions = new HashSet<>();
+    exclusions.add("Sort");
+    exclusions.add("nGram");
+    exclusions.add("NGram");
+     
+    Set<String> fieldNames = new HashSet<>();
 
     // first cycle over all methods
     for (Method m : clazz.getMethods()) {
@@ -38,16 +53,14 @@ public class IndexUtility {
 
       // check for @IndexEmbedded
       if (m.isAnnotationPresent(IndexedEmbedded.class)) {
-        IndexedEmbedded embedded = m.getAnnotation(IndexedEmbedded.class);
-        for (String embeddedField : getIndexedStringFieldNames(embedded
-            .targetElement())) {
-          fieldNames.add(getClassFieldName(embedded.targetElement()) + "."
-              + embeddedField);
-        }
+        throw new Exception(
+            "Unable to handle @IndexedEmbedded on methods, specify on field");
       }
 
-      // for non-embedded fields, only process strings - why would that be??
-      if (!m.getReturnType().equals(String.class))
+      // for non-embedded fields, only process strings
+      // This is because we're handling string based query here
+      // Other fields can always be used with fielded query clauses
+      if (stringOnly && !m.getReturnType().equals(String.class))
         continue;
 
       // check for @Field annotation
@@ -55,9 +68,7 @@ public class IndexUtility {
         String fieldName =
             getFieldNameFromMethod(m, m.getAnnotation(Field.class));
 
-        // skip Sort fields
-        if (!fieldName.endsWith("Sort"))
-          fieldNames.add(fieldName);
+        fieldNames.add(fieldName);
       }
 
       // check for @Fields annotation
@@ -65,37 +76,57 @@ public class IndexUtility {
         for (Field field : m.getAnnotation(Fields.class).value()) {
           String fieldName = getFieldNameFromMethod(m, field);
 
-          // skip Sort fields
-          if (!fieldName.endsWith("Sort"))
-            fieldNames.add(fieldName);
+          fieldNames.add(fieldName);
         }
       }
     }
 
     // second cycle over all fields
-    for (java.lang.reflect.Field f : clazz.getDeclaredFields()) {
+    for (java.lang.reflect.Field f : getAllFields(clazz)) {
 
       // check for @IndexEmbedded
       if (f.isAnnotationPresent(IndexedEmbedded.class)) {
-        IndexedEmbedded embedded = f.getAnnotation(IndexedEmbedded.class);
-        for (String embeddedField : getIndexedStringFieldNames(embedded
-            .targetElement())) {
-          fieldNames.add(f.getName() + "." + embeddedField);
+
+        // Assumes field is a collection, and has a OneToMany, ManyToMany, or
+        // ManyToOne
+        // annotation
+        if (Collection.class.isAssignableFrom(f.getType())) {
+          Class<?> jpaType = null;
+          if (f.isAnnotationPresent(OneToMany.class)) {
+            jpaType = f.getAnnotation(OneToMany.class).targetEntity();
+          } else if (f.isAnnotationPresent(ManyToMany.class)) {
+            jpaType = f.getAnnotation(ManyToMany.class).targetEntity();
+          } else if (f.isAnnotationPresent(ManyToOne.class)) {
+            jpaType = f.getAnnotation(ManyToOne.class).targetEntity();
+          } else {
+            throw new Exception("Unable to determine jpa type ");
+          }
+
+          for (String embeddedField : getIndexedStringFieldNames(jpaType,
+              stringOnly)) {
+            Logger.getLogger(IndexUtility.class).info(
+                "  add " + f.getName() + "." + embeddedField);
+            fieldNames.add(f.getName() + "." + embeddedField);
+          }
+        } else {
+          for (String embeddedField : getIndexedStringFieldNames(f.getClass(),
+              stringOnly)) {
+            Logger.getLogger(IndexUtility.class).info(
+                "  add " + f.getName() + "." + embeddedField);
+            fieldNames.add(f.getName() + "." + embeddedField);
+          }
         }
       }
 
       // for non-embedded fields, only process strings
-      if (!f.getType().equals(String.class))
+      if (stringOnly && !f.getType().equals(String.class))
         continue;
 
       // check for @Field annotation
       if (f.isAnnotationPresent(Field.class)) {
         String fieldName =
             getFieldNameFromField(f, f.getAnnotation(Field.class));
-
-        // skip Sort fields
-        if (!fieldName.endsWith("Sort"))
-          fieldNames.add(fieldName);
+        fieldNames.add(fieldName);
       }
 
       // check for @Fields annotation
@@ -103,16 +134,20 @@ public class IndexUtility {
         for (Field field : f.getAnnotation(Fields.class).value()) {
 
           String fieldName = getFieldNameFromField(f, field);
-
-          // skip Sort fields
-          if (!fieldName.endsWith("Sort"))
-            fieldNames.add(fieldName);
+          fieldNames.add(fieldName);
         }
       }
 
     }
+    
+    Set<String> filteredFieldNames = new HashSet<>();
+    for (String fieldName : fieldNames) {
+      if (!exclusions.contains(fieldName)) {
+        filteredFieldNames.add(fieldName);
+      }
+    }
 
-    return fieldNames;
+    return filteredFieldNames;
   }
 
   /**
@@ -131,7 +166,12 @@ public class IndexUtility {
 
     // otherwise, assume method name of form getannotationFieldName
     // where the desired value is annotationFieldName
-    return StringUtils.uncapitalize(m.getName().replace("get", ""));
+    if (m.getName().startsWith("get")) {
+      return StringUtils.uncapitalize(m.getName().replace("get", ""));
+    } else if (m.getName().startsWith("is")) {
+      return StringUtils.uncapitalize(m.getName().replace("is", ""));
+    } else
+      return m.getName();
 
   }
 
@@ -152,13 +192,17 @@ public class IndexUtility {
   }
 
   /**
-   * Helper function to get the base object name without Jpa.
+   * Returns the all fields.
    *
-   * @param clazz the class
-   * @return the class field name
+   * @param type the type
+   * @return the all fields
    */
-  private static String getClassFieldName(Class<?> clazz) {
-    return StringUtils
-        .uncapitalize(clazz.getSimpleName().replaceAll("Jpa", ""));
+  private static java.lang.reflect.Field[] getAllFields(Class<?> type) {
+    if (type.getSuperclass() != null) {
+      return ArrayUtils.addAll(getAllFields(type.getSuperclass()),
+          type.getDeclaredFields());
+    }
+    return type.getDeclaredFields();
   }
+
 }

@@ -493,11 +493,11 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             "care", null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + searchResults.getTotalCount());
-    assertEquals(19, searchResults.getTotalCount());
+    assertEquals(178, searchResults.getTotalCount());
     for (SearchResult sr : searchResults.getObjects()) {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
-    assertEquals(19, searchResults.getCount());
+    assertEquals(178, searchResults.getCount());
 
     // Simple query with spaces, empty pfs
     Logger.getLogger(getClass()).info("  Simple query, empty pfs");
@@ -2317,7 +2317,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             snomedVersion, "a*", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "    total leaf count = " + tree.getLeafNodes().size());
-    assertEquals(8, tree.getLeafNodes().size());
+    assertEquals(9, tree.getLeafNodes().size());
     Logger.getLogger(getClass()).info("    Result: " + tree);
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
     for (TreePosition<? extends AtomClass> leaf : tree.getLeafNodes()) {
@@ -2344,7 +2344,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
             "pneumonia", new PfsParameterJpa(), authToken);
     Logger.getLogger(getClass()).info(
         "    total leaf count = " + tree.getLeafNodes().size());
-    assertEquals(4, tree.getLeafNodes().size());
+    assertEquals(7, tree.getLeafNodes().size());
     Logger.getLogger(getClass()).info("    Result: " + tree);
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
     for (TreePosition<? extends AtomClass> leaf : tree.getLeafNodes()) {
@@ -2385,17 +2385,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // TODO: consider sample data from SAMPLE_2014AB
   }
 
-  
-  /**
-   * Test normal use rest content030.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testNormalUseRestContent030() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
-    contentService.removeTerminology(snomedTerminology, snomedVersion, authToken);
-  }
+
   /**
    * Teardown.
    *

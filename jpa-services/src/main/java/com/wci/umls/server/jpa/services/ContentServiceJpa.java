@@ -204,48 +204,34 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /** The concept field names. */
-  private static String[] conceptFieldNames = {};
+  /** The string field names map. */
+  private static Map<Class<?>, Set<String>> stringFieldNames = new HashMap<>();
 
-  /** The descriptor field names. */
-  private static String[] descriptorFieldNames = {};
-
-  /** The code field names. */
-  private static String[] codeFieldNames = {};
-
-  /** The relationship field names. */
-  private static String[] relationshipFieldNames = {};
-
-  /** The subset member field names. */
-  private static String[] subsetMemberFieldNames = {};
-
-  /** The tree position field names. */
-  private static String[] treePositionFieldNames = {};
+  /** The field names map. */
+  private static Map<Class<?>, Set<String>> allFieldNames = new HashMap<>();
 
   static {
 
     try {
-      conceptFieldNames =
-          IndexUtility.getIndexedStringFieldNames(ConceptJpa.class).toArray(
-              new String[] {});
-      descriptorFieldNames =
-          IndexUtility.getIndexedStringFieldNames(DescriptorJpa.class).toArray(
-              new String[] {});
-      codeFieldNames =
-          IndexUtility.getIndexedStringFieldNames(CodeJpa.class).toArray(
-              new String[] {});
-      relationshipFieldNames =
-          IndexUtility.getIndexedStringFieldNames(ConceptRelationshipJpa.class)
-              .toArray(new String[] {});
-      subsetMemberFieldNames =
-          IndexUtility.getIndexedStringFieldNames(ConceptSubsetMemberJpa.class)
-              .toArray(new String[] {});
-      treePositionFieldNames =
-          IndexUtility.getIndexedStringFieldNames(ConceptTreePositionJpa.class)
-              .toArray(new String[] {});
+
+      Class<?>[] classes =
+          new Class<?>[] {
+              ConceptJpa.class, DescriptorJpa.class, CodeJpa.class,
+              ConceptRelationshipJpa.class, ConceptSubsetMemberJpa.class,
+              ConceptTreePositionJpa.class
+          };
+
+      for (Class<?> clazz : classes) {
+        stringFieldNames.put(clazz,
+            IndexUtility.getIndexedStringFieldNames(clazz, true));
+        allFieldNames.put(clazz,
+            IndexUtility.getIndexedStringFieldNames(clazz, false));
+      }
+      System.out.println("stringFieldNames = " + stringFieldNames);
+      System.out.println("allFieldNames = " + allFieldNames);
     } catch (Exception e) {
       e.printStackTrace();
-      conceptFieldNames = null;
+      stringFieldNames = null;
     }
   }
 
@@ -272,7 +258,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           "Preferred name handler did not properly initialize, serious error.");
     }
 
-    if (conceptFieldNames == null) {
+    if (stringFieldNames == null) {
       throw new Exception(
           "Concept indexed field names did not properly initialize, serious error.");
     }
@@ -549,7 +535,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     FullTextQuery fullTextQuery =
         applyPfsToLuceneQuery(AtomSubsetMemberJpa.class,
-            subsetMemberFieldNames, finalQuery.toString(), pfs);
+            ConceptSubsetMemberJpa.class, finalQuery.toString(), pfs);
 
     SubsetMemberList list = new SubsetMemberListJpa();
     list.setTotalCount(fullTextQuery.getResultSize());
@@ -578,7 +564,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     FullTextQuery fullTextQuery =
         applyPfsToLuceneQuery(ConceptSubsetMemberJpa.class,
-            subsetMemberFieldNames, finalQuery.toString(), pfs);
+            ConceptSubsetMemberJpa.class, finalQuery.toString(), pfs);
 
     SubsetMemberList list = new SubsetMemberListJpa();
     list.setTotalCount(fullTextQuery.getResultSize());
@@ -1544,8 +1530,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   private List findDescendantsHelper(String terminologyId, String terminology,
     String version, boolean childrenOnly, String branch, PfsParameter pfs,
     Class<?> clazz, long[] totalCt) throws Exception {
-
-    // TODO: implement "children only" flag
 
     if (pfs != null && pfs.getQueryRestriction() != null) {
       throw new IllegalArgumentException(
@@ -2723,7 +2707,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - find concepts " + terminology + "/" + version + "/"
             + query);
     return findForQueryHelper(terminology, version, branch, query, pfsc,
-        conceptFieldNames, ConceptJpa.class);
+        ConceptJpa.class, ConceptJpa.class);
   }
 
   /*
@@ -2759,7 +2743,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - find descriptors " + terminology + "/" + version
             + "/" + query);
     return findForQueryHelper(terminology, version, branch, query, pfsc,
-        descriptorFieldNames, DescriptorJpa.class);
+        DescriptorJpa.class, DescriptorJpa.class);
   }
 
   /*
@@ -2796,19 +2780,21 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /**
    * Find for query helper.
    *
+   * @param <T> the
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
    * @param query the query
    * @param pfsc the pfsc
-   * @param fieldNames the field names
+   * @param fieldNamesKey the field names key
    * @param clazz the clazz
    * @return the search result list
    * @throws Exception the exception
    */
   public <T extends AtomClass> SearchResultList findForQueryHelper(
     String terminology, String version, String branch, String query,
-    PfscParameter pfsc, String[] fieldNames, Class<T> clazz) throws Exception {
+    PfscParameter pfsc, Class<?> fieldNamesKey, Class<T> clazz)
+    throws Exception {
     // Prepare results
     SearchResultList results = new SearchResultListJpa();
     List<T> classes = null;
@@ -2821,7 +2807,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       queryFlag = true;
       queryClasses =
           getLuceneQueryResults(terminology, version, branch, query,
-              fieldNames, clazz, pfsc, totalCt);
+              fieldNamesKey, clazz, pfsc, totalCt);
       Logger.getLogger(getClass()).debug(
           "    lucene result count = " + queryClasses.size());
     }
@@ -2943,11 +2929,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /**
    * Find for general query helper.
    *
+   * @param <T> the
    * @param luceneQuery the lucene query
    * @param hqlQuery the hql query
    * @param branch the branch
    * @param pfs the pfs
-   * @param fieldNames the field names
+   * @param fieldNamesKey the field names key
    * @param clazz the clazz
    * @return the search result list
    * @throws Exception the exception
@@ -2955,7 +2942,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   @SuppressWarnings("unchecked")
   private <T extends AtomClass> SearchResultList findForGeneralQueryHelper(
     String luceneQuery, String hqlQuery, String branch, PfsParameter pfs,
-    String[] fieldNames, Class<T> clazz) throws Exception {
+    Class<?> fieldNamesKey, Class<T> clazz) throws Exception {
     // Prepare results
     SearchResultList results = new SearchResultListJpa();
     List<T> classes = null;
@@ -2966,8 +2953,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     boolean luceneQueryFlag = false;
     if (luceneQuery != null && !luceneQuery.equals("")) {
       luceneQueryClasses =
-          getLuceneQueryResults("", "", branch, luceneQuery, fieldNames, clazz,
-              pfs, totalCt);
+          getLuceneQueryResults("", "", branch, luceneQuery, fieldNamesKey,
+              clazz, pfs, totalCt);
       luceneQueryFlag = true;
     }
 
@@ -3094,11 +3081,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /**
    * Returns the query results.
    *
+   * @param <T> the
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
    * @param query the query
-   * @param fieldNames the field names
+   * @param fieldNamesKey the field names key
    * @param clazz the clazz
    * @param pfs the pfs
    * @param totalCt the total ct
@@ -3107,7 +3095,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   private <T extends Component> List<T> getLuceneQueryResults(
     String terminology, String version, String branch, String query,
-    String[] fieldNames, Class<T> clazz, PfsParameter pfs, int[] totalCt)
+    Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt)
     throws Exception {
 
     // Prepare the query string
@@ -3125,7 +3113,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "query for " + clazz.getName() + ": " + finalQuery);
 
     FullTextQuery fullTextQuery =
-        applyPfsToLuceneQuery(clazz, fieldNames, finalQuery.toString(), pfs);
+        applyPfsToLuceneQuery(clazz, fieldNamesKey, finalQuery.toString(), pfs);
 
     // Apply paging and sorting parameters - if no search criteria
     if (pfs instanceof PfscParameter
@@ -3408,7 +3396,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - find codes " + terminology + "/" + version + "/"
             + query);
     return findForQueryHelper(terminology, version, branch, query, pfsc,
-        codeFieldNames, CodeJpa.class);
+        CodeJpa.class, CodeJpa.class);
   }
 
   /*
@@ -4457,7 +4445,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     FullTextQuery fullTextQuery =
-        applyPfsToLuceneQuery(clazz, relationshipFieldNames,
+        applyPfsToLuceneQuery(clazz, ConceptRelationshipJpa.class,
             finalQuery.toString(), pfs);
 
     // Get result size
@@ -4492,8 +4480,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String terminology, String version, String branch, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Service - find tree positionss for descriptor " + terminologyId
-            + "/" + terminology + "/" + version);
+        "Content Service - find tree positionss for descriptor "
+            + terminologyId + "/" + terminology + "/" + version);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
         "", pfs, DescriptorTreePositionJpa.class);
   }
@@ -4540,7 +4528,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       finalQuery.append(" AND nodeTerminologyId:" + terminologyId);
     }
     FullTextQuery fullTextQuery =
-        applyPfsToLuceneQuery(clazz, treePositionFieldNames,
+        applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class,
             finalQuery.toString(), pfs);
 
     // Apply paging and sorting parameters - if no search criteria
@@ -4566,7 +4554,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).info(
         "Content Service - find codes " + luceneQuery + "/" + hqlQuery + "/");
     return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
-        codeFieldNames, CodeJpa.class);
+        CodeJpa.class, CodeJpa.class);
   }
 
   /*
@@ -4585,7 +4573,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             "Content Service - find concepts " + luceneQuery + "/" + hqlQuery
                 + "/");
     return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
-        conceptFieldNames, ConceptJpa.class);
+        ConceptJpa.class, ConceptJpa.class);
   }
 
   /*
@@ -4603,7 +4591,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "Content Service - find descriptors " + luceneQuery + "/" + hqlQuery
             + "/");
     return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
-        descriptorFieldNames, DescriptorJpa.class);
+        DescriptorJpa.class, DescriptorJpa.class);
   }
 
   @SuppressWarnings("unchecked")
@@ -4640,7 +4628,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         Search.getFullTextEntityManager(manager);
     SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
     QueryParser queryParser =
-        new MultiFieldQueryParser(treePositionFieldNames,
+        new MultiFieldQueryParser(stringFieldNames.get(
+            ConceptTreePositionJpa.class).toArray(new String[] {}),
             searchFactory.getAnalyzer(clazz));
     String fullAncPath =
         ancestorPath + (ancestorPath.isEmpty() ? "" : "~") + id;
@@ -4693,14 +4682,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * Apply pfs to lucene query2.
    *
    * @param clazz the clazz
-   * @param fieldNames the field names
+   * @param fieldNamesKey the field names key
    * @param query the query
    * @param pfs the pfs
    * @return the full text query
    * @throws Exception the exception
    */
   protected FullTextQuery applyPfsToLuceneQuery(Class<?> clazz,
-    String[] fieldNames, String query, PfsParameter pfs) throws Exception {
+    Class<?> fieldNamesKey, String query, PfsParameter pfs) throws Exception {
 
     FullTextQuery fullTextQuery = null;
 
@@ -4728,26 +4717,25 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Query luceneQuery;
     try {
       QueryParser queryParser =
-          new MultiFieldQueryParser(fieldNames,
-              searchFactory.getAnalyzer(clazz));
+          new MultiFieldQueryParser(stringFieldNames.get(fieldNamesKey)
+              .toArray(new String[] {}), searchFactory.getAnalyzer(clazz));
       Logger.getLogger(getClass()).info("query = " + pfsQuery);
       luceneQuery = queryParser.parse(pfsQuery.toString());
+
+      // Validate query terms
+      luceneQuery =
+          luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
+              .getIndexReaderAccessor().open(clazz));
       Set<Term> terms = new HashSet<>();
       luceneQuery.extractTerms(terms);
       for (Term t : terms) {
-        if (t.field() != null && !t.field().isEmpty()) {
-          boolean found = false;
-          for (String s : fieldNames) {
-            if (t.field().equals(s)) {
-              found = true;
-              break;
-            }
-          }
-          if (!found)
-            throw new Exception("Query references invalid field name "
-                + t.field());
+        if (t.field() != null && !t.field().isEmpty()
+            && !allFieldNames.get(fieldNamesKey).contains(t.field())) {
+          throw new Exception("Query references invalid field name "
+              + t.field() + ", " + allFieldNames.get(fieldNamesKey));
         }
       }
+
     } catch (ParseException e) {
       throw new LocalException(
           "The specified search terms cannot be parsed.  Please check syntax and try again.");
