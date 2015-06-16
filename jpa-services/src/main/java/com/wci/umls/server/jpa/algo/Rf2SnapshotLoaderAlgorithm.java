@@ -736,6 +736,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     Concept cui = null;
     while (results.next()) {
       final Atom atom = (Atom) results.get()[0];
+      // clear members for associating withxs concepts
+      atom.setMembers(new ArrayList<AtomSubsetMember>());
       if (atom.getConceptId() == null || atom.getConceptId().isEmpty()) {
         continue;
       }
