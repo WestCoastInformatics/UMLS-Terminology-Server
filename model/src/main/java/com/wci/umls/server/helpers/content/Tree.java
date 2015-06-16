@@ -47,7 +47,6 @@ public interface Tree {
    * Sets the total count.
    *
    * @param totalCount the total count
-   * @return the int
    */
   public void setTotalCount(int totalCount);
 

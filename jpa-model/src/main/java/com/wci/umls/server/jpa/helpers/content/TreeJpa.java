@@ -56,7 +56,7 @@ public class TreeJpa implements Tree {
   /** The child ct. */
   int childCt = 0;
 
-  /** The total count of tree positions matching this tree's criteria. */
+  /**  The total count of tree positions matching this tree's criteria. */
   int totalCount;
 
   /** The children. */
@@ -102,16 +102,16 @@ public class TreeJpa implements Tree {
       
       // but don't allow merging trees with different ids
       if (!this.getId().equals(tree.getId())) {
-        throw new IllegalArgumentException(
-            "Unable to merge tree with different root");
-      }
+      throw new IllegalArgumentException(
+          "Unable to merge tree with different root");
+    }
     }
     
     // assemble a map of this tree's children 
       Map<Long, Tree> childMap = new HashMap<>();
       for (Tree t : this.getChildren()) {
         childMap.put(t.getId(), t);
-      }
+  }
       
     for (Tree child: tree.getChildren()) {    
       if (!childMap.containsKey(child.getId())) {
@@ -141,14 +141,14 @@ public class TreeJpa implements Tree {
     this.childCt = treePosition.getChildCt();
     this.ancestorPath = treePosition.getAncestorPath();
     this.children = new ArrayList<>();
-    }
+      }
   
   
 
   @Override
   public Long getId() {
     return id;
-  }
+    }
 
   @Override
   public void setId(Long id) {
@@ -158,7 +158,7 @@ public class TreeJpa implements Tree {
   @Override
   public String getTerminology() {
     return terminology;
-  }
+    }
 
   @Override
   public void setTerminology(String terminology) {
@@ -168,12 +168,12 @@ public class TreeJpa implements Tree {
   @Override
   public String getVersion() {
     return version;
-  }
+      }
 
   @Override
   public void setVersion(String version) {
     this.version = version;
-  }
+    }
 
   @Override
   public String getTerminologyId() {
@@ -257,7 +257,7 @@ public class TreeJpa implements Tree {
   @Override
   public void setTotalCount(int totalCount) {
     this.totalCount = totalCount;
-  }
+    }
 
   /*
    * (non-Javadoc)
@@ -269,7 +269,7 @@ public class TreeJpa implements Tree {
   @Override
   public void addChild(Tree child) {
     this.children.add(child);
-  }
+    }
 
   /*
    * (non-Javadoc)
@@ -292,6 +292,7 @@ public class TreeJpa implements Tree {
    * @param ancestorPath the ancestor path to be matched
    * @return the sub tree for atom class helper
    */
+  @SuppressWarnings("static-method")
   private Tree getSubTreeForAtomClassHelper(Tree tree, String ancestorPath) {
     // TODO Decide if this is still necessary anyway
     return null;

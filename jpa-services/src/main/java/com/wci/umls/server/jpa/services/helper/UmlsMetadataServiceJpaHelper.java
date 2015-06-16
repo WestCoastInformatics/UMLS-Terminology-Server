@@ -317,6 +317,11 @@ public class UmlsMetadataServiceJpaHelper extends
     refreshCachesHelper();
   }
 
+  /**
+   * Refresh caches helper.
+   *
+   * @throws Exception the exception
+   */
   private void refreshCachesHelper() throws Exception {
     termTypesMap = new HashMap<>();
     additionalRelationshipTypesMap = new HashMap<>();
