@@ -4665,7 +4665,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         throw new Exception("Unexpected number of results: "
             + fullTextQuery.getResultSize());
       }
-      Object[] result = (Object[]) results.get(0);
+      Object[] result = results.get(0);
 
       // fill in the tree object
       partTree.setId((Long) result[0]); 

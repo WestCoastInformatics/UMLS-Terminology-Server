@@ -292,6 +292,7 @@ public class TreeJpa implements Tree {
    * @param ancestorPath the ancestor path to be matched
    * @return the sub tree for atom class helper
    */
+  @SuppressWarnings("static-method")
   private Tree getSubTreeForAtomClassHelper(Tree tree, String ancestorPath) {
     // TODO Decide if this is still necessary anyway
     return null;

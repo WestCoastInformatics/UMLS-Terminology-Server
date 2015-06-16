@@ -1156,9 +1156,11 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test query is null - no results
     Logger.getLogger(getClass()).info("TEST7 - ");
-    assertEquals(0,
-      contentService.findCodesForQuery(snomedTerminology, snomedVersion, null,
-          new PfscParameterJpa(), authToken).getObjects().size());
+    assertEquals(
+        0,
+        contentService
+            .findCodesForQuery(snomedTerminology, snomedVersion, null,
+                new PfscParameterJpa(), authToken).getObjects().size());
 
     // Test query is empty string - empty result
     Logger.getLogger(getClass()).info("TEST8 - ");
@@ -1716,15 +1718,21 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with invalid terminology - empty results
     Logger.getLogger(getClass()).info("TEST5 ");
-    assertEquals(0,
-      contentService.getSubsetMembersForAtom("166113012", "TTT", snomedVersion,
-          authToken).getObjects().size());
+    assertEquals(
+        0,
+        contentService
+            .getSubsetMembersForAtom("166113012", "TTT", snomedVersion,
+                authToken).getObjects().size());
 
     // Test with empty string terminology - no results
     Logger.getLogger(getClass()).info("TEST6 ");
-    assertEquals(0,
+    try {
       contentService.getSubsetMembersForAtom("166113012", "", snomedVersion,
-          authToken).getObjects().size());
+          authToken);
+      fail("Exception should be thrown when trying to get a concept with empty terminology.");
+    } catch (Exception e) {
+      // do nothing
+    }
 
     // Test with null version
     Logger.getLogger(getClass()).info("TEST7");
@@ -1795,9 +1803,11 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with invalid terminologyId - empty result
     Logger.getLogger(getClass()).info("TEST14 ");
-    assertEquals(0,
-      contentService.getSubsetMembersForConcept("-1", snomedTerminology,
-          snomedVersion, authToken).getObjects().size());
+    assertEquals(
+        0,
+        contentService
+            .getSubsetMembersForConcept("-1", snomedTerminology, snomedVersion,
+                authToken).getObjects().size());
 
     // Test with empty string terminologyId
     Logger.getLogger(getClass()).info("TEST15 ");
@@ -1821,9 +1831,11 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with invalid terminology - empty result
     Logger.getLogger(getClass()).info("TEST17 ");
-    assertEquals(0,
-      contentService.getSubsetMembersForConcept("10123006", "TTT",
-          snomedVersion, authToken).getObjects().size());
+    assertEquals(
+        0,
+        contentService
+            .getSubsetMembersForConcept("10123006", "TTT", snomedVersion,
+                authToken).getObjects().size());
 
     // Test with empty string terminology
     Logger.getLogger(getClass()).info("TEST18 ");
@@ -1847,9 +1859,11 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with invalid version - empty result
     Logger.getLogger(getClass()).info("TEST20");
-    assertEquals(0,
-      contentService.getSubsetMembersForConcept("10123006", "MSH", "TTT",
-          authToken).getObjects().size());
+    assertEquals(
+        0,
+        contentService
+            .getSubsetMembersForConcept("10123006", "MSH", "TTT", authToken)
+            .getObjects().size());
 
     // Test with empty string version
     Logger.getLogger(getClass()).info("TEST21");
@@ -1924,9 +1938,11 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
 
     // Test with invalid searchTerm - empty results
     Logger.getLogger(getClass()).info("TEST3 ");
-    assertEquals(0,
-    contentService.autocompleteConcepts(snomedTerminology, snomedVersion,
-          "qrs", authToken).getObjects().size());
+    assertEquals(
+        0,
+        contentService
+            .autocompleteConcepts(snomedTerminology, snomedVersion, "qrs",
+                authToken).getObjects().size());
   }
 
   /**

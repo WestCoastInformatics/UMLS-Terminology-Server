@@ -4,7 +4,6 @@
 package com.wci.umls.server.rest.impl;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
