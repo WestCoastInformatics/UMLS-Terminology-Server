@@ -6,7 +6,6 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -503,7 +502,7 @@ public interface ContentServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public SearchResult removeTerminology(String terminology, String version,
+  public void removeTerminology(String terminology, String version,
     String authToken) throws Exception;
 
   /**
@@ -531,9 +530,8 @@ public interface ContentServiceRest {
    * @return the tree positions for descriptor
    * @throws Exception the exception
    */
-  public TreeList findDescriptorTrees(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public TreeList findDescriptorTrees(String terminologyId, String terminology,
+    String version, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Returns the tree positions for code.
@@ -661,15 +659,35 @@ public interface ContentServiceRest {
   public TreeList findConceptTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
     throws Exception;
-  
-  public TreeList findDescriptorTreeChildren(String terminology, String version,
-    String terminologyId, PfsParameterJpa pfs, String authToken)
+
+  /**
+   * Find descriptor tree children.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param terminologyId the terminology id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception the exception
+   */
+  public TreeList findDescriptorTreeChildren(String terminology,
+    String version, String terminologyId, PfsParameterJpa pfs, String authToken)
     throws Exception;
-  
+
+  /**
+   * Find code tree children.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param terminologyId the terminology id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception the exception
+   */
   public TreeList findCodeTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
     throws Exception;
-
-
 
 }

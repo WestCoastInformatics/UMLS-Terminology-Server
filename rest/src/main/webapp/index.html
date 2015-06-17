@@ -526,6 +526,26 @@
 														</ul>
 													</div>
 
+                          <div ng-show="item.member.length > 0">
+                            <strong>Subsets</strong>
+                            <ul>
+                              <li
+                                ng-repeat="member in item.member | orderBy: ['name', 'value']">
+                                {{member.subsetName}}
+                          <div ng-show="item.attribute.length > 0">
+                            <ul>
+                              <li
+                                ng-repeat="attribute in member.attribute | orderBy: ['name', 'value']">
+                                <span class="label label-info"
+                                tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+                                = {{attribute.value}}
+                              </li>
+                            </ul>
+                          </div>
+                              </li>
+                            </ul>
+                          </div>
+
 													<div ng-show="item.relationship.length > 0">
 														<strong>Relationships</strong>
 														<ul>
@@ -581,6 +601,49 @@
 										= {{item.value}}
 								</ul>
 							</div>
+
+              <!--  Subsets -->
+              <div ng-show="component.member.length > 0 || membersFilter">
+                <h4>Subsets ({{pagedMembers.totalCount}})</h4>
+                <pagination items-per-page="pageSize" max-size="5" boundary-links="true"
+                  class="pagination-sm" previous-text="&lsaquo;"
+                  next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+                  ng-show="pagedMembers.totalCount > pageSize"
+                  total-items="pagedMembers.totalCount"
+                  ng-model="membersPage"
+                  ng-change="getPagedMembers(membersPage, membersFilter)"></pagination>
+
+                <input class="input-filter" placeholder="Enter filter text"
+                  ng-show="pagedMembers.totalCount > pageSize || membersFilter"
+                  type="text" ng-model="membersFilter"
+                  ng-model-options="{ debounce: 250 }"
+                  ng-change="getPagedMembers(membersPage, membersFilter)">
+
+                <button class="btn btn-xs btn-warning"
+                  ng-show="membersFilter"
+                  ng-click="membersFilter = null; getPagedMembers(membersPage, membersFilter)">Clear</button>
+
+                <ul>
+                  <li class="cr-list" ng-repeat="item in pagedMembers"
+                    ng-show="showItem(item)"><span
+                    class="label label-warning"
+                    ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
+                    <span class="label label-default"
+                    ng-show="item.obsolete == true" tooltip="Obsolete">O</span> 
+                    {{item.subsetName}}
+                          <div ng-show="item.attribute.length > 0">
+                            <ul>
+                              <li
+                                ng-repeat="attribute in item.attribute | orderBy: ['name', 'value']">
+                                <span class="label label-info"
+                                tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+                                = {{attribute.value}}
+                              </li>
+                            </ul>
+                          </div>
+                    
+                </ul>
+              </div>
 
 							<!-- Relationships -->
 							<div

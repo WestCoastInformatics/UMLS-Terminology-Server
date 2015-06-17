@@ -235,8 +235,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         allFieldNames.put(clazz,
             IndexUtility.getIndexedStringFieldNames(clazz, false));
       }
-      System.out.println("stringFieldNames = " + stringFieldNames);
-      System.out.println("allFieldNames = " + allFieldNames);
     } catch (Exception e) {
       e.printStackTrace();
       stringFieldNames = null;
@@ -4864,28 +4862,28 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       FullTextQuery fullTextQuery =
           fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
       
-      // projection approach -- don't want to have to instantiate node Jpa object
-      fullTextQuery.setProjection("nodeId", "nodeTerminologyId", "nodeName", "childCt", "ancestorPath");
-      
-      List<Object[]> results = fullTextQuery.getResultList();
-      
-      if (fullTextQuery.getResultSize() != 1) {
-        throw new Exception("Unexpected number of results: "
-            + fullTextQuery.getResultSize());
-      }
-      Object[] result = results.get(0);
+//      // projection approach -- don't want to have to instantiate node Jpa object
+//      fullTextQuery.setProjection("nodeId", "nodeTerminologyId", "nodeName", "childCt", "ancestorPath");
+//      
+//      List<Object[]> results = fullTextQuery.getResultList();
+//      
+//      if (fullTextQuery.getResultSize() != 1) {
+//        throw new Exception("Unexpected number of results: "
+//            + fullTextQuery.getResultSize());
+//      }
+//      Object[] result = results.get(0);
+//
+//      // fill in the tree object
+//      partTree.setId((Long) result[0]); 
+//      partTree.setTerminologyId((String) result[1]);
+//      partTree.setName((String) result[2]);
+//      partTree.setChildCt((Integer) result[3]);
+//      partTree.setAncestorPath((String) result[4]);
+//      partTree.setTerminology(treePosition.getTerminology());
+//      partTree.setVersion(treePosition.getVersion());
 
-      // fill in the tree object
-      partTree.setId((Long) result[0]); 
-      partTree.setTerminologyId((String) result[1]);
-      partTree.setName((String) result[2]);
-      partTree.setChildCt((Integer) result[3]);
-      partTree.setAncestorPath((String) result[4]);
-      partTree.setTerminology(treePosition.getTerminology());
-      partTree.setVersion(treePosition.getVersion());
 
 
-/*
       // original approach
       if (fullTextQuery.getResultSize() != 1) {
         throw new Exception("Unexpected number of results: "
@@ -4896,7 +4894,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           (TreePosition<? extends AtomClass>) fullTextQuery.getResultList()
               .get(0);
 
-      partTree.setFromTreePosition(treepos);*/
+      partTree.setFromTreePosition(treepos);
       
       Tree nextPart = new TreeJpa();
       
@@ -4907,7 +4905,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       
       // if the terminal node, check for sibling and children requests
       else {
-        
+        // TODO: ? remove this?
       }
       
       // set current tree to the just constructed (blank) tree
@@ -4916,8 +4914,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       partAncPath += (partAncPath.equals("") ? "" : "~");
       partAncPath += pathPart;
     }
-    
-    
     
     return tree;
   }
@@ -5126,6 +5122,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * Log and commit.
    *
    * @param objectCt the object ct
+   * @param msg the msg
    * @throws Exception the exception
    */
   private void logAndCommit(int objectCt, String msg) throws Exception {

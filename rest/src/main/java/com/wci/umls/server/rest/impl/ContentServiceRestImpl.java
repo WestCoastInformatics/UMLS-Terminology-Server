@@ -21,7 +21,6 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -66,6 +65,7 @@ import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TreePosition;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.MetadataService;
@@ -114,7 +114,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   public void luceneReindex(
     @ApiParam(value = "Comma-separated list of objects to reindex, e.g. ConceptJpa (optional)", required = false) String indexedObjects,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-
   throws Exception {
     Logger.getLogger(getClass()).info("test");
     Logger.getLogger(getClass()).info(
@@ -537,10 +536,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Logger.getLogger(getClass()).info(
           "  Compute transitive closure from  " + terminology + "/" + version);
       TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+      algo.setCycleTolerant(false);
+      algo.setIdType(IdType.CONCEPT);
       algo.setTerminology(terminology);
       algo.setVersion(version);
       algo.reset();
       algo.compute();
+
+      // compute tree positions
+      TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
+      algo2.setCycleTolerant(false);
+      algo2.setIdType(IdType.CONCEPT);
+      algo2.setTerminology(terminology);
+      algo2.setVersion(version);
+      algo2.compute();
+      algo2.close();
 
       // Clean-up
       readers.closeReaders();
@@ -635,7 +645,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @GET
   @Path("/terminology/remove/{terminology}/{version}")
   @ApiOperation(value = "Remove a terminology", notes = "Removes all elements for a specified terminology and version")
-  public SearchResult removeTerminology(
+  public void removeTerminology(
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -654,19 +664,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "remove terminology",
           UserRole.ADMINISTRATOR);
 
-      // Compute transitive closure
+      // Remove terminology
       Logger.getLogger(getClass()).info(
           "  Remove terminology for  " + terminology + "/" + version);
       algo.setTerminology(terminology);
       algo.setVersion(version);
       algo.compute();
+      algo.close();
 
       // Final logging messages
       Logger.getLogger(getClass()).info(
           "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
       Logger.getLogger(getClass()).info("done ...");
 
-      
     } catch (Exception e) {
       handleException(e, "trying to remove terminology");
     } finally {
@@ -674,7 +684,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       service.close();
       securityService.close();
     }
-    return null;
   }
 
   /*
@@ -2525,47 +2534,54 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version + "/" + terminologyId + "/"
-            + "/trees/children");
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+            + terminologyId + "/" + "/trees/children");
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
 
       // get the child
-      ConceptList childConcepts = contentService.findDescendantConcepts(terminologyId, terminology, version, true, Branch.ROOT, pfs);
+      ConceptList childConcepts =
+          contentService.findDescendantConcepts(terminologyId, terminology,
+              version, true, Branch.ROOT, pfs);
 
       // instantiate child tree positions array
       TreePositionList childTreePositions = new TreePositionListJpa();
-      
+
       // construct pfs parameter for tree position lookup, only need first one
       PfsParameter childPfs = new PfsParameterJpa();
       childPfs.setStartIndex(0);
       childPfs.setMaxResults(1);
-      
+
       // get a tree position for each child, for child ct
       for (Concept childConcept : childConcepts.getObjects()) {
         TreePositionList tpList =
-            contentService.findTreePositionsForConcept(childConcept.getTerminologyId(), childConcept.getTerminology(), childConcept.getVersion(), Branch.ROOT, childPfs);
-     
+            contentService.findTreePositionsForConcept(
+                childConcept.getTerminologyId(), childConcept.getTerminology(),
+                childConcept.getVersion(), Branch.ROOT, childPfs);
+
         if (tpList.getCount() != 1)
-          throw new Exception("Unexpected number of tree positions for concept " + terminologyId);
-        
+          throw new Exception(
+              "Unexpected number of tree positions for concept "
+                  + terminologyId);
+
         childTreePositions.addObject(tpList.getObjects().get(0));
       }
-      
+
       // the TreeList to return
       TreeList childTrees = new TreeListJpa();
-      
+
       // for each tree position, construct a tree
-      for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions.getObjects()) {
+      for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+          .getObjects()) {
         Tree childTree = new TreeJpa();
         childTree.setFromTreePosition(childTreePosition);
         childTrees.addObject(childTree);
       }
-      
+
       return childTrees;
-      
+
     } catch (Exception e) {
       handleException(e, "trying to find trees for a query");
       return null;
