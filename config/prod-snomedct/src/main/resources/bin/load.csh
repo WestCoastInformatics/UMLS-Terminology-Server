@@ -37,7 +37,7 @@ endif
 
 echo "    Load SNOMEDCT ...`/bin/date`"
 cd $SNOMEDCT_CODE/admin/loader
-mvn install -PRRF-umls -Drun.config.ts=$SNOMEDCT_CONFIG -Dserver=$SERVER -Dterminology=SNOMEDCT -Dversion=latest -Dinput.dir=$SNOMEDCT_DATA/snomedct-20140731-mini >&! mvn.log
+mvn install -PRF2-snapshot -Drun.config.ts=$SNOMEDCT_CONFIG -Dserver=$SERVER -Dterminology=SNOMEDCT -Dversion=latest -Dinput.dir=$SNOMEDCT_DATA/snomedct-20140731-mini >&! mvn.log
 if ($status != 0) then
     echo "ERROR loading SNOMEDCT"
     cat mvn.log
