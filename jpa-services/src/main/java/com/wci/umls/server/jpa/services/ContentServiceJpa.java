@@ -3669,6 +3669,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * com.wci.umls.server.services.ContentService#clearContent(java.lang.String,
    * java.lang.String)
    */
+  @SuppressWarnings("unchecked")
   @Override
   public void clearContent(String terminology, String version) throws Exception {
 
@@ -4170,30 +4171,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
     return stats;
-  }
-
-  /**
-   * Returns the components.
-   *
-   * @param <T> the
-   * @param terminology the terminology
-   * @param version the version
-   * @param clazz the clazz
-   * @return the components
-   */
-  @SuppressWarnings("unchecked")
-  private <T extends Component> List<T> getComponents(String terminology,
-    String version, Class<T> clazz) {
-    try {
-      javax.persistence.Query query =
-          manager.createQuery("select a from " + clazz.getName()
-              + " a where version = :version and terminology = :terminology");
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
-      return query.getResultList();
-    } catch (NoResultException e) {
-      return null;
-    }
   }
 
   /**
