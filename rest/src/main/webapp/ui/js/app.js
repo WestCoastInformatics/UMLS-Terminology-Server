@@ -687,8 +687,7 @@ tsApp
         /** Get a tree node's children  */
         $scope.getAndSetTreeChildren = function(tree, startIndex) {
           
-          // TODO Fix children retrieval
-          return;
+         
         	
         	if (!tree) {
         		console.error("Can't set tree children without tree!")
@@ -710,8 +709,9 @@ tsApp
         	
         	$scope.glassPane++;	
         	
+        	//   @Path("/cui/{terminology}/{version}/{terminologyId}/trees/children")
         	$http({
-                url : contentUrl + typePrefix + '/' + tree.terminology + '/' + tree.version + '/' + tree.terminologyId + '/' + (tree.ancestorPath === "" ? '~BLANK~' : tree.ancestorPath) + '/trees/children',
+                url : contentUrl + typePrefix + '/' + tree.terminology + '/' + tree.version + '/' + tree.terminologyId + '/trees/children',
                 method : "POST",
                 dataType: 'json',
                 data: pfs,
@@ -721,19 +721,29 @@ tsApp
               }).success(function(data) {
               	$scope.glassPane--;
               	
-              	console.debug('new tree node: ', data)
+              	console.debug('children received: ', data)
               	
-              	// Only replace children that don't already exist
-              	// in order to preserve any previously loaded data
-              	for (var i = 0; i < data.child.length; i++) {
-              		var childExists = false;
-              		for (var j = 0; j < tree.child.length; j++) {
-              			if (data.child[i].terminologyId === tree.child[j].terminologyId)
-              				childExists = true;
-              		}
-              		if (!childExists)
-              			tree.child.push(data.child[i]);
+              	// construct ancestor path (for sake of completeness, not filled in on server-side)
+              	var ancestorPath = tree.ancestorPath + '~' + tree.terminologyId;
+              	
+              	// cycle over children, and construct tree nodes
+              	for (var i = 0; i < data.tree.length; i++) {
+              	  
+              	  // check that child is not already present (don't override present data)
+              	  var childPresent = false;
+              	  for (var j = 0; j < tree.child.length; j++) {
+              	    if (tree.child[j].terminologyId === data.tree[i].terminologyId) {
+              	      childPresent = true;
+              	      break;
+              	    }    
+              	  }
+              	  
+              	  // if not present, add
+              	  if (!childPresent) {
+              	    tree.child.push(data.tree[i]);
+              	  }
               	}
+              	
               	
               	tree.childrenRetrieved = true; // currently unused
 

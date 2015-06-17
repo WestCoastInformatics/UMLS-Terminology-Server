@@ -15,6 +15,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -32,6 +33,7 @@ import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
@@ -214,7 +216,7 @@ public class ContentClientRest extends RootClientRest implements
    * (java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public void removeTerminology(String terminology, String version,
+  public SearchResult removeTerminology(String terminology, String version,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - remove terminology " + terminology + ", " + version);
@@ -223,20 +225,17 @@ public class ContentClientRest extends RootClientRest implements
 
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url") + "/terminology/remove/"
+        client.resource(config.getProperty("base.url") + "/content/terminology/remove/"
             + terminology + "/" + version);
-    /*
-     * ClientResponse response = resource.accept(MediaType.APPLICATION_XML)
-     * .header("Authorization", authToken) .header("Content-type",
-     * MediaType.APPLICATION_XML) .delete(ClientResponse.class);
-     */
 
     ClientResponse response =
         resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).delete(ClientResponse.class);
+            .header("Authorization", authToken).get(ClientResponse.class);
 
+    
+    
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // do nothing
+      return new SearchResultJpa();
     } else {
       throw new Exception("Unexpected status " + response.getStatus());
     }
@@ -1683,7 +1682,7 @@ public class ContentClientRest extends RootClientRest implements
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public TreeList findTreesForConcept(String terminologyId, String terminology,
+  public TreeList findConceptTrees(String terminologyId, String terminology,
     String version, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get tree positions for concept " + terminologyId
@@ -1704,7 +1703,7 @@ public class ContentClientRest extends RootClientRest implements
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public TreeList findTreesForDescriptor(String terminologyId,
+  public TreeList findDescriptorTrees(String terminologyId,
     String terminology, String version, PfsParameterJpa pfs, String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1726,7 +1725,7 @@ public class ContentClientRest extends RootClientRest implements
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public TreeList findTreesForCode(String terminologyId, String terminology,
+  public TreeList findCodeTrees(String terminologyId, String terminology,
     String version, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - get tree positions for code " + terminologyId + ", "
@@ -1891,6 +1890,30 @@ public class ContentClientRest extends RootClientRest implements
     TreeJpa tree =
         (TreeJpa) ConfigUtility.getGraphForString(resultString, TreeJpa.class);
     return tree;
+  }
+
+  @Override
+  public TreeList findConceptTreeChildren(String terminology, String version,
+    String terminologyId, PfsParameterJpa pfs, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public TreeList findDescriptorTreeChildren(String terminology,
+    String version, String terminologyId, PfsParameterJpa pfs, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public TreeList findCodeTreeChildren(String terminology, String version,
+    String terminologyId, PfsParameterJpa pfs, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }
