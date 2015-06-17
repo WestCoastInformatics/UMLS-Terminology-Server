@@ -235,6 +235,14 @@
                 <exclude>swagger.html</exclude>
               </excludes>
             </resource>
+            <resource>
+              <directory>src/main/config</directory>
+              <targetPath>/WEB-INF/classes</targetPath>
+              <filtering>true</filtering>
+              <includes>
+                <include>label.prop</include>
+              </includes>
+            </resource>
           </webResources>
 
         </configuration>

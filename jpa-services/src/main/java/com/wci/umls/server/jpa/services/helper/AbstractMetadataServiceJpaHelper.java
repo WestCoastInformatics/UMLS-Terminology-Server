@@ -14,6 +14,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.Language;
+import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.SemanticType;
@@ -349,6 +350,44 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
    * (non-Javadoc)
    * 
    * @see
+   * com.wci.umls.server.services.MetadataService#addPropertyChain(com.wci.umls
+   * .server.model.meta.PropertyChain)
+   */
+  @Override
+  public PropertyChain addPropertyChain(PropertyChain propertyChain)
+    throws Exception {
+    // n/a
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#updatePropertyChain(com.wci
+   * .umls.server.model.meta.PropertyChain)
+   */
+  @Override
+  public void updatePropertyChain(PropertyChain propertyChain) throws Exception {
+    // n/a
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removePropertyChain(java.lang
+   * .Long)
+   */
+  @Override
+  public void removePropertyChain(Long id) throws Exception {
+    // n/a
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
    * com.wci.umls.server.services.MetadataService#addRelationshipType(com.wci
    * .umls.server.model.meta.RelationshipType)
    */
@@ -384,24 +423,52 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     // n/a
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#addTerminology(com.wci.umls
+   * .server.model.meta.Terminology)
+   */
   @Override
   public Terminology addTerminology(Terminology terminology) throws Exception {
     // n/a
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#updateTerminology(com.wci.
+   * umls.server.model.meta.Terminology)
+   */
   @Override
   public void updateTerminology(Terminology terminology) throws Exception {
     // n/a
 
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removeTerminology(java.lang
+   * .Long)
+   */
   @Override
   public void removeTerminology(Long id) throws Exception {
     // n/a
 
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#addRootTerminology(com.wci
+   * .umls.server.model.meta.RootTerminology)
+   */
   @Override
   public RootTerminology addRootTerminology(RootTerminology rootTerminology)
     throws Exception {
@@ -409,6 +476,13 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#updateRootTerminology(com.
+   * wci.umls.server.model.meta.RootTerminology)
+   */
   @Override
   public void updateRootTerminology(RootTerminology rootTerminology)
     throws Exception {
@@ -416,28 +490,62 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
 
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removeRootTerminology(java
+   * .lang.Long)
+   */
   @Override
   public void removeRootTerminology(Long id) throws Exception {
     // n/a
 
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#addTermType(com.wci.umls.server
+   * .model.meta.TermType)
+   */
   @Override
   public TermType addTermType(TermType termType) throws Exception {
     // n/a
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#updateTermType(com.wci.umls
+   * .server.model.meta.TermType)
+   */
   @Override
   public void updateTermType(TermType termType) throws Exception {
-    // n/a 
+    // n/a
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removeTermType(java.lang.Long)
+   */
   @Override
   public void removeTermType(Long id) throws Exception {
     // n/a
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#addGeneralMetadataEntry(com
+   * .wci.umls.server.model.meta.GeneralMetadataEntry)
+   */
   @Override
   public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry)
     throws Exception {
@@ -445,6 +553,13 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#updateGeneralMetadataEntry
+   * (com.wci.umls.server.model.meta.GeneralMetadataEntry)
+   */
   @Override
   public void updateGeneralMetadataEntry(GeneralMetadataEntry entry)
     throws Exception {
@@ -452,27 +567,62 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
 
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removeGeneralMetadataEntry
+   * (java.lang.Long)
+   */
   @Override
   public void removeGeneralMetadataEntry(Long id) throws Exception {
     // n/a
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#addPrecedenceList(com.wci.
+   * umls.server.helpers.PrecedenceList)
+   */
   @Override
   public PrecedenceList addPrecedenceList(PrecedenceList list) throws Exception {
     // n/a
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#updatePrecedenceList(com.wci
+   * .umls.server.helpers.PrecedenceList)
+   */
   @Override
   public void updatePrecedenceList(PrecedenceList list) throws Exception {
     // n/a
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removePrecedenceList(java.
+   * lang.Long)
+   */
   @Override
   public void removePrecedenceList(Long id) throws Exception {
     // n/a
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#getGraphResolutionHandler(
+   * java.lang.String)
+   */
   @Override
   public GraphResolutionHandler getGraphResolutionHandler(String terminology)
     throws Exception {

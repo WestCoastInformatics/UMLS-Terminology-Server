@@ -111,8 +111,9 @@ public class Rf2ComputePreferredNameHandler implements
       // Check if this language refset and description form the
       // defaultPreferredName
       if (!atom.isObsolete()
+          && !member.isObsolete()
           && atom.getTermType().equals(dpnTypeId)
-          && member.getSubset().getTerminology().equals(dpnRefSetId)
+          && member.getSubset().getTerminologyId().equals(dpnRefSetId)
           && member.getAttributeByName("acceptabilityId").getValue()
               .equals(dpnAcceptabilityId)) {
         return true;

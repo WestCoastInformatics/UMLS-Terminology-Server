@@ -288,8 +288,10 @@ tsApp
             	  // add result to the list of terminologies
             	  $scope.terminologies.push(terminology);
             	  
-            	  if (terminology.terminology === defaultTerminology) {
+            	  if (terminology.metathesaurus) {
                       $scope.setTerminology(terminology);
+                  } else if (! $scope.terminology) {
+                	  $scope.setTerminology(terminology);
                   }
             	
               } , function(reason) {

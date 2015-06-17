@@ -63,6 +63,7 @@ import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TreePosition;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.MetadataService;
@@ -540,11 +541,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 					"  Compute transitive closure from  " + terminology + "/"
 							+ version);
 			TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+			algo.setCycleTolerant(false);
+			algo.setIdType(IdType.CONCEPT);
 			algo.setTerminology(terminology);
 			algo.setVersion(version);
 			algo.reset();
 			algo.compute();
 
+			// compute tree positions
+			TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
+            algo2.setCycleTolerant(false);
+            algo2.setIdType(IdType.CONCEPT);
+            algo2.setTerminology(terminology);
+            algo2.setVersion(version);
+            algo2.compute();
+            algo2.close();
+            
 			// Clean-up
 			readers.closeReaders();
 			ConfigUtility.deleteDirectory(new File(inputDirFile,

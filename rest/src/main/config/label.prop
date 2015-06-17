@@ -1,0 +1,5 @@
+# This is a mechanism to support running multiple
+# applications within the same container and can
+# be safely ignored if not needed. 
+
+run.config.label=${run.config.label}

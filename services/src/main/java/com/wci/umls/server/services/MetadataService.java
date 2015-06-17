@@ -22,6 +22,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.Language;
+import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.SemanticType;
@@ -402,6 +403,31 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception the exception
    */
   public void removeAdditionalRelationshipType(Long id) throws Exception;
+
+  /**
+   * Adds the property chain.
+   *
+   * @param propertyChain the property chain
+   * @return the term type
+   * @throws Exception the exception
+   */
+  public PropertyChain addPropertyChain(PropertyChain propertyChain) throws Exception;
+
+  /**
+   * Updates the property chain.
+   *
+   * @param propertyChain the term type
+   * @throws Exception the exception
+   */
+  public void updatePropertyChain(PropertyChain propertyChain) throws Exception;
+
+  /**
+   * Removes the property chain.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removePropertyChain(Long id) throws Exception;
 
   /**
    * Adds the relationship type.

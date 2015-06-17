@@ -44,6 +44,7 @@ import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
 import com.wci.umls.server.jpa.meta.LanguageJpa;
+import com.wci.umls.server.jpa.meta.PropertyChainJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
@@ -55,6 +56,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.Language;
+import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.SemanticType;
@@ -375,9 +377,8 @@ public class MetadataServiceJpa extends RootServiceJpa implements
         "Metadata service - get terminology " + terminology + ", " + version);
     try {
       javax.persistence.Query query =
-          manager
-              .createQuery("SELECT t FROM TerminologyJpa t "
-                  + "WHERE terminology = :terminology AND version = :version");
+          manager.createQuery("SELECT t FROM TerminologyJpa t "
+              + "WHERE terminology = :terminology AND version = :version");
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
       return (Terminology) query.getSingleResult();
@@ -1074,6 +1075,53 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
   }
 
+  @Override
+  public PropertyChain addPropertyChain(PropertyChain propertyChain)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - add property chain "
+            + propertyChain.getAbbreviation());
+
+    // Add component
+    PropertyChain newPropertyChain = addMetadata(propertyChain);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+    return newPropertyChain;
+  }
+
+  @Override
+  public void updatePropertyChain(PropertyChain propertyChain) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - update property chain "
+            + propertyChain.getAbbreviation());
+    updateMetadata(propertyChain);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+  }
+
+  @Override
+  public void removePropertyChain(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - remove property chain " + id);
+    // Remove the component
+    removeMetadata(id, PropertyChainJpa.class);
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -1612,4 +1660,5 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
     return graphResolverMap.get(ConfigUtility.DEFAULT);
   }
+
 }

@@ -136,9 +136,38 @@ public class ConfigUtility {
    */
   public static Properties getConfigProperties() throws Exception {
     if (config == null) {
-      String configFileName = System.getProperty("run.config.umls");
+      // Need to determine the label (default "umls")
+      String label = "umls";
+      Properties labelProp = new Properties();
+
+      // If no resource is available, go with the default
+      // ONLY setups that explicitly intend to override the setting
+      // cause it to be something other than the default.
+      InputStream input = ConfigUtility.class.getResourceAsStream("/label.prop");
+      if (input != null) {
+        labelProp.load(input);
+        // If a run.config.label override can be found, use it
+        String candidateLabel = labelProp.getProperty("run.config.label");
+        // If the default, uninterpolated value is used, stick again with the default
+        if (candidateLabel != null
+            && !candidateLabel.equals("${run.config.label}")) {
+          label = candidateLabel;
+        }
+      } else {
+        Logger.getLogger(ConfigUtility.class.getName()).info(
+            "  label.prop resource cannot be found, using default");
+        
+      }
       Logger.getLogger(ConfigUtility.class.getName()).info(
-          "  run.config.umls = " + configFileName);
+          "  run.config.label = " + label);
+
+      // Now get the properties from the corresponding setting
+      // This is a complicated mechanism to support multiple simulataneous
+      // installations within the same container (e.g. tomcat).
+      // Default setups do not require this.
+      String configFileName = System.getProperty("run.config." + label);
+      Logger.getLogger(ConfigUtility.class.getName()).info(
+          "  run.config." + label + " = " + configFileName);
       config = new Properties();
       FileReader in = new FileReader(new File(configFileName));
       config.load(in);
