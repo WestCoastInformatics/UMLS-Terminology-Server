@@ -3,9 +3,6 @@
  */
 package com.wci.umls.server.jpa.services.handlers;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -16,8 +13,7 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 /**
  * A ClaML based implementation of {@link ComputePreferredNameHandler}.
  */
-public class Rf2ComputePreferredNameHandler implements
-    ComputePreferredNameHandler {
+public class Rf2ComputePreferredNameHandler extends RrfComputePreferredNameHandler {
 
   /** the defaultPreferredNames values. */
   private String dpnTypeId = "900000000000013009";
@@ -59,66 +55,36 @@ public class Rf2ComputePreferredNameHandler implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#
-   * computePreferredName(java.util.Collection)
-   */
-  @Override
-  public String computePreferredName(Collection<Atom> atoms) throws Exception {
-    String first = null;
-    for (Atom atom : atoms) {
-      // Use first atom encountered if no preferred is found
-      if (first == null) {
-        first = atom.getName();
-      }
-      if (isPreferredName(atom)) {
-        return atom.getName();
-      }
-    }
-    return first;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#
-   * sortByPreference(java.util.Collection)
-   */
-  @Override
-  public List<Atom> sortByPreference(Collection<Atom> atoms) throws Exception {
-    List<Atom> sortedAtoms = new ArrayList<>();
-    for (Atom atom : atoms) {
-      if (isPreferredName(atom)) {
-        sortedAtoms.add(0, atom);
-      }
-      sortedAtoms.add(atom);
-    }
-    return null;
-  }
-
   /**
-   * Indicates whether or not preferred name is the case.
+   * Returns the rank.
    *
    * @param atom the atom
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   * @throws Exception the exception
+   * @return the rank
    */
-  private boolean isPreferredName(Atom atom) throws Exception {
+  @Override
+  protected String getRank(Atom atom) {
+
+    // [active][LangPreferred][SyOrFn]
+    // active = 2, obsolete = 1
+    // LangPreferred = 2 (Preferred), 1 (Acceptable), 0 (Missing)
+    // SyOrFn = 1 (Sy), 0 (Fn)
+    
     // Find active, synonym from desired refset with desired acceptability id
+    int active = atom.isObsolete() ? 1 : 2;
+    int langPreferred = 0;
+    int syOrFn = atom.getTermType().indexOf(dpnTypeId) != -1 ? 1 : 0;
+    
     for (AtomSubsetMember member : atom.getMembers()) {
       // Check if this language refset and description form the
-      // defaultPreferredName
-      if (!atom.isObsolete()
-          && !member.isObsolete()
-          && atom.getTermType().equals(dpnTypeId)
-          && member.getSubset().getTerminologyId().equals(dpnRefSetId)
-          && member.getAttributeByName("acceptabilityId").getValue()
-              .equals(dpnAcceptabilityId)) {
-        return true;
+      // defaultPreferredName. Need to use "index of" because the
+      // SNOMED graph resolver replaces the values with values + names
+      if (!member.isObsolete()
+          && member.getSubset().getTerminologyId().equals(dpnRefSetId)) {        
+        langPreferred = member.getAttributeByName("acceptabilityId").getValue()
+        .indexOf(dpnAcceptabilityId) != -1 ? 2 : 1;
       }
     }
-    return false;
+    return "" + active + langPreferred + syOrFn;
   }
+
 }

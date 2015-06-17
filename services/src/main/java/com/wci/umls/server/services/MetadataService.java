@@ -53,7 +53,9 @@ public interface MetadataService extends RootService, Configurable {
     /** The Hierarchical_ relationship_ types. */
     Hierarchical_Relationship_Types,
     /** The Languages. */
-    Languages
+    Languages,    
+    /**  The General_ metadata_ entries. */
+    General_Metadata_Entries
   }
 
   /**

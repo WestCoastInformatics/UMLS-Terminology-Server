@@ -275,6 +275,13 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       abbrMapList.put(MetadataKeys.Languages.toString(), latMap);
     }
 
+    Map<String, String> gmeMap =
+        getAbbreviationMap(getGeneralMetadataEntries(terminology, version)
+            .getObjects());
+    if (gmeMap != null) {
+      abbrMapList.put(MetadataKeys.General_Metadata_Entries.toString(),
+          gmeMap);
+    }
     return abbrMapList;
   }
 

@@ -35,10 +35,8 @@ public class RrfComputePreferredNameHandler implements
 
   /**
    * Instantiates an empty {@link RrfComputePreferredNameHandler}.
-   *
-   * @throws Exception the exception
    */
-  public RrfComputePreferredNameHandler() throws Exception {
+  public RrfComputePreferredNameHandler() {
     // n/a
   }
 
@@ -62,9 +60,6 @@ public class RrfComputePreferredNameHandler implements
    */
   @Override
   public String computePreferredName(Collection<Atom> atoms) throws Exception {
-    if (list == null) {
-      cacheList();
-    }
     // Use ranking algorithm from MetamorphoSys
     // [termgroupRank][lrr][inverse SUI][inverse AUI]
     // LRR isn't available here so just don't worry about it.
@@ -95,9 +90,7 @@ public class RrfComputePreferredNameHandler implements
    */
   @Override
   public List<Atom> sortByPreference(Collection<Atom> atoms) throws Exception {
-    if (list == null) {
-      cacheList();
-    }
+
     List<Atom> sortedAtoms = new ArrayList<>(atoms);
     // Get each atom rank
     final Map<Atom, String> atomRanks = new HashMap<>();
@@ -121,8 +114,12 @@ public class RrfComputePreferredNameHandler implements
    *
    * @param atom the atom
    * @return the rank
+   * @throws Exception 
    */
-  private String getRank(Atom atom) {
+  protected String getRank(Atom atom) throws Exception {
+    if (list == null) {
+      cacheList();
+    }
     String rank = (atom.isObsolete() ? 0 : 1 ) + 
         (atom.isSuppressible() ? 0 : 1 ) + 
         ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType())

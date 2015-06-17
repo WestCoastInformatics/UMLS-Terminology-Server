@@ -1261,6 +1261,7 @@ tsApp
         var relationshipTypes = [];
         var attributeNames = [];
         var termTypes = [];
+        var generalEntries = [];
         
         // on metadata changes
         $scope.$watch('metadata', function() {
@@ -1269,7 +1270,8 @@ tsApp
         	relationshipTypes = [];
         	attributeNames = [];
         	termTypes = [];
-        	
+        	generalEntries = [];        	
+
         	if ($scope.metadata) {
         		for (var i = 0; i < $scope.metadata.length; i++) {
         			
@@ -1282,6 +1284,9 @@ tsApp
 	        		}
 	        		if ($scope.metadata[i].name === 'Term_Types') {
 	        			termTypes = $scope.metadata[i].keyValuePair;
+	        		}
+	        		if ($scope.metadata[i].name === 'General_Metadata_Entries') {
+	        			generalEntries = $scope.metadata[i].keyValuePair;
 	        		}
 	        	}
         	}        	
@@ -1312,6 +1317,16 @@ tsApp
         	for (var i = 0; i < termTypes.length; i++) {
         		if (termTypes[i].key === abbr) {
         			return termTypes[i].value;
+        		}
+        	}
+        	return null
+        }
+
+        // get general entry name from its abbreviation
+        $scope.getGeneralEntryValue = function(abbr) {
+        	for (var i = 0; i < generalEntries.length; i++) {
+        		if (generalEntries[i].key === abbr) {
+        			return generalEntries[i].value;
         		}
         	}
         	return null
@@ -1441,6 +1456,7 @@ tsApp
         //        either from ResultList object or calculated
         $scope.pagedSearchResults = null;
         $scope.pagedAttributes = null;
+        $scope.pagedMembers = null;
         $scope.pagedSemanticTypes = null;
         $scope.pagedDescriptions = null;
         $scope.pagedRelationships = null;
@@ -1459,6 +1475,7 @@ tsApp
         $scope.relationshipsFilter = null;
         $scope.atomsFilter = null;
         $scope.attributesFilter = null;
+        $scope.membersFilter = null;
         
         // default page size
         $scope.pageSize = 10;
@@ -1472,12 +1489,14 @@ tsApp
             $scope.relationshipsPage = 1;
             $scope.atomsPage = 1;
             $scope.attributesPage = 1;
+            $scope.membersPage = 1;
 
             $scope.semanticTypesFilter = null;
             $scope.descriptionsFilter = null;
             $scope.relationshipsFilter = null;
             $scope.atomsFilter = null;
             $scope.attributesFilter = null;
+            $scope.membersFilter = null;
             
         }
         
@@ -1489,6 +1508,7 @@ tsApp
         	$scope.getPagedRelationships();
         	$scope.getPagedDefinitions();
         	$scope.getPagedAttributes();
+        	$scope.getPagedMembers();
         	$scope.getPagedSemanticTypes();
         	
         }
@@ -1601,7 +1621,24 @@ tsApp
         				false);
         	
         }
-        
+
+        $scope.getPagedMembers = function(page, query) {
+        	
+        	// set the page if supplied, otherwise use the current value
+        	if (page) $scope.membersPage = page;
+        	if (!query) query = null;
+        	
+        	// get the paged array, with flags and filter (TODO: Support filtering)
+        	$scope.pagedMembers =
+        		$scope.getPagedArray(
+        				$scope.component.member, 
+        				$scope.membersPage, 
+        				true, 
+        				query,
+        				'name',
+        				false);
+        }
+
         $scope.getPagedSemanticTypes = function(page, query) {
         	
         	// set the page if supplied, otherwise use the current value

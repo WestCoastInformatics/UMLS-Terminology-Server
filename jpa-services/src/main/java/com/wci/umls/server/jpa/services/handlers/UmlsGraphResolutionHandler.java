@@ -9,18 +9,11 @@ import java.util.Set;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
-import com.wci.umls.server.model.content.Attribute;
-import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Definition;
-import com.wci.umls.server.model.content.Descriptor;
-import com.wci.umls.server.model.content.LexicalClass;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
-import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
 /**
@@ -72,7 +65,6 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
       // Relationships
       // Default behavior -- do not return relationships, require paging calls
       concept.setRelationships(new ArrayList<ConceptRelationship>());
-      
 
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");
@@ -104,7 +96,8 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
         resolveDefinition(def, nullId);
       }
 
-      // for UMLS view don't read relationship sas these are teminology-specific rels
+      // for UMLS view don't read relationship sas these are teminology-specific
+      // rels
       // they can show when browsing that terminology
       atom.setRelationships(new ArrayList<AtomRelationship>());
 
@@ -114,153 +107,4 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
 
   }
 
-  /*    
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.Relationship)
-   */
-  @Override
-  public void resolve(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
-    throws Exception {
-    if (relationship != null) {
-      relationship.getFrom().getTerminology();
-      relationship.getTo().getTerminology();
-      resolveAttributes(relationship, relationship.getId() == null);
-    } else if (relationship == null) {
-      throw new Exception("Cannot resolve a null relationship.");
-    }
-  }
-
-  @Override
-  public void resolve(SemanticTypeComponent sty) {
-    sty.getSemanticType();
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.Descriptor, java.util.Set)
-   */
-  @Override
-  public void resolve(Descriptor descriptor, Set<String> isaRelTypeIds) {
-    // n/a - there are no "UMLS" descriptors
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.Code, java.util.Set)
-   */
-  @Override
-  public void resolve(Code code, Set<String> isaRelTypeIds) {
-    // n/a - there are no "UMLS" codes
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.LexicalClass)
-   */
-  @Override
-  public void resolve(LexicalClass lexicalClass) throws Exception {
-    if (lexicalClass != null && lexicalClass.getId() != null) {
-
-      // Attributes
-      resolveAttributes(lexicalClass, false);
-
-      // Atoms but none of the members
-      for (Atom atom : lexicalClass.getAtoms()) {
-        // if the concept is "new", then the atom must be too
-        atom.getName();
-        atom.getConceptTerminologyIds().keySet();
-        atom.getAlternateTerminologyIds().keySet();
-
-        atom.setAttributes(new ArrayList<Attribute>());
-        atom.setDefinitions(new ArrayList<Definition>());
-        atom.setRelationships(new ArrayList<AtomRelationship>());
-        atom.setMembers(new ArrayList<AtomSubsetMember>());
-      }
-
-    } else if (lexicalClass == null) {
-      throw new Exception("Cannot resolve a null lexical class.");
-
-    } else if (lexicalClass.getId() == null) {
-      throw new Exception("Cannot resolve a lexical class with a null id.");
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.StringClass)
-   */
-  @Override
-  public void resolve(StringClass stringClass) throws Exception {
-    if (stringClass != null && stringClass.getId() != null) {
-
-      // Attributes
-      resolveAttributes(stringClass, false);
-
-      // Atoms but none of the members
-      for (Atom atom : stringClass.getAtoms()) {
-        // if the concept is "new", then the atom must be too
-        atom.getName();
-        atom.getConceptTerminologyIds().keySet();
-        atom.getAlternateTerminologyIds().keySet();
-
-        atom.setAttributes(new ArrayList<Attribute>());
-        atom.setDefinitions(new ArrayList<Definition>());
-        atom.setRelationships(new ArrayList<AtomRelationship>());
-        atom.setMembers(new ArrayList<AtomSubsetMember>());
-      }
-
-    } else if (stringClass == null) {
-      throw new Exception("Cannot resolve a null string class.");
-
-    } else if (stringClass.getId() == null) {
-      throw new Exception("Cannot resolve a string class with a null id.");
-    }
-  }
-
-  /**
-   * Resolve attributes.
-   *
-   * @param component the component
-   * @param nullId the null id
-   */
-  @SuppressWarnings("static-method")
-  private void resolveAttributes(ComponentHasAttributes component,
-    boolean nullId) {
-    for (Attribute att : component.getAttributes()) {
-      att.getName();
-      if (nullId) {
-        att.setId(null);
-      }
-    }
-  }
-
-  /**
-   * Resolve definition.
-   *
-   * @param def the def
-   * @param nullId the null id
-   */
-  private void resolveDefinition(Definition def, boolean nullId) {
-    if (nullId) {
-      def.setId(null);
-    }
-    def.getValue();
-    resolveAttributes(def, nullId);
-  }
 }
