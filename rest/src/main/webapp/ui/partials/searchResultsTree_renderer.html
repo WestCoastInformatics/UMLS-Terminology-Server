@@ -1,34 +1,31 @@
 
 <div ui-tree-handle>
-	<!-- Expand/collapse controls -->
-	<a ng-if="tree.child && tree.child.length > 0" data-nodrag
-		ng-click="toggle(this)"><span class="glyphicon"
-		ng-class="{
-          'glyphicon-chevron-right': collapsed,
-          'glyphicon-chevron-down': !collapsed
-        }"></span></a>
-        
-	<!--  if a dummy node, only render the terminology and 'top' label -->
-	<span ng-show="tree.id == null">{{terminology.terminology}}
-		Top</span>
+  <!-- Expand/collapse controls -->
+  <a ng-if="tree.childCt > 0" data-nodrag ng-click="getTreeChildren(tree, this)"><span
+    class="glyphicon" ng-class="getTreeNodeIcon(tree, collapsed)"></span></a>
 
-	<!-- if not a dummy node, render the full information -->
-	<span ng-show="tree.id"> <!-- if this node has no children reported by child count -->
-		<i class="glyphicon glyphicon-leaf" ng-show="tree.childCt == 0"></i>
+  <!--  if a dummy node, only render the terminology and 'top' label -->
+  <span ng-show="tree.id == null">{{terminology.terminology}} Top</span>
 
-		<i class="glyphicon glyphicon-chevron-right" style="opacity:0.5;"
-		tooltip="Node has children, but functionality to expand has not yet been implemented"
-		ng-show="tree.childCt != 0 && tree.child.length == 0"></i> <a
-		ng-click="getComponent(tree.terminology, tree.terminologyId)">
-			<span
-			ng-bind-html="tree.terminologyId | highlight:componentQuery"></span>
-	</a> <span ng-bind-html="tree.name | highlight:componentQuery"></span>
+  <!-- if not a dummy node, render the full information -->
+  <span ng-show="tree.id"> <!-- if this node has no children reported by child count -->
+    <i class="glyphicon glyphicon-leaf" ng-show="tree.childCt == 0"></i> <a
+    ng-click="getComponent(tree.terminology, tree.terminologyId)"> <span
+      ng-bind-html="tree.terminologyId | highlight:componentQuery"></span>
+  </a> <span ng-bind-html="tree.name | highlight:componentQuery"></span>
 
-	</span>
+  </span>
 
-	<ol ui-tree-nodes="" ng-model="tree.child"
-		ng-class="{hidden: collapsed}">
-		<li ng-repeat="tree in tree.child" ui-tree-node
-			ng-include="'ui/partials/searchResultsTree_renderer.html'"></li>
-	</ol>
+  <ol ui-tree-nodes="" ng-model="tree.child" ng-class="{hidden: collapsed}">
+    <li ng-repeat="tree in tree.child" ui-tree-node
+      ng-include="'ui/partials/searchResultsTree_renderer.html'"></li>
+
+    <!-- if not all children displayed, display a message -->
+    <li ng-show="hasHiddenSiblings(tree, component.terminologyId) == true">
+      <i class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <a
+      ng-click="getAndSetTreeChildren(tree, tree.child.length)">...
+        {{tree.childCt - tree.child.length}} more</a>
+    </li>
+
+  </ol>
 </div>

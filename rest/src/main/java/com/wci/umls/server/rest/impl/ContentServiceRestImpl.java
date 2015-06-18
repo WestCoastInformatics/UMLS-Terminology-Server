@@ -6,6 +6,7 @@ package com.wci.umls.server.rest.impl;
 import java.io.File;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -642,7 +643,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    * (java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  @GET
+  @DELETE
   @Path("/terminology/remove/{terminology}/{version}")
   @ApiOperation(value = "Remove a terminology", notes = "Removes all elements for a specified terminology and version")
   public void removeTerminology(
