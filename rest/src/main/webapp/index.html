@@ -335,7 +335,7 @@
 							<div ng-show="treeCount > 0">
 
 								<h4>
-									Hierarchies (<a class="glyphicon glyphicon-step-backward"
+									{{hierarchiesLabel}} (<a class="glyphicon glyphicon-step-backward"
 										ng-click="getTreeByOffset(-1)"></a> {{treeViewed+1}} of
 									{{treeCount}} <a class="glyphicon glyphicon-step-forward"
 										ng-click="getTreeByOffset(1)"></a>)
@@ -392,7 +392,7 @@
 							<!--  Definitions -->
 							<div
 								ng-show="pagedDefinitions.totalCount > 0 || definitionsFilter">
-								<h4>Definitions ({{pagedDefinitions.totalCount}})</h4>
+								<h4>{{definitionsLabel}} ({{pagedDefinitions.totalCount}})</h4>
 
 								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
@@ -430,7 +430,7 @@
 
 							<!-- Atoms -->
 							<div ng-show="pagedAtoms.totalCount > 0 || atomsFilter">
-								<h4>Atoms ({{pagedAtoms.totalCount}})</h4>
+								<h4>{{atomsLabel}} ({{pagedAtoms.totalCount}})</h4>
 
 								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
@@ -506,7 +506,7 @@
 													ng-show="item.expanded == true">
 
 													<div ng-show="item.definition.length > 0">
-														<strong>Definitions</strong>
+														<strong>{{definitionsLabel}}</strong>
 														<ul>
 															<li
 																ng-repeat="definition in item.definition | orderBy:'value'">
@@ -515,7 +515,7 @@
 													</div>
 
 													<div ng-show="item.attribute.length > 0">
-														<strong>Attributes</strong>
+														<strong>{{attributesLabel}}</strong>
 														<ul>
 															<li
 																ng-repeat="attribute in item.attribute | orderBy: ['name', 'value']">
@@ -527,7 +527,7 @@
 													</div>
 
                           <div ng-show="item.member.length > 0">
-                            <strong>Subsets</strong>
+                            <strong>{{subsetsLabel}}</strong>
                             <ul>
                               <li
                                 ng-repeat="member in item.member | orderBy: ['name', 'value']">
@@ -547,7 +547,7 @@
                           </div>
 
 													<div ng-show="item.relationship.length > 0">
-														<strong>Relationships</strong>
+														<strong>{{relationshipsLabel}}</strong>
 														<ul>
 															<li
 																ng-repeat="relationship in item.relationship | orderBy:['relationshipType', 'toName']"><span
@@ -569,7 +569,7 @@
 
 							<!--  Attributes -->
 							<div ng-show="component.attribute.length > 0 || attributesFilter">
-								<h4>Attributes ({{pagedAttributes.totalCount}})</h4>
+								<h4>{{attributesLabel}} ({{pagedAttributes.totalCount}})</h4>
 								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
@@ -604,7 +604,7 @@
 
               <!--  Subsets -->
               <div ng-show="component.member.length > 0 || membersFilter">
-                <h4>Subsets ({{pagedMembers.totalCount}})</h4>
+                <h4>{{subsetsLabel}} ({{pagedMembers.totalCount}})</h4>
                 <pagination items-per-page="pageSize" max-size="5" boundary-links="true"
                   class="pagination-sm" previous-text="&lsaquo;"
                   next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
@@ -648,7 +648,7 @@
 							<!-- Relationships -->
 							<div
 								ng-show="pagedRelationships.totalCount > 0 || relationshipsFilter">
-								<h4>Relationships ({{pagedRelationships.totalCount}})</h4>
+								<h4>{{relationshipsLabel}} ({{pagedRelationships.totalCount}})</h4>
 
 								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"

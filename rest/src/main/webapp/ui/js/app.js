@@ -65,6 +65,14 @@ tsApp
         $scope.authToken = null;
         $scope.error = "";
         $scope.glassPane = 0;
+
+        // labels
+        $scope.atomsLabel = "Atoms";
+        $scope.hierarchiesLabel = "Hierarchies";
+        $scope.attributesLabel = "Attributes";
+        $scope.definitionsLabel = "Definitions";
+        $scope.subsetsLabel = "Subsets";
+        $scope.relationshipsLabel = "Relationships";
         
         // full variable arrays
         $scope.searchResults = null;
@@ -1287,6 +1295,27 @@ tsApp
 	        		}
 	        		if ($scope.metadata[i].name === 'General_Metadata_Entries') {
 	        			generalEntries = $scope.metadata[i].keyValuePair;
+	        			
+	                	for (var i = 0; i < generalEntries.length; i++) {
+	                		if (generalEntries[i].key === "Atoms_Label") {
+	                			$scope.atomsLabel = generalEntries[i].value;
+	                		}
+	                		if (generalEntries[i].key === "Hierarchies_Label") {
+	                			$scope.atomsLabel = generalEntries[i].value;
+	                		}
+	                		if (generalEntries[i].key === "Definitions_Label") {
+	                			$scope.atomsLabel = generalEntries[i].value;
+	                		}
+	                		if (generalEntries[i].key === "Attributes_Label") {
+	                			$scope.atomsLabel = generalEntries[i].value;
+	                		}
+	                		if (generalEntries[i].key === "Subsets_Label") {
+	                			$scope.atomsLabel = generalEntries[i].value;
+	                		}
+	                		if (generalEntries[i].key === "Relationships_Label") {
+	                			$scope.atomsLabel = generalEntries[i].value;
+	                		}
+	                	}	        			
 	        		}
 	        	}
         	}        	
