@@ -1066,19 +1066,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
   }
 
-  @Override
-  public void removePropertyChain(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove property chain " + id);
-    // Remove the component
-    removeMetadata(id, PropertyChainJpa.class);
-    if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
-        listener.metadataChanged();
-      }
-    }
-  }
-
   /*
    * (non-Javadoc)
    * 

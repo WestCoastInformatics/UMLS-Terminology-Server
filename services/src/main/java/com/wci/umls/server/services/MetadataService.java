@@ -588,12 +588,5 @@ public interface MetadataService extends RootService, Configurable {
   public GraphResolutionHandler getGraphResolutionHandler(String terminology)
     throws Exception;
 
-  /**
-   * Removes the property chain.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
-  public void removePropertyChain(Long id) throws Exception;
 
 }

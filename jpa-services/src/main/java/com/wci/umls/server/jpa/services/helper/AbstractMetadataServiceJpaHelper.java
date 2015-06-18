@@ -528,17 +528,6 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     // n/a
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#addGeneralMetadataEntry(com
-   * .wci.umls.server.model.meta.GeneralMetadataEntry)
-   */
-  @Override
-  public void removePropertyChain(Long id) throws Exception {
-    // n/a
-  }
   
   @Override
   public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry)
