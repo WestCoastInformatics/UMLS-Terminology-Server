@@ -62,26 +62,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
     super(treepos, deepCopy);
     node = treepos.getNode();
   }
-  
  
-  /**
-   * Override for Hibernate search projection retrieval
-   */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.YES)
-  @Override
-  public String getAncestorPath() {
-    return super.getAncestorPath();
-  }
-  
- 
-  /**
-   * Override for Hibernate search projection retrieval
-   */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.YES)
-  @Override
-  public int getChildCt() {
-    return super.getChildCt();
-  }
 
   /*
    * (non-Javadoc)
@@ -112,7 +93,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    * @return the node id
    */
   @XmlElement
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.YES)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @FieldBridge(impl = LongBridge.class)
   public Long getNodeId() {
     return node == null ? null : node.getId();
@@ -135,7 +116,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    *
    * @return the node name
    */
-  @Field(index = Index.YES, store = Store.YES, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"))
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"))
   public String getNodeName() {
     return node == null ? null : node.getName();
   }
@@ -157,7 +138,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    *
    * @return the node terminology id
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.YES)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getNodeTerminologyId() {
     return node == null ? null : node.getTerminologyId();
   }
@@ -179,7 +160,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    *
    * @return the node terminology
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.YES)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getNodeTerminology() {
     return node == null ? null : node.getTerminology();
   }
@@ -201,7 +182,7 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    *
    * @return the node terminology version
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.YES)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getNodeVersion() {
     return node == null ? null : node.getVersion();
   }

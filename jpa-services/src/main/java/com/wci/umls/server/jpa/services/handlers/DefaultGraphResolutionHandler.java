@@ -420,7 +420,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
    * @param nullId the null id
    */
   @SuppressWarnings("static-method")
-  private void resolveAttributes(ComponentHasAttributes component,
+  protected void resolveAttributes(ComponentHasAttributes component,
     boolean nullId) {
     for (Attribute att : component.getAttributes()) {
       att.getName();
@@ -437,7 +437,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
    * @param definition the definition
    * @param nullId the null id
    */
-  private void resolveDefinition(Definition definition, boolean nullId) {
+  protected void resolveDefinition(Definition definition, boolean nullId) {
     definition.getValue();
     definition.getAlternateTerminologyIds().keySet();
     if (nullId) {

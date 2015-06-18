@@ -288,8 +288,10 @@ tsApp
             	  // add result to the list of terminologies
             	  $scope.terminologies.push(terminology);
             	  
-            	  if (terminology.terminology === defaultTerminology) {
+            	  if (terminology.metathesaurus) {
                       $scope.setTerminology(terminology);
+                  } else if (! $scope.terminology) {
+                	  $scope.setTerminology(terminology);
                   }
             	
               } , function(reason) {
@@ -685,8 +687,7 @@ tsApp
         /** Get a tree node's children  */
         $scope.getAndSetTreeChildren = function(tree, startIndex) {
           
-          // TODO Fix children retrieval
-          return;
+         
         	
         	if (!tree) {
         		console.error("Can't set tree children without tree!")
@@ -708,8 +709,9 @@ tsApp
         	
         	$scope.glassPane++;	
         	
+        	//   @Path("/cui/{terminology}/{version}/{terminologyId}/trees/children")
         	$http({
-                url : contentUrl + typePrefix + '/' + tree.terminology + '/' + tree.version + '/' + tree.terminologyId + '/' + (tree.ancestorPath === "" ? '~BLANK~' : tree.ancestorPath) + '/trees/children',
+                url : contentUrl + typePrefix + '/' + tree.terminology + '/' + tree.version + '/' + tree.terminologyId + '/trees/children',
                 method : "POST",
                 dataType: 'json',
                 data: pfs,
@@ -719,19 +721,29 @@ tsApp
               }).success(function(data) {
               	$scope.glassPane--;
               	
-              	console.debug('new tree node: ', data)
+              	console.debug('children received: ', data)
               	
-              	// Only replace children that don't already exist
-              	// in order to preserve any previously loaded data
-              	for (var i = 0; i < data.child.length; i++) {
-              		var childExists = false;
-              		for (var j = 0; j < tree.child.length; j++) {
-              			if (data.child[i].terminologyId === tree.child[j].terminologyId)
-              				childExists = true;
-              		}
-              		if (!childExists)
-              			tree.child.push(data.child[i]);
+              	// construct ancestor path (for sake of completeness, not filled in on server-side)
+              	var ancestorPath = tree.ancestorPath + '~' + tree.terminologyId;
+              	
+              	// cycle over children, and construct tree nodes
+              	for (var i = 0; i < data.tree.length; i++) {
+              	  
+              	  // check that child is not already present (don't override present data)
+              	  var childPresent = false;
+              	  for (var j = 0; j < tree.child.length; j++) {
+              	    if (tree.child[j].terminologyId === data.tree[i].terminologyId) {
+              	      childPresent = true;
+              	      break;
+              	    }    
+              	  }
+              	  
+              	  // if not present, add
+              	  if (!childPresent) {
+              	    tree.child.push(data.tree[i]);
+              	  }
               	}
+              	
               	
               	tree.childrenRetrieved = true; // currently unused
 
@@ -1249,6 +1261,7 @@ tsApp
         var relationshipTypes = [];
         var attributeNames = [];
         var termTypes = [];
+        var generalEntries = [];
         
         // on metadata changes
         $scope.$watch('metadata', function() {
@@ -1257,7 +1270,8 @@ tsApp
         	relationshipTypes = [];
         	attributeNames = [];
         	termTypes = [];
-        	
+        	generalEntries = [];        	
+
         	if ($scope.metadata) {
         		for (var i = 0; i < $scope.metadata.length; i++) {
         			
@@ -1270,6 +1284,9 @@ tsApp
 	        		}
 	        		if ($scope.metadata[i].name === 'Term_Types') {
 	        			termTypes = $scope.metadata[i].keyValuePair;
+	        		}
+	        		if ($scope.metadata[i].name === 'General_Metadata_Entries') {
+	        			generalEntries = $scope.metadata[i].keyValuePair;
 	        		}
 	        	}
         	}        	
@@ -1300,6 +1317,16 @@ tsApp
         	for (var i = 0; i < termTypes.length; i++) {
         		if (termTypes[i].key === abbr) {
         			return termTypes[i].value;
+        		}
+        	}
+        	return null
+        }
+
+        // get general entry name from its abbreviation
+        $scope.getGeneralEntryValue = function(abbr) {
+        	for (var i = 0; i < generalEntries.length; i++) {
+        		if (generalEntries[i].key === abbr) {
+        			return generalEntries[i].value;
         		}
         	}
         	return null
@@ -1429,6 +1456,7 @@ tsApp
         //        either from ResultList object or calculated
         $scope.pagedSearchResults = null;
         $scope.pagedAttributes = null;
+        $scope.pagedMembers = null;
         $scope.pagedSemanticTypes = null;
         $scope.pagedDescriptions = null;
         $scope.pagedRelationships = null;
@@ -1447,6 +1475,7 @@ tsApp
         $scope.relationshipsFilter = null;
         $scope.atomsFilter = null;
         $scope.attributesFilter = null;
+        $scope.membersFilter = null;
         
         // default page size
         $scope.pageSize = 10;
@@ -1460,12 +1489,14 @@ tsApp
             $scope.relationshipsPage = 1;
             $scope.atomsPage = 1;
             $scope.attributesPage = 1;
+            $scope.membersPage = 1;
 
             $scope.semanticTypesFilter = null;
             $scope.descriptionsFilter = null;
             $scope.relationshipsFilter = null;
             $scope.atomsFilter = null;
             $scope.attributesFilter = null;
+            $scope.membersFilter = null;
             
         }
         
@@ -1477,6 +1508,7 @@ tsApp
         	$scope.getPagedRelationships();
         	$scope.getPagedDefinitions();
         	$scope.getPagedAttributes();
+        	$scope.getPagedMembers();
         	$scope.getPagedSemanticTypes();
         	
         }
@@ -1589,7 +1621,24 @@ tsApp
         				false);
         	
         }
-        
+
+        $scope.getPagedMembers = function(page, query) {
+        	
+        	// set the page if supplied, otherwise use the current value
+        	if (page) $scope.membersPage = page;
+        	if (!query) query = null;
+        	
+        	// get the paged array, with flags and filter (TODO: Support filtering)
+        	$scope.pagedMembers =
+        		$scope.getPagedArray(
+        				$scope.component.member, 
+        				$scope.membersPage, 
+        				true, 
+        				query,
+        				'name',
+        				false);
+        }
+
         $scope.getPagedSemanticTypes = function(page, query) {
         	
         	// set the page if supplied, otherwise use the current value

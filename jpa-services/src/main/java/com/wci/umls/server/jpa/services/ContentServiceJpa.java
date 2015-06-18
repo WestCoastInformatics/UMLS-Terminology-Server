@@ -235,8 +235,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         allFieldNames.put(clazz,
             IndexUtility.getIndexedStringFieldNames(clazz, false));
       }
-      System.out.println("stringFieldNames = " + stringFieldNames);
-      System.out.println("allFieldNames = " + allFieldNames);
     } catch (Exception e) {
       e.printStackTrace();
       stringFieldNames = null;
@@ -3854,30 +3852,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * Returns the components.
    *
    * @param <T> the
-   * @param terminology the terminology
-   * @param version the version
-   * @param clazz the clazz
-   * @return the components
-   */
-  @SuppressWarnings("unchecked")
-  private <T extends Component> List<T> getComponents(String terminology,
-    String version, Class<T> clazz) {
-    try {
-      javax.persistence.Query query =
-          manager.createQuery("select a from " + clazz.getName()
-              + " a where version = :version and terminology = :terminology");
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
-      return query.getResultList();
-    } catch (NoResultException e) {
-      return null;
-    }
-  }
-
-  /**
-   * Returns the components.
-   *
-   * @param <T> the
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
@@ -4565,30 +4539,29 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       FullTextQuery fullTextQuery =
           fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
       
-      // projection approach -- don't want to have to instantiate node Jpa object
-      fullTextQuery.setProjection("nodeId", "nodeTerminologyId", "nodeName", "childCt", "ancestorPath");
-      
-      List<Object[]> results = fullTextQuery.getResultList();
-      
-      if (fullTextQuery.getResultSize() != 1) {
-        throw new Exception("Unexpected number of results: "
-            + fullTextQuery.getResultSize());
-      }
-      Object[] result = results.get(0);
-
-      // fill in the tree object
-      partTree.setId((Long) result[0]); 
-      partTree.setTerminologyId((String) result[1]);
-      partTree.setName((String) result[2]);
-      partTree.setChildCt((Integer) result[3]);
-      partTree.setAncestorPath((String) result[4]);
-      partTree.setTerminology(treePosition.getTerminology());
-
-      partTree.setVersion(treePosition.getVersion());
-
+//      // projection approach -- don't want to have to instantiate node Jpa object
+//      fullTextQuery.setProjection("nodeId", "nodeTerminologyId", "nodeName", "childCt", "ancestorPath");
+//      
+//      List<Object[]> results = fullTextQuery.getResultList();
+//      
+//      if (fullTextQuery.getResultSize() != 1) {
+//        throw new Exception("Unexpected number of results: "
+//            + fullTextQuery.getResultSize());
+//      }
+//      Object[] result = results.get(0);
+//
+//      // fill in the tree object
+//      partTree.setId((Long) result[0]); 
+//      partTree.setTerminologyId((String) result[1]);
+//      partTree.setName((String) result[2]);
+//      partTree.setChildCt((Integer) result[3]);
+//      partTree.setAncestorPath((String) result[4]);
+//      partTree.setTerminology(treePosition.getTerminology());
+//      partTree.setVersion(treePosition.getVersion());
 
 
-      /*// original approach
+
+      // original approach
       if (fullTextQuery.getResultSize() != 1) {
         throw new Exception("Unexpected number of results: "
             + fullTextQuery.getResultSize());
@@ -4598,23 +4571,27 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           (TreePosition<? extends AtomClass>) fullTextQuery.getResultList()
               .get(0);
 
-      partTree.setFromTreePosition(treepos);*/
-      
+      partTree.setFromTreePosition(treepos);
       
       Tree nextPart = new TreeJpa();
       
       // if not end of sequence, add the new blank object as a child)
       if (!partId.equals(tpId)) {
         partTree.addChild(nextPart);
-      } 
+      }  
       
-      // set current tree to the just retrieved tree
+      // if the terminal node, check for sibling and children requests
+      else {
+        // TODO: ? remove this?
+      }
+      
+      // set current tree to the just constructed (blank) tree
       partTree = nextPart;
 
       partAncPath += (partAncPath.equals("") ? "" : "~");
       partAncPath += pathPart;
     }
-
+    
     return tree;
   }
 
@@ -4822,6 +4799,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * Log and commit.
    *
    * @param objectCt the object ct
+   * @param msg the msg
    * @throws Exception the exception
    */
   private void logAndCommit(int objectCt, String msg) throws Exception {
