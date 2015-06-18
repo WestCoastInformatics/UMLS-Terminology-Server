@@ -1301,19 +1301,19 @@ tsApp
 	                			$scope.atomsLabel = generalEntries[i].value;
 	                		}
 	                		if (generalEntries[i].key === "Hierarchies_Label") {
-	                			$scope.atomsLabel = generalEntries[i].value;
+	                			$scope.hierarchiesLabel = generalEntries[i].value;
 	                		}
 	                		if (generalEntries[i].key === "Definitions_Label") {
-	                			$scope.atomsLabel = generalEntries[i].value;
+	                			$scope.definitionsLabel = generalEntries[i].value;
 	                		}
 	                		if (generalEntries[i].key === "Attributes_Label") {
-	                			$scope.atomsLabel = generalEntries[i].value;
+	                			$scope.attributesLabel = generalEntries[i].value;
 	                		}
 	                		if (generalEntries[i].key === "Subsets_Label") {
-	                			$scope.atomsLabel = generalEntries[i].value;
+	                			$scope.subsetsLabel = generalEntries[i].value;
 	                		}
 	                		if (generalEntries[i].key === "Relationships_Label") {
-	                			$scope.atomsLabel = generalEntries[i].value;
+	                			$scope.relationshipsLabel = generalEntries[i].value;
 	                		}
 	                	}	        			
 	        		}
