@@ -128,18 +128,7 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#clearMetadata(java.lang.String
-   * , java.lang.String)
-   */
-  @Override
-  public void clearMetadata(String terminology, String version)
-    throws Exception {
-    // n/a
-  }
+
 
   /*
    * (non-Javadoc)
@@ -438,6 +427,11 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     // n/a
   }
 
+  @Override
+  public void removePropertyChain(Long id) throws Exception {
+    // n/a
+  }
+  
   @Override
   public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry)
     throws Exception {
