@@ -645,7 +645,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @GET
   @Path("/terminology/remove/{terminology}/{version}")
   @ApiOperation(value = "Remove a terminology", notes = "Removes all elements for a specified terminology and version")
-  public void removeTerminology(
+  public boolean removeTerminology(
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -676,9 +676,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Logger.getLogger(getClass()).info(
           "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
       Logger.getLogger(getClass()).info("done ...");
+      return true;
 
     } catch (Exception e) {
       handleException(e, "trying to remove terminology");
+      return false;
     } finally {
       algo.close();
       service.close();

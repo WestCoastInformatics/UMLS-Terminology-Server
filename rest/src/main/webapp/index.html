@@ -293,9 +293,10 @@
 									tooltip="{{getComponentStr(componentHistory[componentHistoryIndex + 1])}}"></a>
 
 							</div>
-							<h3>{{component.terminologyId}} {{component.name}}</h3>
-
-
+							<h3>{{component.terminologyId}} {{component.name}}
+                                  <span style="padding-bottom: 2px;" ng-show="terminology.descriptionLogicTerminology && !component.fullyDefined" class="label label-info">Primitive</span>
+                                  <span style="padding-bottom: 2px;" ng-show="terminology.descriptionLogicTerminology && component.fullyDefined" class="label label-info" tooltip="Necessary and sufficient definition">Fully Defined</span>
+                            </h3>
 							<button ng-click="toggleSuppressible()"
 								class="btn btn-xs btn-primary">
 								<span ng-show="showSuppressible == true">Hide
@@ -625,8 +626,12 @@
 							<!-- Relationships -->
 							<div
 								ng-show="pagedRelationships.totalCount > 0 || relationshipsFilter">
-								<h4>{{relationshipsLabel}} ({{pagedRelationships.totalCount}})</h4>
-
+								<h4>{{relationshipsLabel}} ({{pagedRelationships.totalCount}})&nbsp;&nbsp; 
+              <button ng-show="terminology.descriptionLogicTerminology" ng-click="toggleInferred()"
+                class="btn btn-xs btn-primary">
+                <span ng-show="showInferred">Inferred</span> <span ng-show="!showInferred">Stated</span>
+              </button>
+                                </h4>
 								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
 									class="pagination-sm" previous-text="&lsaquo;"
 									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
@@ -647,7 +652,11 @@
 
 								<ul class="icon-list">
 									<li class="cr-list" ng-repeat="item in pagedRelationships"
-										ng-show="showItem(item)"><span
+										ng-show="showItem(item)">
+                                        <span ng-show="item.group > 0">&nbsp;
+                                        <span class="label label-success"
+                                              tooltip="Relationship group {{item.group}}">{{item.group}}</span>&nbsp;</span>
+                                        <span
 										class="label label-warning"
 										ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
 										<span class="label label-default"
@@ -659,6 +668,7 @@
 											ng-click="getComponent(component.terminology, item.toTerminologyId)"
 											tooltip="{{item.terminology}} {{componentType | lowercase}}">{{item.toTerminologyId}}</a>
 											{{item.toName}}
+                      
 									</span> <span class="visible-xs-inline"> <a
 											ng-click="getComponent(component.terminology, item.toTerminologyId)"
 											tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>

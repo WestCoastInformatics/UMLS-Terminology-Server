@@ -1023,9 +1023,10 @@ tsApp
         ///////////////////////////////
         
         // variables for showing/hiding elements based on boolean fields
-        $scope.showSuppressible = true;
-        $scope.showObsolete = true;
+        $scope.showSuppressible = false;
+        $scope.showObsolete = false;
         $scope.showAtomElement = true;
+        $scope.showInferred = true;
 
         
         /** Determine if an item has boolean fields set to true
@@ -1087,6 +1088,12 @@ tsApp
     		if ($scope.showAtomElement == false && item.atomElement == true)
     			return false;
     		
+    		// trigger on inferred flag
+    		if ($scope.showInferred && item.stated)
+    			return false;
+    		if (!$scope.showInferred && item.inferred)
+    			return false;
+    			
     		return true;
     	}
         
@@ -1123,7 +1130,17 @@ tsApp
         	
         	applyPaging();
         }
-        
+
+        /** Function to toggle inferred flag and apply paging */
+        $scope.toggleInferred = function() {
+        	if ($scope.showInferred == null || $scope.showInferred == undefined) {
+        		$scope.showInferred = false;
+        	} else {
+        		$scope.showInferred = !$scope.showInferred;
+        	}
+        	applyPaging();
+        }
+
         ///////////////////////////////
         // Expand/Collapse functions
         ///////////////////////////////
@@ -1562,6 +1579,7 @@ tsApp
         	var typePrefix = getTypePrefix($scope.componentType);
         	var pfs = getPfs(page);
         	
+        	// Show only inferred rels for now
         	// construct query restriction if needed
         	// TODO Change these to use pfs object parameters
         	var qr = '';
@@ -1571,8 +1589,22 @@ tsApp
         	if($scope.showObsolete == false) {
         		qr = qr + (qr.length > 0 ? ' AND ' : '') + 'obsolete:false';
         	}
+        	if ($scope.showInferred == true) {
+        		qr = qr + (qr.length > 0 ? ' AND ' : '') + 'inferred:true';
+        	}
+        	if ($scope.showInferred == false) {
+        		qr = qr + (qr.length > 0 ? ' AND ' : '') + 'stated:true';
+        	}
         	pfs['queryRestriction'] = qr;
         	pfs['sortField'] = 'relationshipType';
+        	
+        	// For description logic sources, simply read all rels.
+        	// That way we ensure all "groups" are represented.
+        	if ($scope.terminology.descriptionLogicTerminology) {
+            console.debug('Read all relationships');
+            pfs['startIndex'] = -1;
+        	}
+        	
         	
         	$scope.glassPane++;
             $http(
@@ -1589,6 +1621,22 @@ tsApp
                   "Content-Type" : "application/json"
                 }
               }).success(function(data) {
+
+                // if description logic terminology, sort relationships also by group
+            	 if ($scope.terminology.descriptionLogicTerminology) {
+                 console.debug('Sort by relationship group');
+            	   data.relationship.sort(function(a, b) {
+                   if (a.relationshipType < b.relationshipType)
+                     return -1;
+                   if (a.relationshipType > b.relationshipType)
+                     return 1;
+                   if (a.group < b.group)
+                     return -1;
+                   if (a.group > b.group)
+                     return 1;
+                   return 0;
+            	   });
+            	 }
             	  
             	 $scope.pagedRelationships = data.relationship;
             	 $scope.pagedRelationships.totalCount = data.totalCount;
