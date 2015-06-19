@@ -293,16 +293,6 @@ public interface MetadataService extends RootService, Configurable {
   public void setLastModifiedFlag(boolean lastModifiedFlag);
 
   /**
-   * Clear metadata.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @throws Exception the exception
-   */
-  public void clearMetadata(String terminology, String version)
-    throws Exception;
-
-  /**
    * Adds the semantic type.
    *
    * @param semanticType the semantic type
@@ -597,5 +587,6 @@ public interface MetadataService extends RootService, Configurable {
    */
   public GraphResolutionHandler getGraphResolutionHandler(String terminology)
     throws Exception;
+
 
 }

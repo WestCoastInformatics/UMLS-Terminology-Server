@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status.Family;
+import javax.xml.bind.JAXBException;
 
 import org.apache.log4j.Logger;
 
@@ -1892,45 +1893,227 @@ public class ContentClientRest extends RootClientRest implements
   public TreeList findConceptTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url")
+            + "/content/"
+            + "/cui"
+            + "/"
+            + terminology
+            + "/"
+            + version
+            + "/trees/children");
+
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    TreeListJpa list =
+        (TreeListJpa) ConfigUtility.getGraphForString(resultString,
+            TreeListJpa.class);
+    return list;
+    
   }
 
   @Override
   public TreeList findDescriptorTreeChildren(String terminology,
     String version, String terminologyId, PfsParameterJpa pfs, String authToken)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url")
+            + "/content/"
+            + "/dui"
+            + "/"
+            + terminology
+            + "/"
+            + version
+            + "/trees/children");
+
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    TreeListJpa list =
+        (TreeListJpa) ConfigUtility.getGraphForString(resultString,
+            TreeListJpa.class);
+    return list;
   }
 
   @Override
   public TreeList findCodeTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url")
+            + "/content/"
+            + "/code"
+            + "/"
+            + terminology
+            + "/"
+            + version
+            + "/trees/children");
+
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    TreeListJpa list =
+        (TreeListJpa) ConfigUtility.getGraphForString(resultString,
+            TreeListJpa.class);
+    return list;
   }
 
   @Override
   public Tree findConceptTreeRoots(String terminology, String version,
-    PfsParameterJpa pfs, String authToken) {
-    // TODO Auto-generated method stub
-    return null;
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url")
+            + "/content/"
+            + "/cui"
+            + "/"
+            + terminology
+            + "/"
+            + version
+            + "/trees/roots");
+
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    TreeJpa tree =
+        (TreeJpa) ConfigUtility.getGraphForString(resultString,
+            TreeJpa.class);
+    return tree;
   }
 
   @Override
   public Tree findCodeTreeRoots(String terminology, String version,
-    PfsParameterJpa pfs, String authToken) {
-    // TODO Auto-generated method stub
-    return null;
+    PfsParameterJpa pfs, String authToken) 
+    throws Exception {
+      Client client = Client.create();
+      WebResource resource =
+          client.resource(config.getProperty("base.url")
+              + "/content/"
+              + "/code"
+              + "/"
+              + terminology
+              + "/"
+              + version
+              + "/trees/roots");
+
+      String pfsString =
+          ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+              : pfs);
+      ClientResponse response =
+          resource.accept(MediaType.APPLICATION_XML)
+              .header("Authorization", authToken)
+              .header("Content-type", MediaType.APPLICATION_XML)
+              .post(ClientResponse.class, pfsString);
+
+      String resultString = response.getEntity(String.class);
+      if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+        // n/a
+      } else {
+        throw new Exception(response.toString());
+      }
+
+      // converting to object
+      TreeJpa tree =
+          (TreeJpa) ConfigUtility.getGraphForString(resultString,
+              TreeJpa.class);
+      return tree;
   }
 
   @Override
   public Tree findDescriptorTreeRoots(String terminology, String version,
-    PfsParameterJpa pfs, String authToken) {
-    // TODO Auto-generated method stub
-    return null;
+    PfsParameterJpa pfs, String authToken)  throws Exception {
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url")
+            + "/content/"
+            + "/dui"
+            + "/"
+            + terminology
+            + "/"
+            + version
+            + "/trees/roots");
+
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    TreeJpa tree =
+        (TreeJpa) ConfigUtility.getGraphForString(resultString,
+            TreeJpa.class);
+    return tree;
   }
 
 }

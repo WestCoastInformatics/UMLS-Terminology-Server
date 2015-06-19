@@ -121,34 +121,7 @@
                     href="https://uts.nlm.nih.gov/license.html#emailTemporaryPassword">Forgot
                     Password?</a> <br /> <br />
                 </p>
-                <p class="introText">
-                  This demonstration browser and app is loaded with a <i>Level
-                    0 + SNOMEDCT_US</i> edition of the 2014AB UMLS. It contains
-                  complete versions of many terminologies, including SNOMEDCT_US,
-                  MeSH, RXNORM, and others. The data set contains over 1.6
-                  million concepts with over 5.5 million individual terms from
-                  constituent terminologies.
-                </p>
-                <p class="introText">Due to the use of IP restricted
-                  content, we require users to authenticate with an NLM UTS
-                  account to ensure they have agreed to the UMLS License. We are
-                  a UMLS authorized content distributor.</p>
-                <p class="introText">
-                  To obtain a UTS account, visit <a
-                    href="http://uts.nlm.nih.gov">http://uts.nlm.nih.gov</a>
-                </p>
-                <p class="introText">
-                  Disclaimer: this is not an official <a
-                    href="http://www.ihtsdo.org">NLM</a> site.
-                </p>
-                <p class="introText">
-                  For complete documentation, see the <a
-                    href="http://wiki.terminology.tools/confluence/display/UTS/UMLS+Terminology+Server+Home">UMLS
-                    Terminology Server wiki</a>.
-                </p>
-                <p class="introText">
-                  For support or questions, email:<a
-                    href="mailto:info@westcoastinformatics.com">info@westcoastinformatics.com</a>
+								<ng-include src="'ui/partials/${intro.page}'">
               </form>
             </div>
           </div>
@@ -342,7 +315,7 @@
               <div ng-show="treeCount > 0">
 
                 <h4>
-                  Hierarchies (<a class="glyphicon glyphicon-step-backward"
+									{{hierarchiesLabel}} (<a class="glyphicon glyphicon-step-backward"
                     ng-click="getTreeByOffset(-1)"></a> {{treeViewed+1}} of
                   {{treeCount}} <a class="glyphicon glyphicon-step-forward"
                     ng-click="getTreeByOffset(1)"></a>)
@@ -401,7 +374,7 @@
               <!--  Definitions -->
               <div
                 ng-show="pagedDefinitions.totalCount > 0 || definitionsFilter">
-                <h4>Definitions ({{pagedDefinitions.totalCount}})</h4>
+								<h4>{{definitionsLabel}} ({{pagedDefinitions.totalCount}})</h4>
 
                 <pagination items-per-page="pageSize" max-size="5"
                   boundary-links="true" class="pagination-sm"
@@ -440,7 +413,7 @@
 
               <!-- Atoms -->
               <div ng-show="pagedAtoms.totalCount > 0 || atomsFilter">
-                <h4>Atoms ({{pagedAtoms.totalCount}})</h4>
+								<h4>{{atomsLabel}} ({{pagedAtoms.totalCount}})</h4>
 
                 <pagination items-per-page="pageSize" max-size="5"
                   boundary-links="true" class="pagination-sm"
@@ -520,7 +493,7 @@
                           ng-show="item.expanded == true">
 
                           <div ng-show="item.definition.length > 0">
-                            <strong>Definitions</strong>
+														<strong>{{definitionsLabel}}</strong>
                             <ul>
                               <li
                                 ng-repeat="definition in item.definition | orderBy:'value'">
@@ -529,7 +502,7 @@
                           </div>
 
                           <div ng-show="item.attribute.length > 0">
-                            <strong>Attributes</strong>
+														<strong>{{attributesLabel}}</strong>
                             <ul>
                               <li
                                 ng-repeat="attribute in item.attribute | orderBy: ['name', 'value']">
@@ -541,7 +514,7 @@
                           </div>
 
                           <div ng-show="item.member.length > 0">
-                            <strong>Subsets</strong>
+                            <strong>{{subsetsLabel}}</strong>
                             <ul>
                               <li
                                 ng-repeat="member in item.member | orderBy: ['name', 'value']">
@@ -561,7 +534,7 @@
                           </div>
 
                           <div ng-show="item.relationship.length > 0">
-                            <strong>Relationships</strong>
+														<strong>{{relationshipsLabel}}</strong>
                             <ul>
                               <li
                                 ng-repeat="relationship in item.relationship | orderBy:['relationshipType', 'toName']"><span
@@ -583,7 +556,7 @@
 
               <!--  Attributes -->
               <div ng-show="component.attribute.length > 0 || attributesFilter">
-                <h4>Attributes ({{pagedAttributes.totalCount}})</h4>
+								<h4>{{attributesLabel}} ({{pagedAttributes.totalCount}})</h4>
                 <pagination items-per-page="pageSize" max-size="5"
                   boundary-links="true" class="pagination-sm"
                   previous-text="&lsaquo;" next-text="&rsaquo;"
@@ -619,7 +592,7 @@
 
               <!--  Subsets -->
               <div ng-show="component.member.length > 0 || membersFilter">
-                <h4>Subsets ({{pagedMembers.totalCount}})</h4>
+                <h4>{{subsetsLabel}} ({{pagedMembers.totalCount}})</h4>
                 <pagination items-per-page="pageSize" max-size="5"
                   boundary-links="true" class="pagination-sm"
                   previous-text="&lsaquo;" next-text="&rsaquo;"
@@ -661,7 +634,7 @@
               <!-- Relationships -->
               <div
                 ng-show="pagedRelationships.totalCount > 0 || relationshipsFilter">
-                <h4>Relationships ({{pagedRelationships.totalCount}})</h4>
+								<h4>{{relationshipsLabel}} ({{pagedRelationships.totalCount}})</h4>
 
                 <pagination items-per-page="pageSize" max-size="5"
                   boundary-links="true" class="pagination-sm"

@@ -66,6 +66,14 @@ tsApp
         $scope.error = "";
         $scope.glassPane = 0;
 
+        // labels
+        $scope.atomsLabel = "Atoms";
+        $scope.hierarchiesLabel = "Hierarchies";
+        $scope.attributesLabel = "Attributes";
+        $scope.definitionsLabel = "Definitions";
+        $scope.subsetsLabel = "Subsets";
+        $scope.relationshipsLabel = "Relationships";
+        
         // full variable arrays
         $scope.searchResults = null;
         $scope.searchResultsTree = null;
@@ -102,8 +110,8 @@ tsApp
             + getTypePrefix($scope.terminology.organizingClassType) + '/'
             + $scope.terminology.terminology + '/' + $scope.terminology.version
             + "/autocomplete/";
-
-          $scope.glassPane++;
+          
+         /* $scope.glassPane++;
           $http(
             {
               url : metadataUrl + 'all/terminology/id/'
@@ -120,7 +128,7 @@ tsApp
           }).error(function(data, status, headers, config) {
             $scope.handleError(data, status, headers, config);
             $scope.glassPane--;
-          });
+          });*/
         })
 
         $scope.login = function(name, password) {
@@ -157,7 +165,8 @@ tsApp
             // set request header
             // authorization
             $http.defaults.headers.common.Authorization = $scope.authToken;
-
+            
+     
             // retrieve available
             // terminologies
             $scope.getTerminologies();
@@ -1351,9 +1360,30 @@ tsApp
               }
               if ($scope.metadata[i].name === 'General_Metadata_Entries') {
                 generalEntries = $scope.metadata[i].keyValuePair;
-              }
-            }
-          }
+	        			
+	                	for (var i = 0; i < generalEntries.length; i++) {
+	                		if (generalEntries[i].key === "Atoms_Label") {
+	                			$scope.atomsLabel = generalEntries[i].value;
+	                		}
+	                		if (generalEntries[i].key === "Hierarchies_Label") {
+	                			$scope.hierarchiesLabel = generalEntries[i].value;
+	                		}
+	                		if (generalEntries[i].key === "Definitions_Label") {
+	                			$scope.definitionsLabel = generalEntries[i].value;
+	                		}
+	                		if (generalEntries[i].key === "Attributes_Label") {
+	                			$scope.attributesLabel = generalEntries[i].value;
+	                		}
+	                		if (generalEntries[i].key === "Subsets_Label") {
+	                			$scope.subsetsLabel = generalEntries[i].value;
+	                		}
+	                		if (generalEntries[i].key === "Relationships_Label") {
+	                			$scope.relationshipsLabel = generalEntries[i].value;
+	                		}
+	                	}	        			
+	        		}
+	        	}
+        	}        	
         });
 
         // get relationship type name from its abbreviation

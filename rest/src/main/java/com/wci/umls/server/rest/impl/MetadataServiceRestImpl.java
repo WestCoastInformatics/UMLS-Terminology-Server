@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.lang.instrument.Instrumentation;
 import java.util.List;
 import java.util.Map;
 
@@ -131,8 +132,11 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
             .entity("User does not have permissions to retrieve the metadata")
             .build());
 
-      return getMetadataHelper(terminology, version);
-
+      KeyValuePairLists keyValuePairList = getMetadataHelper(terminology, version);
+      
+       
+      return keyValuePairList;
+      
     } catch (Exception e) {
       handleException(e, "trying to retrieve the metadata", user);
       return null;
@@ -185,11 +189,11 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
                 "No version " + version + " is loaded for terminology "
                     + terminology).build());
       }
-
+   
       // call jpa service and get complex map return type
       Map<String, Map<String, String>> mapOfMaps =
           metadataService.getAllMetadata(terminology, version);
-
+      
       // convert complex map to KeyValuePair objects for easy transformation to
       // XML/JSON
       KeyValuePairLists keyValuePairLists = new KeyValuePairLists();

@@ -1114,15 +1114,6 @@ public interface ContentService extends MetadataService {
     throws Exception;
 
   /**
-   * Removes all concepts and connected data structures.
-   *
-   * @param terminology the terminology
-   * @param version the terminology version
-   * @throws Exception the exception
-   */
-  public void clearContent(String terminology, String version) throws Exception;
-
-  /**
    * Clear all content in the (non null) branch.
    *
    * @param branch the branch

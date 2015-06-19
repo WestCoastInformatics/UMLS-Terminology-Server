@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import javax.persistence.metamodel.EntityType;
-
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -39,7 +37,6 @@ import com.wci.umls.server.jpa.helpers.meta.RootTerminologyListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TerminologyListJpa;
-import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
@@ -744,75 +741,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#clearMetadata(java.lang.String
-   * , java.lang.String)
-   */
-  @Override
-  public void clearMetadata(String terminology, String version)
-    throws Exception {
-    Logger.getLogger(getClass()).info("Metadata service - clear metadata");
-    try {
-      if (getTransactionPerOperation()) {
-        // remove simple ref set member
-        tx.begin();
-      }
-
-      for (EntityType<?> type : manager.getMetamodel().getEntities()) {
-        String jpaTable = type.getName();
-        // Skip audit trail tables
-        if (jpaTable.toUpperCase().indexOf("_AUD") != -1) {
-          continue;
-        }
-        // remove all abstract abbreviations
-        if (!AbstractAbbreviation.class.isAssignableFrom(type
-            .getBindableJavaType())
-            && !Terminology.class.isAssignableFrom(type.getBindableJavaType())
-            && !RootTerminology.class.isAssignableFrom(type
-                .getBindableJavaType())) {
-          continue;
-        }
-
-        Logger.getLogger(getClass()).info("  Remove " + jpaTable);
-        javax.persistence.Query query = null;
-
-        // Handle case of no terminology version
-        if (RootTerminology.class.isAssignableFrom(type.getBindableJavaType())) {
-          query =
-              manager.createQuery("DELETE FROM " + jpaTable
-                  + " WHERE terminology = :terminology ");
-          query.setParameter("terminology", terminology);
-        }
-
-        // Handle case of terminology version
-        else {
-          query =
-              manager.createQuery("DELETE FROM " + jpaTable
-                  + " WHERE terminology = :terminology "
-                  + " AND version = :version");
-          query.setParameter("terminology", terminology);
-          query.setParameter("version", version);
-        }
-        int deleteRecords = query.executeUpdate();
-        Logger.getLogger(getClass()).info(
-            "    " + jpaTable + " records deleted: " + deleteRecords);
-
-      }
-
-      if (getTransactionPerOperation()) {
-        // remove simple ref set member
-        tx.commit();
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
-  }
 
   /*
    * (non-Javadoc)
@@ -873,6 +801,23 @@ public class MetadataServiceJpa extends RootServiceJpa implements
         "Metadata Service - remove semantic type " + id);
     // Remove the component
     removeMetadata(id, SemanticTypeJpa.class);
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+  }
+  
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.MetadataService#removePropertyChain(java.lang.Long)
+   */
+  @Override
+  public void removePropertyChain(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - remove property chain " + id);
+    // Remove the component
+    removeMetadata(id, PropertyChainJpa.class);
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
         listener.metadataChanged();
@@ -1109,19 +1054,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     updateMetadata(propertyChain);
 
     // Inform listeners
-    if (listenersEnabled) {
-      for (WorkflowListener listener : listeners) {
-        listener.metadataChanged();
-      }
-    }
-  }
-
-  @Override
-  public void removePropertyChain(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove property chain " + id);
-    // Remove the component
-    removeMetadata(id, PropertyChainJpa.class);
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
         listener.metadataChanged();
