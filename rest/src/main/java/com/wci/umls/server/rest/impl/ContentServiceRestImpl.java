@@ -6,6 +6,7 @@ package com.wci.umls.server.rest.impl;
 import java.io.File;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -20,7 +21,6 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -114,7 +114,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   public void luceneReindex(
     @ApiParam(value = "Comma-separated list of objects to reindex, e.g. ConceptJpa (optional)", required = false) String indexedObjects,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-  throws Exception {
+    throws Exception {
     Logger.getLogger(getClass()).info("test");
     Logger.getLogger(getClass()).info(
         "RESTful POST call (Content): /reindex "
@@ -642,7 +642,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    * (java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  @GET
+  @DELETE
   @Path("/terminology/remove/{terminology}/{version}")
   @ApiOperation(value = "Remove a terminology", notes = "Removes all elements for a specified terminology and version")
   public boolean removeTerminology(
@@ -2349,13 +2349,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       }
 
       // if only one child, dummy root not necessary
-      if (dummyTree.getChildren().size() == 1) {
+      if (returnTree.getChildren().size() == 1) {
         Tree tree = dummyTree.getChildren().get(0);
+        tree.setTotalCount(returnTree.getTotalCount());
         return tree;
       }
 
       // otherwise return the populated dummy root tree
-      return dummyTree;
+      return returnTree;
 
     } catch (Exception e) {
       handleException(e, "trying to find trees for a query");
@@ -2375,14 +2376,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
    * java.lang.String)
    */
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findConceptTreeForQuery(java.lang.String, java.lang.String,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
+   */
   @Override
   @POST
   @Path("/dui/{terminology}/{version}/trees/query/{query}")
   @ApiOperation(value = "Find descriptor trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = Tree.class)
   public Tree findDescriptorTreeForQuery(
-    @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Descriptor terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query search term, e.g. 'pneumonia'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Descriptor terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2394,45 +2403,52 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version
-            + "/trees/query/ + query");
+            + "/trees/query/" + query);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find trees for the descriptor",
           UserRole.VIEWER);
 
       TreePositionList list =
-          contentService.findDescriptorTreePositionsForQuery(terminology,
-              version, Branch.ROOT, queryStr, pfs);
+          contentService.findDescriptorTreePositionsForQuery(terminology, version,
+              Branch.ROOT, queryStr, pfs);
 
       // dummy variables for construction of artificial root
       Tree dummyTree = new TreeJpa();
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
+      dummyTree.setTerminologyId("dummy id");
       dummyTree.setName("Top");
-
-      dummyTree = new TreeJpa();
       dummyTree.setTotalCount(list.getTotalCount());
+
+      // initialize the return tree with dummy root and set total count
+      Tree returnTree = new TreeJpa(dummyTree);
 
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
+
+        // get tree for tree position
         final Tree tree = contentService.getTreeForTreePosition(treepos);
 
-        // construct a new dummy-root tree
+        // construct a new dummy-root tree for merging with existing tree
         Tree treeForTreePos = new TreeJpa(dummyTree);
+
+        // add retrieved tree to dummy root level
         treeForTreePos.addChild(tree);
-        dummyTree.mergeTree(treeForTreePos);
+
+        // merge into the top-level dummy tree
+        returnTree.mergeTree(treeForTreePos);
       }
 
       // if only one child, dummy root not necessary
-      if (dummyTree.getChildren().size() == 1) {
-
+      if (returnTree.getChildren().size() == 1) {
         Tree tree = dummyTree.getChildren().get(0);
-        tree.setTotalCount(dummyTree.getTotalCount());
+        tree.setTotalCount(returnTree.getTotalCount());
         return tree;
       }
 
       // otherwise return the populated dummy root tree
-      return dummyTree;
+      return returnTree;
 
     } catch (Exception e) {
       handleException(e, "trying to find trees for a query");
@@ -2452,14 +2468,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    * (java.lang.String, java.lang.String, java.lang.String,
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
+   * findConceptTreeForQuery(java.lang.String, java.lang.String,
+   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
+   * java.lang.String)
+   */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/trees/query/{query}")
   @ApiOperation(value = "Find code trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = Tree.class)
   public Tree findCodeTreeForQuery(
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Codeterminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query search term, e.g. 'aspirin'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Code terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @PathParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2470,8 +2494,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       queryStr = "";
     }
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
-            + "/trees/query/ + query");
+        "RESTful call (Content): /code/" + terminology + "/" + version
+            + "/trees/query/" + query);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find trees for the code",
@@ -2485,34 +2509,38 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Tree dummyTree = new TreeJpa();
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
+      dummyTree.setTerminologyId("dummy id");
       dummyTree.setName("Top");
-
-      dummyTree = new TreeJpa();
       dummyTree.setTotalCount(list.getTotalCount());
+
+      // initialize the return tree with dummy root and set total count
+      Tree returnTree = new TreeJpa(dummyTree);
 
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
+
+        // get tree for tree position
         final Tree tree = contentService.getTreeForTreePosition(treepos);
 
-        // construct a new dummy-root tree
+        // construct a new dummy-root tree for merging with existing tree
         Tree treeForTreePos = new TreeJpa(dummyTree);
+
+        // add retrieved tree to dummy root level
         treeForTreePos.addChild(tree);
-        dummyTree.mergeTree(treeForTreePos);
+
+        // merge into the top-level dummy tree
+        returnTree.mergeTree(treeForTreePos);
       }
 
       // if only one child, dummy root not necessary
-      if (dummyTree.getChildren().size() == 1) {
-
+      if (returnTree.getChildren().size() == 1) {
         Tree tree = dummyTree.getChildren().get(0);
-
-        // set the count and total count
-        tree.setTotalCount(dummyTree.getTotalCount());
-
+        tree.setTotalCount(returnTree.getTotalCount());
         return tree;
       }
 
       // otherwise return the populated dummy root tree
-      return dummyTree;
+      return returnTree;
 
     } catch (Exception e) {
       handleException(e, "trying to find trees for a query");
@@ -2521,6 +2549,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       contentService.close();
       securityService.close();
     }
+
   }
 
   @Override
@@ -2530,7 +2559,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   public TreeList findConceptTreeChildren(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Concept terminologyId, e.g. C0000061", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Concept terminologyId, e.g. C0000061 or ~BLANK~ for top-level", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2543,36 +2572,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
 
-      // get the child
-      ConceptList childConcepts =
-          contentService.findDescendantConcepts(terminologyId, terminology,
-              version, true, Branch.ROOT, pfs);
-
-      // instantiate child tree positions array
-      TreePositionList childTreePositions = new TreePositionListJpa();
-
-      // construct pfs parameter for tree position lookup, only need first one
-      PfsParameter childPfs = new PfsParameterJpa();
-      childPfs.setStartIndex(0);
-      childPfs.setMaxResults(1);
-
-      // get a tree position for each child, for child ct
-      for (Concept childConcept : childConcepts.getObjects()) {
-        TreePositionList tpList =
-            contentService.findTreePositionsForConcept(
-                childConcept.getTerminologyId(), childConcept.getTerminology(),
-                childConcept.getVersion(), Branch.ROOT, childPfs);
-
-        if (tpList.getCount() != 1)
-          throw new Exception(
-              "Unexpected number of tree positions for concept "
-                  + terminologyId);
-
-        childTreePositions.addObject(tpList.getObjects().get(0));
-      }
-
       // the TreeList to return
       TreeList childTrees = new TreeListJpa();
+
+      // instantiate child tree positions array, used to construct trees
+      TreePositionList childTreePositions =
+          contentService.findConceptTreePositionChildren(terminologyId,
+              terminology, version, pfs);
 
       // for each tree position, construct a tree
       for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2585,7 +2591,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       return childTrees;
 
     } catch (Exception e) {
-      handleException(e, "trying to find trees for a query");
+      handleException(e, "trying to find tree children");
       return null;
     } finally {
       contentService.close();
@@ -2594,19 +2600,316 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   @Override
-  public TreeList findDescriptorTreeChildren(String terminology,
-    String version, String terminologyId, PfsParameterJpa pfs, String authToken)
+  @POST
+  @Path("/code/{terminology}/{version}/{terminologyId}/trees/children")
+  @ApiOperation(value = "Find children trees for a code", notes = "Returns paged children trees for a code. Note: not ancestorPath-sensitive", response = Tree.class)
+  public TreeList findCodeTreeChildren(
+    @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Code terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Code terminologyId, e.g. C0000061 or ~BLANK~ for top-level", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /code/" + terminology + "/" + version + "/"
+            + terminologyId + "/" + "/trees/children");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find trees for the code",
+          UserRole.VIEWER);
+
+      // the TreeList to return
+      TreeList childTrees = new TreeListJpa();
+
+      // instantiate child tree positions array, used to construct trees
+      TreePositionList childTreePositions =
+          contentService.findCodeTreePositionChildren(terminologyId,
+              terminology, version, pfs);
+
+      // for each tree position, construct a tree
+      for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+          .getObjects()) {
+        Tree childTree = new TreeJpa();
+        childTree.setFromTreePosition(childTreePosition);
+        childTrees.addObject(childTree);
+      }
+
+      return childTrees;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find tree children");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
   }
 
   @Override
-  public TreeList findCodeTreeChildren(String terminology, String version,
-    String terminologyId, PfsParameterJpa pfs, String authToken)
+  @POST
+  @Path("/dui/{terminology}/{version}/{terminologyId}/trees/children")
+  @ApiOperation(value = "Find children trees for a descriptor", notes = "Returns paged children trees for a descriptor. Note: not ancestorPath-sensitive", response = Tree.class)
+  public TreeList findDescriptorTreeChildren(
+    @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Descriptor terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Descriptor terminologyId, e.g. D0000061 or ~BLANK~ for top-level", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+            + terminologyId + "/" + "/trees/children");
+    ContentService contentService = new ContentServiceJpa();
+    try {
+      authenticate(securityService, authToken, "find trees for the code",
+          UserRole.VIEWER);
+
+      // the TreeList to return
+      TreeList childTrees = new TreeListJpa();
+
+      // instantiate child tree positions array, used to construct trees
+      TreePositionList childTreePositions =
+          contentService.findConceptTreePositionChildren(terminologyId,
+              terminology, version, pfs);
+
+      // for each tree position, construct a tree
+      for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+          .getObjects()) {
+        Tree childTree = new TreeJpa();
+        childTree.setFromTreePosition(childTreePosition);
+        childTrees.addObject(childTree);
+      }
+
+      return childTrees;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find tree children");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  @Override
+  @POST
+  @Path("/cui/{terminology}/{version}/trees/roots")
+  @ApiOperation(value = "Find root trees for a concept-based terminology", notes = "Returns paged root trees for a concept-based terminology.", response = Tree.class)
+  public Tree findConceptTreeRoots(
+    @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
+            + "/trees/roots");
+    ContentService contentService = new ContentServiceJpa();
+
+    try {
+      authenticate(securityService, authToken, "find trees for the code",
+          UserRole.VIEWER);
+
+      // instantiate root tree positions array, used to construct trees
+      TreePositionList rootTreePositions = new TreePositionListJpa();
+
+      // get tree positions where ancestor path is empty
+      rootTreePositions =
+          contentService.findConceptTreePositionsForQuery(terminology, version,
+              Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
+
+      Tree rootTree = new TreeJpa();
+      rootTree.setTotalCount(rootTreePositions.getTotalCount());
+
+      // if a terminology with a single root concept
+      if (rootTreePositions.getCount() == 1) {
+
+        // construct root tree from single root
+        rootTree.setFromTreePosition(rootTreePositions.getObjects().get(0));
+
+        // get the children tree positions
+        TreePositionList childTreePositions = contentService.findConceptTreePositionChildren(rootTree.getTerminologyId(), terminology, version, pfs);
+  
+        // construct and add children
+        for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions.getObjects()) {
+          Tree childTree = new TreeJpa();
+          childTree.setFromTreePosition(childTreePosition);
+          rootTree.mergeTree(childTree);
+        }
+      }
+
+      // otherwise, no single root concept
+      else {
+        // create a dummy tree position to serve as root
+        rootTree.setTerminology(terminology);
+        rootTree.setVersion(version);
+        rootTree.setName("Top");
+        
+        // construct and add children
+        for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions.getObjects()) {
+          Tree childTree = new TreeJpa();
+          childTree.setFromTreePosition(rootTreePosition);
+          rootTree.addChild(childTree);
+        }
+      }
+
+      return rootTree;
+    } catch (Exception e) {
+      handleException(e, "trying to find root trees");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  @Override
+  @POST
+  @Path("/dui/{terminology}/{version}/trees/roots")
+  @ApiOperation(value = "Find root trees for a descriptor-based terminology", notes = "Returns paged root trees for a descriptor-based terminology.", response = Tree.class)
+  public Tree findDescriptorTreeRoots(
+    @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Descriptor terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
+            + "/trees/roots");
+    ContentService contentService = new ContentServiceJpa();
+
+    try {
+      authenticate(securityService, authToken, "find trees for the code",
+          UserRole.VIEWER);
+
+      // instantiate root tree positions array, used to construct trees
+      TreePositionList rootTreePositions = new TreePositionListJpa();
+
+      // get tree positions where ancestor path is empty
+      rootTreePositions =
+          contentService.findDescriptorTreePositionsForQuery(terminology, version,
+              Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
+
+      Tree rootTree = new TreeJpa();
+      rootTree.setTotalCount(rootTreePositions.getTotalCount());
+
+      // if a terminology with a single root descriptor
+      if (rootTreePositions.getCount() == 1) {
+
+        // construct root tree from single root
+        rootTree.setFromTreePosition(rootTreePositions.getObjects().get(0));
+
+        // get the children tree positions
+        TreePositionList childTreePositions = contentService.findDescriptorTreePositionChildren(rootTree.getTerminologyId(), terminology, version, pfs);
+  
+        // construct and add children
+        for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions.getObjects()) {
+          Tree childTree = new TreeJpa();
+          childTree.setFromTreePosition(childTreePosition);
+          rootTree.mergeTree(childTree);
+        }
+      }
+
+      // otherwise, no single root descriptor
+      else {
+        // create a dummy tree position to serve as root
+        rootTree.setTerminology(terminology);
+        rootTree.setVersion(version);
+        rootTree.setName("Top");
+        
+        // construct and add children
+        for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions.getObjects()) {
+          Tree childTree = new TreeJpa();
+          childTree.setFromTreePosition(rootTreePosition);
+          rootTree.addChild(childTree);
+        }
+      }
+
+      return rootTree;
+    } catch (Exception e) {
+      handleException(e, "trying to find root trees");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  @Override
+  @POST
+  @Path("/code/{terminology}/{version}/trees/roots")
+  @ApiOperation(value = "Find root trees for a code-based terminology", notes = "Returns paged root trees for a code-based terminology.", response = Tree.class)
+  public Tree findCodeTreeRoots(
+    @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Code terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /code/" + terminology + "/" + version + "/"
+            + "/trees/roots");
+    ContentService contentService = new ContentServiceJpa();
+
+    try {
+      authenticate(securityService, authToken, "find trees for the code",
+          UserRole.VIEWER);
+
+      // instantiate root tree positions array, used to construct trees
+      TreePositionList rootTreePositions = new TreePositionListJpa();
+
+      // get tree positions where ancestor path is empty
+      rootTreePositions =
+          contentService.findCodeTreePositionsForQuery(terminology, version,
+              Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
+
+      Tree rootTree = new TreeJpa();
+      rootTree.setTotalCount(rootTreePositions.getTotalCount());
+
+      // if a terminology with a single root code
+      if (rootTreePositions.getCount() == 1) {
+
+        // construct root tree from single root
+        rootTree.setFromTreePosition(rootTreePositions.getObjects().get(0));
+
+        // get the children tree positions
+        TreePositionList childTreePositions = contentService.findCodeTreePositionChildren(rootTree.getTerminologyId(), terminology, version, pfs);
+  
+        // construct and add children
+        for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions.getObjects()) {
+          Tree childTree = new TreeJpa();
+          childTree.setFromTreePosition(childTreePosition);
+          rootTree.mergeTree(childTree);
+        }
+      }
+
+      // otherwise, no single root code
+      else {
+        // create a dummy tree position to serve as root
+        rootTree.setTerminology(terminology);
+        rootTree.setVersion(version);
+        rootTree.setName("Top");
+        
+        // construct and add children
+        for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions.getObjects()) {
+          Tree childTree = new TreeJpa();
+          childTree.setFromTreePosition(rootTreePosition);
+          rootTree.addChild(childTree);
+        }
+      }
+
+      return rootTree;
+    } catch (Exception e) {
+      handleException(e, "trying to find root trees");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
   }
 
 }

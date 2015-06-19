@@ -42,14 +42,13 @@
 	display: none;
 }
 </style>
-		<div class="alert alert-danger">You must have Javascript enabled
-			to use the Terminology Server Demo</div>
+    <div class="alert alert-danger">You must have Javascript enabled to
+      use the Terminology Server Demo</div>
 	</noscript>
 
 
 	<!--  header -->
-	<nav id="navBar"
-		style="background: #00008A url('images/background.jpg');"
+  <nav id="navBar" style="background: #00008A url('images/background.jpg');"
 		class="navbar navbar-default navbar-fixed-top" role="navigation">
 		<!-- Brand and toggle get grouped for better mobile display -->
 		<div class="container-fluid">
@@ -80,10 +79,8 @@
 
 
 		<!-- Blank for header -->
-		<div class="hidden-xs" style="height: 94px;">Makes room for
-			content</div>
-		<div class="visible-xs" style="height: 60px;">Makes room for
-			content</div>
+    <div class="hidden-xs" style="height: 94px;">Makes room for content</div>
+    <div class="visible-xs" style="height: 60px;">Makes room for content</div>
 
 		<div class="row">
 			<div class="col-md-1 col-xs-0">
@@ -113,7 +110,7 @@
 						<div>
 							<strong>Enter User and Password</strong><br>
 							<form>
-								<input class="loginField" id="userField" ng-model="userName"
+                <input autofocus class="loginField" id="userField" ng-model="userName"
 									type="text" placeholder="Username" /><br> <input
 									class="loginField" id="passwordField" type="password"
 									placeholder="Password" ng-model="password" /><br>
@@ -141,12 +138,12 @@
 						<table class="table">
 							<tr>
 								<td width="15%;">Terminology</td>
-								<td width="85%;"><select ng-model="terminology"
+                <td width="85%;"><select width="100%" ng-model="terminology"
 									ng-change="setTerminology(terminology)"
 									ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
-									
-									<button class="btn btn-sm btn-primary" ng-click="browseHierarchy(1)">Browse</button>
-									</td>
+
+                  <button class="btn btn-sm btn-primary"
+                    ng-click="browseHierarchy(1)">Browse</button></td>
 							</tr>
 							<tr>
 								<td>Query</td>
@@ -178,7 +175,8 @@
 								<div class="alert alert-success"
 									ng-show="searchResults.length > 0">
 									{{searchResults.totalCount}} Results (Click a row for details)
-									<a ng-show="!terminology.metathesaurus" class="pull-right glyphicon glyphicon-tree-conifer"
+                  <a ng-show="!terminology.metathesaurus"
+                    class="pull-right glyphicon glyphicon-tree-conifer"
 										ng-click="setTreeView()" tooltip="Switch to tree view"></a>
 								</div>
 								<div class="alert alert-danger"
@@ -196,7 +194,7 @@
 									ng-change="findComponents(componentQuery, searchResultsPage)"></pagination>
 
 
-								<table class="table table-hover" style="margin-top:10px;"
+                <table class="table table-hover" style="margin-top: 10px;"
 									ng-show="searchResults.length > 0">
 
 									<tbody>
@@ -211,29 +209,34 @@
 								</table>
 							</div>
 							<div ng-show="queryForTree">
-								<div class="alert alert-success">
-									<!-- ng-show="searchResultsTree.totalCount > 0" -->
+                <div class="alert alert-success"
+                  ng-show="searchResultsTree.totalCount > 0">
+
 
 									{{searchResultsTree.totalCount}} Results (Click a row for
 									details) <a class="pull-right glyphicon glyphicon-th-list"
-										ng-click="setListView()" tooltip="Switch to list view"></a>
+                    ng-click="setListView()" tooltip="Switch to list view">
+                  </a>
 								</div>
 								<div class="alert alert-danger"
 									ng-show="searchResultsTree && searchResultsTree.totalCount == 0">Search
 									returned no results.</div>
 
-								<pagination display="block" items-per-page="treePageSize" max-size="5"
-									boundary-links="true" class="pagination-sm"
+                <pagination display="block" items-per-page="treePageSize"
+                  max-size="5" boundary-links="true" class="pagination-sm"
 									previous-text="&lsaquo;" next-text="&rsaquo;"
 									first-text="&laquo;" last-text="&raquo;"
 									ng-show="searchResultsTree.totalCount > treePageSize"
 									total-items="searchResultsTree.totalCount"
 									ng-model="searchResultsTreePage"
 									ng-change="findComponents(componentQuery, searchResultsTreePage)"></pagination>
-								
-								<p display="block">&nbsp</p> <!-- Included as tree will try to wrap, some css difficulties -->
 
-								<div ng-if="searchResultsTree" display="block" ui-tree>
+                <p display="block">&nbsp</p>
+                <!-- Included as tree will try to wrap, some css difficulties -->
+
+                <div
+                  ng-if="searchResultsTree && searchResultsTree.totalCount > 0"
+                  display="block" ui-tree>
 									<ol ui-tree-nodes="" ng-model="searchResultsTree"
 										id="tree-root" data-nodrop-enabled="true">
 										<li ng-repeat="tree in searchResultsTree" ui-tree-node
@@ -270,7 +273,8 @@
 										<li
 											ng-repeat="component in localHistory | orderBy:'index':true"
 											ng-click="getComponentFromHistory(component.index)"><a>
-												<i style="margin-right: 1em" class="glyphicon glyphicon-ok"
+                        <i style="margin-right: 1em"
+                        class="glyphicon glyphicon-ok"
 												ng-show="component.index === componentHistoryIndex"></i>{{getComponentStr(component)}}
 										</a></li>
 										<li ng-show="localHistoryPreviousCt > 0">...
@@ -303,8 +307,7 @@
 									Suppressible</span> <span ng-show="showSuppressible != true">Show
 									Suppressible</span>
 							</button>
-							<button ng-click="toggleObsolete()"
-								class="btn btn-xs btn-primary">
+              <button ng-click="toggleObsolete()" class="btn btn-xs btn-primary">
 								<span ng-show="showObsolete == true">Hide Obsolete</span> <span
 									ng-show="showObsolete != true">Show Obsolete</span>
 							</button>
@@ -322,7 +325,8 @@
 								<div ui-tree>
 									<ol ui-tree-nodes="" ng-model="componentTree" id="tree-root"
 										data-nodrop-enabled="true">
-										<li ng-repeat="tree in componentTree" ui-tree-node data-nodrag
+                    <li ng-repeat="tree in componentTree" ui-tree-node
+                      data-nodrag
 											ng-include="'ui/partials/componentTree_renderer.html'"></li>
 									</ol>
 								</div>
@@ -337,9 +341,10 @@
 
 
 
-								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
-									class="pagination-sm" previous-text="&lsaquo;"
-									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+                <pagination items-per-page="pageSize" max-size="5"
+                  boundary-links="true" class="pagination-sm"
+                  previous-text="&lsaquo;" next-text="&rsaquo;"
+                  first-text="&laquo;" last-text="&raquo;"
 									ng-show="pagedSemanticTypes.totalCount > pageSize"
 									total-items="pagedSemanticTypes.totalCount"
 									ng-model="semanticTypesPage"
@@ -372,9 +377,10 @@
 								ng-show="pagedDefinitions.totalCount > 0 || definitionsFilter">
 								<h4>{{definitionsLabel}} ({{pagedDefinitions.totalCount}})</h4>
 
-								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
-									class="pagination-sm" previous-text="&lsaquo;"
-									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+                <pagination items-per-page="pageSize" max-size="5"
+                  boundary-links="true" class="pagination-sm"
+                  previous-text="&lsaquo;" next-text="&rsaquo;"
+                  first-text="&laquo;" last-text="&raquo;"
 									ng-show="pagedDefinitions.totalCount > pageSize"
 									total-items="pagedDefinitions.totalCount"
 									ng-model="definitionsPage"
@@ -410,9 +416,10 @@
 							<div ng-show="pagedAtoms.totalCount > 0 || atomsFilter">
 								<h4>{{atomsLabel}} ({{pagedAtoms.totalCount}})</h4>
 
-								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
-									class="pagination-sm" previous-text="&lsaquo;"
-									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+                <pagination items-per-page="pageSize" max-size="5"
+                  boundary-links="true" class="pagination-sm"
+                  previous-text="&lsaquo;" next-text="&rsaquo;"
+                  first-text="&laquo;" last-text="&raquo;"
 									ng-show="component.atom.length > pageSize"
 									total-items="pagedAtoms.totalCount" ng-model="atomsPage"
 									ng-change="getPagedAtoms(atomsPage, atomsFilter)"></pagination>
@@ -436,8 +443,9 @@
 											</div>
 											<div style="display: table-cell; padding: 1px;">
 												<span class="label label-warning"
-													ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
-												<span class="label label-default"
+                          ng-show="item.suppressible == true"
+                          tooltip="Suppressible">S</span> <span
+                          class="label label-default"
 													ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
 												<!--  Format:  termType name [ terminology ] codeId componentId descriptorId conceptTerminologyIds
                                                 NOTE: codeId, componentId, descriptorId automatically shown if of differing terminology, 
@@ -448,7 +456,8 @@
 													style="margin-left: 20px;" class="visible-xs-inline">
 												</span>
 												<!--  Terminology and term type -->
-												[ <span ng-show="item.terminology != component.terminology">
+                        [ <span
+                          ng-show="item.terminology != component.terminology">
 													{{item.terminology}} /</span> <span
 													tooltip="{{getTermTypeName(item.termType)}}">{{item.termType}}</span>
 												]
@@ -472,7 +481,8 @@
 													ng-click="getDescriptor(item.terminology, item.descriptorId)">{{item.descriptorId}}</a></span>
 
 												<!-- Show any referenced components in the concept terminology id list -->
-												<span ng-repeat="(key, value) in item.conceptTerminologyIds">
+                        <span
+                          ng-repeat="(key, value) in item.conceptTerminologyIds">
 													<a
 													ng-show="key != component.terminology || value != component.terminologyId"
 													tooltip="{{key}} concept"
@@ -548,9 +558,10 @@
 							<!--  Attributes -->
 							<div ng-show="component.attribute.length > 0 || attributesFilter">
 								<h4>{{attributesLabel}} ({{pagedAttributes.totalCount}})</h4>
-								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
-									class="pagination-sm" previous-text="&lsaquo;"
-									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+                <pagination items-per-page="pageSize" max-size="5"
+                  boundary-links="true" class="pagination-sm"
+                  previous-text="&lsaquo;" next-text="&rsaquo;"
+                  first-text="&laquo;" last-text="&raquo;"
 									ng-show="pagedAttributes.totalCount > pageSize"
 									total-items="pagedAttributes.totalCount"
 									ng-model="attributesPage"
@@ -573,8 +584,8 @@
 										class="label label-warning"
 										ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
 										<span class="label label-default"
-										ng-show="item.obsolete == true" tooltip="Obsolete">O</span> <span
-										class="label label-info"
+                    ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
+                    <span class="label label-info"
 										tooltip="{{getAttributeNameName(item.name)}}">{{item.name}}</span>
 										= {{item.value}}
 								</ul>
@@ -583,12 +594,12 @@
               <!--  Subsets -->
               <div ng-show="component.member.length > 0 || membersFilter">
                 <h4>{{subsetsLabel}} ({{pagedMembers.totalCount}})</h4>
-                <pagination items-per-page="pageSize" max-size="5" boundary-links="true"
-                  class="pagination-sm" previous-text="&lsaquo;"
-                  next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+                <pagination items-per-page="pageSize" max-size="5"
+                  boundary-links="true" class="pagination-sm"
+                  previous-text="&lsaquo;" next-text="&rsaquo;"
+                  first-text="&laquo;" last-text="&raquo;"
                   ng-show="pagedMembers.totalCount > pageSize"
-                  total-items="pagedMembers.totalCount"
-                  ng-model="membersPage"
+                  total-items="pagedMembers.totalCount" ng-model="membersPage"
                   ng-change="getPagedMembers(membersPage, membersFilter)"></pagination>
 
                 <input class="input-filter" placeholder="Enter filter text"
@@ -597,8 +608,7 @@
                   ng-model-options="{ debounce: 250 }"
                   ng-change="getPagedMembers(membersPage, membersFilter)">
 
-                <button class="btn btn-xs btn-warning"
-                  ng-show="membersFilter"
+                <button class="btn btn-xs btn-warning" ng-show="membersFilter"
                   ng-click="membersFilter = null; getPagedMembers(membersPage, membersFilter)">Clear</button>
 
                 <ul>
@@ -607,7 +617,7 @@
                     class="label label-warning"
                     ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
                     <span class="label label-default"
-                    ng-show="item.obsolete == true" tooltip="Obsolete">O</span> 
+                    ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
                     {{item.subsetName}}
                           <div ng-show="item.attribute.length > 0">
                             <ul>
@@ -619,7 +629,6 @@
                               </li>
                             </ul>
                           </div>
-                    
                 </ul>
               </div>
 
@@ -632,9 +641,10 @@
                 <span ng-show="showInferred">Inferred</span> <span ng-show="!showInferred">Stated</span>
               </button>
                                 </h4>
-								<pagination items-per-page="pageSize" max-size="5" boundary-links="true"
-									class="pagination-sm" previous-text="&lsaquo;"
-									next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+                <pagination items-per-page="pageSize" max-size="5"
+                  boundary-links="true" class="pagination-sm"
+                  previous-text="&lsaquo;" next-text="&rsaquo;"
+                  first-text="&laquo;" last-text="&raquo;"
 									ng-show="pagedRelationships.totalCount > pageSize"
 									total-items="pagedRelationships.totalCount"
 									ng-model="relationshipsPage"
@@ -660,8 +670,8 @@
 										class="label label-warning"
 										ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
 										<span class="label label-default"
-										ng-show="item.obsolete == true" tooltip="Obsolete">O</span> <span
-										class="label label-info"
+                    ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
+                    <span class="label label-info"
 										tooltip="{{getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
 										{{item.additionalRelationshipType}} <!-- Mobile friendly switch -->
 										<span class="hidden-xs"> <a
@@ -713,8 +723,7 @@
 	<!--  Show logout button at the bottom in XS mode -->
 	<div id="mobileFooter" class="visible-xs hidden-md col-xs-12">
 		<button class="btn btn-sm btn-primary btn-structure"
-			style="margin-top: 10px" ng-click="logout()"
-			ng-show="authToken != null">Logout</button>
+      style="margin-top: 10px" ng-click="logout()" ng-show="authToken != null">Logout</button>
 	</div>
 	</div>
 
@@ -751,7 +760,7 @@
 					<li>
 						<p class="navbar-text">
 							Presented by <a href="http://www.westcoastinformatics.com">West
-								Coast Informatics, LLC</a> GlassPane: {{glassPane}}
+                Coast Informatics, LLC</a>
 						</p>
 					</li>
 				</ul>

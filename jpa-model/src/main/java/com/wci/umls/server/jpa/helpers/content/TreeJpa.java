@@ -56,7 +56,7 @@ public class TreeJpa implements Tree {
   /** The child ct. */
   int childCt = 0;
 
-  /**  The total count of tree positions matching this tree's criteria. */
+  /** The total count of tree positions matching this tree's criteria. */
   int totalCount;
 
   /** The children. */
@@ -82,11 +82,14 @@ public class TreeJpa implements Tree {
     childCt = tree.getChildCt();
     ancestorPath = tree.getAncestorPath();
     totalCount = tree.getTotalCount();
-    children = tree.getChildren();
+    
+    // deep-copy children
+    children = new ArrayList<>();
+    for (Tree child : tree.getChildren()) {
+      children.add(new TreeJpa(child));
+    }
   }
 
-   
- 
   /*
    * (non-Javadoc)
    * 
@@ -96,24 +99,24 @@ public class TreeJpa implements Tree {
    */
   @Override
   public void mergeTree(Tree tree) {
-    
+
     // allow for merging trees with null ids
     if (!(tree.getId() == null && this.getId() == null)) {
-      
+
       // but don't allow merging trees with different ids
       if (!this.getId().equals(tree.getId())) {
-      throw new IllegalArgumentException(
-          "Unable to merge tree with different root");
+        throw new IllegalArgumentException(
+            "Unable to merge tree with different root");
+      }
     }
+
+    // assemble a map of this tree's children
+    Map<Long, Tree> childMap = new HashMap<>();
+    for (Tree t : this.getChildren()) {
+      childMap.put(t.getId(), t);
     }
-    
-    // assemble a map of this tree's children 
-      Map<Long, Tree> childMap = new HashMap<>();
-      for (Tree t : this.getChildren()) {
-        childMap.put(t.getId(), t);
-  }
-      
-    for (Tree child: tree.getChildren()) {    
+
+    for (Tree child : tree.getChildren()) {
       if (!childMap.containsKey(child.getId())) {
         children.add(child);
       } else {
@@ -121,7 +124,7 @@ public class TreeJpa implements Tree {
       }
     }
   }
-  
+
   /**
    * Instantiates a {@link TreeJpa} from the specified parameters.
    *
@@ -129,10 +132,11 @@ public class TreeJpa implements Tree {
    */
   @Override
   public void setFromTreePosition(TreePosition<? extends AtomClass> treePosition) {
-    
+
     if (treePosition == null)
-      throw new IllegalArgumentException("Cannot construct tree from null tree position");
-    
+      throw new IllegalArgumentException(
+          "Cannot construct tree from null tree position");
+
     this.id = treePosition.getNode().getId();
     this.terminology = treePosition.getNode().getTerminology();
     this.version = treePosition.getNode().getVersion();
@@ -141,14 +145,12 @@ public class TreeJpa implements Tree {
     this.childCt = treePosition.getChildCt();
     this.ancestorPath = treePosition.getAncestorPath();
     this.children = new ArrayList<>();
-      }
-  
-  
+  }
 
   @Override
   public Long getId() {
     return id;
-    }
+  }
 
   @Override
   public void setId(Long id) {
@@ -158,7 +160,7 @@ public class TreeJpa implements Tree {
   @Override
   public String getTerminology() {
     return terminology;
-    }
+  }
 
   @Override
   public void setTerminology(String terminology) {
@@ -168,12 +170,12 @@ public class TreeJpa implements Tree {
   @Override
   public String getVersion() {
     return version;
-      }
+  }
 
   @Override
   public void setVersion(String version) {
     this.version = version;
-    }
+  }
 
   @Override
   public String getTerminologyId() {
@@ -257,7 +259,7 @@ public class TreeJpa implements Tree {
   @Override
   public void setTotalCount(int totalCount) {
     this.totalCount = totalCount;
-    }
+  }
 
   /*
    * (non-Javadoc)
@@ -269,7 +271,7 @@ public class TreeJpa implements Tree {
   @Override
   public void addChild(Tree child) {
     this.children.add(child);
-    }
+  }
 
   /*
    * (non-Javadoc)

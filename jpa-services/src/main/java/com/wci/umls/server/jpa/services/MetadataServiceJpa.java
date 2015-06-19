@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import javax.persistence.metamodel.EntityType;
-
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -28,8 +26,6 @@ import com.wci.umls.server.helpers.meta.RootTerminologyList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TermTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
-import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
-import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
@@ -41,7 +37,6 @@ import com.wci.umls.server.jpa.helpers.meta.RootTerminologyListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TerminologyListJpa;
-import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
