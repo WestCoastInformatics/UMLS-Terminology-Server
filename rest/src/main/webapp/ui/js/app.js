@@ -88,6 +88,9 @@ tsApp
 
         $scope.setTerminology = function(terminology) {
           $scope.terminology = terminology;
+          if (!$scope.terminology.metathesaurus) {
+            $scope.showObsolete = false;
+          }
         }
 
         /**

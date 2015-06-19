@@ -299,17 +299,21 @@
               </div>
               <h3>
                 {{component.terminologyId}} {{component.name}} <span
-                  style="padding-bottom: 2px;"
+                  class="label label-warning"
+                  ng-show="terminology.metathesaurus && component.suppressible == true"
+                  tooltip="Suppressible">S</span> <span
+                  class="label label-default" ng-show="component.obsolete == true"
+                  tooltip="Obsolete">O</span> <span style="padding-bottom: 2px;"
                   ng-show="terminology.descriptionLogicTerminology && !component.fullyDefined"
-                  class="label label-info">Primitive</span> <span
+                  class="label label-info" tooltip="Primitive">P</span> <span
                   style="padding-bottom: 2px;"
                   ng-show="terminology.descriptionLogicTerminology && component.fullyDefined"
                   class="label label-info"
-                  tooltip="Necessary and sufficient definition">Fully
-                  Defined</span>
+                  tooltip="Necessary and sufficient definition">D</span>
               </h3>
-              <button ng-click="toggleSuppressible()"
-                class="btn btn-xs btn-primary">
+              <!-- Only show suppressible button for metathesaurus terminologies -->
+              <button ng-show="terminology.metathesaurus"
+                ng-click="toggleSuppressible()" class="btn btn-xs btn-primary">
                 <span ng-show="showSuppressible == true">Hide
                   Suppressible</span> <span ng-show="showSuppressible != true">Show
                   Suppressible</span>
@@ -372,10 +376,10 @@
                   <li class="cr-list" ng-repeat="item in pagedSemanticTypes"
                     ng-show="showItem(item)"><span
                     class="label label-warning"
-                    ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
-                    <span class="label label-default"
-                    ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
-                    {{item.semanticType}}</li>
+                    ng-show="terminology.metathesaurus && item.suppressible == true"
+                    tooltip="Suppressible">S</span> <span
+                    class="label label-default" ng-show="item.obsolete == true"
+                    tooltip="Obsolete">O</span> {{item.semanticType}}</li>
                 </ul>
 
               </div>
@@ -410,10 +414,10 @@
                     ng-show="item.atomElement == true"
                     tooltip="{{item.atomElementStr}}">i</span><span
                     class="label label-warning"
-                    ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
-                    <span class="label label-default"
-                    ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
-                    {{item.value}}</li>
+                    ng-show="terminology.metathesaurus && item.suppressible == true"
+                    tooltip="Suppressible">S</span> <span
+                    class="label label-default" ng-show="item.obsolete == true"
+                    tooltip="Obsolete">O</span> {{item.value}}</li>
                 </ul>
 
 
@@ -451,7 +455,7 @@
                       </div>
                       <div style="display: table-cell; padding: 1px;">
                         <span class="label label-warning"
-                          ng-show="item.suppressible == true"
+                          ng-show="terminology.metathesaurus && item.suppressible == true"
                           tooltip="Suppressible">S</span> <span
                           class="label label-default"
                           ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
@@ -467,7 +471,7 @@
                         [ <span
                           ng-show="item.terminology != component.terminology">
                           {{item.terminology}} /</span> <span
-                          tooltip="{{getTermTypeName(item.termType)}}">{{item.termType}}</span>
+                          tooltip="{{getTermTypeName(item.termType)}}">{{item.termType}}</span>, {{item.language}}
                         ]
                         <!--  For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
                         <span
@@ -590,10 +594,10 @@
                   <li class="cr-list" ng-repeat="item in pagedAttributes"
                     ng-show="showItem(item)"><span
                     class="label label-warning"
-                    ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
-                    <span class="label label-default"
-                    ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
-                    <span class="label label-info"
+                    ng-show="terminology.metathesaurus && item.suppressible == true"
+                    tooltip="Suppressible">S</span> <span
+                    class="label label-default" ng-show="item.obsolete == true"
+                    tooltip="Obsolete">O</span> <span class="label label-info"
                     tooltip="{{getAttributeNameName(item.name)}}">{{item.name}}</span>
                     = {{item.value}}
                 </ul>
@@ -623,10 +627,10 @@
                   <li class="cr-list" ng-repeat="item in pagedMembers"
                     ng-show="showItem(item)"><span
                     class="label label-warning"
-                    ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
-                    <span class="label label-default"
-                    ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
-                    {{item.subsetName}}
+                    ng-show="terminology.metathesaurus && item.suppressible == true"
+                    tooltip="Suppressible">S</span> <span
+                    class="label label-default" ng-show="item.obsolete == true"
+                    tooltip="Obsolete">O</span> {{item.subsetName}}
                     <div ng-show="item.attribute.length > 0">
                       <ul>
                         <li
@@ -677,10 +681,10 @@
                       class="label label-success"
                       tooltip="Relationship group {{item.group}}">{{item.group}}&nbsp;</span>
                   </span> <span class="label label-warning"
-                    ng-show="item.suppressible == true" tooltip="Suppressible">S</span>
-                    <span class="label label-default"
-                    ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
-                    <span class="label label-info"
+                    ng-show="terminology.metathesaurus && item.suppressible == true"
+                    tooltip="Suppressible">S</span> <span
+                    class="label label-default" ng-show="item.obsolete == true"
+                    tooltip="Obsolete">O</span> <span class="label label-info"
                     tooltip="{{getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
 
                     {{item.additionalRelationshipType}} <!-- Mobile friendly switch -->
