@@ -1454,5 +1454,42 @@ public interface ContentService extends MetadataService {
    */
   public Tree getTreeForTreePosition(TreePosition<? extends AtomClass> treePosition)
     throws Exception;
+  
+  /**
+   * Find concept tree position children.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findConceptTreePositionChildren(String terminologyId, String terminology, String version, PfsParameter pfs) throws Exception;
+  
+  /**
+   * Find code tree position children.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findCodeTreePositionChildren(String terminologyId, String terminology, String version, PfsParameter pfs) throws Exception;
+  
+  /**
+   * Find descriptor tree position children.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findDescriptorTreePositionChildren(String terminologyId, String terminology, String version, PfsParameter pfs) throws Exception;
+  
 
 }

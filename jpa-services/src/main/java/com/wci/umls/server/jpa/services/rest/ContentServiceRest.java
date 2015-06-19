@@ -690,4 +690,43 @@ public interface ContentServiceRest {
     String terminologyId, PfsParameterJpa pfs, String authToken)
     throws Exception;
 
+  /**
+   * Find concept-based terminology tree roots.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception 
+   */
+  public Tree findConceptTreeRoots(String terminology, String version,
+    PfsParameterJpa pfs, String authToken) throws Exception;
+  
+  /**
+   * Find concept-based terminology tree roots.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception 
+   */
+  public Tree findCodeTreeRoots(String terminology, String version,
+    PfsParameterJpa pfs, String authToken) throws Exception;
+  
+  /**
+   * Find concept-based terminology tree roots.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception 
+   */
+  public Tree findDescriptorTreeRoots(String terminology, String version,
+    PfsParameterJpa pfs, String authToken) throws Exception;
+
 }

@@ -1912,4 +1912,25 @@ public class ContentClientRest extends RootClientRest implements
     return null;
   }
 
+  @Override
+  public Tree findConceptTreeRoots(String terminology, String version,
+    PfsParameterJpa pfs, String authToken) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Tree findCodeTreeRoots(String terminology, String version,
+    PfsParameterJpa pfs, String authToken) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Tree findDescriptorTreeRoots(String terminology, String version,
+    PfsParameterJpa pfs, String authToken) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }

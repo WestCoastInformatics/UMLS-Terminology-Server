@@ -82,6 +82,7 @@ import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.IndexUtility;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.AtomListJpa;
@@ -4726,16 +4727,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     PfsParameter pfs, Class<?> clazz) throws Exception {
 
     // Prepare the query string
-
     StringBuilder finalQuery = new StringBuilder();
-    finalQuery.append(query == null ? "" : query);
-    if (!finalQuery.toString().isEmpty()) {
-      finalQuery.append(" AND ");
-    }
+ 
+    // all queries are sensitive to terminology, version, and id (if provided)
     finalQuery.append("terminology:" + terminology + " AND version:" + version);
     if (terminologyId != null) {
       finalQuery.append(" AND nodeTerminologyId:" + terminologyId);
     }
+    
+    // add the query, if not null and not empty
+    finalQuery.append(query == null || query.isEmpty() ? "" : " AND " + query);
+    
     FullTextQuery fullTextQuery =
         applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class,
             finalQuery.toString(), pfs);
@@ -4857,6 +4859,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       } else {
         finalQuery.append("ancestorPath:\"" + partAncPath + "\"");
       }
+      Logger.getLogger(getClass()).debug("  query = " + finalQuery.toString());
       // Prepare the manager and lucene query
       Query luceneQuery = queryParser.parse(finalQuery.toString());
       FullTextQuery fullTextQuery =
@@ -4902,11 +4905,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       if (!partId.equals(tpId)) {
         partTree.addChild(nextPart);
       }  
-      
-      // if the terminal node, check for sibling and children requests
-      else {
-        // TODO: ? remove this?
-      }
       
       // set current tree to the just constructed (blank) tree
       partTree = nextPart;
@@ -4977,6 +4975,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
 
     } catch (ParseException e) {
+      
+      // TODO:  Remove stack trace once parsing is satisfactory
+      e.printStackTrace();
       throw new LocalException(
           "The specified search terms cannot be parsed.  Please check syntax and try again.");
     }
@@ -5134,4 +5135,131 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       commitClearBegin();
     }
   }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.ContentService#findConceptTreePositionChildren(java.lang.String, java.lang.String, java.lang.String, com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public TreePositionList findConceptTreePositionChildren(String terminologyId,
+    String terminology, String version, PfsParameter pfs) throws Exception {
+    
+    Logger.getLogger(getClass()).info(
+        "Content Service - find children of a concept tree position " + terminologyId + "/" + terminology + "/"
+            + version);
+    
+    TreePositionList childTreePositions = new TreePositionListJpa();
+
+    // get the child concepts
+    ConceptList childConcepts =
+       findDescendantConcepts(terminologyId, terminology,
+            version, true, Branch.ROOT, pfs);
+
+    // construct pfs parameter for tree position lookup, only need first one
+    PfsParameter childPfs = new PfsParameterJpa();
+    childPfs.setStartIndex(0);
+    childPfs.setMaxResults(1);
+
+    // get a tree position for each child, for child ct
+    for (Concept childConcept : childConcepts.getObjects()) {
+      TreePositionList tpList =
+          findTreePositionsForConcept(
+              childConcept.getTerminologyId(),
+              childConcept.getTerminology(), childConcept.getVersion(),
+              Branch.ROOT, childPfs);
+
+      if (tpList.getCount() != 1)
+        throw new Exception(
+            "Unexpected number of tree positions for concept "
+                + terminologyId);
+
+      childTreePositions.addObject(tpList.getObjects().get(0));
+    }
+    
+    return childTreePositions;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.ContentService#findDescriptorTreePositionChildren(java.lang.String, java.lang.String, java.lang.String, com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public TreePositionList findDescriptorTreePositionChildren(String terminologyId,
+    String terminology, String version, PfsParameter pfs) throws Exception {
+    
+    Logger.getLogger(getClass()).info(
+        "Content Service - find children of a descriptor tree position " + terminology + "/"
+            + version);
+    
+    TreePositionList childTreePositions = new TreePositionListJpa();
+
+    // get the child descriptors
+    DescriptorList childDescriptors =
+       findDescendantDescriptors(terminologyId, terminology,
+            version, true, Branch.ROOT, pfs);
+
+    // construct pfs parameter for tree position lookup, only need first one
+    PfsParameter childPfs = new PfsParameterJpa();
+    childPfs.setStartIndex(0);
+    childPfs.setMaxResults(1);
+
+    // get a tree position for each child, for child ct
+    for (Descriptor childDescriptor : childDescriptors.getObjects()) {
+      TreePositionList tpList =
+          findTreePositionsForDescriptor(
+              childDescriptor.getTerminologyId(),
+              childDescriptor.getTerminology(), childDescriptor.getVersion(),
+              Branch.ROOT, childPfs);
+
+      if (tpList.getCount() != 1)
+        throw new Exception(
+            "Unexpected number of tree positions for descriptor "
+                + terminologyId);
+
+      childTreePositions.addObject(tpList.getObjects().get(0));
+    }
+    
+    return childTreePositions;
+  }
+  
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.ContentService#findCodeTreePositionChildren(java.lang.String, java.lang.String, java.lang.String, com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public TreePositionList findCodeTreePositionChildren(String terminologyId,
+    String terminology, String version, PfsParameter pfs) throws Exception {
+    
+    Logger.getLogger(getClass()).info(
+        "Content Service - find children of a code tree position " + terminology + "/"
+            + version);
+    
+    TreePositionList childTreePositions = new TreePositionListJpa();
+
+    // get the child codes
+    CodeList childCodes =
+       findDescendantCodes(terminologyId, terminology,
+            version, true, Branch.ROOT, pfs);
+
+    // construct pfs parameter for tree position lookup, only need first one
+    PfsParameter childPfs = new PfsParameterJpa();
+    childPfs.setStartIndex(0);
+    childPfs.setMaxResults(1);
+
+    // get a tree position for each child, for child ct
+    for (Code childCode : childCodes.getObjects()) {
+      TreePositionList tpList =
+          findTreePositionsForCode(
+              childCode.getTerminologyId(),
+              childCode.getTerminology(), childCode.getVersion(),
+              Branch.ROOT, childPfs);
+
+      if (tpList.getCount() != 1)
+        throw new Exception(
+            "Unexpected number of tree positions for code "
+            + terminologyId);
+
+      childTreePositions.addObject(tpList.getObjects().get(0));
+    }
+    
+    return childTreePositions;
+  }
+
 }

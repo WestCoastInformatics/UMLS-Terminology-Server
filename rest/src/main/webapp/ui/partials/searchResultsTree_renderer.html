@@ -1,7 +1,7 @@
 
 <div ui-tree-handle>
   <!-- Expand/collapse controls -->
-  <a ng-if="tree.childCt > 0" data-nodrag ng-click="getTreeChildren(tree, this)"><span
+  <a ng-if="tree.child && tree.childCt > 0" data-nodrag ng-click="getTreeChildren(tree, this)"><span
     class="glyphicon" ng-class="getTreeNodeIcon(tree, collapsed)"></span></a>
 
   <!--  if a dummy node, only render the terminology and 'top' label -->
@@ -21,7 +21,7 @@
       ng-include="'ui/partials/searchResultsTree_renderer.html'"></li>
 
     <!-- if not all children displayed, display a message -->
-    <li ng-show="hasHiddenSiblings(tree, component.terminologyId) == true">
+    <li ng-show="hasHiddenSiblings(tree) == true">
       <i class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <a
       ng-click="getAndSetTreeChildren(tree, tree.child.length)">...
         {{tree.childCt - tree.child.length}} more</a>

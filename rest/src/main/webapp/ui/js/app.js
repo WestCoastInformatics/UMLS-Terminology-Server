@@ -571,7 +571,7 @@ tsApp
 
             // if parent tree cannot be read, clear the component tree
             // (indicates no hierarchy present)
-            if (!$scope.componentTree.length == 0) {
+            if ($scope.componentTree.length == 0) {
               $scope.componentTree = null;
               return;
             }
@@ -637,6 +637,11 @@ tsApp
          * expandable (right/down))
          */
         $scope.getTreeNodeExpansionState = function(tree) {
+          
+          console.debug('getTreeNodeExpansionState', tree);
+          
+          if (!tree)
+            return null;
 
           // case 1: no children loaded, but children exist
           if (tree.childCt > 0 && tree.child.length == 0) {
@@ -666,6 +671,8 @@ tsApp
         }
 
         $scope.getTreeNodeIcon = function(tree, collapsed) {
+          
+          console.debug('getTreeNodeIcon', tree, collapsed);
 
           // if childCt is zero, return leaf
           if (tree.childCt == 0)
@@ -693,6 +700,11 @@ tsApp
          * user-expanded list
          */
         $scope.hasHiddenSiblings = function(tree) {
+          
+          // TODO Identify strange bug causing non-tree objects to be passed in
+          if (!tree || !tree.child)
+            return;
+          
           switch ($scope.getTreeNodeExpansionState(tree)) {
           case TreeNodeExpansionState.ExpandableFromList:
             return true;
@@ -728,6 +740,7 @@ tsApp
         /** Get a tree node's children */
         $scope.getAndSetTreeChildren = function(tree, startIndex) {
 
+          
           if (!tree) {
             console.error("Can't set tree children without tree!")
             return;
@@ -818,7 +831,6 @@ tsApp
         $scope.setTreeView = function() {
           $scope.queryForTree = true;
           $scope.queryForList = false;
-          $scope.queryForHierarchy = false;
 
           $scope.findComponentsAsTree($scope.componentQuery);
         }
@@ -826,22 +838,11 @@ tsApp
         $scope.setListView = function() {
           $scope.queryForList = true;
           $scope.queryForTree = false;
-          $scope.queryForHierarchy = false;
 
           $scope.findComponentsAsList($scope.componentQuery);
         }
 
-        /**
-         * TODO: Currently hierarchy view shares interface with tree view May
-         * want to reconsider this
-         */
-        $scope.setHierarchyView = function() {
-          $scope.queryForList = false;
-          $scope.queryForTree = true;
-          $scope.queryForHierarchy = true;
-
-          $scope.browseHierarchy(1);
-        }
+       
 
         /**
          * Find concepts based on current search type e.g. list or tree based on
@@ -849,16 +850,11 @@ tsApp
          */
         $scope.findComponents = function(queryStr, page) {
 
-          // if a query is supplied, disable hierarchy view
-          if (queryStr != "")
-            $scope.queryForHierarchy = false;
-
           if ($scope.queryForList)
             $scope.findComponentsAsList(queryStr, page);
-          if ($scope.queryForTree && !$scope.queryForHierarchy)
+          if ($scope.queryForTree)
             $scope.findComponentsAsTree(queryStr, page);
-          if ($scope.queryForTree && $scope.queryForHierarchy)
-            $scope.browseHierarchy(page);
+    
         }
 
         /**
@@ -869,9 +865,6 @@ tsApp
         $scope.findComponentsAsList = function(queryStr, page) {
 
           console.debug('find concepts', queryStr);
-
-          // disable hierarchy view
-          $scope.queryForHierarchy = false;
 
           if (!page)
             page = 1;
@@ -902,7 +895,7 @@ tsApp
               url : contentUrl
                 + getTypePrefix($scope.terminology.organizingClassType) + "/"
                 + $scope.terminology.terminology + "/"
-                + $scope.terminology.version + "/query/" + queryStr,
+                + $scope.terminology.version + "/query/" + encodeURIComponent(queryStr),
               method : "POST",
               dataType : "json",
               data : pfs,
@@ -934,7 +927,7 @@ tsApp
         $scope.browseHierarchy = function(page) {
           $scope.queryForTree = true;
           $scope.queryForList = false
-          $scope.queryForHierarchy = true;
+          $scope.browsingHierarchy = true;
 
           if (!page)
             page = 1;
@@ -954,7 +947,7 @@ tsApp
               url : contentUrl
                 + getTypePrefix($scope.terminology.organizingClassType) + "/"
                 + $scope.terminology.terminology + "/"
-                + $scope.terminology.version + "/trees/top",
+                + $scope.terminology.version + "/trees/roots",
               method : "POST",
               dataType : "json",
               data : pfs,
@@ -965,8 +958,11 @@ tsApp
             console.debug("Retrieved component trees:", data);
 
             // for ease and consistency of use of the ui tree directive
-            // force the single tree into a TreeList data structure
-            $scope.searchResultsTree = data;
+            // force the single tree into a ui-tree data structure with count variables
+            $scope.searchResultsTree = [];
+            $scope.searchResultsTree.push(data); // treeList array of size 1
+            $scope.searchResultsTree.totalCount = data.totalCount;
+            $scope.searchResultsTree.count = data.count;
 
             console.debug($scope.searchResultsTree);
 
@@ -988,9 +984,6 @@ tsApp
 
           if (!page)
             page = 1;
-
-          // disable hierarchy view
-          $scope.queryForHierarchy = false;
 
           // ensure query string has minimum length
           if (!queryStr || queryStr.length < 1) {
@@ -1018,7 +1011,7 @@ tsApp
               url : contentUrl
                 + getTypePrefix($scope.terminology.organizingClassType) + "/"
                 + $scope.terminology.terminology + "/"
-                + $scope.terminology.version + "/trees/query/" + queryStr,
+                + $scope.terminology.version + "/trees/query/" + encodeURIComponent(queryStr),
               method : "POST",
               dataType : "json",
               data : pfs,
@@ -1029,7 +1022,7 @@ tsApp
             console.debug("Retrieved component trees:", data);
 
             // for ease and consistency of use of the ui tree directive
-            // force the single tree into a TreeList data structure
+            // force the single tree into a ui-tree structure with count variables
             $scope.searchResultsTree = [];
             $scope.searchResultsTree.push(data); // treeList array of size 1
             $scope.searchResultsTree.totalCount = data.totalCount;

@@ -110,7 +110,7 @@
             <div>
               <strong>Enter User and Password</strong><br>
               <form>
-                <input class="loginField" id="userField" ng-model="userName"
+                <input autofocus class="loginField" id="userField" ng-model="userName"
                   type="text" placeholder="Username" /><br> <input
                   class="loginField" id="passwordField" type="password"
                   placeholder="Password" ng-model="password" /><br>
@@ -124,7 +124,7 @@
                 <p class="introText">
                   This demonstration browser and app is loaded with a <i>Level
                     0 + SNOMEDCT_US</i> edition of the 2014AB UMLS. It contains
-                  comlete versions of many terminologies, including SNOMEDCT_US,
+                  complete versions of many terminologies, including SNOMEDCT_US,
                   MeSH, RXNORM, and others. The data set contains over 1.6
                   million concepts with over 5.5 million individual terms from
                   constituent terminologies.
@@ -165,7 +165,7 @@
             <table class="table">
               <tr>
                 <td width="15%;">Terminology</td>
-                <td width="85%;"><select ng-model="terminology"
+                <td width="85%;"><select width="100%" ng-model="terminology"
                   ng-change="setTerminology(terminology)"
                   ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
 
@@ -777,7 +777,7 @@
           <li>
             <p class="navbar-text">
               Presented by <a href="http://www.westcoastinformatics.com">West
-                Coast Informatics, LLC</a> GlassPane: {{glassPane}}
+                Coast Informatics, LLC</a>
             </p>
           </li>
         </ul>
