@@ -137,13 +137,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   public static Map<String, IdentifierAssignmentHandler> idHandlerMap =
       new HashMap<>();
   
-  /** The commit ct. */
-  private int commitCt = 2000;
-  
-  /** The log ct. */
-  private int logCt = 2000;
-
-  
   static {
 
     try {
@@ -4785,34 +4778,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return this.findTreePositionsHelper(null, terminology, version, branch,
         query, pfs, CodeTreePositionJpa.class);
   }
-  
-  /**
-   * Commit clear begin transaction.
-   *
-   * @throws Exception the exception
-   */
-  private void commitClearBegin() throws Exception {
-    commit();
-    clear();
-    beginTransaction();
-  }
 
-  /**
-   * Log and commit.
-   *
-   * @param objectCt the object ct
-   * @param msg the msg
-   * @throws Exception the exception
-   */
-  private void logAndCommit(int objectCt, String msg) throws Exception {
-    // log at regular intervals
-    if (objectCt % logCt == 0) {
-      Logger.getLogger(getClass()).info("    count = " + objectCt + " " + msg);
-    }
-    if (objectCt % commitCt == 0) {
-      commitClearBegin();
-    }
-  }
 
   /* (non-Javadoc)
    * @see com.wci.umls.server.services.ContentService#findConceptTreePositionChildren(java.lang.String, java.lang.String, java.lang.String, com.wci.umls.server.helpers.PfsParameter)

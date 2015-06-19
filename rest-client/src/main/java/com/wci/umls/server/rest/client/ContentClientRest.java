@@ -8,7 +8,6 @@ import java.util.Properties;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status.Family;
-import javax.xml.bind.JAXBException;
 
 import org.apache.log4j.Logger;
 
