@@ -33,6 +33,14 @@
 
 <!-- Terminology server Angular application -->
 <script src="ui/js/app.js"></script>
+
+<script type="text/javascript">
+  window.onbeforeunload = function() {
+    return "Are you sure you want to leave the page? Use the report history control to navigate back to previous searches.";
+  }
+   
+</script>
+
 </head>
 <body ng-controller="tsIndexCtrl">
   <!--  Javascript detection -->
@@ -45,7 +53,6 @@
     <div class="alert alert-danger">You must have Javascript enabled to
       use the Terminology Server Demo</div>
   </noscript>
-
 
   <!--  header -->
   <nav id="navBar" style="background: #00008A url('images/background.jpg');"
@@ -679,7 +686,7 @@
                   <li class="cr-list" ng-repeat="item in pagedRelationships"
                     ng-show="showItem(item)"><span ng-show="item.group > 0"><span
                       class="label label-success"
-                      tooltip="Relationship group {{item.group}}">{{item.group}}&nbsp;</span>
+                      tooltip="Relationship group {{item.group}}">{{item.group}}</span>&nbsp;
                   </span> <span class="label label-warning"
                     ng-show="terminology.metathesaurus && item.suppressible == true"
                     tooltip="Suppressible">S</span> <span
