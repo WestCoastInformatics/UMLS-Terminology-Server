@@ -133,7 +133,6 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
 
       KeyValuePairLists keyValuePairList = getMetadataHelper(terminology, version);
       
-      System.out.println("kvpl = " + keyValuePairList);
       return keyValuePairList;
       
     } catch (Exception e) {

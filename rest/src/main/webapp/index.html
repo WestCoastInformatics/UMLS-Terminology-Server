@@ -652,8 +652,8 @@
                   ({{pagedRelationships.totalCount}})&nbsp;&nbsp;
                   <button ng-show="terminology.descriptionLogicTerminology"
                     ng-click="toggleInferred()" class="btn btn-xs btn-primary">
-                    <span ng-show="showInferred">Inferred</span> <span
-                      ng-show="!showInferred">Stated</span>
+                    <span ng-show="showInferred" tooltip="Showing inferred, click for stated">Inferred</span> <span
+                      ng-show="!showInferred" tooltip="Showing stated, click for inferred">Stated</span>
                   </button>
                 </h4>
                 <pagination items-per-page="relsPageSize" max-size="5"
