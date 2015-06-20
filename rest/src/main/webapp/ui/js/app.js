@@ -45,6 +45,7 @@ tsApp
 
         // the currently viewed terminology (set by default or user)
         $scope.terminology = null;
+        $scope.metadata = null;
 
         // query base variables
         $scope.componentQuery = null;
@@ -100,7 +101,6 @@ tsApp
 
           // clear the terminology-specific variables
           $scope.autoCompleteUrl = null;
-          $scope.metadata = null;
 
           // if no terminology specified, stop
           if ($scope.terminology == null) {
@@ -115,6 +115,7 @@ tsApp
             + "/autocomplete/";
 
           $scope.glassPane++;
+
           $http(
             {
               url : metadataUrl + 'all/terminology/id/'
@@ -125,7 +126,7 @@ tsApp
                 "Content-Type" : "application/json"
               }
             }).success(function(data) {
-            $scope.metadata = data.keyValuePairList;
+            $scope.setMetadata(data.keyValuePairList);
             $scope.glassPane--;
 
           }).error(function(data, status, headers, config) {
@@ -213,7 +214,6 @@ tsApp
         }
 
         $scope.autocomplete = function(searchTerms) {
-          console.debug('autocomplete', searchTerms);
           // if invalid search terms, return empty array
           if (searchTerms == null || searchTerms == undefined
             || searchTerms.length < 3) {
@@ -345,9 +345,6 @@ tsApp
          * type.
          */
         $scope.getComponent = function(terminologyName, terminologyId) {
-
-          // console.debug('getComponent', terminologyName, terminologyId);
-
           // if terminology matches scope terminology
           if (terminologyName === $scope.terminology.terminology) {
             getComponentHelper($scope.terminology, terminologyId,
@@ -1369,54 +1366,56 @@ tsApp
         var generalEntries = [];
 
         // on metadata changes
-        $scope.$watch('metadata', function() {
+        $scope.setMetadata = function(terminology) {
 
           // reset arrays
           relationshipTypes = [];
           attributeNames = [];
           termTypes = [];
           generalEntries = [];
+          $scope.metadata = terminology;
 
-          if ($scope.metadata) {
-            for (var i = 0; i < $scope.metadata.length; i++) {
+          if (terminology == null)
+            return;
+          
+          for (var i = 0; i < $scope.metadata.length; i++) {
+            // extract relationship types for convenience
+            if ($scope.metadata[i].name === 'Relationship_Types') {
+              relationshipTypes = $scope.metadata[i].keyValuePair;
+            }
+            if ($scope.metadata[i].name === 'Attribute_Names') {
+              attributeNames = $scope.metadata[i].keyValuePair;
+            }
+            if ($scope.metadata[i].name === 'Term_Types') {
+              termTypes = $scope.metadata[i].keyValuePair;
+            }
+            if ($scope.metadata[i].name === 'General_Metadata_Entries') {
+              generalEntries = $scope.metadata[i].keyValuePair;
 
-              // extract relationship types for convenience
-              if ($scope.metadata[i].name === 'Relationship_Types') {
-                relationshipTypes = $scope.metadata[i].keyValuePair;
-              }
-              if ($scope.metadata[i].name === 'Attribute_Names') {
-                attributeNames = $scope.metadata[i].keyValuePair;
-              }
-              if ($scope.metadata[i].name === 'Term_Types') {
-                termTypes = $scope.metadata[i].keyValuePair;
-              }
-              if ($scope.metadata[i].name === 'General_Metadata_Entries') {
-                generalEntries = $scope.metadata[i].keyValuePair;
-
-                for (var i = 0; i < generalEntries.length; i++) {
-                  if (generalEntries[i].key === "Atoms_Label") {
-                    $scope.atomsLabel = generalEntries[i].value;
-                  }
-                  if (generalEntries[i].key === "Hierarchies_Label") {
-                    $scope.hierarchiesLabel = generalEntries[i].value;
-                  }
-                  if (generalEntries[i].key === "Definitions_Label") {
-                    $scope.definitionsLabel = generalEntries[i].value;
-                  }
-                  if (generalEntries[i].key === "Attributes_Label") {
-                    $scope.attributesLabel = generalEntries[i].value;
-                  }
-                  if (generalEntries[i].key === "Subsets_Label") {
-                    $scope.subsetsLabel = generalEntries[i].value;
-                  }
-                  if (generalEntries[i].key === "Relationships_Label") {
-                    $scope.relationshipsLabel = generalEntries[i].value;
-                  }
+              for (var j = 0; j < generalEntries.length; j++) {
+                if (generalEntries[j].key === "Atoms_Label") {
+                  $scope.atomsLabel = generalEntries[j].value;
+                }
+                if (generalEntries[j].key === "Hierarchies_Label") {
+                  $scope.hierarchiesLabel = generalEntries[j].value;
+                }
+                if (generalEntries[j].key === "Definitions_Label") {
+                  $scope.definitionsLabel = generalEntries[j].value;
+                }
+                if (generalEntries[j].key === "Attributes_Label") {
+                  $scope.attributesLabel = generalEntries[j].value;
+                }
+                if (generalEntries[j].key === "Subsets_Label") {
+                  $scope.subsetsLabel = generalEntries[j].value;
+                }
+                if (generalEntries[j].key === "Relationships_Label") {
+                  $scope.relationshipsLabel = generalEntries[j].value;
                 }
               }
+
             }
           }
-        });
+        }
 
         // get relationship type name from its abbreviation
         $scope.getRelationshipTypeName = function(abbr) {
@@ -1737,7 +1736,6 @@ tsApp
             // if description logic terminology, sort relationships also by
             // group
             if ($scope.terminology.descriptionLogicTerminology) {
-              console.debug('Sort by relationship group');
               data.relationship.sort(function(a, b) {
                 if (a.relationshipType < b.relationshipType)
                   return -1;
