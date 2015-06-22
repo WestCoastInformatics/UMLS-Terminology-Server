@@ -318,8 +318,8 @@
                   class="label label-info"
                   tooltip="Necessary and sufficient definition">D</span>
               </h3>
-              <!-- Only show suppressible button for metathesaurus terminologies -->
-              <button ng-show="terminology.metathesaurus"
+              <!-- Do not show suppressible button for DL terminologies -->
+              <button ng-show="!terminology.descriptionLogicTerminology"
                 ng-click="toggleSuppressible()" class="btn btn-xs btn-primary">
                 <span ng-show="showSuppressible == true">Hide
                   Suppressible</span> <span ng-show="showSuppressible != true">Show
