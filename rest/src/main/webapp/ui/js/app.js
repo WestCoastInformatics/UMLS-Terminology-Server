@@ -1462,7 +1462,7 @@ tsApp
           $scope.componentHistoryIndex = $scope.componentHistory.length - 1;
         }
 
-        // local history variables for dorp down list
+        // local history variables for drop down list
         $scope.localHistory = null;
         $scope.localHistoryPageSize = 10; // NOTE: must be even number!
         $scope.localHistoryPreviousCt = 0;
