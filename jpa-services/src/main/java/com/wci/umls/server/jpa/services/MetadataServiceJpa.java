@@ -275,7 +275,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     Map<String, String> gmeMap =
         getAbbreviationMap(getGeneralMetadataEntries(terminology, version)
             .getObjects());
-    if (gmeMap != null) {
+    if (gmeMap != null && !gmeMap.isEmpty()) {      
       abbrMapList.put(MetadataKeys.General_Metadata_Entries.toString(),
           gmeMap);
     }

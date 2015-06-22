@@ -45,6 +45,7 @@ tsApp
 
         // the currently viewed terminology (set by default or user)
         $scope.terminology = null;
+        $scope.metadata = null;
 
         // query base variables
         $scope.componentQuery = null;
@@ -73,7 +74,7 @@ tsApp
         $scope.definitionsLabel = "Definitions";
         $scope.subsetsLabel = "Subsets";
         $scope.relationshipsLabel = "Relationships";
-        
+
         // full variable arrays
         $scope.searchResults = null;
         $scope.searchResultsTree = null;
@@ -88,6 +89,9 @@ tsApp
 
         $scope.setTerminology = function(terminology) {
           $scope.terminology = terminology;
+          if (!$scope.terminology.metathesaurus) {
+            $scope.showObsolete = false;
+          }
         }
 
         /**
@@ -97,7 +101,6 @@ tsApp
 
           // clear the terminology-specific variables
           $scope.autoCompleteUrl = null;
-          $scope.metadata = null;
 
           // if no terminology specified, stop
           if ($scope.terminology == null) {
@@ -110,8 +113,9 @@ tsApp
             + getTypePrefix($scope.terminology.organizingClassType) + '/'
             + $scope.terminology.terminology + '/' + $scope.terminology.version
             + "/autocomplete/";
-          
-         /* $scope.glassPane++;
+
+          $scope.glassPane++;
+
           $http(
             {
               url : metadataUrl + 'all/terminology/id/'
@@ -122,13 +126,14 @@ tsApp
                 "Content-Type" : "application/json"
               }
             }).success(function(data) {
-            $scope.metadata = data.keyValuePairList;
+            $scope.setMetadata(data.keyValuePairList);
             $scope.glassPane--;
 
           }).error(function(data, status, headers, config) {
             $scope.handleError(data, status, headers, config);
             $scope.glassPane--;
-          });*/
+          });
+
         })
 
         $scope.login = function(name, password) {
@@ -165,8 +170,7 @@ tsApp
             // set request header
             // authorization
             $http.defaults.headers.common.Authorization = $scope.authToken;
-            
-     
+
             // retrieve available
             // terminologies
             $scope.getTerminologies();
@@ -210,7 +214,6 @@ tsApp
         }
 
         $scope.autocomplete = function(searchTerms) {
-          console.debug('autocomplete', searchTerms);
           // if invalid search terms, return empty array
           if (searchTerms == null || searchTerms == undefined
             || searchTerms.length < 3) {
@@ -289,6 +292,7 @@ tsApp
                 // data.keyValuePairList);
 
                 // results are in pair list, want full terminologies
+                var ct = 0;
                 for (var i = 0; i < data.keyValuePairList.length; i++) {
                   var pair = data.keyValuePairList[i].keyValuePair[0];
 
@@ -312,8 +316,14 @@ tsApp
 
                         if (terminology.metathesaurus) {
                           $scope.setTerminology(terminology);
-                        } else if (!$scope.terminology) {
-                          $scope.setTerminology(terminology);
+                        }
+
+                        if (++ct == data.keyValuePairList.length
+                          && !$scope.terminology) {
+                          // If a "metathesaurus" wasn't found, pick the first
+                          if ($scope.terminologies[0]) {
+                            $scope.setTerminology($scope.terminologies[0]);
+                          }
                         }
 
                       }, function(reason) {
@@ -335,9 +345,6 @@ tsApp
          * type.
          */
         $scope.getComponent = function(terminologyName, terminologyId) {
-
-          // console.debug('getComponent', terminologyName, terminologyId);
-
           // if terminology matches scope terminology
           if (terminologyName === $scope.terminology.terminology) {
             getComponentHelper($scope.terminology, terminologyId,
@@ -530,7 +537,7 @@ tsApp
         $scope.treeCount = null;
         $scope.treeViewed = null;
         $scope.siblingPageSize = 10; // the number of siblings to display in
-                                      // component hierarchy view
+        // component hierarchy view
 
         /**
          * Function to get a single (paged) hierarchical tree for the displayed
@@ -646,9 +653,9 @@ tsApp
          * expandable (right/down))
          */
         $scope.getTreeNodeExpansionState = function(tree) {
-          
+
           console.debug('getTreeNodeExpansionState', tree);
-          
+
           if (!tree)
             return null;
 
@@ -680,7 +687,7 @@ tsApp
         }
 
         $scope.getTreeNodeIcon = function(tree, collapsed) {
-          
+
           console.debug('getTreeNodeIcon', tree, collapsed);
 
           // if childCt is zero, return leaf
@@ -709,11 +716,11 @@ tsApp
          * user-expanded list
          */
         $scope.hasHiddenSiblings = function(tree) {
-          
+
           // TODO Identify strange bug causing non-tree objects to be passed in
           if (!tree || !tree.child)
             return;
-          
+
           switch ($scope.getTreeNodeExpansionState(tree)) {
           case TreeNodeExpansionState.ExpandableFromList:
             return true;
@@ -749,7 +756,6 @@ tsApp
         /** Get a tree node's children */
         $scope.getAndSetTreeChildren = function(tree, startIndex) {
 
-          
           if (!tree) {
             console.error("Can't set tree children without tree!")
             return;
@@ -851,8 +857,6 @@ tsApp
           $scope.findComponentsAsList($scope.componentQuery);
         }
 
-       
-
         /**
          * Find concepts based on current search type e.g. list or tree based on
          * booleans
@@ -863,7 +867,7 @@ tsApp
             $scope.findComponentsAsList(queryStr, page);
           if ($scope.queryForTree)
             $scope.findComponentsAsTree(queryStr, page);
-    
+
         }
 
         /**
@@ -904,7 +908,8 @@ tsApp
               url : contentUrl
                 + getTypePrefix($scope.terminology.organizingClassType) + "/"
                 + $scope.terminology.terminology + "/"
-                + $scope.terminology.version + "/query/" + encodeURIComponent(queryStr),
+                + $scope.terminology.version + "/query/"
+                + encodeURIComponent(queryStr),
               method : "POST",
               dataType : "json",
               data : pfs,
@@ -967,7 +972,8 @@ tsApp
             console.debug("Retrieved component trees:", data);
 
             // for ease and consistency of use of the ui tree directive
-            // force the single tree into a ui-tree data structure with count variables
+            // force the single tree into a ui-tree data structure with count
+            // variables
             $scope.searchResultsTree = [];
             $scope.searchResultsTree.push(data); // treeList array of size 1
             $scope.searchResultsTree.totalCount = data.totalCount;
@@ -1020,7 +1026,8 @@ tsApp
               url : contentUrl
                 + getTypePrefix($scope.terminology.organizingClassType) + "/"
                 + $scope.terminology.terminology + "/"
-                + $scope.terminology.version + "/trees/query/" + encodeURIComponent(queryStr),
+                + $scope.terminology.version + "/trees/query/"
+                + encodeURIComponent(queryStr),
               method : "POST",
               dataType : "json",
               data : pfs,
@@ -1031,7 +1038,8 @@ tsApp
             console.debug("Retrieved component trees:", data);
 
             // for ease and consistency of use of the ui tree directive
-            // force the single tree into a ui-tree structure with count variables
+            // force the single tree into a ui-tree structure with count
+            // variables
             $scope.searchResultsTree = [];
             $scope.searchResultsTree.push(data); // treeList array of size 1
             $scope.searchResultsTree.totalCount = data.totalCount;
@@ -1070,6 +1078,7 @@ tsApp
         $scope.showSuppressible = true;
         $scope.showObsolete = true;
         $scope.showAtomElement = true;
+        $scope.showInferred = true;
 
         /**
          * Determine if an item has boolean fields set to true in its child
@@ -1129,6 +1138,16 @@ tsApp
           if ($scope.showAtomElement == false && item.atomElement == true)
             return false;
 
+          // trigger on inferred flag
+          if ($scope.terminology.descriptionLogicTerminology
+            && item.hasOwnProperty('stated') && $scope.showInferred
+            && item.stated)
+            return false;
+          if ($scope.terminology.descriptionLogicTerminology
+            && item.hasOwnProperty('inferred') && !$scope.showInferred
+            && item.inferred)
+            return false;
+
           return true;
         }
 
@@ -1165,6 +1184,16 @@ tsApp
             $scope.showAtomElement = !$scope.showAtomElement;
           }
 
+          applyPaging();
+        }
+
+        /** Function to toggle inferred flag and apply paging */
+        $scope.toggleInferred = function() {
+          if ($scope.showInferred == null || $scope.showInferred == undefined) {
+            $scope.showInferred = false;
+          } else {
+            $scope.showInferred = !$scope.showInferred;
+          }
           applyPaging();
         }
 
@@ -1337,54 +1366,56 @@ tsApp
         var generalEntries = [];
 
         // on metadata changes
-        $scope.$watch('metadata', function() {
+        $scope.setMetadata = function(terminology) {
 
           // reset arrays
           relationshipTypes = [];
           attributeNames = [];
           termTypes = [];
           generalEntries = [];
+          $scope.metadata = terminology;
 
-          if ($scope.metadata) {
-            for (var i = 0; i < $scope.metadata.length; i++) {
+          if (terminology == null)
+            return;
+          
+          for (var i = 0; i < $scope.metadata.length; i++) {
+            // extract relationship types for convenience
+            if ($scope.metadata[i].name === 'Relationship_Types') {
+              relationshipTypes = $scope.metadata[i].keyValuePair;
+            }
+            if ($scope.metadata[i].name === 'Attribute_Names') {
+              attributeNames = $scope.metadata[i].keyValuePair;
+            }
+            if ($scope.metadata[i].name === 'Term_Types') {
+              termTypes = $scope.metadata[i].keyValuePair;
+            }
+            if ($scope.metadata[i].name === 'General_Metadata_Entries') {
+              generalEntries = $scope.metadata[i].keyValuePair;
 
-              // extract relationship types for convenience
-              if ($scope.metadata[i].name === 'Relationship_Types') {
-                relationshipTypes = $scope.metadata[i].keyValuePair;
+              for (var j = 0; j < generalEntries.length; j++) {
+                if (generalEntries[j].key === "Atoms_Label") {
+                  $scope.atomsLabel = generalEntries[j].value;
+                }
+                if (generalEntries[j].key === "Hierarchies_Label") {
+                  $scope.hierarchiesLabel = generalEntries[j].value;
+                }
+                if (generalEntries[j].key === "Definitions_Label") {
+                  $scope.definitionsLabel = generalEntries[j].value;
+                }
+                if (generalEntries[j].key === "Attributes_Label") {
+                  $scope.attributesLabel = generalEntries[j].value;
+                }
+                if (generalEntries[j].key === "Subsets_Label") {
+                  $scope.subsetsLabel = generalEntries[j].value;
+                }
+                if (generalEntries[j].key === "Relationships_Label") {
+                  $scope.relationshipsLabel = generalEntries[j].value;
+                }
               }
-              if ($scope.metadata[i].name === 'Attribute_Names') {
-                attributeNames = $scope.metadata[i].keyValuePair;
-              }
-              if ($scope.metadata[i].name === 'Term_Types') {
-                termTypes = $scope.metadata[i].keyValuePair;
-              }
-              if ($scope.metadata[i].name === 'General_Metadata_Entries') {
-                generalEntries = $scope.metadata[i].keyValuePair;
-	        			
-	                	for (var i = 0; i < generalEntries.length; i++) {
-	                		if (generalEntries[i].key === "Atoms_Label") {
-	                			$scope.atomsLabel = generalEntries[i].value;
-	                		}
-	                		if (generalEntries[i].key === "Hierarchies_Label") {
-	                			$scope.hierarchiesLabel = generalEntries[i].value;
-	                		}
-	                		if (generalEntries[i].key === "Definitions_Label") {
-	                			$scope.definitionsLabel = generalEntries[i].value;
-	                		}
-	                		if (generalEntries[i].key === "Attributes_Label") {
-	                			$scope.attributesLabel = generalEntries[i].value;
-	                		}
-	                		if (generalEntries[i].key === "Subsets_Label") {
-	                			$scope.subsetsLabel = generalEntries[i].value;
-	                		}
-	                		if (generalEntries[i].key === "Relationships_Label") {
-	                			$scope.relationshipsLabel = generalEntries[i].value;
-	                		}
-	                	}	        			
-	        		}
-	        	}
-        	}        	
-        });
+
+            }
+          }
+        }
 
         // get relationship type name from its abbreviation
         $scope.getRelationshipTypeName = function(abbr) {
@@ -1433,7 +1464,7 @@ tsApp
         // concept navigation variables
         $scope.componentHistory = [];
         $scope.componentHistoryIndex = -1; // index is the actual array index
-                                            // (e.g. 0:n-1)
+        // (e.g. 0:n-1)
 
         // add a terminology/terminologyId pair to the history stack
         $scope.addConceptToHistory = function(terminology, terminologyId, type,
@@ -1600,6 +1631,7 @@ tsApp
 
         // default page size
         $scope.pageSize = 10;
+        $scope.relsPageSize = 10;
         $scope.treePageSize = 5;
 
         // reset all paginator pages
@@ -1657,6 +1689,7 @@ tsApp
           var typePrefix = getTypePrefix($scope.componentType);
           var pfs = getPfs(page);
 
+          // Show only inferred rels for now
           // construct query restriction if needed
           // TODO Change these to use pfs object parameters
           var qr = '';
@@ -1666,8 +1699,24 @@ tsApp
           if ($scope.showObsolete == false) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'obsolete:false';
           }
+          if ($scope.showInferred == true) {
+            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'inferred:true';
+          }
+          if ($scope.showInferred == false) {
+            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'stated:true';
+          }
           pfs['queryRestriction'] = qr;
           pfs['sortField'] = 'relationshipType';
+
+          // For description logic sources, simply read all rels.
+          // That way we ensure all "groups" are represented.
+          if ($scope.terminology.descriptionLogicTerminology) {
+            console.debug('Read all relationships');
+            pfs['startIndex'] = -1;
+            $scope.relsPageSize = 100000000;
+          } else {
+            $scope.relsPageSize = $scope.pageSize;
+          }
 
           $scope.glassPane++;
           $http(
@@ -1683,6 +1732,22 @@ tsApp
                 "Content-Type" : "application/json"
               }
             }).success(function(data) {
+
+            // if description logic terminology, sort relationships also by
+            // group
+            if ($scope.terminology.descriptionLogicTerminology) {
+              data.relationship.sort(function(a, b) {
+                if (a.relationshipType < b.relationshipType)
+                  return -1;
+                if (a.relationshipType > b.relationshipType)
+                  return 1;
+                if (a.group < b.group)
+                  return -1;
+                if (a.group > b.group)
+                  return 1;
+                return 0;
+              });
+            }
 
             $scope.pagedRelationships = data.relationship;
             $scope.pagedRelationships.totalCount = data.totalCount;

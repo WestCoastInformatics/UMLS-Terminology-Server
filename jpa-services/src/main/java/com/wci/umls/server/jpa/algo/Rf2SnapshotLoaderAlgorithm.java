@@ -1487,8 +1487,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       addGeneralMetadataEntry(entry);
     }
     
-    String[] labels = new String[] { "Atoms_Label", "Subsets_Label"};
-    String[] labelValues = new String[] { "Descriptions", "Refsets"};
+    String[] labels = new String[] { "Atoms_Label", "Subsets_Label", "Attributes_Label"};
+    String[] labelValues = new String[] { "Descriptions", "Refsets", "Properties"};
     int i = 0;
     for (String label : labels) {
       GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();

@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.rest.impl;
 
-import java.lang.instrument.Instrumentation;
 import java.util.List;
 import java.util.Map;
 
@@ -134,7 +133,6 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
 
       KeyValuePairLists keyValuePairList = getMetadataHelper(terminology, version);
       
-       
       return keyValuePairList;
       
     } catch (Exception e) {

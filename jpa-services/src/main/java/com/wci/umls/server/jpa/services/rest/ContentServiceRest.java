@@ -500,9 +500,10 @@ public interface ContentServiceRest {
    * @param terminology the terminology
    * @param version the terminology version
    * @param authToken the auth token
+   * @return true or false
    * @throws Exception the exception
    */
-  public void removeTerminology(String terminology, String version,
+  public boolean removeTerminology(String terminology, String version,
     String authToken) throws Exception;
 
   /**

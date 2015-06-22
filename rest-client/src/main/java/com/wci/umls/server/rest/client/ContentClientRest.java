@@ -8,7 +8,6 @@ import java.util.Properties;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status.Family;
-import javax.xml.bind.JAXBException;
 
 import org.apache.log4j.Logger;
 
@@ -215,7 +214,7 @@ public class ContentClientRest extends RootClientRest implements
    * (java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public void removeTerminology(String terminology, String version,
+  public boolean removeTerminology(String terminology, String version,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - remove terminology " + terminology + ", " + version);
@@ -237,7 +236,7 @@ public class ContentClientRest extends RootClientRest implements
       if (response.getStatus() != 204)
         throw new Exception("Unexpected status " + response.getStatus());
     }
-
+    return true;
   }
 
   /*
