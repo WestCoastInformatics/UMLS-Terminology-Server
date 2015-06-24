@@ -3308,16 +3308,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         fullTextEntityManager.getSearchFactory().buildQueryBuilder()
             .forEntity(clazz).get();
 
-    Query query =
+    Query query = 
         titleQB.phrase().withSlop(2).onField(TITLE_NGRAM_INDEX)
             .andField(TITLE_EDGE_NGRAM_INDEX).boostedTo(5)
             .sentence(searchTerm.toLowerCase()).createQuery();
 
     Query term1 = new TermQuery(new Term("terminology", terminology));
     Query term2 = new TermQuery(new Term("version", version));
+    Query term3 = new TermQuery(new Term("atoms.suppressible", "false"));
+    Query term4 = new TermQuery(new Term("suppressible", "false"));
     BooleanQuery booleanQuery = new BooleanQuery();
     booleanQuery.add(term1, BooleanClause.Occur.MUST);
     booleanQuery.add(term2, BooleanClause.Occur.MUST);
+    booleanQuery.add(term3, BooleanClause.Occur.MUST);
+    booleanQuery.add(term4, BooleanClause.Occur.MUST);
     booleanQuery.add(query, BooleanClause.Occur.MUST);
 
     FullTextQuery fullTextQuery =
