@@ -2142,7 +2142,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // C3539934|ENG|S|L11195730|PF|S13913746|N|A23460885||900000000000538005||SNOMEDCT_US|SB|900000000000538005|Description
     // format|9|N|256|
     subset.setDescription(fields[14]);
-    subset.setDisjointSubset(false);
     subset.setTimestamp(releaseVersionDate);
     subset.setLastModified(releaseVersionDate);
     subset.setLastModifiedBy(loader);

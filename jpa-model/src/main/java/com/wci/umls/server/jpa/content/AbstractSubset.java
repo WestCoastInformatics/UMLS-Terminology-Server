@@ -30,9 +30,6 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
   @Column(nullable = false, length = 4000)
   private String description;
 
-  /** The disjoint subset. */
-  @Column(nullable = false)
-  private boolean disjointSubset = false;
 
   /** The branched to. */
   @Column(nullable = true)
@@ -55,7 +52,6 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
     super(subset, deepCopy);
     name = subset.getName();
     description = subset.getDescription();
-    disjointSubset = subset.isDisjointSubset();
   }
 
   /*
@@ -99,25 +95,7 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
     this.description = description;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Subset#isDisjointSubset()
-   */
-  @Override
-  public boolean isDisjointSubset() {
-    return disjointSubset;
-  }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Subset#setDisjointSubset(boolean)
-   */
-  @Override
-  public void setDisjointSubset(boolean disjointSubset) {
-    this.disjointSubset = disjointSubset;
-  }
 
   /*
    * (non-Javadoc)
@@ -151,7 +129,6 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
     int result = super.hashCode();
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
-    result = prime * result + (disjointSubset ? 1231 : 1237);
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     return result;
   }
@@ -176,8 +153,6 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
         return false;
     } else if (!description.equals(other.description))
       return false;
-    if (disjointSubset != other.disjointSubset)
-      return false;
     if (name == null) {
       if (other.name != null)
         return false;
@@ -194,7 +169,7 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
   @Override
   public String toString() {
     return getClass().getSimpleName() + " [name=" + name + ", description=" + description
-        + ", disjointSubset=" + disjointSubset + "]";
+        + "]";
   }
 
 }
