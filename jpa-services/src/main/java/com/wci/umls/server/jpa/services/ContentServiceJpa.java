@@ -4631,7 +4631,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       QueryParser queryParser =
           new MultiFieldQueryParser(stringFieldNames.get(fieldNamesKey)
               .toArray(new String[] {}), searchFactory.getAnalyzer(clazz));
-      Logger.getLogger(getClass()).info("query = " + pfsQuery);
       luceneQuery = queryParser.parse(pfsQuery.toString());
 
       // Validate query terms
@@ -4739,7 +4738,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
 
-    Logger.getLogger(getClass()).info("query = " + localQueryStr);
     javax.persistence.Query query =
         manager.createQuery(localQueryStr.toString());
     if (pfs != null && pfs.getStartIndex() > -1 && pfs.getMaxResults() > -1) {
