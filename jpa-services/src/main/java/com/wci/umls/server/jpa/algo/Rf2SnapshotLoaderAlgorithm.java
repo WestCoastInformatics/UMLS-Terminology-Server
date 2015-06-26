@@ -1588,6 +1588,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
       // Create members
       int objectCt = 0;
+      Logger.getLogger(getClass()).info("  Add subset memebers");
       for (String conceptId : moduleConceptIdMap.get(moduleId)) {
         final Concept memberConcept = getConcept(conceptIdMap.get(conceptId));
 
@@ -1608,18 +1609,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         logAndCommit(++objectCt);
       }
     }
-
-    commitClearBegin();
-
-    // for each subset, compute the marker set
-    for (ConceptSubset subset : subsets) {
-      Logger.getLogger(getClass()).info(
-          "  Create marker set for subset = " + subset);
-      MarkerSetMarkedParentAlgorithm algo =
-          new MarkerSetMarkedParentAlgorithm();
-      algo.setSubset(subset);
-      algo.compute();
-    }
+    Logger.getLogger(getClass()).info("    count = " + objectCt);
   }
 
   /**
