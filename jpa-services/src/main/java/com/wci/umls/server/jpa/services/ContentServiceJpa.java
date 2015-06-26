@@ -3308,16 +3308,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         fullTextEntityManager.getSearchFactory().buildQueryBuilder()
             .forEntity(clazz).get();
 
-    Query query =
+    Query query = 
         titleQB.phrase().withSlop(2).onField(TITLE_NGRAM_INDEX)
             .andField(TITLE_EDGE_NGRAM_INDEX).boostedTo(5)
             .sentence(searchTerm.toLowerCase()).createQuery();
 
     Query term1 = new TermQuery(new Term("terminology", terminology));
     Query term2 = new TermQuery(new Term("version", version));
+    Query term3 = new TermQuery(new Term("atoms.suppressible", "false"));
+    Query term4 = new TermQuery(new Term("suppressible", "false"));
     BooleanQuery booleanQuery = new BooleanQuery();
     booleanQuery.add(term1, BooleanClause.Occur.MUST);
     booleanQuery.add(term2, BooleanClause.Occur.MUST);
+    booleanQuery.add(term3, BooleanClause.Occur.MUST);
+    booleanQuery.add(term4, BooleanClause.Occur.MUST);
     booleanQuery.add(query, BooleanClause.Occur.MUST);
 
     FullTextQuery fullTextQuery =
@@ -4499,11 +4503,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug("  type = " + clazz.getName());
 
     // tree to return
-    Tree tree = new TreeJpa();
+    Tree tree = null;
     
     // the current tree variables (ancestor path and local tree)
     String partAncPath = "";    // initially top-level
-    Tree partTree = tree;       // initially the empty tree
+    Tree parentTree = tree;       // initially the empty tree
 
     // Prepare lucene
     FullTextEntityManager fullTextEntityManager =
@@ -4556,8 +4560,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 //      partTree.setTerminology(treePosition.getTerminology());
 //      partTree.setVersion(treePosition.getVersion());
 
-
-
       // original approach
       if (fullTextQuery.getResultSize() != 1) {
         throw new Exception("Unexpected number of results: "
@@ -4568,17 +4570,18 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           (TreePosition<? extends AtomClass>) fullTextQuery.getResultList()
               .get(0);
 
-      partTree.setFromTreePosition(treepos);
+      Tree partTree = new TreeJpa(treepos);
       
-      Tree nextPart = new TreeJpa();
+      if (tree == null) {
+        tree = partTree;
+      }
+
+      if (parentTree != null) {
+        parentTree.addChild(partTree);
+      }
       
-      // if not end of sequence, add the new blank object as a child)
-      if (!partId.equals(tpId)) {
-        partTree.addChild(nextPart);
-      }  
-      
-      // set current tree to the just constructed (blank) tree
-      partTree = nextPart;
+      // set parent tree to the just constructed
+      parentTree = partTree;
 
       partAncPath += (partAncPath.equals("") ? "" : "~");
       partAncPath += pathPart;

@@ -319,7 +319,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       assertTrue(subset.isPublishable());
       assertFalse(subset.isObsolete());
       assertFalse(subset.isSuppressible());
-      assertFalse(subset.isDisjointSubset());
       assertEquals(0, subset.getAttributes().size());
       assertEquals(subset.getDescription(), subset.getName());
       assertEquals(snomedTerminology, subset.getTerminology());
@@ -403,7 +402,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       System.out.println(subset.getName());
       assertTrue(subset.isPublished());
       assertTrue(subset.isPublishable());
-      assertFalse(subset.isDisjointSubset());
       assertEquals(0, subset.getAttributes().size());
       assertEquals(subset.getDescription(), subset.getName());
       assertEquals(snomedTerminology, subset.getTerminology());

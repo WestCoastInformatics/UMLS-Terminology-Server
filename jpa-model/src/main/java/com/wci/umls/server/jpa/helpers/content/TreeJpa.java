@@ -22,12 +22,6 @@ import com.wci.umls.server.model.content.TreePosition;
 /**
  * JAXB enabled implementation of {@link Tree}.
  */
-
-/**
- * The Class TreeJpa.
- *
- * @author ${author}
- */
 @XmlRootElement(name = "tree")
 @XmlSeeAlso({
     ConceptTreePositionJpa.class, DescriptorTreePositionJpa.class,
@@ -50,7 +44,7 @@ public class TreeJpa implements Tree {
   /** The name. */
   String name = null;
 
-  /** The ancestor path */
+  /** The ancestor path. */
   String ancestorPath = null;
 
   /** The child ct. */
@@ -61,6 +55,9 @@ public class TreeJpa implements Tree {
 
   /** The children. */
   private List<Tree> children = new ArrayList<>();
+
+  /** The marker sets. */
+  List<String> markerSets = new ArrayList<>();
 
   /**
    * Instantiates an empty {@link TreeJpa}.
@@ -82,12 +79,34 @@ public class TreeJpa implements Tree {
     childCt = tree.getChildCt();
     ancestorPath = tree.getAncestorPath();
     totalCount = tree.getTotalCount();
-    
+    markerSets = tree.getMarkerSets();
+
     // deep-copy children
     children = new ArrayList<>();
     for (Tree child : tree.getChildren()) {
       children.add(new TreeJpa(child));
     }
+  }
+
+  /**
+   * Instantiates a {@link TreeJpa} from the specified {@link TreePosition}.
+   *
+   * @param treePosition the tree position
+   */
+  public TreeJpa(TreePosition<? extends AtomClass> treePosition) {
+
+    if (treePosition == null)
+      throw new IllegalArgumentException(
+          "Cannot construct tree from null tree position");
+
+    this.id = treePosition.getNode().getId();
+    this.terminology = treePosition.getNode().getTerminology();
+    this.version = treePosition.getNode().getVersion();
+    this.terminologyId = treePosition.getNode().getTerminologyId();
+    this.name = treePosition.getNode().getName();
+    this.childCt = treePosition.getChildCt();
+    this.ancestorPath = treePosition.getAncestorPath();
+    this.children = new ArrayList<>();
   }
 
   /*
@@ -125,93 +144,144 @@ public class TreeJpa implements Tree {
     }
   }
 
-  /**
-   * Instantiates a {@link TreeJpa} from the specified parameters.
-   *
-   * @param treePosition the tree position
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.content.Tree#getId()
    */
-  @Override
-  public void setFromTreePosition(TreePosition<? extends AtomClass> treePosition) {
-
-    if (treePosition == null)
-      throw new IllegalArgumentException(
-          "Cannot construct tree from null tree position");
-
-    this.id = treePosition.getNode().getId();
-    this.terminology = treePosition.getNode().getTerminology();
-    this.version = treePosition.getNode().getVersion();
-    this.terminologyId = treePosition.getNode().getTerminologyId();
-    this.name = treePosition.getNode().getName();
-    this.childCt = treePosition.getChildCt();
-    this.ancestorPath = treePosition.getAncestorPath();
-    this.children = new ArrayList<>();
-  }
-
   @Override
   public Long getId() {
     return id;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.content.Tree#setId(java.lang.Long)
+   */
   @Override
   public void setId(Long id) {
     this.id = id;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.content.Tree#getTerminology()
+   */
   @Override
   public String getTerminology() {
     return terminology;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.content.Tree#setTerminology(java.lang.String)
+   */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.content.Tree#getVersion()
+   */
   @Override
   public String getVersion() {
     return version;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.content.Tree#setVersion(java.lang.String)
+   */
   @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.content.Tree#getTerminologyId()
+   */
   @Override
   public String getTerminologyId() {
     return terminologyId;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.content.Tree#setTerminologyId(java.lang.String)
+   */
   @Override
   public void setTerminologyId(String terminologyId) {
     this.terminologyId = terminologyId;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.content.Tree#getName()
+   */
   @Override
   public String getName() {
     return name;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.content.Tree#setName(java.lang.String)
+   */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.content.Tree#getAncestorPath()
+   */
   @Override
   public String getAncestorPath() {
     return ancestorPath;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.content.Tree#setAncestorPath(java.lang.String)
+   */
   @Override
   public void setAncestorPath(String ancestorPath) {
     this.ancestorPath = ancestorPath;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.content.Tree#getChildCt()
+   */
   @Override
   public int getChildCt() {
     return childCt;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.content.Tree#setChildCt(int)
+   */
   @Override
   public void setChildCt(int childCt) {
     this.childCt = childCt;
@@ -272,58 +342,87 @@ public class TreeJpa implements Tree {
   public void addChild(Tree child) {
     this.children.add(child);
   }
-  
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasMarkerSets#getMarkerSets()
+   */
   @Override
-  public List<Tree> getLeafNodes() {
-   
-    List<Tree> treesToProcess = new ArrayList<>();
-    treesToProcess.add(this);
-    
-    List<Tree> leafNodes = new ArrayList<>();
-    
-    while (treesToProcess.size() > 0) {
-      Tree node = treesToProcess.get(0);
-      if (node.getChildren().size() == 0) {
-        leafNodes.add(node);
-      } else {
-        for (Tree child : node.getChildren()) {
-          treesToProcess.add(child);
-        }
-      }
+  public List<String> getMarkerSets() {
+    return markerSets;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMarkerSets#setMarkerSets(java.util.List)
+   */
+  @Override
+  public void setMarkerSets(List<String> markerSets) {
+    this.markerSets = markerSets;
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMarkerSets#addMarkerSet(java.lang.String)
+   */
+  @Override
+  public void addMarkerSet(String markerSet) {
+    if (markerSets == null) {
+      markerSets = new ArrayList<String>();
     }
-    
-    return leafNodes;
-    
+    markerSets.add(markerSet);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMarkerSets#removeMarkerSet(java.lang.String)
+   */
   @Override
-  public String toString() {
-    return "TreeJpa [id=" + id + ", terminology=" + terminology + ", version="
-        + version + ", terminologyId=" + terminologyId + ", name=" + name
-        + ", ancestorPath=" + ancestorPath + ", childCt=" + childCt
-        + ", totalCount=" + totalCount + ", children=" + children + "]";
+  public void removeMarkerSet(String markerSet) {
+    if (markerSets == null) {
+      markerSets = new ArrayList<String>();
+    }
+    markerSets.remove(markerSet);
+
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#hashCode()
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result =
         prime * result + ((ancestorPath == null) ? 0 : ancestorPath.hashCode());
-    result = prime * result + childCt;
     result = prime * result + ((children == null) ? 0 : children.hashCode());
-    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result =
+        prime * result + ((markerSets == null) ? 0 : markerSets.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result =
         prime * result
             + ((terminologyId == null) ? 0 : terminologyId.hashCode());
-    result = prime * result + totalCount;
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -338,17 +437,15 @@ public class TreeJpa implements Tree {
         return false;
     } else if (!ancestorPath.equals(other.ancestorPath))
       return false;
-    if (childCt != other.childCt)
-      return false;
     if (children == null) {
       if (other.children != null)
         return false;
     } else if (!children.equals(other.children))
       return false;
-    if (id == null) {
-      if (other.id != null)
+    if (markerSets == null) {
+      if (other.markerSets != null)
         return false;
-    } else if (!id.equals(other.id))
+    } else if (!markerSets.equals(other.markerSets))
       return false;
     if (name == null) {
       if (other.name != null)
@@ -365,8 +462,6 @@ public class TreeJpa implements Tree {
         return false;
     } else if (!terminologyId.equals(other.terminologyId))
       return false;
-    if (totalCount != other.totalCount)
-      return false;
     if (version == null) {
       if (other.version != null)
         return false;
@@ -375,4 +470,16 @@ public class TreeJpa implements Tree {
     return true;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return "TreeJpa [id=" + id + ", terminology=" + terminology + ", version="
+        + version + ", terminologyId=" + terminologyId + ", name=" + name
+        + ", ancestorPath=" + ancestorPath + ", childCt=" + childCt
+        + ", totalCount=" + totalCount + ", children=" + children + "]";
+  }
 }

@@ -20,6 +20,7 @@ import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
 import com.wci.umls.server.helpers.meta.LanguageList;
+import com.wci.umls.server.helpers.meta.MarkerSetList;
 import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.RootTerminologyList;
@@ -31,6 +32,7 @@ import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
 import com.wci.umls.server.jpa.helpers.meta.GeneralMetadataEntryListJpa;
 import com.wci.umls.server.jpa.helpers.meta.LanguageListJpa;
+import com.wci.umls.server.jpa.helpers.meta.MarkerSetListJpa;
 import com.wci.umls.server.jpa.helpers.meta.PropertyChainListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RootTerminologyListJpa;
@@ -41,6 +43,7 @@ import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
 import com.wci.umls.server.jpa.meta.LanguageJpa;
+import com.wci.umls.server.jpa.meta.MarkerSetJpa;
 import com.wci.umls.server.jpa.meta.PropertyChainJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
@@ -53,6 +56,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.Language;
+import com.wci.umls.server.model.meta.MarkerSet;
 import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -244,6 +248,12 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       abbrMapList.put(MetadataKeys.Attribute_Names.toString(), attNameMap);
     }
 
+    Map<String, String> msMap =
+        getAbbreviationMap(getMarkerSets(terminology, version).getObjects());
+    if (msMap != null) {
+      abbrMapList.put(MetadataKeys.Marker_Sets.toString(), attNameMap);
+    }
+
     // Skip general metadata entries
 
     Map<String, String> semanticTypeMap =
@@ -275,9 +285,8 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     Map<String, String> gmeMap =
         getAbbreviationMap(getGeneralMetadataEntries(terminology, version)
             .getObjects());
-    if (gmeMap != null && !gmeMap.isEmpty()) {      
-      abbrMapList.put(MetadataKeys.General_Metadata_Entries.toString(),
-          gmeMap);
+    if (gmeMap != null && !gmeMap.isEmpty()) {
+      abbrMapList.put(MetadataKeys.General_Metadata_Entries.toString(), gmeMap);
     }
     return abbrMapList;
   }
@@ -581,6 +590,30 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
+   * com.wci.umls.server.services.MetadataService#getMarkerSets(java.lang.String
+   * , java.lang.String)
+   */
+  @Override
+  public MarkerSetList getMarkerSets(String terminology, String version)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Metadata service - get attribute names " + terminology + ", "
+            + version);
+    if (helperMap.containsKey(terminology)) {
+      return helperMap.get(terminology).getMarkerSets(terminology, version);
+    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+      return helperMap.get(ConfigUtility.DEFAULT).getMarkerSets(terminology,
+          version);
+    } else {
+      // return an empty map
+      return new MarkerSetListJpa();
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
    * com.wci.umls.server.services.MetadataService#getSemanticTypes(java.lang
    * .String, java.lang.String)
    */
@@ -741,7 +774,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
   }
 
-
   /*
    * (non-Javadoc)
    * 
@@ -807,10 +839,13 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       }
     }
   }
-  
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.MetadataService#removePropertyChain(java.lang.Long)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removePropertyChain(java.lang
+   * .Long)
    */
   @Override
   public void removePropertyChain(Long id) throws Exception {
@@ -886,6 +921,50 @@ public class MetadataServiceJpa extends RootServiceJpa implements
         "Metadata Service - remove attributeName " + id);
     // Remove the component
     removeMetadata(id, AttributeNameJpa.class);
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+  }
+
+  @Override
+  public MarkerSet addMarkerSet(MarkerSet markerSet) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - add markerSet " + markerSet.getAbbreviation());
+
+    // Add component
+    MarkerSet newMarkerSet = addMetadata(markerSet);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+    return newMarkerSet;
+  }
+
+  @Override
+  public void updateMarkerSet(MarkerSet markerSet) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - update markerSet " + markerSet.getAbbreviation());
+    updateMetadata(markerSet);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.metadataChanged();
+      }
+    }
+  }
+
+  @Override
+  public void removeMarkerSet(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Service - remove markerSet " + id);
+    // Remove the component
+    removeMetadata(id, MarkerSetJpa.class);
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
         listener.metadataChanged();

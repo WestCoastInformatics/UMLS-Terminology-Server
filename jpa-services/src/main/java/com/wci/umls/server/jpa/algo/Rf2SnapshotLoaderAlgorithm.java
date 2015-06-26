@@ -89,6 +89,12 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   /** The Constant root. */
   private final static String rootConceptId = "138875005";
 
+  /** The Constant coreModuleId. */
+  private final static String coreModuleId = "900000000000207008";
+
+  /** The Constant metadataModuleId. */
+  private final static String metadataModuleId = "900000000000012004X";
+
   /** The dpn ref set id. */
   private String dpnRefSetId = "900000000000509007";
 
@@ -118,6 +124,12 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
   /** The atom id map. */
   private Map<String, Long> atomIdMap = new HashMap<>();
+
+  /** The module ids. */
+  private Set<String> moduleIds = new HashSet<>();
+
+  /** non-core modules map */
+  private Map<String, Set<String>> moduleConceptIdMap = new HashMap<>();
 
   /** The concept id map. */
   private Map<String, Long> conceptIdMap = new HashMap<>();
@@ -324,6 +336,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       // Load metadata
       loadMetadata();
 
+      // Make subsets and marker sets
+      loadExtensionMarkerSets();
+
       //
       // Create ReleaseInfo for this release if it does not already exist
       //
@@ -487,6 +502,15 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         // copy concept to shed any hibernate stuff
         addConcept(concept);
         conceptIdMap.put(concept.getTerminologyId(), concept.getId());
+
+        // Save extension module info
+        if (isExtensionModule(fields[3])) {
+          moduleIds.add(fields[3]);
+          if (!moduleConceptIdMap.containsKey(fields[3])) {
+            moduleConceptIdMap.put(fields[3], new HashSet<String>());
+          }
+          moduleConceptIdMap.get(fields[3]).add(concept.getTerminologyId());
+        }
 
         logAndCommit(++objectCt);
       }
@@ -1244,7 +1268,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       subset.setTerminologyId(fields[4].intern());
       subset.setName(getConcept(conceptIdMap.get(fields[4])).getName());
       subset.setDescription(subset.getName());
-      subset.setDisjointSubset(false);
 
       final Attribute attribute2 = new AttributeJpa();
       setCommonFields(attribute2, date);
@@ -1386,6 +1409,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     // type)
     AdditionalRelationshipType directSubstance = null;
     AdditionalRelationshipType hasActiveIngredient = null;
+    Map<AdditionalRelationshipType, AdditionalRelationshipType> inverses =
+        new HashMap<>();
     for (String rela : additionalRelTypes) {
       AdditionalRelationshipType type = new AdditionalRelationshipTypeJpa();
       type.setTerminology(terminology);
@@ -1413,7 +1438,24 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       } else if (rela.equals("127489000")) {
         directSubstance = type;
       }
+      AdditionalRelationshipType inverseType =
+          new AdditionalRelationshipTypeJpa(type);
+      inverseType.setId(null);
+      inverseType.setAbbreviation("inverse_" + type.getAbbreviation());
+      inverseType.setExpandedForm("inverse_" + type.getAbbreviation());
+      inverses.put(type, inverseType);
+      addAdditionalRelationshipType(inverseType);
     }
+    // handle inverses
+    for (AdditionalRelationshipType type : inverses.keySet()) {
+      AdditionalRelationshipType inverseType = inverses.get(type);
+      type.setInverseType(inverseType);
+      inverseType.setInverseType(type);
+      updateAdditionalRelationshipType(type);
+      updateAdditionalRelationshipType(inverseType);
+    }
+
+    // TODO: inverses for claml loader
 
     // property chains (see Owl)
     // $rightid{"363701004"} = "127489000"; # direct-substance o
@@ -1486,9 +1528,13 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       entry.setType("concept_name");
       addGeneralMetadataEntry(entry);
     }
-    
-    String[] labels = new String[] { "Atoms_Label", "Subsets_Label", "Attributes_Label"};
-    String[] labelValues = new String[] { "Descriptions", "Refsets", "Properties"};
+
+    String[] labels = new String[] {
+        "Atoms_Label", "Subsets_Label", "Attributes_Label"
+    };
+    String[] labelValues = new String[] {
+        "Descriptions", "Refsets", "Properties"
+    };
     int i = 0;
     for (String label : labels) {
       GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
@@ -1506,6 +1552,74 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     }
     commitClearBegin();
 
+  }
+
+  /**
+   * Load extension marker sets.
+   *
+   * @throws Exception the exception
+   */
+  private void loadExtensionMarkerSets() throws Exception {
+
+    // for each non core module, create a Subset object
+    List<ConceptSubset> subsets = new ArrayList<>();
+    for (String moduleId : moduleIds) {
+      Logger.getLogger(getClass()).info(
+          "  Create subset for module = " + moduleId);
+      Concept concept = getConcept(conceptIdMap.get(moduleId));
+      ConceptSubset subset = new ConceptSubsetJpa();
+      subset.setName(concept.getName());
+      subset.setDescription("Represents the members of module " + moduleId);
+      subset.setDisjointSubset(false);
+      subset.setMarkerSubset(true);
+      subset.setLastModified(releaseVersionDate);
+      subset.setTimestamp(releaseVersionDate);
+      subset.setLastModifiedBy(loader);
+      subset.setObsolete(false);
+      subset.setSuppressible(false);
+      subset.setPublishable(false);
+      subset.setPublished(false);
+      subset.setTerminology(terminology);
+      subset.setTerminologyId(moduleId);
+      subset.setVersion(version);
+      addSubset(subset);
+      subsets.add(subset);
+      commitClearBegin();
+
+      // Create members
+      int objectCt = 0;
+      for (String conceptId : moduleConceptIdMap.get(moduleId)) {
+        final Concept memberConcept = getConcept(conceptIdMap.get(conceptId));
+
+        ConceptSubsetMember member = new ConceptSubsetMemberJpa();
+        member.setLastModified(releaseVersionDate);
+        member.setTimestamp(releaseVersionDate);
+        member.setLastModifiedBy(loader);
+        member.setMember(memberConcept);
+        member.setObsolete(false);
+        member.setSuppressible(false);
+        member.setPublishable(false);
+        member.setPublishable(false);
+        member.setTerminologyId("");
+        member.setTerminology(terminology);
+        member.setVersion(version);
+        member.setSubset(subset);
+        addSubsetMember(member);
+        logAndCommit(++objectCt);
+      }
+    }
+
+    commitClearBegin();
+
+    // for each subset, compute the marker set
+    for (ConceptSubset subset : subsets) {
+      Logger.getLogger(getClass()).info(
+          "  Create marker set for subset = " + subset);
+      MarkerSetMarkedParentAlgorithm algo =
+          new MarkerSetMarkedParentAlgorithm();
+      algo.setSubset(subset);
+      algo.compute();
+    }
   }
 
   /**
@@ -1539,6 +1653,16 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     }
   }
 
+  /**
+   * Indicates whether or not extension module is the case.
+   *
+   * @param moduleId the module id
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  @SuppressWarnings("static-method")
+  private boolean isExtensionModule(String moduleId) {
+    return !moduleId.equals(coreModuleId) && !moduleId.equals(metadataModuleId);
+  }
 
   /*
    * (non-Javadoc)

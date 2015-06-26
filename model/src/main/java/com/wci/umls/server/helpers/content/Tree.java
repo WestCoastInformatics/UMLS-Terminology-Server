@@ -5,15 +5,13 @@ package com.wci.umls.server.helpers.content;
 
 import java.util.List;
 
-import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.helpers.HasMarkerSets;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
  * Represents a tree of {@link TreePosition} objects.
- *
- * @author ${author}
  */
-public interface Tree {
+public interface Tree extends HasMarkerSets {
 
   /**
    * Merge specified tree with this one.
@@ -154,14 +152,6 @@ public interface Tree {
    * @param childCt the child ct
    */
   public void setChildCt(int childCt);
-
-  
-  /**
-   * Sets fields from a tree position
-   *
-   * @param treePosition the from tree position
-   */
-  public void setFromTreePosition(TreePosition<? extends AtomClass> treePosition);
 
   /**
    * Returns all nodes as a list, sorted by ancestor pa th.

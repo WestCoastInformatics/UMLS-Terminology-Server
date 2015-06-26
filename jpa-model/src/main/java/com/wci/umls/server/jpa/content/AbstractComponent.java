@@ -17,11 +17,13 @@ import javax.xml.bind.annotation.XmlID;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DynamicBoost;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.jpa.helpers.SuppressibleBoost;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 
@@ -30,6 +32,7 @@ import com.wci.umls.server.model.content.ComponentHasAttributes;
  */
 @Audited
 @MappedSuperclass
+@DynamicBoost(impl = SuppressibleBoost.class)
 public abstract class AbstractComponent implements Component {
 
   /** The id. */

@@ -95,8 +95,7 @@ public class UmlsMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager.createQuery("SELECT t from RelationshipTypeJpa t "
             + " where terminology = :terminology "
-            + "   and version = :version"
-            + "   and abbreviation in (:list)");
+            + "   and version = :version" + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
     query.setParameter("list", relationshipTypesMap.get(terminology + version));
@@ -121,8 +120,7 @@ public class UmlsMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager.createQuery("SELECT t from LanguageJpa t "
             + " where terminology = :terminology "
-            + "   and version = :version"
-            + "   and abbreviation in (:list)");
+            + "   and version = :version" + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
     query.setParameter("list", languagesMap.get(terminology + version));
@@ -150,8 +148,7 @@ public class UmlsMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager.createQuery("SELECT t from AdditionalRelationshipTypeJpa t "
             + " where terminology = :terminology "
-            + "   and version = :version"
-            + "   and abbreviation in (:list)");
+            + "   and version = :version" + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
     query.setParameter("list",
@@ -179,8 +176,7 @@ public class UmlsMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager.createQuery("SELECT t from AttributeNameJpa t "
             + " where terminology = :terminology "
-            + "   and version = :version"
-            + "   and abbreviation in (:list)");
+            + "   and version = :version" + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
     query.setParameter("list", attributeNamesMap.get(terminology + version));
@@ -207,8 +203,7 @@ public class UmlsMetadataServiceJpaHelper extends
     javax.persistence.Query query =
         manager.createQuery("SELECT t from TermTypeJpa t "
             + " where terminology = :terminology "
-            + "   and version = :version"
-            + "   and abbreviation in (:list)");
+            + "   and version = :version" + "   and abbreviation in (:list)");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);
     query.setParameter("list", termTypesMap.get(terminology + version));
@@ -448,9 +443,8 @@ public class UmlsMetadataServiceJpaHelper extends
     if (attributeNamesMap.isEmpty()) {
       EntityManager manager = factory.createEntityManager();
       javax.persistence.Query query =
-          manager
-              .createQuery("select distinct a.terminology, a.version, "
-                  + "a.name from AttributeJpa a");
+          manager.createQuery("select distinct a.terminology, a.version, "
+              + "a.name from AttributeJpa a");
       List<Object[]> results = query.getResultList();
       for (Object[] result : results) {
         if (!attributeNamesMap.containsKey(result[0].toString() + result[1])) {
@@ -474,9 +468,8 @@ public class UmlsMetadataServiceJpaHelper extends
     if (termTypesMap.isEmpty()) {
       EntityManager manager = factory.createEntityManager();
       javax.persistence.Query query =
-          manager
-              .createQuery("select distinct a.terminology, a.version, "
-                  + "a.termType, a.language from AtomJpa a");
+          manager.createQuery("select distinct a.terminology, a.version, "
+              + "a.termType, a.language from AtomJpa a");
       List<Object[]> results = query.getResultList();
       for (Object[] result : results) {
         if (!termTypesMap.containsKey(result[0].toString() + result[1])) {

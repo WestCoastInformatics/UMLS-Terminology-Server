@@ -255,40 +255,28 @@ public class PrecedenceListJpa implements PrecedenceList {
     this.lastModifiedBy = lastModifiedBy;
   }
 
-  /**
-   * Returns the terminologies.
-   *
-   * @return the terminologies
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.PrecedenceList#addTerminologyTermType(java.lang.String, java.lang.String)
    */
-  public List<String> getTerminologies() {
-    return terminologies;
+  @Override
+  public void addTerminologyTermType(String terminology, String termType) {
+    terminologies.add(terminology);
+    termTypes.add(termType);
   }
 
-  /**
-   * Sets the terminologies.
-   *
-   * @param terminologies the terminologies
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.PrecedenceList#removeTerminologyTermType(java.lang.String, java.lang.String)
    */
-  public void setTerminologies(List<String> terminologies) {
-    this.terminologies = terminologies;
-  }
-
-  /**
-   * Returns the term types.
-   *
-   * @return the term types
-   */
-  public List<String> getTermTypes() {
-    return termTypes;
-  }
-
-  /**
-   * Sets the term types.
-   *
-   * @param termTypes the term types
-   */
-  public void setTermTypes(List<String> termTypes) {
-    this.termTypes = termTypes;
+  @Override
+  public void removeTerminologyTermType(String terminology, String termType) {
+    for (int i = 0; i < termTypes.size(); i++) {
+      if (terminology.equals(terminologies.get(i))
+          && termType.equals(termTypes.get(i))) {
+        terminologies.remove(i);
+        termTypes.remove(i);
+        break;
+      }
+    }
   }
 
   /*

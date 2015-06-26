@@ -5,12 +5,14 @@ package com.wci.umls.server.model.content;
 
 import java.util.List;
 
+import com.wci.umls.server.helpers.HasMarkerSets;
+
 /**
  * Represents a classification of atoms within a terminology, ontology, or
  * coding scheme. For example Metathesaurus CUIs, SNOMED CT source concepts, or
  * RXCUIs within RXNORM.
  */
-public interface AtomClass extends ComponentHasAttributesAndName {
+public interface AtomClass extends ComponentHasAttributesAndName, HasMarkerSets {
 
   /**
    * Returns the atoms.

@@ -208,7 +208,7 @@
                     <tr ng-class="{active: searchResult.active}"
                       ng-repeat="searchResult in searchResults"
                       ng-click="getComponent(searchResult.terminology, searchResult.terminologyId)">
-                      <td><span
+                      <td ><span
                         ng-show="searchResult.terminology != terminology.terminology">{{searchResult.terminology}}/</span>{{searchResult.terminologyId}}</td>
                       <td style="word-break: break-word;">{{searchResult.value}}</td>
                     </tr>
@@ -310,7 +310,7 @@
                   ng-show="terminology.metathesaurus && component.suppressible == true"
                   tooltip="Suppressible">S</span> <span
                   class="label label-default" ng-show="component.obsolete == true"
-                  tooltip="Obsolete">O</span> <span style="padding-bottom: 2px;"
+                  tooltip="Obsolete">O</span> <span 
                   ng-show="terminology.descriptionLogicTerminology && !component.fullyDefined"
                   class="label label-info" tooltip="Primitive">P</span> <span
                   style="padding-bottom: 2px;"
@@ -318,8 +318,8 @@
                   class="label label-info"
                   tooltip="Necessary and sufficient definition">D</span>
               </h3>
-              <!-- Only show suppressible button for metathesaurus terminologies -->
-              <button ng-show="terminology.metathesaurus"
+              <!-- Do not show suppressible button for DL terminologies -->
+              <button ng-show="!terminology.descriptionLogicTerminology"
                 ng-click="toggleSuppressible()" class="btn btn-xs btn-primary">
                 <span ng-show="showSuppressible == true">Hide
                   Suppressible</span> <span ng-show="showSuppressible != true">Show
