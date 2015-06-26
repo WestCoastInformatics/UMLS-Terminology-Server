@@ -41,9 +41,6 @@ public class AbstractListUnit<T> {
     assertTrue(list.getCount() == 1);
     assertTrue(list.getTotalCount() == 0);
 
-    System.out.println(object1);
-    System.out.println(object2);
-    System.out.println(list);
     assertFalse(list.contains(object2));
 
     list.addObject(object2);
@@ -210,6 +207,8 @@ public class AbstractListUnit<T> {
     ResultList<T> list3 =
         (ResultList<T>) ConfigUtility.getGraphForString(xml, list.getClass());
 
+    System.out.println(list);
+    System.out.println(list3);
     assertTrue(list.equals(list3));
 
     // Add 2 contents

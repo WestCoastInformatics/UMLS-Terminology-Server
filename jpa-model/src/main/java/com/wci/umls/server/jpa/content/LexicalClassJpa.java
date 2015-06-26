@@ -3,8 +3,14 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -36,6 +42,13 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
   @Column(nullable = true, length = 4000)
   private String normalizedName;
 
+  /** The marker sets. */
+  @ElementCollection(fetch = FetchType.EAGER)
+  // consider this: @Fetch(sFetchMode.JOIN)
+  @CollectionTable(name = "lexical_class_marker_sets")
+  @Column(nullable = true)
+  List<String> markerSets;
+
   /**
    * Instantiates an empty {@link LexicalClassJpa}.
    */
@@ -52,6 +65,7 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
   public LexicalClassJpa(LexicalClass lexicalClass, boolean deepCopy) {
     super(lexicalClass, deepCopy);
     normalizedName = lexicalClass.getNormalizedName();
+    markerSets = lexicalClass.getMarkerSets();
   }
 
   /**
@@ -77,6 +91,57 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
   @Override
   public void setNormalizedName(String normalizedName) {
     this.normalizedName = normalizedName;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.helpers.HasMarkerSets#getMarkerSets()
+   */
+  @Override
+  public List<String> getMarkerSets() {
+    return markerSets;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMarkerSets#setMarkerSets(java.util.List)
+   */
+  @Override
+  public void setMarkerSets(List<String> markerSets) {
+    this.markerSets = markerSets;
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMarkerSets#addMarkerSet(java.lang.String)
+   */
+  @Override
+  public void addMarkerSet(String markerSet) {
+    if (markerSets == null) {
+      markerSets = new ArrayList<String>();
+    }
+    markerSets.add(markerSet);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMarkerSets#removeMarkerSet(java.lang.String)
+   */
+  @Override
+  public void removeMarkerSet(String markerSet) {
+    if (markerSets == null) {
+      markerSets = new ArrayList<String>();
+    }
+    markerSets.remove(markerSet);
+
   }
 
   /*

@@ -83,8 +83,7 @@ public class ModelUnit041Test {
 
     tester.include("name");
     tester.include("description");
-    tester.include("disjointSubset");
-
+    
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -177,7 +176,6 @@ public class ModelUnit041Test {
     tester.include("version");
     tester.include("name");
     tester.include("description");
-    tester.include("disjointSubset");
     assertTrue(tester.testNotNullFields());
   }
 

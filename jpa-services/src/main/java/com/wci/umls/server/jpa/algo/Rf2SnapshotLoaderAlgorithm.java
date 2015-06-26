@@ -93,7 +93,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   private final static String coreModuleId = "900000000000207008";
 
   /** The Constant metadataModuleId. */
-  private final static String metadataModuleId = "900000000000012004";
+  private final static String metadataModuleId = "900000000000012004X";
 
   /** The dpn ref set id. */
   private String dpnRefSetId = "900000000000509007";
@@ -1440,6 +1440,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       }
       AdditionalRelationshipType inverseType =
           new AdditionalRelationshipTypeJpa(type);
+      inverseType.setId(null);
       inverseType.setAbbreviation("inverse_" + type.getAbbreviation());
       inverseType.setExpandedForm("inverse_" + type.getAbbreviation());
       inverses.put(type, inverseType);
@@ -1454,8 +1455,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       updateAdditionalRelationshipType(inverseType);
     }
 
-    // TODO: what about inverses of rela?
-    // Same for ClaML loader
+    // TODO: inverses for claml loader
 
     // property chains (see Owl)
     // $rightid{"363701004"} = "127489000"; # direct-substance o
@@ -1580,8 +1580,10 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       subset.setPublishable(false);
       subset.setPublished(false);
       subset.setTerminology(terminology);
+      subset.setTerminologyId(moduleId);
       subset.setVersion(version);
       addSubset(subset);
+      subsets.add(subset);
       commitClearBegin();
 
       // Create members
@@ -1598,6 +1600,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         member.setSuppressible(false);
         member.setPublishable(false);
         member.setPublishable(false);
+        member.setTerminologyId("");
         member.setTerminology(terminology);
         member.setVersion(version);
         member.setSubset(subset);
@@ -1616,8 +1619,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           new MarkerSetMarkedParentAlgorithm();
       algo.setSubset(subset);
       algo.compute();
-      algo.commit();
-
     }
   }
 

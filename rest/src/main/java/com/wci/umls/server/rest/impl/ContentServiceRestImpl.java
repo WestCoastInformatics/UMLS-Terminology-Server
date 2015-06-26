@@ -2410,8 +2410,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       TreePositionList list =
-          contentService.findDescriptorTreePositionsForQuery(terminology, version,
-              Branch.ROOT, queryStr, pfs);
+          contentService.findDescriptorTreePositionsForQuery(terminology,
+              version, Branch.ROOT, queryStr, pfs);
 
       // dummy variables for construction of artificial root
       Tree dummyTree = new TreeJpa();
@@ -2583,8 +2583,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // for each tree position, construct a tree
       for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
           .getObjects()) {
-        Tree childTree = new TreeJpa();
-        childTree.setFromTreePosition(childTreePosition);
+        Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
 
@@ -2630,8 +2629,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // for each tree position, construct a tree
       for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
           .getObjects()) {
-        Tree childTree = new TreeJpa();
-        childTree.setFromTreePosition(childTreePosition);
+        Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
 
@@ -2677,8 +2675,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // for each tree position, construct a tree
       for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
           .getObjects()) {
-        Tree childTree = new TreeJpa();
-        childTree.setFromTreePosition(childTreePosition);
+        Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
 
@@ -2721,22 +2718,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           contentService.findConceptTreePositionsForQuery(terminology, version,
               Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
 
-      Tree rootTree = new TreeJpa();
-      rootTree.setTotalCount(rootTreePositions.getTotalCount());
-
+      Tree rootTree = null;
       // if a terminology with a single root concept
       if (rootTreePositions.getCount() == 1) {
 
         // construct root tree from single root
-        rootTree.setFromTreePosition(rootTreePositions.getObjects().get(0));
+        rootTree = new TreeJpa(rootTreePositions.getObjects().get(0));
+        rootTree.setTotalCount(rootTreePositions.getTotalCount());
 
         // get the children tree positions
-        TreePositionList childTreePositions = contentService.findConceptTreePositionChildren(rootTree.getTerminologyId(), terminology, version, pfs);
-  
+        TreePositionList childTreePositions =
+            contentService.findConceptTreePositionChildren(
+                rootTree.getTerminologyId(), terminology, version, pfs);
+
         // construct and add children
-        for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions.getObjects()) {
-          Tree childTree = new TreeJpa();
-          childTree.setFromTreePosition(childTreePosition);
+        for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+            .getObjects()) {
+          Tree childTree = new TreeJpa(childTreePosition);
           rootTree.mergeTree(childTree);
         }
       }
@@ -2744,14 +2742,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // otherwise, no single root concept
       else {
         // create a dummy tree position to serve as root
+        rootTree = new TreeJpa();
         rootTree.setTerminology(terminology);
         rootTree.setVersion(version);
         rootTree.setName("Top");
-        
+        rootTree.setTotalCount(rootTreePositions.getTotalCount());
+
         // construct and add children
-        for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions.getObjects()) {
-          Tree childTree = new TreeJpa();
-          childTree.setFromTreePosition(rootTreePosition);
+        for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions
+            .getObjects()) {
+          Tree childTree = new TreeJpa(rootTreePosition);
           rootTree.addChild(childTree);
         }
       }
@@ -2791,25 +2791,27 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // get tree positions where ancestor path is empty
       rootTreePositions =
-          contentService.findDescriptorTreePositionsForQuery(terminology, version,
-              Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
+          contentService.findDescriptorTreePositionsForQuery(terminology,
+              version, Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
 
-      Tree rootTree = new TreeJpa();
-      rootTree.setTotalCount(rootTreePositions.getTotalCount());
+      Tree rootTree = null;
 
       // if a terminology with a single root descriptor
       if (rootTreePositions.getCount() == 1) {
 
         // construct root tree from single root
-        rootTree.setFromTreePosition(rootTreePositions.getObjects().get(0));
+        rootTree = new TreeJpa(rootTreePositions.getObjects().get(0));
+        rootTree.setTotalCount(rootTreePositions.getTotalCount());
 
         // get the children tree positions
-        TreePositionList childTreePositions = contentService.findDescriptorTreePositionChildren(rootTree.getTerminologyId(), terminology, version, pfs);
-  
+        TreePositionList childTreePositions =
+            contentService.findDescriptorTreePositionChildren(
+                rootTree.getTerminologyId(), terminology, version, pfs);
+
         // construct and add children
-        for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions.getObjects()) {
-          Tree childTree = new TreeJpa();
-          childTree.setFromTreePosition(childTreePosition);
+        for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+            .getObjects()) {
+          Tree childTree = new TreeJpa(childTreePosition);
           rootTree.mergeTree(childTree);
         }
       }
@@ -2817,14 +2819,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // otherwise, no single root descriptor
       else {
         // create a dummy tree position to serve as root
+        rootTree = new TreeJpa();
         rootTree.setTerminology(terminology);
         rootTree.setVersion(version);
         rootTree.setName("Top");
-        
+        rootTree.setTotalCount(rootTreePositions.getTotalCount());
+
         // construct and add children
-        for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions.getObjects()) {
-          Tree childTree = new TreeJpa();
-          childTree.setFromTreePosition(rootTreePosition);
+        for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions
+            .getObjects()) {
+          Tree childTree = new TreeJpa(rootTreePosition);
           rootTree.addChild(childTree);
         }
       }
@@ -2867,22 +2871,24 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           contentService.findCodeTreePositionsForQuery(terminology, version,
               Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
 
-      Tree rootTree = new TreeJpa();
-      rootTree.setTotalCount(rootTreePositions.getTotalCount());
+      Tree rootTree = null;
 
       // if a terminology with a single root code
       if (rootTreePositions.getCount() == 1) {
 
         // construct root tree from single root
-        rootTree.setFromTreePosition(rootTreePositions.getObjects().get(0));
+        rootTree = new TreeJpa(rootTreePositions.getObjects().get(0));
+        rootTree.setTotalCount(rootTreePositions.getTotalCount());
 
         // get the children tree positions
-        TreePositionList childTreePositions = contentService.findCodeTreePositionChildren(rootTree.getTerminologyId(), terminology, version, pfs);
-  
+        TreePositionList childTreePositions =
+            contentService.findCodeTreePositionChildren(
+                rootTree.getTerminologyId(), terminology, version, pfs);
+
         // construct and add children
-        for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions.getObjects()) {
-          Tree childTree = new TreeJpa();
-          childTree.setFromTreePosition(childTreePosition);
+        for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+            .getObjects()) {
+          Tree childTree = new TreeJpa(childTreePosition);
           rootTree.mergeTree(childTree);
         }
       }
@@ -2890,14 +2896,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // otherwise, no single root code
       else {
         // create a dummy tree position to serve as root
+        rootTree = new TreeJpa();
         rootTree.setTerminology(terminology);
         rootTree.setVersion(version);
         rootTree.setName("Top");
-        
+        rootTree.setTotalCount(rootTreePositions.getTotalCount());
+
         // construct and add children
-        for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions.getObjects()) {
-          Tree childTree = new TreeJpa();
-          childTree.setFromTreePosition(rootTreePosition);
+        for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions
+            .getObjects()) {
+          Tree childTree = new TreeJpa(rootTreePosition);
           rootTree.addChild(childTree);
         }
       }

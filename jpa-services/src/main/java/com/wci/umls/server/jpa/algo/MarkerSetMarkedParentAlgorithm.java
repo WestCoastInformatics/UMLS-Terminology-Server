@@ -62,6 +62,8 @@ public class MarkerSetMarkedParentAlgorithm extends ContentServiceJpa implements
   public void compute() throws Exception {
     Logger.getLogger(getClass()).info("Start computing marked set");
     Logger.getLogger(getClass()).info("  subset = " + subset);
+    setTransactionPerOperation(false);
+    
     fireProgressEvent(0, "Starting...");
 
     if (subset == null) {

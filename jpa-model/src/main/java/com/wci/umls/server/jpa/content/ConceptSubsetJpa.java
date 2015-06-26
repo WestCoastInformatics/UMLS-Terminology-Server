@@ -161,7 +161,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
 
   @Override
   public void setMarkerSubset(boolean markerSubset) {
-    this.markerSubset = disjointSubset;
+    this.markerSubset = markerSubset;
   }
 
   @Override

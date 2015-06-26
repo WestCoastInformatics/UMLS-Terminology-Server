@@ -26,7 +26,7 @@ import com.wci.umls.server.model.meta.MarkerSet;
 public class MarkerSetJpa extends AbstractAbbreviation implements MarkerSet {
 
   /** The description. */
-  @Column(nullable = true)
+  @Column(nullable = false)
   private String description;
 
   /**

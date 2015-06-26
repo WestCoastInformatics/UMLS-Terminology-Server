@@ -84,7 +84,7 @@ import com.wci.umls.server.model.content.AtomClass;
 })
 @Audited
 @MappedSuperclass
-public class AbstractAtomClass extends AbstractComponentHasAttributes implements
+public abstract class AbstractAtomClass extends AbstractComponentHasAttributes implements
     AtomClass {
 
   /** The descriptions. */
@@ -237,6 +237,7 @@ public class AbstractAtomClass extends AbstractComponentHasAttributes implements
     this.name = name;
   }
 
+ 
   /*
    * (non-Javadoc)
    * 

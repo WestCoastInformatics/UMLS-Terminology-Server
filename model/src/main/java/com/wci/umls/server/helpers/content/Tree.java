@@ -5,15 +5,13 @@ package com.wci.umls.server.helpers.content;
 
 import java.util.List;
 
-import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.helpers.HasMarkerSets;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
  * Represents a tree of {@link TreePosition} objects.
- *
- * @author ${author}
  */
-public interface Tree {
+public interface Tree extends HasMarkerSets {
 
   /**
    * Merge specified tree with this one.
@@ -56,15 +54,6 @@ public interface Tree {
    * @param child the child
    */
   public void addChild(Tree child);
-
-  /**
-   * Returns a full subtree with root matching atomclass a.
-   *
-   * @param terminologyId the terminology id
-   * @param ancestorPath the ancestor path matching this atomclass
-   * @return the subtree starting with the given atomclass
-   */
-  public Tree getSubTree(String terminologyId, String ancestorPath);
 
   /**
    * Returns the id.
@@ -163,13 +152,5 @@ public interface Tree {
    * @param childCt the child ct
    */
   public void setChildCt(int childCt);
-
-  
-  /**
-   * Sets fields from a tree position
-   *
-   * @param treePosition the from tree position
-   */
-  public void setFromTreePosition(TreePosition<? extends AtomClass> treePosition);
 
 }

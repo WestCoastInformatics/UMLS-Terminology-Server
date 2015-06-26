@@ -40,16 +40,33 @@ public interface PrecedenceList extends HasLastModified {
   public void setName(String name);
 
   /**
-   * Sets the source term types.
+   * Sets the terminology, term type tuples.
    * 
-   * @param precedence the source term types
+   * @param precedence the terminology, term type tuples
    */
   public void setPrecedence(KeyValuePairList precedence);
 
   /**
-   * Returns the source term types.
+   * Returns the terminology, term type tuples.
    * 
-   * @return the source term types
+   * @return the terminology, term type tuples
    */
   public KeyValuePairList getPrecedence();
+  
+  /**
+   * Adds the terminology, term type tuple to the end of the list.
+   *
+   * @param terminology the terminology
+   * @param termType the term type
+   */
+  public void addTerminologyTermType(String terminology, String termType);
+  
+  /**
+   * Removes the terminology, term type tuplefrom the list.
+   *
+   * @param terminology the terminology
+   * @param termType the term type
+   */
+  public void removeTerminologyTermType(String terminology, String termType);
+
 }

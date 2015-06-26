@@ -3,9 +3,6 @@
  */
 package com.wci.umls.server.jpa.lists;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -13,27 +10,28 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.ProxyTester;
-import com.wci.umls.server.helpers.content.Tree;
-import com.wci.umls.server.helpers.content.TreeList;
-import com.wci.umls.server.jpa.helpers.content.TreeJpa;
-import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
+import com.wci.umls.server.helpers.meta.MarkerSetList;
+import com.wci.umls.server.jpa.helpers.meta.MarkerSetListJpa;
+import com.wci.umls.server.jpa.meta.MarkerSetJpa;
+import com.wci.umls.server.model.meta.MarkerSet;
 
 /**
- * Unit testing for {@link TreeList}.
+ * Unit testing for {@link MarkerSetList}.
  */
-public class ListUnit028Test extends
-    AbstractListUnit<Tree> {
+public class ListUnit029Test extends
+    AbstractListUnit<MarkerSet> {
 
   /** test fixture . */
-  private TreeList list1;
+  private MarkerSetList list1;
 
   /** test fixture . */
-  private TreeList list2;
+  private MarkerSetList list2;
 
   /** test fixture. */
-  private Tree t1;
+  private MarkerSet ms1;
+
   /** test fixture. */
-  private Tree t2;
+  private MarkerSet ms2;
 
   /**
    * Setup class.
@@ -50,21 +48,12 @@ public class ListUnit028Test extends
    */
   @Before
   public void setup() throws Exception {
-    list1 = new TreeListJpa();
-    list2 = new TreeListJpa();
-
-    ProxyTester tester = new ProxyTester(new TreeJpa());
-    t1 = (TreeJpa) tester.createObject(1);
-    TreeJpa t11 = (TreeJpa) tester.createObject(11);
-    t2 = (TreeJpa) tester.createObject(1);
-    TreeJpa t22 = (TreeJpa) tester.createObject(22);
-    List<Tree> list = new ArrayList<>();
-    list.add(t11);    
-    t1.setChildren(list);
-    list = new ArrayList<>();
-    list.add(t22);    
-    t2.setChildren(list);
-
+    list1 = new MarkerSetListJpa();
+    list2 = new MarkerSetListJpa();
+    
+    ProxyTester tester = new ProxyTester(new MarkerSetJpa());
+    ms1 = (MarkerSet) tester.createObject(1);
+    ms2 = (MarkerSet) tester.createObject(2);
   }
 
   /**
@@ -73,7 +62,7 @@ public class ListUnit028Test extends
    */
   @Test
   public void testNormalUse026() throws Exception {
-    testNormalUse(list1, list2, t1, t2);
+    testNormalUse(list1, list2, ms1, ms2);
   }
 
   /**
@@ -84,7 +73,7 @@ public class ListUnit028Test extends
    */
   @Test
   public void testDegenerateUse026() throws Exception {
-    testDegenerateUse(list1, list2, t1, t2);
+    testDegenerateUse(list1, list2, ms1, ms2);
   }
 
   /**
@@ -94,8 +83,8 @@ public class ListUnit028Test extends
    */
   @Test
   public void testEdgeCases026() throws Exception {
-    testEdgeCases(list1, list2, t1, t2);
-    list1 = new TreeListJpa();
+    testEdgeCases(list1, list2, ms1, ms2);
+    list1 = new MarkerSetListJpa();
 
   }
 
@@ -107,7 +96,7 @@ public class ListUnit028Test extends
    */
   @Test
   public void testXmlSerialization026() throws Exception {
-    testXmllSerialization(list1, list2, t1, t2);
+    testXmllSerialization(list1, list2, ms1, ms2);
   }
 
   /**

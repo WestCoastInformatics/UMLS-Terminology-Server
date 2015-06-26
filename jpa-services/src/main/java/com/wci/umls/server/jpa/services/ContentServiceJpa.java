@@ -4503,11 +4503,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug("  type = " + clazz.getName());
 
     // tree to return
-    Tree tree = new TreeJpa();
+    Tree tree = null;
     
     // the current tree variables (ancestor path and local tree)
     String partAncPath = "";    // initially top-level
-    Tree partTree = tree;       // initially the empty tree
+    Tree parentTree = tree;       // initially the empty tree
 
     // Prepare lucene
     FullTextEntityManager fullTextEntityManager =
@@ -4560,8 +4560,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 //      partTree.setTerminology(treePosition.getTerminology());
 //      partTree.setVersion(treePosition.getVersion());
 
-
-
       // original approach
       if (fullTextQuery.getResultSize() != 1) {
         throw new Exception("Unexpected number of results: "
@@ -4572,17 +4570,18 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           (TreePosition<? extends AtomClass>) fullTextQuery.getResultList()
               .get(0);
 
-      partTree.setFromTreePosition(treepos);
+      Tree partTree = new TreeJpa(treepos);
       
-      Tree nextPart = new TreeJpa();
+      if (tree == null) {
+        tree = partTree;
+      }
+
+      if (parentTree != null) {
+        parentTree.addChild(partTree);
+      }
       
-      // if not end of sequence, add the new blank object as a child)
-      if (!partId.equals(tpId)) {
-        partTree.addChild(nextPart);
-      }  
-      
-      // set current tree to the just constructed (blank) tree
-      partTree = nextPart;
+      // set parent tree to the just constructed
+      parentTree = partTree;
 
       partAncPath += (partAncPath.equals("") ? "" : "~");
       partAncPath += pathPart;
