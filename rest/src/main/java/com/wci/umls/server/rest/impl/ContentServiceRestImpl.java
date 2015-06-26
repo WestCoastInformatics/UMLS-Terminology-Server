@@ -2350,7 +2350,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // if only one child, dummy root not necessary
       if (returnTree.getChildren().size() == 1) {
-        Tree tree = dummyTree.getChildren().get(0);
+        Tree tree = returnTree.getChildren().get(0);
         tree.setTotalCount(returnTree.getTotalCount());
         return tree;
       }

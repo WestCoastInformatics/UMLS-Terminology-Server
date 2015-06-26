@@ -2251,13 +2251,12 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals(3, l.getCount());
     assertEquals(15, l.getTotalCount());
   }
-/*
- * TODO: Commented out after tree rework, reinclude
-  *//**
+
+  /**
    * Test find concept trees for query.
    *
    * @throws Exception the exception
-   *//*
+   */
   @Test
   public void testNormalUseRestContent027() throws Exception {
     Logger.getLogger(getClass()).info("Start test");
@@ -2267,13 +2266,12 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Tree tree =
         contentService.findConceptTreeForQuery(snomedTerminology,
             snomedVersion, "vitamin", new PfsParameterJpa(), authToken);
-    Logger.getLogger(getClass()).info(
-        "    total leaf count = " + tree.getLeafNodes().size());
-    assertEquals(5, tree.getLeafNodes().size());
+  
     Logger.getLogger(getClass()).info("    Result: " + tree);
+    
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
-    for (TreePosition<? extends AtomClass> leaf : tree.getLeafNodes()) {
-      assertTrue(leaf.getNode().getName().toLowerCase().contains("vitamin"));
+    for (Tree leaf : tree.getLeafNodes()) {
+      assertTrue(leaf.getName().toLowerCase().contains("vitamin"));
     }
 
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -2289,8 +2287,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals(3, tree.getLeafNodes().size());
     Logger.getLogger(getClass()).info("    Result: " + tree);
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
-    for (TreePosition<? extends AtomClass> leaf : tree.getLeafNodes()) {
-      assertTrue(leaf.getNode().getName().toLowerCase().contains("vitamin"));
+    for (Tree leaf : tree.getLeafNodes()) {
+      assertTrue(leaf.getName().toLowerCase().contains("vitamin"));
     }
 
     // wider lookup, limit to 10
@@ -2305,19 +2303,19 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals(9, tree.getLeafNodes().size());
     Logger.getLogger(getClass()).info("    Result: " + tree);
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
-    for (TreePosition<? extends AtomClass> leaf : tree.getLeafNodes()) {
-      assertTrue(leaf.getNode().getName().toLowerCase().contains("a"));
+    for (Tree leaf : tree.getLeafNodes()) {
+      assertTrue(leaf.getName().toLowerCase().contains("a"));
     }
 
     // TODO: consider other cases of this
 
   }
 
-  *//**
+ /**
    * Test find descriptor trees for query.
    *
    * @throws Exception the exception
-   *//*
+   */
   @Test
   public void testNormalUseRestContent028() throws Exception {
     Logger.getLogger(getClass()).info("Start test");
@@ -2332,8 +2330,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals(7, tree.getLeafNodes().size());
     Logger.getLogger(getClass()).info("    Result: " + tree);
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
-    for (TreePosition<? extends AtomClass> leaf : tree.getLeafNodes()) {
-      assertTrue(leaf.getNode().getName().toLowerCase().contains("pneumonia"));
+    for (Tree leaf : tree.getLeafNodes()) {
+      assertTrue(leaf.getName().toLowerCase().contains("pneumonia"));
     }
 
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -2349,13 +2347,13 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals(2, tree.getLeafNodes().size());
     Logger.getLogger(getClass()).info("    Result: " + tree);
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
-    for (TreePosition<? extends AtomClass> leaf : tree.getLeafNodes()) {
-      assertTrue(leaf.getNode().getName().toLowerCase().contains("pneumonia"));
+    for (Tree leaf : tree.getLeafNodes()) {
+      assertTrue(leaf.getName().toLowerCase().contains("pneumonia"));
     }
 
     // TODO: consider other cases of this, may need bigger data set
 
-  }*/
+  }
 
   /**
    * Test find code trees for query.
@@ -2368,6 +2366,41 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // n/a - no sample data
     // TODO: consider sample data from SAMPLE_2014AB
+  }
+  
+
+  /**
+   * Test "find" concept tree children
+   * @throws Exception
+   */
+  @Test
+  public void testNormalUseRestContent030() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+    
+    
+    
+  }
+  
+
+  /**
+   * Test "find" descriptors by query.
+   * @throws Exception
+   */
+  @Test
+  public void testNormalUseRestContent031() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+    
+  }
+  
+
+  /**
+   * Test "find" descriptors by query.
+   * @throws Exception
+   */
+  @Test
+  public void testNormalUseRestContent032() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+    
   }
 
   /**

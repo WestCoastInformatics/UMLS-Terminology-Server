@@ -272,32 +272,28 @@ public class TreeJpa implements Tree {
   public void addChild(Tree child) {
     this.children.add(child);
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#getSubTree(java.lang.String,
-   * java.lang.String)
-   */
+  
   @Override
-  public Tree getSubTree(String terminologyId, String ancestorPath) {
-
-    // call the helper
-    return getSubTreeForAtomClassHelper(this, ancestorPath);
-
-  }
-
-  /**
-   * Helper function to recursively check a tree for a matching subtree.
-   *
-   * @param tree the tree-portion to check
-   * @param ancestorPath the ancestor path to be matched
-   * @return the sub tree for atom class helper
-   */
-  @SuppressWarnings("static-method")
-  private Tree getSubTreeForAtomClassHelper(Tree tree, String ancestorPath) {
-    // TODO Decide if this is still necessary anyway
-    return null;
+  public List<Tree> getLeafNodes() {
+   
+    List<Tree> treesToProcess = new ArrayList<>();
+    treesToProcess.add(this);
+    
+    List<Tree> leafNodes = new ArrayList<>();
+    
+    while (treesToProcess.size() > 0) {
+      Tree node = treesToProcess.get(0);
+      if (node.getChildren().size() == 0) {
+        leafNodes.add(node);
+      } else {
+        for (Tree child : node.getChildren()) {
+          treesToProcess.add(child);
+        }
+      }
+    }
+    
+    return leafNodes;
+    
   }
 
   @Override

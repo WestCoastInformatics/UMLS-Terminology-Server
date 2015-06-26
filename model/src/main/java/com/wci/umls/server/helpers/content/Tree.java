@@ -58,15 +58,6 @@ public interface Tree {
   public void addChild(Tree child);
 
   /**
-   * Returns a full subtree with root matching atomclass a.
-   *
-   * @param terminologyId the terminology id
-   * @param ancestorPath the ancestor path matching this atomclass
-   * @return the subtree starting with the given atomclass
-   */
-  public Tree getSubTree(String terminologyId, String ancestorPath);
-
-  /**
    * Returns the id.
    *
    * @return the id
@@ -171,5 +162,12 @@ public interface Tree {
    * @param treePosition the from tree position
    */
   public void setFromTreePosition(TreePosition<? extends AtomClass> treePosition);
+
+  /**
+   * Returns all nodes as a list, sorted by ancestor pa th.
+   *
+   * @return the trees as list
+   */
+  public List<Tree> getLeafNodes() throws Exception;
 
 }
