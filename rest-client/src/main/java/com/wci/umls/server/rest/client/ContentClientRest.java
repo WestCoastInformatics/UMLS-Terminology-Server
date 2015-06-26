@@ -303,10 +303,9 @@ public class ContentClientRest extends RootClientRest implements
             + terminology
             + "/"
             + version
-            + "/query/"
-            + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
-                    "UTF-8").replaceAll("\\+", "%20")));
+            + "?query="
+            + URLEncoder.encode(query == null ? "" : query,
+                    "UTF-8").replaceAll("\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfsc == null ? new PfscParameterJpa()
             : pfsc);
@@ -339,24 +338,22 @@ public class ContentClientRest extends RootClientRest implements
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
-    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception {
+  public SearchResultList findConceptsForGeneralQuery(String query,
+    String hql, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find concepts " + luceneQuery + ", " + hqlQuery
+        "Content Client - find concepts " + query + ", " + hql
             + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
             + "/content/cui"
-            + "/luceneQuery/"
-            + (luceneQuery == null || luceneQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
-                    luceneQuery, "UTF8").replaceAll("\\+", "%20"))
-            + "/hqlQuery/"
-            + (hqlQuery == null || hqlQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(hqlQuery,
-                    "UTF8").replaceAll("\\+", "%20")));
+            + "?query=" 
+            + URLEncoder.encode(query == null ? "" : query,
+                "UTF-8").replaceAll("\\+", "%20")
+            + "?hql="
+            + URLEncoder.encode(hql == null ? "" : hql,
+                "UTF-8").replaceAll("\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -483,10 +480,9 @@ public class ContentClientRest extends RootClientRest implements
             + terminology
             + "/"
             + version
-            + "/query/"
-            + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
-                    "UTF-8").replaceAll("\\+", "%20")));
+            + "?query="
+            + URLEncoder.encode(query == null ? "" : query,
+                "UTF-8").replaceAll("\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfsc == null ? new PfscParameterJpa()
             : pfsc);
@@ -518,24 +514,22 @@ public class ContentClientRest extends RootClientRest implements
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
-    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception {
+  public SearchResultList findDescriptorsForGeneralQuery(String query,
+    String hql, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find descriptors " + luceneQuery + ", " + hqlQuery
+        "Content Client - find descriptors " + query + ", " + hql
             + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
             + "/content/dui"
-            + "/luceneQuery/"
-            + (luceneQuery == null || luceneQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
-                    luceneQuery, "UTF8").replaceAll("\\+", "%20"))
-            + "/hqlQuery/"
-            + (hqlQuery == null || hqlQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(hqlQuery,
-                    "UTF8").replaceAll("\\+", "%20")));
+            + "?query=" 
+            + URLEncoder.encode(query == null ? "" : query,
+                "UTF-8").replaceAll("\\+", "%20")
+            + "?hql="
+            + URLEncoder.encode(hql == null ? "" : hql,
+                "UTF-8").replaceAll("\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -660,10 +654,9 @@ public class ContentClientRest extends RootClientRest implements
             + terminology
             + "/"
             + version
-            + "/query/"
-            + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
-                    "UTF-8").replaceAll("\\+", "%20")));
+            + "?query="
+            + URLEncoder.encode(query == null ? "" : query,
+                "UTF-8").replaceAll("\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfsc == null ? new PfscParameterJpa()
             : pfsc);
@@ -696,24 +689,22 @@ public class ContentClientRest extends RootClientRest implements
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public SearchResultList findCodesForGeneralQuery(String luceneQuery,
-    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception {
+  public SearchResultList findCodesForGeneralQuery(String query,
+    String hql, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find codes " + luceneQuery + ", " + hqlQuery + ", "
+        "Content Client - find codes " + query + ", " + hql + ", "
             + pfs);
 
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
             + "/content/code"
-            + "/luceneQuery/"
-            + (luceneQuery == null || luceneQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(
-                    luceneQuery, "UTF8").replaceAll("\\+", "%20"))
-            + "/hqlQuery/"
-            + (hqlQuery == null || hqlQuery.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(hqlQuery,
-                    "UTF8").replaceAll("\\+", "%20")));
+            + "?query=" 
+            + URLEncoder.encode(query == null ? "" : query,
+                "UTF-8").replaceAll("\\+", "%20")
+            + "?hql="
+            + URLEncoder.encode(hql == null ? "" : hql,
+                "UTF-8").replaceAll("\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1418,10 +1409,10 @@ public class ContentClientRest extends RootClientRest implements
             + terminology
             + "/"
             + version
-            + "/members/query/"
-            + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
-                    "UTF-8")));
+            + "/members"
+            + "?query="
+            + URLEncoder.encode(query == null ? "" : query,
+                "UTF-8").replaceAll("\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1472,10 +1463,10 @@ public class ContentClientRest extends RootClientRest implements
             + terminology
             + "/"
             + version
-            + "/members/query/"
-            + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
-                    "UTF-8").replaceAll("\\+", "%20")));
+            + "/members"
+            + "?query="
+            + URLEncoder.encode(query == null ? "" : query,
+                "UTF-8").replaceAll("\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1642,10 +1633,10 @@ public class ContentClientRest extends RootClientRest implements
             + version
             + "/"
             + terminologyId
-            + "/relationships/query/"
-            + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
-                    "UTF-8").replaceAll("\\+", "%20")));
+            + "/relationships"
+            + "?query="
+            + URLEncoder.encode(query == null ? "" : query,
+                "UTF-8").replaceAll("\\+", "%20"));
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -1861,10 +1852,10 @@ public class ContentClientRest extends RootClientRest implements
             + terminology
             + "/"
             + version
-            + "/trees/query/"
-            + (query == null || query.isEmpty()
-                ? ContentServiceRest.QUERY_BLANK : URLEncoder.encode(query,
-                    "UTF-8").replaceAll("\\+", "%20")));
+            + "/trees"
+            + "?query="
+            + URLEncoder.encode(query == null ? "" : query,
+                "UTF-8").replaceAll("\\+", "%20"));
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()

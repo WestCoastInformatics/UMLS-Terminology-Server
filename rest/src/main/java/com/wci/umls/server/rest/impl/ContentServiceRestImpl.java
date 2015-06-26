@@ -14,6 +14,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
@@ -747,24 +748,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/query/{query}")
+  @Path("/cui/{terminology}/{version}")
   @ApiOperation(value = "Find concepts matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultList.class)
   public SearchResultList findConceptsForQuery(
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
-    String queryStr = query;
-    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      queryStr = "";
-    }
+    String queryStr = query == null ? "" : query;
+
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version
-            + "/query/" + queryStr + " with PFS parameter "
+            + "?query=" + queryStr + " with PFS parameter "
             + (pfsc == null ? "empty" : pfsc.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -793,28 +792,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/cui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
+  @Path("/cui")
   @ApiOperation(value = "Find concepts matching a lucene or hql search query", notes = "Gets a list of search results that match the lucene or hql query for the root branch", response = SearchResultList.class)
   public SearchResultList findConceptsForGeneralQuery(
-    @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
-    @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
+    @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "HQL Query", required = true) @QueryParam("hql") String hql,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
-    String luceneQueryStr = luceneQuery;
-    if (luceneQuery == null
-        || luceneQuery.equals(ContentServiceRest.QUERY_BLANK)) {
-      luceneQueryStr = "";
-    }
-    String hqlQueryStr = hqlQuery;
-    if (hqlQuery == null || hqlQuery.equals(ContentServiceRest.QUERY_BLANK)) {
-      hqlQueryStr = "";
-    }
+    String queryStr = query == null ? "" : query;
+    String hqlStr = hql == null ? "" : hql;
+
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui/" + "/luceneQuery/" + luceneQueryStr
-            + "/hqlQuery/" + hqlQueryStr + " with PFS parameter "
+        "RESTful call (Content): /cui?" + "query=" + queryStr
+            + "&hql=" + hqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -822,8 +815,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findConceptsForGeneralQuery(luceneQueryStr,
-              hqlQueryStr, Branch.ROOT, pfs);
+          contentService.findConceptsForGeneralQuery(queryStr,
+              hqlStr, Branch.ROOT, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -844,28 +837,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/code/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}")
+  @Path("/code")
   @ApiOperation(value = "Find codes matching a lucene or hql search query", notes = "Gets a list of search results that match the lucene or hql query for the root branch", response = SearchResultList.class)
   public SearchResultList findCodesForGeneralQuery(
-    @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
-    @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
+    @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "HQL Query", required = true) @QueryParam("hql") String hql,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
-    String luceneQueryStr = luceneQuery;
-    if (luceneQuery == null
-        || luceneQuery.equals(ContentServiceRest.QUERY_BLANK)) {
-      luceneQueryStr = "";
-    }
-    String hqlQueryStr = hqlQuery;
-    if (hqlQuery == null || hqlQuery.equals(ContentServiceRest.QUERY_BLANK)) {
-      hqlQueryStr = "";
-    }
+    String queryStr = query == null ? "" : query;
+    String hqlStr = hql == null ? "" : hql;
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /code/" + "/luceneQuery/" + luceneQueryStr
-            + "/hqlQuery/" + hqlQueryStr + " with PFS parameter "
+        "RESTful call (Content): /code?" + "query=" + queryStr
+            + "&hql=" + hqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -873,7 +859,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findCodesForGeneralQuery(luceneQueryStr, hqlQueryStr,
+          contentService.findCodesForGeneralQuery(queryStr, hqlStr,
               Branch.ROOT, pfs);
       return sr;
 
@@ -985,24 +971,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/query/{query}")
+  @Path("/dui/{terminology}/{version}")
   @ApiOperation(value = "Find descriptors matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultList.class)
   public SearchResultList findDescriptorsForQuery(
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
-    String queryStr = query;
-    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      queryStr = "";
-    }
+    String queryStr = query == null ? "" : query;
+
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version
-            + "/query/" + queryStr + " with PFS parameter "
+            + "?query=" + queryStr + " with PFS parameter "
             + (pfsc == null ? "empty" : pfsc.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1032,28 +1016,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/dui/luceneQuery/{luceneQuery}/hqlQuery/{hqlQuery}/")
+  @Path("/dui/")
   @ApiOperation(value = "Find descriptors matching a lucene or hql search query", notes = "Gets a list of search results that match the lucene or hql query for the root branch", response = SearchResultList.class)
   public SearchResultList findDescriptorsForGeneralQuery(
-    @ApiParam(value = "Lucene Query", required = true) @PathParam("luceneQuery") String luceneQuery,
-    @ApiParam(value = "HQL Query", required = true) @PathParam("hqlQuery") String hqlQuery,
+    @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "HQL Query", required = true) @QueryParam("hql") String hql,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
-    String luceneQueryStr = luceneQuery;
-    if (luceneQuery == null
-        || luceneQuery.equals(ContentServiceRest.QUERY_BLANK)) {
-      luceneQueryStr = "";
-    }
-    String hqlQueryStr = hqlQuery;
-    if (hqlQuery == null || hqlQuery.equals(ContentServiceRest.QUERY_BLANK)) {
-      hqlQueryStr = "";
-    }
+    String queryStr = query == null ? "" : query;
+    String hqlStr = hql == null ? "" : hql;
+
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui/" + "/luceneQuery/" + luceneQueryStr
-            + "/hqlQuery/" + hqlQueryStr + " with PFS parameter "
+        "RESTful call (Content): /dui" + "?query=" + queryStr
+            + "&hql=" + hqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1061,8 +1039,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findDescriptorsForGeneralQuery(luceneQueryStr,
-              hqlQueryStr, Branch.ROOT, pfs);
+          contentService.findDescriptorsForGeneralQuery(queryStr,
+              hqlStr, Branch.ROOT, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1171,24 +1149,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/code/{terminology}/{version}/query/{query}")
+  @Path("/code/{terminology}/{version}")
   @ApiOperation(value = "Find codes matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultList.class)
   public SearchResultList findCodesForQuery(
     @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code terminology version, e.g. 2014AB", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfscParameterJpa pfsc,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
-    String queryStr = query;
-    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      queryStr = "";
-    }
+    String queryStr = query == null ? "" : query;
+
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version
-            + "/query/" + queryStr + " with PFS parameter "
+            + "?query=" + queryStr + " with PFS parameter "
             + (pfsc == null ? "empty" : pfsc.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1750,24 +1726,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
+  @Path("/cui/{terminology}/{version}/{terminologyId}/relationships")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given concept id", response = RelationshipList.class)
   public RelationshipList findRelationshipsForConcept(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships/query/" + query);
-    String queryStr = query;
-    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      queryStr = "";
-    }
+            + terminologyId + "/relationships?query=" + query);
+    String queryStr = query == null ? "" : query;
 
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1847,24 +1820,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
+  @Path("/dui/{terminology}/{version}/{terminologyId}/relationships")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given descriptor id", response = RelationshipList.class)
   public RelationshipList findRelationshipsForDescriptor(
     @ApiParam(value = "Descriptor terminology id, e.g. D042033", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor terminology version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    String queryStr = query;
-    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      queryStr = "";
-    }
+    String queryStr = query == null ? "" : query;
+
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships/query/" + queryStr);
+            + terminologyId + "/relationships?query=" + queryStr);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
@@ -1902,24 +1873,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/code/{terminology}/{version}/{terminologyId}/relationships/query/{query}")
+  @Path("/code/{terminology}/{version}/{terminologyId}/relationships")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given code id", response = RelationshipList.class)
   public RelationshipList findRelationshipsForCode(
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    String queryStr = query;
-    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      queryStr = "";
-    }
+    String queryStr = query == null ? "" : query;
+
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version + "/"
-            + terminologyId + "/relationships/query" + queryStr);
+            + terminologyId + "/relationships?query=" + queryStr);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken,
@@ -2039,25 +2008,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   })
   @Override
   @POST
-  @Path("/aui/subset/{subsetId}/{terminology}/{version}/members/query/{query}")
+  @Path("/aui/subset/{subsetId}/{terminology}/{version}/members")
   @ApiOperation(value = "Find atom subset members", notes = "Get the members for the indicated atom subset", response = SubsetMemberList.class)
   public SubsetMemberList findAtomSubsetMembers(
     @ApiParam(value = "Subset id, e.g. 341823003", required = true) @PathParam("subsetId") String subsetId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'iron'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
-    String queryStr = query;
-    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      queryStr = "";
-    }
+    String queryStr = query == null ? "" : query;
+
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /aui/subset/" + subsetId + "/" + terminology
-            + "/" + version + "/members/query/" + queryStr);
+            + "/" + version + "/members?query=" + queryStr);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find atom subset members",
@@ -2090,25 +2057,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/cui/subset/{subsetId}/{terminology}/{version}/members/query/{query}")
+  @Path("/cui/subset/{subsetId}/{terminology}/{version}/members")
   @ApiOperation(value = "Find concept subset members", notes = "Get the members for the indicated concept subset", response = SubsetMemberList.class)
   public SubsetMemberList findConceptSubsetMembers(
     @ApiParam(value = "Subset id, e.g. 341823003", required = true) @PathParam("subsetId") String subsetId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query, e.g. 'iron'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
-    String queryStr = query;
-    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      queryStr = "";
-    }
+    String queryStr = query == null ? "" : query;
+
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/subset/" + subsetId + "/" + terminology
-            + "/" + version + "/members/query/" + queryStr);
+            + "/" + version + "/members?query=" + queryStr);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find concept subset members",
@@ -2294,24 +2259,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/cui/{terminology}/{version}/trees/query/{query}")
+  @Path("/cui/{terminology}/{version}/trees")
   @ApiOperation(value = "Find concept trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = Tree.class)
   public Tree findConceptTreeForQuery(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
-    String queryStr = query;
-    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      queryStr = "";
-    }
+    String queryStr = query == null ? "" : query;
+
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /cui/" + terminology + "/" + version
-            + "/trees/query/" + query);
+            + "/trees?query=" + query);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find trees for the concept",
@@ -2386,24 +2349,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/dui/{terminology}/{version}/trees/query/{query}")
+  @Path("/dui/{terminology}/{version}/trees")
   @ApiOperation(value = "Find descriptor trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = Tree.class)
   public Tree findDescriptorTreeForQuery(
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @QueryParam("query") String query,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
-    String queryStr = query;
-    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      queryStr = "";
-    }
+    String queryStr = query == null ? "" : query;
+
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /dui/" + terminology + "/" + version
-            + "/trees/query/" + query);
+            + "/trees?query=" + query);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find trees for the descriptor",
@@ -2478,7 +2439,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
    */
   @Override
   @POST
-  @Path("/code/{terminology}/{version}/trees/query/{query}")
+  @Path("/code/{terminology}/{version}/trees")
   @ApiOperation(value = "Find code trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = Tree.class)
   public Tree findCodeTreeForQuery(
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -2489,13 +2450,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     // Fix query
-    String queryStr = query;
-    if (query == null || query.equals(ContentServiceRest.QUERY_BLANK)) {
-      queryStr = "";
-    }
+    String queryStr = query == null ? "" : query;
     Logger.getLogger(getClass()).info(
         "RESTful call (Content): /code/" + terminology + "/" + version
-            + "/trees/query/" + query);
+            + "/trees?query=" + query);
     ContentService contentService = new ContentServiceJpa();
     try {
       authenticate(securityService, authToken, "find trees for the code",

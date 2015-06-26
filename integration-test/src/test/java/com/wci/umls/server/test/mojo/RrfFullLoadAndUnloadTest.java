@@ -68,8 +68,17 @@ public class RrfFullLoadAndUnloadTest {
    *   TEST: verify there is a project with the expected name
    * Start an editing cycle for "UMLS"
    *   TEST: verify there is a release info with the expected name and "planned" flag equal to true.
-   * Remove all terminologies
-   *   TEST: verify there is a concepts table with no contents.
+   * Remove SNOMEDCTUS, MSH, SRC, MTH, then UMLS
+   *   TEST: verify there is a concepts table with no contents for the respective sources
+   * Run the RRF-single mojo against the sample config/src/resources/data/SCTMSH_2014AB" data.
+   *   TEST: verify each content table exists with the expected number of entries.
+   * Create a "SNOMEDCT_US" project (name="Sample Project" description="Sample project." terminology=SNOMEDCT_US version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
+   *   TEST: verify there is a project with the expected name
+   * Start an editing cycle for "SNOMEDCT_US"
+   *   TEST: verify there is a release info with the expected name and "planned" flag equal to true.
+   * Remove SNOMEDCTUS
+   *   TEST: verify there is a concepts table with no contents
+   * Re-run "createdb" to restore database to initial state
    * </pre>
    * @throws Exception the exception
    */
@@ -109,11 +118,11 @@ public class RrfFullLoadAndUnloadTest {
 
     // Verify no contents
     ContentService service = new ContentServiceJpa();
-    Assert.assertEquals(0, 
-        service.getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
+    Assert.assertEquals(0, service
+        .getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
-    
+
     // Load RF2 full
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
@@ -139,7 +148,8 @@ public class RrfFullLoadAndUnloadTest {
         service.getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
     // Test a non-UMLS terminology too
     Assert.assertEquals(3902,
-        service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT).getCount());
+        service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT)
+            .getCount());
     service.close();
     service.closeFactory();
 
@@ -147,7 +157,8 @@ public class RrfFullLoadAndUnloadTest {
     HistoryService historyService = new HistoryServiceJpa();
     Assert.assertNotNull(historyService.getReleaseInfo("UMLS", "latest"));
     // also, release infos should exist for other SABs.
-    Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US", "2014_09_01"));
+    Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US",
+        "2014_09_01"));
     historyService.close();
     historyService.closeFactory();
 
@@ -182,7 +193,8 @@ public class RrfFullLoadAndUnloadTest {
           && project.getScopeDescendantsFlag()
           && project.getTerminology().equals("UMLS")
           && project.getVersion().equals("latest")) {
-        // Scope ignored for now -  && project.getScopeConcepts().iterator().next().equals("138875005")) {
+        // Scope ignored for now - &&
+        // project.getScopeConcepts().iterator().next().equals("138875005")) {
         found = true;
       }
     }
@@ -216,7 +228,7 @@ public class RrfFullLoadAndUnloadTest {
       throw result.getExecutionException();
     }
 
-    // Verify release info for 20160131 as "planned"
+    // Verify release info for 2015AA as "planned"
     // Verify release info
     historyService = new HistoryServiceJpa();
     Assert.assertNotNull(historyService.getReleaseInfo("UMLS", "2015AA"));
@@ -227,7 +239,6 @@ public class RrfFullLoadAndUnloadTest {
     historyService.close();
     historyService.closeFactory();
 
-    // TODO: implement this properly (e.g. foreign key constraint issues) and redo.
     // Remove terminology
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/remover/pom.xml"));
@@ -247,10 +258,11 @@ public class RrfFullLoadAndUnloadTest {
 
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(0, service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT).getCount());
+    Assert.assertEquals(0,
+        service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT)
+            .getCount());
     service.close();
     service.closeFactory();
-
 
     // Remove MSH terminology
     request = new DefaultInvocationRequest();
@@ -270,12 +282,17 @@ public class RrfFullLoadAndUnloadTest {
     }
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(0, service.getAllConcepts("MSH", "2015_2014_09_08", Branch.ROOT).getCount());
-    Assert.assertEquals(0, service.getAllDescriptors("MSH", "2015_2014_09_08", Branch.ROOT).getCount());
-    Assert.assertEquals(0, service.getAllCodes("MSH", "2015_2014_09_08", Branch.ROOT).getCount());
+    Assert.assertEquals(0,
+        service.getAllConcepts("MSH", "2015_2014_09_08", Branch.ROOT)
+            .getCount());
+    Assert.assertEquals(0,
+        service.getAllDescriptors("MSH", "2015_2014_09_08", Branch.ROOT)
+            .getCount());
+    Assert.assertEquals(0,
+        service.getAllCodes("MSH", "2015_2014_09_08", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
-    
+
     // Remove SRC terminology
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/remover/pom.xml"));
@@ -294,10 +311,187 @@ public class RrfFullLoadAndUnloadTest {
     }
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(0, service.getAllConcepts("SRC", "latest", Branch.ROOT).getCount());
+    Assert.assertEquals(0, service.getAllConcepts("MTH", "latest", Branch.ROOT)
+        .getCount());
     service.close();
     service.closeFactory();
-    
+
+    // Remove SRC terminology
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/remover/pom.xml"));
+    request.setProfiles(Arrays.asList("Terminology"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("terminology", "MTH");
+    p.setProperty("version", "latest");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+    // Verify no contents
+    service = new ContentServiceJpa();
+    Assert.assertEquals(0, service.getAllConcepts("MTH", "latest", Branch.ROOT)
+        .getCount());
+    service.close();
+    service.closeFactory();
+
+    // Remove UMLS terminology
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/remover/pom.xml"));
+    request.setProfiles(Arrays.asList("Terminology"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("terminology", "UMLS");
+    p.setProperty("version", "latest");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+    // Verify no contents
+    service = new ContentServiceJpa();
+    Assert.assertEquals(0, service.getAllConcepts("UMLS", "latest", Branch.ROOT)
+        .getCount());
+    service.close();
+    service.closeFactory();
+
+
+    // Load RF2 full
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/loader/pom.xml"));
+    request.setProfiles(Arrays.asList("RRF-single"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("terminology", "SNOMEDCT_US");
+    p.setProperty("version", "latest");
+    p.setProperty("input.dir",
+        "../../config/src/main/resources/data/SCTMSH_2014AB");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+
+    // Verify expected contents
+    service = new ContentServiceJpa();
+    Assert.assertEquals(3902,
+        service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT)
+            .getCount());
+    service.close();
+    service.closeFactory();
+
+    // Verify release info
+    Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US",
+        "latest"));
+    historyService.close();
+    historyService.closeFactory();
+
+    // Add a SNOMEDCT_US project
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/loader/pom.xml"));
+    request.setProfiles(Arrays.asList("Project"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("name", "Sample project");
+    p.setProperty("description", "Sample project.");
+    p.setProperty("terminology", "SNOMEDCT_US");
+    p.setProperty("version", "latest");
+    // scope ignored for now
+    p.setProperty("scope.descendants.flag", "true");
+    p.setProperty("admin.user", "admin");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+
+    // Verify project exists
+    projectService = new ProjectServiceJpa();
+    found = false;
+    for (Project project : projectService.getProjects().getObjects()) {
+      if (project.getName().equals("Sample project")
+          && project.getDescription().equals("Sample project.")
+          && project.getScopeDescendantsFlag()
+          && project.getTerminology().equals("SNOMEDCT_US")
+          && project.getVersion().equals("latest")) {
+        // Scope ignored for now - &&
+        // project.getScopeConcepts().iterator().next().equals("138875005")) {
+        found = true;
+      }
+    }
+    Assert.assertTrue(found);
+    projectService.close();
+    projectService.closeFactory();
+
+    // Start SNOMEDCT editing cycle
+
+    // Add a SNOMEDCT project
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/release/pom.xml"));
+    request.setProfiles(Arrays.asList("StartEditingCycle"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("release.version", "20150131");
+    p.setProperty("terminology", "SNOMEDCT_US");
+    p.setProperty("version", "latest");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+
+    // Verify release info for 2015AA as "planned"
+    // Verify release info
+    historyService = new HistoryServiceJpa();
+    Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US", "20150131"));
+    Assert.assertFalse(historyService.getReleaseInfo("SNOMEDCT_US", "20150131")
+        .isPublished());
+    Assert.assertTrue(historyService.getReleaseInfo("SNOMEDCT_US", "20150131")
+        .isPlanned());
+    historyService.close();
+    historyService.closeFactory();
+
+    // Remove terminology
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/remover/pom.xml"));
+    request.setProfiles(Arrays.asList("Terminology"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("terminology", "SNOMEDCT_US");
+    p.setProperty("version", "latest");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+
+    // Verify no contents
+    service = new ContentServiceJpa();
+    Assert.assertEquals(0,
+        service.getAllConcepts("SNOMEDCT_US", "latest", Branch.ROOT)
+            .getCount());
+    service.close();
+    service.closeFactory();
+   
     // Finish by clearing the DB again
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));
