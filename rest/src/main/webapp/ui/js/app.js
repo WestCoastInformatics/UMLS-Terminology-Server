@@ -908,7 +908,7 @@ tsApp
               url : contentUrl
                 + getTypePrefix($scope.terminology.organizingClassType) + "/"
                 + $scope.terminology.terminology + "/"
-                + $scope.terminology.version + "/query/"
+                + $scope.terminology.version + "?query="
                 + encodeURIComponent(queryStr),
               method : "POST",
               dataType : "json",
@@ -1026,7 +1026,7 @@ tsApp
               url : contentUrl
                 + getTypePrefix($scope.terminology.organizingClassType) + "/"
                 + $scope.terminology.terminology + "/"
-                + $scope.terminology.version + "/trees/query/"
+                + $scope.terminology.version + "/trees?query="
                 + encodeURIComponent(queryStr),
               method : "POST",
               dataType : "json",
@@ -1718,7 +1718,7 @@ tsApp
             }
           }
           if (!query)
-            query = "~BLANK~";
+            query = "";
 
           var typePrefix = getTypePrefix($scope.componentType);
           var pfs = getPfs(page);
@@ -1758,7 +1758,7 @@ tsApp
               url : contentUrl + typePrefix + "/"
                 + $scope.component.terminology + "/" + $scope.component.version
                 + "/" + $scope.component.terminologyId
-                + "/relationships/query/" + query,
+                + "/relationships?query=" + query,
               method : "POST",
               dataType : "json",
               data : pfs,
