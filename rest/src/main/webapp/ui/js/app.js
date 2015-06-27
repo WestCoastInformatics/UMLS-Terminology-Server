@@ -654,7 +654,7 @@ tsApp
          */
         $scope.getTreeNodeExpansionState = function(tree) {
 
-          console.debug('getTreeNodeExpansionState', tree);
+         // console.debug('getTreeNodeExpansionState', tree);
 
           if (!tree)
             return null;
@@ -688,7 +688,7 @@ tsApp
 
         $scope.getTreeNodeIcon = function(tree, collapsed) {
 
-          console.debug('getTreeNodeIcon', tree, collapsed);
+          //console.debug('getTreeNodeIcon', tree, collapsed);
 
           // if childCt is zero, return leaf
           if (tree.childCt == 0)
@@ -766,7 +766,7 @@ tsApp
             startIndex = 0;
 
           // get the type prefix for displayed component
-          var typePrefix = getTypePrefix($scope.componentType);
+          var typePrefix = getTypePrefixFromTerminologyAndVersion(tree.terminology, tree.version);
 
           console.debug("getAndSetTreeChildren", tree, typePrefix);
 
@@ -1279,6 +1279,14 @@ tsApp
             return 'prefixErrorDetected';
           }
 
+        }
+        
+        /** Helper function to get type prefix from terminology details */
+        function getTypePrefixFromTerminologyAndVersion(terminology, version) {
+          for (var i = 0; i < $scope.terminologies.length; i++) {
+            if ($scope.terminologies[i].terminology === terminology && $scope.terminologies[i].version === version)
+              return getTypePrefix($scope.terminologies[i].organizingClassType);
+          }
         }
 
         /** Helper function to get the component type from the url prefix */
