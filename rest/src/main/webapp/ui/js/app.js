@@ -654,7 +654,7 @@ tsApp
          */
         $scope.getTreeNodeExpansionState = function(tree) {
 
-         // console.debug('getTreeNodeExpansionState', tree);
+          // console.debug('getTreeNodeExpansionState', tree);
 
           if (!tree)
             return null;
@@ -688,7 +688,7 @@ tsApp
 
         $scope.getTreeNodeIcon = function(tree, collapsed) {
 
-          //console.debug('getTreeNodeIcon', tree, collapsed);
+          // console.debug('getTreeNodeIcon', tree, collapsed);
 
           // if childCt is zero, return leaf
           if (tree.childCt == 0)
@@ -766,7 +766,8 @@ tsApp
             startIndex = 0;
 
           // get the type prefix for displayed component
-          var typePrefix = getTypePrefixFromTerminologyAndVersion(tree.terminology, tree.version);
+          var typePrefix = getTypePrefixFromTerminologyAndVersion(
+            tree.terminology, tree.version);
 
           console.debug("getAndSetTreeChildren", tree, typePrefix);
 
@@ -1280,11 +1281,12 @@ tsApp
           }
 
         }
-        
+
         /** Helper function to get type prefix from terminology details */
         function getTypePrefixFromTerminologyAndVersion(terminology, version) {
           for (var i = 0; i < $scope.terminologies.length; i++) {
-            if ($scope.terminologies[i].terminology === terminology && $scope.terminologies[i].version === version)
+            if ($scope.terminologies[i].terminology === terminology
+              && $scope.terminologies[i].version === version)
               return getTypePrefix($scope.terminologies[i].organizingClassType);
           }
         }
@@ -1387,7 +1389,7 @@ tsApp
 
           if (terminology == null)
             return;
-          
+
           for (var i = 0; i < $scope.metadata.length; i++) {
             // extract relationship types for convenience
             if ($scope.metadata[i].name === 'Relationship_Types') {
@@ -1397,10 +1399,10 @@ tsApp
               attributeNames = $scope.metadata[i].keyValuePair;
             }
             if ($scope.metadata[i].name === 'Term_Types') {
-            	termTypes = $scope.metadata[i].keyValuePair;
+              termTypes = $scope.metadata[i].keyValuePair;
             }
             if ($scope.metadata[i].name === 'Marker_Sets') {
-            	markerSets = $scope.metadata[i].keyValuePair;
+              markerSets = $scope.metadata[i].keyValuePair;
             }
             if ($scope.metadata[i].name === 'General_Metadata_Entries') {
               generalEntries = $scope.metadata[i].keyValuePair;
@@ -1462,43 +1464,43 @@ tsApp
 
         // get general entry name from its abbreviation
         $scope.getGeneralEntryValue = function(abbr) {
-            for (var i = 0; i < generalEntries.length; i++) {
-              if (generalEntries[i].key === abbr) {
-                return generalEntries[i].value;
-              }
+          for (var i = 0; i < generalEntries.length; i++) {
+            if (generalEntries[i].key === abbr) {
+              return generalEntries[i].value;
             }
-            return null
           }
+          return null
+        }
 
         $scope.getMarkerSetName = function(abbr) {
-            for (var i = 0; i < markerSets.length; i++) {
-              if (markerSets[i].key === abbr) {
-                return markerSets[i].value;
-              }
+          for (var i = 0; i < markerSets.length; i++) {
+            if (markerSets[i].key === abbr) {
+              return markerSets[i].value;
             }
-            return null
           }
+          return null
+        }
 
         $scope.getMarkerSetsValue = function(tree) {
-        	if (tree.markerSets == undefined) {
-        		console.debug("Undefined marker sets.");
-        		return;
-        	}
-        	if (tree.markerSets.length == 1) {
-        		return "Ancestor of content in:<br>&#x2022;&nbsp;" + 
-        		$scope.getMarkerSetName(tree.markerSets[0]);
-        		
-        	}
-        	var retVal = "Ancestor of content in:<br>";
-            for (var i = 0; i < tree.markerSets.length; i++) {
-            	if (i > 0) {
-            		retval += "<br>";
-            	}
-            	retVal += "&#x2022;&nbsp;" + $scope.getMarkerSetName(tree.markerSets[i]);
+          if (tree.markerSets == undefined) {
+            console.debug("Undefined marker sets.");
+            return;
+          }
+          if (tree.markerSets.length == 1) {
+            return "Ancestor of content in:<br>&#x2022;&nbsp;"
+              + $scope.getMarkerSetName(tree.markerSets[0]);
+
+          }
+          var retVal = "Ancestor of content in:<br>";
+          for (var i = 0; i < tree.markerSets.length; i++) {
+            if (i > 0) {
+              retval += "<br>";
             }
+            retVal += "&#x2022;&nbsp;"
+              + $scope.getMarkerSetName(tree.markerSets[i]);
+          }
         }
-        
-        
+
         // ////////////////////////////////////
         // Navigation History
         // ////////////////////////////////////
