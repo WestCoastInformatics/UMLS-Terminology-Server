@@ -482,4 +482,10 @@ public class TreeJpa implements Tree {
         + ", ancestorPath=" + ancestorPath + ", childCt=" + childCt
         + ", totalCount=" + totalCount + ", children=" + children + "]";
   }
+
+  @Override
+  public List<Tree> getLeafNodes() throws Exception {
+    // TODO Reimplement this, was lost in a merge (damn you Git!)
+    return null;
+  }
 }
