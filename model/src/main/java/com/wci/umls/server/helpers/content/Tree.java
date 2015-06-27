@@ -153,4 +153,11 @@ public interface Tree extends HasMarkerSets {
    */
   public void setChildCt(int childCt);
 
+  /**
+   * Returns all nodes as a list, sorted by ancestor pa th.
+   *
+   * @return the trees as list
+   */
+  public List<Tree> getLeafNodes() throws Exception;
+
 }
