@@ -5,7 +5,9 @@ package com.wci.umls.server.jpa.algo;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -63,6 +65,7 @@ public class MarkerSetMarkedParentAlgorithm extends ContentServiceJpa implements
     Logger.getLogger(getClass()).info("Start computing marked set");
     Logger.getLogger(getClass()).info("  subset = " + subset);
     setTransactionPerOperation(false);
+    beginTransaction();
     
     fireProgressEvent(0, "Starting...");
 
@@ -76,6 +79,7 @@ public class MarkerSetMarkedParentAlgorithm extends ContentServiceJpa implements
         getMarkerSets(subset.getTerminology(), subset.getVersion());
     for (MarkerSet set : list.getObjects()) {
       if (set.getAbbreviation().equals(subset.getTerminologyId())) {
+        Logger.getLogger(getClass()).info("  Use existing marker set =" + markerSet);
         markerSet = set;
         break;
       }
@@ -96,6 +100,7 @@ public class MarkerSetMarkedParentAlgorithm extends ContentServiceJpa implements
       markerSet.setTerminology(subset.getTerminology());
       markerSet.setVersion(subset.getVersion());
       addMarkerSet(markerSet);
+      Logger.getLogger(getClass()).info("  Create new marker set = " + markerSet);
     }
 
     SubsetMemberList members =
@@ -103,14 +108,31 @@ public class MarkerSetMarkedParentAlgorithm extends ContentServiceJpa implements
             subset.getTerminology(), subset.getVersion(), Branch.ROOT, "", null);
 
     // Go through each concept in the subset
-    int objectCt = 0;
-    for (@SuppressWarnings("rawtypes")
-    final SubsetMember member : members.getObjects()) {
+    // Look up and save all of the ancestors
+    // TODO: this can be more efficient with an HQL Query
+    Logger.getLogger(getClass()).info("  Lookup all ancestors");
+    Set<Long> conceptIds = new HashSet<>();
+    for (@SuppressWarnings("rawtypes") final SubsetMember member : members.getObjects()) {
       final Concept concept = (Concept) member.getMember();
+      for (Concept ancConcept : findAncestorConcepts(concept.getTerminologyId(), 
+          concept.getTerminology(), concept.getVersion(), false, Branch.ROOT, null).getObjects()) {
+        conceptIds.add(ancConcept.getId());
+      }
+    }
+    Logger.getLogger(getClass()).info("    count = " + conceptIds.size());
+
+    Logger.getLogger(getClass()).info("  Tag concepts with marker set");
+    int objectCt = 0;
+    for (Long id : conceptIds) {
+      final Concept concept =  getConcept(id);
       concept.addMarkerSet(markerSet.getAbbreviation());
       updateConcept(concept);
       logAndCommit(++objectCt);
     }
+
+    commitClearBegin();
+    
+    Logger.getLogger(getClass()).info("    count = " + objectCt);
   }
 
   /*

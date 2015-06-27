@@ -34,6 +34,7 @@ import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
+import com.wci.umls.server.jpa.algo.MarkerSetMarkedParentAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2FileSorter;
@@ -58,6 +59,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
@@ -497,6 +499,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
+    ContentService contentService = new ContentServiceJpa();
 
     try {
       authenticate(securityService, authToken, "start editing cycle",
@@ -552,6 +555,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo2.compute();
       algo2.close();
 
+      // Compute marker sets - after transitive closure
+      // for each subset, compute the marker set
+      for (Subset subset : contentService.getConceptSubsets(terminology,
+          version, Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isMarkerSubset()) {
+          Logger.getLogger(getClass()).info(
+              "  Create marker set for subset = " + subset);
+          MarkerSetMarkedParentAlgorithm algo3 =
+              new MarkerSetMarkedParentAlgorithm();
+          algo3.setSubset(conceptSubset);
+          algo3.compute();
+          algo3.close();
+        }
+      }
+
       // Clean-up
       readers.closeReaders();
       ConfigUtility
@@ -566,6 +585,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       handleException(e,
           "trying to load terminology snapshot from RF2 directory");
     } finally {
+      contentService.close();
       securityService.close();
     }
 
@@ -2442,7 +2462,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // if only one child, dummy root not necessary
       if (returnTree.getChildren().size() == 1) {
-        Tree tree = dummyTree.getChildren().get(0);
+        Tree tree = returnTree.getChildren().get(0);
         tree.setTotalCount(returnTree.getTotalCount());
         return tree;
       }
@@ -2534,7 +2554,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // if only one child, dummy root not necessary
       if (returnTree.getChildren().size() == 1) {
-        Tree tree = dummyTree.getChildren().get(0);
+        Tree tree = returnTree.getChildren().get(0);
         tree.setTotalCount(returnTree.getTotalCount());
         return tree;
       }

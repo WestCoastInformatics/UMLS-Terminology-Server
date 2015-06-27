@@ -251,7 +251,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     Map<String, String> msMap =
         getAbbreviationMap(getMarkerSets(terminology, version).getObjects());
     if (msMap != null) {
-      abbrMapList.put(MetadataKeys.Marker_Sets.toString(), attNameMap);
+      abbrMapList.put(MetadataKeys.Marker_Sets.toString(), msMap);
     }
 
     // Skip general metadata entries

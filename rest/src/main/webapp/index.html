@@ -444,7 +444,7 @@
                   ng-change="getPagedAtoms(atomsPage, atomsFilter)"></pagination>
 
                 <input class="input-filter" placeholder="Enter filter text"
-                  ng-show="pagedAtoms.totalCount > pageSize || atomsFilter"
+                  ng-show="component.atom.length > pageSize || atomsFilter"
                   type="text" ng-model="atomsFilter"
                   ng-model-options="{ debounce: 250 }"
                   ng-change="getPagedAtoms(atomsPage, atomsFilter)">

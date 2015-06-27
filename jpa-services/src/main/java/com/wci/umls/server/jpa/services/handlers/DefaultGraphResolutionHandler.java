@@ -64,7 +64,8 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     if (concept != null) {
       boolean nullId = concept.getId() == null;
       concept.setMembers(new ArrayList<ConceptSubsetMember>());
-
+      concept.getMarkerSets().size();
+      
       // Attributes
       resolveAttributes(concept, nullId);
 

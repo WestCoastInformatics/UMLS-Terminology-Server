@@ -107,6 +107,7 @@ public class TreeJpa implements Tree {
     this.childCt = treePosition.getChildCt();
     this.ancestorPath = treePosition.getAncestorPath();
     this.children = new ArrayList<>();
+    this.markerSets = treePosition.getNode().getMarkerSets();
   }
 
   /*
