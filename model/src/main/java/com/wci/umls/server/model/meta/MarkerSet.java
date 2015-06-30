@@ -25,4 +25,17 @@ public interface MarkerSet extends Abbreviation {
    */
   public void setDescription(String description);
 
+  /**
+   * Indicates whether or not marker for is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isMarkerFor();
+  
+  /**
+   * Sets the marker for.
+   *
+   * @param markerFor the marker for flag
+   */
+  public void setMarkerFor(boolean markerFor);
 }

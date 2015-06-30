@@ -15,7 +15,7 @@
 		<span
 			ng-bind-html="tree.terminologyId | highlight:componentQuery"> </span>
 	</a> <i ng-show="tree.markerSets.length > 0" class="glyphicon glyphicon-flag" 
-	tooltip-html-unsafe="{{getMarkerSetsValue(tree)}}"></i>
+	tooltip-html-unsafe="<div style='text-align:left;'>{{getMarkerSetsValue(tree)}}</div>"></i>
 	 <span ng-bind-html="tree.name | highlight:componentQuery"></span>
 
 	</span>

@@ -74,23 +74,40 @@ public class MarkerSetMarkedParentAlgorithm extends ContentServiceJpa implements
     }
 
     // Create the marker set and add it (unless it exists already)
+    MarkerSet ancestorMarkerSet = null;
     MarkerSet markerSet = null;
+
     MarkerSetList list =
         getMarkerSets(subset.getTerminology(), subset.getVersion());
     for (MarkerSet set : list.getObjects()) {
       if (set.getAbbreviation().equals(subset.getTerminologyId())) {
-        Logger.getLogger(getClass()).info("  Use existing marker set =" + markerSet);
-        markerSet = set;
+        Logger.getLogger(getClass()).info("  Use existing marker set =" + ancestorMarkerSet);
+        ancestorMarkerSet = set;
         break;
       }
     }
 
     // Add the marker set if null
-    if (markerSet == null) {
+    // Also add a marker set for the content itself
+    if (ancestorMarkerSet == null) {
       Date startDate = new Date();
+      ancestorMarkerSet = new MarkerSetJpa();
+      ancestorMarkerSet.setAbbreviation("MARKERFOR:" + subset.getTerminologyId());
+      ancestorMarkerSet.setDescription("Marked parent for " + subset.getName());
+      ancestorMarkerSet.setExpandedForm(subset.getName());
+      ancestorMarkerSet.setLastModified(startDate);
+      ancestorMarkerSet.setTimestamp(startDate);
+      ancestorMarkerSet.setLastModifiedBy("loader");
+      ancestorMarkerSet.setPublishable(false);
+      ancestorMarkerSet.setPublished(false);
+      ancestorMarkerSet.setTerminology(subset.getTerminology());
+      ancestorMarkerSet.setVersion(subset.getVersion());
+      ancestorMarkerSet.setMarkerFor(true);
+      addMarkerSet(ancestorMarkerSet);
+      Logger.getLogger(getClass()).info("  Create new marker set = " + ancestorMarkerSet);
       markerSet = new MarkerSetJpa();
       markerSet.setAbbreviation(subset.getTerminologyId());
-      markerSet.setDescription("Marked parent for " + subset.getName());
+      markerSet.setDescription("Concept in " + subset.getName());
       markerSet.setExpandedForm(subset.getName());
       markerSet.setLastModified(startDate);
       markerSet.setTimestamp(startDate);
@@ -99,6 +116,7 @@ public class MarkerSetMarkedParentAlgorithm extends ContentServiceJpa implements
       markerSet.setPublished(false);
       markerSet.setTerminology(subset.getTerminology());
       markerSet.setVersion(subset.getVersion());
+      markerSet.setMarkerFor(false);
       addMarkerSet(markerSet);
       Logger.getLogger(getClass()).info("  Create new marker set = " + markerSet);
     }
@@ -111,18 +129,31 @@ public class MarkerSetMarkedParentAlgorithm extends ContentServiceJpa implements
     // Look up and save all of the ancestors
     // TODO: this can be more efficient with an HQL Query
     Logger.getLogger(getClass()).info("  Lookup all ancestors");
+    Set<Long> ancestorConceptIds = new HashSet<>();
     Set<Long> conceptIds = new HashSet<>();
     for (@SuppressWarnings("rawtypes") final SubsetMember member : members.getObjects()) {
       final Concept concept = (Concept) member.getMember();
+      conceptIds.add(concept.getId());      
       for (Concept ancConcept : findAncestorConcepts(concept.getTerminologyId(), 
           concept.getTerminology(), concept.getVersion(), false, Branch.ROOT, null).getObjects()) {
-        conceptIds.add(ancConcept.getId());
+        ancestorConceptIds.add(ancConcept.getId());
       }
     }
-    Logger.getLogger(getClass()).info("    count = " + conceptIds.size());
+    Logger.getLogger(getClass()).info("    count = " + ancestorConceptIds.size());
 
     Logger.getLogger(getClass()).info("  Tag concepts with marker set");
     int objectCt = 0;
+    for (Long id : ancestorConceptIds) {
+      final Concept concept =  getConcept(id);
+      concept.addMarkerSet(ancestorMarkerSet.getAbbreviation());
+      updateConcept(concept);
+      logAndCommit(++objectCt);
+    }
+
+    commitClearBegin();
+
+    // concepts that are both in the set and ancestor of the set get both tags.
+    objectCt = 0;
     for (Long id : conceptIds) {
       final Concept concept =  getConcept(id);
       concept.addMarkerSet(markerSet.getAbbreviation());
@@ -131,7 +162,7 @@ public class MarkerSetMarkedParentAlgorithm extends ContentServiceJpa implements
     }
 
     commitClearBegin();
-    
+
     Logger.getLogger(getClass()).info("    count = " + objectCt);
   }
 
