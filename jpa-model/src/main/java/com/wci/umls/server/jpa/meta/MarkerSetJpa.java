@@ -29,6 +29,10 @@ public class MarkerSetJpa extends AbstractAbbreviation implements MarkerSet {
   @Column(nullable = false)
   private String description;
 
+  /** The marker for flag. */
+  @Column(nullable = false)
+  private boolean markerFor;
+
   /**
    * Instantiates an empty {@link MarkerSetJpa}.
    */
@@ -44,7 +48,7 @@ public class MarkerSetJpa extends AbstractAbbreviation implements MarkerSet {
   public MarkerSetJpa(MarkerSet markerSet) {
     super(markerSet);
     description = markerSet.getDescription();
-
+    markerFor = markerSet.isMarkerFor();
   }
 
   /*
@@ -79,6 +83,7 @@ public class MarkerSetJpa extends AbstractAbbreviation implements MarkerSet {
     int result = super.hashCode();
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
+    result = prime * result + (markerFor ? 1231 : 1237);
     return result;
   }
 
@@ -102,7 +107,8 @@ public class MarkerSetJpa extends AbstractAbbreviation implements MarkerSet {
         return false;
     } else if (!description.equals(other.description))
       return false;
-
+    if (markerFor != other.markerFor)
+      return false;
     return true;
   }
 
@@ -113,8 +119,28 @@ public class MarkerSetJpa extends AbstractAbbreviation implements MarkerSet {
    */
   @Override
   public String toString() {
-    return "MarkerSetJpa [" + super.toString() + ", description=" + description
-        + "]";
+    return "MarkerSetJpa [description=" + description + ", markerFor="
+        + markerFor + "]";
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.meta.MarkerSet#isMarkerFor()
+   */
+  @Override
+  public boolean isMarkerFor() {
+    return markerFor;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.meta.MarkerSet#setMarkerFor(boolean)
+   */
+  @Override
+  public void setMarkerFor(boolean markerFor) {
+    this.markerFor = markerFor;
   }
 
 }

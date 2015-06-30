@@ -19,7 +19,7 @@ public class SuppressibleBoost  implements BoostStrategy {
   public float defineBoost(Object value) {
     Component component = (Component)value;
     if ( !component.isSuppressible()) {   
-        return 5.0f;
+        return 10.0f;
     }
     else {
         return 1.0f;

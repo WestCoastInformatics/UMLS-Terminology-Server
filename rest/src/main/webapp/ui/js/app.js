@@ -1493,12 +1493,13 @@ tsApp
           }
           var retVal = "Ancestor of content in:<br>";
           for (var i = 0; i < tree.markerSets.length; i++) {
-            if (i > 0) {
-              retval += "<br>";
+        	  if (i > 0) {
+              retVal += "<br>";
             }
             retVal += "&#x2022;&nbsp;"
               + $scope.getMarkerSetName(tree.markerSets[i]);
           }
+          return retVal;
         }
 
         // ////////////////////////////////////
