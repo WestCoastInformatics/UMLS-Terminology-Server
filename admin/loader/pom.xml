@@ -187,6 +187,35 @@
       </build>
     </profile>
 
+    <!-- Load RF2 sample, specify -Drun.config=...  -->
+    <profile>
+      <id>RF2-sample</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wci.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>sample-rf2-snapshot</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>sample-rf2-snapshot</goal>
+                </goals>
+                <configuration>
+                  <inputDir>${input.dir}</inputDir>
+                  <inputFile>${input.file}</inputFile>
+                  <outputDir>${output.dir}</outputDir>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
     <!-- Load ClaML, specify -Drun.config.umls=... -Dterminology=... -->
     <profile>
       <id>ClaML</id>

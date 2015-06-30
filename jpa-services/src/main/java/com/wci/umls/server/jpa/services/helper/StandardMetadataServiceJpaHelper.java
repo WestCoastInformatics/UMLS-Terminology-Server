@@ -70,8 +70,8 @@ public class StandardMetadataServiceJpaHelper extends
     "unchecked"
   })
   @Override
-  public LanguageList getLanguages(String terminology,
-    String version) throws Exception {
+  public LanguageList getLanguages(String terminology, String version)
+    throws Exception {
     javax.persistence.Query query =
         manager
             .createQuery("SELECT r from LanguageJpa r where terminology = :terminology"
@@ -84,6 +84,7 @@ public class StandardMetadataServiceJpaHelper extends
     types.setTotalCount(types.getObjects().size());
     return types;
   }
+
   @SuppressWarnings("unchecked")
   @Override
   public PropertyChainList getPropertyChains(String terminology, String version)
@@ -289,11 +290,9 @@ public class StandardMetadataServiceJpaHelper extends
   public RelationshipTypeList getNonGroupingRelationshipTypes(
     String terminology, String version) throws Exception {
     javax.persistence.Query query =
-        manager
-            .createQuery("SELECT r from RelationshipTypeJpa r "
-                + " where groupingType = 0"
-                + " and terminology = :terminology"
-                + " and version = :version");
+        manager.createQuery("SELECT r from RelationshipTypeJpa r "
+            + " where groupingType = 0" + " and terminology = :terminology"
+            + " and version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     RelationshipTypeList types = new RelationshipTypeListJpa();
@@ -314,10 +313,8 @@ public class StandardMetadataServiceJpaHelper extends
   public GeneralMetadataEntryList getGeneralMetadataEntries(String terminology,
     String version) {
     javax.persistence.Query query =
-        manager
-            .createQuery("SELECT g from GeneralMetadataEntryJpa g"
-                + " where terminology = :terminology"
-                + " and version = :version");
+        manager.createQuery("SELECT g from GeneralMetadataEntryJpa g"
+            + " where terminology = :terminology" + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
@@ -337,11 +334,13 @@ public class StandardMetadataServiceJpaHelper extends
   @Override
   public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version) throws Exception {
-    javax.persistence.Query query =
-        manager
-            .createQuery("SELECT p from PrecedenceListJpa p"
-                + " where defaultList = 1");
 
+    javax.persistence.Query query =
+        manager.createQuery("SELECT p from PrecedenceListJpa p"
+            + " where defaultList = 1 and terminology = :terminology "
+            + " and version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
     return (PrecedenceList) query.getSingleResult();
   }
 
@@ -350,6 +349,5 @@ public class StandardMetadataServiceJpaHelper extends
     close();
     manager = factory.createEntityManager();
   }
-
 
 }

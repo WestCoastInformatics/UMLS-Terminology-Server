@@ -9,7 +9,7 @@ import com.wci.umls.server.model.meta.TermType;
  * Represents an ordered list of {@link TermType}s for use in computing atom
  * ranks.
  */
-public interface PrecedenceList extends HasLastModified {
+public interface PrecedenceList extends HasTerminology, HasLastModified {
 
   /**
    * Indicates whether or not default is the case.
@@ -69,4 +69,17 @@ public interface PrecedenceList extends HasLastModified {
    */
   public void removeTerminologyTermType(String terminology, String termType);
 
+  /**
+   * Returns the branch.
+   *
+   * @return the branch
+   */
+  public String getBranch();
+  
+  /**
+   * Sets the branch.
+   *
+   * @param branch the branch
+   */
+  public void setBranch(String branch);
 }

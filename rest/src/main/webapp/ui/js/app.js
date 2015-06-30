@@ -1439,7 +1439,7 @@ tsApp
               return relationshipTypes[i].value;
             }
           }
-          return null
+          return null;
         }
 
         // get attribute name name from its abbreviation
@@ -1449,7 +1449,7 @@ tsApp
               return attributeNames[i].value;
             }
           }
-          return null
+          return null;
         }
 
         // get term type name from its abbreviation
@@ -1459,7 +1459,7 @@ tsApp
               return termTypes[i].value;
             }
           }
-          return null
+          return null;
         }
 
         // get general entry name from its abbreviation
@@ -1469,7 +1469,7 @@ tsApp
               return generalEntries[i].value;
             }
           }
-          return null
+          return null;
         }
 
         $scope.getMarkerSetName = function(abbr) {
@@ -1478,7 +1478,16 @@ tsApp
               return markerSets[i].value;
             }
           }
-          return null
+          return null;
+        }
+
+        $scope.isMarkerFor = function(abbr) {
+          for (var i = 0; i < markerSets.length; i++) {
+            if (markerSets[i].key === abbr && markserSets[i].markerFor) {
+              return true;
+            }
+          }
+          return false;
         }
 
         $scope.getMarkerSetsValue = function(tree) {

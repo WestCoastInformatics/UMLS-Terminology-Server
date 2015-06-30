@@ -855,7 +855,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     PrecedenceList list = new PrecedenceListJpa();
     list.setDefaultList(true);
-
+    list.setTerminology(terminology);
+    list.setVersion(version);
+    
     List<KeyValuePair> lkvp = new ArrayList<>();
 
     Logger.getLogger(getClass()).info("  Load MRRANK data");
