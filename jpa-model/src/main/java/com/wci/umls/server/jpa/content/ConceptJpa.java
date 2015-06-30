@@ -20,11 +20,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
@@ -425,6 +427,8 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    * @see com.wci.umls.server.helpers.HasMarkerSets#getMarkerSets()
    */
   @Override
+  @FieldBridge(impl = CollectionToCsvBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public List<String> getMarkerSets() {
     return markerSets;
   }

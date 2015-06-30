@@ -3131,18 +3131,21 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     // execute the query
-    fullTextQuery.setProjection(FullTextQuery.SCORE, FullTextQuery.ID);
     @SuppressWarnings("unchecked")
-    List<T> classes = new ArrayList<>();
-    //List<T> classes = fullTextQuery.getResultList();
-    List<Object[]> obj = fullTextQuery.getResultList();
-    for (Object[] objArray : obj) {
-      Object score = objArray[0];
-      long id = (Long)objArray[1];
-      T t = getComponent( id, clazz); 
-      classes.add(t);
-      System.out.println(t.getName() + " = " + score);
-    }
+    List<T> classes = fullTextQuery.getResultList();
+
+    // Use this code to see the actual score values
+    // fullTextQuery.setProjection(FullTextQuery.SCORE, FullTextQuery.ID);
+    // List<T> classes = new ArrayList<>();
+    // List<Object[]> obj = fullTextQuery.getResultList();
+    // for (Object[] objArray : obj) {
+    // Object score = objArray[0];
+    // long id = (Long)objArray[1];
+    // T t = getComponent( id, clazz);
+    // classes.add(t);
+    // Logger.getLogger(getClass()).info(t.getName() + " = " + score);
+    // }
+
     return classes;
   }
 
@@ -3317,8 +3320,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         fullTextEntityManager.getSearchFactory().buildQueryBuilder()
             .forEntity(clazz).get();
 
-
-    // TODO:, try matching on   name with boost
+    // TODO:, try matching on name with boost
     Query query =
         titleQB.phrase().withSlop(2).onField(TITLE_NGRAM_INDEX)
             .andField(TITLE_EDGE_NGRAM_INDEX).boostedTo(5)
@@ -4660,7 +4662,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         throw new LocalException(
             "The specified search terms cannot be parsed.  Please check syntax and try again.");
       }
-      
+
       // If we get here, the query is fine.
     }
 
@@ -4685,7 +4687,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       // if start index and max results are set, set paging
       if (pfs.getStartIndex() >= 0 && pfs.getMaxResults() >= 0) {
         fullTextQuery.setFirstResult(pfs.getStartIndex());
-        fullTextQuery.setMaxResults(pfs.getMaxResults()*2);
+        fullTextQuery.setMaxResults(pfs.getMaxResults());
       }
 
       // if sort field is specified, set sort key

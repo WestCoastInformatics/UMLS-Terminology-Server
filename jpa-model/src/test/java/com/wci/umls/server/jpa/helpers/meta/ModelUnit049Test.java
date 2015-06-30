@@ -76,6 +76,7 @@ public class ModelUnit049Test {
     tester.include("terminology");
     tester.include("version");
     tester.include("description");
+    tester.include("markerFor");
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
@@ -129,6 +130,7 @@ public class ModelUnit049Test {
     tester.include("abbreviation");
     tester.include("expandedForm");
     tester.include("description");
+    tester.include("markerFor");
 
     assertTrue(tester.testNotNullFields());
   }
