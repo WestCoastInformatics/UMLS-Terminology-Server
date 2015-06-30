@@ -13,12 +13,9 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.algo.Algorithm;
-import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
-import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.services.helpers.ProgressEvent;
@@ -48,18 +45,6 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
 
   /** The keep inferred. */
   private boolean keepInferred = false;
-
-  /** The module id map. */
-  private Map<String, String> moduleIdMap = new HashMap<>();
-
-  /** The case significance id map. */
-  private Map<String, String> caseSignificanceIdMap = new HashMap<>();
-
-  /** The characteristic type id map. */
-  private Map<String, String> characteristicTypeIdMap = new HashMap<>();
-
-  /** The modifier id map. */
-  private Map<String, String> modifierIdMap = new HashMap<>();
 
   /** The chd par map. */
   Map<String, Set<String>> chdParMap = new HashMap<>();
@@ -129,11 +114,11 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
 
       int prevCt = -1;
       do {
-        prevCt = concepts.size(); 
-        
+        prevCt = concepts.size();
+
         readers.closeReaders();
         readers.openReaders();
-        
+
         // 3. Find metadata concepts (definitionStatusId, typeId,
         Logger.getLogger(getClass()).info("  Get metadata concepts");
         addConceptMetadata(concepts);
@@ -143,6 +128,9 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
         addDescriptionMetadata(concepts, descriptions);
         Logger.getLogger(getClass()).info(
             "    count (after descriptions) = " + concepts.size());
+        Logger.getLogger(getClass()).info(
+            "    count of descriptions (after descriptions) = "
+                + descriptions.size());
 
         addRelationshipMetadata(concepts);
         Logger.getLogger(getClass()).info(
@@ -186,6 +174,12 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
             "    count (after ancestors) = " + concepts.size());
         Logger.getLogger(getClass()).info("    prev count = " + prevCt);
 
+        if (concepts.contains("370570004")) {
+          Logger.getLogger(getClass()).info("Found 370570004");
+        }
+        if (descriptions.contains("1195863013"))
+          Logger.getLogger(getClass()).info("Found 1195863013");
+
       } while (concepts.size() != prevCt);
 
       // Set output concepts
@@ -212,20 +206,13 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       final String fields[] = line.split("\t");
-      final Concept concept = new ConceptJpa();
 
       if (!fields[0].equals("id")) { // header
 
-        concept.setTerminologyId(fields[0]);
-        concept.setLastModified(ConfigUtility.DATE_FORMAT.parse(fields[1]));
-        concept.setObsolete(!fields[2].equals("1"));
-        moduleIdMap.put(fields[0], fields[3].intern());
-        concept.setFullyDefined("900000000000073002".equals(fields[4]));
-
         // Add definition status id
-        if (concepts.contains(concept.getTerminologyId())) {
+        if (concepts.contains(fields[0])) {
           concepts.add(fields[3]);
-          concepts.add("900000000000073002");
+          concepts.add(fields[4]);
         }
       }
     }
@@ -247,28 +234,17 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       final String fields[] = line.split("\t");
-      final Atom atom = new AtomJpa();
 
       if (!fields[0].equals("id")) {
 
-        atom.setTerminologyId(fields[0]);
-        atom.setLastModified(ConfigUtility.DATE_FORMAT.parse(fields[1]));
-        atom.setObsolete(!fields[2].equals("1"));
-        moduleIdMap.put(fields[0], fields[3].intern());
-
-        atom.setLanguage(fields[5]);
-        atom.setTermType(fields[6]);
-        atom.setName(fields[7].intern());
-        caseSignificanceIdMap.put(fields[0], fields[8]);
-
         // If concept id matches, add description metadata
         if (concepts.contains(fields[4])) {
-          descriptions.add(atom.getTerminologyId());
+          descriptions.add(fields[0]);
           concepts.add(fields[3]);
-          concepts.add(atom.getTermType());
+          concepts.add(fields[6]);
           concepts.add(fields[8]);
         }
-        
+
       }
     }
   }
@@ -295,8 +271,8 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
           continue;
         }
 
-        // Add metadata for matching entries
-        if (concepts.contains(fields[4]) || concepts.contains(fields[5])) {
+        // Add metadata for matching entries - both concepts must be present
+        if (concepts.contains(fields[4]) && concepts.contains(fields[5])) {
           concepts.add(fields[3]);
           concepts.add(fields[7]);
           concepts.add(fields[8]);
@@ -603,12 +579,9 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
         final ConceptRelationship rel = new ConceptRelationshipJpa();
         rel.setTerminologyId(fields[0]);
         rel.setObsolete(!fields[2].equals("1"));
-        moduleIdMap.put(fields[0], fields[3]);
         rel.setRelationshipType(fields[7]); // typeId
         rel.setInferred(fields[8].equals("900000000000011006"));
         rel.setStated(fields[8].equals("900000000000010007"));
-        characteristicTypeIdMap.put(fields[0], fields[8]);
-        modifierIdMap.put(fields[0], fields[9]);
         // get concepts from cache, they just need to have ids
         final Concept sourceConcept = new ConceptJpa();
         sourceConcept.setTerminologyId(fields[4]);
@@ -618,9 +591,8 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
         rel.setTo(destinationConcept);
 
         // active inferred isa
-        if (rel.getRelationshipType().equals("116680003") && 
-            (rel.isInferred() || !keepInferred)
-            && !rel.isObsolete()) {
+        if (rel.getRelationshipType().equals("116680003")
+            && (rel.isInferred() || !keepInferred) && !rel.isObsolete()) {
           if (!chdParMap.containsKey(rel.getFrom().getTerminologyId())) {
             chdParMap.put(rel.getFrom().getTerminologyId(),
                 new HashSet<String>());

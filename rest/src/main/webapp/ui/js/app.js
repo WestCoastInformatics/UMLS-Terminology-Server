@@ -26,6 +26,16 @@ tsApp.filter('highlight', function($sce) {
   }
 })
 
+tsApp.filter('highlightMarker', function($sce) {
+  return function(text, phrase) {
+    if (text && phrase)
+      text = text.replace(new RegExp('(' + phrase + ')', 'gi'),
+        '<span style="background-color:#f9f9f9;">$1</span>')
+
+    return $sce.trustAsHtml(text)
+  }
+})
+
 tsApp
   .controller(
     'tsIndexCtrl',
@@ -899,7 +909,7 @@ tsApp
             startIndex : (page - 1) * $scope.pageSize,
             maxResults : $scope.pageSize,
             sortField : null,
-            queryRestriction : "(suppressible:false^5 OR suppressible:true)"
+            queryRestriction : null
           }
 
           // find concepts
@@ -1502,13 +1512,12 @@ tsApp
           }
           var retVal = "Ancestor of content in:<br>";
           for (var i = 0; i < tree.markerSets.length; i++) {
-        	  if (i > 0) {
-              retVal += "<br>";
+            if (i > 0) {
+              retval += "<br>";
             }
             retVal += "&#x2022;&nbsp;"
               + $scope.getMarkerSetName(tree.markerSets[i]);
           }
-          return retVal;
         }
 
         // ////////////////////////////////////

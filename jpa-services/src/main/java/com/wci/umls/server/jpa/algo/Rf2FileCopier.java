@@ -86,7 +86,7 @@ public class Rf2FileCopier {
     keyMap.put("sct2_Concept_", 0);
     keyMap.put("sct2_Relationship_", 4);
     keyMap.put("sct2_StatedRelationship_", 4);
-    keyMap.put("sct2_Description_", 4);
+    keyMap.put("sct2_Description_", 0);
     keyMap.put("sct2_TextDefinition_", 4);
     keyMap.put("Refset_Simple", 5);
     keyMap.put("AttributeValue", 5);
@@ -127,8 +127,16 @@ public class Rf2FileCopier {
         if (line.startsWith("id\t")) {
           out.println(line);
         }
-        // write matching rf2
-        if (concepts.contains(fields[index])
+        
+        // Relationship requires both ends to be connected
+        if (key.contains("Relationship")) {
+          if (concepts.contains(fields[index]) && concepts.contains(fields[5])) {
+            out.println(line);
+          } 
+        }
+        
+        // otherwise, just check the indexed field
+        else if (concepts.contains(fields[index])
             || descriptions.contains(fields[index])) {
           out.println(line);
         }

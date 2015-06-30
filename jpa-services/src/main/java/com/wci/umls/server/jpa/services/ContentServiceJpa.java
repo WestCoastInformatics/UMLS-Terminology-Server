@@ -23,6 +23,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -4655,7 +4656,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       try {
         // If we got here, try escaping the query and running it again.
         luceneQuery =
-            queryParser.parse(QueryParser.escape(pfsQuery.toString()));
+            queryParser.parse(QueryParserBase.escape(pfsQuery.toString()));
       } catch (ParseException e2) {
 
         Logger.getLogger(getClass()).info("  query = " + pfsQuery.toString());
