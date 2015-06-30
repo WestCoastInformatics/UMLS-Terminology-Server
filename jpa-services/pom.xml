@@ -89,11 +89,6 @@
       <artifactId>jackson-module-jaxb-annotations</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>au.csiro</groupId>
-      <artifactId>snorocket-snapi</artifactId>
-    </dependency>
-
     <!-- Unit tests -->
     <dependency>
       <groupId>junit</groupId>

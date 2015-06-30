@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -31,6 +32,14 @@ import com.wci.umls.server.model.content.Subset;
 @XmlRootElement(name = "conceptSubset")
 public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
 
+  /** The disjoint subset. */
+  @Column(nullable = false)
+  private boolean disjointSubset = false;
+
+  /** The markersubset. */
+  @Column(nullable = false)
+  private boolean markerSubset = false;
+
   /** The members. */
   @OneToMany(mappedBy = "subset", targetEntity = ConceptSubsetMemberJpa.class)
   private List<ConceptSubsetMember> members = null;
@@ -50,6 +59,8 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
    */
   public ConceptSubsetJpa(ConceptSubset subset, boolean deepCopy) {
     super(subset, deepCopy);
+    disjointSubset = subset.isDisjointSubset();
+    markerSubset = subset.isMarkerSubset();
     if (deepCopy) {
       for (ConceptSubsetMember member : subset.getMembers()) {
         addMember(new ConceptSubsetMemberJpa(member, deepCopy));
@@ -112,8 +123,10 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     }
     members.remove(member);
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.content.Subset#clearMembers()
    */
   @Override
@@ -121,5 +134,71 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     members = new ArrayList<>();
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.content.Subset#isDisjointSubset()
+   */
+  @Override
+  public boolean isDisjointSubset() {
+    return disjointSubset;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.model.content.Subset#setDisjointSubset(boolean)
+   */
+  @Override
+  public void setDisjointSubset(boolean disjointSubset) {
+    this.disjointSubset = disjointSubset;
+  }
+
+  @Override
+  public boolean isMarkerSubset() {
+    return markerSubset;
+  }
+
+  @Override
+  public void setMarkerSubset(boolean markerSubset) {
+    this.markerSubset = markerSubset;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + (disjointSubset ? 1231 : 1237);
+    result = prime * result + (markerSubset ? 1231 : 1237);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ConceptSubsetJpa other = (ConceptSubsetJpa) obj;
+    if (disjointSubset != other.disjointSubset)
+      return false;
+    if (markerSubset != other.markerSubset)
+      return false;
+    return true;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
+   */
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + " [name=" + getName()
+        + ", description=" + getDescription() + ", disjointSubset="
+        + disjointSubset + "]";
+  }
 
 }

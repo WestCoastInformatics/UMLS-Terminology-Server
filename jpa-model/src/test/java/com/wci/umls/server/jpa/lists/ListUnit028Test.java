@@ -15,12 +15,11 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
-import com.wci.umls.server.helpers.meta.TermTypeList;
 import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 
 /**
- * Unit testing for {@link TermTypeList}.
+ * Unit testing for {@link TreeList}.
  */
 public class ListUnit028Test extends
     AbstractListUnit<Tree> {

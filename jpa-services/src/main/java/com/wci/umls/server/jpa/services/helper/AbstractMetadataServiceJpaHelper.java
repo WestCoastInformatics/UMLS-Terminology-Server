@@ -14,6 +14,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.Language;
+import com.wci.umls.server.model.meta.MarkerSet;
 import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -128,8 +129,6 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     // n/a handled by superclass
     return null;
   }
-
-
 
   /*
    * (non-Javadoc)
@@ -254,6 +253,43 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
   public void removeAttributeName(Long id) throws Exception {
     // n/a
 
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#addMarkerSet(com.wci.umls.
+   * server.model.meta.MarkerSet)
+   */
+  @Override
+  public MarkerSet addMarkerSet(MarkerSet markerSet) throws Exception {
+    // n/a
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#updateMarkerSet(com.wci.umls
+   * .server.model.meta.MarkerSet)
+   */
+  @Override
+  public void updateMarkerSet(MarkerSet markerSet) throws Exception {
+    // n/a
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#removeMarkerSet(java.lang.
+   * Long)
+   */
+  @Override
+  public void removeMarkerSet(Long id) throws Exception {
+    // n/a
   }
 
   /*
@@ -528,7 +564,13 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     // n/a
   }
 
-  
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.MetadataService#addGeneralMetadataEntry(com
+   * .wci.umls.server.model.meta.GeneralMetadataEntry)
+   */
   @Override
   public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry)
     throws Exception {

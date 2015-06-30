@@ -118,7 +118,11 @@ public class RrfComputePreferredNameHandler implements
    */
   protected String getRank(Atom atom) throws Exception {
     if (list == null) {
-      cacheList();
+      // Use the atom's terminology/version.
+      // In single source case, this will be correct
+      // In UMLS case, this will map to "DEFAULT" which will use the
+      //   properties passed in for terminology/version
+      cacheList(atom.getTerminology(), atom.getVersion());
     }
     String rank = (atom.isObsolete() ? 0 : 1 ) + 
         (atom.isSuppressible() ? 0 : 1 ) + 
@@ -131,11 +135,13 @@ public class RrfComputePreferredNameHandler implements
   /**
    * Cache list.
    *
+   * @param terminology the terminology
+   * @param version the version
    * @throws Exception the exception
    */
-  private void cacheList() throws Exception {
+  private void cacheList(String terminology, String version) throws Exception {
     MetadataService service = new MetadataServiceJpa();
-    list = service.getDefaultPrecedenceList("DEFAULT", "");
+    list = service.getDefaultPrecedenceList(terminology, version);
     service.close();
     List<KeyValuePair> list2 = list.getPrecedence().getKeyValuePairList();
     int ct = 1;

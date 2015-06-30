@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.content.TreePositionList;
-import com.wci.umls.server.helpers.meta.TermTypeList;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -29,7 +28,7 @@ import com.wci.umls.server.model.content.DescriptorTreePosition;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
- * Unit testing for {@link TermTypeList}.
+ * Unit testing for {@link TreePositionList}.
  */
 public class ListUnit027Test extends
     AbstractListUnit<TreePosition<? extends ComponentHasAttributesAndName>> {

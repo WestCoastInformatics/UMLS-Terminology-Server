@@ -160,15 +160,13 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
    *
    * @param terminology the terminology
    * @param version the terminology version
+   * @param idType the id type
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
   private void removeTerminology(String terminology, String version,
     IdType idType) throws Exception {
     
-    // TODO: Create check preconditions algorithm to determine if there 
-    // will be dependencies precluding the removal of a terminology
-    final Date startDate = new Date();
     // Check assumptions/prerequisites
     Logger.getLogger(getClass()).info(
         "Start removing terminology - " + terminology + " " + version);

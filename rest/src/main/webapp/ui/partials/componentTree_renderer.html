@@ -30,7 +30,7 @@
 			ng-include="'ui/partials/componentTree_renderer.html'"></li>
 			
 		<!-- if not all children displayed, display a message -->
-		<li ng-show="hasHiddenSiblings(tree, component.terminologyId) == true">
+		<li ng-show="hasHiddenSiblings(tree) == true">
 		<i class="glyphicon glyphicon-leaf" style="opacity: 0"></i> 
 		<a ng-click="getAndSetTreeChildren(tree, tree.child.length)">... {{tree.childCt - tree.child.length}} more</a></li>
 	</ol>

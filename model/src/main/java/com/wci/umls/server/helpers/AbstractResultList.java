@@ -140,7 +140,7 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
   @Override
   public String toString() {
     StringBuilder sb=  new StringBuilder();
-    sb.append("AbstractResultList [totalCount=" + totalCount + ", objects=[");
+    sb.append(getClass().getSimpleName() + " [totalCount=" + totalCount + ", objects=[");
     for (Object o: objects) {
       sb.append(o.toString()).append(",");
     }

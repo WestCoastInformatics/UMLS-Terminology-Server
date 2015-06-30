@@ -64,6 +64,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
     expandedForm = abbreviation.getExpandedForm();
     terminology = abbreviation.getTerminology();
     version = abbreviation.getVersion();
+    branch = abbreviation.getBranch();
     publishable = abbreviation.isPublishable();
     published = abbreviation.isPublished();
   }
@@ -218,11 +219,6 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
    * 
    * @see com.wci.umls.server.helpers.HasTerminology#getTerminology()
    */
-  /**
-   * Returns the terminology.
-   *
-   * @return the terminology
-   */
   @Override
   public String getTerminology() {
     return terminology;
@@ -234,11 +230,6 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
    * @see
    * com.wci.umls.server.helpers.HasTerminology#setTerminology(java.lang.String)
    */
-  /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
@@ -248,11 +239,6 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
    * (non-Javadoc)
    * 
    * @see com.wci.umls.server.helpers.HasTerminology#getVersion()
-   */
-  /**
-   * Returns the terminology version.
-   *
-   * @return the terminology version
    */
   @Override
   public String getVersion() {
@@ -265,11 +251,6 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
    * @see
    * com.wci.umls.server.helpers.HasTerminology#setVersion(java.lang
    * .String)
-   */
-  /**
-   * Sets the terminology version.
-   *
-   * @param version the terminology version
    */
   @Override
   public void setVersion(String version) {

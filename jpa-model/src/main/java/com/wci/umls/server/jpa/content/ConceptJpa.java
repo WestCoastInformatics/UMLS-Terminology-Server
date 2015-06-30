@@ -6,8 +6,11 @@ package com.wci.umls.server.jpa.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -17,11 +20,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
@@ -56,6 +61,13 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   /** The members. */
   @OneToMany(mappedBy = "member", targetEntity = ConceptSubsetMemberJpa.class)
   private List<ConceptSubsetMember> members = null;
+
+  /** The concept terminology id map. */
+  @ElementCollection(fetch = FetchType.EAGER)
+  // consider this: @Fetch(sFetchMode.JOIN)
+  @CollectionTable(name = "concept_marker_sets")
+  @Column(nullable = true)
+  List<String> markerSets;
 
   /** The fully defined. */
   @Column(nullable = false)
@@ -92,6 +104,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     fullyDefined = concept.isFullyDefined();
     usesRelationshipIntersection = concept.getUsesRelationshipIntersection();
     usesRelationshipUnion = concept.getUsesRelationshipUnion();
+    markerSets = concept.getMarkerSets();
 
     if (deepCopy) {
       for (Definition definition : concept.getDefinitions()) {
@@ -218,7 +231,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   @Override
-  @Field(name="fullyDefined", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(name = "fullyDefined", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isFullyDefined() {
     return fullyDefined;
   }
@@ -239,7 +252,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   @Override
-  @Field(name="anonymous", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(name = "anonymous", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isAnonymous() {
     return anonymous;
   }
@@ -253,7 +266,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   public void setAnonymous(boolean anonymous) {
     this.anonymous = anonymous;
   }
-  
+
   /*
    * (non-Javadoc)
    * 
@@ -308,7 +321,6 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     }
     semanticTypes.remove(semanticType);
   }
-
 
   /*
    * (non-Javadoc)
@@ -412,6 +424,59 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   /*
    * (non-Javadoc)
    * 
+   * @see com.wci.umls.server.helpers.HasMarkerSets#getMarkerSets()
+   */
+  @Override
+  @FieldBridge(impl = CollectionToCsvBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  public List<String> getMarkerSets() {
+    return markerSets;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMarkerSets#setMarkerSets(java.util.List)
+   */
+  @Override
+  public void setMarkerSets(List<String> markerSets) {
+    this.markerSets = markerSets;
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMarkerSets#addMarkerSet(java.lang.String)
+   */
+  @Override
+  public void addMarkerSet(String markerSet) {
+    if (markerSets == null) {
+      markerSets = new ArrayList<String>();
+    }
+    markerSets.add(markerSet);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasMarkerSets#removeMarkerSet(java.lang.String)
+   */
+  @Override
+  public void removeMarkerSet(String markerSet) {
+    if (markerSets == null) {
+      markerSets = new ArrayList<String>();
+    }
+    markerSets.remove(markerSet);
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.jpa.content.AbstractAtomClass#hashCode()
    */
   @Override
@@ -450,6 +515,5 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       return false;
     return true;
   }
-
 
 }

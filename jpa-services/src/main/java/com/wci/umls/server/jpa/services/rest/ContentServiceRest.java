@@ -29,15 +29,6 @@ import com.wci.umls.server.model.content.StringClass;
  * Represents a content available via a REST service.
  */
 public interface ContentServiceRest {
-
-  /**
-   * Value representing a blank query. Needed so that jersey can identify URL
-   * containing an "optional" parameter. This could be done alternatively with
-   * complex regular expressions, but we feel this is a more straightforward
-   * solution.
-   */
-  public final String QUERY_BLANK = "~BLANK~";
-
   /**
    * Returns the concept.
    *
@@ -69,15 +60,15 @@ public interface ContentServiceRest {
   /**
    * Find concepts for query.
    *
-   * @param luceneQuery the lucene query
-   * @param hqlQuery the hql query
+   * @param query the lucene query
+   * @param hql the hql query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
-    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception;
+  public SearchResultList findConceptsForGeneralQuery(String query,
+    String hql, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Autocomplete concepts.
@@ -247,15 +238,15 @@ public interface ContentServiceRest {
   /**
    * Find descriptors for query.
    *
-   * @param luceneQuery the lucene query
-   * @param hqlQuery the hql query
+   * @param query the lucene query
+   * @param hql the hql query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
-    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception;
+  public SearchResultList findDescriptorsForGeneralQuery(String query,
+    String hql, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Autocomplete descriptors.
@@ -332,15 +323,15 @@ public interface ContentServiceRest {
   /**
    * Find codes for query.
    *
-   * @param luceneQuery the lucene query
-   * @param hqlQuery the hql query
+   * @param query the lucene query
+   * @param hql the hql query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findCodesForGeneralQuery(String luceneQuery,
-    String hqlQuery, PfsParameterJpa pfs, String authToken) throws Exception;
+  public SearchResultList findCodesForGeneralQuery(String query,
+    String hql, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Autocomplete codes.
@@ -500,9 +491,10 @@ public interface ContentServiceRest {
    * @param terminology the terminology
    * @param version the terminology version
    * @param authToken the auth token
+   * @return true or false
    * @throws Exception the exception
    */
-  public void removeTerminology(String terminology, String version,
+  public boolean removeTerminology(String terminology, String version,
     String authToken) throws Exception;
 
   /**
@@ -689,5 +681,44 @@ public interface ContentServiceRest {
   public TreeList findCodeTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
     throws Exception;
+
+  /**
+   * Find concept-based terminology tree roots.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception 
+   */
+  public Tree findConceptTreeRoots(String terminology, String version,
+    PfsParameterJpa pfs, String authToken) throws Exception;
+  
+  /**
+   * Find concept-based terminology tree roots.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception 
+   */
+  public Tree findCodeTreeRoots(String terminology, String version,
+    PfsParameterJpa pfs, String authToken) throws Exception;
+  
+  /**
+   * Find concept-based terminology tree roots.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception 
+   */
+  public Tree findDescriptorTreeRoots(String terminology, String version,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
 }

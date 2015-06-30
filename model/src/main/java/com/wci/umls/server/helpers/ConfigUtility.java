@@ -579,7 +579,7 @@ public class ConfigUtility {
     }
 
     MimeMessage msg = new MimeMessage(session);
-    msg.setText(body.toString());
+    msg.setContent(body.toString(), "text/html; charset=utf-8");
     msg.setSubject(subject);
     msg.setFrom(new InternetAddress(from));
     String[] recipientsArray = recipients.split(";");

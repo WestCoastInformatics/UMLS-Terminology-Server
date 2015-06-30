@@ -82,6 +82,7 @@ import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.IndexUtility;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.AtomListJpa;
@@ -135,14 +136,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /** The id assignment handler . */
   public static Map<String, IdentifierAssignmentHandler> idHandlerMap =
       new HashMap<>();
-  
-  /** The commit ct. */
-  private int commitCt = 2000;
-  
-  /** The log ct. */
-  private int logCt = 2000;
 
-  
   static {
 
     try {
@@ -3102,22 +3096,22 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @return the query results
    * @throws Exception the exception
    */
-  private <T extends Component> List<T> getLuceneQueryResults(
+  private <T extends AtomClass> List<T> getLuceneQueryResults(
     String terminology, String version, String branch, String query,
     Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt)
     throws Exception {
 
     // Prepare the query string
     StringBuilder finalQuery = new StringBuilder();
-    finalQuery.append(query == null ? "" : query);
 
     if (terminology != null && !terminology.equals("") && version != null
         && !version.equals("")) {
-      finalQuery.append(finalQuery.toString().isEmpty() ? "" : " AND ");
       finalQuery.append("terminology:" + terminology + " AND version:"
           + version);
-    }
+      finalQuery
+          .append(query == null || query.isEmpty() ? "" : " AND " + query);
 
+    }
     Logger.getLogger(getClass()).info(
         "query for " + clazz.getName() + ": " + finalQuery);
 
@@ -3139,6 +3133,19 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // execute the query
     @SuppressWarnings("unchecked")
     List<T> classes = fullTextQuery.getResultList();
+
+    // Use this code to see the actual score values
+    // fullTextQuery.setProjection(FullTextQuery.SCORE, FullTextQuery.ID);
+    // List<T> classes = new ArrayList<>();
+    // List<Object[]> obj = fullTextQuery.getResultList();
+    // for (Object[] objArray : obj) {
+    // Object score = objArray[0];
+    // long id = (Long)objArray[1];
+    // T t = getComponent( id, clazz);
+    // classes.add(t);
+    // Logger.getLogger(getClass()).info(t.getName() + " = " + score);
+    // }
+
     return classes;
   }
 
@@ -3313,6 +3320,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         fullTextEntityManager.getSearchFactory().buildQueryBuilder()
             .forEntity(clazz).get();
 
+    // TODO:, try matching on name with boost
     Query query =
         titleQB.phrase().withSlop(2).onField(TITLE_NGRAM_INDEX)
             .andField(TITLE_EDGE_NGRAM_INDEX).boostedTo(5)
@@ -3320,9 +3328,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     Query term1 = new TermQuery(new Term("terminology", terminology));
     Query term2 = new TermQuery(new Term("version", version));
+    Query term3 = new TermQuery(new Term("atoms.suppressible", "false"));
+    Query term4 = new TermQuery(new Term("suppressible", "false"));
     BooleanQuery booleanQuery = new BooleanQuery();
     booleanQuery.add(term1, BooleanClause.Occur.MUST);
     booleanQuery.add(term2, BooleanClause.Occur.MUST);
+    booleanQuery.add(term3, BooleanClause.Occur.MUST);
+    booleanQuery.add(term4, BooleanClause.Occur.MUST);
     booleanQuery.add(query, BooleanClause.Occur.MUST);
 
     FullTextQuery fullTextQuery =
@@ -4403,16 +4415,17 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     PfsParameter pfs, Class<?> clazz) throws Exception {
 
     // Prepare the query string
-
     StringBuilder finalQuery = new StringBuilder();
-    finalQuery.append(query == null ? "" : query);
-    if (!finalQuery.toString().isEmpty()) {
-      finalQuery.append(" AND ");
-    }
+
+    // all queries are sensitive to terminology, version, and id (if provided)
     finalQuery.append("terminology:" + terminology + " AND version:" + version);
     if (terminologyId != null) {
       finalQuery.append(" AND nodeTerminologyId:" + terminologyId);
     }
+
+    // add the query, if not null and not empty
+    finalQuery.append(query == null || query.isEmpty() ? "" : " AND " + query);
+
     FullTextQuery fullTextQuery =
         applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class,
             finalQuery.toString(), pfs);
@@ -4479,14 +4492,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
         DescriptorJpa.class, DescriptorJpa.class);
   }
-  
+
   @SuppressWarnings("unchecked")
   @Override
-  public Tree getTreeForTreePosition(TreePosition<? extends AtomClass> treePosition)
-    throws Exception {
+  public Tree getTreeForTreePosition(
+    TreePosition<? extends AtomClass> treePosition) throws Exception {
     Logger.getLogger(getClass()).info(
         "Content Service - get tree for tree position");
-    
+
     Long tpId = treePosition.getNode().getId();
 
     // Determine type
@@ -4503,11 +4516,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Logger.getLogger(getClass()).debug("  type = " + clazz.getName());
 
     // tree to return
-    Tree tree = new TreeJpa();
-    
+    Tree tree = null;
+
     // the current tree variables (ancestor path and local tree)
-    String partAncPath = "";    // initially top-level
-    Tree partTree = tree;       // initially the empty tree
+    String partAncPath = ""; // initially top-level
+    Tree parentTree = tree; // initially the empty tree
 
     // Prepare lucene
     FullTextEntityManager fullTextEntityManager =
@@ -4518,8 +4531,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             ConceptTreePositionJpa.class).toArray(new String[] {}),
             searchFactory.getAnalyzer(clazz));
     String fullAncPath =
-        treePosition.getAncestorPath() + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
-    
+        treePosition.getAncestorPath()
+            + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
+
     // Iterate over ancestor path
     for (String pathPart : fullAncPath.split("~")) {
       Long partId = Long.parseLong(pathPart);
@@ -4534,32 +4548,33 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       } else {
         finalQuery.append("ancestorPath:\"" + partAncPath + "\"");
       }
+      Logger.getLogger(getClass()).debug("  query = " + finalQuery.toString());
       // Prepare the manager and lucene query
       Query luceneQuery = queryParser.parse(finalQuery.toString());
       FullTextQuery fullTextQuery =
           fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
-      
-//      // projection approach -- don't want to have to instantiate node Jpa object
-//      fullTextQuery.setProjection("nodeId", "nodeTerminologyId", "nodeName", "childCt", "ancestorPath");
-//      
-//      List<Object[]> results = fullTextQuery.getResultList();
-//      
-//      if (fullTextQuery.getResultSize() != 1) {
-//        throw new Exception("Unexpected number of results: "
-//            + fullTextQuery.getResultSize());
-//      }
-//      Object[] result = results.get(0);
-//
-//      // fill in the tree object
-//      partTree.setId((Long) result[0]); 
-//      partTree.setTerminologyId((String) result[1]);
-//      partTree.setName((String) result[2]);
-//      partTree.setChildCt((Integer) result[3]);
-//      partTree.setAncestorPath((String) result[4]);
-//      partTree.setTerminology(treePosition.getTerminology());
-//      partTree.setVersion(treePosition.getVersion());
 
-
+      // // projection approach -- don't want to have to instantiate node Jpa
+      // object
+      // fullTextQuery.setProjection("nodeId", "nodeTerminologyId", "nodeName",
+      // "childCt", "ancestorPath");
+      //
+      // List<Object[]> results = fullTextQuery.getResultList();
+      //
+      // if (fullTextQuery.getResultSize() != 1) {
+      // throw new Exception("Unexpected number of results: "
+      // + fullTextQuery.getResultSize());
+      // }
+      // Object[] result = results.get(0);
+      //
+      // // fill in the tree object
+      // partTree.setId((Long) result[0]);
+      // partTree.setTerminologyId((String) result[1]);
+      // partTree.setName((String) result[2]);
+      // partTree.setChildCt((Integer) result[3]);
+      // partTree.setAncestorPath((String) result[4]);
+      // partTree.setTerminology(treePosition.getTerminology());
+      // partTree.setVersion(treePosition.getVersion());
 
       // original approach
       if (fullTextQuery.getResultSize() != 1) {
@@ -4571,27 +4586,23 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           (TreePosition<? extends AtomClass>) fullTextQuery.getResultList()
               .get(0);
 
-      partTree.setFromTreePosition(treepos);
-      
-      Tree nextPart = new TreeJpa();
-      
-      // if not end of sequence, add the new blank object as a child)
-      if (!partId.equals(tpId)) {
-        partTree.addChild(nextPart);
-      }  
-      
-      // if the terminal node, check for sibling and children requests
-      else {
-        // TODO: ? remove this?
+      Tree partTree = new TreeJpa(treepos);
+
+      if (tree == null) {
+        tree = partTree;
       }
-      
-      // set current tree to the just constructed (blank) tree
-      partTree = nextPart;
+
+      if (parentTree != null) {
+        parentTree.addChild(partTree);
+      }
+
+      // set parent tree to the just constructed
+      parentTree = partTree;
 
       partAncPath += (partAncPath.equals("") ? "" : "~");
       partAncPath += pathPart;
     }
-    
+
     return tree;
   }
 
@@ -4632,31 +4643,43 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
 
     Query luceneQuery;
+    QueryParser queryParser = null;
     try {
-      QueryParser queryParser =
+      queryParser =
           new MultiFieldQueryParser(stringFieldNames.get(fieldNamesKey)
               .toArray(new String[] {}), searchFactory.getAnalyzer(clazz));
-      Logger.getLogger(getClass()).info("query = " + pfsQuery);
       luceneQuery = queryParser.parse(pfsQuery.toString());
 
-      // Validate query terms
-      luceneQuery =
-          luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
-              .getIndexReaderAccessor().open(clazz));
-      Set<Term> terms = new HashSet<>();
-      luceneQuery.extractTerms(terms);
-      for (Term t : terms) {
-        if (t.field() != null && !t.field().isEmpty()
-            && !allFieldNames.get(fieldNamesKey).contains(t.field())) {
-          throw new Exception("Query references invalid field name "
-              + t.field() + ", " + allFieldNames.get(fieldNamesKey));
-        }
+    } catch (ParseException e) {
+
+      try {
+        // If we got here, try escaping the query and running it again.
+        luceneQuery =
+            queryParser.parse(QueryParser.escape(pfsQuery.toString()));
+      } catch (ParseException e2) {
+
+        Logger.getLogger(getClass()).info("  query = " + pfsQuery.toString());
+        throw new LocalException(
+            "The specified search terms cannot be parsed.  Please check syntax and try again.");
       }
 
-    } catch (ParseException e) {
-      throw new LocalException(
-          "The specified search terms cannot be parsed.  Please check syntax and try again.");
+      // If we get here, the query is fine.
     }
+
+    // Validate query terms
+    luceneQuery =
+        luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
+            .getIndexReaderAccessor().open(clazz));
+    Set<Term> terms = new HashSet<>();
+    luceneQuery.extractTerms(terms);
+    for (Term t : terms) {
+      if (t.field() != null && !t.field().isEmpty()
+          && !allFieldNames.get(fieldNamesKey).contains(t.field())) {
+        throw new Exception("Query references invalid field name " + t.field()
+            + ", " + allFieldNames.get(fieldNamesKey));
+      }
+    }
+
     fullTextQuery =
         fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
 
@@ -4741,7 +4764,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       }
     }
 
-    Logger.getLogger(getClass()).info("query = " + localQueryStr);
     javax.persistence.Query query =
         manager.createQuery(localQueryStr.toString());
     if (pfs != null && pfs.getStartIndex() > -1 && pfs.getMaxResults() > -1) {
@@ -4783,32 +4805,142 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return this.findTreePositionsHelper(null, terminology, version, branch,
         query, pfs, CodeTreePositionJpa.class);
   }
-  
-  /**
-   * Commit clear begin transaction.
-   *
-   * @throws Exception the exception
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findConceptTreePositionChildren
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
    */
-  private void commitClearBegin() throws Exception {
-    commit();
-    clear();
-    beginTransaction();
+  @Override
+  public TreePositionList findConceptTreePositionChildren(String terminologyId,
+    String terminology, String version, PfsParameter pfs) throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "Content Service - find children of a concept tree position "
+            + terminologyId + "/" + terminology + "/" + version);
+
+    TreePositionList childTreePositions = new TreePositionListJpa();
+
+    // get the child concepts
+    ConceptList childConcepts =
+        findDescendantConcepts(terminologyId, terminology, version, true,
+            Branch.ROOT, pfs);
+
+    // construct pfs parameter for tree position lookup, only need first one
+    PfsParameter childPfs = new PfsParameterJpa();
+    childPfs.setStartIndex(0);
+    childPfs.setMaxResults(1);
+
+    // get a tree position for each child, for child ct
+    for (Concept childConcept : childConcepts.getObjects()) {
+      TreePositionList tpList =
+          findTreePositionsForConcept(childConcept.getTerminologyId(),
+              childConcept.getTerminology(), childConcept.getVersion(),
+              Branch.ROOT, childPfs);
+
+      if (tpList.getCount() != 1)
+        throw new Exception("Unexpected number of tree positions for concept "
+            + terminologyId);
+
+      childTreePositions.addObject(tpList.getObjects().get(0));
+    }
+
+    return childTreePositions;
   }
 
-  /**
-   * Log and commit.
-   *
-   * @param objectCt the object ct
-   * @param msg the msg
-   * @throws Exception the exception
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findDescriptorTreePositionChildren
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
    */
-  private void logAndCommit(int objectCt, String msg) throws Exception {
-    // log at regular intervals
-    if (objectCt % logCt == 0) {
-      Logger.getLogger(getClass()).info("    count = " + objectCt + " " + msg);
+  @Override
+  public TreePositionList findDescriptorTreePositionChildren(
+    String terminologyId, String terminology, String version, PfsParameter pfs)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "Content Service - find children of a descriptor tree position "
+            + terminology + "/" + version);
+
+    TreePositionList childTreePositions = new TreePositionListJpa();
+
+    // get the child descriptors
+    DescriptorList childDescriptors =
+        findDescendantDescriptors(terminologyId, terminology, version, true,
+            Branch.ROOT, pfs);
+
+    // construct pfs parameter for tree position lookup, only need first one
+    PfsParameter childPfs = new PfsParameterJpa();
+    childPfs.setStartIndex(0);
+    childPfs.setMaxResults(1);
+
+    // get a tree position for each child, for child ct
+    for (Descriptor childDescriptor : childDescriptors.getObjects()) {
+      TreePositionList tpList =
+          findTreePositionsForDescriptor(childDescriptor.getTerminologyId(),
+              childDescriptor.getTerminology(), childDescriptor.getVersion(),
+              Branch.ROOT, childPfs);
+
+      if (tpList.getCount() != 1)
+        throw new Exception(
+            "Unexpected number of tree positions for descriptor "
+                + terminologyId);
+
+      childTreePositions.addObject(tpList.getObjects().get(0));
     }
-    if (objectCt % commitCt == 0) {
-      commitClearBegin();
-    }
+
+    return childTreePositions;
   }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.ContentService#findCodeTreePositionChildren
+   * (java.lang.String, java.lang.String, java.lang.String,
+   * com.wci.umls.server.helpers.PfsParameter)
+   */
+  @Override
+  public TreePositionList findCodeTreePositionChildren(String terminologyId,
+    String terminology, String version, PfsParameter pfs) throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "Content Service - find children of a code tree position "
+            + terminology + "/" + version);
+
+    TreePositionList childTreePositions = new TreePositionListJpa();
+
+    // get the child codes
+    CodeList childCodes =
+        findDescendantCodes(terminologyId, terminology, version, true,
+            Branch.ROOT, pfs);
+
+    // construct pfs parameter for tree position lookup, only need first one
+    PfsParameter childPfs = new PfsParameterJpa();
+    childPfs.setStartIndex(0);
+    childPfs.setMaxResults(1);
+
+    // get a tree position for each child, for child ct
+    for (Code childCode : childCodes.getObjects()) {
+      TreePositionList tpList =
+          findTreePositionsForCode(childCode.getTerminologyId(),
+              childCode.getTerminology(), childCode.getVersion(), Branch.ROOT,
+              childPfs);
+
+      if (tpList.getCount() != 1)
+        throw new Exception("Unexpected number of tree positions for code "
+            + terminologyId);
+
+      childTreePositions.addObject(tpList.getObjects().get(0));
+    }
+
+    return childTreePositions;
+  }
+
 }

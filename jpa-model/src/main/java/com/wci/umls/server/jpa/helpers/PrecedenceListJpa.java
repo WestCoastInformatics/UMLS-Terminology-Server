@@ -55,6 +55,18 @@ public class PrecedenceListJpa implements PrecedenceList {
   @Column(nullable = false)
   private String lastModifiedBy;
 
+  /** The terminology. */
+  @Column(nullable = false)
+  private String terminology;
+
+  /** The expandedForm. */
+  @Column(nullable = false)
+  private String version;
+
+  /** The branch. */
+  @Column(nullable = true)
+  private String branch;
+
   /** The name. */
   @Column(nullable = false)
   private String name;
@@ -91,6 +103,9 @@ public class PrecedenceListJpa implements PrecedenceList {
     id = precedenceList.getId();
     name = precedenceList.getName();
     setPrecedence(precedenceList.getPrecedence());
+    terminology = precedenceList.getTerminology();
+    version = precedenceList.getVersion();
+    branch = precedenceList.getBranch();
   }
 
   /*
@@ -152,6 +167,54 @@ public class PrecedenceListJpa implements PrecedenceList {
   @Override
   public void setName(String name) {
     this.name = name;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.PrecedenceList#getBranch()
+   */
+  @Override
+  public String getBranch() {
+    return branch;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.PrecedenceList#setBranch(java.lang.String)
+   */
+  @Override
+  public void setBranch(String branch) {
+    this.branch = branch;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.HasTerminology#getTerminology()
+   */
+  @Override
+  public String getTerminology() {
+    return terminology;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.HasTerminology#setTerminology(java.lang.String)
+   */
+  @Override
+  public void setTerminology(String terminology) {
+    this.terminology = terminology;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.HasTerminology#getVersion()
+   */
+  @Override
+  public String getVersion() {
+    return version;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.helpers.HasTerminology#setVersion(java.lang.String)
+   */
+  @Override
+  public void setVersion(String version) {
+    this.version = version;
   }
 
   /*
@@ -255,53 +318,49 @@ public class PrecedenceListJpa implements PrecedenceList {
     this.lastModifiedBy = lastModifiedBy;
   }
 
-  /**
-   * Returns the terminologies.
-   *
-   * @return the terminologies
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.PrecedenceList#addTerminologyTermType(java.
+   * lang.String, java.lang.String)
    */
-  public List<String> getTerminologies() {
-    return terminologies;
-  }
-
-  /**
-   * Sets the terminologies.
-   *
-   * @param terminologies the terminologies
-   */
-  public void setTerminologies(List<String> terminologies) {
-    this.terminologies = terminologies;
-  }
-
-  /**
-   * Returns the term types.
-   *
-   * @return the term types
-   */
-  public List<String> getTermTypes() {
-    return termTypes;
-  }
-
-  /**
-   * Sets the term types.
-   *
-   * @param termTypes the term types
-   */
-  public void setTermTypes(List<String> termTypes) {
-    this.termTypes = termTypes;
+  @Override
+  public void addTerminologyTermType(String terminology, String termType) {
+    terminologies.add(terminology);
+    termTypes.add(termType);
   }
 
   /*
    * (non-Javadoc)
    * 
+   * @see
+   * com.wci.umls.server.helpers.PrecedenceList#removeTerminologyTermType(java
+   * .lang.String, java.lang.String)
+   */
+  @Override
+  public void removeTerminologyTermType(String terminology, String termType) {
+    for (int i = 0; i < termTypes.size(); i++) {
+      if (terminology.equals(terminologies.get(i))
+          && termType.equals(termTypes.get(i))) {
+        terminologies.remove(i);
+        termTypes.remove(i);
+        break;
+      }
+    }
+  }
+
+  /* (non-Javadoc)
    * @see java.lang.Object#toString()
    */
   @Override
   public String toString() {
     return "PrecedenceListJpa [id=" + id + ", timestamp=" + timestamp
         + ", lastModified=" + lastModified + ", lastModifiedBy="
-        + lastModifiedBy + ", name=" + name + ", defaultList=" + defaultList
-        + ", terminologies=" + terminologies + ", termTypes=" + termTypes + "]";
+        + lastModifiedBy + ", terminology=" + terminology + ", version="
+        + version + ", branch=" + branch + ", name=" + name + ", defaultList="
+        + defaultList + ", terminologies=" + terminologies + ", termTypes="
+        + termTypes + "]";
   }
 
   /*
@@ -315,6 +374,8 @@ public class PrecedenceListJpa implements PrecedenceList {
     int result = 1;
     result = prime * result + (defaultList ? 1231 : 1237);
     result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((terminology == null) ? 0 : version.hashCode());
+    result = prime * result + ((version == null) ? 0 : terminology.hashCode());
     result = prime * result + ((termTypes == null) ? 0 : termTypes.hashCode());
     result =
         prime * result
@@ -342,6 +403,16 @@ public class PrecedenceListJpa implements PrecedenceList {
       if (other.name != null)
         return false;
     } else if (!name.equals(other.name))
+      return false;
+    if (terminology == null) {
+      if (other.terminology != null)
+        return false;
+    } else if (!terminology.equals(other.terminology))
+      return false;
+    if (version == null) {
+      if (other.version != null)
+        return false;
+    } else if (!version.equals(other.version))
       return false;
     if (termTypes == null) {
       if (other.termTypes != null)

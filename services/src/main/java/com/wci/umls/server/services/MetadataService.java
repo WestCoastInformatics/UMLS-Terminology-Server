@@ -11,6 +11,7 @@ import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
 import com.wci.umls.server.helpers.meta.LanguageList;
+import com.wci.umls.server.helpers.meta.MarkerSetList;
 import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.RootTerminologyList;
@@ -22,6 +23,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.Language;
+import com.wci.umls.server.model.meta.MarkerSet;
 import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -53,9 +55,11 @@ public interface MetadataService extends RootService, Configurable {
     /** The Hierarchical_ relationship_ types. */
     Hierarchical_Relationship_Types,
     /** The Languages. */
-    Languages,    
-    /**  The General_ metadata_ entries. */
-    General_Metadata_Entries
+    Languages,
+    /** The General_ metadata_ entries. */
+    General_Metadata_Entries,
+    /** The Marker sets. */
+    Marker_Sets,
   }
 
   /**
@@ -170,6 +174,17 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception the exception
    */
   public AttributeNameList getAttributeNames(String terminology, String version)
+    throws Exception;
+
+  /**
+   * Returns the marked sets.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @return the marked sets.
+   * @throws Exception the exception
+   */
+  public MarkerSetList getMarkerSets(String terminology, String version)
     throws Exception;
 
   /**
@@ -345,6 +360,31 @@ public interface MetadataService extends RootService, Configurable {
   public void removeAttributeName(Long id) throws Exception;
 
   /**
+   * Adds the marked sets.
+   *
+   * @param markerSet the marker set
+   * @return the marked set
+   * @throws Exception the exception
+   */
+  public MarkerSet addMarkerSet(MarkerSet markerSet) throws Exception;
+
+  /**
+   * Update marker set.
+   *
+   * @param markerSet the marker set
+   * @throws Exception the exception
+   */
+  public void updateMarkerSet(MarkerSet markerSet) throws Exception;
+
+  /**
+   * Removes the marker set.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeMarkerSet(Long id) throws Exception;
+
+  /**
    * Adds the language.
    *
    * @param language the language
@@ -403,7 +443,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the term type
    * @throws Exception the exception
    */
-  public PropertyChain addPropertyChain(PropertyChain propertyChain) throws Exception;
+  public PropertyChain addPropertyChain(PropertyChain propertyChain)
+    throws Exception;
 
   /**
    * Updates the property chain.
@@ -587,6 +628,5 @@ public interface MetadataService extends RootService, Configurable {
    */
   public GraphResolutionHandler getGraphResolutionHandler(String terminology)
     throws Exception;
-
 
 }

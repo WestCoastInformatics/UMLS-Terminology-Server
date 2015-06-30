@@ -36,6 +36,8 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
       boolean nullId = concept.getId() == null;
       concept.setMembers(new ArrayList<ConceptSubsetMember>());
 
+      concept.getMarkerSets();
+      
       // Attributes
       resolveAttributes(concept, nullId);
 
