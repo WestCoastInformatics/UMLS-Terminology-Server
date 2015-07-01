@@ -15,8 +15,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -623,6 +626,42 @@ public class ConfigUtility {
             config.getProperty("mail.smtp.password"));
       }
     }
+  }
+
+  /**
+   * Reflection sort.
+   *
+   * @param <T> the
+   * @param classes the classes
+   * @param clazz the clazz
+   * @param sortField the sort field
+   * @throws Exception the exception
+   */
+  public static <T> void reflectionSort(List<T> classes, Class<T> clazz,
+    String sortField) throws Exception {
+
+    final Method getMethod =
+        clazz.getMethod("get" + sortField.substring(0, 1).toUpperCase()
+            + sortField.substring(1));
+    if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
+      throw new Exception("Referenced sort field is not comparable");
+    }
+    Collections.sort(classes, new Comparator<T>() {
+      @SuppressWarnings({
+          "rawtypes", "unchecked"
+      })
+      @Override
+      public int compare(T o1, T o2) {
+        try {
+          Comparable f1 = (Comparable) getMethod.invoke(o1, new Object[] {});
+          Comparable f2 = (Comparable) getMethod.invoke(o2, new Object[] {});
+          return f1.compareTo(f2);
+        } catch (Exception e) {
+          // do nothing
+        }
+        return 0;
+      }
+    });
   }
 
 }

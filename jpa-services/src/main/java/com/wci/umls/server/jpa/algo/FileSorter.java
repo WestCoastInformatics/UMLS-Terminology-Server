@@ -239,11 +239,12 @@ public class FileSorter {
   private static List<String> splitFile(String inputFile, String dir,
     Comparator<String> comparator, int segmentSize) throws Exception {
 
-    int currentSize = 0; // counter for current file size
-    String line; // current file line
-    List<String> lines = new ArrayList<>(10000); // set of lines to be
-                                                 // sorted via
-                                                 // Collections.sort
+    // counter for current file size
+    int currentSize = 0;
+    // current file line
+    String line;
+    List<String> lines = new ArrayList<>(10000);
+
     List<String> splitFiles = new ArrayList<>();
 
     // open file

@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
@@ -39,10 +40,10 @@ public class TreeJpa implements Tree {
   String version = null;
 
   /** The terminology id. */
-  String terminologyId = null;
+  String nodeTerminologyId = null;
 
   /** The name. */
-  String name = null;
+  String nodeName = null;
 
   /** The ancestor path. */
   String ancestorPath = null;
@@ -75,7 +76,8 @@ public class TreeJpa implements Tree {
     id = tree.getId();
     terminology = tree.getTerminology();
     version = tree.getVersion();
-    name = tree.getName();
+    nodeTerminologyId = tree.getNodeTerminologyId();
+    nodeName = tree.getNodeName();
     childCt = tree.getChildCt();
     ancestorPath = tree.getAncestorPath();
     totalCount = tree.getTotalCount();
@@ -102,23 +104,16 @@ public class TreeJpa implements Tree {
     this.id = treePosition.getNode().getId();
     this.terminology = treePosition.getNode().getTerminology();
     this.version = treePosition.getNode().getVersion();
-    this.terminologyId = treePosition.getNode().getTerminologyId();
-    this.name = treePosition.getNode().getName();
+    this.nodeTerminologyId = treePosition.getNode().getTerminologyId();
+    this.nodeName = treePosition.getNode().getName();
     this.childCt = treePosition.getChildCt();
     this.ancestorPath = treePosition.getAncestorPath();
     this.children = new ArrayList<>();
     this.labels = treePosition.getNode().getLabels();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.content.Tree#mergeTree(com.wci.umls.server.
-   * helpers.content.Tree)
-   */
   @Override
-  public void mergeTree(Tree tree) {
+  public void mergeTree(Tree tree, String sortField) throws Exception {
 
     // allow for merging trees with null ids
     if (!(tree.getId() == null && this.getId() == null)) {
@@ -140,8 +135,12 @@ public class TreeJpa implements Tree {
       if (!childMap.containsKey(child.getId())) {
         children.add(child);
       } else {
-        childMap.get(child.getId()).mergeTree(child);
+        childMap.get(child.getId()).mergeTree(child, sortField);
       }
+    }
+    // Sort the children at this level
+    if (sortField != null) {
+      ConfigUtility.reflectionSort(children, Tree.class, sortField);
     }
   }
 
@@ -209,42 +208,42 @@ public class TreeJpa implements Tree {
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.helpers.content.Tree#getTerminologyId()
+   * @see com.wci.umls.server.helpers.content.Tree#getNodeTerminologyId()
    */
   @Override
-  public String getTerminologyId() {
-    return terminologyId;
+  public String getNodeTerminologyId() {
+    return nodeTerminologyId;
   }
 
   /*
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.helpers.content.Tree#setTerminologyId(java.lang.String)
+   * com.wci.umls.server.helpers.content.Tree#setNodeTerminologyId(java.lang.String)
    */
   @Override
-  public void setTerminologyId(String terminologyId) {
-    this.terminologyId = terminologyId;
+  public void setNodeTerminologyId(String terminologyId) {
+    this.nodeTerminologyId = terminologyId;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.helpers.content.Tree#getName()
+   * @see com.wci.umls.server.helpers.content.Tree#getNodeName()
    */
   @Override
-  public String getName() {
-    return name;
+  public String getNodeName() {
+    return nodeName;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.helpers.content.Tree#setName(java.lang.String)
+   * @see com.wci.umls.server.helpers.content.Tree#setNodeName(java.lang.String)
    */
   @Override
-  public void setName(String name) {
-    this.name = name;
+  public void setNodeName(String name) {
+    this.nodeName = name;
   }
 
   /*
@@ -405,12 +404,12 @@ public class TreeJpa implements Tree {
         prime * result + ((ancestorPath == null) ? 0 : ancestorPath.hashCode());
     result = prime * result + ((children == null) ? 0 : children.hashCode());
     result = prime * result + ((labels == null) ? 0 : labels.hashCode());
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((nodeName == null) ? 0 : nodeName.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result =
         prime * result
-            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+            + ((nodeTerminologyId == null) ? 0 : nodeTerminologyId.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
@@ -444,20 +443,20 @@ public class TreeJpa implements Tree {
         return false;
     } else if (!labels.equals(other.labels))
       return false;
-    if (name == null) {
-      if (other.name != null)
+    if (nodeName == null) {
+      if (other.nodeName != null)
         return false;
-    } else if (!name.equals(other.name))
+    } else if (!nodeName.equals(other.nodeName))
       return false;
     if (terminology == null) {
       if (other.terminology != null)
         return false;
     } else if (!terminology.equals(other.terminology))
       return false;
-    if (terminologyId == null) {
-      if (other.terminologyId != null)
+    if (nodeTerminologyId == null) {
+      if (other.nodeTerminologyId != null)
         return false;
-    } else if (!terminologyId.equals(other.terminologyId))
+    } else if (!nodeTerminologyId.equals(other.nodeTerminologyId))
       return false;
     if (version == null) {
       if (other.version != null)
@@ -475,7 +474,7 @@ public class TreeJpa implements Tree {
   @Override
   public String toString() {
     return "TreeJpa [id=" + id + ", terminology=" + terminology + ", version="
-        + version + ", terminologyId=" + terminologyId + ", name=" + name
+        + version + ", terminologyId=" + nodeTerminologyId + ", name=" + nodeName
         + ", ancestorPath=" + ancestorPath + ", childCt=" + childCt
         + ", totalCount=" + totalCount + ", children=" + children + "]";
   }

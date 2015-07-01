@@ -2900,31 +2900,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       if (pfsc != null && pfsc.getSortField() != null) {
         Logger.getLogger(getClass()).debug(
             "    sort results - " + pfsc.getSortField());
-        final Method getMethod =
-            clazz.getMethod("get"
-                + pfsc.getSortField().substring(0, 1).toUpperCase()
-                + pfsc.getSortField().substring(1));
-        if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
-          throw new Exception("Referenced sort field is not comparable");
-        }
-        Collections.sort(classes, new Comparator<T>() {
-          @SuppressWarnings({
-              "rawtypes", "unchecked"
-          })
-          @Override
-          public int compare(T o1, T o2) {
-            try {
-              Comparable f1 =
-                  (Comparable) getMethod.invoke(o1, new Object[] {});
-              Comparable f2 =
-                  (Comparable) getMethod.invoke(o2, new Object[] {});
-              return f1.compareTo(f2);
-            } catch (Exception e) {
-              // do nothing
-            }
-            return 0;
-          }
-        });
+        ConfigUtility.reflectionSort(classes, clazz, pfsc.getSortField());
       }
 
       // Apply PFS paging manually

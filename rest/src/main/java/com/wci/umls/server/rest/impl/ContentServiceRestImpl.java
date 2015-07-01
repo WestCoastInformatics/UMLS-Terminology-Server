@@ -34,8 +34,8 @@ import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
-import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.LabelSetMarkedParentAlgorithm;
+import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2FileSorter;
@@ -2318,8 +2318,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Tree dummyTree = new TreeJpa();
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
-      dummyTree.setTerminologyId("dummy id");
-      dummyTree.setName("Root");
+      dummyTree.setNodeTerminologyId("dummy id");
+      dummyTree.setNodeName("Root");
       dummyTree.setTotalCount(list.getTotalCount());
 
       // initialize the return tree with dummy root and set total count
@@ -2338,7 +2338,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         treeForTreePos.addChild(tree);
 
         // merge into the top-level dummy tree
-        returnTree.mergeTree(treeForTreePos);
+        returnTree.mergeTree(treeForTreePos, pfs != null ? pfs.getSortField()
+            : null);
       }
 
       // if only one child, dummy root not necessary
@@ -2408,8 +2409,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Tree dummyTree = new TreeJpa();
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
-      dummyTree.setTerminologyId("dummy id");
-      dummyTree.setName("Root");
+      dummyTree.setNodeTerminologyId("dummy id");
+      dummyTree.setNodeName("Root");
       dummyTree.setTotalCount(list.getTotalCount());
 
       // initialize the return tree with dummy root and set total count
@@ -2428,7 +2429,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         treeForTreePos.addChild(tree);
 
         // merge into the top-level dummy tree
-        returnTree.mergeTree(treeForTreePos);
+        returnTree.mergeTree(treeForTreePos, pfs != null ? pfs.getSortField()
+            : null);
       }
 
       // if only one child, dummy root not necessary
@@ -2497,8 +2499,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Tree dummyTree = new TreeJpa();
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
-      dummyTree.setTerminologyId("dummy id");
-      dummyTree.setName("Root");
+      dummyTree.setNodeTerminologyId("dummy id");
+      dummyTree.setNodeName("Root");
       dummyTree.setTotalCount(list.getTotalCount());
 
       // initialize the return tree with dummy root and set total count
@@ -2517,7 +2519,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         treeForTreePos.addChild(tree);
 
         // merge into the top-level dummy tree
-        returnTree.mergeTree(treeForTreePos);
+        returnTree.mergeTree(treeForTreePos, pfs != null ? pfs.getSortField()
+            : null);
       }
 
       // if only one child, dummy root not necessary
@@ -2717,7 +2720,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findConceptTreePositionChildren(
-                rootTree.getTerminologyId(), terminology, version, Branch.ROOT,
+                rootTree.getNodeTerminologyId(), terminology, version, Branch.ROOT,
                 pfs);
 
         // construct and add children
@@ -2734,7 +2737,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         rootTree = new TreeJpa();
         rootTree.setTerminology(terminology);
         rootTree.setVersion(version);
-        rootTree.setName("Top");
+        rootTree.setNodeName("Root");
         rootTree.setTotalCount(1);
 
         // construct and add children
@@ -2795,14 +2798,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findDescriptorTreePositionChildren(
-                rootTree.getTerminologyId(), terminology, version, Branch.ROOT,
+                rootTree.getNodeTerminologyId(), terminology, version, Branch.ROOT,
                 pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
             .getObjects()) {
           Tree childTree = new TreeJpa(childTreePosition);
-          rootTree.mergeTree(childTree);
+          rootTree.mergeTree(childTree, null);
         }
       }
 
@@ -2812,7 +2815,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         rootTree = new TreeJpa();
         rootTree.setTerminology(terminology);
         rootTree.setVersion(version);
-        rootTree.setName("Top");
+        rootTree.setNodeName("Root");
         rootTree.setTotalCount(1);
 
         // construct and add children
@@ -2873,14 +2876,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findCodeTreePositionChildren(
-                rootTree.getTerminologyId(), terminology, version, Branch.ROOT,
+                rootTree.getNodeTerminologyId(), terminology, version, Branch.ROOT,
                 pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
             .getObjects()) {
           Tree childTree = new TreeJpa(childTreePosition);
-          rootTree.mergeTree(childTree);
+          rootTree.mergeTree(childTree, null);
         }
       }
 
@@ -2890,7 +2893,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         rootTree = new TreeJpa();
         rootTree.setTerminology(terminology);
         rootTree.setVersion(version);
-        rootTree.setName("Root");
+        rootTree.setNodeName("Root");
         rootTree.setTotalCount(1);
 
         // construct and add children

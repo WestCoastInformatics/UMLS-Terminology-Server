@@ -17,8 +17,10 @@ public interface Tree extends HasLabelSets {
    * Merge specified tree with this one.
    *
    * @param tree the tree
+   * @param sortField the sort field
+   * @throws Exception the exception
    */
-  public void mergeTree(Tree tree);
+  public void mergeTree(Tree tree, String sortField) throws Exception;
 
   /**
    * Returns the children.
@@ -98,32 +100,32 @@ public interface Tree extends HasLabelSets {
   public void setVersion(String version);
 
   /**
-   * Returns the terminology id.
+   * Returns the node terminology id.
    *
-   * @return the terminology id
+   * @return the node terminology id
    */
-  public String getTerminologyId();
+  public String getNodeTerminologyId();
 
   /**
-   * Sets the terminology id.
+   * Sets the node terminology id.
    *
-   * @param terminologyId the terminology id
+   * @param nodeTerminologyId the node terminology id
    */
-  public void setTerminologyId(String terminologyId);
+  public void setNodeTerminologyId(String nodeTerminologyId);
 
   /**
-   * Returns the name.
+   * Returns the node name.
    *
-   * @return the name
+   * @return the node name
    */
-  public String getName();
+  public String getNodeName();
 
   /**
-   * Sets the name.
+   * Sets the node name.
    *
-   * @param name the name
+   * @param nodeName the node name
    */
-  public void setName(String name);
+  public void setNodeName(String nodeName);
 
   /**
    * Returns the ancestor path.

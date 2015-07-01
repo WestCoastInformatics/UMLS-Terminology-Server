@@ -72,7 +72,7 @@ public class ContentServiceTreePositionFromTreeTest {
     Tree tree2 = service.getTreeForTreePosition(treepos);
     Logger.getLogger(getClass()).debug("  tree2 = " + tree2);
 
-    tree.mergeTree(tree2);
+    tree.mergeTree(tree2, null);
     Logger.getLogger(getClass()).debug("  tree = " + tree);
 
     // merged tree is bigger

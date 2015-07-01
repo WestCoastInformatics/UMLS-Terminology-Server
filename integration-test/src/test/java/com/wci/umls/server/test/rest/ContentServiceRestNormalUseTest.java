@@ -2268,7 +2268,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
     for (Tree leaf : tree.getLeafNodes()) {
-      assertTrue(leaf.getName().toLowerCase().contains("vitamin"));
+      assertTrue(leaf.getNodeName().toLowerCase().contains("vitamin"));
     }
 
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -2285,7 +2285,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("    Result: " + tree);
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
     for (Tree leaf : tree.getLeafNodes()) {
-      assertTrue(leaf.getName().toLowerCase().contains("vitamin"));
+      assertTrue(leaf.getNodeName().toLowerCase().contains("vitamin"));
     }
 
     // wider lookup, limit to 10
@@ -2301,7 +2301,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("    Result: " + tree);
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
     for (Tree leaf : tree.getLeafNodes()) {
-      assertTrue(leaf.getName().toLowerCase().contains("a"));
+      assertTrue(leaf.getNodeName().toLowerCase().contains("a"));
     }
 
     // TODO: consider other cases of this
@@ -2328,7 +2328,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("    Result: " + tree);
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
     for (Tree leaf : tree.getLeafNodes()) {
-      assertTrue(leaf.getName().toLowerCase().contains("pneumonia"));
+      assertTrue(leaf.getNodeName().toLowerCase().contains("pneumonia"));
     }
 
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -2345,7 +2345,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("    Result: " + tree);
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
     for (Tree leaf : tree.getLeafNodes()) {
-      assertTrue(leaf.getName().toLowerCase().contains("pneumonia"));
+      assertTrue(leaf.getNodeName().toLowerCase().contains("pneumonia"));
     }
 
     // TODO: consider other cases of this, may need bigger data set
