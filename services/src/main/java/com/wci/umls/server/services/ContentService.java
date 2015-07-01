@@ -16,6 +16,7 @@ import com.wci.umls.server.helpers.content.AtomList;
 import com.wci.umls.server.helpers.content.AttributeList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
+import com.wci.umls.server.helpers.content.DefinitionList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.LexicalClassList;
 import com.wci.umls.server.helpers.content.RelationshipList;
@@ -1297,6 +1298,42 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public Attribute getAttribute(Long id) throws Exception;
+
+  /**
+   * Returns the definition.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the definition
+   * @throws Exception the exception
+   */
+  public Definition getDefinition(String terminologyId, String terminology,
+    String version, String branch) throws Exception;
+
+
+  /**
+   * Returns the definitions.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @return the definitions
+   * @throws Exception the exception
+   */
+  public DefinitionList getDefinitions(String terminologyId, String terminology,
+    String version) throws Exception;
+
+
+  /**
+   * Returns the definition.
+   *
+   * @param id the id
+   * @return the definition
+   * @throws Exception the exception
+   */
+  public Definition getDefinition(Long id) throws Exception;
 
   /**
    * Gets the relationship.

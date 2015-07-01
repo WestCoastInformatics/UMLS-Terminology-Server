@@ -14,16 +14,16 @@
     <!-- if this node has no children reported by child count -->
     <i class="glyphicon glyphicon-leaf" ng-show="tree.childCt == 0"></i>
     <a ng-click="getComponent(tree.terminology, tree.terminologyId)">
-      <span ng-show="tree.markerSets.length == 0"
+      <span ng-show="!showExtension || !isMarkerForMarkerSet(tree)"
         ng-bind-html="tree.terminologyId | highlight:componentQuery"></span>
-      <span ng-show="tree.markerSets.length > 0"
-        ng-bind-html="tree.terminologyId | highlightMarker:tree.terminologyId"
-        tooltip-html-unsafe="<div style='text-align:left;'>{{getMarkerSetsValue(tree)}}</div>"></span>
+      <span ng-show="showExtension && isMarkerForMarkerSet(tree)"
+        ng-bind-html="tree.terminologyId | highlightMarkerFor:tree.terminologyId"
+        tooltip-html-unsafe="<div style='text-align:left;'>{{getMarkerForMarkerSetsValue(tree)}}</div>"></span>
     </a>
 
-    <span ng-show="tree.markerSets.length == 0"
+    <span ng-show="!showExtension || !isMarkerSet(tree)"
       ng-bind-html="tree.name | highlight:componentQuery"></span>
-    <span ng-show="tree.markerSets.length > 0"
+    <span ng-show="showExtension && isMarkerSet(tree)"
       ng-bind-html="tree.name | highlightMarker:tree.name"
       tooltip-html-unsafe="<div style='text-align:left;'>{{getMarkerSetsValue(tree)}}</div>"></span>
   </span>

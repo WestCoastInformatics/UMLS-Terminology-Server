@@ -26,11 +26,21 @@ tsApp.filter('highlight', function($sce) {
   }
 })
 
+tsApp.filter('highlightMarkerFor', function($sce) {
+  return function(text, phrase) {
+    if (text && phrase)
+      text = text.replace(new RegExp('(' + phrase + ')', 'gi'),
+        '<span style="background-color:#e0ffe0;">$1</span>')
+
+    return $sce.trustAsHtml(text)
+  }
+})
+
 tsApp.filter('highlightMarker', function($sce) {
   return function(text, phrase) {
     if (text && phrase)
       text = text.replace(new RegExp('(' + phrase + ')', 'gi'),
-        '<span style="background-color:#f9f9f9;">$1</span>')
+        '<span style="background-color:#e0e0ff;">$1</span>')
 
     return $sce.trustAsHtml(text)
   }
@@ -1090,6 +1100,7 @@ tsApp
         $scope.showObsolete = true;
         $scope.showAtomElement = true;
         $scope.showInferred = true;
+        $scope.showExtension = false;
 
         /**
          * Determine if an item has boolean fields set to true in its child
@@ -1169,10 +1180,9 @@ tsApp
           } else {
             $scope.showObsolete = !$scope.showObsolete;
           }
-
           applyPaging();
-
         }
+
 
         /** Function to toggle suppressible flag and apply paging */
         $scope.toggleSuppressible = function() {
@@ -1207,6 +1217,15 @@ tsApp
           }
           applyPaging();
         }
+        
+        $scope.toggleExtension = function() {
+          if ($scope.showExtension == null || $scope.showExtension == undefined) {
+            $scope.showExtension = false;
+          } else {
+            $scope.showExtension = !$scope.showExtension;
+          }
+        }
+
 
         // /////////////////////////////
         // Expand/Collapse functions
@@ -1491,33 +1510,58 @@ tsApp
           return null;
         }
 
-        $scope.isMarkerFor = function(abbr) {
-          for (var i = 0; i < markerSets.length; i++) {
-            if (markerSets[i].key === abbr && markserSets[i].markerFor) {
+        $scope.isMarkerForMarkerSet = function(tree) {
+          for (var i = 0; i < tree.markerSets.length; i++) {
+            if (tree.markerSets[i].startsWith("MARKERFOR")) {
+              return true;
+            }
+          }
+          return false;
+        }
+        
+        $scope.isMarkerSet = function(tree) {
+          for (var i = 0; i < tree.markerSets.length; i++) {
+            if (!tree.markerSets[i].startsWith("MARKERFOR:")) {
               return true;
             }
           }
           return false;
         }
 
-        $scope.getMarkerSetsValue = function(tree) {
+        $scope.getMarkerForMarkerSetsValue = function(tree) {
           if (tree.markerSets == undefined) {
-            console.debug("Undefined marker sets.");
             return;
           }
-          if (tree.markerSets.length == 1) {
-            return "Ancestor of content in:<br>&#x2022;&nbsp;"
-              + $scope.getMarkerSetName(tree.markerSets[0]);
-
-          }
           var retVal = "Ancestor of content in:<br>";
+          var j = 0;
           for (var i = 0; i < tree.markerSets.length; i++) {
-            if (i > 0) {
-              retval += "<br>";
+            var name = $scope.getMarkerSetName(tree.markerSets[i]);
+            if (tree.markerSets[i].startsWith("MARKERFOR")) {
+              if (j++ > 0) {
+                retVal += "<br>";
+              }              
+              retVal += "&#x2022;&nbsp;" + name;
             }
-            retVal += "&#x2022;&nbsp;"
-              + $scope.getMarkerSetName(tree.markerSets[i]);
           }
+          return retVal;
+        }
+
+        $scope.getMarkerSetsValue = function(tree) {
+          if (tree.markerSets == undefined) {
+            return;
+          }
+          var retVal = "Content in:<br>";
+          var j = 0;
+          for (var i = 0; i < tree.markerSets.length; i++) {
+            var name = $scope.getMarkerSetName(tree.markerSets[i]);
+            if (!tree.markerSets[i].startsWith("MARKERFOR")) {
+              if (j++ > 0) {
+                retVal += "<br>";
+              }
+              retVal += "&#x2022;&nbsp;" + name;
+            }
+          }
+          return retVal;
         }
 
         // ////////////////////////////////////

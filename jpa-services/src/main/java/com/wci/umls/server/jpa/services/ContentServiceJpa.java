@@ -50,6 +50,7 @@ import com.wci.umls.server.helpers.content.AtomList;
 import com.wci.umls.server.helpers.content.AttributeList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
+import com.wci.umls.server.helpers.content.DefinitionList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.LexicalClassList;
 import com.wci.umls.server.helpers.content.RelationshipList;
@@ -90,6 +91,7 @@ import com.wci.umls.server.jpa.helpers.content.AtomListJpa;
 import com.wci.umls.server.jpa.helpers.content.AttributeListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
+import com.wci.umls.server.jpa.helpers.content.DefinitionListJpa;
 import com.wci.umls.server.jpa.helpers.content.DescriptorListJpa;
 import com.wci.umls.server.jpa.helpers.content.LexicalClassListJpa;
 import com.wci.umls.server.jpa.helpers.content.RelationshipListJpa;
@@ -678,6 +680,41 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     } catch (NoResultException e) {
       return null;
     }
+  }
+
+  @Override
+  public Definition getDefinition(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get definition " + id);
+    return getComponent(id, DefinitionJpa.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public DefinitionList getDefinitions(String terminologyId,
+    String terminology, String version) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get definitions " + terminologyId + "/"
+            + terminology + "/" + version);
+    List<Definition> definitions =
+        getComponents(terminologyId, terminology, version, DefinitionJpa.class);
+    if (definitions == null) {
+      return null;
+    }
+    DefinitionList list = new DefinitionListJpa();
+    list.setTotalCount(definitions.size());
+    list.setObjects(definitions);
+    return list;
+  }
+
+  @Override
+  public Definition getDefinition(String terminologyId, String terminology,
+    String version, String branch) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get definition " + terminologyId + "/" + terminology
+            + "/" + version + "/" + branch);
+    return getComponent(terminologyId, terminology, version, branch,
+        DefinitionJpa.class);
   }
 
   @Override

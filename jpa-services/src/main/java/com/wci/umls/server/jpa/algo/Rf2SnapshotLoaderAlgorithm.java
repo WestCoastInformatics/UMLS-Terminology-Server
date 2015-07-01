@@ -93,7 +93,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   private final static String coreModuleId = "900000000000207008";
 
   /** The Constant metadataModuleId. */
-  private final static String metadataModuleId = "900000000000012004X";
+  private final static String metadataModuleId = "900000000000012004";
 
   /** The dpn ref set id. */
   private String dpnRefSetId = "900000000000509007";
@@ -122,6 +122,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   /** The readers. */
   private Rf2Readers readers;
 
+  /**  The definition map. */
+  private Map<String, Set<Long>> definitionMap = new HashMap<>();
+  
   /** The atom id map. */
   private Map<String, Long> atomIdMap = new HashMap<>();
 
@@ -254,6 +257,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       //
       Logger.getLogger(getClass()).info("  Loading Atoms...");
       loadAtoms();
+      loadDefinitions();
 
       Logger.getLogger(getClass()).info("  Loading Language Ref Sets...");
       loadLanguageRefSetMembers();
@@ -704,6 +708,86 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   }
 
   /**
+   * Load definitions.  Treat exactly like descriptions.
+   * 
+   * @throws Exception the exception
+   */
+  private void loadDefinitions() throws Exception {
+    String line = "";
+    objectCt = 0;
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.DEFINITION);
+    while ((line = reader.readLine()) != null) {
+
+      final String fields[] = line.split("\t");
+      if (!fields[0].equals(id)) {
+
+        // Stop if the effective time is past the release version
+        if (fields[1].compareTo(releaseVersion) > 0) {
+          reader.push(line);
+          break;
+        }
+
+        final Atom atom = new AtomJpa();
+        final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
+        atom.setTerminologyId(fields[0]);
+        atom.setTimestamp(date);
+        atom.setLastModified(date);
+        atom.setLastModifiedBy(loader);
+        atom.setObsolete(fields[2].equals("0"));
+        atom.setSuppressible(atom.isObsolete());
+        atom.setConceptId(fields[4]);
+        atom.setDescriptorId("");
+        atom.setCodeId("");
+        atom.setLexicalClassId("");
+        atom.setStringClassId("");
+        atom.setLanguage(fields[5].intern());
+        languages.add(atom.getLanguage());
+        atom.setTermType(fields[6].intern());
+        generalEntryValues.add(atom.getTermType());
+        termTypes.add(atom.getTermType());
+        atom.setName(fields[7]);
+        atom.setTerminology(terminology);
+        atom.setVersion(version);
+        atom.setPublished(true);
+        atom.setPublishable(true);
+        atom.setWorkflowStatus(published);
+
+        // Attributes
+        final Attribute attribute = new AttributeJpa();
+        setCommonFields(attribute, date);
+        attribute.setName("moduleId");
+        attribute.setValue(fields[3].intern());
+        atom.addAttribute(attribute);
+        addAttribute(attribute, atom);
+
+        final Attribute attribute2 = new AttributeJpa();
+        setCommonFields(attribute2, date);
+        attribute2.setName("caseSignificanceId");
+        attribute2.setValue(fields[8].intern());
+        cacheAttributeMetadata(attribute2);
+        atom.addAttribute(attribute2);
+        addAttribute(attribute2, atom);
+
+        // set concept from cache and set initial prev concept
+        final Concept concept = getConcept(conceptIdMap.get(fields[4]));
+
+        if (concept != null) {
+          // this also adds language refset entries
+          addAtom(atom);
+          atomIdMap.put(atom.getTerminologyId(), atom.getId());
+        } else {
+          throw new Exception("Atom " + atom.getTerminologyId()
+              + " references non-existent concept " + fields[4]);
+        }
+
+        logAndCommit(++objectCt);
+      }
+    }
+    commitClearBegin();
+  }
+
+  
+  /**
    * Connect atoms and concepts.
    *
    * @throws Exception the exception
@@ -739,6 +823,14 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           }
           concept.setName(prefName);
           prefName = null;
+
+          // Add definitions
+          if (definitionMap.containsKey(concept.getTerminologyId())) {
+            for (Long id : definitionMap.get(concept.getTerminologyId())) {
+              concept.addDefinition(getDefinition(id));
+            }
+          }
+          
           updateConcept(concept);
 
           // Set atom subset names

@@ -61,18 +61,18 @@
       <div class="navbar-header">
         <table>
           <tr>
-            <td><a href="http://www.westcoastinformatics.com"> <img
-                class="hidden-xs" height="72px"
-                style="background-color: white; padding: 5px; margin: 5px; border-radius: 5px;"
-                src="images/logo65x72.jpg"> <img class="visible-xs"
-                height="40px"
-                style="background-color: white; padding: 3px; margin: 3px; border-radius: 3px;"
-                src="images/logo36x40.jpg">
-            </a></td>
+            <td><a href="http://www.westcoastinformatics.com">
+                <img class="hidden-xs" height="72px"
+                  style="background-color: white; padding: 5px; margin: 5px; border-radius: 5px;"
+                  src="images/logo65x72.jpg"> <img class="visible-xs"
+                  height="40px"
+                  style="background-color: white; padding: 3px; margin: 3px; border-radius: 3px;"
+                  src="images/logo36x40.jpg">
+              </a></td>
             <td style="vertical-align: middle"><b style="color: white;">
                 Terminology Server Demo and <a href="swagger.html"
-                style="color: white; text-decoration: underline" target="_blank">API
-                  Documentation</a>
+                  style="color: white; text-decoration: underline"
+                  target="_blank">API Documentation</a>
             </b></td>
           </tr>
         </table>
@@ -123,11 +123,13 @@
                 <button class="loginField" id="userLoginButton" type="submit"
                   ng-click="login(userName, password)">Login</button>
                 <p>
-                  <br /> <a
+                  <br />
+                  <a
                     href="https://uts.nlm.nih.gov/license.html#emailTemporaryPassword">Forgot
-                    Password?</a> <br /> <br />
+                    Password?</a>
+                  <br /> <br />
                 </p>
-                <ng-include src="'ui/partials/${intro.page}'">
+                <ng-include src="'ui/partials/intro.html'">
               </form>
             </div>
           </div>
@@ -208,27 +210,42 @@
                       ng-repeat="searchResult in searchResults"
                       ng-click="getComponent(searchResult.terminology, searchResult.terminologyId)">
                       <td><span
-                        ng-show="searchResult.terminology != terminology.terminology">{{searchResult.terminology}}/</span>{{searchResult.terminologyId}}</td>
+                          ng-show="searchResult.terminology != terminology.terminology">{{searchResult.terminology}}/</span>{{searchResult.terminologyId}}</td>
                       <td style="word-break: break-word;">{{searchResult.value}}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
+
+              <!-- Tree view -->
               <div ng-show="queryForTree">
                 <div class="alert alert-success"
                   ng-show="searchResultsTree.totalCount > 0">
 
-
                   {{searchResultsTree.totalCount}} Results (Click a row for
-                  details) <a class="pull-right glyphicon glyphicon-th-list"
-                    ng-click="setListView()" tooltip="Switch to list view">
-                  </a>
+                  details)
+
+                  <span class="pull-right">
+
+                    <a class="glyphicon glyphicon-star"
+                      ng-show="showExtension && !terminology.metathesaurus"
+                      tooltip="Click to hide extension highlights in tree"
+                      ng-click="toggleExtension()"> </a>
+                    <a class="glyphicon glyphicon-star-empty"
+                      ng-show="!showExtension && !terminology.metathesaurus"
+                      tooltip="Click to show extension highlights in tree"
+                      ng-click="toggleExtension()"> </a>
+                    &nbsp;
+                    <a class="pull-right glyphicon glyphicon-th-list"
+                      ng-click="setListView()" tooltip="Switch to list view">
+                    </a>
+                  </span>
                 </div>
                 <div class="alert alert-danger"
                   ng-show="searchResultsTree && searchResultsTree.totalCount == 0">Search
                   returned no results.</div>
 
-                <pagination display="block" items-per-page="treePageSize"
+                <pagination style="display:block;" items-per-page="treePageSize"
                   max-size="5" boundary-links="true" class="pagination-sm"
                   previous-text="&lsaquo;" next-text="&rsaquo;"
                   first-text="&laquo;" last-text="&raquo;"
@@ -237,12 +254,9 @@
                   ng-model="searchResultsTreePage"
                   ng-change="findComponents(componentQuery, searchResultsTreePage)"></pagination>
 
-                <p display="block">&nbsp</p>
-                <!-- Included as tree will try to wrap, some css difficulties -->
-
                 <div
                   ng-if="searchResultsTree && searchResultsTree.totalCount > 0"
-                  display="block" ui-tree>
+                  style="display:block;" ui-tree>
                   <ol ui-tree-nodes="" ng-model="searchResultsTree"
                     id="tree-root" data-nodrop-enabled="true">
                     <li ng-repeat="tree in searchResultsTree" ui-tree-node
@@ -251,7 +265,7 @@
                   </ol>
                 </div>
 
-
+                <p style="display: block;">&nbsp;</p>
               </div>
 
             </div>
@@ -269,10 +283,10 @@
               </div>
               <div class="alert alert-info">
                 <span class="dropdown" dropdown dropdown-append-to-body
-                  tooltip="View All History"> <a
-                  ng-show="componentHistory.length > 2"
-                  class="glyphicon glyphicon-time dropdown-toggle"
-                  dropdown-toggle></a>
+                  tooltip="View All History">
+                  <a ng-show="componentHistory.length > 2"
+                    class="glyphicon glyphicon-time dropdown-toggle"
+                    dropdown-toggle></a>
                   <ul class="dropdown-menu">
                     <li ng-show="localHistoryNextCt > 0">...
                       {{localHistoryNextCt}} more recent</li>
@@ -280,9 +294,9 @@
                       ng-repeat="component in localHistory | orderBy:'index':true"
                       ng-click="getComponentFromHistory(component.index)"><a>
                         <i style="margin-right: 1em"
-                        class="glyphicon glyphicon-ok"
-                        ng-show="component.index === componentHistoryIndex"></i>{{getComponentStr(component)}}
-                    </a></li>
+                          class="glyphicon glyphicon-ok"
+                          ng-show="component.index === componentHistoryIndex"></i>{{getComponentStr(component)}}
+                      </a></li>
                     <li ng-show="localHistoryPreviousCt > 0">...
                       {{localHistoryPreviousCt}} less recent</li>
                     <!-- View all History/Clear History -- not yet functioning 
@@ -290,30 +304,31 @@
 										<li><a><button class="btn btn-xs btn-primary" ng-click="viewHistoryInTable()">View in Table</button>
 										<button class="btn btn-xs btn-warning" ng-click="clearHistory()">Clear History</button></a></li> -->
                   </ul>
-                </span> <a class="glyphicon glyphicon-step-backward"
+                </span>
+                <a class="glyphicon glyphicon-step-backward"
                   ng-click="getComponentFromHistory(componentHistoryIndex -1)"
                   ng-show="componentHistoryIndex > 0"
                   tooltip="{{getComponentStr(componentHistory[componentHistoryIndex - 1])}}"></a>
 
                 <span ng-show="component.terminology != terminology.terminology">{{component.terminology}}</span>
-                {{componentType}} Report <a
-                  class="glyphicon glyphicon-step-forward"
+                {{componentType}} Report
+                <a class="glyphicon glyphicon-step-forward"
                   ng-click="getComponentFromHistory(componentHistoryIndex + 1)"
                   ng-show="componentHistory.length > componentHistoryIndex + 1 && componentHistory.length > 0"
                   tooltip="{{getComponentStr(componentHistory[componentHistoryIndex + 1])}}"></a>
 
               </div>
               <h3>
-                {{component.terminologyId}} {{component.name}} <span
-                  class="label label-warning"
+                {{component.terminologyId}} {{component.name}}
+                <span class="label label-warning"
                   ng-show="terminology.metathesaurus && component.suppressible == true"
-                  tooltip="Suppressible">S</span> <span
-                  class="label label-default"
+                  tooltip="Suppressible">S</span>
+                <span class="label label-default"
                   ng-show="component.obsolete == true" tooltip="Obsolete">O</span>
                 <span
                   ng-show="terminology.descriptionLogicTerminology && !component.fullyDefined"
-                  class="label label-info" tooltip="Primitive">P</span> <span
-                  style="padding-bottom: 2px;"
+                  class="label label-info" tooltip="Primitive">P</span>
+                <span style="padding-bottom: 2px;"
                   ng-show="terminology.descriptionLogicTerminology && component.fullyDefined"
                   class="label label-info"
                   tooltip="Necessary and sufficient definition">D</span>
@@ -322,23 +337,26 @@
               <button ng-show="!terminology.descriptionLogicTerminology"
                 ng-click="toggleSuppressible()" class="btn btn-xs btn-primary">
                 <span ng-show="showSuppressible == true">Hide
-                  Suppressible</span> <span ng-show="showSuppressible != true">Show
+                  Suppressible</span>
+                <span ng-show="showSuppressible != true">Show
                   Suppressible</span>
               </button>
               <button ng-click="toggleObsolete()" class="btn btn-xs btn-primary">
-                <span ng-show="showObsolete == true">Hide Obsolete</span> <span
-                  ng-show="showObsolete != true">Show Obsolete</span>
+                <span ng-show="showObsolete == true">Hide Obsolete</span>
+                <span ng-show="showObsolete != true">Show Obsolete</span>
               </button>
 
               <!-- Hierarchical Tree -->
               <div ng-show="treeCount > 0">
 
                 <h4>
-                  {{hierarchiesLabel}} (<a
-                    class="glyphicon glyphicon-step-backward"
-                    ng-click="getTreeByOffset(-1)"></a> {{treeViewed+1}} of
-                  {{treeCount}} <a class="glyphicon glyphicon-step-forward"
-                    ng-click="getTreeByOffset(1)"></a>)
+                  {{hierarchiesLabel}} (
+                  <a class="glyphicon glyphicon-step-backward"
+                    ng-click="getTreeByOffset(-1)"></a>
+                  {{treeViewed+1}} of {{treeCount}}
+                  <a class="glyphicon glyphicon-step-forward"
+                    ng-click="getTreeByOffset(1)"></a>
+                  )
                 </h4>
 
                 <div ui-tree>
@@ -382,11 +400,12 @@
                 <ul class="icon-list">
                   <li class="cr-list" ng-repeat="item in pagedSemanticTypes"
                     ng-show="showItem(item)"><span
-                    class="label label-warning"
-                    ng-show="terminology.metathesaurus && item.suppressible == true"
-                    tooltip="Suppressible">S</span> <span
-                    class="label label-default" ng-show="item.obsolete == true"
-                    tooltip="Obsolete">O</span> {{item.semanticType}}</li>
+                      class="label label-warning"
+                      ng-show="terminology.metathesaurus && item.suppressible == true"
+                      tooltip="Suppressible">S</span> <span
+                      class="label label-default"
+                      ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
+                    {{item.semanticType}}</li>
                 </ul>
 
               </div>
@@ -418,13 +437,14 @@
                 <ul class="icon-list">
                   <li class="cr-list" ng-repeat="item in pagedDefinitions"
                     ng-show="showItem(item)"><span class="label label-info"
-                    ng-show="item.atomElement == true"
-                    tooltip="{{item.atomElementStr}}">i</span> <span
-                    class="label label-warning"
-                    ng-show="terminology.metathesaurus && item.suppressible == true"
-                    tooltip="Suppressible">S</span> <span
-                    class="label label-default" ng-show="item.obsolete == true"
-                    tooltip="Obsolete">O</span> {{item.value}}</li>
+                      ng-show="item.atomElement == true"
+                      tooltip="{{item.atomElementStr}}">i</span> <span
+                      class="label label-warning"
+                      ng-show="terminology.metathesaurus && item.suppressible == true"
+                      tooltip="Suppressible">S</span> <span
+                      class="label label-default"
+                      ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
+                    {{item.value}}</li>
                 </ul>
 
 
@@ -463,49 +483,55 @@
                       <div style="display: table-cell; padding: 1px;">
                         <span class="label label-warning"
                           ng-show="terminology.metathesaurus && item.suppressible == true"
-                          tooltip="Suppressible">S</span> <span
-                          class="label label-default"
+                          tooltip="Suppressible">S</span>
+                        <span class="label label-default"
                           ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
                         <!--  Format:  termType name [ terminology ] codeId componentId descriptorId conceptTerminologyIds
                                                 NOTE: codeId, componentId, descriptorId automatically shown if of differing terminology, 
                                                 see each type below for additional rules -->
                         {{item.name}}
                         <!-- Mobile friendly line-break -->
-                        <br class="visible-xs-inline" /> <span
-                          style="margin-left: 20px;" class="visible-xs-inline">
-                        </span>
+                        <br class="visible-xs-inline" />
+                        <span style="margin-left: 20px;"
+                          class="visible-xs-inline"> </span>
                         <!--  Terminology and term type -->
-                        [ <span
+                        [
+                        <span
                           ng-show="item.terminology != component.terminology">
-                          {{item.terminology}} /</span> <span
-                          tooltip="{{getTermTypeName(item.termType)}}">{{item.termType}}</span>,
-                        {{item.language}} ]
+                          {{item.terminology}} /</span>
+                        <span tooltip="{{getTermTypeName(item.termType)}}">{{item.termType}}</span>
+                        , {{item.language}} ]
                         <!--  For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
                         <span
                           ng-show="item.codeId != component.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
-                          tooltip="{{item.terminology}} code"> <a
-                          ng-show="item.codeId != 'NOCODE'"
-                          ng-click="getCode(item.terminology, item.codeId)">{{item.codeId}}</a><span
-                          ng-show="item.codeId==='NOCODE'">NOCODE</span></span>
+                          tooltip="{{item.terminology}} code">
+                          <a ng-show="item.codeId != 'NOCODE'"
+                            ng-click="getCode(item.terminology, item.codeId)">{{item.codeId}}</a>
+                          <span ng-show="item.codeId==='NOCODE'">NOCODE</span>
+                        </span>
                         <!-- For concept id, do not show if identical to component id -->
                         <span
                           ng-show="item.terminology != component.terminology || item.conceptId != component.terminologyId"
-                          tooltip="{{item.terminology}} concept"> <a
-                          ng-click="getConcept(item.terminology, item.conceptId)">{{item.conceptId}}</a></span>
+                          tooltip="{{item.terminology}} concept">
+                          <a
+                            ng-click="getConcept(item.terminology, item.conceptId)">{{item.conceptId}}</a>
+                        </span>
 
                         <!-- For descriptor id, do not show if identical to component id -->
                         <span
                           ng-show="item.terminology != component.terminology || item.descriptorId != component.terminologyId"
-                          tooltip="{{item.terminology}} descriptor"> <a
-                          ng-click="getDescriptor(item.terminology, item.descriptorId)">{{item.descriptorId}}</a></span>
+                          tooltip="{{item.terminology}} descriptor">
+                          <a
+                            ng-click="getDescriptor(item.terminology, item.descriptorId)">{{item.descriptorId}}</a>
+                        </span>
 
                         <!-- Show any referenced components in the concept terminology id list -->
                         <span
                           ng-repeat="(key, value) in item.conceptTerminologyIds">
                           <a
-                          ng-show="key != component.terminology || value != component.terminologyId"
-                          tooltip="{{key}} concept"
-                          ng-click="getComponent(key, value)">{{value}}</a>
+                            ng-show="key != component.terminology || value != component.terminologyId"
+                            tooltip="{{key}} concept"
+                            ng-click="getComponent(key, value)">{{value}}</a>
                         </span>
 
 
@@ -527,7 +553,7 @@
                               <li
                                 ng-repeat="attribute in item.attribute | orderBy: ['name', 'value']">
                                 <span class="label label-info"
-                                tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+                                  tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
                                 = {{attribute.value}}
                               </li>
                             </ul>
@@ -544,7 +570,7 @@
                                     <li
                                       ng-repeat="attribute in member.attribute | orderBy: ['name', 'value']">
                                       <span class="label label-info"
-                                      tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+                                        tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
                                       = {{attribute.value}}
                                     </li>
                                   </ul>
@@ -558,11 +584,11 @@
                             <ul>
                               <li
                                 ng-repeat="relationship in item.relationship | orderBy:['relationshipType', 'toName']"><span
-                                class="label label-info"
-                                tooltip="{{getRelationshipTypeName(relationship.relationshipType)}}">{{relationship.relationshipType}}</span>
+                                  class="label label-info"
+                                  tooltip="{{getRelationshipTypeName(relationship.relationshipType)}}">{{relationship.relationshipType}}</span>
                                 {{relationship.additionalRelationshipType}} <a
-                                ng-click="getComponent(component.terminology, relationship.toTerminologyId)"
-                                tooltip="{{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toTerminologyId}}</a>
+                                  ng-click="getComponent(component.terminology, relationship.toTerminologyId)"
+                                  tooltip="{{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toTerminologyId}}</a>
                                 {{relationship.toName}}</li>
                             </ul>
                           </div>
@@ -600,12 +626,13 @@
                 <ul class="icon-list">
                   <li class="cr-list" ng-repeat="item in pagedAttributes"
                     ng-show="showItem(item)"><span
-                    class="label label-warning"
-                    ng-show="terminology.metathesaurus && item.suppressible == true"
-                    tooltip="Suppressible">S</span> <span
-                    class="label label-default" ng-show="item.obsolete == true"
-                    tooltip="Obsolete">O</span> <span class="label label-info"
-                    tooltip="{{getAttributeNameName(item.name)}}">{{item.name}}</span>
+                      class="label label-warning"
+                      ng-show="terminology.metathesaurus && item.suppressible == true"
+                      tooltip="Suppressible">S</span> <span
+                      class="label label-default"
+                      ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
+                    <span class="label label-info"
+                      tooltip="{{getAttributeNameName(item.name)}}">{{item.name}}</span>
                     = {{item.value}}
                 </ul>
               </div>
@@ -633,17 +660,18 @@
                 <ul>
                   <li class="cr-list" ng-repeat="item in pagedMembers"
                     ng-show="showItem(item)"><span
-                    class="label label-warning"
-                    ng-show="terminology.metathesaurus && item.suppressible == true"
-                    tooltip="Suppressible">S</span> <span
-                    class="label label-default" ng-show="item.obsolete == true"
-                    tooltip="Obsolete">O</span> {{item.subsetName}}
+                      class="label label-warning"
+                      ng-show="terminology.metathesaurus && item.suppressible == true"
+                      tooltip="Suppressible">S</span> <span
+                      class="label label-default"
+                      ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
+                    {{item.subsetName}}
                     <div ng-show="item.attribute.length > 0">
                       <ul>
                         <li
                           ng-repeat="attribute in item.attribute | orderBy: ['name', 'value']">
                           <span class="label label-info"
-                          tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+                            tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
                           = {{attribute.value}}
                         </li>
                       </ul>
@@ -686,26 +714,30 @@
 
                 <ul class="icon-list">
                   <li class="cr-list" ng-repeat="item in pagedRelationships"
-                    ng-show="showItem(item)"><span ng-show="item.group > 0"><span
-                      class="label label-success"
-                      tooltip="Relationship group {{item.group}}">{{item.group}}</span>&nbsp;
-                  </span> <span class="label label-warning"
-                    ng-show="terminology.metathesaurus && item.suppressible == true"
-                    tooltip="Suppressible">S</span> <span
-                    class="label label-default" ng-show="item.obsolete == true"
-                    tooltip="Obsolete">O</span> <span class="label label-info"
-                    tooltip="{{getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
+                    ng-show="showItem(item)"><span ng-show="item.group > 0">
+                      <span class="label label-success"
+                        tooltip="Relationship group {{item.group}}">{{item.group}}</span>
+                      &nbsp;
+                    </span> <span class="label label-warning"
+                      ng-show="terminology.metathesaurus && item.suppressible == true"
+                      tooltip="Suppressible">S</span> <span
+                      class="label label-default"
+                      ng-show="item.obsolete == true" tooltip="Obsolete">O</span>
+                    <span class="label label-info"
+                      tooltip="{{getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
 
                     {{item.additionalRelationshipType}} <!-- Mobile friendly switch -->
-                    <span class="hidden-xs"> <a
-                      ng-click="getComponent(component.terminology, item.toTerminologyId)"
-                      tooltip="{{item.terminology}} {{componentType | lowercase}}">{{item.toTerminologyId}}</a>
+                    <span class="hidden-xs">
+                      <a
+                        ng-click="getComponent(component.terminology, item.toTerminologyId)"
+                        tooltip="{{item.terminology}} {{componentType | lowercase}}">{{item.toTerminologyId}}</a>
                       {{item.toName}}
 
-                  </span> <span class="visible-xs-inline"> <a
-                      ng-click="getComponent(component.terminology, item.toTerminologyId)"
-                      tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
-                  </span></li>
+                    </span> <span class="visible-xs-inline">
+                      <a
+                        ng-click="getComponent(component.terminology, item.toTerminologyId)"
+                        tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
+                    </span></li>
                 </ul>
               </div>
             </div>
@@ -725,7 +757,7 @@
                     ng-show="item.keyValuePair.length > 0"><b>{{item.name}}</b>
                     <ul>
                       <li ng-repeat="pair in item.keyValuePair"><span
-                        class="label label-info">{{pair.key}}</span>&nbsp;{{pair.value}}</li>
+                          class="label label-info">{{pair.key}}</span>&nbsp;{{pair.value}}</li>
                     </ul></li>
                 </ul>
               </div>
@@ -782,8 +814,9 @@
         <ul class="nav navbar-nav navbar-right">
           <li>
             <p class="navbar-text">
-              Presented by <a href="http://www.westcoastinformatics.com">West
-                Coast Informatics, LLC</a>
+              Presented by
+              <a href="http://www.westcoastinformatics.com">West Coast
+                Informatics, LLC</a>
             </p>
           </li>
         </ul>

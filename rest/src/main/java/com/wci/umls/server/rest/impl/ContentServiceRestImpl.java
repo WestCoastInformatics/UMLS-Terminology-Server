@@ -2713,7 +2713,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
             .getObjects()) {
           Tree childTree = new TreeJpa(childTreePosition);
-          rootTree.mergeTree(childTree);
+          rootTree.addChild(childTree);
         }
       }
 

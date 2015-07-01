@@ -33,6 +33,9 @@ public class Rf2Readers {
     /** The description. */
     DESCRIPTION,
 
+    /** The definition. */
+    DEFINITION,
+
     /** The relationship. */
     RELATIONSHIP,
 
@@ -86,7 +89,8 @@ public class Rf2Readers {
   public void openReaders() throws Exception {
 
     readers.put(Keys.CONCEPT, getReader("conceptsByConcept.sort"));
-    readers.put(Keys.DESCRIPTION, getReader("descriptionsAllByConcept.sort"));
+    readers.put(Keys.DESCRIPTION, getReader("descriptionsByConcept.sort"));
+    readers.put(Keys.DEFINITION, getReader("definitionsByConcept.sort"));
     readers.put(Keys.RELATIONSHIP,
         getReader("relationshipsAllBySourceConcept.sort"));
     readers.put(Keys.ASSOCIATION_REFERENCE,

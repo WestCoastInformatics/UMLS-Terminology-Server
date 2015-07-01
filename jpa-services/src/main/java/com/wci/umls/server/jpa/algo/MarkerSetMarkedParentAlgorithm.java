@@ -133,7 +133,14 @@ public class MarkerSetMarkedParentAlgorithm extends ContentServiceJpa implements
     Set<Long> conceptIds = new HashSet<>();
     for (@SuppressWarnings("rawtypes") final SubsetMember member : members.getObjects()) {
       final Concept concept = (Concept) member.getMember();
-      conceptIds.add(concept.getId());      
+      // Save this to mark it later
+      conceptIds.add(concept.getId());
+      // If the concept is already marked as an ancestor, its ancestors 
+      // have been computed and we can move on
+      if (ancestorConceptIds.contains(concept.getId())) {
+        continue;
+      }
+      // Get all ancestor concepts
       for (Concept ancConcept : findAncestorConcepts(concept.getTerminologyId(), 
           concept.getTerminology(), concept.getVersion(), false, Branch.ROOT, null).getObjects()) {
         ancestorConceptIds.add(ancConcept.getId());
@@ -141,7 +148,7 @@ public class MarkerSetMarkedParentAlgorithm extends ContentServiceJpa implements
     }
     Logger.getLogger(getClass()).info("    count = " + ancestorConceptIds.size());
 
-    Logger.getLogger(getClass()).info("  Tag concepts with marker set");
+    Logger.getLogger(getClass()).info("  Tag ancestor concepts with marker set");
     int objectCt = 0;
     for (Long id : ancestorConceptIds) {
       final Concept concept =  getConcept(id);
@@ -153,6 +160,7 @@ public class MarkerSetMarkedParentAlgorithm extends ContentServiceJpa implements
     commitClearBegin();
 
     // concepts that are both in the set and ancestor of the set get both tags.
+    Logger.getLogger(getClass()).info("  Tag concepts with marker set");
     objectCt = 0;
     for (Long id : conceptIds) {
       final Concept concept =  getConcept(id);
