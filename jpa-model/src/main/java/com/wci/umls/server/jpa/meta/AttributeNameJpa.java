@@ -20,7 +20,7 @@ import com.wci.umls.server.model.meta.AttributeName;
  */
 @Entity
 @Table(name = "attribute_names", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "abbreviation"
+    "abbreviation", "terminology"
 }))
 @Audited
 @XmlRootElement(name = "attributeName")

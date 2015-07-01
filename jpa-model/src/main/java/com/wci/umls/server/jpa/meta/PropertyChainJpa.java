@@ -25,7 +25,7 @@ import com.wci.umls.server.model.meta.PropertyChain;
  */
 @Entity
 @Table(name = "property_chains", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "abbreviation"
+    "abbreviation", "terminology"
 }))
 @Audited
 @XmlRootElement(name = "propertyChain")

@@ -20,7 +20,7 @@ import com.wci.umls.server.model.meta.RelationshipType;
  */
 @Entity
 @Table(name = "relationship_types", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "abbreviation"
+    "abbreviation", "terminology"
 }))
 @Audited
 @XmlRootElement(name = "relationshipType")

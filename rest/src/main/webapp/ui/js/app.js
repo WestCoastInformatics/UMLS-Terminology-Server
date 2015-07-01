@@ -59,8 +59,7 @@ tsApp
         var defaultTerminology = 'UMLS';
 
         $scope.$watch('component', function() {
-          // // console.debug("Component changed to ",
-          // $scope.component);
+          // n/a
         });
 
         // the currently viewed terminology (set by default or user)
@@ -168,8 +167,7 @@ tsApp
 
           // login
           $scope.glassPane++;
-          // console.debug("Login called - " + securityUrl + 'authenticate/' +
-          // name);
+
           $http({
             url : securityUrl + 'authenticate/' + name,
             dataType : "text",
@@ -383,8 +381,7 @@ tsApp
          */
         $scope.getComponentFromType = function(terminologyName, terminologyId,
           type) {
-          // console.debug('getComponentFromType', terminologyName,
-          // terminologyId, type);
+
           switch (type) {
           case 'CONCEPT':
             $scope.getConcept(terminologyName, terminologyId);
@@ -407,8 +404,6 @@ tsApp
          */
         $scope.getConcept = function(terminologyName, terminologyId) {
 
-          console.debug('getConcept', terminologyName, terminologyId);
-
           // if terminology matches scope terminology
           if (terminologyName === $scope.terminology.terminology) {
             getComponentHelper($scope.terminology, terminologyId,
@@ -428,8 +423,6 @@ tsApp
          */
         $scope.getDescriptor = function(terminologyName, terminologyId) {
 
-          console.debug('getDescriptor', terminologyName, terminologyId);
-
           // if terminology matches scope terminology
           if (terminologyName === $scope.terminology.terminology) {
             getComponentHelper($scope.terminology, terminologyId,
@@ -447,8 +440,6 @@ tsApp
          * terminology class type;
          */
         $scope.getCode = function(terminologyName, terminologyId) {
-
-          console.debug('getCode', terminologyName, terminologyId);
 
           // if terminology matches scope terminology
           if (terminologyName === $scope.terminology.terminology) {
@@ -471,9 +462,6 @@ tsApp
 
           $scope.componentType = getComponentTypeFromPrefix(typePrefix);
           $scope.componentTypePrefix = typePrefix;
-
-          // console.debug('getComponentHelper', terminologyObj, terminologyId,
-          // typePrefix, $scope.componentType);
 
           // clear existing component and paging
           $scope.component = null;
@@ -521,9 +509,6 @@ tsApp
                 // assign expandable content flag
                 data.atom[i].hasContent = atomHasContent(data.atom[i]);
 
-                // console.debug("Atom content", data.atom[i].hasContent,
-                // data.atom[i]);
-
                 // push any definitions up to top level
                 for (var j = 0; j < data.atom[i].definition.length; j++) {
                   var definition = data.atom[i].definition[j];
@@ -566,13 +551,9 @@ tsApp
         $scope.getSingleTreeForComponent = function(component, typePrefix,
           startIndex) {
 
-          console.debug('getSingleTreeForComponent', component, typePrefix,
-            startIndex);
-
           $scope.glassPane++;
 
           if (startIndex === undefined) {
-            console.debug('start index undefined')
             startIndex = 0;
           }
 
@@ -639,8 +620,6 @@ tsApp
          */
         $scope.getTreeByOffset = function(offset) {
 
-          console.debug('getTreeByOffset', $scope.treeViewed, offset,
-            $scope.treeCount);
           var treeViewed = $scope.treeViewed + offset;
 
           // ensure number is in circular index
@@ -674,10 +653,9 @@ tsApp
          */
         $scope.getTreeNodeExpansionState = function(tree) {
 
-          // console.debug('getTreeNodeExpansionState', tree);
-
-          if (!tree)
+          if (!tree) {
             return null;
+          }
 
           // case 1: no children loaded, but children exist
           if (tree.childCt > 0 && tree.child.length == 0) {
@@ -701,14 +679,13 @@ tsApp
             return TreeNodeExpansionState.Loaded;
           }
 
-          else
+          else {
             return TreeNodeExpansionState.Undefined;
+          }
 
         }
 
         $scope.getTreeNodeIcon = function(tree, collapsed) {
-
-          // console.debug('getTreeNodeIcon', tree, collapsed);
 
           // if childCt is zero, return leaf
           if (tree.childCt == 0)
@@ -755,19 +732,15 @@ tsApp
          */
         $scope.getTreeChildren = function(tree, treeHandleScope) {
 
-          console.debug('toggleChildren', tree);
-
           switch ($scope.getTreeNodeExpansionState(tree)) {
 
           // if fully loaded or expandable from list, simply toggle
           case TreeNodeExpansionState.Loaded:
           case TreeNodeExpansionState.ExpandableFromList:
-            console.debug("expanded by user or fully loaded, toggling")
             treeHandleScope.toggle();
             return;
 
           default:
-            console.debug("node expansion, retrieving from beginning");
             $scope.getAndSetTreeChildren(tree, 0); // type prefix auto set
 
           }
@@ -789,13 +762,11 @@ tsApp
           var typePrefix = getTypePrefixFromTerminologyAndVersion(
             tree.terminology, tree.version);
 
-          console.debug("getAndSetTreeChildren", tree, typePrefix);
-
           // NOTE: Currently hard-coded to only return siblingPageSize items
           var pfs = getPfs();
           pfs.startIndex = startIndex;
           pfs.maxResults = $scope.siblingPageSize;
-
+          pfs.sortField = $scope.treeSortField;
           $scope.glassPane++;
 
           // @Path("/cui/{terminology}/{version}/{terminologyId}/trees/children")
@@ -813,8 +784,6 @@ tsApp
             .success(
               function(data) {
                 $scope.glassPane--;
-
-                console.debug('children received: ', data)
 
                 // construct ancestor path (for sake of completeness, not filled
                 // in on server-side)
@@ -898,8 +867,6 @@ tsApp
          */
         $scope.findComponentsAsList = function(queryStr, page) {
 
-          console.debug('find concepts', queryStr);
-
           if (!page)
             page = 1;
 
@@ -939,7 +906,6 @@ tsApp
               }
             }).success(
             function(data) {
-              // console.debug("Retrieved concepts:", data);
               $scope.searchResults = data.searchResult;
               $scope.searchResults.totalCount = data.totalCount;
 
@@ -970,8 +936,8 @@ tsApp
           // construct the pfs
           var pfs = {
             startIndex : (page - 1) * $scope.pageSize,
-            maxResults : $scope.pageSize,
-            sortField : null,
+            maxResults : $scope.rootsPageSize,
+            sortField : $scope.treeSortField,
             queryRestriction : null
           }
 
@@ -990,8 +956,6 @@ tsApp
                 "Content-Type" : "application/json"
               }
             }).success(function(data) {
-            console.debug("Retrieved component trees:", data);
-
             // for ease and consistency of use of the ui tree directive
             // force the single tree into a ui-tree data structure with count
             // variables
@@ -999,8 +963,6 @@ tsApp
             $scope.searchResultsTree.push(data); // treeList array of size 1
             $scope.searchResultsTree.totalCount = data.totalCount;
             $scope.searchResultsTree.count = data.count;
-
-            console.debug($scope.searchResultsTree);
 
             $scope.glassPane--;
 
@@ -1016,7 +978,6 @@ tsApp
          * settings NOTE: Always uses the selected terminology
          */
         $scope.findComponentsAsTree = function(queryStr, page) {
-          console.debug('findComponentsTree', queryStr);
 
           if (!page)
             page = 1;
@@ -1056,7 +1017,6 @@ tsApp
                 "Content-Type" : "application/json"
               }
             }).success(function(data) {
-            console.debug("Retrieved component trees:", data);
 
             // for ease and consistency of use of the ui tree directive
             // force the single tree into a ui-tree structure with count
@@ -1065,8 +1025,6 @@ tsApp
             $scope.searchResultsTree.push(data); // treeList array of size 1
             $scope.searchResultsTree.totalCount = data.totalCount;
             $scope.searchResultsTree.count = data.count;
-
-            console.debug($scope.searchResultsTree);
 
             $scope.glassPane--;
 
@@ -1149,26 +1107,31 @@ tsApp
         $scope.showItem = function(item) {
 
           // trigger on suppressible (model data)
-          if ($scope.showSuppressible == false && item.suppressible == true)
+          if ($scope.showSuppressible == false && item.suppressible == true) {
             return false;
+          }
 
           // trigger on obsolete (model data)
-          if ($scope.showObsolete == false && item.obsolete == true)
+          if ($scope.showObsolete == false && item.obsolete == true) {
             return false;
+          }
 
           // trigger on applied showAtomElement flag
-          if ($scope.showAtomElement == false && item.atomElement == true)
+          if ($scope.showAtomElement == false && item.atomElement == true) {
             return false;
+          }
 
           // trigger on inferred flag
           if ($scope.terminology.descriptionLogicTerminology
             && item.hasOwnProperty('stated') && $scope.showInferred
-            && item.stated)
+            && item.stated) {
             return false;
+          }
           if ($scope.terminology.descriptionLogicTerminology
             && item.hasOwnProperty('inferred') && !$scope.showInferred
-            && item.inferred)
+            && item.inferred) {
             return false;
+          }
 
           return true;
         }
@@ -1182,7 +1145,6 @@ tsApp
           }
           applyPaging();
         }
-
 
         /** Function to toggle suppressible flag and apply paging */
         $scope.toggleSuppressible = function() {
@@ -1217,7 +1179,7 @@ tsApp
           }
           applyPaging();
         }
-        
+
         $scope.toggleExtension = function() {
           if ($scope.showExtension == null || $scope.showExtension == undefined) {
             $scope.showExtension = false;
@@ -1225,7 +1187,6 @@ tsApp
             $scope.showExtension = !$scope.showExtension;
           }
         }
-
 
         // /////////////////////////////
         // Expand/Collapse functions
@@ -1236,7 +1197,6 @@ tsApp
 
         // Return true/false whether an atom has expandable content
         function atomHasContent(atom) {
-          // console.debug('atomHasContent', atom);
           if (!atom)
             return false;
           if (atom.attribute.length > 0)
@@ -1250,9 +1210,6 @@ tsApp
 
         // Returns the css class for an item's collapsible control
         $scope.getCollapseIcon = function(item) {
-
-          // console.debug('getCollapseIcon', item.hasContent, item.expanded,
-          // item);
 
           // if no expandable content detected, return blank glyphicon (see
           // tsMobile.css)
@@ -1455,6 +1412,9 @@ tsApp
                 if (generalEntries[j].key === "Relationships_Label") {
                   $scope.relationshipsLabel = generalEntries[j].value;
                 }
+                if (generalEntries[j].key === "Tree_Sort_Field") {
+                  $scope.treeSortField = generalEntries[j].value;
+                }
               }
 
             }
@@ -1518,7 +1478,7 @@ tsApp
           }
           return false;
         }
-        
+
         $scope.isMarkerSet = function(tree) {
           for (var i = 0; i < tree.markerSets.length; i++) {
             if (!tree.markerSets[i].startsWith("MARKERFOR:")) {
@@ -1539,7 +1499,7 @@ tsApp
             if (tree.markerSets[i].startsWith("MARKERFOR")) {
               if (j++ > 0) {
                 retVal += "<br>";
-              }              
+              }
               retVal += "&#x2022;&nbsp;" + name;
             }
           }
@@ -1577,9 +1537,6 @@ tsApp
         $scope.addConceptToHistory = function(terminology, terminologyId, type,
           name) {
 
-          console.debug("Adding concept to history", terminology,
-            terminologyId, type, name);
-
           // if history exists
           if ($scope.componentHistoryIndex != -1) {
 
@@ -1608,7 +1565,6 @@ tsApp
 
         // get the local history for the currently viewed concept
         $scope.$watch('componentHistoryIndex', function() {
-          console.debug('componentHistoryIndex changed');
 
           setComponentLocalHistory($scope.componentHistoryIndex);
         });
@@ -1619,9 +1575,6 @@ tsApp
          * pageSize / 2 + 1 : index + pageSize]
          */
         function setComponentLocalHistory(index) {
-
-          console.debug('getting local history', index,
-            $scope.componentHistory.length, $scope.localHistoryPageSize);
 
           // if not a full page of history, simply set to component history and
           // stop
@@ -1644,9 +1597,6 @@ tsApp
           $scope.localHistoryNextCt = $scope.componentHistory.length
             - upperBound;
           $scope.localHistoryPreviousCt = lowerBound;
-
-          console.debug('indices', lowerBound, upperBound, 'remaining',
-            $scope.localHistoryPreviousCt, $scope.localHistoryNextCt);
 
           // return the local history
           $scope.localHistory = $scope.componentHistory.slice(lowerBound,
@@ -1740,6 +1690,10 @@ tsApp
         $scope.pageSize = 10;
         $scope.relsPageSize = 10;
         $scope.treePageSize = 5;
+        $scope.rootsPageSize = 25;
+
+        // hierarchy sort
+        $scope.treeSortField = "nodeName";
 
         // reset all paginator pages
         function clearPaging() {
@@ -1818,7 +1772,6 @@ tsApp
           // For description logic sources, simply read all rels.
           // That way we ensure all "groups" are represented.
           if ($scope.terminology.descriptionLogicTerminology) {
-            console.debug('Read all relationships');
             pfs['startIndex'] = -1;
             $scope.relsPageSize = 100000000;
           } else {
@@ -1886,8 +1839,6 @@ tsApp
 
         $scope.getPagedDefinitions = function(page, query) {
 
-          console.debug('paged definitions', page, $scope.definitionsPage);
-
           // set the page if supplied, otherwise use the current value
           if (page)
             $scope.definitionsPage = page;
@@ -1951,8 +1902,6 @@ tsApp
         $scope.getPagedArray = function(array, page, applyFlags, filterStr,
           sortField, ascending) {
 
-          console.debug('getPagedArray', page, applyFlags, filterStr);
-
           var newArray = new Array();
 
           // if array blank or not an array, return blank list
@@ -1980,7 +1929,6 @@ tsApp
 
           // apply filter
           if (filterStr) {
-            console.debug('filter detected', filterStr, newArray);
             newArray = getArrayByFilter(newArray, filterStr);
           }
 
@@ -1993,9 +1941,6 @@ tsApp
 
           // add the total count before slicing
           results.totalCount = newArray.length;
-
-          // console.debug(" results", results.totalCount, fromIndex, toIndex,
-          // results);
 
           return results;
         }
@@ -2040,11 +1985,9 @@ tsApp
         function getArrayByFilter(array, filter) {
           var newArray = [];
 
-          console.debug('getArrayByFilter', array, filter);
           for ( var object in array) {
 
             if (objectContainsFilterText(array[object], filter)) {
-              console.debug('pushing object');
               newArray.push(array[object]);
             }
           }
@@ -2059,10 +2002,6 @@ tsApp
 
           for ( var prop in object) {
             var value = object[prop];
-
-            console.debug('checking', value.toString().toLowerCase(), filter
-              .toLowerCase());
-
             // check property for string, note this will cover child elements
             // TODO May want to make this more restrictive?
             if (value

@@ -18,9 +18,9 @@ import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTreePosition;
-import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -31,7 +31,7 @@ import com.wci.umls.server.model.content.TreePosition;
  * Unit testing for {@link TreePositionList}.
  */
 public class ListUnit027Test extends
-    AbstractListUnit<TreePosition<? extends ComponentHasAttributesAndName>> {
+    AbstractListUnit<TreePosition<? extends AtomClass>> {
 
   /** test fixture . */
   private TreePositionList list1;

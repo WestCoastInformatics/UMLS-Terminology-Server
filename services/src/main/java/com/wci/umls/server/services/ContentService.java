@@ -265,8 +265,6 @@ public interface ContentService extends MetadataService {
     String terminology, String version, String branch, String query,
     boolean inverseFlag, PfsParameter pfs) throws Exception;
 
-
-
   /**
    * Returns the descriptor.
    * 
@@ -585,8 +583,8 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public TreePositionList findTreePositionsForConcept(String terminologyId,
-    String terminology, String version, String branch,
-    PfsParameter pfs) throws Exception;
+    String terminology, String version, String branch, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find concept tree positions for query.
@@ -599,9 +597,9 @@ public interface ContentService extends MetadataService {
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findConceptTreePositionsForQuery(
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception;
+  public TreePositionList findConceptTreePositionsForQuery(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find tree positions for descriptor.
@@ -615,8 +613,8 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public TreePositionList findTreePositionsForDescriptor(String descriptorId,
-    String terminology, String version, String branch,
-    PfsParameter pfs) throws Exception;
+    String terminology, String version, String branch, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find descriptor tree positions for query.
@@ -645,8 +643,8 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public TreePositionList findTreePositionsForCode(String codeId,
-    String terminology, String version, String branch,
-    PfsParameter pfs) throws Exception;
+    String terminology, String version, String branch, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find code tree positions for query.
@@ -659,9 +657,9 @@ public interface ContentService extends MetadataService {
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findCodeTreePositionsForQuery(
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception;
+  public TreePositionList findCodeTreePositionsForQuery(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find descendant descriptors.
@@ -1312,7 +1310,6 @@ public interface ContentService extends MetadataService {
   public Definition getDefinition(String terminologyId, String terminology,
     String version, String branch) throws Exception;
 
-
   /**
    * Returns the definitions.
    *
@@ -1322,9 +1319,8 @@ public interface ContentService extends MetadataService {
    * @return the definitions
    * @throws Exception the exception
    */
-  public DefinitionList getDefinitions(String terminologyId, String terminology,
-    String version) throws Exception;
-
+  public DefinitionList getDefinitions(String terminologyId,
+    String terminology, String version) throws Exception;
 
   /**
    * Returns the definition.
@@ -1471,53 +1467,59 @@ public interface ContentService extends MetadataService {
    */
   public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
     String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
-  
+
   /**
-   * Returns the tree for tree position. The tree position type is the same
-   * as the atomclass passed.
+   * Returns the tree for tree position. The tree position type is the same as
+   * the atomclass passed.
    *
    * @param treePosition the tree position
    * @return the tree structure for the tree position
    * @throws Exception the exception
    */
-  public Tree getTreeForTreePosition(TreePosition<? extends AtomClass> treePosition)
-    throws Exception;
-  
+  public Tree getTreeForTreePosition(
+    TreePosition<? extends AtomClass> treePosition) throws Exception;
+
   /**
    * Find concept tree position children.
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param branch the branch
    * @param pfs the pfs
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findConceptTreePositionChildren(String terminologyId, String terminology, String version, PfsParameter pfs) throws Exception;
-  
+  public TreePositionList findConceptTreePositionChildren(String terminologyId,
+    String terminology, String version, String branch, PfsParameter pfs) throws Exception;
+
   /**
    * Find code tree position children.
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param branch the branch
    * @param pfs the pfs
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findCodeTreePositionChildren(String terminologyId, String terminology, String version, PfsParameter pfs) throws Exception;
-  
+  public TreePositionList findCodeTreePositionChildren(String terminologyId,
+    String terminology, String version, String branch, PfsParameter pfs) throws Exception;
+
   /**
    * Find descriptor tree position children.
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param branch the branch
    * @param pfs the pfs
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findDescriptorTreePositionChildren(String terminologyId, String terminology, String version, PfsParameter pfs) throws Exception;
-  
+  public TreePositionList findDescriptorTreePositionChildren(
+    String terminologyId, String terminology, String version, String branch, PfsParameter pfs)
+    throws Exception;
 
 }

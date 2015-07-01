@@ -27,7 +27,7 @@ import com.wci.umls.server.model.meta.UsageType;
  */
 @Entity
 @Table(name = "term_types", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "abbreviation"
+    "abbreviation", "terminology"
 }))
 @Audited
 @XmlRootElement(name = "termType")

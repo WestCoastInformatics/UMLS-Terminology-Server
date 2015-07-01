@@ -19,7 +19,7 @@ import com.wci.umls.server.model.meta.MarkerSet;
  */
 @Entity
 @Table(name = "marker_sets", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "abbreviation"
+    "abbreviation", "terminology"
 }))
 @Audited
 @XmlRootElement(name = "markerSet")

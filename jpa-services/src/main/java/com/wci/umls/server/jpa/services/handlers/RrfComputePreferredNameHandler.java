@@ -124,11 +124,18 @@ public class RrfComputePreferredNameHandler implements
       //   properties passed in for terminology/version
       cacheList(atom.getTerminology(), atom.getVersion());
     }
-    String rank = (atom.isObsolete() ? 0 : 1 ) + 
-        (atom.isSuppressible() ? 0 : 1 ) + 
-        ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType())
-        + (10000000000L - Long.parseLong(atom.getStringClassId().substring(1)))
-        + (100000000000L - atom.getId());
+    String rank = null;
+    if (atom.getStringClassId() != null && !atom.getStringClassId().isEmpty()) {
+      rank = (atom.isObsolete() ? 0 : 1 ) + 
+          (atom.isSuppressible() ? 0 : 1 ) + 
+          ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType())
+          + (10000000000L - Long.parseLong(atom.getStringClassId().substring(1)))
+          + (100000000000L - atom.getId()); 
+    } else {
+      rank = (atom.isObsolete() ? 0 : 1 ) + 
+          (atom.isSuppressible() ? 0 : 1 ) + 
+          ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType());      
+    }
     return rank;
   }
 

@@ -4844,141 +4844,91 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         query, pfs, CodeTreePositionJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findConceptTreePositionChildren
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
   @Override
   public TreePositionList findConceptTreePositionChildren(String terminologyId,
-    String terminology, String version, PfsParameter pfs) throws Exception {
+    String terminology, String version, String branch, PfsParameter pfs)
+    throws Exception {
 
     Logger.getLogger(getClass()).info(
         "Content Service - find children of a concept tree position "
             + terminologyId + "/" + terminology + "/" + version);
-
-    TreePositionList childTreePositions = new TreePositionListJpa();
-
-    // get the child concepts
-    ConceptList childConcepts =
-        findDescendantConcepts(terminologyId, terminology, version, true,
-            Branch.ROOT, pfs);
-
-    // construct pfs parameter for tree position lookup, only need first one
-    PfsParameter childPfs = new PfsParameterJpa();
-    childPfs.setStartIndex(0);
-    childPfs.setMaxResults(1);
-
-    // get a tree position for each child, for child ct
-    for (Concept childConcept : childConcepts.getObjects()) {
-      TreePositionList tpList =
-          findTreePositionsForConcept(childConcept.getTerminologyId(),
-              childConcept.getTerminology(), childConcept.getVersion(),
-              Branch.ROOT, childPfs);
-
-      if (tpList.getCount() != 1)
-        throw new Exception("Unexpected number of tree positions for concept "
-            + terminologyId);
-
-      childTreePositions.addObject(tpList.getObjects().get(0));
-    }
-
-    return childTreePositions;
+    return getTreePositionChildrenHelper(terminologyId, terminology, version,
+        branch, pfs, ConceptTreePositionJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findDescriptorTreePositionChildren
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
   @Override
   public TreePositionList findDescriptorTreePositionChildren(
-    String terminologyId, String terminology, String version, PfsParameter pfs)
-    throws Exception {
+    String terminologyId, String terminology, String version, String branch,
+    PfsParameter pfs) throws Exception {
 
     Logger.getLogger(getClass()).info(
         "Content Service - find children of a descriptor tree position "
             + terminology + "/" + version);
-
-    TreePositionList childTreePositions = new TreePositionListJpa();
-
-    // get the child descriptors
-    DescriptorList childDescriptors =
-        findDescendantDescriptors(terminologyId, terminology, version, true,
-            Branch.ROOT, pfs);
-
-    // construct pfs parameter for tree position lookup, only need first one
-    PfsParameter childPfs = new PfsParameterJpa();
-    childPfs.setStartIndex(0);
-    childPfs.setMaxResults(1);
-
-    // get a tree position for each child, for child ct
-    for (Descriptor childDescriptor : childDescriptors.getObjects()) {
-      TreePositionList tpList =
-          findTreePositionsForDescriptor(childDescriptor.getTerminologyId(),
-              childDescriptor.getTerminology(), childDescriptor.getVersion(),
-              Branch.ROOT, childPfs);
-
-      if (tpList.getCount() != 1)
-        throw new Exception(
-            "Unexpected number of tree positions for descriptor "
-                + terminologyId);
-
-      childTreePositions.addObject(tpList.getObjects().get(0));
-    }
-
-    return childTreePositions;
+    return getTreePositionChildrenHelper(terminologyId, terminology, version,
+        branch, pfs, DescriptorTreePositionJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findCodeTreePositionChildren
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
   @Override
   public TreePositionList findCodeTreePositionChildren(String terminologyId,
-    String terminology, String version, PfsParameter pfs) throws Exception {
+    String terminology, String version, String branch, PfsParameter pfs)
+    throws Exception {
 
     Logger.getLogger(getClass()).info(
         "Content Service - find children of a code tree position "
             + terminology + "/" + version);
 
-    TreePositionList childTreePositions = new TreePositionListJpa();
+    return getTreePositionChildrenHelper(terminologyId, terminology, version,
+        branch, pfs, CodeTreePositionJpa.class);
+  }
 
-    // get the child codes
-    CodeList childCodes =
-        findDescendantCodes(terminologyId, terminology, version, true,
-            Branch.ROOT, pfs);
+  /**
+   * Returns the child tree positions helper.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param pfs the pfs
+   * @param clazz the clazz
+   * @return the child tree positions helper
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  private TreePositionList getTreePositionChildrenHelper(String terminologyId,
+    String terminology, String version, String branch, PfsParameter pfs,
+    Class<?> clazz) throws Exception {
 
-    // construct pfs parameter for tree position lookup, only need first one
     PfsParameter childPfs = new PfsParameterJpa();
     childPfs.setStartIndex(0);
     childPfs.setMaxResults(1);
-
     // get a tree position for each child, for child ct
-    for (Code childCode : childCodes.getObjects()) {
-      TreePositionList tpList =
-          findTreePositionsForCode(childCode.getTerminologyId(),
-              childCode.getTerminology(), childCode.getVersion(), Branch.ROOT,
-              childPfs);
+    TreePositionList tpList =
+        findTreePositionsHelper(terminologyId, terminology, version, branch,
+            "", childPfs, clazz);
 
-      if (tpList.getCount() != 1)
-        throw new Exception("Unexpected number of tree positions for code "
-            + terminologyId);
+    if (tpList.getCount() == 0) {
+      return new TreePositionListJpa();
+    }
+    TreePosition<? extends AtomClass> treePosition = tpList.getObjects().get(0);
 
-      childTreePositions.addObject(tpList.getObjects().get(0));
+    Long tpId = treePosition.getNode().getId();
+    String fullAncPath =
+        treePosition.getAncestorPath()
+            + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
+
+    String query = "ancestorPath:\"" + fullAncPath + "\"";
+    System.out.println("query = " + query);
+
+    FullTextQuery fullTextQuery =
+        applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class, query, pfs);
+
+    TreePositionList list = new TreePositionListJpa();
+    list.setTotalCount(fullTextQuery.getResultSize());
+    list.setObjects(fullTextQuery.getResultList());
+    for (TreePosition tp : list.getObjects()) {
+      System.out.println("tp = " + tp.getAncestorPath() + ", " + tp);
     }
 
-    return childTreePositions;
+    return list;
   }
-
 }

@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.wci.umls.server.helpers.AbstractResultList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.content.AbstractTreePosition;
-import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
@@ -20,7 +20,7 @@ import com.wci.umls.server.model.content.TreePosition;
 @XmlRootElement(name = "treePositionList")
 public class TreePositionListJpa
     extends
-    AbstractResultList<TreePosition<? extends ComponentHasAttributesAndName>>
+    AbstractResultList<TreePosition<? extends AtomClass>>
     implements TreePositionList {
 
   /*
@@ -30,7 +30,7 @@ public class TreePositionListJpa
    */
   @Override
   @XmlElement(type = AbstractTreePosition.class, name = "treepos")
-  public List<TreePosition<? extends ComponentHasAttributesAndName>> getObjects() {
+  public List<TreePosition<? extends AtomClass>> getObjects() {
     return super.getObjectsTransient();
   }
 

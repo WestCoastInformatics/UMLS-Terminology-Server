@@ -18,7 +18,7 @@ import com.wci.umls.server.model.meta.Language;
  */
 @Entity
 @Table(name = "languages", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "abbreviation"
+    "abbreviation", "terminology"
 }))
 @Audited
 @XmlRootElement(name = "language")

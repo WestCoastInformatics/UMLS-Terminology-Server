@@ -620,26 +620,37 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
-    ClamlLoaderAlgorithm clamlAlgorithm = new ClamlLoaderAlgorithm();
-    TransitiveClosureAlgorithm transitiveClosureAlgorithm =
+    ClamlLoaderAlgorithm algo = new ClamlLoaderAlgorithm();
+    TransitiveClosureAlgorithm algo2 =
         new TransitiveClosureAlgorithm();
+    TreePositionAlgorithm algo3 = new TreePositionAlgorithm();
     try {
       authenticate(securityService, authToken, "start editing cycle",
           UserRole.ADMINISTRATOR);
 
       // Load snapshot
       Logger.getLogger(getClass()).info("Load ClaML data from " + inputFile);
-      clamlAlgorithm.setTerminology(terminology);
-      clamlAlgorithm.setVersion(version);
-      clamlAlgorithm.setInputFile(inputFile);
-      clamlAlgorithm.compute();
+      algo.setTerminology(terminology);
+      algo.setVersion(version);
+      algo.setInputFile(inputFile);
+      algo.compute();
 
       // Let service begin its own transaction
       Logger.getLogger(getClass()).info("Start computing transtive closure");
-      transitiveClosureAlgorithm.setTerminology(terminology);
-      transitiveClosureAlgorithm.setVersion(version);
-      transitiveClosureAlgorithm.reset();
-      transitiveClosureAlgorithm.compute();
+      algo2.setIdType(IdType.CONCEPT);
+      algo2.setCycleTolerant(false);
+      algo2.setTerminology(terminology);
+      algo2.setVersion(version);
+      algo2.compute();
+      algo2.close();
+      
+      // compute tree positions
+      algo3.setCycleTolerant(false);
+      algo3.setIdType(IdType.CONCEPT);
+      algo3.setTerminology(terminology);
+      algo3.setVersion(version);
+      algo3.compute();
+      algo3.close();
 
       // Final logging messages
       Logger.getLogger(getClass()).info(
@@ -649,8 +660,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } catch (Exception e) {
       handleException(e, "trying to load terminology from ClaML file");
     } finally {
-      clamlAlgorithm.close();
-      transitiveClosureAlgorithm.close();
+      algo.close();
+      algo2.close();
       securityService.close();
     }
   }
@@ -2537,7 +2548,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   public TreeList findConceptTreeChildren(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Concept terminologyId, e.g. C0000061 or ~BLANK~ for top-level", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Concept terminologyId, e.g. C0000061", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2556,7 +2567,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // instantiate child tree positions array, used to construct trees
       TreePositionList childTreePositions =
           contentService.findConceptTreePositionChildren(terminologyId,
-              terminology, version, pfs);
+              terminology, version, Branch.ROOT, pfs);
 
       // for each tree position, construct a tree
       for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2564,7 +2575,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
-
+      
       return childTrees;
 
     } catch (Exception e) {
@@ -2583,7 +2594,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   public TreeList findCodeTreeChildren(
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Code terminologyId, e.g. C0000061 or ~BLANK~ for top-level", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Code terminologyId, e.g. C0000061", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2602,7 +2613,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // instantiate child tree positions array, used to construct trees
       TreePositionList childTreePositions =
           contentService.findCodeTreePositionChildren(terminologyId,
-              terminology, version, pfs);
+              terminology, version, Branch.ROOT, pfs);
 
       // for each tree position, construct a tree
       for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2629,7 +2640,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   public TreeList findDescriptorTreeChildren(
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Descriptor terminologyId, e.g. D0000061 or ~BLANK~ for top-level", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Descriptor terminologyId, e.g. D0000061", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -2648,7 +2659,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // instantiate child tree positions array, used to construct trees
       TreePositionList childTreePositions =
           contentService.findConceptTreePositionChildren(terminologyId,
-              terminology, version, pfs);
+              terminology, version, Branch.ROOT, pfs);
 
       // for each tree position, construct a tree
       for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2707,7 +2718,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findConceptTreePositionChildren(
-                rootTree.getTerminologyId(), terminology, version, pfs);
+                rootTree.getTerminologyId(), terminology, version, Branch.ROOT, pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2724,7 +2735,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         rootTree.setTerminology(terminology);
         rootTree.setVersion(version);
         rootTree.setName("Top");
-        rootTree.setTotalCount(rootTreePositions.getTotalCount());
+        rootTree.setTotalCount(1);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions
@@ -2784,7 +2795,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findDescriptorTreePositionChildren(
-                rootTree.getTerminologyId(), terminology, version, pfs);
+                rootTree.getTerminologyId(), terminology, version, Branch.ROOT, pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2801,7 +2812,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         rootTree.setTerminology(terminology);
         rootTree.setVersion(version);
         rootTree.setName("Top");
-        rootTree.setTotalCount(rootTreePositions.getTotalCount());
+        rootTree.setTotalCount(1);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions
@@ -2861,7 +2872,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findCodeTreePositionChildren(
-                rootTree.getTerminologyId(), terminology, version, pfs);
+                rootTree.getTerminologyId(), terminology, version, Branch.ROOT, pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2878,7 +2889,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         rootTree.setTerminology(terminology);
         rootTree.setVersion(version);
         rootTree.setName("Top");
-        rootTree.setTotalCount(rootTreePositions.getTotalCount());
+        rootTree.setTotalCount(1);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions

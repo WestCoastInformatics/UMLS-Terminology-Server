@@ -5,21 +5,21 @@
 # distribution.
 
 # Configure 
-set SNOMEDCT_CODE=~/code
-set SNOMEDCT_CONFIG=~/config/config.properties
-set SNOMEDCT_DATA=~/data
+set ICD10_CODE=~/claml/code
+set ICD10_CONFIG=~/claml/config/config.properties
+set ICD10_DATA=~/claml/data
 set SERVER=false
 echo "------------------------------------------------"
 echo "Starting ...`/bin/date`"
 echo "------------------------------------------------"
-echo "SNOMEDCT_CODE = $SNOMEDCT_CODE"
-echo "SNOMEDCT_DATA = $SNOMEDCT_DATA"
-echo "SNOMEDCT_CONFIG = $SNOMEDCT_CONFIG"
+echo "ICD10_CODE = $ICD10_CODE"
+echo "ICD10_DATA = $ICD10_DATA"
+echo "ICD10_CONFIG = $ICD10_CONFIG"
 echo "SERVER = $SERVER"
 
 echo "    Run Createdb ...`/bin/date`"
-cd $SNOMEDCT_CODE/admin/db
-mvn install -PCreatedb -Drun.config.ts=$SNOMEDCT_CONFIG >&! mvn.log
+cd $ICD10_CODE/admin/db
+mvn install -PCreatedb -Drun.config.icd=$ICD10_CONFIG >&! mvn.log
 if ($status != 0) then
     echo "ERROR running createdb"
     cat mvn.log
@@ -27,43 +27,76 @@ if ($status != 0) then
 endif
 
 echo "    Clear indexes ...`/bin/date`"
-cd $SNOMEDCT_CODE/admin/lucene
-mvn install -PReindex -Drun.config.ts=$SNOMEDCT_CONFIG -Dserver=$SERVER >&! mvn.log
+cd $ICD10_CODE/admin/lucene
+mvn install -PReindex -Drun.config.icd=$ICD10_CONFIG -Dserver=$SERVER >&! mvn.log
 if ($status != 0) then
     echo "ERROR running lucene"
     cat mvn.log
     exit 1
 endif
 
-echo "    Load SNOMEDCT ...`/bin/date`"
-cd $SNOMEDCT_CODE/admin/loader
-mvn install -PRF2-snapshot -Drun.config.ts=$SNOMEDCT_CONFIG -Dserver=$SERVER -Dterminology=SNOMEDCT -Dversion=latest -Dinput.dir=$SNOMEDCT_DATA/snomedct-20140731-mini >&! mvn.log
+echo "    Load ICD10 ...`/bin/date`"
+cd $ICD10_CODE/admin/loader
+mvn install -PClaML -Drun.config.icd=$ICD10_CONFIG -Dserver=$SERVER -Dterminology=ICD10 -Dversion=latest -Dinput.dir=$ICD10_DATA/icd10.xml >&! mvn.log
 if ($status != 0) then
-    echo "ERROR loading SNOMEDCT"
+    echo "ERROR loading ICD10"
     cat mvn.log
     exit 1
 endif
 
-echo "    Add SNOMEDCT project ...`/bin/date`"
-cd $SNOMEDCT_CODE/admin/loader
-mvn install -PProject -Drun.config.ts=$SNOMEDCT_CONFIG -Dserver=$SERVER \
+echo "    Add ICD10 project ...`/bin/date`"
+cd $ICD10_CODE/admin/loader
+mvn install -PProject -Drun.config.icd=$ICD10_CONFIG -Dserver=$SERVER \
   -Dname="Sample Project" -Ddescription="Sample project." \
-  -Dterminology=SNOMEDCT -Dversion=latest \
+  -Dterminology=ICD10 -Dversion=latest \
   -Dadmin.user=admin >&! mvn.log
 if ($status != 0) then
-    echo "ERROR adding project for SNOMEDCT"
+    echo "ERROR adding project for ICD10"
     cat mvn.log
     exit 1
 endif
 
 
-echo "    Start SNOMEDCT editing ...`/bin/date`"
-cd $SNOMEDCT_CODE/admin/release
-mvn install -PStartEditingCycle -Drun.config.ts=$SNOMEDCT_CONFIG \
-  -Dserver=$SERVER -Drelease.version=20150131 -Dterminology=SNOMEDCT \
+echo "    Start ICD10 editing ...`/bin/date`"
+cd $ICD10_CODE/admin/release
+mvn install -PStartEditingCycle -Drun.config.icd=$ICD10_CONFIG \
+  -Dserver=$SERVER -Drelease.version=20150131 -Dterminology=ICD10 \
   -Dversion=latest >&! mvn.log
 if ($status != 0) then
-    echo "ERROR starting editing for SNOMEDCT"
+    echo "ERROR starting editing for ICD10"
+    cat mvn.log
+    exit 1
+endif
+
+echo "    Load ICD10CM ...`/bin/date`"
+cd $ICD10_CODE/admin/loader
+mvn install -PClaML -Drun.config.icd=$ICD10_CONFIG -Dserver=$SERVER -Dterminology=ICD10CM -Dversion=latest -Dinput.dir=$ICD10_DATA/icd10cm.xml >&! mvn.log
+if ($status != 0) then
+    echo "ERROR loading ICD10CM"
+    cat mvn.log
+    exit 1
+endif
+
+echo "    Add ICD10CM project ...`/bin/date`"
+cd $ICD10_CODE/admin/loader
+mvn install -PProject -Drun.config.icd=$ICD10_CONFIG -Dserver=$SERVER \
+  -Dname="Sample Project" -Ddescription="Sample project." \
+  -Dterminology=ICD10CM -Dversion=latest \
+  -Dadmin.user=admin >&! mvn.log
+if ($status != 0) then
+    echo "ERROR adding project for ICD10CM"
+    cat mvn.log
+    exit 1
+endif
+
+
+echo "    Start ICD10CM editing ...`/bin/date`"
+cd $ICD10_CODE/admin/release
+mvn install -PStartEditingCycle -Drun.config.icd=$ICD10_CONFIG \
+  -Dserver=$SERVER -Drelease.version=20150131 -Dterminology=ICD10CM \
+  -Dversion=latest >&! mvn.log
+if ($status != 0) then
+    echo "ERROR starting editing for ICD10CM"
     cat mvn.log
     exit 1
 endif

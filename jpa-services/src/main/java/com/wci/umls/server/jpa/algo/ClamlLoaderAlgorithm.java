@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.PushbackInputStream;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,12 +43,13 @@ import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
+import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
 import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
+import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
@@ -55,13 +57,16 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.CodeVariantType;
+import com.wci.umls.server.model.meta.GeneralMetadataEntry;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.NameVariantType;
 import com.wci.umls.server.model.meta.RelationshipType;
+import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.TermTypeStyle;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
-import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
@@ -79,7 +84,10 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
   /** The terminology version. */
   String version;
-  
+
+  /** The release version date. */
+  Date releaseVersionDate;
+
   /** The terminology language. */
   String terminologyLanguage;
 
@@ -98,6 +106,12 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
   /** The concept map. */
   Map<String, Concept> conceptMap = new HashMap<>();
 
+  /** The concept set. */
+  Set<Concept> conceptSet = new HashSet<>();
+
+  /** The relationship set. */
+  Set<ConceptRelationship> relationshipSet = new HashSet<>();
+
   /** The roots. */
   List<String> roots = null;
 
@@ -106,6 +120,15 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
   /** Indicates subclass relationships NOTE: this assumes a single superclass. */
   Map<String, Boolean> parentCodeHasChildrenMap;
+
+  /** The additional relationship types. */
+  Set<String> additionalRelationshipTypes = new HashSet<>();
+
+  /** The term types. */
+  Set<String> termTypes = new HashSet<>();
+
+  /** The loader. */
+  final String loader = "loader";
 
   /**
    * Instantiates an empty {@link ClamlLoaderAlgorithm}.
@@ -184,13 +207,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       findVersion(inputFile);
       findLanguage(inputFile);
 
-      // create Metadata
-     /* Logger.getLogger(getClass()).info("  Create metadata classes");
-      helper =
-          new ClamlMetadataHelper(terminology, terminologyVersion,
-              effectiveTime, contentService);
-      conceptMap = helper.createMetadata();*/
-
       childToParentCodeMap = new HashMap<>();
       parentCodeHasChildrenMap = new HashMap<>();
 
@@ -209,31 +225,18 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       is.setEncoding("UTF-8");
       saxParser.parse(is, handler);
 
+      // Handle metadata
+      loadMetadata();
+
       commit();
-
-      // creating tree positions
-      // first get isaRelType from metadata
-/*      MetadataService metadataService = new MetadataServiceJpa();
-      Map<String, String> hierRelTypeMap =
-          metadataService.getHierarchicalRelationshipTypes(terminology,
-              terminologyVersion);
-      String isaRelType = hierRelTypeMap.keySet().iterator().next().toString();
-      metadataService.close();
-
-      // Let the service create its own transaction.
-      Logger.getLogger(getClass()).info("Start creating tree positions.");
-      for (String root : roots) {
-        computeTreePositions(terminology, terminologyVersion,
-            isaRelType, root);
-      }*/
+      clear();
       close();
 
       Logger.getLogger(getClass()).info("Done ...");
 
     } catch (Exception e) {
       e.printStackTrace();
-      throw new Exception(
-          "Conversion of Claml to RF2 objects failed", e);
+      throw new Exception("Conversion of Claml to RF2 objects failed", e);
     } finally {
       try {
         if (fis != null) {
@@ -398,12 +401,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
     /** The current sub classes. */
     Set<String> currentSubClasses = new HashSet<>();
-    
-    /** The additional relationship types. */
-    Set<String> additionalRelationshipTypes = new HashSet<>();
-    
-    /** The term types. */
-    Set<String> termTypes = new HashSet<>();
 
     /**
      * This is a code => modifier map. The modifier must then be looked up in
@@ -506,11 +503,13 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
         // CLAML FIXER - ICD10 is broken, fix it here
         //
         if (modifier.endsWith("_4") && !modifierCode.startsWith(".")) {
-          Logger.getLogger(getClass()).info("  FIXING broken code, adding . to _4 code");
+          Logger.getLogger(getClass()).info(
+              "  FIXING broken code, adding . to _4 code");
           modifierCode = "." + modifierCode;
         }
         if (modifier.endsWith("_5") && modifierCode.startsWith(".")) {
-          Logger.getLogger(getClass()).info("  FIXING broken code, removing . from _5 code");
+          Logger.getLogger(getClass()).info(
+              "  FIXING broken code, removing . from _5 code");
           modifierCode = modifierCode.substring(1);
         }
         classUsage = attributes.getValue("usage");
@@ -548,7 +547,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       // Encountered ModifiedBy, save modifier code information
       if (qName.equalsIgnoreCase("modifiedby")) {
         String modifiedByCode = attributes.getValue("code");
-        Logger.getLogger(getClass()).info("  Class " + code + " modified by " + modifiedByCode);
+        Logger.getLogger(getClass()).info(
+            "  Class " + code + " modified by " + modifiedByCode);
         List<String> currentModifiers = new ArrayList<>();
         if (classToModifierMap.containsKey(code)) {
           currentModifiers = classToModifierMap.get(code);
@@ -694,13 +694,12 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
           // For the first label in the code, create the concept
           if (!conceptMap.containsKey(code)) {
             concept.setTerminologyId(code);
-            
             concept.setTerminology(terminology);
             concept.setVersion(version);
             concept.setName(labelChars.toString());
-            concept.setLastModified(ConfigUtility.DATE_FORMAT3.parse(version)); 
-            concept.setTimestamp(ConfigUtility.DATE_FORMAT3.parse(version));
-            concept.setLastModifiedBy("loader");
+            concept.setLastModified(releaseVersionDate);
+            concept.setTimestamp(releaseVersionDate);
+            concept.setLastModifiedBy(loader);
             concept.setObsolete(false);
             concept.setSuppressible(false);
             concept.setPublishable(true);
@@ -712,14 +711,12 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
             Logger.getLogger(getClass()).debug(
                 "  Add concept " + concept.getTerminologyId() + " "
                     + concept.getName());
-            // Persist now, but commit at the end after all descriptions are
-            // added
-            addConcept(concept);
             conceptMap.put(code, concept);
+            conceptSet.add(concept);
           }
 
           // Add atom to concept for this rubric
-          Atom atom = new AtomJpa();
+          final Atom atom = new AtomJpa();
           atom.setTerminologyId(rubricId);
           atom.setTerminology(terminology);
           atom.setVersion(version);
@@ -730,9 +727,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
           atom.setLexicalClassId("");
           atom.setStringClassId("");
           atom.setLanguage(terminologyLanguage);
-          atom.setLastModified(ConfigUtility.DATE_FORMAT3.parse(version)); 
-          atom.setTimestamp(ConfigUtility.DATE_FORMAT3.parse(version));
-          atom.setLastModifiedBy("loader");
+          atom.setLastModified(releaseVersionDate);
+          atom.setTimestamp(releaseVersionDate);
+          atom.setLastModifiedBy(loader);
           atom.setObsolete(false);
           atom.setSuppressible(false);
           atom.setPublishable(true);
@@ -742,11 +739,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
           atom.setWorkflowStatus("PUBLISHED");
 
           Logger.getLogger(getClass()).info(
-              "  Add Atom for class " + code + " - " + rubricKind
-                  + " - "
+              "  Add Atom for class " + code + " - " + rubricKind + " - "
                   + (atom.getName().replaceAll("\r", "").replaceAll("\n", "")));
-
-          addAtom(atom);
           concept.addAtom(atom);
 
           // reset label characters
@@ -816,7 +810,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
           // if relationships for this concept will be added at endDocument(),
           // save relevant data now in relsMap
           if (isaRelNeeded && concept.getTerminologyId() != null) {
-            Logger.getLogger(getClass()).info("  Class " + code + " has parent " + parentCode);
+            Logger.getLogger(getClass()).info(
+                "  Class " + code + " has parent " + parentCode);
             Set<Concept> children = new HashSet<>();
             // check if this parentCode already has children
             if (relsMap.containsKey(parentCode + ":" + "isa")) {
@@ -840,29 +835,24 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
           // Record class level dagger/asterisk info as refset member
           if (classUsage != null) {
-            // TODO:
-            // create and populate attribute object with name = "USAGE"
-            // add attribute to the concept
-            // addAttribute()
-            // make metadata object for attributeName
-            Attribute att = new AttributeJpa();
+            // Make usage attribute
+            final Attribute att = new AttributeJpa();
             att.setName("USAGE");
-            // TODO: value whatever class usage is set to
-            att.setValue("USAGE");
-            att.setTimestamp(ConfigUtility.DATE_FORMAT3.parse(version));
+            att.setValue(classUsage);
+            att.setTimestamp(releaseVersionDate);
             att.setTerminologyId("");
             att.setTerminology(terminology);
             att.setVersion(version);
-            att.setLastModified(ConfigUtility.DATE_FORMAT3.parse(version));
-            att.setLastModifiedBy("loader");
+            att.setLastModified(releaseVersionDate);
+            att.setLastModifiedBy(loader);
             att.setObsolete(false);
             att.setPublishable(true);
             att.setPublished(true);
             att.setSuppressible(false);
-            
+
             concept.addAttribute(att);
             addAttribute(att, concept);
-            
+
           }
 
           // reset variables at the end of each
@@ -918,14 +908,12 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
           String parentCode = null;
           String id = null;
           String type = null;
-          String label = null;
 
           // handle reference case
           if (tokens.length == 4) {
             parentCode = tokens[0];
             type = tokens[2];
             id = tokens[1];
-            label = tokens[3];
             if (relDisambiguation.containsKey(id)) {
               int ct = relDisambiguation.get(id);
               ct++;
@@ -959,7 +947,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
                 "  Create Relationship " + childConcept.getTerminologyId()
                     + " " + type + " " + parentCode + " " + id);
             if (conceptMap.containsKey(parentCode)) {
-              ConceptRelationship relationship = new ConceptRelationshipJpa();
+              final ConceptRelationship relationship =
+                  new ConceptRelationshipJpa();
               // For reference, use the provided id
               if (id != null) {
                 relationship.setTerminologyId(id);
@@ -969,200 +958,65 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
                 relationship.setTerminologyId(new Integer(relIdCounter++)
                     .toString());
               }
-              
+
               relationship.setTerminology(terminology);
               relationship.setVersion(version);
-              
+
               relationship.setTo(conceptMap.get(parentCode));
               relationship.setFrom(childConcept);
-              relationship.setRelationshipType(type.toLowerCase().equals("isa") ? "CHD" : "RO");
+              relationship.setRelationshipType(type.toLowerCase().equals("isa")
+                  ? "CHD" : "RO");
               relationship.setAdditionalRelationshipType(type);
-              additionalRelationshipTypes.add(type); 
+              additionalRelationshipTypes.add(type);
               relationship.setGroup(null);
               relationship.setAssertedDirection(true);
               relationship.setInferred(true);
               relationship.setStated(true);
-              relationship.setLastModified(ConfigUtility.DATE_FORMAT3.parse(version)); 
-              relationship.setTimestamp(ConfigUtility.DATE_FORMAT3.parse(version));
-              relationship.setLastModifiedBy("loader");
+              relationship.setLastModified(releaseVersionDate);
+              relationship.setTimestamp(releaseVersionDate);
+              relationship.setLastModifiedBy(loader);
               relationship.setObsolete(false);
               relationship.setSuppressible(false);
               relationship.setPublishable(true);
               relationship.setPublished(true);
-              addRelationship(relationship);
-              List<ConceptRelationship> rels = new ArrayList<>();
-              
-              rels.add(relationship);
-              childConcept.setRelationships(rels);
+              childConcept.addRelationship(relationship);
+              relationshipSet.add(relationship);
 
             } else if (modifierMap.containsKey(parentCode)) {
               Logger.getLogger(getClass()).info("    IGNORE rel to modifier");
             } else {
               // throw new SAXException("Problem inserting relationship, code "
               // + parentCode + " does not exist.");
-              Logger.getLogger(getClass()).info("    WARNING rel to illegal concept");
+              Logger.getLogger(getClass()).info(
+                  "    WARNING rel to illegal concept");
             }
           }
         }
-        
-        // create metadata from sets
-        MetadataService metadataService = new MetadataServiceJpa();
 
-        metadataService.setTransactionPerOperation(false);
-        metadataService.beginTransaction();
-
-        // relationship types - CHD, PAR, and RO
-        String[] relTypes = new String[] {
-            "RO", "CHD", "PAR"
-        };
-        RelationshipType chd = null;
-        RelationshipType par = null;
-        RelationshipType ro = null;
-        for (String rel : relTypes) {
-          RelationshipType type = new RelationshipTypeJpa();
-          type.setTerminology(terminology);
-          type.setVersion(version);
-          type.setLastModified(ConfigUtility.DATE_FORMAT3.parse(version));
-          type.setLastModifiedBy("loader");
-          type.setPublishable(true);
-          type.setPublished(true);
-          type.setAbbreviation(rel);
-          if (rel.equals("CHD")) {
-            chd = type;
-            type.setExpandedForm("Child of");
-          } else if (rel.equals("PAR")) {
-            par = type;
-            type.setExpandedForm("Parent of");
-          } else if (rel.equals("RO")) {
-            ro = type;
-            type.setExpandedForm("Other");
+        // Now add all objects to the database
+        for (Concept concept : conceptSet) {
+          // Add atoms
+          for (Atom atom : concept.getAtoms()) {
+            addAtom(atom);
+          }
+          addConcept(concept);
+        }
+        // add rels after all concepts exist
+        for (ConceptRelationship rel : relationshipSet) {
+          if (conceptSet.contains(rel.getFrom())
+              && conceptSet.contains(rel.getTo())) {
+            addRelationship(rel);
           } else {
-            throw new Exception("Unhandled type");
-          }
-          metadataService.addRelationshipType(type);
-        }
-        chd.setInverse(par);
-        par.setInverse(chd);
-        ro.setInverse(ro);
-        metadataService.updateRelationshipType(chd);
-        metadataService.updateRelationshipType(par);
-        metadataService.updateRelationshipType(ro);
-
-        for (String art : additionalRelationshipTypes) {
-
-            AdditionalRelationshipType relType =
-                new AdditionalRelationshipTypeJpa();
-            relType.setAbbreviation(art);
-            relType.setExpandedForm(art);
-            relType.setLastModified(ConfigUtility.DATE_FORMAT3.parse(version));
-            relType.setLastModifiedBy("loader");
-            relType.setPublishable(true);
-            relType.setPublished(true);
-            relType.setTerminology(terminology);
-            relType.setTimestamp(ConfigUtility.DATE_FORMAT3.parse(version));
-            relType.setVersion(version);
-
-            metadataService.addAdditionalRelationshipType(relType);
-       
-
-        }
-        metadataService.commit();
-        metadataService.clear();
-        metadataService.beginTransaction();
-
-
-        for (String tty : termTypes) {
-
-            TermType termType = new TermTypeJpa();
-            termType.setAbbreviation(tty);
-            termType.setCodeVariantType(CodeVariantType.UNDEFINED);
-            termType.setExpandedForm(tty);
-            termType.setHierarchicalType(false);
-            termType.setLastModified(ConfigUtility.DATE_FORMAT3.parse(version));
-            termType.setLastModifiedBy("loader");
-            termType.setNameVariantType(NameVariantType.UNDEFINED);
-            termType.setObsolete(false);
-            termType.setPublishable(true);
-            termType.setPublished(true);
-            termType.setStyle(TermTypeStyle.STRUCTURAL);
-            termType.setSuppressible(false);
-            termType.setTerminology(terminology);
-            termType.setTimestamp(ConfigUtility.DATE_FORMAT3.parse(version));
-            termType.setUsageType(UsageType.UNDEFINED);
-            termType.setVersion(version);
-
-            metadataService.addTermType(termType);
-          
-        }
-        metadataService.commit();
-        metadataService.clear();
-        metadataService.beginTransaction();
-
-
-          Language language = new LanguageJpa();
-          language.setAbbreviation(terminologyLanguage);
-          language.setExpandedForm(terminologyLanguage);
-          language.setLastModified(ConfigUtility.DATE_FORMAT3.parse(version));
-          language.setLastModifiedBy("loader");
-          language.setPublishable(true);
-          language.setPublished(true);
-          language.setTerminology(terminology);
-          language.setTimestamp(ConfigUtility.DATE_FORMAT3.parse(version));
-          language.setISO3Code("???");
-          language.setISOCode(terminologyLanguage);
-          language.setVersion(version);
-          metadataService.addLanguage(language);
-        
-          AttributeName name = new AttributeNameJpa();
-          name.setTerminology(terminology);
-          name.setVersion(version);
-          name.setLastModified(ConfigUtility.DATE_FORMAT3.parse(version));
-          name.setLastModifiedBy("loader");
-          name.setPublishable(true);
-          name.setPublished(true);
-          name.setExpandedForm("USAGE");
-          name.setAbbreviation("USAGE");
-          metadataService.addAttributeName(name);
-
-        metadataService.commit();
-        metadataService.clear();
-        metadataService.beginTransaction();
-        
-        PrecedenceList list = new PrecedenceListJpa();
-        list.setDefaultList(true);
-
-        List<KeyValuePair> lkvp = new ArrayList<>();
-
-        KeyValuePair pr = new KeyValuePair();
-        pr.setKey(terminology);
-        pr.setValue("preferred");
-        lkvp.add(pr);
-        for (String tty : termTypes) {
-          if (!tty.equals("preferred")) {
-            KeyValuePair pair = new KeyValuePair();
-            pair.setKey(terminology);
-            pair.setValue(tty);
-            lkvp.add(pair);
+            Logger.getLogger(getClass()).info(
+                "  Do not add modifier rel: "
+                    + rel.getFrom().getTerminologyId() + ", "
+                    + rel.getTo().getTerminologyId());
           }
         }
-        
-        KeyValuePairList kvpl = new KeyValuePairList();
-        kvpl.setKeyValuePairList(lkvp);
-        list.setPrecedence(kvpl);
-        list.setTimestamp(ConfigUtility.DATE_FORMAT3.parse(version));
-        list.setLastModified(ConfigUtility.DATE_FORMAT3.parse(version));
-        list.setLastModifiedBy("loader");
-        list.setName("DEFAULT");  
-        metadataService.addPrecedenceList(list);
-        metadataService.commit();
-        
-        
-        
-        metadataService.close();
       } catch (Exception e) {
         throw new SAXException(e);
       }
-      
+
     }
 
     /**
@@ -1176,15 +1030,21 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       String code = modifier + modifierCode;
       if (!conceptMap.containsKey(code)) {
         concept.setTerminologyId(modifier + modifierCode);
-        /*concept.setEffectiveTime(dateFormat.parse(effectiveTime));
-        concept.setActive(true);
-        concept.setModuleId(new Long(conceptMap.get("defaultModule")
-            .getTerminologyId()));
-        concept.setDefinitionStatusId(new Long(conceptMap.get(
-            "defaultDefinitionStatus").getTerminologyId()));*/
         concept.setTerminology(terminology);
         concept.setVersion(version);
         concept.setName(labelChars.toString());
+        concept.setLastModified(releaseVersionDate);
+        concept.setTimestamp(releaseVersionDate);
+        concept.setLastModifiedBy(loader);
+        concept.setObsolete(false);
+        concept.setSuppressible(false);
+        concept.setPublishable(true);
+        concept.setPublished(true);
+        concept.setFullyDefined(false);
+        concept.setAnonymous(false);
+        concept.setUsesRelationshipIntersection(true);
+        concept.setUsesRelationshipUnion(false);
+
         Logger.getLogger(getClass()).info(
             "  Add modifier concept " + concept.getTerminologyId() + " "
                 + concept.getName());
@@ -1193,23 +1053,31 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
         conceptMap.put(code, concept);
       }
 
-      // add description to concept
-      /*Description desc = new DescriptionJpa();
-      desc.setTerminologyId(rubricId);
-      desc.setEffectiveTime(dateFormat.parse(effectiveTime));
-      desc.setActive(true);
-      desc.setModuleId(new Long(conceptMap.get("defaultModule")
-          .getTerminologyId()));
-      desc.setTerminology(terminology);
-      desc.setTerminologyVersion(terminologyVersion);
-      desc.setTerm(chars.toString());
-      desc.setConcept(concept);
-      desc.setCaseSignificanceId(new Long(conceptMap.get(
-          "defaultCaseSignificance").getTerminologyId()));
-      desc.setLanguageCode("en");
-      desc.setTypeId(new Long(conceptMap.get(rubricKind).getTerminologyId()));
+      // add atom to concept
+      final Atom atom = new AtomJpa();
+      atom.setTerminologyId(rubricId);
+      atom.setTerminology(terminology);
+      atom.setVersion(version);
+      atom.setName(chars.toString());
+      atom.setCodeId(concept.getTerminologyId());
+      atom.setConceptId(concept.getTerminologyId());
+      atom.setDescriptorId("");
+      atom.setLexicalClassId("");
+      atom.setStringClassId("");
+      atom.setLanguage(terminologyLanguage);
+      atom.setLastModified(releaseVersionDate);
+      atom.setTimestamp(releaseVersionDate);
+      atom.setLastModifiedBy(loader);
+      atom.setObsolete(false);
+      atom.setSuppressible(false);
+      atom.setPublishable(true);
+      atom.setPublished(true);
+      atom.setTermType(rubricKind);
+      termTypes.add(rubricKind);
+      atom.setWorkflowStatus("PUBLISHED");
 
-      concept.addDescription(desc);*/
+      concept.addAtom(atom);
+
     }
 
     /**
@@ -1226,7 +1094,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       Map<String, String> modifiersToMatchedCodeMap = new HashMap<>();
       Map<String, String> excludedModifiersToMatchedCodeMap = new HashMap<>();
       while (cmpCode.length() > 2) {
-        Logger.getLogger(getClass()).info("    Determine if " + cmpCode + " has modifiers");
+        Logger.getLogger(getClass()).info(
+            "    Determine if " + cmpCode + " has modifiers");
 
         // If a matching modifier is found for this or any ancestor code
         // add it
@@ -1234,7 +1103,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
           // Find and save all modifiers at this level
           for (String modifier : classToModifierMap.get(cmpCode)) {
             modifiersToMatchedCodeMap.put(modifier, codeToModify);
-            Logger.getLogger(getClass()).info("      Use modifier " + modifier + " for " + cmpCode);
+            Logger.getLogger(getClass()).info(
+                "      Use modifier " + modifier + " for " + cmpCode);
             // If this modifier has been explicitly excluded at a lower level
             // then remove it. Note: if there's an excluded modifier higher up
             // it doesn't apply here because this modifier explicitly overrides
@@ -1268,8 +1138,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
           }
         }
 
-        cmpCode =
-            childToParentCodeMap.get(cmpCode);
+        cmpCode = childToParentCodeMap.get(cmpCode);
         if (cmpCode == null) {
           break;
         }
@@ -1336,13 +1205,12 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
               && parentCodeHasChildrenMap.get(codeToModify) == null
               && modifiedByCode.endsWith("_5")) {
 
-            Concept conceptToModify = conceptMap.get(codeToModify);
+            final Concept conceptToModify = conceptMap.get(codeToModify);
             Logger.getLogger(getClass()).info(
                 "        Creating placeholder concept "
                     + conceptToModify.getTerminologyId() + ".X");
-            Concept placeholderConcept = new ConceptJpa();
-            placeholderConcept
-                .setName(" - PLACEHOLDER 4th digit");
+            final Concept placeholderConcept = new ConceptJpa();
+            placeholderConcept.setName(" - PLACEHOLDER 4th digit");
 
             // Recursively call for 5th digit modifiers where there are no
             // child
@@ -1363,7 +1231,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
       }
     }
-    
+
     /**
      * Creates the child concept.
      * 
@@ -1380,15 +1248,14 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
           "        Creating concept " + childCode + " from "
               + parentConcept.getTerminologyId());
       Concept childConcept =
-          createNewActiveConcept(childCode, terminology,
-              version, parentConcept.getName() + " "
-                  + modConcept.getName());
+          createNewActiveConcept(childCode, terminology, version,
+              parentConcept.getName() + " " + modConcept.getName());
       if (conceptMap.containsKey(childConcept.getTerminologyId()))
         throw new IllegalStateException("ALERT2!  "
             + childConcept.getTerminologyId() + " already in map");
 
       conceptMap.put(childConcept.getTerminologyId(), childConcept);
-      addConcept(childConcept);
+      conceptSet.add(childConcept);
       // add relationship
       createIsaRelationship(parentConcept, childConcept, ("" + relId),
           terminology, version, effectiveTime);
@@ -1398,7 +1265,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       return childConcept;
 
     }
-    
+
     /**
      * Override exclusions in certain cases.
      * 
@@ -1643,185 +1510,363 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
      */
     private boolean isDescendantCode(String desc, String anc) {
       String currentCode = desc;
-      while (childToParentCodeMap
-          .get(currentCode) != null) {
-        String parent =
-            childToParentCodeMap
-                .get(currentCode);
+      while (childToParentCodeMap.get(currentCode) != null) {
+        String parent = childToParentCodeMap.get(currentCode);
         if (parent.equals(anc)) {
           return true;
         }
       }
       return false;
     }
-    
+
   }
+
+  /**
+   * Find version.
+   *
+   * @param inputFile the input file
+   * @throws Exception the exception
+   */
+  public void findVersion(String inputFile) throws Exception {
+    BufferedReader br = new BufferedReader(new FileReader(inputFile));
+    String version = null;
+    String line = null;
+    while ((line = br.readLine()) != null) {
+      if (line.contains("<Title")) {
+        int versionIndex = line.indexOf("version=");
+        if (line.contains("></Title>"))
+          version =
+              line.substring(versionIndex + 9, line.indexOf("></Title>") - 1);
+        else
+          version = line.substring(versionIndex + 9, versionIndex + 13);
+        effectiveTime = version + "0101";
+        break;
+      }
+    }
+    br.close();
+    // Override terminology version with parameter
+    releaseVersionDate = ConfigUtility.DATE_FORMAT3.parse(version);
+    Logger.getLogger(getClass()).info("terminologyVersion: " + version);
+    Logger.getLogger(getClass()).info("effectiveTime: " + effectiveTime);
+  }
+
+  /**
+   * Find language.
+   *
+   * @param inputFile the input file
+   * @throws Exception the exception
+   */
+  public void findLanguage(String inputFile) throws Exception {
+    BufferedReader br = new BufferedReader(new FileReader(inputFile));
+    String line = null;
+    while ((line = br.readLine()) != null) {
+      // <Meta name="lang" value="en"/>
+      if (line.contains("<Meta") && line.contains("lang")) {
+        int versionIndex = line.indexOf("value=");
+        terminologyLanguage =
+            line.substring(versionIndex + 7, line.indexOf("/>") - 1);
+        break;
+      }
+    }
+    br.close();
+    Logger.getLogger(getClass()).info(
+        "terminologyLanguage: " + terminologyLanguage);
+  }
+
+  /**
+   * Creates the new active concept and attached atom using default metadata.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param terminologyVersion the terminology version
+   * @param defaultPreferredName the default preferred name
+   * @return the concept
+   * @throws Exception the exception
+   */
+  public Concept createNewActiveConcept(String terminologyId,
+    String terminology, String terminologyVersion, String defaultPreferredName)
+    throws Exception {
+
+    final Concept concept = new ConceptJpa();
+    concept.setTerminologyId(terminologyId);
+    concept.setTerminology(terminology);
+    concept.setVersion(terminologyVersion);
+    concept.setName(defaultPreferredName);
+
+    concept.setLastModified(releaseVersionDate);
+    concept.setTimestamp(releaseVersionDate);
+    concept.setLastModifiedBy(loader);
+    concept.setObsolete(false);
+    concept.setSuppressible(false);
+    concept.setPublishable(true);
+    concept.setPublished(true);
+    concept.setFullyDefined(false);
+    concept.setAnonymous(false);
+    concept.setUsesRelationshipIntersection(true);
+    concept.setUsesRelationshipUnion(false);
+
+    // Create a preferred name description
+    final Atom atom = new AtomJpa();
+    atom.setTerminologyId(terminologyId);
+    atom.setTerminology(terminology);
+    atom.setVersion(terminologyVersion);
+    atom.setName(defaultPreferredName);
+    atom.setCodeId(concept.getTerminologyId());
+    atom.setConceptId(concept.getTerminologyId());
+    atom.setDescriptorId("");
+    atom.setLexicalClassId("");
+    atom.setStringClassId("");
+    atom.setLanguage(terminologyLanguage);
+    atom.setLastModified(releaseVersionDate);
+    atom.setTimestamp(releaseVersionDate);
+    atom.setLastModifiedBy(loader);
+    atom.setObsolete(false);
+    atom.setSuppressible(false);
+    atom.setPublishable(true);
+    atom.setPublished(true);
+    atom.setTermType("preferred");
+    termTypes.add("preferred");
+    atom.setWorkflowStatus("PUBLISHED");
+    concept.addAtom(atom);
+
+    return concept;
+  }
+
+  /**
+   * Creates the isa relationship with default metadata.
+   * 
+   * @param parentConcept the parent concept
+   * @param childConcept the child concept
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param terminologyVersion the terminology version
+   * @param effectiveTime the effective time
+   * @throws Exception the exception
+   */
+  public void createIsaRelationship(Concept parentConcept,
+    Concept childConcept, String terminologyId, String terminology,
+    String terminologyVersion, String effectiveTime) throws Exception {
+    if (parentConcept == null) {
+      throw new Exception("Parent concept may not be null");
+    }
+    final ConceptRelationship relationship = new ConceptRelationshipJpa();
+
+    relationship.setTerminologyId("");
+    relationship.setTerminology(terminology);
+    relationship.setVersion(version);
+
+    relationship.setRelationshipType("CHD");
+    relationship.setAdditionalRelationshipType("isa");
+    additionalRelationshipTypes.add("isa");
+    relationship.setGroup(null);
+    relationship.setAssertedDirection(true);
+    relationship.setInferred(true);
+    relationship.setStated(true);
+    relationship.setLastModified(releaseVersionDate);
+    relationship.setTimestamp(releaseVersionDate);
+    relationship.setLastModifiedBy(loader);
+    relationship.setObsolete(false);
+    relationship.setSuppressible(false);
+    relationship.setPublishable(true);
+    relationship.setPublished(true);
+    relationship.setTo(parentConcept);
+    relationship.setFrom(childConcept);
+
+    // default "isa" type
+    childConcept.addRelationship(relationship);
+    relationshipSet.add(relationship);
+  }
+
+  /**
+   * Load metadata.
+   *
+   * @throws Exception the exception
+   */
+  private void loadMetadata() throws Exception {
+
+    // relationship types - CHD, PAR, and RO
+    String[] relTypes = new String[] {
+        "RO", "CHD", "PAR"
+    };
+    RelationshipType chd = null;
+    RelationshipType par = null;
+    RelationshipType ro = null;
+    for (String rel : relTypes) {
+      final RelationshipType type = new RelationshipTypeJpa();
+      type.setTerminology(terminology);
+      type.setVersion(version);
+      type.setLastModified(releaseVersionDate);
+      type.setLastModifiedBy(loader);
+      type.setPublishable(true);
+      type.setPublished(true);
+      type.setAbbreviation(rel);
+      if (rel.equals("CHD")) {
+        chd = type;
+        type.setExpandedForm("Child of");
+      } else if (rel.equals("PAR")) {
+        par = type;
+        type.setExpandedForm("Parent of");
+      } else if (rel.equals("RO")) {
+        ro = type;
+        type.setExpandedForm("Other");
+      } else {
+        throw new Exception("Unhandled type");
+      }
+      addRelationshipType(type);
+    }
+    chd.setInverse(par);
+    par.setInverse(chd);
+    ro.setInverse(ro);
+    updateRelationshipType(chd);
+    updateRelationshipType(par);
+    updateRelationshipType(ro);
+
+    for (String art : additionalRelationshipTypes) {
+
+      final AdditionalRelationshipType relType =
+          new AdditionalRelationshipTypeJpa();
+      relType.setAbbreviation(art);
+      relType.setExpandedForm(art);
+      relType.setLastModified(releaseVersionDate);
+      relType.setLastModifiedBy(loader);
+      relType.setPublishable(true);
+      relType.setPublished(true);
+      relType.setTerminology(terminology);
+      relType.setTimestamp(releaseVersionDate);
+      relType.setVersion(version);
+
+      addAdditionalRelationshipType(relType);
+
+    }
+
+    for (String tty : termTypes) {
+
+      final TermType termType = new TermTypeJpa();
+      termType.setAbbreviation(tty);
+      termType.setCodeVariantType(CodeVariantType.UNDEFINED);
+      termType.setExpandedForm(tty);
+      termType.setHierarchicalType(false);
+      termType.setLastModified(releaseVersionDate);
+      termType.setLastModifiedBy(loader);
+      termType.setNameVariantType(NameVariantType.UNDEFINED);
+      termType.setObsolete(false);
+      termType.setPublishable(true);
+      termType.setPublished(true);
+      termType.setStyle(TermTypeStyle.STRUCTURAL);
+      termType.setSuppressible(false);
+      termType.setTerminology(terminology);
+      termType.setTimestamp(releaseVersionDate);
+      termType.setUsageType(UsageType.UNDEFINED);
+      termType.setVersion(version);
+
+      addTermType(termType);
+
+    }
+
+    final Language language = new LanguageJpa();
+    language.setAbbreviation(terminologyLanguage);
+    language.setExpandedForm(terminologyLanguage);
+    language.setLastModified(releaseVersionDate);
+    language.setLastModifiedBy(loader);
+    language.setPublishable(true);
+    language.setPublished(true);
+    language.setTerminology(terminology);
+    language.setTimestamp(releaseVersionDate);
+    language.setISO3Code("???");
+    language.setISOCode(terminologyLanguage);
+    language.setVersion(version);
+    addLanguage(language);
+
+    final AttributeName name = new AttributeNameJpa();
+    name.setTerminology(terminology);
+    name.setVersion(version);
+    name.setLastModified(releaseVersionDate);
+    name.setLastModifiedBy(loader);
+    name.setPublishable(true);
+    name.setPublished(true);
+    name.setExpandedForm("USAGE");
+    name.setAbbreviation("USAGE");
+    addAttributeName(name);
+
+    final PrecedenceList list = new PrecedenceListJpa();
+    list.setDefaultList(true);
+
+    final List<KeyValuePair> lkvp = new ArrayList<>();
+
+    final KeyValuePair pr = new KeyValuePair();
+    pr.setKey(terminology);
+    pr.setValue("preferred");
+    lkvp.add(pr);
+    for (String tty : termTypes) {
+      if (!tty.equals("preferred")) {
+        final KeyValuePair pair = new KeyValuePair();
+        pair.setKey(terminology);
+        pair.setValue(tty);
+        lkvp.add(pair);
+      }
+    }
+
+    final KeyValuePairList kvpl = new KeyValuePairList();
+    kvpl.setKeyValuePairList(lkvp);
+    list.setPrecedence(kvpl);
+    list.setTimestamp(releaseVersionDate);
+    list.setLastModified(releaseVersionDate);
+    list.setLastModifiedBy(loader);
+    list.setName("DEFAULT");
+    list.setTerminology(terminology);
+    list.setVersion(version);
+    addPrecedenceList(list);
+
+    // Root Terminology
+    RootTerminology root = new RootTerminologyJpa();
+    root.setFamily(terminology);
+    root.setHierarchicalName(terminology);
+    root.setLanguage(language);
+    root.setTimestamp(releaseVersionDate);
+    root.setLastModified(releaseVersionDate);
+    root.setLastModifiedBy(loader);
+    root.setPolyhierarchy(true);
+    root.setPreferredName(terminology);
+    root.setRestrictionLevel(-1);
+    root.setTerminology(terminology);
+    addRootTerminology(root);
+
+    // Terminology
+    Terminology term = new TerminologyJpa();
+    term.setTerminology(terminology);
+    term.setVersion(version);
+    term.setTimestamp(releaseVersionDate);
+    term.setLastModified(releaseVersionDate);
+    term.setLastModifiedBy(loader);
+    term.setAssertsRelDirection(true);
+    term.setCurrent(true);
+    term.setDescriptionLogicTerminology(false);
+    term.setOrganizingClassType(IdType.CONCEPT);
+    term.setPreferredName(root.getPreferredName());
+    term.setRootTerminology(root);
+    addTerminology(term);
     
-    /**
-     * Find version.
-     *
-     * @param inputFile the input file
-     * @throws Exception the exception
-     */
-    public void findVersion(String inputFile) throws Exception {
-      BufferedReader br = new BufferedReader(new FileReader(inputFile));
-      String line = null;
-      while ((line = br.readLine()) != null) {
-        if (line.contains("<Title")) {
-          int versionIndex = line.indexOf("version=");
-          if (line.contains("></Title>"))
-            version =
-                line.substring(versionIndex + 9, line.indexOf("></Title>") - 1);
-          else
-            version =
-                line.substring(versionIndex + 9, versionIndex + 13);
-          effectiveTime = version + "0101";
-          break;
-        }
-      }
-      br.close();
-      // Override terminology version with parameter
-      Logger.getLogger(getClass()).info("terminologyVersion: " + version);
-      Logger.getLogger(getClass()).info("effectiveTime: " + effectiveTime);
-    }
-    
-    /**
-     * Find language.
-     *
-     * @param inputFile the input file
-     * @throws Exception the exception
-     */
-    public void findLanguage(String inputFile) throws Exception {
-      BufferedReader br = new BufferedReader(new FileReader(inputFile));
-      String line = null;
-      while ((line = br.readLine()) != null) {
-        // <Meta name="lang" value="en"/>
-        if (line.contains("<Meta") && line.contains("lang")) {
-          int versionIndex = line.indexOf("value=");
-          terminologyLanguage =
-                line.substring(versionIndex + 7, line.indexOf("/>") - 1);        
-          break;
-        }
-      }
-      br.close();
-      Logger.getLogger(getClass()).info("terminologyLanguage: " + terminologyLanguage);
-    }
-  
-    /**
-     * Creates the new active concept and attached atom using default
-     * metadata.
-     * 
-     * @param terminologyId the terminology id
-     * @param terminology the terminology
-     * @param terminologyVersion the terminology version
-     * @param defaultPreferredName the default preferred name
-     * @param effectiveTime the effective time
-     * @return the concept
-     * @throws Exception the exception
-     */
-    public Concept createNewActiveConcept(String terminologyId,
-      String terminology, String terminologyVersion, String defaultPreferredName)
-          throws Exception {
+    String[] labels = new String[] {
+        "Tree_Sort_Field"
+    };
+    String[] labelValues = new String[] {
+        "nodeTerminologyId"
+    };
+    int i = 0;
+    for (String label : labels) {
+      GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
+      entry.setTerminology(terminology);
+      entry.setVersion(version);
+      entry.setLastModified(releaseVersionDate);
+      entry.setLastModifiedBy(loader);
+      entry.setPublishable(true);
+      entry.setPublished(true);
+      entry.setAbbreviation(label);
+      entry.setExpandedForm(labelValues[i++]);
+      entry.setKey("label_metadata");
+      entry.setType("label_values");
+      addGeneralMetadataEntry(entry);
+    }    
+  }
 
-      Concept concept = new ConceptJpa();
-      concept.setTerminologyId(terminologyId);
-      concept.setTerminology(terminology);
-      concept.setVersion(terminologyVersion);
-      concept.setName(defaultPreferredName);
-       
-      concept.setLastModified(ConfigUtility.DATE_FORMAT3.parse(version)); 
-      concept.setTimestamp(ConfigUtility.DATE_FORMAT3.parse(version));
-      concept.setLastModifiedBy("loader");
-      concept.setObsolete(false);
-      concept.setSuppressible(false);
-      concept.setPublishable(true);
-      concept.setPublished(true);
-      concept.setFullyDefined(false);
-      concept.setAnonymous(false);
-      concept.setUsesRelationshipIntersection(true);
-      concept.setUsesRelationshipUnion(false);
-
-      // Create a preferred name description
-      /*Description desc = new DescriptionJpa();
-      desc.setTerminologyId(terminologyId);
-      desc.setEffectiveTime(dt.parse(effectiveTime));
-      desc.setActive(true);
-      // default module
-      if (conceptMap.containsKey("defaultModule"))
-        desc.setModuleId(new Long(conceptMap.get("defaultModule")
-            .getTerminologyId()));
-      desc.setTerminology(terminology);
-      desc.setTerminologyVersion(terminologyVersion);
-      desc.setTerm(defaultPreferredName);
-      desc.setConcept(concept);
-      // default case significance
-      if (conceptMap.containsKey("defaultCaseSignificance"))
-        desc.setCaseSignificanceId(new Long(conceptMap.get(
-            "defaultCaseSignificance").getTerminologyId()));
-      desc.setLanguageCode("en");
-      // preferred description type
-      if (conceptMap.containsKey("preferred"))
-        desc.setTypeId(new Long(conceptMap.get("preferred").getTerminologyId()));
-
-      concept.addDescription(desc);*/
-      Atom atom = new AtomJpa();
-      atom.setTerminologyId(terminologyId);
-      atom.setTerminology(terminology);
-      atom.setVersion(terminologyVersion);
-      atom.setName(defaultPreferredName);
-      atom.setCodeId(concept.getTerminologyId());
-      atom.setConceptId(concept.getTerminologyId());
-      atom.setDescriptorId("");
-      atom.setLexicalClassId("");
-      atom.setStringClassId("");
-      atom.setLanguage(terminologyLanguage);
-      atom.setLastModified(ConfigUtility.DATE_FORMAT3.parse(version)); 
-      atom.setTimestamp(ConfigUtility.DATE_FORMAT3.parse(version));
-      atom.setLastModifiedBy("loader");
-      atom.setObsolete(false);
-      atom.setSuppressible(false);
-      atom.setPublishable(true);
-      atom.setPublished(true);
-      // is this the term type of the parent?
-      //atom.setTermType(rubricKind);
-      //termTypes.add(rubricKind);
-      atom.setWorkflowStatus("PUBLISHED");
-
-      addAtom(atom);
-      concept.addAtom(atom);
-      
-      return concept;
-    }
-
-    /**
-     * Creates the isa relationship with default metadata.
-     * 
-     * @param parentConcept the parent concept
-     * @param childConcept the child concept
-     * @param terminologyId the terminology id
-     * @param terminology the terminology
-     * @param terminologyVersion the terminology version
-     * @param effectiveTime the effective time
-     * @throws Exception the exception
-     */
-    public void createIsaRelationship(Concept parentConcept,
-      Concept childConcept, String terminologyId, String terminology,
-      String terminologyVersion, String effectiveTime) throws Exception {
-      if (parentConcept == null) {
-        throw new Exception("Parent concept may not be null");
-      }
-      ConceptRelationship relationship = new ConceptRelationshipJpa();
-      relationship.setTerminologyId(terminologyId);
-      relationship.setTerminology(terminology);
-      relationship.setVersion(terminologyVersion);
-      relationship.setTo(parentConcept);
-      relationship.setFrom(childConcept);
-      // default "isa" type
-      relationship.setRelationshipType("CHD");
-      relationship.setAdditionalRelationshipType("Isa");
-      addRelationship(relationship);
-      List<ConceptRelationship> rels = new ArrayList<>();
-      rels.add(relationship);
-      childConcept.setRelationships(rels);
-    }
 }
