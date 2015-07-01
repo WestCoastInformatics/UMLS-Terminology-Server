@@ -919,7 +919,7 @@ tsApp
             startIndex : (page - 1) * $scope.pageSize,
             maxResults : $scope.pageSize,
             sortField : null,
-            queryRestriction : null
+            queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
           }
 
           // find concepts
