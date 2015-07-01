@@ -79,7 +79,6 @@ public class TerminologyJpa extends AbstractHasLastModified implements
 
   /** The synonymous names. */
   @ElementCollection
-  @CollectionTable(name = "terminology_sy_names")
   private List<String> synonymousNames = new ArrayList<>();
 
   /** The terminology version. */

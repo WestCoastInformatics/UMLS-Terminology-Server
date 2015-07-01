@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -65,7 +66,6 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   /** The concept terminology id map. */
   @ElementCollection(fetch = FetchType.EAGER)
   // consider this: @Fetch(sFetchMode.JOIN)
-  @CollectionTable(name = "concept_labels")
   @Column(nullable = true)
   List<String> labels;
 

@@ -34,7 +34,6 @@ public class PropertyChainJpa extends AbstractAbbreviation implements
 
   /** The chain. */
   @ManyToMany(targetEntity = AdditionalRelationshipTypeJpa.class)
-  @JoinTable(name = "projects_chains_chain", joinColumns = @JoinColumn(name = "chain_id"), inverseJoinColumns = @JoinColumn(name = "type_id"))
   private List<AdditionalRelationshipType> chain;
 
   /** The result. */

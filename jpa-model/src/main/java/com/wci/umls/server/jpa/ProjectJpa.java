@@ -83,31 +83,26 @@ public class ProjectJpa implements Project {
 
   /** The leads. */
   @ManyToMany(targetEntity = UserJpa.class, fetch = FetchType.LAZY)
-  @JoinTable(name = "projects_leads", joinColumns = @JoinColumn(name = "projects_id"), inverseJoinColumns = @JoinColumn(name = "users_id"))
   @IndexedEmbedded(targetElement = UserJpa.class)
   private Set<User> leads = new HashSet<>();
 
   /** The authors. */
   @ManyToMany(targetEntity = UserJpa.class, fetch = FetchType.LAZY)
-  @JoinTable(name = "projects_authors", joinColumns = @JoinColumn(name = "projects_id"), inverseJoinColumns = @JoinColumn(name = "users_id"))
   @IndexedEmbedded(targetElement = UserJpa.class)
   private Set<User> authors = new HashSet<>();
 
   /** The administrators. */
   @ManyToMany(targetEntity = UserJpa.class, fetch = FetchType.EAGER)
-  @JoinTable(name = "projects_administrators", joinColumns = @JoinColumn(name = "projects_id"), inverseJoinColumns = @JoinColumn(name = "users_id"))
   @IndexedEmbedded(targetElement = UserJpa.class)
   private Set<User> administrators = new HashSet<>();
 
   /** The concepts in scope for this project. */
   @ElementCollection
-  @CollectionTable(name = "projects_scope_concepts", joinColumns = @JoinColumn(name = "id"))
   @Column(nullable = true)
   private Set<String> scopeConcepts = new HashSet<>();
 
   /** The concepts excludes from scope of this project. */
   @ElementCollection
-  @CollectionTable(name = "projects_scope_excludes_concepts", joinColumns = @JoinColumn(name = "id"))
   @Column(nullable = true)
   private Set<String> scopeExcludesConcepts = new HashSet<>();
 
@@ -123,7 +118,6 @@ public class ProjectJpa implements Project {
 
   /** The concepts excludes from scope of this project. */
   @ElementCollection
-  @CollectionTable(name = "projects_workflow_statuses", joinColumns = @JoinColumn(name = "id"))
   @Column(nullable = true)
   private Set<String> actionWorkflowStatusValues = new HashSet<>();
 

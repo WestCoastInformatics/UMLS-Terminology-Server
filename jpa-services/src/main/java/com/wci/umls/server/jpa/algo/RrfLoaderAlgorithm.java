@@ -188,6 +188,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private Map<String, ConceptSubset> idTerminologyConceptSubsetMap =
       new HashMap<>();
 
+  /** The Constant coreModuleId. */
+  private final static String coreModuleId = "900000000000207008";
+
+  /** The Constant metadataModuleId. */
+  private final static String metadataModuleId = "900000000000012004";
+
+  /** non-core modules map */
+  private Map<String, Set<Long>> moduleConceptIdMap = new HashMap<>();
+
   /** The lat code map. */
   private static Map<String, String> latCodeMap = new HashMap<>();
 
@@ -341,6 +350,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // Subsets/members
       loadMrsatSubsets();
+
+      // Make subsets and label sets
+      loadExtensionLabelSets();
 
       // Commit
       commitClearBegin();
@@ -1153,6 +1165,26 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         modifiedDescriptors.clear();
       }
 
+      // Handle SNOMED extension modules
+      // If ATN=MODULE_ID and ATV=AUI
+      // Look up the concept.getId() and save for later (tied to this module)
+      if (fields[8].equals("MODULE_ID") && fields[4].equals("AUI")) {
+        if (isExtensionModule(fields[10])) {
+          // terminology + module concept id
+          final String key = fields[9] + fields[10];
+          Logger.getLogger(getClass()).info(
+              "  extension module = " + fields[10] + ", " + key);
+          if (!moduleConceptIdMap.containsKey(key)) {
+            moduleConceptIdMap.put(key, new HashSet<Long>());
+          }
+          Logger.getLogger(getClass()).info(
+              "    concept = " + atomConceptIdMap.get(fields[3]));
+          moduleConceptIdMap.get(key).add(
+              conceptIdMap.get(atomTerminologyMap.get(fields[3])
+                  + atomConceptIdMap.get(fields[3])));
+        }
+      }
+
       // log and commit
       logAndCommit(objectCt);
 
@@ -1373,6 +1405,64 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
 
     // commit
+    commitClearBegin();
+  }
+
+  /**
+   * Load extension label sets.
+   *
+   * @throws Exception the exception
+   */
+  private void loadExtensionLabelSets() throws Exception {
+
+    // for each non core module, create a Subset object
+    List<ConceptSubset> subsets = new ArrayList<>();
+    for (String key : moduleConceptIdMap.keySet()) {
+      Logger.getLogger(getClass()).info("  Create subset for module = " + key);
+      Concept concept = getConcept(conceptIdMap.get(key));
+      ConceptSubset subset = new ConceptSubsetJpa();
+      subset.setName(concept.getName());
+      subset.setDescription("Represents the members of module "
+          + concept.getTerminologyId());
+      subset.setDisjointSubset(false);
+      subset.setLabelSubset(true);
+      subset.setLastModified(releaseVersionDate);
+      subset.setTimestamp(releaseVersionDate);
+      subset.setLastModifiedBy(loader);
+      subset.setObsolete(false);
+      subset.setSuppressible(false);
+      subset.setPublishable(false);
+      subset.setPublished(false);
+      subset.setTerminology(terminology);
+      subset.setTerminologyId(concept.getTerminologyId());
+      subset.setVersion(version);
+      addSubset(subset);
+      subsets.add(subset);
+      commitClearBegin();
+
+      // Create members
+      int objectCt = 0;
+      Logger.getLogger(getClass()).info("  Add subset memebers");
+      for (Long id : moduleConceptIdMap.get(key)) {
+        final Concept memberConcept = getConcept(id);
+
+        ConceptSubsetMember member = new ConceptSubsetMemberJpa();
+        member.setLastModified(releaseVersionDate);
+        member.setTimestamp(releaseVersionDate);
+        member.setLastModifiedBy(loader);
+        member.setMember(memberConcept);
+        member.setObsolete(false);
+        member.setSuppressible(false);
+        member.setPublishable(false);
+        member.setPublishable(false);
+        member.setTerminologyId("");
+        member.setTerminology(terminology);
+        member.setVersion(version);
+        member.setSubset(subset);
+        addSubsetMember(member);
+        logAndCommit(++objectCt);
+      }
+    }
     commitClearBegin();
   }
 
@@ -2327,4 +2417,16 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
 
   }
+
+  /**
+   * Indicates whether or not extension module is the case.
+   *
+   * @param moduleId the module id
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  @SuppressWarnings("static-method")
+  private boolean isExtensionModule(String moduleId) {
+    return !moduleId.equals(coreModuleId) && !moduleId.equals(metadataModuleId);
+  }
+
 }

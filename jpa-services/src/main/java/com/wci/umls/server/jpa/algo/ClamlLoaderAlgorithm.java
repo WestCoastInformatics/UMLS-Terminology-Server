@@ -40,6 +40,7 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
@@ -54,6 +55,7 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.CodeVariantType;
@@ -715,34 +717,68 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
             conceptSet.add(concept);
           }
 
+          // Add rubric for definition
+          if (rubricKind.equals("definition")) {
+            final Definition def = new DefinitionJpa();
+            def.setTerminologyId(rubricId);
+            def.setTerminology(terminology);
+            def.setVersion(version);
+            def.setValue(labelChars.toString());
+            def.setLastModified(releaseVersionDate);
+            def.setTimestamp(releaseVersionDate);
+            def.setLastModifiedBy(loader);
+            def.setObsolete(false);
+            def.setSuppressible(false);
+            def.setPublishable(true);
+            def.setPublished(true);
+            Logger.getLogger(getClass())
+                .info(
+                    "  Add Definition for class "
+                        + code
+                        + " - "
+                        + rubricKind
+                        + " - "
+                        + (def.getValue().replaceAll("\r", "").replaceAll("\n",
+                            "")));
+            addDefinition(def, concept);
+            concept.addDefinition(def);
+          }
+
           // Add atom to concept for this rubric
-          final Atom atom = new AtomJpa();
-          atom.setTerminologyId(rubricId);
-          atom.setTerminology(terminology);
-          atom.setVersion(version);
-          atom.setName(labelChars.toString());
-          atom.setCodeId(concept.getTerminologyId());
-          atom.setConceptId(concept.getTerminologyId());
-          atom.setDescriptorId("");
-          atom.setLexicalClassId("");
-          atom.setStringClassId("");
-          atom.setLanguage(terminologyLanguage);
-          atom.setLastModified(releaseVersionDate);
-          atom.setTimestamp(releaseVersionDate);
-          atom.setLastModifiedBy(loader);
-          atom.setObsolete(false);
-          atom.setSuppressible(false);
-          atom.setPublishable(true);
-          atom.setPublished(true);
-          atom.setTermType(rubricKind);
-          termTypes.add(rubricKind);
-          atom.setWorkflowStatus("PUBLISHED");
+          else {
+            final Atom atom = new AtomJpa();
+            atom.setTerminologyId(rubricId);
+            atom.setTerminology(terminology);
+            atom.setVersion(version);
+            atom.setName(labelChars.toString());
+            atom.setCodeId(concept.getTerminologyId());
+            atom.setConceptId(concept.getTerminologyId());
+            atom.setDescriptorId("");
+            atom.setLexicalClassId("");
+            atom.setStringClassId("");
+            atom.setLanguage(terminologyLanguage);
+            atom.setLastModified(releaseVersionDate);
+            atom.setTimestamp(releaseVersionDate);
+            atom.setLastModifiedBy(loader);
+            atom.setObsolete(false);
+            atom.setSuppressible(false);
+            atom.setPublishable(true);
+            atom.setPublished(true);
+            atom.setTermType(rubricKind);
+            termTypes.add(rubricKind);
+            atom.setWorkflowStatus("PUBLISHED");
 
-          Logger.getLogger(getClass()).info(
-              "  Add Atom for class " + code + " - " + rubricKind + " - "
-                  + (atom.getName().replaceAll("\r", "").replaceAll("\n", "")));
-          concept.addAtom(atom);
-
+            Logger.getLogger(getClass())
+                .info(
+                    "  Add Atom for class "
+                        + code
+                        + " - "
+                        + rubricKind
+                        + " - "
+                        + (atom.getName().replaceAll("\r", "").replaceAll("\n",
+                            "")));
+            concept.addAtom(atom);
+          }
           // reset label characters
           labelChars = new StringBuilder();
         }
@@ -1053,30 +1089,54 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
         conceptMap.put(code, concept);
       }
 
-      // add atom to concept
-      final Atom atom = new AtomJpa();
-      atom.setTerminologyId(rubricId);
-      atom.setTerminology(terminology);
-      atom.setVersion(version);
-      atom.setName(chars.toString());
-      atom.setCodeId(concept.getTerminologyId());
-      atom.setConceptId(concept.getTerminologyId());
-      atom.setDescriptorId("");
-      atom.setLexicalClassId("");
-      atom.setStringClassId("");
-      atom.setLanguage(terminologyLanguage);
-      atom.setLastModified(releaseVersionDate);
-      atom.setTimestamp(releaseVersionDate);
-      atom.setLastModifiedBy(loader);
-      atom.setObsolete(false);
-      atom.setSuppressible(false);
-      atom.setPublishable(true);
-      atom.setPublished(true);
-      atom.setTermType(rubricKind);
-      termTypes.add(rubricKind);
-      atom.setWorkflowStatus("PUBLISHED");
+      // Add rubric for definition
+      if (rubricKind.equals("definition")) {
+        final Definition def = new DefinitionJpa();
+        def.setTerminologyId(rubricId);
+        def.setTerminology(terminology);
+        def.setVersion(version);
+        def.setValue(labelChars.toString());
+        def.setLastModified(releaseVersionDate);
+        def.setTimestamp(releaseVersionDate);
+        def.setLastModifiedBy(loader);
+        def.setObsolete(false);
+        def.setSuppressible(false);
+        def.setPublishable(true);
+        def.setPublished(true);
+        Logger.getLogger(getClass()).info(
+            "  Add Definition for class " + code + " - " + rubricKind + " - "
+                + (def.getValue().replaceAll("\r", "").replaceAll("\n", "")));
+        addDefinition(def, concept);
+        concept.addDefinition(def);
+      }
 
-      concept.addAtom(atom);
+      // Add atom to concept for this rubric
+      else {
+        // add atom to concept
+        final Atom atom = new AtomJpa();
+        atom.setTerminologyId(rubricId);
+        atom.setTerminology(terminology);
+        atom.setVersion(version);
+        atom.setName(chars.toString());
+        atom.setCodeId(concept.getTerminologyId());
+        atom.setConceptId(concept.getTerminologyId());
+        atom.setDescriptorId("");
+        atom.setLexicalClassId("");
+        atom.setStringClassId("");
+        atom.setLanguage(terminologyLanguage);
+        atom.setLastModified(releaseVersionDate);
+        atom.setTimestamp(releaseVersionDate);
+        atom.setLastModifiedBy(loader);
+        atom.setObsolete(false);
+        atom.setSuppressible(false);
+        atom.setPublishable(true);
+        atom.setPublished(true);
+        atom.setTermType(rubricKind);
+        termTypes.add(rubricKind);
+        atom.setWorkflowStatus("PUBLISHED");
+
+        concept.addAtom(atom);
+      }
 
     }
 

@@ -42,7 +42,6 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
 
   /** The alternate terminology ids. */
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "def_alt_terminology_ids", joinColumns = @JoinColumn(name = "definition_id"))
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
 

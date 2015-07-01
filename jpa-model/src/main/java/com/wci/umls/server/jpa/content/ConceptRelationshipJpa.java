@@ -56,7 +56,6 @@ public class ConceptRelationshipJpa extends
 
   /** The alternate terminology ids. */
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "conrel_alt_terminology_ids", joinColumns = @JoinColumn(name = "relationship_id"))
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds; // index
 

@@ -15,6 +15,7 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -86,7 +87,6 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
 
   /** The short name. */
   @ElementCollection
-  @CollectionTable(name = "root_terminology_sy_names")
   private List<String> synonymousNames = new ArrayList<>();
 
   /**

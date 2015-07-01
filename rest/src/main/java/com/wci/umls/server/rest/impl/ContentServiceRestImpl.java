@@ -285,6 +285,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
+    ContentService contentService = new ContentServiceJpa();
 
     try {
       authenticate(securityService, authToken, "load RRF",
@@ -309,7 +310,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       RrfReaders readers = new RrfReaders(inputDirFile);
       readers.openOriginalReaders();
 
-      // Load snapshot
+      // Load RRF
       RrfLoaderAlgorithm algorithm = new RrfLoaderAlgorithm();
       algorithm.setTerminology(terminology);
       algorithm.setVersion(version);
@@ -323,10 +324,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // Compute transitive closure
       // Obtain each terminology and run transitive closure on it with the
       // correct id type
-      MetadataService metadataService = new MetadataServiceJpa();
       // Refresh caches after metadata has changed in loader
-      metadataService.refreshCaches();
-      for (Terminology t : metadataService.getTerminologyLatestVersions()
+      contentService.refreshCaches();
+      for (Terminology t : contentService.getTerminologyLatestVersions()
           .getObjects()) {
         // Only compute for organizing class types
         if (t.getOrganizingClassType() != null) {
@@ -343,7 +343,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // Compute tree positions
       // Refresh caches after metadata has changed in loader
-      for (Terminology t : metadataService.getTerminologyLatestVersions()
+      for (Terminology t : contentService.getTerminologyLatestVersions()
           .getObjects()) {
         // Only compute for organizing class types
         if (t.getOrganizingClassType() != null) {
@@ -358,9 +358,24 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         }
       }
 
+      
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      for (Subset subset : contentService.getConceptSubsets(terminology,
+          version, Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isLabelSubset()) {
+          Logger.getLogger(getClass()).info(
+              "  Create label set for subset = " + subset);
+          LabelSetMarkedParentAlgorithm algo3 =
+              new LabelSetMarkedParentAlgorithm();
+          algo3.setSubset(conceptSubset);
+          algo3.compute();
+          algo3.close();
+        }
+      }
       // Clean-up
-      // readers.closeReaders();
-      metadataService.close();
+      
       ConfigUtility
           .deleteDirectory(new File(inputDirFile, "/RRF-sorted-temp/"));
 
@@ -372,6 +387,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     } catch (Exception e) {
       handleException(e, "trying to load terminology from RRF directory");
     } finally {
+      contentService.close();
       securityService.close();
     }
   }

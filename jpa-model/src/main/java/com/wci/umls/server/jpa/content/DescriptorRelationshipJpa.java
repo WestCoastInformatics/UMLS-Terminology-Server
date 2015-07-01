@@ -56,7 +56,6 @@ public class DescriptorRelationshipJpa extends
 
   /** The alternate terminology ids. */
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "descrel_alt_terminology_ids", joinColumns = @JoinColumn(name = "relationship_id"))
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
 

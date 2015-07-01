@@ -41,12 +41,12 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
 
   /** The member. */
   @ManyToOne(targetEntity = AtomJpa.class, optional = false)
-  @JoinColumn(nullable = false, name = "atom_id")
+  @JoinColumn(nullable = false)
   private Atom member;
 
   /** The subset. */
   @ManyToOne(targetEntity = AtomSubsetJpa.class, optional = false)
-  @JoinColumn(nullable = false, name = "subset_id")
+  @JoinColumn(nullable = false)
   private AtomSubset subset;
 
   /**

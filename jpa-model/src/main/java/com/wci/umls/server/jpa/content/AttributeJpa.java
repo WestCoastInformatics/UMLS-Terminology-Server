@@ -41,7 +41,6 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
 
   /** The alternate terminology ids. */
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "att_alt_terminology_ids", joinColumns = @JoinColumn(name = "attribute_id"))
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
 

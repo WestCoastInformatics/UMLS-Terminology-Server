@@ -36,50 +36,21 @@
                 <configuration>
                   <!-- Queries should select >1 fields to avoid issues -->
                   <queries>
-
                     <property>
-                      <name>Validate active concept default preferred names -
-                        SNOMEDCT</name>
+                      <name>Validate concept default preferred names</name>
                       <value>
                         SELECT terminologyId, name
                         FROM
                         concepts a
                         WHERE
-                        a.active = 1 AND terminology =
-                        'SNOMEDCT' AND NOT EXISTS
-                        (SELECT * FROM descriptions b,
-                        language_refset_members c
-                        WHERE a.id =
-                        b.concept_id
-                        AND
-                        b.active = 1 AND c.active =
-                        1
-                        AND b.id = c.description_id
-                        AND
-                        b.typeId='900000000000003001'
-                        AND c.refSetId =
-                        '900000000000509007'
-                        AND c.acceptabilityId =
-                        '900000000000548007'
+                         NOT EXISTS
+                        (SELECT * FROM
+                        atoms b
+                        WHERE a.conceptId = b.terminologyId
+                        AND a.terminology = b.terminology
+                        AND a.version = b.version
                         AND a.name =
                         b.name);
-                      </value>
-                    </property>
-
-                    <property>
-                      <name>Validate concept default preferred names - not
-                        SNOMEDCT</name>
-                      <value>
-                        SELECT terminologyId, name
-                        FROM
-                        concepts a
-                        WHERE
-                        terminology != 'SNOMEDCT' AND NOT EXISTS
-                        (SELECT * FROM
-                        descriptions b
-                        WHERE a.id = b.concept_id
-                        AND a.name =
-                        b.term);
                       </value>
                     </property>
 
@@ -87,19 +58,7 @@
                       <name>Duplicate relationships from
                         source/destination/group/type</name>
                       <value>
-                        SELECT a.terminologyId, b.terminologyId,
-                        a.relationshipGroup, a.typeId,
-                        a.terminology
-                        FROM
-                        relationships a, concepts b, concepts c
-                        WHERE
-                        a.sourceConcept_id = b.id and a.destinationConcept_id =
-                        c.id
-                        GROUP BY a.terminologyId, b.terminologyId,
-                        a.relationshipGroup,
-                        a.typeId, a.terminology
-                        HAVING
-                        count(*)>1;
+                        NEED TO REWRITE for each "type"
                       </value>
                     </property>
 
