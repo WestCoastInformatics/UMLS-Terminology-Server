@@ -23,7 +23,7 @@ public interface HasLastModified extends HasId {
    * @param timestamp the timestamp
    */
   public void setTimestamp(Date timestamp);
-  
+
   /**
    * Returns the last modified.
    * 

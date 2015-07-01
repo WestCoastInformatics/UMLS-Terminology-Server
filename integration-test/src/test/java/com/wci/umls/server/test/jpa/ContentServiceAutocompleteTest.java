@@ -78,7 +78,6 @@ public class ContentServiceAutocompleteTest {
 
   }
 
-
   /**
    * Normal use of code autocomplete.
    *
@@ -121,9 +120,10 @@ public class ContentServiceAutocompleteTest {
 
     results = service.autocompleteConcepts("UMLS", "latest", "le");
     assertTrue(results.getObjects().isEmpty());
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  results = service.autocompleteConcepts("UMLS", "latest", "l");
+    results = service.autocompleteConcepts("UMLS", "latest", "l");
     assertTrue(results.getObjects().isEmpty());
   }
+
   /**
    * Degenerate use of concept autocomplete.
    *
@@ -131,12 +131,10 @@ public class ContentServiceAutocompleteTest {
    */
   @Test
   public void testConceptAutocompleteDegenerateUse() throws Exception {
-    StringList results =
-        service.autocompleteConcepts(null, null, null);
+    StringList results = service.autocompleteConcepts(null, null, null);
     assertTrue(results.getObjects().isEmpty());
   }
 
-  
   /**
    * Teardown.
    */

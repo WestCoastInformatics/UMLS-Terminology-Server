@@ -67,8 +67,8 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findConceptsForGeneralQuery(String query,
-    String hql, PfsParameterJpa pfs, String authToken) throws Exception;
+  public SearchResultList findConceptsForGeneralQuery(String query, String hql,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Autocomplete concepts.
@@ -330,8 +330,8 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findCodesForGeneralQuery(String query,
-    String hql, PfsParameterJpa pfs, String authToken) throws Exception;
+  public SearchResultList findCodesForGeneralQuery(String query, String hql,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Autocomplete codes.
@@ -690,11 +690,11 @@ public interface ContentServiceRest {
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the tree list
-   * @throws Exception 
+   * @throws Exception
    */
   public Tree findConceptTreeRoots(String terminology, String version,
     PfsParameterJpa pfs, String authToken) throws Exception;
-  
+
   /**
    * Find concept-based terminology tree roots.
    *
@@ -703,11 +703,11 @@ public interface ContentServiceRest {
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the tree list
-   * @throws Exception 
+   * @throws Exception
    */
   public Tree findCodeTreeRoots(String terminology, String version,
     PfsParameterJpa pfs, String authToken) throws Exception;
-  
+
   /**
    * Find concept-based terminology tree roots.
    *
@@ -716,7 +716,7 @@ public interface ContentServiceRest {
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the tree list
-   * @throws Exception 
+   * @throws Exception
    */
   public Tree findDescriptorTreeRoots(String terminology, String version,
     PfsParameterJpa pfs, String authToken) throws Exception;

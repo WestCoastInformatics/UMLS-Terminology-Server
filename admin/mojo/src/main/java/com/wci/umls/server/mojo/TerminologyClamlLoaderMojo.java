@@ -29,8 +29,8 @@ public class TerminologyClamlLoaderMojo extends AbstractMojo {
   /**
    * The input file.
    *
-   * @parameter 
-   * @required 
+   * @parameter
+   * @required
    */
   String inputFile;
 
@@ -44,8 +44,8 @@ public class TerminologyClamlLoaderMojo extends AbstractMojo {
   /**
    * Terminology version.
    *
-   * @parameter 
-   * @required 
+   * @parameter
+   * @required
    */
   String version;
 
@@ -54,8 +54,6 @@ public class TerminologyClamlLoaderMojo extends AbstractMojo {
    * @parameter
    */
   private boolean server = false;
-
- 
 
   /*
    * (non-Javadoc)
@@ -98,15 +96,16 @@ public class TerminologyClamlLoaderMojo extends AbstractMojo {
 
         getLog().info("  Remove concepts");
         ContentServiceRest contentService = new ContentServiceRestImpl();
-        contentService.loadTerminologyClaml(terminology, version, inputFile, authToken);
-
+        contentService.loadTerminologyClaml(terminology, version, inputFile,
+            authToken);
 
       } else {
         getLog().info("Running against server");
 
         getLog().info("  Remove concepts");
         ContentClientRest contentService = new ContentClientRest(properties);
-        contentService.loadTerminologyClaml(terminology, version, inputFile, authToken);
+        contentService.loadTerminologyClaml(terminology, version, inputFile,
+            authToken);
 
       }
       service.close();

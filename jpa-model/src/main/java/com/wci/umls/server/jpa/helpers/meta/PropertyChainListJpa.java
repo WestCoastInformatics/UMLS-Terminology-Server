@@ -17,8 +17,8 @@ import com.wci.umls.server.model.meta.PropertyChain;
  * JAXB enabled implementation of {@link PropertyChainList}.
  */
 @XmlRootElement(name = "propertyChainList")
-public class PropertyChainListJpa extends
-    AbstractResultList<PropertyChain> implements PropertyChainList {
+public class PropertyChainListJpa extends AbstractResultList<PropertyChain>
+    implements PropertyChainList {
 
   /*
    * (non-Javadoc)

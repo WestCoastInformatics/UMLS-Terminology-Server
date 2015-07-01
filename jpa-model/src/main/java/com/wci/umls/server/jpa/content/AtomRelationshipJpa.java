@@ -176,7 +176,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   public Long getToId() {
     return to == null ? null : to.getId();
   }
-  
+
   /**
    * Sets the to id.
    *
@@ -188,7 +188,6 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     }
     to.setId(id);
   }
-
 
   /**
    * Returns the to terminology id.
@@ -210,6 +209,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     }
     to.setTerminologyId(terminologyId);
   }
+
   /**
    * Returns the to name.
    *
@@ -218,7 +218,6 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   public String getToName() {
     return to == null ? null : to.getName();
   }
-
 
   /**
    * Sets the to name.

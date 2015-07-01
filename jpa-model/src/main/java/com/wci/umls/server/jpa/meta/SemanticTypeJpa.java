@@ -21,7 +21,7 @@ import com.wci.umls.server.model.meta.SemanticType;
  */
 @Entity
 @Table(name = "semantic_types", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "value", "terminology"
+    "value", "terminology"
 }))
 @Audited
 @XmlRootElement(name = "semanticType")
@@ -296,7 +296,9 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
     return true;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#toString()
    */
   @Override

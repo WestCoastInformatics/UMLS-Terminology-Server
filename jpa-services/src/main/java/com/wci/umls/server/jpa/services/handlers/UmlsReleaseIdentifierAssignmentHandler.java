@@ -7,7 +7,6 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
  * UMLS RRF release implementation of {@link IdentifierAssignmentHandler}.
-
  */
 public class UmlsReleaseIdentifierAssignmentHandler extends
     UuidHashIdentifierAssignmentHandler {

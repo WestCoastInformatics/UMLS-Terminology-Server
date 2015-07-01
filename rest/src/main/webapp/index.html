@@ -182,7 +182,7 @@
 
                 <div class="alert alert-success"
                   ng-show="searchResults.length > 0">
-                  {{searchResults.totalCount}} Results (Click a row for details)
+                  {{searchResults.totalCount}} Results
                   <a ng-show="!terminology.metathesaurus"
                     class="pull-right glyphicon glyphicon-tree-conifer"
                     ng-click="setTreeView()" tooltip="Switch to tree view"></a>
@@ -226,9 +226,7 @@
                 <div class="alert alert-success"
                   ng-show="searchResultsTree.totalCount > 0">
 
-                  {{searchResultsTree.totalCount}} Results (Click a row for
-                  details)
-
+                  {{searchResultsTree.totalCount}} Results
                   <span class="pull-right">
 
                     <a class="glyphicon glyphicon-star"

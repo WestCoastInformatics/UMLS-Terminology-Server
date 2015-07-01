@@ -10,14 +10,13 @@ import com.wci.umls.server.helpers.Configurable;
  */
 public interface NormalizedStringHandler extends Configurable {
 
-
   /**
    * Returns the normalized string.
    *
    * @param string the string
    * @return the normalized string
-   * @throws Exception 
+   * @throws Exception
    */
   public String getNormalizedString(String string) throws Exception;
-  
+
 }

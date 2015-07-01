@@ -36,9 +36,9 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
   @Column(nullable = false)
   private boolean disjointSubset = false;
 
-  /** The markersubset. */
+  /** The label subset flag. */
   @Column(nullable = false)
-  private boolean markerSubset = false;
+  private boolean labelSubset = false;
 
   /** The members. */
   @OneToMany(mappedBy = "subset", targetEntity = ConceptSubsetMemberJpa.class)
@@ -60,7 +60,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
   public ConceptSubsetJpa(ConceptSubset subset, boolean deepCopy) {
     super(subset, deepCopy);
     disjointSubset = subset.isDisjointSubset();
-    markerSubset = subset.isMarkerSubset();
+    labelSubset = subset.isLabelSubset();
     if (deepCopy) {
       for (ConceptSubsetMember member : subset.getMembers()) {
         addMember(new ConceptSubsetMemberJpa(member, deepCopy));
@@ -155,13 +155,13 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
   }
 
   @Override
-  public boolean isMarkerSubset() {
-    return markerSubset;
+  public boolean isLabelSubset() {
+    return labelSubset;
   }
 
   @Override
-  public void setMarkerSubset(boolean markerSubset) {
-    this.markerSubset = markerSubset;
+  public void setLabelSubset(boolean labelSubset) {
+    this.labelSubset = labelSubset;
   }
 
   @Override
@@ -169,7 +169,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + (disjointSubset ? 1231 : 1237);
-    result = prime * result + (markerSubset ? 1231 : 1237);
+    result = prime * result + (labelSubset ? 1231 : 1237);
     return result;
   }
 
@@ -184,7 +184,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     ConceptSubsetJpa other = (ConceptSubsetJpa) obj;
     if (disjointSubset != other.disjointSubset)
       return false;
-    if (markerSubset != other.markerSubset)
+    if (labelSubset != other.labelSubset)
       return false;
     return true;
   }

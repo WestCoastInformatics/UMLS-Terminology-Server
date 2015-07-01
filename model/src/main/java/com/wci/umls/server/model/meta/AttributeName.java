@@ -14,35 +14,35 @@ public interface AttributeName extends Abbreviation {
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   public boolean isUniversalQuantification();
-  
+
   /**
    * Sets the universal quantification.
    *
    * @param flag the universal quantification
    */
   public void setUniversalQuantification(boolean flag);
-  
+
   /**
    * Indicates whether or not existential quantification is the case.
    *
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   public boolean isExistentialQuantification();
-  
+
   /**
    * Sets the existential quantification.
    *
    * @param flag the existential quantification
    */
   public void setExistentialQuantification(boolean flag);
-  
+
   /**
    * Returns the super type.
    *
    * @return the super type
    */
   public AttributeName getSuperName();
-  
+
   /**
    * Sets the super type.
    *
@@ -56,14 +56,14 @@ public interface AttributeName extends Abbreviation {
    * @return the equivalent type
    */
   public AttributeName getEquivalentName();
-  
+
   /**
    * Sets the equivalent type.
    *
    * @param equivalentName the equivalent name
    */
   public void setEquivalentName(AttributeName equivalentName);
-  
+
   /**
    * Indicates whether or not functional is the case.
    *
@@ -105,7 +105,5 @@ public interface AttributeName extends Abbreviation {
    * @param rangeId the range id
    */
   public void setRangeId(String rangeId);
-  
-  
 
 }

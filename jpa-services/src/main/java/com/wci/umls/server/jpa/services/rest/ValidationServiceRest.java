@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-
 /**
  * Represents a service for validating content.
  */
@@ -18,7 +17,8 @@ public interface ValidationServiceRest {
    * @return the validation result
    * @throws Exception the exception
    */
-//  public ValidationResult validateConcept(ConceptJpa concept, String authToken)
-//    throws Exception;
+  // public ValidationResult validateConcept(ConceptJpa concept, String
+  // authToken)
+  // throws Exception;
 
 }

@@ -118,8 +118,8 @@ public class ClaMLLoadAndUnloadTest {
 
     // Verify no contents
     ContentService service = new ContentServiceJpa();
-    Assert.assertEquals(0, service
-        .getAllConcepts("ICD10", "latest", Branch.ROOT).getCount());
+    Assert.assertEquals(0,
+        service.getAllConcepts("ICD10", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 
@@ -133,8 +133,7 @@ public class ClaMLLoadAndUnloadTest {
     p.setProperty("server", server);
     p.setProperty("terminology", "ICD10");
     p.setProperty("version", "latest");
-    p.setProperty("input.dir",
-        "../../config/src/main/resources/data/icd10.xml");
+    p.setProperty("input.dir", "../../config/src/main/resources/data/icd10.xml");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);

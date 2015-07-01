@@ -62,7 +62,6 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
     super(treepos, deepCopy);
     node = treepos.getNode();
   }
- 
 
   /*
    * (non-Javadoc)

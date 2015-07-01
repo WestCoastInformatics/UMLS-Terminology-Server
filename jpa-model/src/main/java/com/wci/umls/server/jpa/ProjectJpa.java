@@ -666,10 +666,7 @@ public class ProjectJpa implements Project {
     result = prime * result + (scopeExcludesDescendantsFlag ? 1231 : 1237);
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime
-            * result
-            + ((version == null) ? 0 : version.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 

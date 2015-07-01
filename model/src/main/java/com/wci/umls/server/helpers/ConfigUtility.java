@@ -74,7 +74,7 @@ public class ConfigUtility {
   /** The Constant DATE_FORMAT2. */
   public final static FastDateFormat DATE_FORMAT2 = FastDateFormat
       .getInstance("yyyy_MM_dd");
-  
+
   /** The Constant DATE_FORMAT3. */
   public final static FastDateFormat DATE_FORMAT3 = FastDateFormat
       .getInstance("yyyy");
@@ -147,12 +147,14 @@ public class ConfigUtility {
       // If no resource is available, go with the default
       // ONLY setups that explicitly intend to override the setting
       // cause it to be something other than the default.
-      InputStream input = ConfigUtility.class.getResourceAsStream("/label.prop");
+      InputStream input =
+          ConfigUtility.class.getResourceAsStream("/label.prop");
       if (input != null) {
         labelProp.load(input);
         // If a run.config.label override can be found, use it
         String candidateLabel = labelProp.getProperty("run.config.label");
-        // If the default, uninterpolated value is used, stick again with the default
+        // If the default, uninterpolated value is used, stick again with the
+        // default
         if (candidateLabel != null
             && !candidateLabel.equals("${run.config.label}")) {
           label = candidateLabel;
@@ -160,7 +162,7 @@ public class ConfigUtility {
       } else {
         Logger.getLogger(ConfigUtility.class.getName()).info(
             "  label.prop resource cannot be found, using default");
-        
+
       }
       Logger.getLogger(ConfigUtility.class.getName()).info(
           "  run.config.label = " + label);

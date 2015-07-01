@@ -166,7 +166,7 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
   @SuppressWarnings("unchecked")
   private void removeTerminology(String terminology, String version,
     IdType idType) throws Exception {
-    
+
     // Check assumptions/prerequisites
     Logger.getLogger(getClass()).info(
         "Start removing terminology - " + terminology + " " + version);
@@ -178,17 +178,19 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
     beginTransaction();
 
     // remove terminology
-    javax.persistence.Query query = manager.createQuery("SELECT a.id FROM TerminologyJpa a WHERE terminology = :terminology "
-              + " AND version = :version");
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
+    javax.persistence.Query query =
+        manager
+            .createQuery("SELECT a.id FROM TerminologyJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
     List<Long> tIds = query.getResultList();
-    for (int ct=0; ct<tIds.size(); ct++) {
+    for (int ct = 0; ct < tIds.size(); ct++) {
       removeTerminology(tIds.get(ct));
       logAndCommit(ct, "remove terminology");
     }
     commitClearBegin();
-    
+
     // remove root terminology if all versions removed
     query =
         manager
@@ -209,19 +211,21 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
       }
       commitClearBegin();
     }
-    
+
     // remove property chain
-    query = manager.createQuery("SELECT a.id FROM PropertyChainJpa a WHERE terminology = :terminology "
-              + " AND version = :version");
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
+    query =
+        manager
+            .createQuery("SELECT a.id FROM PropertyChainJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
     List<Long> pcIds = query.getResultList();
-    for (int ct=0; ct<pcIds.size(); ct++) {
+    for (int ct = 0; ct < pcIds.size(); ct++) {
       removePropertyChain(pcIds.get(ct));
       logAndCommit(ct, "remove property chain");
     }
-    commitClearBegin();    
-    
+    commitClearBegin();
+
     // remove attribute names
     query =
         manager
@@ -235,18 +239,18 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
       logAndCommit(ct, "remove attribute names");
     }
     commitClearBegin();
-    
+
     // remove additional relationship type
     // load all and set inverse_id to null and then update
     // then go through all and remove each
-    AdditionalRelationshipTypeList list = 
+    AdditionalRelationshipTypeList list =
         getAdditionalRelationshipTypes(terminology, version);
     for (AdditionalRelationshipType relType : list.getObjects()) {
       relType.setInverseType(null);
       updateAdditionalRelationshipType(relType);
     }
     commitClearBegin();
-    
+
     query =
         manager
             .createQuery("SELECT a.id FROM AdditionalRelationshipTypeJpa a WHERE terminology = :terminology "
@@ -259,7 +263,7 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
       logAndCommit(ct, "remove additional relationship types");
     }
     commitClearBegin();
-    
+
     // remove general metadata entry
     query =
         manager
@@ -273,7 +277,7 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
       logAndCommit(ct, "remove general metadata entry");
     }
     commitClearBegin();
-    
+
     // remove semantic types
     query =
         manager
@@ -287,7 +291,7 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
       logAndCommit(ct, "remove semantic types");
     }
     commitClearBegin();
-    
+
     // remove term types
     query =
         manager
@@ -301,18 +305,17 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
       logAndCommit(ct, "remove term types");
     }
     commitClearBegin();
-    
-    // remove  relationship type
+
+    // remove relationship type
     // load all and set inverse_id to null and then update
     // then go through all and remove each
-    RelationshipTypeList list2 = 
-        getRelationshipTypes(terminology, version);
+    RelationshipTypeList list2 = getRelationshipTypes(terminology, version);
     for (RelationshipType relType : list2.getObjects()) {
       relType.setInverse(null);
       updateRelationshipType(relType);
     }
     commitClearBegin();
-    
+
     query =
         manager
             .createQuery("SELECT a.id FROM RelationshipTypeJpa a WHERE terminology = :terminology "
@@ -325,7 +328,7 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
       logAndCommit(ct, "remove relationship types");
     }
     commitClearBegin();
-    
+
     // remove languages
     query =
         manager
@@ -339,12 +342,14 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
       logAndCommit(ct, "remove languages");
     }
     commitClearBegin();
-    
+
     // remove concept subset members
-    query = manager.createQuery("SELECT a.id FROM ConceptSubsetMemberJpa a WHERE terminology = :terminology "
-              + " AND version = :version");
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
+    query =
+        manager
+            .createQuery("SELECT a.id FROM ConceptSubsetMemberJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
     List<Long> csmIds = query.getResultList();
     for (int ct = 0; ct < csmIds.size(); ct++) {
       removeSubsetMember(csmIds.get(ct), ConceptSubsetMemberJpa.class);
@@ -648,7 +653,7 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     List<Long> stcIds = query.getResultList();
-    for (int ct=0; ct<stcIds.size(); ct++) {
+    for (int ct = 0; ct < stcIds.size(); ct++) {
       removeSemanticTypeComponent(stcIds.get(ct));
       logAndCommit(ct, "remove semantic type components");
     }

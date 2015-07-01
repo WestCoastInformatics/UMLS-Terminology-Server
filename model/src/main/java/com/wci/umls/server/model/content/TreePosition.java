@@ -12,7 +12,8 @@ package com.wci.umls.server.model.content;
  * @param <T> the type
  * 
  */
-public interface TreePosition<T extends AtomClass> extends ComponentHasAttributes {
+public interface TreePosition<T extends AtomClass> extends
+    ComponentHasAttributes {
 
   /**
    * Returns the node.
@@ -20,14 +21,14 @@ public interface TreePosition<T extends AtomClass> extends ComponentHasAttribute
    * @return the node
    */
   public T getNode();
-  
+
   /**
    * Sets the node.
    *
    * @param node the node
    */
   public void setNode(T node);
-  
+
   /**
    * Returns the additional relationship label, such as "isa" or "branch_of".
    *
@@ -62,26 +63,26 @@ public interface TreePosition<T extends AtomClass> extends ComponentHasAttribute
    * @return the child ct
    */
   public int getChildCt();
-  
+
   /**
    * Sets the child ct.
    *
    * @param childCt the child ct
    */
   public void setChildCt(int childCt);
-  
+
   /**
    * Returns the descendant ct.
    *
    * @return the descendant ct
    */
   public int getDescendantCt();
-  
+
   /**
    * Sets the descendant ct.
    *
    * @param descendantCt the descendant ct
    */
   public void setDescendantCt(int descendantCt);
-  
+
 }

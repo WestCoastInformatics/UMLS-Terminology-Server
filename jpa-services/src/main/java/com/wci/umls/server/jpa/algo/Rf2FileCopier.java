@@ -127,14 +127,14 @@ public class Rf2FileCopier {
         if (line.startsWith("id\t")) {
           out.println(line);
         }
-        
+
         // Relationship requires both ends to be connected
         if (key.contains("Relationship")) {
           if (concepts.contains(fields[index]) && concepts.contains(fields[5])) {
             out.println(line);
-          } 
+          }
         }
-        
+
         // otherwise, just check the indexed field
         else if (concepts.contains(fields[index])
             || descriptions.contains(fields[index])) {

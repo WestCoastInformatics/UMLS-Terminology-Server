@@ -11,7 +11,7 @@ import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
 import com.wci.umls.server.helpers.meta.LanguageList;
-import com.wci.umls.server.helpers.meta.MarkerSetList;
+import com.wci.umls.server.helpers.meta.LabelSetList;
 import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.RootTerminologyList;
@@ -23,7 +23,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.Language;
-import com.wci.umls.server.model.meta.MarkerSet;
+import com.wci.umls.server.model.meta.LabelSet;
 import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -58,8 +58,8 @@ public interface MetadataService extends RootService, Configurable {
     Languages,
     /** The General_ metadata_ entries. */
     General_Metadata_Entries,
-    /** The Marker sets. */
-    Marker_Sets,
+    /** The Label sets. */
+    Label_Sets,
   }
 
   /**
@@ -184,7 +184,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the marked sets.
    * @throws Exception the exception
    */
-  public MarkerSetList getMarkerSets(String terminology, String version)
+  public LabelSetList getLabelSets(String terminology, String version)
     throws Exception;
 
   /**
@@ -362,27 +362,27 @@ public interface MetadataService extends RootService, Configurable {
   /**
    * Adds the marked sets.
    *
-   * @param markerSet the marker set
-   * @return the marked set
+   * @param labelSet the label set
+   * @return the label set
    * @throws Exception the exception
    */
-  public MarkerSet addMarkerSet(MarkerSet markerSet) throws Exception;
+  public LabelSet addLabelSet(LabelSet labelSet) throws Exception;
 
   /**
-   * Update marker set.
+   * Update label set.
    *
-   * @param markerSet the marker set
+   * @param labelSet the label set
    * @throws Exception the exception
    */
-  public void updateMarkerSet(MarkerSet markerSet) throws Exception;
+  public void updateLabelSet(LabelSet labelSet) throws Exception;
 
   /**
-   * Removes the marker set.
+   * Removes the label set.
    *
    * @param id the id
    * @throws Exception the exception
    */
-  public void removeMarkerSet(Long id) throws Exception;
+  public void removeLabelSet(Long id) throws Exception;
 
   /**
    * Adds the language.

@@ -84,7 +84,7 @@ public interface User {
    * @return the user preferences
    */
   public UserPreferences getUserPreferences();
-  
+
   /**
    * Sets the user preferences.
    *

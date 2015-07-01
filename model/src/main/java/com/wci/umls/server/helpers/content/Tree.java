@@ -5,13 +5,13 @@ package com.wci.umls.server.helpers.content;
 
 import java.util.List;
 
-import com.wci.umls.server.helpers.HasMarkerSets;
+import com.wci.umls.server.helpers.HasLabelSets;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
  * Represents a tree of {@link TreePosition} objects.
  */
-public interface Tree extends HasMarkerSets {
+public interface Tree extends HasLabelSets {
 
   /**
    * Merge specified tree with this one.

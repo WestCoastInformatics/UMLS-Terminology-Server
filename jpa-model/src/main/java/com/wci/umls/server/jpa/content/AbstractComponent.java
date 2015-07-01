@@ -334,8 +334,7 @@ public abstract class AbstractComponent implements Component {
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * org.ihtsdo.otf.ts.rf2.Component#setVersion(java.lang.String)
+   * @see org.ihtsdo.otf.ts.rf2.Component#setVersion(java.lang.String)
    */
   @Override
   public void setVersion(String version) {
@@ -404,10 +403,7 @@ public abstract class AbstractComponent implements Component {
     result =
         prime * result
             + ((terminologyId == null) ? 0 : terminologyId.hashCode());
-    result =
-        prime
-            * result
-            + ((version == null) ? 0 : version.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
@@ -463,8 +459,8 @@ public abstract class AbstractComponent implements Component {
         + lastModified + ", lastModifiedBy=" + lastModifiedBy
         + ", suppressible=" + suppressible + ", obsolete=" + obsolete
         + ", published=" + published + ", publishable=" + publishable
-        + ", terminology=" + terminology + ", version="
-        + version + ", branch=" + branch;
+        + ", terminology=" + terminology + ", version=" + version + ", branch="
+        + branch;
   }
 
 }

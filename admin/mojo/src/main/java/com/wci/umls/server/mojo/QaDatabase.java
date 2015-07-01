@@ -113,15 +113,13 @@ public class QaDatabase extends AbstractMojo {
 
         Properties config = ConfigUtility.getConfigProperties();
         if (config.getProperty("mail.enabled") != null
-            && config.getProperty("mail.enabled").equals("true") &&
-            config.getProperty("mail.smtp.to") != null) {
-        ConfigUtility.sendEmail(
-            "[Terminology Server] Database QA Results", 
-            config.getProperty("mail.smtp.user"),
-            config.getProperty("mail.smtp.to"),
-            msg.toString(), config,
-            "true".equals(config.get("mail.smtp.auth")));
-        }        
+            && config.getProperty("mail.enabled").equals("true")
+            && config.getProperty("mail.smtp.to") != null) {
+          ConfigUtility.sendEmail("[Terminology Server] Database QA Results",
+              config.getProperty("mail.smtp.user"),
+              config.getProperty("mail.smtp.to"), msg.toString(), config,
+              "true".equals(config.get("mail.smtp.auth")));
+        }
 
       } else {
         getLog().info("  NO errors");

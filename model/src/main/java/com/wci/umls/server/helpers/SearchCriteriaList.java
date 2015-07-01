@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.helpers;
 
-
 /**
  * Represents a sortable list of {@link SearchCriteria}
  */

@@ -158,7 +158,7 @@ public class ConceptSubsetMemberJpa extends
     }
     member.setTerminology(terminology);
   }
-  
+
   /**
    * Returns the member terminology version. For JAXB.
    *
@@ -271,7 +271,6 @@ public class ConceptSubsetMemberJpa extends
     subset.setTerminologyId(terminologyId);
   }
 
-
   /**
    * Returns the subset terminology. For JAXB.
    *
@@ -293,7 +292,7 @@ public class ConceptSubsetMemberJpa extends
     }
     subset.setTerminology(terminology);
   }
-  
+
   /**
    * Returns the subset terminology version. For JAXB.
    *
@@ -315,6 +314,7 @@ public class ConceptSubsetMemberJpa extends
     }
     subset.setVersion(version);
   }
+
   /**
    * Returns the subset name. For JAXB.
    *

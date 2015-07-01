@@ -84,7 +84,7 @@ public interface TermType extends Abbreviation {
    * @param usageType the usage type
    */
   public void setUsageType(UsageType usageType);
-  
+
   /**
    * Returns the usageType.
    *

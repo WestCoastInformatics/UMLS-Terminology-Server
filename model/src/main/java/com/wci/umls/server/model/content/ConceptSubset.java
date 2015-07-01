@@ -29,16 +29,16 @@ public interface ConceptSubset extends Subset, HasMembers<ConceptSubsetMember> {
   public void setDisjointSubset(boolean disjointSubset);
 
   /**
-   * Indicates whether or not marker subset is the case.
+   * Indicates whether or not label subset is the case.
    *
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
-  public boolean isMarkerSubset();
-  
+  public boolean isLabelSubset();
+
   /**
-   * Sets the marker subset.
+   * Sets the label subset.
    *
-   * @param markerSubset the marker subset
+   * @param labelSubset the label subset
    */
-  public void setMarkerSubset(boolean markerSubset);
+  public void setLabelSubset(boolean labelSubset);
 }

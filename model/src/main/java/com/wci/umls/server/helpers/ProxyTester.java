@@ -224,8 +224,8 @@ public class ProxyTester {
       throw new RuntimeException("Setter " + set.getDeclaringClass().getName()
           + "." + set.getName() + " threw " + e.getTargetException().toString());
     } catch (IllegalArgumentException e) {
-      Logger.getLogger(getClass()).debug("o="+o.getClass().getName());
-      Logger.getLogger(getClass()).debug("proxy="+proxy.getClass().getName());
+      Logger.getLogger(getClass()).debug("o=" + o.getClass().getName());
+      Logger.getLogger(getClass()).debug("proxy=" + proxy.getClass().getName());
       throw e;
     }
   }

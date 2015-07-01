@@ -75,7 +75,7 @@ public class AttributeNameJpa extends AbstractAbbreviation implements
     superName = atn.getSuperName();
     functional = atn.isFunctional();
     universalQuantification = atn.isUniversalQuantification();
-    existentialQuantification= atn.isExistentialQuantification();
+    existentialQuantification = atn.isExistentialQuantification();
   }
 
   /*

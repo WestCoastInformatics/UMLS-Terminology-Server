@@ -22,8 +22,8 @@ public class ValidationResultJpa implements ValidationResult {
 
   /** The warnings. */
   private Set<String> warnings = new HashSet<>();
-  
-  /**  The comments. */
+
+  /** The comments. */
   private Set<String> comments = new HashSet<>();
 
   /**
@@ -42,7 +42,7 @@ public class ValidationResultJpa implements ValidationResult {
     this.errors = new HashSet<>(result.getErrors());
     this.warnings = new HashSet<>(result.getWarnings());
     this.comments = new HashSet<>(result.getComments());
-    }
+  }
 
   /*
    * (non-Javadoc)
@@ -62,7 +62,7 @@ public class ValidationResultJpa implements ValidationResult {
   public void setValid(boolean b) {
     // do nothing
   }
-  
+
   /*
    * (non-Javadoc)
    * 
@@ -183,7 +183,9 @@ public class ValidationResultJpa implements ValidationResult {
     this.warnings.remove(warning);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.ValidationResult#getComments()
    */
   @Override
@@ -191,7 +193,9 @@ public class ValidationResultJpa implements ValidationResult {
     return comments;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.ValidationResult#setComments(java.util.Set)
    */
   @Override
@@ -199,7 +203,9 @@ public class ValidationResultJpa implements ValidationResult {
     this.comments = comments;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.ValidationResult#removeComment(java.lang.String)
    */
   @Override
@@ -207,7 +213,9 @@ public class ValidationResultJpa implements ValidationResult {
     comments.remove(comment);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.ValidationResult#addComment(java.lang.String)
    */
   @Override
@@ -215,13 +223,16 @@ public class ValidationResultJpa implements ValidationResult {
     comments.add(comment);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.ValidationResult#addComment(java.util.Set)
    */
   @Override
   public void addComment(Set<String> comments) {
     comments.addAll(comments);
   }
+
   /*
    * (non-Javadoc)
    * 
@@ -245,7 +256,8 @@ public class ValidationResultJpa implements ValidationResult {
    */
   @Override
   public String toString() {
-    return "ERRORS: " + errors + ", WARNINGS: " + warnings + ", COMMENTS: " + comments;
+    return "ERRORS: " + errors + ", WARNINGS: " + warnings + ", COMMENTS: "
+        + comments;
   }
 
   /*
@@ -294,6 +306,5 @@ public class ValidationResultJpa implements ValidationResult {
       return false;
     return true;
   }
-
 
 }

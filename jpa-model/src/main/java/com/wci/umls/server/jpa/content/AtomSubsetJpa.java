@@ -112,8 +112,10 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
     }
     members.remove(member);
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.content.Subset#clearMembers()
    */
   @Override

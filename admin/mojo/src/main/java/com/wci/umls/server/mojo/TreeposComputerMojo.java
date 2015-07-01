@@ -41,7 +41,7 @@ public class TreeposComputerMojo extends AbstractMojo {
    * @parameter
    */
   private boolean server = false;
-  
+
   /**
    * Instantiates a {@link TreeposComputerMojo} from the specified parameters.
    * 
@@ -91,8 +91,7 @@ public class TreeposComputerMojo extends AbstractMojo {
         getLog().info("Running directly");
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService
-            .computeTreePositions(terminology, version, authToken);
+        contentService.computeTreePositions(terminology, version, authToken);
       } else {
         getLog().info("Running against server");
 

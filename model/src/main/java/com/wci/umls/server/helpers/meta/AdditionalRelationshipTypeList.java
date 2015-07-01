@@ -9,6 +9,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 /**
  * Represents a sortable list of {@link AdditionalRelationshipType}
  */
-public interface AdditionalRelationshipTypeList extends ResultList<AdditionalRelationshipType> {
+public interface AdditionalRelationshipTypeList extends
+    ResultList<AdditionalRelationshipType> {
   // nothing extra, a simple wrapper for easy serialization
 }

@@ -73,8 +73,8 @@ public class SnomedctGraphResolutionHandler extends
     if (concept != null) {
 
       boolean nullId = concept.getId() == null;
-      concept.getMarkerSets().size();
-      
+      concept.getLabels().size();
+
       // subset members
       for (ConceptSubsetMember member : concept.getMembers()) {
         member.getTerminology();

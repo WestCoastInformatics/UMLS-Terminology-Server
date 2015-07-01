@@ -824,7 +824,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       term.setVersion(version);
       term.setDescriptionLogicTerminology(false);
       term.setMetathesaurus(true);
-      
+
       RootTerminology root = new RootTerminologyJpa();
       root.setFamily(terminology);
       root.setPreferredName(terminology);
@@ -857,7 +857,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     list.setDefaultList(true);
     list.setTerminology(terminology);
     list.setVersion(version);
-    
+
     List<KeyValuePair> lkvp = new ArrayList<>();
 
     Logger.getLogger(getClass()).info("  Load MRRANK data");
@@ -969,8 +969,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             "Definition references terminology that does not exist: "
                 + fields[4]);
       } else {
-        def.setVersion(loadedTerminologies.get(fields[4])
-            .getVersion());
+        def.setVersion(loadedTerminologies.get(fields[4]).getVersion());
       }
       def.setValue(fields[5]);
 
@@ -1064,8 +1063,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             "Attribute references terminology that does not exist: "
                 + fields[9]);
       } else {
-        att.setVersion(loadedTerminologies.get(fields[9])
-            .getVersion());
+        att.setVersion(loadedTerminologies.get(fields[9]).getVersion());
       }
       att.setName(fields[8]);
       att.setValue(fields[10]);
@@ -1305,8 +1303,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
             final ConceptSubsetMember conceptMember =
                 new ConceptSubsetMemberJpa();
-            Concept concept = getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[3])
-                + atomConceptIdMap.get(fields[3])));
+            Concept concept =
+                getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[3])
+                    + atomConceptIdMap.get(fields[3])));
             conceptMember.setMember(concept);
             conceptMember.setSubset(conceptSubset);
             member = conceptMember;
@@ -1318,8 +1317,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           // Populate common member fields
           member.setTerminologyId(fields[7]);
           member.setTerminology(fields[9].intern());
-          member.setVersion(loadedTerminologies.get(fields[9])
-              .getVersion());
+          member.setVersion(loadedTerminologies.get(fields[9]).getVersion());
           member.setTimestamp(releaseVersionDate);
           member.setLastModified(releaseVersionDate);
           member.setLastModifiedBy(loader);
@@ -1345,8 +1343,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           // borrow most other data
           memberAtt.setTerminologyId("");
           memberAtt.setTerminology(fields[9].intern());
-          memberAtt.setVersion(loadedTerminologies.get(fields[9])
-              .getVersion());
+          memberAtt.setVersion(loadedTerminologies.get(fields[9]).getVersion());
           memberAtt.setTimestamp(releaseVersionDate);
           memberAtt.setLastModified(releaseVersionDate);
           memberAtt.setLastModifiedBy(loader);
@@ -1448,7 +1445,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       } else if (fields[2].equals("CUI") && fields[6].equals("CUI")) {
         final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
-        
+
         final Concept fromConcept =
             getConcept(conceptIdMap.get(terminology + fields[4]));
         conceptRel.setFrom(fromConcept);
@@ -1562,8 +1559,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           "Relationship references terminology that does not exist: "
               + fields[9]);
     } else {
-      relationship.setVersion(loadedTerminologies.get(fields[10])
-          .getVersion());
+      relationship.setVersion(loadedTerminologies.get(fields[10]).getVersion());
     }
     relationship.setAssertedDirection(fields[13].equals("Y"));
     if (fields[13].equals("Y")) {
@@ -1719,8 +1715,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         throw new Exception("Atom references terminology that does not exist: "
             + fields[11]);
       }
-      atom.setVersion(loadedTerminologies.get(fields[11])
-          .getVersion().intern());
+      atom.setVersion(loadedTerminologies.get(fields[11]).getVersion().intern());
       // skip in single mode
       if (!singleMode) {
         atom.putAlternateTerminologyId(terminology, fields[7]);
@@ -1989,13 +1984,13 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         continue;
       }
       // skip where code == concept - problem because rels connect to the code
-      //if (atom.getCodeId().equals(atom.getConceptId())) {
-      //  continue;
-      //}
+      // if (atom.getCodeId().equals(atom.getConceptId())) {
+      // continue;
+      // }
       // skip where code == descriptor
-      //if (atom.getCodeId().equals(atom.getDescriptorId())) {
-      //  continue;
-      //}
+      // if (atom.getCodeId().equals(atom.getDescriptorId())) {
+      // continue;
+      // }
       if (prevCode == null || !prevCode.equals(atom.getCodeId())) {
         if (code != null) {
           // compute preferred name
@@ -2154,8 +2149,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     subset.setSuppressible(!fields[16].equals("N"));
     subset.setTerminology(fields[11].intern());
     // already vetted by atom
-    subset.setVersion(loadedTerminologies.get(fields[11])
-        .getVersion());
+    subset.setVersion(loadedTerminologies.get(fields[11]).getVersion());
     subset.setTerminologyId(fields[13]);
   }
 

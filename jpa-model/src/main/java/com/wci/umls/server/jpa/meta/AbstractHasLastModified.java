@@ -104,6 +104,7 @@ public abstract class AbstractHasLastModified implements HasLastModified {
       this.id = Long.parseLong(id);
     }
   }
+
   /*
    * (non-Javadoc)
    * 

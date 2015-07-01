@@ -35,7 +35,7 @@ import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
-import com.wci.umls.server.jpa.algo.MarkerSetMarkedParentAlgorithm;
+import com.wci.umls.server.jpa.algo.LabelSetMarkedParentAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2FileSorter;
@@ -556,16 +556,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo2.compute();
       algo2.close();
 
-      // Compute marker sets - after transitive closure
-      // for each subset, compute the marker set
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
       for (Subset subset : contentService.getConceptSubsets(terminology,
           version, Branch.ROOT).getObjects()) {
         final ConceptSubset conceptSubset = (ConceptSubset) subset;
-        if (conceptSubset.isMarkerSubset()) {
+        if (conceptSubset.isLabelSubset()) {
           Logger.getLogger(getClass()).info(
-              "  Create marker set for subset = " + subset);
-          MarkerSetMarkedParentAlgorithm algo3 =
-              new MarkerSetMarkedParentAlgorithm();
+              "  Create label set for subset = " + subset);
+          LabelSetMarkedParentAlgorithm algo3 =
+              new LabelSetMarkedParentAlgorithm();
           algo3.setSubset(conceptSubset);
           algo3.compute();
           algo3.close();
@@ -621,8 +621,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     long startTimeOrig = System.nanoTime();
 
     ClamlLoaderAlgorithm algo = new ClamlLoaderAlgorithm();
-    TransitiveClosureAlgorithm algo2 =
-        new TransitiveClosureAlgorithm();
+    TransitiveClosureAlgorithm algo2 = new TransitiveClosureAlgorithm();
     TreePositionAlgorithm algo3 = new TreePositionAlgorithm();
     try {
       authenticate(securityService, authToken, "start editing cycle",
@@ -643,7 +642,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo2.setVersion(version);
       algo2.compute();
       algo2.close();
-      
+
       // compute tree positions
       algo3.setCycleTolerant(false);
       algo3.setIdType(IdType.CONCEPT);
@@ -837,8 +836,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     String hqlStr = hql == null ? "" : hql;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui?" + "query=" + queryStr
-            + "&hql=" + hqlStr + " with PFS parameter "
+        "RESTful call (Content): /cui?" + "query=" + queryStr + "&hql="
+            + hqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -846,8 +845,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findConceptsForGeneralQuery(queryStr,
-              hqlStr, Branch.ROOT, pfs);
+          contentService.findConceptsForGeneralQuery(queryStr, hqlStr,
+              Branch.ROOT, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -881,8 +880,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     String queryStr = query == null ? "" : query;
     String hqlStr = hql == null ? "" : hql;
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /code?" + "query=" + queryStr
-            + "&hql=" + hqlStr + " with PFS parameter "
+        "RESTful call (Content): /code?" + "query=" + queryStr + "&hql="
+            + hqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1061,8 +1060,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     String hqlStr = hql == null ? "" : hql;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui" + "?query=" + queryStr
-            + "&hql=" + hqlStr + " with PFS parameter "
+        "RESTful call (Content): /dui" + "?query=" + queryStr + "&hql="
+            + hqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1070,8 +1069,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findDescriptorsForGeneralQuery(queryStr,
-              hqlStr, Branch.ROOT, pfs);
+          contentService.findDescriptorsForGeneralQuery(queryStr, hqlStr,
+              Branch.ROOT, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -2320,7 +2319,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
       dummyTree.setTerminologyId("dummy id");
-      dummyTree.setName("Top");
+      dummyTree.setName("Root");
       dummyTree.setTotalCount(list.getTotalCount());
 
       // initialize the return tree with dummy root and set total count
@@ -2410,7 +2409,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
       dummyTree.setTerminologyId("dummy id");
-      dummyTree.setName("Top");
+      dummyTree.setName("Root");
       dummyTree.setTotalCount(list.getTotalCount());
 
       // initialize the return tree with dummy root and set total count
@@ -2499,7 +2498,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
       dummyTree.setTerminologyId("dummy id");
-      dummyTree.setName("Top");
+      dummyTree.setName("Root");
       dummyTree.setTotalCount(list.getTotalCount());
 
       // initialize the return tree with dummy root and set total count
@@ -2575,7 +2574,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
-      
+
       return childTrees;
 
     } catch (Exception e) {
@@ -2718,7 +2717,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findConceptTreePositionChildren(
-                rootTree.getTerminologyId(), terminology, version, Branch.ROOT, pfs);
+                rootTree.getTerminologyId(), terminology, version, Branch.ROOT,
+                pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2795,7 +2795,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findDescriptorTreePositionChildren(
-                rootTree.getTerminologyId(), terminology, version, Branch.ROOT, pfs);
+                rootTree.getTerminologyId(), terminology, version, Branch.ROOT,
+                pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2872,7 +2873,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findCodeTreePositionChildren(
-                rootTree.getTerminologyId(), terminology, version, Branch.ROOT, pfs);
+                rootTree.getTerminologyId(), terminology, version, Branch.ROOT,
+                pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2888,7 +2890,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         rootTree = new TreeJpa();
         rootTree.setTerminology(terminology);
         rootTree.setVersion(version);
-        rootTree.setName("Top");
+        rootTree.setName("Root");
         rootTree.setTotalCount(1);
 
         // construct and add children

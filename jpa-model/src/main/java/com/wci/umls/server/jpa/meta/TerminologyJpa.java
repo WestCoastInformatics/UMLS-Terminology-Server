@@ -94,7 +94,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   @Column(nullable = false)
   private boolean current = false;
 
-  /**  The metathesaurus flag. */
+  /** The metathesaurus flag. */
   @Column(nullable = false)
   private boolean metathesaurus = false;
 
@@ -362,8 +362,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.model.meta.Terminology#setVersion(java.lang
+   * @see com.wci.umls.server.model.meta.Terminology#setVersion(java.lang
    * .String)
    */
   @Override
@@ -479,10 +478,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
             + ((synonymousNames == null) ? 0 : synonymousNames.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime
-            * result
-            + ((version == null) ? 0 : version.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
@@ -552,10 +548,10 @@ public class TerminologyJpa extends AbstractHasLastModified implements
         + citation + ", endDate=" + endDate + ", organizingClassType="
         + organizingClassType + ", preferredName=" + preferredName
         + ", startDate=" + startDate + ", synonymousNames=" + synonymousNames
-        + ", version=" + version
-        + ", assertsRelDirection=" + assertsRelDirection + ", current="
-        + current + ", metathesaurus=" + metathesaurus
-        + ", descriptionLogicTerminology=" + descriptionLogicTerminology + "]";
+        + ", version=" + version + ", assertsRelDirection="
+        + assertsRelDirection + ", current=" + current + ", metathesaurus="
+        + metathesaurus + ", descriptionLogicTerminology="
+        + descriptionLogicTerminology + "]";
   }
 
 }

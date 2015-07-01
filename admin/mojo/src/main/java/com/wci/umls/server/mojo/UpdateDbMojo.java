@@ -26,9 +26,9 @@ public class UpdateDbMojo extends AbstractMojo {
    * Mode: create or update
    * @parameter
    * @required
-   */ 
+   */
   public String mode;
-  
+
   /**
    * Instantiates a {@link UpdateDbMojo} from the specified parameters.
    * 
@@ -52,7 +52,7 @@ public class UpdateDbMojo extends AbstractMojo {
       }
       Properties config = ConfigUtility.getConfigProperties();
       config.setProperty("hibernate.hbm2ddl.auto", mode);
-      
+
       // Trigger a JPA event
       new MetadataServiceJpa().close();
       getLog().info("done ...");

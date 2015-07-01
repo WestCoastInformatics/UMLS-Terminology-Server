@@ -107,7 +107,6 @@ public class EqualsHashcodeTester extends ProxyTester {
       // Change the field (use an initializer of 2).
       setField(o2, getter, m, args[0], 2);
 
-
       if (o1.equals(o2)) {
         // if equals, fail here
         Logger.getLogger(getClass()).debug(

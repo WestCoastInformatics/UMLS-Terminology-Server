@@ -304,8 +304,8 @@ public class ContentClientRest extends RootClientRest implements
             + "/"
             + version
             + "?query="
-            + URLEncoder.encode(query == null ? "" : query,
-                    "UTF-8").replaceAll("\\+", "%20"));
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfsc == null ? new PfscParameterJpa()
             : pfsc);
@@ -338,22 +338,21 @@ public class ContentClientRest extends RootClientRest implements
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public SearchResultList findConceptsForGeneralQuery(String query,
-    String hql, PfsParameterJpa pfs, String authToken) throws Exception {
+  public SearchResultList findConceptsForGeneralQuery(String query, String hql,
+    PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find concepts " + query + ", " + hql
-            + ", " + pfs);
+        "Content Client - find concepts " + query + ", " + hql + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
             + "/content/cui"
-            + "?query=" 
-            + URLEncoder.encode(query == null ? "" : query,
-                "UTF-8").replaceAll("\\+", "%20")
+            + "?query="
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20")
             + "?hql="
-            + URLEncoder.encode(hql == null ? "" : hql,
-                "UTF-8").replaceAll("\\+", "%20"));
+            + URLEncoder.encode(hql == null ? "" : hql, "UTF-8").replaceAll(
+                "\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -481,8 +480,8 @@ public class ContentClientRest extends RootClientRest implements
             + "/"
             + version
             + "?query="
-            + URLEncoder.encode(query == null ? "" : query,
-                "UTF-8").replaceAll("\\+", "%20"));
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfsc == null ? new PfscParameterJpa()
             : pfsc);
@@ -517,19 +516,18 @@ public class ContentClientRest extends RootClientRest implements
   public SearchResultList findDescriptorsForGeneralQuery(String query,
     String hql, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find descriptors " + query + ", " + hql
-            + ", " + pfs);
+        "Content Client - find descriptors " + query + ", " + hql + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
             + "/content/dui"
-            + "?query=" 
-            + URLEncoder.encode(query == null ? "" : query,
-                "UTF-8").replaceAll("\\+", "%20")
+            + "?query="
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20")
             + "?hql="
-            + URLEncoder.encode(hql == null ? "" : hql,
-                "UTF-8").replaceAll("\\+", "%20"));
+            + URLEncoder.encode(hql == null ? "" : hql, "UTF-8").replaceAll(
+                "\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -655,8 +653,8 @@ public class ContentClientRest extends RootClientRest implements
             + "/"
             + version
             + "?query="
-            + URLEncoder.encode(query == null ? "" : query,
-                "UTF-8").replaceAll("\\+", "%20"));
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfsc == null ? new PfscParameterJpa()
             : pfsc);
@@ -689,22 +687,21 @@ public class ContentClientRest extends RootClientRest implements
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public SearchResultList findCodesForGeneralQuery(String query,
-    String hql, PfsParameterJpa pfs, String authToken) throws Exception {
+  public SearchResultList findCodesForGeneralQuery(String query, String hql,
+    PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find codes " + query + ", " + hql + ", "
-            + pfs);
+        "Content Client - find codes " + query + ", " + hql + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
             + "/content/code"
-            + "?query=" 
-            + URLEncoder.encode(query == null ? "" : query,
-                "UTF-8").replaceAll("\\+", "%20")
+            + "?query="
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20")
             + "?hql="
-            + URLEncoder.encode(hql == null ? "" : hql,
-                "UTF-8").replaceAll("\\+", "%20"));
+            + URLEncoder.encode(hql == null ? "" : hql, "UTF-8").replaceAll(
+                "\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1411,8 +1408,8 @@ public class ContentClientRest extends RootClientRest implements
             + version
             + "/members"
             + "?query="
-            + URLEncoder.encode(query == null ? "" : query,
-                "UTF-8").replaceAll("\\+", "%20"));
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1465,8 +1462,8 @@ public class ContentClientRest extends RootClientRest implements
             + version
             + "/members"
             + "?query="
-            + URLEncoder.encode(query == null ? "" : query,
-                "UTF-8").replaceAll("\\+", "%20"));
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
@@ -1635,8 +1632,8 @@ public class ContentClientRest extends RootClientRest implements
             + terminologyId
             + "/relationships"
             + "?query="
-            + URLEncoder.encode(query == null ? "" : query,
-                "UTF-8").replaceAll("\\+", "%20"));
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -1854,8 +1851,8 @@ public class ContentClientRest extends RootClientRest implements
             + version
             + "/trees"
             + "?query="
-            + URLEncoder.encode(query == null ? "" : query,
-                "UTF-8").replaceAll("\\+", "%20"));
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -1885,14 +1882,8 @@ public class ContentClientRest extends RootClientRest implements
     throws Exception {
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/content/"
-            + "/cui"
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/trees/children");
+        client.resource(config.getProperty("base.url") + "/content/" + "/cui"
+            + "/" + terminology + "/" + version + "/trees/children");
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -1915,7 +1906,7 @@ public class ContentClientRest extends RootClientRest implements
         (TreeListJpa) ConfigUtility.getGraphForString(resultString,
             TreeListJpa.class);
     return list;
-    
+
   }
 
   @Override
@@ -1924,14 +1915,8 @@ public class ContentClientRest extends RootClientRest implements
     throws Exception {
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/content/"
-            + "/dui"
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/trees/children");
+        client.resource(config.getProperty("base.url") + "/content/" + "/dui"
+            + "/" + terminology + "/" + version + "/trees/children");
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -1962,14 +1947,8 @@ public class ContentClientRest extends RootClientRest implements
     throws Exception {
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/content/"
-            + "/code"
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/trees/children");
+        client.resource(config.getProperty("base.url") + "/content/" + "/code"
+            + "/" + terminology + "/" + version + "/trees/children");
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -1999,14 +1978,8 @@ public class ContentClientRest extends RootClientRest implements
     PfsParameterJpa pfs, String authToken) throws Exception {
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/content/"
-            + "/cui"
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/trees/roots");
+        client.resource(config.getProperty("base.url") + "/content/" + "/cui"
+            + "/" + terminology + "/" + version + "/trees/roots");
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -2026,62 +1999,17 @@ public class ContentClientRest extends RootClientRest implements
 
     // converting to object
     TreeJpa tree =
-        (TreeJpa) ConfigUtility.getGraphForString(resultString,
-            TreeJpa.class);
+        (TreeJpa) ConfigUtility.getGraphForString(resultString, TreeJpa.class);
     return tree;
   }
 
   @Override
   public Tree findCodeTreeRoots(String terminology, String version,
-    PfsParameterJpa pfs, String authToken) 
-    throws Exception {
-      Client client = Client.create();
-      WebResource resource =
-          client.resource(config.getProperty("base.url")
-              + "/content/"
-              + "/code"
-              + "/"
-              + terminology
-              + "/"
-              + version
-              + "/trees/roots");
-
-      String pfsString =
-          ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-              : pfs);
-      ClientResponse response =
-          resource.accept(MediaType.APPLICATION_XML)
-              .header("Authorization", authToken)
-              .header("Content-type", MediaType.APPLICATION_XML)
-              .post(ClientResponse.class, pfsString);
-
-      String resultString = response.getEntity(String.class);
-      if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-        // n/a
-      } else {
-        throw new Exception(response.toString());
-      }
-
-      // converting to object
-      TreeJpa tree =
-          (TreeJpa) ConfigUtility.getGraphForString(resultString,
-              TreeJpa.class);
-      return tree;
-  }
-
-  @Override
-  public Tree findDescriptorTreeRoots(String terminology, String version,
-    PfsParameterJpa pfs, String authToken)  throws Exception {
+    PfsParameterJpa pfs, String authToken) throws Exception {
     Client client = Client.create();
     WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/content/"
-            + "/dui"
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/trees/roots");
+        client.resource(config.getProperty("base.url") + "/content/" + "/code"
+            + "/" + terminology + "/" + version + "/trees/roots");
 
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -2101,8 +2029,37 @@ public class ContentClientRest extends RootClientRest implements
 
     // converting to object
     TreeJpa tree =
-        (TreeJpa) ConfigUtility.getGraphForString(resultString,
-            TreeJpa.class);
+        (TreeJpa) ConfigUtility.getGraphForString(resultString, TreeJpa.class);
+    return tree;
+  }
+
+  @Override
+  public Tree findDescriptorTreeRoots(String terminology, String version,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url") + "/content/" + "/dui"
+            + "/" + terminology + "/" + version + "/trees/roots");
+
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .post(ClientResponse.class, pfsString);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    TreeJpa tree =
+        (TreeJpa) ConfigUtility.getGraphForString(resultString, TreeJpa.class);
     return tree;
   }
 

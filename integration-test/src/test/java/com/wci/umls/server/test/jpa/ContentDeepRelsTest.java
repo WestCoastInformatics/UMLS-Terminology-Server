@@ -60,7 +60,8 @@ public class ContentDeepRelsTest {
   public void testfindDeepRels() throws Exception {
     Logger.getLogger(getClass()).info("Start test");
 
-    Logger.getLogger(getClass()).info("  Test basic findDeepRelationshipsForConcept call");
+    Logger.getLogger(getClass()).info(
+        "  Test basic findDeepRelationshipsForConcept call");
     RelationshipList list =
         service.findDeepRelationshipsForConcept("C0000097", "UMLS", "latest",
             Branch.ROOT, false, new PfsParameterJpa());
@@ -68,16 +69,18 @@ public class ContentDeepRelsTest {
         .getObjects()) {
       Logger.getLogger(getClass()).info(
           "  " + rel.getFrom().getTerminologyId() + ", " + rel.getTerminology()
-              + ", " + rel.getVersion() + ", "
-              + rel.getRelationshipType() + ", "
-              + rel.getAdditionalRelationshipType() + ", "
+              + ", " + rel.getVersion() + ", " + rel.getRelationshipType()
+              + ", " + rel.getAdditionalRelationshipType() + ", "
               + rel.getTo().getTerminologyId());
 
     }
     Logger.getLogger(getClass()).info("  Verify count = 68");
     assertEquals(68, list.getCount());
 
-    Logger.getLogger(getClass()).info("  Test basic findDeepRelationshipsForConcept call with pfs page size and sort order");
+    Logger
+        .getLogger(getClass())
+        .info(
+            "  Test basic findDeepRelationshipsForConcept call with pfs page size and sort order");
     PfsParameter pfs = new PfsParameterJpa();
     pfs.setMaxResults(10);
     pfs.setStartIndex(0);
@@ -89,9 +92,8 @@ public class ContentDeepRelsTest {
         .getObjects()) {
       Logger.getLogger(getClass()).info(
           "  " + rel.getFrom().getTerminologyId() + ", " + rel.getTerminology()
-              + ", " + rel.getVersion() + ", "
-              + rel.getRelationshipType() + ", "
-              + rel.getAdditionalRelationshipType() + ", "
+              + ", " + rel.getVersion() + ", " + rel.getRelationshipType()
+              + ", " + rel.getAdditionalRelationshipType() + ", "
               + rel.getTo().getTerminologyId());
 
     }
@@ -99,16 +101,20 @@ public class ContentDeepRelsTest {
     assertEquals(10, list.getCount());
     List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> list2 =
         new ArrayList<>(list.getObjects());
-    
+
     // Test sort ordering by relationship type
-    Collections.sort(list2, new Comparator<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>>() {
-      @Override
-      public int compare(
-        Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> o1,
-        Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> o2) {
-        return o1.getRelationshipType().compareTo(o2.getRelationshipType());
-      }
-    });
+    Collections
+        .sort(
+            list2,
+            new Comparator<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>>() {
+              @Override
+              public int compare(
+                Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> o1,
+                Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> o2) {
+                return o1.getRelationshipType().compareTo(
+                    o2.getRelationshipType());
+              }
+            });
     assertEquals(list.getObjects(), list2);
   }
 

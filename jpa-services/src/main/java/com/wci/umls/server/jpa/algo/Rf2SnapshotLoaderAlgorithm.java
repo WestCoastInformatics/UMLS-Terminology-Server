@@ -122,9 +122,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   /** The readers. */
   private Rf2Readers readers;
 
-  /**  The definition map. */
+  /** The definition map. */
   private Map<String, Set<Long>> definitionMap = new HashMap<>();
-  
+
   /** The atom id map. */
   private Map<String, Long> atomIdMap = new HashMap<>();
 
@@ -340,8 +340,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       // Load metadata
       loadMetadata();
 
-      // Make subsets and marker sets
-      loadExtensionMarkerSets();
+      // Make subsets and label sets
+      loadExtensionLabelSets();
 
       //
       // Create ReleaseInfo for this release if it does not already exist
@@ -708,7 +708,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   }
 
   /**
-   * Load definitions.  Treat exactly like descriptions.
+   * Load definitions. Treat exactly like descriptions.
    * 
    * @throws Exception the exception
    */
@@ -786,7 +786,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     commitClearBegin();
   }
 
-  
   /**
    * Connect atoms and concepts.
    *
@@ -830,7 +829,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
               concept.addDefinition(getDefinition(id));
             }
           }
-          
+
           updateConcept(concept);
 
           // Set atom subset names
@@ -1647,11 +1646,11 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   }
 
   /**
-   * Load extension marker sets.
+   * Load extension label sets.
    *
    * @throws Exception the exception
    */
-  private void loadExtensionMarkerSets() throws Exception {
+  private void loadExtensionLabelSets() throws Exception {
 
     // for each non core module, create a Subset object
     List<ConceptSubset> subsets = new ArrayList<>();
@@ -1663,7 +1662,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       subset.setName(concept.getName());
       subset.setDescription("Represents the members of module " + moduleId);
       subset.setDisjointSubset(false);
-      subset.setMarkerSubset(true);
+      subset.setLabelSubset(true);
       subset.setLastModified(releaseVersionDate);
       subset.setTimestamp(releaseVersionDate);
       subset.setLastModifiedBy(loader);

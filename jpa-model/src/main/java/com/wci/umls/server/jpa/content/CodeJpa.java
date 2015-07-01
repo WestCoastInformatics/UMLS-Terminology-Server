@@ -42,9 +42,9 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   /** The concept terminology id map. */
   @ElementCollection(fetch = FetchType.EAGER)
   // consider this: @Fetch(sFetchMode.JOIN)
-  @CollectionTable(name = "code_marker_sets")
+  @CollectionTable(name = "code_labels")
   @Column(nullable = true)
-  List<String> markerSets;
+  List<String> labels;
 
   /**
    * Instantiates an empty {@link CodeJpa}.
@@ -61,7 +61,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
    */
   public CodeJpa(Code code, boolean deepCopy) {
     super(code, deepCopy);
-    markerSets = code.getMarkerSets();
+    labels = code.getLabels();
 
     if (deepCopy) {
       for (CodeRelationship relationship : code.getRelationships()) {
@@ -121,54 +121,31 @@ public class CodeJpa extends AbstractAtomClass implements Code {
     relationships.remove(relationship);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasMarkerSets#getMarkerSets()
-   */
   @Override
-  public List<String> getMarkerSets() {
-    return markerSets;
+  public List<String> getLabels() {
+    return labels;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasMarkerSets#setMarkerSets(java.util.List)
-   */
   @Override
-  public void setMarkerSets(List<String> markerSets) {
-    this.markerSets = markerSets;
+  public void setLabels(List<String> labels) {
+    this.labels = labels;
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasMarkerSets#addMarkerSet(java.lang.String)
-   */
   @Override
-  public void addMarkerSet(String markerSet) {
-    if (markerSets == null) {
-      markerSets = new ArrayList<String>();
+  public void addLabel(String label) {
+    if (labels == null) {
+      labels = new ArrayList<String>();
     }
-    markerSets.add(markerSet);
+    labels.add(label);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasMarkerSets#removeMarkerSet(java.lang.String)
-   */
   @Override
-  public void removeMarkerSet(String markerSet) {
-    if (markerSets == null) {
-      markerSets = new ArrayList<String>();
+  public void removeLabel(String label) {
+    if (labels == null) {
+      labels = new ArrayList<String>();
     }
-    markerSets.remove(markerSet);
+    labels.remove(label);
 
   }
 

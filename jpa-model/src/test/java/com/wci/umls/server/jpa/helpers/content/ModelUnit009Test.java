@@ -36,6 +36,7 @@ public class ModelUnit009Test {
 
   /** The map fixture 2. */
   private Map<String, String> map2;
+
   /**
    * Setup class.
    */
@@ -52,9 +53,9 @@ public class ModelUnit009Test {
   public void setup() throws Exception {
     object = new AttributeJpa();
     map1 = new HashMap<>();
-    map1.put("1","1");
+    map1.put("1", "1");
     map2 = new HashMap<>();
-    map2.put("2","2");
+    map2.put("2", "2");
   }
 
   /**

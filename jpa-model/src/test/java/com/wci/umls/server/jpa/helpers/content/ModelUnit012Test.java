@@ -80,7 +80,7 @@ public class ModelUnit012Test {
 
     object.setFrom(concept1);
     object.setTo(concept2);
-    }
+  }
 
   /**
    * Test getter and setter methods of model object.
@@ -132,26 +132,26 @@ public class ModelUnit012Test {
     tester.exclude("toTerminologyId");
     tester.exclude("fromTerminologyId");
 
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1,false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2,false));
+    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
+    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
 
     assertTrue(tester.testIdentitiyFieldEquals());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1,false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2,false));
+    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
+    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
     assertTrue(tester.testNonIdentitiyFieldEquals());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1,false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2,false));
+    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
+    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
     assertTrue(tester.testIdentityFieldNotEquals());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1,false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2,false));
+    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
+    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
     assertTrue(tester.testIdentitiyFieldHashcode());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1,false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2,false));
+    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
+    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
     assertTrue(tester.testNonIdentitiyFieldHashcode());
-    tester.proxy(Concept.class, 1, new ConceptJpa(concept1,false));
-    tester.proxy(Concept.class, 2, new ConceptJpa(concept2,false));
+    tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
+    tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 
@@ -276,7 +276,7 @@ public class ModelUnit012Test {
     tester.include("to");
     assertTrue(tester.testNotNullFields());
   }
-  
+
   /**
    * Teardown.
    */

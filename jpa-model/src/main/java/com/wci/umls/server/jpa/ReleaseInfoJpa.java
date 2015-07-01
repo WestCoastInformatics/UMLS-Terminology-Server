@@ -291,9 +291,7 @@ public class ReleaseInfoJpa implements ReleaseInfo {
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * org.ihtsdo.otf.ts.helpers.ReleaseInfo#setVersion(java.lang.String
-   * )
+   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#setVersion(java.lang.String )
    */
   @Override
   public void setVersion(String version) {
@@ -351,10 +349,7 @@ public class ReleaseInfoJpa implements ReleaseInfo {
     result = prime * result + (published ? 1231 : 1237);
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime
-            * result
-            + ((version == null) ? 0 : version.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 

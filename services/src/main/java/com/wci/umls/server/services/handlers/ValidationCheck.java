@@ -30,7 +30,7 @@ public interface ValidationCheck extends Configurable {
    * @return the validation result
    */
   public ValidationResult validate(Descriptor descriptor);
-  
+
   /**
    * Validates the code.
    *
@@ -38,7 +38,7 @@ public interface ValidationCheck extends Configurable {
    * @return the validation result
    */
   public ValidationResult validate(Code code);
-  
+
   /**
    * Validates the atom.
    *
@@ -46,7 +46,7 @@ public interface ValidationCheck extends Configurable {
    * @return the validation result
    */
   public ValidationResult validate(Atom atom);
-  
+
   /**
    * Validates the concept merge.
    *
@@ -57,6 +57,6 @@ public interface ValidationCheck extends Configurable {
    * @return the validation result
    */
   public ValidationResult validateMerge(String terminologyId1,
-    String terminologyId2, String terminology, String version) ;
+    String terminologyId2, String terminology, String version);
 
 }

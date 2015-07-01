@@ -36,11 +36,13 @@ public class ModelUnit043Test {
 
   /** Test fixture */
   private Atom atom1;
+
   /** Test fixture */
   private Atom atom2;
 
   /** Test fixture */
   private AtomSubset subset1;
+
   /** Test fixture */
   private AtomSubset subset2;
 
@@ -58,7 +60,7 @@ public class ModelUnit043Test {
   @Before
   public void setup() {
     object = new AtomSubsetMemberJpa();
-    
+
     atom1 = new AtomJpa();
     atom1.setId(1L);
     atom1.setTerminologyId("1");
@@ -127,35 +129,35 @@ public class ModelUnit043Test {
     tester.include("member");
     tester.include("subset");
 
-    tester.proxy(Atom.class, 1, new AtomJpa(atom1,false));
-    tester.proxy(Atom.class, 2, new AtomJpa(atom2,false));
-    tester.proxy(AtomSubset.class, 1, new AtomSubsetJpa(subset1,false));
-    tester.proxy(AtomSubset.class, 2, new AtomSubsetJpa(subset2,false));
+    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
+    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
+    tester.proxy(AtomSubset.class, 1, new AtomSubsetJpa(subset1, false));
+    tester.proxy(AtomSubset.class, 2, new AtomSubsetJpa(subset2, false));
     assertTrue(tester.testIdentitiyFieldEquals());
-    tester.proxy(Atom.class, 1, new AtomJpa(atom1,false));
-    tester.proxy(Atom.class, 2, new AtomJpa(atom2,false));
-    tester.proxy(AtomSubset.class, 1, new AtomSubsetJpa(subset1,false));
-    tester.proxy(AtomSubset.class, 2, new AtomSubsetJpa(subset2,false));
+    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
+    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
+    tester.proxy(AtomSubset.class, 1, new AtomSubsetJpa(subset1, false));
+    tester.proxy(AtomSubset.class, 2, new AtomSubsetJpa(subset2, false));
     assertTrue(tester.testNonIdentitiyFieldEquals());
-    tester.proxy(Atom.class, 1, new AtomJpa(atom1,false));
-    tester.proxy(Atom.class, 2, new AtomJpa(atom2,false));
-    tester.proxy(AtomSubset.class, 1, new AtomSubsetJpa(subset1,false));
-    tester.proxy(AtomSubset.class, 2, new AtomSubsetJpa(subset2,false));
+    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
+    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
+    tester.proxy(AtomSubset.class, 1, new AtomSubsetJpa(subset1, false));
+    tester.proxy(AtomSubset.class, 2, new AtomSubsetJpa(subset2, false));
     assertTrue(tester.testIdentityFieldNotEquals());
-    tester.proxy(Atom.class, 1, new AtomJpa(atom1,false));
-    tester.proxy(Atom.class, 2, new AtomJpa(atom2,false));
-    tester.proxy(AtomSubset.class, 1, new AtomSubsetJpa(subset1,false));
-    tester.proxy(AtomSubset.class, 2, new AtomSubsetJpa(subset2,false));
+    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
+    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
+    tester.proxy(AtomSubset.class, 1, new AtomSubsetJpa(subset1, false));
+    tester.proxy(AtomSubset.class, 2, new AtomSubsetJpa(subset2, false));
     assertTrue(tester.testIdentitiyFieldHashcode());
-    tester.proxy(Atom.class, 1, new AtomJpa(atom1,false));
-    tester.proxy(Atom.class, 2, new AtomJpa(atom2,false));
-    tester.proxy(AtomSubset.class, 1, new AtomSubsetJpa(subset1,false));
-    tester.proxy(AtomSubset.class, 2, new AtomSubsetJpa(subset2,false));
+    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
+    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
+    tester.proxy(AtomSubset.class, 1, new AtomSubsetJpa(subset1, false));
+    tester.proxy(AtomSubset.class, 2, new AtomSubsetJpa(subset2, false));
     assertTrue(tester.testNonIdentitiyFieldHashcode());
-    tester.proxy(Atom.class, 1, new AtomJpa(atom1,false));
-    tester.proxy(Atom.class, 2, new AtomJpa(atom2,false));
-    tester.proxy(AtomSubset.class, 1, new AtomSubsetJpa(subset1,false));
-    tester.proxy(AtomSubset.class, 2, new AtomSubsetJpa(subset2,false));
+    tester.proxy(Atom.class, 1, new AtomJpa(atom1, false));
+    tester.proxy(Atom.class, 2, new AtomJpa(atom2, false));
+    tester.proxy(AtomSubset.class, 1, new AtomSubsetJpa(subset1, false));
+    tester.proxy(AtomSubset.class, 2, new AtomSubsetJpa(subset2, false));
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 
@@ -174,7 +176,6 @@ public class ModelUnit043Test {
     tester.proxy(AtomSubset.class, 2, subset2);
     assertTrue(tester.testCopyConstructorDeep(AtomSubsetMember.class));
   }
-
 
   /**
    * Test xml transient fields

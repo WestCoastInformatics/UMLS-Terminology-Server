@@ -47,9 +47,9 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   /** The concept terminology id map. */
   @ElementCollection(fetch = FetchType.EAGER)
   // consider this: @Fetch(sFetchMode.JOIN)
-  @CollectionTable(name = "descriptor_marker_sets")
+  @CollectionTable(name = "descriptor_labels")
   @Column(nullable = true)
-  List<String> markerSets;
+  List<String> labels;
 
   /**
    * Instantiates an empty {@link DescriptorJpa}.
@@ -66,7 +66,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
    */
   public DescriptorJpa(Descriptor descriptor, boolean deepCopy) {
     super(descriptor, deepCopy);
-    markerSets = descriptor.getMarkerSets();
+    labels = descriptor.getLabels();
 
     if (deepCopy) {
       for (Definition definition : descriptor.getDefinitions()) {
@@ -184,51 +184,48 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.helpers.HasMarkerSets#getMarkerSets()
+   * @see com.wci.umls.server.helpers.HasLabels#getLabels()
    */
   @Override
-  public List<String> getMarkerSets() {
-    return markerSets;
+  public List<String> getLabels() {
+    return labels;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.helpers.HasMarkerSets#setMarkerSets(java.util.List)
+   * @see com.wci.umls.server.helpers.HasLabels#setLabels(java.util.List)
    */
   @Override
-  public void setMarkerSets(List<String> markerSets) {
-    this.markerSets = markerSets;
+  public void setLabels(List<String> labels) {
+    this.labels = labels;
 
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.helpers.HasMarkerSets#addMarkerSet(java.lang.String)
+   * @see com.wci.umls.server.helpers.HasLabels#addLabel(java.lang.String)
    */
   @Override
-  public void addMarkerSet(String markerSet) {
-    if (markerSets == null) {
-      markerSets = new ArrayList<String>();
+  public void addLabel(String label) {
+    if (labels == null) {
+      labels = new ArrayList<String>();
     }
-    markerSets.add(markerSet);
+    labels.add(label);
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.helpers.HasMarkerSets#removeMarkerSet(java.lang.String)
+   * @see com.wci.umls.server.helpers.HasLabels#removeLabel(java.lang.String)
    */
   @Override
-  public void removeMarkerSet(String markerSet) {
-    if (markerSets == null) {
-      markerSets = new ArrayList<String>();
+  public void removeLabel(String label) {
+    if (labels == null) {
+      labels = new ArrayList<String>();
     }
-    markerSets.remove(markerSet);
+    labels.remove(label);
 
   }
 

@@ -169,7 +169,9 @@ public class PrecedenceListJpa implements PrecedenceList {
     this.name = name;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.helpers.PrecedenceList#getBranch()
    */
   @Override
@@ -177,7 +179,9 @@ public class PrecedenceListJpa implements PrecedenceList {
     return branch;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.helpers.PrecedenceList#setBranch(java.lang.String)
    */
   @Override
@@ -185,7 +189,9 @@ public class PrecedenceListJpa implements PrecedenceList {
     this.branch = branch;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.helpers.HasTerminology#getTerminology()
    */
   @Override
@@ -193,15 +199,20 @@ public class PrecedenceListJpa implements PrecedenceList {
     return terminology;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.helpers.HasTerminology#setTerminology(java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasTerminology#setTerminology(java.lang.String)
    */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.helpers.HasTerminology#getVersion()
    */
   @Override
@@ -209,8 +220,11 @@ public class PrecedenceListJpa implements PrecedenceList {
     return version;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.helpers.HasTerminology#setVersion(java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.HasTerminology#setVersion(java.lang.String)
    */
   @Override
   public void setVersion(String version) {
@@ -350,7 +364,9 @@ public class PrecedenceListJpa implements PrecedenceList {
     }
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#toString()
    */
   @Override

@@ -64,8 +64,8 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     if (concept != null) {
       boolean nullId = concept.getId() == null;
       concept.setMembers(new ArrayList<ConceptSubsetMember>());
-      concept.getMarkerSets().size();
-      
+      concept.getLabels().size();
+
       // Attributes
       resolveAttributes(concept, nullId);
 
@@ -225,13 +225,13 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     throws Exception {
     if (treepos != null) {
       treepos.getAncestorPath();
-      
+
       // Tree positions don't have attributes yet.
       treepos.setAttributes(new ArrayList<Attribute>());
     }
 
   }
-  
+
   /*
    * (non-Javadoc)
    * 

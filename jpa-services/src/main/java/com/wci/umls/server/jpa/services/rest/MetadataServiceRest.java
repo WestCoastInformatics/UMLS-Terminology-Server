@@ -53,6 +53,6 @@ public interface MetadataServiceRest {
    * @throws Exception the exception
    */
   public Terminology getTerminology(String terminology, String version,
-		String authToken) throws Exception;
+    String authToken) throws Exception;
 
 }

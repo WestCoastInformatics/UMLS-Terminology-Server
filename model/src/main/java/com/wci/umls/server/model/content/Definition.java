@@ -8,7 +8,8 @@ import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
 /**
  * Represents a definition.
  */
-public interface Definition extends ComponentHasAttributes, HasAlternateTerminologyIds {
+public interface Definition extends ComponentHasAttributes,
+    HasAlternateTerminologyIds {
 
   /**
    * Returns the value.

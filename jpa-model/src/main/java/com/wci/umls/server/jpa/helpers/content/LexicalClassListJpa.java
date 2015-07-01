@@ -20,7 +20,9 @@ import com.wci.umls.server.model.content.LexicalClass;
 public class LexicalClassListJpa extends AbstractResultList<LexicalClass>
     implements LexicalClassList {
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
    */
   @Override

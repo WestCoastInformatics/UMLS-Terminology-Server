@@ -246,8 +246,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       // atomCache.clear();
       languageRefSetMemberCache.clear();
       Logger.getLogger(getClass()).info("  Cache concepts");
-      conceptList =
-          getAllConcepts(terminology, version, Branch.ROOT);
+      conceptList = getAllConcepts(terminology, version, Branch.ROOT);
       for (Concept c : conceptList.getObjects()) {
         existingConceptCache.put(c.getTerminologyId(), c);
       }
@@ -742,10 +741,9 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           // the language refset entry could be the first element for
           // the concept that is changed. After the cache concept call
           // below, the atom will be in the cache next time
-          atom =
-              getAtom(fields[5], terminology, version, Branch.ROOT);
-          cacheConcept(getConcept(atom.getConceptId(), terminology,
-              version, Branch.ROOT));
+          atom = getAtom(fields[5], terminology, version, Branch.ROOT);
+          cacheConcept(getConcept(atom.getConceptId(), terminology, version,
+              Branch.ROOT));
         }
 
         // Ensure effective time is set on all appropriate objects
@@ -786,8 +784,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         if (!atomSubsetMap.containsKey(fields[4])) {
           AtomSubset subset =
-              (AtomSubset) getSubset(fields[4], terminology,
-                  version, Branch.ROOT, AtomSubset.class);
+              (AtomSubset) getSubset(fields[4], terminology, version,
+                  Branch.ROOT, AtomSubset.class);
           atomSubsetMap.put(fields[4], subset);
         }
         AtomSubset subset = atomSubsetMap.get(fields[4]);
@@ -817,8 +815,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         // forcably recache the concept
         conceptCache.remove(atom.getConceptId());
-        cacheConcept(getConcept(atom.getConceptId(), terminology,
-            version, Branch.ROOT));
+        cacheConcept(getConcept(atom.getConceptId(), terminology, version,
+            Branch.ROOT));
 
       }
     }
@@ -1015,7 +1013,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         // If relationship is new, add it
         if (addFlag) {
-          newRelationship = (ConceptRelationship) addRelationship(newRelationship);
+          newRelationship =
+              (ConceptRelationship) addRelationship(newRelationship);
           objectsAdded++;
         }
 
@@ -1048,7 +1047,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
   private void cacheConcept(Concept c) throws Exception {
     if (!conceptCache.containsKey(c.getTerminologyId())) {
       for (ConceptRelationship r : c.getRelationships()) {
-        relationshipCache.put(r.getTerminologyId(),  r);
+        relationshipCache.put(r.getTerminologyId(), r);
       }
       for (Atom d : c.getAtoms()) {
         for (AtomSubsetMember l : d.getMembers()) {

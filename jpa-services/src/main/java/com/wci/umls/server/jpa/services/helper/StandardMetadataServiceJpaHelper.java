@@ -8,7 +8,7 @@ import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
 import com.wci.umls.server.helpers.meta.LanguageList;
-import com.wci.umls.server.helpers.meta.MarkerSetList;
+import com.wci.umls.server.helpers.meta.LabelSetList;
 import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
@@ -17,7 +17,7 @@ import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
 import com.wci.umls.server.jpa.helpers.meta.GeneralMetadataEntryListJpa;
 import com.wci.umls.server.jpa.helpers.meta.LanguageListJpa;
-import com.wci.umls.server.jpa.helpers.meta.MarkerSetListJpa;
+import com.wci.umls.server.jpa.helpers.meta.LabelSetListJpa;
 import com.wci.umls.server.jpa.helpers.meta.PropertyChainListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
@@ -153,16 +153,16 @@ public class StandardMetadataServiceJpaHelper extends
 
   @SuppressWarnings("unchecked")
   @Override
-  public MarkerSetList getMarkerSets(String terminology, String version)
+  public LabelSetList getLabelSets(String terminology, String version)
     throws Exception {
     javax.persistence.Query query =
         manager
-            .createQuery("SELECT a from MarkerSetJpa a where terminology = :terminology"
+            .createQuery("SELECT a from LabelSetJpa a where terminology = :terminology"
                 + " and version = :version");
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    MarkerSetList names = new MarkerSetListJpa();
+    LabelSetList names = new LabelSetListJpa();
     names.setObjects(query.getResultList());
     names.setTotalCount(names.getObjects().size());
     return names;

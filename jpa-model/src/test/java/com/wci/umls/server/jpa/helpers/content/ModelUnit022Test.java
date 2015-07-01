@@ -89,7 +89,6 @@ public class ModelUnit022Test {
     assertTrue(tester.testCopyConstructor(User.class));
   }
 
-
   /**
    * Test not null fields.
    *
@@ -99,7 +98,7 @@ public class ModelUnit022Test {
   public void testModelNotNullField022() throws Exception {
     // n/a
   }
-  
+
   /**
    * Teardown.
    */

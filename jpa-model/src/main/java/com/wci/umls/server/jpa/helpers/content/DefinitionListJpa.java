@@ -20,8 +20,9 @@ import com.wci.umls.server.model.content.Definition;
 public class DefinitionListJpa extends AbstractResultList<Definition> implements
     DefinitionList {
 
-
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
    */
   @Override

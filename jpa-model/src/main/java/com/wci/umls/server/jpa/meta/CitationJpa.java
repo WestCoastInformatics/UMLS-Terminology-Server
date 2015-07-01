@@ -621,7 +621,9 @@ public class CitationJpa implements Citation {
     result = prime * result + ((publisher == null) ? 0 : publisher.hashCode());
     result = prime * result + ((series == null) ? 0 : series.hashCode());
     result = prime * result + ((title == null) ? 0 : title.hashCode());
-    result = prime * result + ((unstructuredValue == null) ? 0 : unstructuredValue.hashCode());
+    result =
+        prime * result
+            + ((unstructuredValue == null) ? 0 : unstructuredValue.hashCode());
     return result;
   }
 

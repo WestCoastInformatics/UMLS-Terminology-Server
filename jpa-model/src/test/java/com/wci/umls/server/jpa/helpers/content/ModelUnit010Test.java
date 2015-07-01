@@ -76,7 +76,7 @@ public class ModelUnit010Test {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
-    
+
     tester.include("name");
 
     assertTrue(tester.testIdentitiyFieldEquals());
@@ -164,10 +164,11 @@ public class ModelUnit010Test {
     tester.include("workflowStatus");
     tester.include("branch");
     tester.include("branchedTo");
-    
+
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }
+
   /**
    * Teardown.
    */

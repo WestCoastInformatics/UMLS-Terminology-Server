@@ -114,27 +114,31 @@ public class RrfComputePreferredNameHandler implements
    *
    * @param atom the atom
    * @return the rank
-   * @throws Exception 
+   * @throws Exception
    */
   protected String getRank(Atom atom) throws Exception {
     if (list == null) {
       // Use the atom's terminology/version.
       // In single source case, this will be correct
       // In UMLS case, this will map to "DEFAULT" which will use the
-      //   properties passed in for terminology/version
+      // properties passed in for terminology/version
       cacheList(atom.getTerminology(), atom.getVersion());
     }
     String rank = null;
     if (atom.getStringClassId() != null && !atom.getStringClassId().isEmpty()) {
-      rank = (atom.isObsolete() ? 0 : 1 ) + 
-          (atom.isSuppressible() ? 0 : 1 ) + 
-          ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType())
-          + (10000000000L - Long.parseLong(atom.getStringClassId().substring(1)))
-          + (100000000000L - atom.getId()); 
+      rank =
+          (atom.isObsolete() ? 0 : 1)
+              + (atom.isSuppressible() ? 0 : 1)
+              + ttyRankMap
+                  .get(atom.getTerminology() + "/" + atom.getTermType())
+              + (10000000000L - Long.parseLong(atom.getStringClassId()
+                  .substring(1))) + (100000000000L - atom.getId());
     } else {
-      rank = (atom.isObsolete() ? 0 : 1 ) + 
-          (atom.isSuppressible() ? 0 : 1 ) + 
-          ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType());      
+      rank =
+          (atom.isObsolete() ? 0 : 1)
+              + (atom.isSuppressible() ? 0 : 1)
+              + ttyRankMap
+                  .get(atom.getTerminology() + "/" + atom.getTermType());
     }
     return rank;
   }

@@ -18,10 +18,9 @@ import com.wci.umls.server.model.content.TreePosition;
  * JAXB enabled implementation of {@link TreePositionList}.
  */
 @XmlRootElement(name = "treePositionList")
-public class TreePositionListJpa
-    extends
-    AbstractResultList<TreePosition<? extends AtomClass>>
-    implements TreePositionList {
+public class TreePositionListJpa extends
+    AbstractResultList<TreePosition<? extends AtomClass>> implements
+    TreePositionList {
 
   /*
    * (non-Javadoc)

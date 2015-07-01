@@ -102,7 +102,7 @@ public class ContentServiceRestTest {
   public void teardown() throws Exception {
     // do nothing
   }
-  
+
   /**
    * Teardown class.
    *

@@ -71,14 +71,16 @@ public class Handler001Test {
     // test compute preferred name
     String pn = handlerService.computePreferredName(icdConcept.getAtoms());
     Logger.getLogger(getClass()).info(pn);
-    assertEquals(pn, "ADC - Acquired immune deficiency syndrome dementia complex");
+    assertEquals(pn,
+        "ADC - Acquired immune deficiency syndrome dementia complex");
 
     // Test that the first one is the preferred one
     pn =
         handlerService.sortByPreference(icdConcept.getAtoms()).iterator()
             .next().getName();
     Logger.getLogger(getClass()).info(pn);
-    assertEquals(pn, "ADC - Acquired immune deficiency syndrome dementia complex");
+    assertEquals(pn,
+        "ADC - Acquired immune deficiency syndrome dementia complex");
   }
 
   /*

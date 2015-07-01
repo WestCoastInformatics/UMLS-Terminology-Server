@@ -256,7 +256,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       Project project = projectService.getProject(id);
-      
+
       return project;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a project");

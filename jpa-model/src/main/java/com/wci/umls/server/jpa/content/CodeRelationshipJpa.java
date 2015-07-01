@@ -122,7 +122,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     }
     from.setId(id);
   }
-  
+
   /**
    * Returns the from terminology.
    *
@@ -132,7 +132,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
   public String getFromTerminology() {
     return from == null ? null : from.getTerminology();
   }
-  
+
   /**
    * Sets the from terminology
    *
@@ -144,7 +144,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     }
     from.setTerminology(terminology);
   }
-  
+
   /**
    * Returns the from version.
    *
@@ -154,7 +154,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
   public String getFromVersion() {
     return from == null ? null : from.getVersion();
   }
-  
+
   /**
    * Sets the from terminology id.
    *
@@ -320,7 +320,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     }
     to.setVersion(version);
   }
-  
+
   /**
    * Returns the to term. For JAXB.
    *
@@ -342,7 +342,6 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     }
     to.setName(term);
   }
-
 
   /*
    * (non-Javadoc)

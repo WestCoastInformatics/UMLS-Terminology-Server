@@ -21,8 +21,9 @@ public class StringList extends AbstractResultList<String> {
     // do nothing
   }
 
-
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.helpers.AbstractResultList#getObjects()
    */
   @Override

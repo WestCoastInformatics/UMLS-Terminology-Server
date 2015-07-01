@@ -52,7 +52,7 @@ public interface PrecedenceList extends HasTerminology, HasLastModified {
    * @return the terminology, term type tuples
    */
   public KeyValuePairList getPrecedence();
-  
+
   /**
    * Adds the terminology, term type tuple to the end of the list.
    *
@@ -60,7 +60,7 @@ public interface PrecedenceList extends HasTerminology, HasLastModified {
    * @param termType the term type
    */
   public void addTerminologyTermType(String terminology, String termType);
-  
+
   /**
    * Removes the terminology, term type tuplefrom the list.
    *
@@ -75,7 +75,7 @@ public interface PrecedenceList extends HasTerminology, HasLastModified {
    * @return the branch
    */
   public String getBranch();
-  
+
   /**
    * Sets the branch.
    *

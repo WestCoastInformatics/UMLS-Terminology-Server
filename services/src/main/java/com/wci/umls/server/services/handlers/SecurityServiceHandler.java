@@ -17,11 +17,10 @@ public interface SecurityServiceHandler extends Configurable {
    * @param user the user
    * @param password the password
    * @return the user
-   * @throws Exception 
+   * @throws Exception
    */
   public User authenticate(String user, String password) throws Exception;
 
-  
   /**
    * Indicates whether or not the user should be timed out.
    *
@@ -29,10 +28,11 @@ public interface SecurityServiceHandler extends Configurable {
    * @return true, if successful
    */
   public boolean timeoutUser(String user);
-  
+
   /**
-   * Computes token for user.  For example, a UUID or an MD5 or a counter.
-   * Each login requires yields a potentially different token, even for the same user.
+   * Computes token for user. For example, a UUID or an MD5 or a counter. Each
+   * login requires yields a potentially different token, even for the same
+   * user.
    *
    * @param user the user
    * @return the string

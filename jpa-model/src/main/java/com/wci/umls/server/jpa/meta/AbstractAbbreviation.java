@@ -248,8 +248,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.helpers.HasTerminology#setVersion(java.lang
+   * @see com.wci.umls.server.helpers.HasTerminology#setVersion(java.lang
    * .String)
    */
   @Override
@@ -274,10 +273,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
     result = prime * result + (published ? 1231 : 1237);
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime
-            * result
-            + ((version == null) ? 0 : version.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 

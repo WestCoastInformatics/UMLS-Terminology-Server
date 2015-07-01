@@ -20,7 +20,7 @@ import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
 import com.wci.umls.server.helpers.meta.LanguageList;
-import com.wci.umls.server.helpers.meta.MarkerSetList;
+import com.wci.umls.server.helpers.meta.LabelSetList;
 import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.RootTerminologyList;
@@ -32,7 +32,7 @@ import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
 import com.wci.umls.server.jpa.helpers.meta.GeneralMetadataEntryListJpa;
 import com.wci.umls.server.jpa.helpers.meta.LanguageListJpa;
-import com.wci.umls.server.jpa.helpers.meta.MarkerSetListJpa;
+import com.wci.umls.server.jpa.helpers.meta.LabelSetListJpa;
 import com.wci.umls.server.jpa.helpers.meta.PropertyChainListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RootTerminologyListJpa;
@@ -43,7 +43,7 @@ import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
 import com.wci.umls.server.jpa.meta.LanguageJpa;
-import com.wci.umls.server.jpa.meta.MarkerSetJpa;
+import com.wci.umls.server.jpa.meta.LabelSetJpa;
 import com.wci.umls.server.jpa.meta.PropertyChainJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
@@ -56,7 +56,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.Language;
-import com.wci.umls.server.model.meta.MarkerSet;
+import com.wci.umls.server.model.meta.LabelSet;
 import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -249,9 +249,9 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
 
     Map<String, String> msMap =
-        getAbbreviationMap(getMarkerSets(terminology, version).getObjects());
+        getAbbreviationMap(getLabelSets(terminology, version).getObjects());
     if (msMap != null) {
-      abbrMapList.put(MetadataKeys.Marker_Sets.toString(), msMap);
+      abbrMapList.put(MetadataKeys.Label_Sets.toString(), msMap);
     }
 
     // Skip general metadata entries
@@ -590,23 +590,23 @@ public class MetadataServiceJpa extends RootServiceJpa implements
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.MetadataService#getMarkerSets(java.lang.String
+   * com.wci.umls.server.services.MetadataService#getLabelSets(java.lang.String
    * , java.lang.String)
    */
   @Override
-  public MarkerSetList getMarkerSets(String terminology, String version)
+  public LabelSetList getLabelSets(String terminology, String version)
     throws Exception {
     Logger.getLogger(getClass()).info(
         "Metadata service - get attribute names " + terminology + ", "
             + version);
     if (helperMap.containsKey(terminology)) {
-      return helperMap.get(terminology).getMarkerSets(terminology, version);
+      return helperMap.get(terminology).getLabelSets(terminology, version);
     } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
-      return helperMap.get(ConfigUtility.DEFAULT).getMarkerSets(terminology,
+      return helperMap.get(ConfigUtility.DEFAULT).getLabelSets(terminology,
           version);
     } else {
       // return an empty map
-      return new MarkerSetListJpa();
+      return new LabelSetListJpa();
     }
   }
 
@@ -929,12 +929,12 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   }
 
   @Override
-  public MarkerSet addMarkerSet(MarkerSet markerSet) throws Exception {
+  public LabelSet addLabelSet(LabelSet labelSet) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Metadata Service - add markerSet " + markerSet.getAbbreviation());
+        "Metadata Service - add labelSet " + labelSet.getAbbreviation());
 
     // Add component
-    MarkerSet newMarkerSet = addMetadata(markerSet);
+    LabelSet newLabelSet = addMetadata(labelSet);
 
     // Inform listeners
     if (listenersEnabled) {
@@ -942,14 +942,14 @@ public class MetadataServiceJpa extends RootServiceJpa implements
         listener.metadataChanged();
       }
     }
-    return newMarkerSet;
+    return newLabelSet;
   }
 
   @Override
-  public void updateMarkerSet(MarkerSet markerSet) throws Exception {
+  public void updateLabelSet(LabelSet labelSet) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Metadata Service - update markerSet " + markerSet.getAbbreviation());
-    updateMetadata(markerSet);
+        "Metadata Service - update labelSet " + labelSet.getAbbreviation());
+    updateMetadata(labelSet);
 
     // Inform listeners
     if (listenersEnabled) {
@@ -960,11 +960,11 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   }
 
   @Override
-  public void removeMarkerSet(Long id) throws Exception {
+  public void removeLabelSet(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Metadata Service - remove markerSet " + id);
+        "Metadata Service - remove labelSet " + id);
     // Remove the component
-    removeMetadata(id, MarkerSetJpa.class);
+    removeMetadata(id, LabelSetJpa.class);
     if (listenersEnabled) {
       for (WorkflowListener listener : listeners) {
         listener.metadataChanged();

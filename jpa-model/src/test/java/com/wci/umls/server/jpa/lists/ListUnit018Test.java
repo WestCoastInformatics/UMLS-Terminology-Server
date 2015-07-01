@@ -60,7 +60,7 @@ public class ListUnit018Test extends AbstractListUnit<User> {
     o2 = (User) tester.createObject(2);
     UserPreferences up = new UserPreferencesJpa();
     up.setId(1L);
-    User user = new  UserJpa();
+    User user = new UserJpa();
     user.setId(1L);
     user.setUserName("1");
     PrecedenceList pl = new PrecedenceListJpa();

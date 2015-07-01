@@ -20,7 +20,8 @@ import java.util.Set;
  * FieldedStringTokenizer tokenizer = new FieldedStringTokenizer(&quot;a|b||c&quot;, &quot;|&quot;);
  * int i = 1;
  * while (tokenizer.hasMoreTokens()) {
- *   System.out.println(&quot;Token &quot; + i + &quot; is: &quot; + tokenizer.nextToken());
+ *   Logger.getLogger(getClass()).info(
+ *       &quot;Token &quot; + i + &quot; is: &quot; + tokenizer.nextToken());
  * }
  * </pre>
  * 

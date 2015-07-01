@@ -37,7 +37,7 @@ public interface ActionService extends RootService {
    * @param sessionToken the session token
    */
   public void clear(String sessionToken);
-  
+
   /**
    * Gets the progress for any currently-running operations for the specified
    * session token.

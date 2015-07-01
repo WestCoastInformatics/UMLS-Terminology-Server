@@ -41,9 +41,10 @@ public class ModelUnit007Test {
   private AtomJpa object;
 
   /** Test Fixture */
-  private Map<String,String> map1;
+  private Map<String, String> map1;
+
   /** Test Fixture */
-  private Map<String,String> map2;
+  private Map<String, String> map2;
 
   /**
    * Setup class.
@@ -60,9 +61,9 @@ public class ModelUnit007Test {
   public void setup() {
     object = new AtomJpa();
     map1 = new HashMap<>();
-    map1.put("1","1");
+    map1.put("1", "1");
     map2 = new HashMap<>();
-    map2.put("2","2");
+    map2.put("2", "2");
   }
 
   /**
@@ -150,7 +151,7 @@ public class ModelUnit007Test {
     AtomRelationship rel = (AtomRelationship) tester3.createObject(1);
     rel.setFrom(atom);
     rel.setTo(toAtom);
-    
+
     ProxyTester tester4 = new ProxyTester(new DefinitionJpa());
     Definition def = (Definition) tester4.createObject(1);
 
@@ -215,7 +216,7 @@ public class ModelUnit007Test {
 
     assertTrue(tester.testNotNullFields());
   }
-  
+
   /**
    * Test field indexing.
    *
@@ -256,7 +257,7 @@ public class ModelUnit007Test {
     tester.include("language");
     tester.include("workflowStatus");
     tester.include("branch");
-    
+
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }

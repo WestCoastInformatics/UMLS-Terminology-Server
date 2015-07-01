@@ -32,8 +32,12 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
     // do nothing
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.handlers.SecurityServiceHandler#authenticate(java.lang.String, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.SecurityServiceHandler#authenticate
+   * (java.lang.String, java.lang.String)
    */
   @Override
   public User authenticate(String username, String password) throws Exception {
@@ -79,7 +83,7 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
     if (!authenticated) {
       throw new LocalException("Username or password invalid.");
     }
-    
+
     /*
      * Synchronize the information sent back from ITHSDO with the User object.
      * Add a new user if there isn't one matching the username If there is, load
@@ -98,16 +102,23 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
 
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.handlers.SecurityServiceHandler#timeoutUser(java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.handlers.SecurityServiceHandler#timeoutUser
+   * (java.lang.String)
    */
   @Override
   public boolean timeoutUser(String user) {
     return true;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.handlers.SecurityServiceHandler#computeTokenForUser(java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.services.handlers.SecurityServiceHandler#
+   * computeTokenForUser(java.lang.String)
    */
   @Override
   public String computeTokenForUser(String user) {
@@ -115,9 +126,12 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
     return token;
   }
 
-
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
+   * )
    */
   @Override
   public void setProperties(Properties properties) {

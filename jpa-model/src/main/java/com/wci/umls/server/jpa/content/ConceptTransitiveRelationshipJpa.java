@@ -130,7 +130,6 @@ public class ConceptTransitiveRelationshipJpa extends
     superType.setTerminologyId(terminologyId);
   }
 
-
   /**
    * Returns the super type terminology id. For JAXB.
    *
@@ -151,7 +150,7 @@ public class ConceptTransitiveRelationshipJpa extends
     }
     superType.setTerminology(terminology);
   }
-  
+
   /**
    * Returns the super type terminology. For JAXB.
    *
@@ -172,6 +171,7 @@ public class ConceptTransitiveRelationshipJpa extends
     }
     superType.setVersion(version);
   }
+
   /**
    * Returns the super type term. For JAXB.
    *
@@ -257,7 +257,7 @@ public class ConceptTransitiveRelationshipJpa extends
     }
     subType.setTerminology(terminology);
   }
-  
+
   /**
    * Returns the sub type terminology. For JAXB.
    *
@@ -278,7 +278,7 @@ public class ConceptTransitiveRelationshipJpa extends
     }
     subType.setVersion(version);
   }
-  
+
   /**
    * Returns the sub type terminology id. For JAXB.
    *
@@ -352,6 +352,5 @@ public class ConceptTransitiveRelationshipJpa extends
       return false;
     return true;
   }
-
 
 }

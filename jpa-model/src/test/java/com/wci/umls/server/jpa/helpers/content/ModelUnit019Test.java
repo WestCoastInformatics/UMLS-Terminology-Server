@@ -129,7 +129,7 @@ public class ModelUnit019Test {
 
     assertTrue(tester.testNotNullFields());
   }
-  
+
   /**
    * Test field indexing.
    *

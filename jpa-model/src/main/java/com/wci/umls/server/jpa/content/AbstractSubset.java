@@ -30,7 +30,6 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
   @Column(nullable = false, length = 4000)
   private String description;
 
-
   /** The branched to. */
   @Column(nullable = true)
   private String branchedTo;
@@ -94,8 +93,6 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
   public void setDescription(String description) {
     this.description = description;
   }
-
-
 
   /*
    * (non-Javadoc)
@@ -168,8 +165,8 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
    */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " [name=" + name + ", description=" + description
-        + "]";
+    return getClass().getSimpleName() + " [name=" + name + ", description="
+        + description + "]";
   }
 
 }

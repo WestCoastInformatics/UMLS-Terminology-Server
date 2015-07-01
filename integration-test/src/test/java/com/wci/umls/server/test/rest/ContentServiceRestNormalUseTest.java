@@ -399,7 +399,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(20);
     for (Subset subset : list.getObjects()) {
-      System.out.println(subset.getName());
       assertTrue(subset.isPublished());
       assertTrue(subset.isPublishable());
       assertEquals(0, subset.getAttributes().size());
@@ -2264,9 +2263,9 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Tree tree =
         contentService.findConceptTreeForQuery(snomedTerminology,
             snomedVersion, "vitamin", new PfsParameterJpa(), authToken);
-  
+
     Logger.getLogger(getClass()).info("    Result: " + tree);
-    
+
     // All the leaf TreePosition<AtomClass> tree should contain "vitamin"
     for (Tree leaf : tree.getLeafNodes()) {
       assertTrue(leaf.getName().toLowerCase().contains("vitamin"));
@@ -2309,7 +2308,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
   }
 
- /**
+  /**
    * Test find descriptor trees for query.
    *
    * @throws Exception the exception
@@ -2365,7 +2364,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // n/a - no sample data
     // TODO: consider sample data from SAMPLE_2014AB
   }
-  
 
   /**
    * Test "find" concept tree children
@@ -2374,11 +2372,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   @Test
   public void testNormalUseRestContent030() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
-    
-    
-    
+
   }
-  
 
   /**
    * Test "find" descriptors by query.
@@ -2387,9 +2382,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   @Test
   public void testNormalUseRestContent031() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
-    
+
   }
-  
 
   /**
    * Test "find" descriptors by query.
@@ -2398,7 +2392,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   @Test
   public void testNormalUseRestContent032() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
-    
+
   }
 
   /**

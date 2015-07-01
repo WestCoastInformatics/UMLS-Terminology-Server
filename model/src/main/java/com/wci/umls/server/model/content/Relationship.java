@@ -11,8 +11,8 @@ import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
  * @param <S> the "from" object type
  * @param <T> the "to" object type
  */
-public interface Relationship<S extends ComponentHasAttributes, T extends ComponentHasAttributes> extends
-    ComponentHasAttributes, HasAlternateTerminologyIds {
+public interface Relationship<S extends ComponentHasAttributes, T extends ComponentHasAttributes>
+    extends ComponentHasAttributes, HasAlternateTerminologyIds {
 
   /**
    * Returns the from.
@@ -68,8 +68,7 @@ public interface Relationship<S extends ComponentHasAttributes, T extends Compon
    *
    * @param additionalrelationshipType the additional relationship label
    */
-  public void setAdditionalRelationshipType(
-    String additionalrelationshipType);
+  public void setAdditionalRelationshipType(String additionalrelationshipType);
 
   /**
    * Returns the relationship group. This is a mechanism for binding sets of
@@ -129,5 +128,5 @@ public interface Relationship<S extends ComponentHasAttributes, T extends Compon
    * @param stated the stated flag
    */
   public void setStated(boolean stated);
-    
+
 }

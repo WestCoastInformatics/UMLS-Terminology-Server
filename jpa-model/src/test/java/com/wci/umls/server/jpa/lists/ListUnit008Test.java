@@ -57,6 +57,7 @@ public class ListUnit008Test
 
   /** The test fixture. */
   private Relationship r6;
+
   /** The test fixture. */
   private Relationship r7;
 
@@ -93,7 +94,7 @@ public class ListUnit008Test
     r2.setTerminologyId("2");
     r2.setFrom(c);
     r2.setTo(c);
-    
+
     Code code = new CodeJpa();
     code.setId(1L);
     code.setTerminologyId("1");
@@ -133,7 +134,7 @@ public class ListUnit008Test
     r7.setTerminologyId("1");
     r7.setFrom(a);
     r7.setTo(a);
-      r8 = new AtomRelationshipJpa();
+    r8 = new AtomRelationshipJpa();
     r8.setId(2L);
     r8.setTerminologyId("2");
     r8.setFrom(a);

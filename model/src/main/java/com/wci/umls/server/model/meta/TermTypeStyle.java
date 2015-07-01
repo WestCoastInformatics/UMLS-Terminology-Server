@@ -13,9 +13,8 @@ public enum TermTypeStyle {
 
   /** The semantic style. */
   SEMANTIC,
-  
-  /**  The undefined. */
+
+  /** The undefined. */
   UNDEFINED;
-  
 
 }

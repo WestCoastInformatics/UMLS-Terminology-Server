@@ -26,7 +26,7 @@ tsApp.filter('highlight', function($sce) {
   }
 })
 
-tsApp.filter('highlightMarkerFor', function($sce) {
+tsApp.filter('highlightLabelFor', function($sce) {
   return function(text, phrase) {
     if (text && phrase)
       text = text.replace(new RegExp('(' + phrase + ')', 'gi'),
@@ -36,7 +36,7 @@ tsApp.filter('highlightMarkerFor', function($sce) {
   }
 })
 
-tsApp.filter('highlightMarker', function($sce) {
+tsApp.filter('highlightLabel', function($sce) {
   return function(text, phrase) {
     if (text && phrase)
       text = text.replace(new RegExp('(' + phrase + ')', 'gi'),
@@ -997,7 +997,7 @@ tsApp
           var pfs = {
             startIndex : (page - 1) * $scope.pageSize,
             maxResults : $scope.pageSize,
-            sortField : null,
+            sortField : $scope.treeSortField,
             queryRestriction : null
           } // 'terminologyId:' + queryStr }
 
@@ -1360,7 +1360,7 @@ tsApp
         var attributeNames = [];
         var termTypes = [];
         var generalEntries = [];
-        var markerSets = [];
+        var labelSets = [];
 
         // on metadata changes
         $scope.setMetadata = function(terminology) {
@@ -1370,7 +1370,7 @@ tsApp
           attributeNames = [];
           termTypes = [];
           generalEntries = [];
-          markerSets = [];
+          labelSets = [];
           $scope.metadata = terminology;
 
           if (terminology == null)
@@ -1387,8 +1387,8 @@ tsApp
             if ($scope.metadata[i].name === 'Term_Types') {
               termTypes = $scope.metadata[i].keyValuePair;
             }
-            if ($scope.metadata[i].name === 'Marker_Sets') {
-              markerSets = $scope.metadata[i].keyValuePair;
+            if ($scope.metadata[i].name === 'Label_Sets') {
+              labelSets = $scope.metadata[i].keyValuePair;
             }
             if ($scope.metadata[i].name === 'General_Metadata_Entries') {
               generalEntries = $scope.metadata[i].keyValuePair;
@@ -1461,42 +1461,42 @@ tsApp
           return null;
         }
 
-        $scope.getMarkerSetName = function(abbr) {
-          for (var i = 0; i < markerSets.length; i++) {
-            if (markerSets[i].key === abbr) {
-              return markerSets[i].value;
+        $scope.getLabelSetName = function(abbr) {
+          for (var i = 0; i < labelSets.length; i++) {
+            if (labelSets[i].key === abbr) {
+              return labelSets[i].value;
             }
           }
           return null;
         }
 
-        $scope.isMarkerForMarkerSet = function(tree) {
-          for (var i = 0; i < tree.markerSets.length; i++) {
-            if (tree.markerSets[i].startsWith("MARKERFOR")) {
+        $scope.isDerivedLabelSet = function(tree) {
+          for (var i = 0; i < tree.labelSets.length; i++) {
+            if (tree.labelSets[i].startsWith("LABELFOR")) {
               return true;
             }
           }
           return false;
         }
 
-        $scope.isMarkerSet = function(tree) {
-          for (var i = 0; i < tree.markerSets.length; i++) {
-            if (!tree.markerSets[i].startsWith("MARKERFOR:")) {
+        $scope.isLabelSet = function(tree) {
+          for (var i = 0; i < tree.labelSets.length; i++) {
+            if (!tree.labelSets[i].startsWith("LABELFOR:")) {
               return true;
             }
           }
           return false;
         }
 
-        $scope.getMarkerForMarkerSetsValue = function(tree) {
-          if (tree.markerSets == undefined) {
+        $scope.getderivedLabelSetsValue = function(tree) {
+          if (tree.labelSets == undefined) {
             return;
           }
           var retVal = "Ancestor of content in:<br>";
           var j = 0;
-          for (var i = 0; i < tree.markerSets.length; i++) {
-            var name = $scope.getMarkerSetName(tree.markerSets[i]);
-            if (tree.markerSets[i].startsWith("MARKERFOR")) {
+          for (var i = 0; i < tree.labelSets.length; i++) {
+            var name = $scope.getLabelSetName(tree.labelSets[i]);
+            if (tree.labelSets[i].startsWith("LABELFOR")) {
               if (j++ > 0) {
                 retVal += "<br>";
               }
@@ -1506,15 +1506,15 @@ tsApp
           return retVal;
         }
 
-        $scope.getMarkerSetsValue = function(tree) {
-          if (tree.markerSets == undefined) {
+        $scope.getLabelSetsValue = function(tree) {
+          if (tree.labelSets == undefined) {
             return;
           }
           var retVal = "Content in:<br>";
           var j = 0;
-          for (var i = 0; i < tree.markerSets.length; i++) {
-            var name = $scope.getMarkerSetName(tree.markerSets[i]);
-            if (!tree.markerSets[i].startsWith("MARKERFOR")) {
+          for (var i = 0; i < tree.labelSets.length; i++) {
+            var name = $scope.getLabelSetName(tree.labelSets[i]);
+            if (!tree.labelSets[i].startsWith("LABELFOR")) {
               if (j++ > 0) {
                 retVal += "<br>";
               }

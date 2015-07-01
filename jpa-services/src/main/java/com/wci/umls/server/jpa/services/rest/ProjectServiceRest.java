@@ -56,8 +56,8 @@ public interface ProjectServiceRest {
    * @return the concepts in scope
    * @throws Exception the exception
    */
-  public ConceptList findConceptsInScope(Long projectId,
-    PfsParameterJpa pfs, String authToken) throws Exception;
+  public ConceptList findConceptsInScope(Long projectId, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Returns the project.

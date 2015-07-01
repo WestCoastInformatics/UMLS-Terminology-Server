@@ -10,28 +10,27 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.ProxyTester;
-import com.wci.umls.server.helpers.meta.MarkerSetList;
-import com.wci.umls.server.jpa.helpers.meta.MarkerSetListJpa;
-import com.wci.umls.server.jpa.meta.MarkerSetJpa;
-import com.wci.umls.server.model.meta.MarkerSet;
+import com.wci.umls.server.helpers.meta.LabelSetList;
+import com.wci.umls.server.jpa.helpers.meta.LabelSetListJpa;
+import com.wci.umls.server.jpa.meta.LabelSetJpa;
+import com.wci.umls.server.model.meta.LabelSet;
 
 /**
- * Unit testing for {@link MarkerSetList}.
+ * Unit testing for {@link LabelSetList}.
  */
-public class ListUnit029Test extends
-    AbstractListUnit<MarkerSet> {
+public class ListUnit029Test extends AbstractListUnit<LabelSet> {
 
   /** test fixture . */
-  private MarkerSetList list1;
+  private LabelSetList list1;
 
   /** test fixture . */
-  private MarkerSetList list2;
+  private LabelSetList list2;
 
   /** test fixture. */
-  private MarkerSet ms1;
+  private LabelSet ms1;
 
   /** test fixture. */
-  private MarkerSet ms2;
+  private LabelSet ms2;
 
   /**
    * Setup class.
@@ -48,12 +47,12 @@ public class ListUnit029Test extends
    */
   @Before
   public void setup() throws Exception {
-    list1 = new MarkerSetListJpa();
-    list2 = new MarkerSetListJpa();
-    
-    ProxyTester tester = new ProxyTester(new MarkerSetJpa());
-    ms1 = (MarkerSet) tester.createObject(1);
-    ms2 = (MarkerSet) tester.createObject(2);
+    list1 = new LabelSetListJpa();
+    list2 = new LabelSetListJpa();
+
+    ProxyTester tester = new ProxyTester(new LabelSetJpa());
+    ms1 = (LabelSet) tester.createObject(1);
+    ms2 = (LabelSet) tester.createObject(2);
   }
 
   /**
@@ -84,7 +83,7 @@ public class ListUnit029Test extends
   @Test
   public void testEdgeCases026() throws Exception {
     testEdgeCases(list1, list2, ms1, ms2);
-    list1 = new MarkerSetListJpa();
+    list1 = new LabelSetListJpa();
 
   }
 

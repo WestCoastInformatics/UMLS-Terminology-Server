@@ -46,19 +46,19 @@ public class CopyConstructorTester extends ProxyTester {
    * @throws Exception the exception
    */
   public boolean testCopyConstructorCascadeDeep(Class<?> interfaceType)
-      throws Exception {
-      Logger.getLogger(getClass()).info(
-          "Test copy constructor - " + clazz.getName());
-      Object o1 = createObject(1);
-      Object o2 = clazz.getConstructor(new Class<?>[] {
-          interfaceType, boolean.class, boolean.class
-      }).newInstance(new Object[] {
-          o1, false, false
-      });
-      Logger.getLogger(getClass()).info(
-          "    " + o1.toString() + " = " + o2.toString());
-      return o1.equals(o2) && o1.hashCode() == o2.hashCode();
-    }
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Test copy constructor - " + clazz.getName());
+    Object o1 = createObject(1);
+    Object o2 = clazz.getConstructor(new Class<?>[] {
+        interfaceType, boolean.class, boolean.class
+    }).newInstance(new Object[] {
+        o1, false, false
+    });
+    Logger.getLogger(getClass()).info(
+        "    " + o1.toString() + " = " + o2.toString());
+    return o1.equals(o2) && o1.hashCode() == o2.hashCode();
+  }
 
   /**
    * Test copy constructor deep.

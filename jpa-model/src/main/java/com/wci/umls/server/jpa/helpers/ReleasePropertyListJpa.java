@@ -38,8 +38,8 @@ public class ReleasePropertyListJpa extends AbstractResultList<ReleaseProperty>
    */
   @Override
   public String toString() {
-    return "ReleasePropertyListJpa [releaseProperties =" + getObjects() + ", getCount()="
-        + getCount() + "]";
+    return "ReleasePropertyListJpa [releaseProperties =" + getObjects()
+        + ", getCount()=" + getCount() + "]";
   }
 
 }

@@ -23,7 +23,8 @@ import com.wci.umls.server.model.meta.Terminology;
 /**
  * A client for connecting to a metadata REST service.
  */
-public class MetadataClientRest extends RootClientRest implements MetadataServiceRest {
+public class MetadataClientRest extends RootClientRest implements
+    MetadataServiceRest {
 
   /** The config. */
   private Properties config = null;
@@ -51,7 +52,7 @@ public class MetadataClientRest extends RootClientRest implements MetadataServic
         "Metadata Client - get all metadata " + terminology + ", " + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
-    
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")
@@ -155,7 +156,7 @@ public class MetadataClientRest extends RootClientRest implements MetadataServic
         "Metadata Client - get terminology " + terminology + ", " + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
-    
+
     Client client = Client.create();
     WebResource resource =
         client.resource(config.getProperty("base.url")

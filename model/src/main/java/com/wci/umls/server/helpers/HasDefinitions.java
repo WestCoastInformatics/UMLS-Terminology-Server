@@ -10,7 +10,7 @@ import com.wci.umls.server.model.content.Definition;
 /**
  * Represents a thing that has definitions.
  */
-public interface HasDefinitions  {
+public interface HasDefinitions {
 
   /**
    * Returns the definitions.
@@ -18,21 +18,21 @@ public interface HasDefinitions  {
    * @return the definitions
    */
   public List<Definition> getDefinitions();
-  
+
   /**
    * Sets the definitions.
    *
    * @param definitions the definitions
    */
   public void setDefinitions(List<Definition> definitions);
-  
+
   /**
    * Adds the definition.
    *
    * @param definition the definition
    */
   public void addDefinition(Definition definition);
-  
+
   /**
    * Removes the definition.
    *

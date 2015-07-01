@@ -65,13 +65,11 @@ public class ContentServiceTreePositionFromTreeTest {
         " first treepos = " + treepos.getNode().getId() + ", "
             + treepos.getAncestorPath());
 
-    Tree tree =
-        service.getTreeForTreePosition(treepos);
+    Tree tree = service.getTreeForTreePosition(treepos);
     Logger.getLogger(getClass()).debug("  tree = " + tree);
 
     treepos = list.getObjects().get(1);
-    Tree tree2 =
-        service.getTreeForTreePosition(treepos);
+    Tree tree2 = service.getTreeForTreePosition(treepos);
     Logger.getLogger(getClass()).debug("  tree2 = " + tree2);
 
     tree.mergeTree(tree2);

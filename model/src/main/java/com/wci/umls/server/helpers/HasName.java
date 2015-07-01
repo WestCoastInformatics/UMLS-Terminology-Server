@@ -3,11 +3,10 @@
  */
 package com.wci.umls.server.helpers;
 
-
 /**
  * Represents a thing that has a name.
  */
-public interface HasName  {
+public interface HasName {
 
   /**
    * Returns the name.
@@ -15,7 +14,7 @@ public interface HasName  {
    * @return the name
    */
   public String getName();
-  
+
   /**
    * Sets the name.
    *

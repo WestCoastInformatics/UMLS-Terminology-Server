@@ -9,16 +9,16 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.AbstractResultList;
-import com.wci.umls.server.helpers.meta.MarkerSetList;
-import com.wci.umls.server.jpa.meta.MarkerSetJpa;
-import com.wci.umls.server.model.meta.MarkerSet;
+import com.wci.umls.server.helpers.meta.LabelSetList;
+import com.wci.umls.server.jpa.meta.LabelSetJpa;
+import com.wci.umls.server.model.meta.LabelSet;
 
 /**
- * JAXB enabled implementation of {@link MarkerSetList}.
+ * JAXB enabled implementation of {@link LabelSetList}.
  */
-@XmlRootElement(name = "markerSetList")
-public class MarkerSetListJpa extends AbstractResultList<MarkerSet> implements
-    MarkerSetList {
+@XmlRootElement(name = "labelSetList")
+public class LabelSetListJpa extends AbstractResultList<LabelSet> implements
+    LabelSetList {
 
   /*
    * (non-Javadoc)
@@ -26,8 +26,8 @@ public class MarkerSetListJpa extends AbstractResultList<MarkerSet> implements
    * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
    */
   @Override
-  @XmlElement(type = MarkerSetJpa.class, name = "name")
-  public List<MarkerSet> getObjects() {
+  @XmlElement(type = LabelSetJpa.class, name = "name")
+  public List<LabelSet> getObjects() {
     return super.getObjectsTransient();
   }
 

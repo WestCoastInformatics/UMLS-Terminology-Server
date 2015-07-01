@@ -84,8 +84,8 @@ import com.wci.umls.server.model.content.AtomClass;
 })
 @Audited
 @MappedSuperclass
-public abstract class AbstractAtomClass extends AbstractComponentHasAttributes implements
-    AtomClass {
+public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
+    implements AtomClass {
 
   /** The descriptions. */
   @ManyToMany(targetEntity = AtomJpa.class)
@@ -237,7 +237,6 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes i
     this.name = name;
   }
 
- 
   /*
    * (non-Javadoc)
    * 
@@ -385,8 +384,8 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes i
    */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " [" + super.toString() + ", name=" + name
-        + "]";
+    return getClass().getSimpleName() + " [" + super.toString() + ", name="
+        + name + "]";
   }
 
 }

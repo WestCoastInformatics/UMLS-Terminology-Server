@@ -155,7 +155,8 @@ public class ProjectClientRest extends RootClientRest implements
   @Override
   public ConceptList findConceptsInScope(Long id, PfsParameterJpa pfs,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug("Project Client - find concepts in scope " + id);
+    Logger.getLogger(getClass()).debug(
+        "Project Client - find concepts in scope " + id);
     validateNotEmpty(id, "id");
     Client client = Client.create();
     WebResource resource =

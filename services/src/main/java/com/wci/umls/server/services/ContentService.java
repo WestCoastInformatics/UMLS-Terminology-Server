@@ -1491,7 +1491,8 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public TreePositionList findConceptTreePositionChildren(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs) throws Exception;
+    String terminology, String version, String branch, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find code tree position children.
@@ -1505,7 +1506,8 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public TreePositionList findCodeTreePositionChildren(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs) throws Exception;
+    String terminology, String version, String branch, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find descriptor tree position children.
@@ -1519,7 +1521,7 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public TreePositionList findDescriptorTreePositionChildren(
-    String terminologyId, String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception;
+    String terminologyId, String terminology, String version, String branch,
+    PfsParameter pfs) throws Exception;
 
 }

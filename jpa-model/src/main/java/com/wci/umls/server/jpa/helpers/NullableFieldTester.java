@@ -87,7 +87,7 @@ public class NullableFieldTester extends ProxyTester {
           results.add(field.getName().toLowerCase());
         }
       }
-      
+
     }
 
     return results;

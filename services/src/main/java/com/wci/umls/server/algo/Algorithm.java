@@ -24,14 +24,14 @@ public interface Algorithm extends ProgressReporter {
    * @throws Exception the exception
    */
   public void compute() throws Exception;
-  
+
   /**
    * Cancel.
    *
    * @throws Exception the exception
    */
   public void cancel() throws Exception;
-  
+
   /**
    * Close.
    *

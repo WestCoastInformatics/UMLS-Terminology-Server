@@ -142,22 +142,18 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
   public void compute() throws Exception {
 
     // Get hierarchcial rels
-    Logger.getLogger(getClass())
-        .info(
-            "  Get hierarchical rel for " + terminology + ", "
-                + version);
+    Logger.getLogger(getClass()).info(
+        "  Get hierarchical rel for " + terminology + ", " + version);
     fireProgressEvent(0, "Starting...");
     MetadataService service = new MetadataServiceJpa();
-    if (service
-        .getHierarchicalRelationshipTypes(terminology, version)
+    if (service.getHierarchicalRelationshipTypes(terminology, version)
         .getObjects().size() == 0) {
       fireProgressEvent(100, "NO hierarchical rels, exiting...");
       Logger.getLogger(getClass()).info("  NO hierarchical rels, exiting...");
       return;
     }
     String chdRel =
-        service
-            .getHierarchicalRelationshipTypes(terminology, version)
+        service.getHierarchicalRelationshipTypes(terminology, version)
             .getObjects().iterator().next().getAbbreviation();
     service.close();
     Logger.getLogger(getClass()).info("    hierarchical rel = " + chdRel);
@@ -187,8 +183,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
                     + " o where obsolete = 0)")
             .setParameter("relationshipType", chdRel)
             .setParameter("terminology", terminology)
-            .setParameter("version", version)
-            .getResultList();
+            .setParameter("version", version).getResultList();
 
     int ct = 0;
     Map<Long, Set<Long>> parChd = new HashMap<>();

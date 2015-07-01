@@ -125,7 +125,7 @@ public class DescriptorRelationshipJpa extends
     }
     from.setId(id);
   }
-  
+
   /**
    * Returns the from terminology.
    *
@@ -135,7 +135,7 @@ public class DescriptorRelationshipJpa extends
   public String getFromTerminology() {
     return from == null ? null : from.getTerminology();
   }
-  
+
   /**
    * Sets the from terminology
    *
@@ -147,7 +147,7 @@ public class DescriptorRelationshipJpa extends
     }
     from.setTerminology(terminology);
   }
-  
+
   /**
    * Returns the from version.
    *
@@ -157,7 +157,7 @@ public class DescriptorRelationshipJpa extends
   public String getFromVersion() {
     return from == null ? null : from.getVersion();
   }
-  
+
   /**
    * Sets the from terminology id.
    *
@@ -323,7 +323,7 @@ public class DescriptorRelationshipJpa extends
     }
     to.setVersion(version);
   }
-  
+
   /**
    * Returns the to term. For JAXB.
    *
@@ -345,7 +345,6 @@ public class DescriptorRelationshipJpa extends
     }
     to.setName(term);
   }
-
 
   /*
    * (non-Javadoc)

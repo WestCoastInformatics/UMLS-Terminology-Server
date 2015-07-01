@@ -58,7 +58,7 @@ public abstract class RootServiceJpa implements RootService {
     if (!factory.isOpen()) {
       Logger.getLogger(getClass()).info(
           "Setting root service entity manager factory.");
-      Properties config = ConfigUtility.getConfigProperties();      
+      Properties config = ConfigUtility.getConfigProperties();
       factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
     }
 
@@ -163,7 +163,9 @@ public abstract class RootServiceJpa implements RootService {
     }
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.services.RootService#rollback()
    */
   @Override
@@ -181,8 +183,7 @@ public abstract class RootServiceJpa implements RootService {
       manager.clear();
     }
   }
-  
-  
+
   /*
    * (non-Javadoc)
    * 

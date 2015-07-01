@@ -74,7 +74,7 @@ public class Handler002Test {
 
     // Test a UMLS concept
     // Test a UMLS atom
-     
+
     // Test a SNOMED concept
     // Test a SNOMED atom
     // Test a SNOMED subset
@@ -209,8 +209,6 @@ public class Handler002Test {
         TerminologyUtility.getHierarchicalIsaRels("UMLS", "latest"));
     handlerService.resolve(new CodeJpa(),
         TerminologyUtility.getHierarchicalIsaRels("UMLS", "latest"));
-
-
 
     handlerService.resolve(new SemanticTypeComponentJpa());
     handlerService.resolve(new ConceptRelationshipJpa());

@@ -50,7 +50,6 @@ public class ModelUnit003Test {
   public void setup() throws Exception {
     object = new UserJpa();
 
-
   }
 
   /**

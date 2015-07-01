@@ -5,14 +5,14 @@ package com.wci.umls.server.model.content;
 
 import java.util.List;
 
-import com.wci.umls.server.helpers.HasMarkerSets;
+import com.wci.umls.server.helpers.HasLabelSets;
 
 /**
  * Represents a classification of atoms within a terminology, ontology, or
  * coding scheme. For example Metathesaurus CUIs, SNOMED CT source concepts, or
  * RXCUIs within RXNORM.
  */
-public interface AtomClass extends ComponentHasAttributesAndName, HasMarkerSets {
+public interface AtomClass extends ComponentHasAttributesAndName, HasLabelSets {
 
   /**
    * Returns the atoms.
@@ -48,7 +48,7 @@ public interface AtomClass extends ComponentHasAttributesAndName, HasMarkerSets 
    * @return the workflow status
    */
   public String getWorkflowStatus();
-  
+
   /**
    * Sets the workflow status.
    *
@@ -62,21 +62,21 @@ public interface AtomClass extends ComponentHasAttributesAndName, HasMarkerSets 
    * @return the branched to
    */
   public String getBranchedTo();
-  
+
   /**
    * Sets the branched to.
    *
    * @param branchedTo the branched to
    */
   public void setBranchedTo(String branchedTo);
-  
+
   /**
    * Adds the branched to.
    *
    * @param newBranch the new branch
    */
   public void addBranchedTo(String newBranch);
-  
+
   /**
    * Removes the branched to.
    *

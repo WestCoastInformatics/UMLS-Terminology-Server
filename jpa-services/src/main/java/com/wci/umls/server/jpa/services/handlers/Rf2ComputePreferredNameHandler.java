@@ -13,7 +13,8 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 /**
  * A ClaML based implementation of {@link ComputePreferredNameHandler}.
  */
-public class Rf2ComputePreferredNameHandler extends RrfComputePreferredNameHandler {
+public class Rf2ComputePreferredNameHandler extends
+    RrfComputePreferredNameHandler {
 
   /** the defaultPreferredNames values. */
   private String dpnTypeId = "900000000000013009";
@@ -68,20 +69,21 @@ public class Rf2ComputePreferredNameHandler extends RrfComputePreferredNameHandl
     // active = 2, obsolete = 1
     // LangPreferred = 2 (Preferred), 1 (Acceptable), 0 (Missing)
     // SyOrFn = 1 (Sy), 0 (Fn)
-    
+
     // Find active, synonym from desired refset with desired acceptability id
     int active = atom.isObsolete() ? 1 : 2;
     int langPreferred = 0;
     int syOrFn = atom.getTermType().indexOf(dpnTypeId) != -1 ? 1 : 0;
-    
+
     for (AtomSubsetMember member : atom.getMembers()) {
       // Check if this language refset and description form the
       // defaultPreferredName. Need to use "index of" because the
       // SNOMED graph resolver replaces the values with values + names
       if (!member.isObsolete()
-          && member.getSubset().getTerminologyId().equals(dpnRefSetId)) {        
-        langPreferred = member.getAttributeByName("acceptabilityId").getValue()
-        .indexOf(dpnAcceptabilityId) != -1 ? 2 : 1;
+          && member.getSubset().getTerminologyId().equals(dpnRefSetId)) {
+        langPreferred =
+            member.getAttributeByName("acceptabilityId").getValue()
+                .indexOf(dpnAcceptabilityId) != -1 ? 2 : 1;
       }
     }
     return "" + active + langPreferred + syOrFn;

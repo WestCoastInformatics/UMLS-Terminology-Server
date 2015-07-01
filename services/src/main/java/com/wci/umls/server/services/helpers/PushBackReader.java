@@ -40,7 +40,6 @@ public class PushBackReader extends BufferedReader {
     super(r, bufferSize);
   }
 
-
   /**
    * Returns the next line from the reader.
    *
@@ -59,7 +58,6 @@ public class PushBackReader extends BufferedReader {
 
   }
 
-
   /**
    * Pushes a line of input back onto the reader.
    *
@@ -68,7 +66,8 @@ public class PushBackReader extends BufferedReader {
    */
   public void push(String line) throws Exception {
     if (pushedBackLine != null) {
-      throw new Exception("Line already pushed, must readLine before push again");
+      throw new Exception(
+          "Line already pushed, must readLine before push again");
     }
     this.pushedBackLine = line;
   }

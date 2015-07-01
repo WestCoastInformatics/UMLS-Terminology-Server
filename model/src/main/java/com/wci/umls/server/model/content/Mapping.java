@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.model.content;
 
-
 /**
  * Represents a mapping between two {@link MapObject}s.
  */

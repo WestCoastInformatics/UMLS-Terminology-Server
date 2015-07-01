@@ -181,21 +181,21 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
-    // TODO: reactivate when transitive closure is ready 
-    //ConceptList resultList =
-    //    projectService.findConceptsInScope(projectList.getObjects().get(0)
-    //        .getId(), pfs, viewerAuthToken);
-    //Assert.assertEquals(10, resultList.getCount());
-    //Assert.assertEquals(9912, resultList.getTotalCount());
+    // TODO: reactivate when transitive closure is ready
+    // ConceptList resultList =
+    // projectService.findConceptsInScope(projectList.getObjects().get(0)
+    // .getId(), pfs, viewerAuthToken);
+    // Assert.assertEquals(10, resultList.getCount());
+    // Assert.assertEquals(9912, resultList.getTotalCount());
 
     // Make sure first 10 are sorted by dpn
-//    Collections.sort(resultList.getObjects(), new Comparator<Concept>() {
-//      @Override
-//      public int compare(Concept o1, Concept o2) {
-//        return o1.getName().compareTo(
-//            o2.getName());
-//      }
-//    });
+    // Collections.sort(resultList.getObjects(), new Comparator<Concept>() {
+    // @Override
+    // public int compare(Concept o1, Concept o2) {
+    // return o1.getName().compareTo(
+    // o2.getName());
+    // }
+    // });
   }
 
   /**

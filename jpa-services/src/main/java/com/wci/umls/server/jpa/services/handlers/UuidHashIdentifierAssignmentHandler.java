@@ -291,8 +291,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, superType, subType
-    hashKey.append(treepos.getTerminology())
-        .append(treepos.getTerminologyId())
+    hashKey.append(treepos.getTerminology()).append(treepos.getTerminologyId())
         .append(treepos.getAncestorPath())
         .append(treepos.getNode().getTerminologyId());
     return TerminologyUtility.getUuid(hashKey.toString()).toString();

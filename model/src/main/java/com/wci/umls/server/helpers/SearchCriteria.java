@@ -9,8 +9,6 @@ package com.wci.umls.server.helpers;
  */
 public interface SearchCriteria {
 
-
-
   /**
    * Indicates whether to find descendants of matches.
    *
@@ -26,8 +24,8 @@ public interface SearchCriteria {
   public void setFindDescendants(boolean descendants);
 
   /**
-   * Indicates whether to find matches themselves (vs only descendants)
-   * This flag only  makes sense in the context of the descendants flag.
+   * Indicates whether to find matches themselves (vs only descendants) This
+   * flag only makes sense in the context of the descendants flag.
    * @return the find self
    */
   public boolean getFindSelf();
@@ -68,13 +66,13 @@ public interface SearchCriteria {
   public void setDefinedOnly(boolean fullyDefinedOnly);
 
   /**
-   * Returns the from id of relationships for which matches among to
-   * ids will be included.
+   * Returns the from id of relationships for which matches among to ids will be
+   * included.
    *
    * @return the find by relationship from id
    */
   public String getRelationshipFromId();
-  
+
   /**
    * Sets the relationship from id.
    *
@@ -83,13 +81,13 @@ public interface SearchCriteria {
   public void setRelationshipFromId(String id);
 
   /**
-   * Returns the type id of relationships for which matches among from or
-   * to ids will be included.
+   * Returns the type id of relationships for which matches among from or to ids
+   * will be included.
    *
    * @return the find by relationship type
    */
   public String getRelationshipType();
-  
+
   /**
    * Sets the relationship type.
    *
@@ -98,13 +96,13 @@ public interface SearchCriteria {
   public void setRelationshipType(String type);
 
   /**
-   * Returns the to id of relationships for which matches among from ids
-   * will be included.
+   * Returns the to id of relationships for which matches among from ids will be
+   * included.
    *
    * @return the find by relationship to id
    */
   public String getRelationshipToId();
-  
+
   /**
    * Sets the relationship to id.
    *
@@ -113,17 +111,17 @@ public interface SearchCriteria {
   public void setRelationshipToId(String id);
 
   /**
-   * Indicates whether the specified from or to id of a relationship
-   * criteria should be searched for just that id or also its descendants.
+   * Indicates whether the specified from or to id of a relationship criteria
+   * should be searched for just that id or also its descendants.
    *
    * @return the find by relationship descendants
    */
   public boolean getRelationshipDescendantsFlag();
-  
+
   /**
    * Indicates that the search should return from concepts connected by the
-   * specified type id to the specified to id and (optionally) all of
-   * its descendants.
+   * specified type id to the specified to id and (optionally) all of its
+   * descendants.
    *
    * @param type the type id
    * @param toId the to id
@@ -133,9 +131,9 @@ public interface SearchCriteria {
     boolean descendants);
 
   /**
-   * Indicates that the search should return to concepts connected by
-   * the specified type id to the specified from id and (optionally) all of
-   * its descendants.
+   * Indicates that the search should return to concepts connected by the
+   * specified type id to the specified from id and (optionally) all of its
+   * descendants.
    *
    * @param type the type id
    * @param fromId the from id

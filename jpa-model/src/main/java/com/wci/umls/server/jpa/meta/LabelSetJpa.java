@@ -12,49 +12,49 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.envers.Audited;
 
 import com.wci.umls.server.model.meta.AttributeName;
-import com.wci.umls.server.model.meta.MarkerSet;
+import com.wci.umls.server.model.meta.LabelSet;
 
 /**
  * JPA-enabled implementation of {@link AttributeName}.
  */
 @Entity
-@Table(name = "marker_sets", uniqueConstraints = @UniqueConstraint(columnNames = {
+@Table(name = "label", uniqueConstraints = @UniqueConstraint(columnNames = {
     "abbreviation", "terminology"
 }))
 @Audited
-@XmlRootElement(name = "markerSet")
-public class MarkerSetJpa extends AbstractAbbreviation implements MarkerSet {
+@XmlRootElement(name = "labelSet")
+public class LabelSetJpa extends AbstractAbbreviation implements LabelSet {
 
   /** The description. */
   @Column(nullable = false)
   private String description;
 
-  /** The marker for flag. */
+  /** The derived flag. */
   @Column(nullable = false)
-  private boolean markerFor;
+  private boolean derived;
 
   /**
-   * Instantiates an empty {@link MarkerSetJpa}.
+   * Instantiates an empty {@link LabelSetJpa}.
    */
-  public MarkerSetJpa() {
+  public LabelSetJpa() {
     // do nothing
   }
 
   /**
-   * Instantiates a {@link MarkerSetJpa} from the specified parameters.
+   * Instantiates a {@link LabelSetJpa} from the specified parameters.
    *
-   * @param markerSet the atn
+   * @param labelSet the atn
    */
-  public MarkerSetJpa(MarkerSet markerSet) {
-    super(markerSet);
-    description = markerSet.getDescription();
-    markerFor = markerSet.isMarkerFor();
+  public LabelSetJpa(LabelSet labelSet) {
+    super(labelSet);
+    description = labelSet.getDescription();
+    derived = labelSet.isDerived();
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.model.meta.MarkerSet#getDescription()
+   * @see com.wci.umls.server.model.meta.LabelSet#getDescription()
    */
   @Override
   public String getDescription() {
@@ -65,7 +65,7 @@ public class MarkerSetJpa extends AbstractAbbreviation implements MarkerSet {
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.model.meta.MarkerSet#setDescription(java.lang.String)
+   * com.wci.umls.server.model.meta.LabelSet#setDescription(java.lang.String)
    */
   @Override
   public void setDescription(String description) {
@@ -83,7 +83,7 @@ public class MarkerSetJpa extends AbstractAbbreviation implements MarkerSet {
     int result = super.hashCode();
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
-    result = prime * result + (markerFor ? 1231 : 1237);
+    result = prime * result + (derived ? 1231 : 1237);
     return result;
   }
 
@@ -101,13 +101,13 @@ public class MarkerSetJpa extends AbstractAbbreviation implements MarkerSet {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    MarkerSetJpa other = (MarkerSetJpa) obj;
+    LabelSetJpa other = (LabelSetJpa) obj;
     if (description == null) {
       if (other.description != null)
         return false;
     } else if (!description.equals(other.description))
       return false;
-    if (markerFor != other.markerFor)
+    if (derived != other.derived)
       return false;
     return true;
   }
@@ -119,28 +119,28 @@ public class MarkerSetJpa extends AbstractAbbreviation implements MarkerSet {
    */
   @Override
   public String toString() {
-    return "MarkerSetJpa [description=" + description + ", markerFor="
-        + markerFor + "]";
+    return "LabelSetJpa [description=" + description + ", derived=" + derived
+        + "]";
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.model.meta.MarkerSet#isMarkerFor()
+   * @see com.wci.umls.server.model.meta.LabelSet#isDerived()
    */
   @Override
-  public boolean isMarkerFor() {
-    return markerFor;
+  public boolean isDerived() {
+    return derived;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.model.meta.MarkerSet#setMarkerFor(boolean)
+   * @see com.wci.umls.server.model.meta.LabelSet#setDerived(boolean)
    */
   @Override
-  public void setMarkerFor(boolean markerFor) {
-    this.markerFor = markerFor;
+  public void setDerived(boolean derived) {
+    this.derived = derived;
   }
 
 }

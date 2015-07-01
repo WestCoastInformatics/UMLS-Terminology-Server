@@ -6,8 +6,7 @@ package com.wci.umls.server.model.content;
 /**
  * Represents a subset of content asserted by a terminology.
  */
-public interface Subset extends
-    ComponentHasAttributes {
+public interface Subset extends ComponentHasAttributes {
 
   /**
    * Returns the name.
@@ -37,22 +36,20 @@ public interface Subset extends
    */
   public void setDescription(String description);
 
-
-
   /**
    * Returns the branched to.
    *
    * @return the branched to
    */
   public String getBranchedTo();
-  
+
   /**
    * Sets the branched to.
    *
    * @param branchedTo the branched to
    */
   public void setBranchedTo(String branchedTo);
-  
+
   /**
    * Clear members.
    */

@@ -82,7 +82,6 @@ public class ModelUnit036Test {
     tester.include("usageNote");
     tester.include("value");
 
-
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());

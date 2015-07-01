@@ -15,8 +15,6 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.UserImpl;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 
-
-
 /**
  * Implements a security handler that authorizes via IHTSDO authentication.
  */
@@ -42,7 +40,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     // password must not be null
     if (password == null)
       return null;
-    
+
     // for default security service, the password must equal the user name
     if (!username.equals(password))
       return null;
@@ -51,7 +49,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     if (properties == null) {
       properties = ConfigUtility.getConfigProperties();
     }
-  
+
     User user = new UserImpl();
 
     // check specified admin users list from config file
@@ -138,9 +136,8 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
 
     HashSet<String> userSet = new HashSet<>();
     String userList = properties.getProperty("users.admin");
-    
-    Logger
-    .getLogger(getClass()).info(properties.keySet());
+
+    Logger.getLogger(getClass()).info(properties.keySet());
 
     if (userList == null) {
       Logger

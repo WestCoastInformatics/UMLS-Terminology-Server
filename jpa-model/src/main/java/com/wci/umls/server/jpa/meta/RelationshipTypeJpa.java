@@ -27,7 +27,6 @@ import com.wci.umls.server.model.meta.RelationshipType;
 public class RelationshipTypeJpa extends AbstractAbbreviation implements
     RelationshipType {
 
-  
   /** The concept. */
   @OneToOne(targetEntity = RelationshipTypeJpa.class, optional = true)
   private RelationshipType inverse;

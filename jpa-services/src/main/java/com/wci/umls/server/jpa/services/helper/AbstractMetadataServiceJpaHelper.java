@@ -14,7 +14,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.Language;
-import com.wci.umls.server.model.meta.MarkerSet;
+import com.wci.umls.server.model.meta.LabelSet;
 import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -258,12 +258,11 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#addMarkerSet(com.wci.umls.
-   * server.model.meta.MarkerSet)
+   * @see com.wci.umls.server.services.MetadataService#addLabelSet(com.wci.umls.
+   * server.model.meta.LabelSet)
    */
   @Override
-  public MarkerSet addMarkerSet(MarkerSet markerSet) throws Exception {
+  public LabelSet addLabelSet(LabelSet labelSet) throws Exception {
     // n/a
     return null;
   }
@@ -272,23 +271,22 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
    * (non-Javadoc)
    * 
    * @see
-   * com.wci.umls.server.services.MetadataService#updateMarkerSet(com.wci.umls
-   * .server.model.meta.MarkerSet)
+   * com.wci.umls.server.services.MetadataService#updateLabelSet(com.wci.umls
+   * .server.model.meta.LabelSet)
    */
   @Override
-  public void updateMarkerSet(MarkerSet markerSet) throws Exception {
+  public void updateLabelSet(LabelSet labelSet) throws Exception {
     // n/a
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#removeMarkerSet(java.lang.
+   * @see com.wci.umls.server.services.MetadataService#removeLabelSet(java.lang.
    * Long)
    */
   @Override
-  public void removeMarkerSet(Long id) throws Exception {
+  public void removeLabelSet(Long id) throws Exception {
     // n/a
   }
 

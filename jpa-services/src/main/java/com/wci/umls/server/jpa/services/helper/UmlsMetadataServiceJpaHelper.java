@@ -225,8 +225,7 @@ public class UmlsMetadataServiceJpaHelper extends
     String version) throws Exception {
     javax.persistence.Query query =
         manager.createQuery("SELECT p from PrecedenceListJpa p"
-            + " where defaultList = 1 "
-            + " and terminology = :terminology "
+            + " where defaultList = 1 " + " and terminology = :terminology "
             + " and version = :version");
     query.setParameter("terminology", umlsTerminology);
     query.setParameter("version", umlsVersion);

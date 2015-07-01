@@ -13,7 +13,7 @@ public interface ProgressReporter {
    * @param l the {@link ProgressListener}
    */
   public void addProgressListener(ProgressListener l);
-  
+
   /**
    * Removes a {@link ProgressListener}.
    * @param l the {@link ProgressListener}

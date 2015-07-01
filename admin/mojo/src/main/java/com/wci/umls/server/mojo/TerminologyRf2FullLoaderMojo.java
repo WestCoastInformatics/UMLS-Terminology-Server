@@ -106,16 +106,16 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
         // TODO:
-        //contentService.loadTerminologyRf2Full(terminology, version, inputDir,
-          //  authToken);
+        // contentService.loadTerminologyRf2Full(terminology, version, inputDir,
+        // authToken);
 
       } else {
         getLog().info("Running against server");
 
         // invoke the client
         ContentClientRest client = new ContentClientRest(properties);
-        //client
-          //  .loadTerminologyRf2Full(terminology, version, inputDir, authToken);
+        // client
+        // .loadTerminologyRf2Full(terminology, version, inputDir, authToken);
       }
 
     } catch (Exception e) {

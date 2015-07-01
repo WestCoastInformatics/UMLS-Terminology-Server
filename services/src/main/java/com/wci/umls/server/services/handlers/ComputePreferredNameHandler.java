@@ -22,7 +22,7 @@ public interface ComputePreferredNameHandler extends Configurable {
    * @throws Exception the exception
    */
   public String computePreferredName(Collection<Atom> atoms) throws Exception;
-  
+
   /**
    * Sort by preference.
    *

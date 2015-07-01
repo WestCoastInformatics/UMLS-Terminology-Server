@@ -242,5 +242,4 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
     return true;
   }
 
-
 }

@@ -103,7 +103,7 @@ public class MetadataServiceRestDegenerateUseTest extends
     }
 
   }
-  
+
   /**
    * Test retrieving terminology objects
    * @throws Exception

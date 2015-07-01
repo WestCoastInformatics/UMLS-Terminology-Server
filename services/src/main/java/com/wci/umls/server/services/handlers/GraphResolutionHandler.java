@@ -129,7 +129,6 @@ public interface GraphResolutionHandler extends Configurable {
   public void resolve(TreePosition<? extends AtomClass> treepos)
     throws Exception;
 
-
   /**
    * Resolve.
    *

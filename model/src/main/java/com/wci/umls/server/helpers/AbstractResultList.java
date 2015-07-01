@@ -17,7 +17,6 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 public abstract class AbstractResultList<T> implements ResultList<T> {
 
- 
   /** The total count. */
   private int totalCount = 0;
 
@@ -44,7 +43,9 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     this.totalCount = totalCount;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.helpers.ResultList#getCount()
    */
   @Override
@@ -52,7 +53,9 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     return objects.size();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.helpers.ResultList#sortBy(java.util.Comparator)
    */
   @Override
@@ -60,7 +63,9 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     Collections.sort(objects, comparator);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.helpers.ResultList#contains(java.lang.Object)
    */
   @Override
@@ -68,7 +73,9 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     return objects.contains(element);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.helpers.ResultList#addObject(java.lang.Object)
    */
   @Override
@@ -76,7 +83,9 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     objects.add(object);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.helpers.ResultList#removeObject(java.lang.Object)
    */
   @Override
@@ -84,7 +93,9 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     objects.remove(object);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.ihtsdo.otf.ts.helpers.ResultList#setObjects(java.util.List)
    */
   @Override
@@ -101,8 +112,10 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
   protected List<T> getObjectsTransient() {
     return objects;
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#hashCode()
    */
   @Override
@@ -113,7 +126,9 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     return result;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override
@@ -134,14 +149,17 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     return true;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#toString()
    */
   @Override
   public String toString() {
-    StringBuilder sb=  new StringBuilder();
-    sb.append(getClass().getSimpleName() + " [totalCount=" + totalCount + ", objects=[");
-    for (Object o: objects) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(getClass().getSimpleName() + " [totalCount=" + totalCount
+        + ", objects=[");
+    for (Object o : objects) {
       sb.append(o.toString()).append(",");
     }
     sb.append("]");

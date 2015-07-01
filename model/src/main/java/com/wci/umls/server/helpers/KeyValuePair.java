@@ -44,6 +44,7 @@ public class KeyValuePair implements Comparable<KeyValuePair> {
     this.key = key;
     this.value = value;
   }
+
   /**
    * Returns the key.
    * 
@@ -80,7 +81,9 @@ public class KeyValuePair implements Comparable<KeyValuePair> {
     return value;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#hashCode()
    */
   @Override
@@ -92,7 +95,9 @@ public class KeyValuePair implements Comparable<KeyValuePair> {
     return result;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override
@@ -117,7 +122,9 @@ public class KeyValuePair implements Comparable<KeyValuePair> {
     return true;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#toString()
    */
   @Override
@@ -125,7 +132,9 @@ public class KeyValuePair implements Comparable<KeyValuePair> {
     return "(" + key + ", " + value + ")";
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
   @Override

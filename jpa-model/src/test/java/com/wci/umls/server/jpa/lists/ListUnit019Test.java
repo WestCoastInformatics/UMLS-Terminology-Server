@@ -18,7 +18,8 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 /**
  * Unit testing for {@link AdditionalRelationshipTypeList}.
  */
-public class ListUnit019Test extends AbstractListUnit<AdditionalRelationshipType> {
+public class ListUnit019Test extends
+    AbstractListUnit<AdditionalRelationshipType> {
 
   /** The list1 test fixture . */
   private AdditionalRelationshipTypeList list1;

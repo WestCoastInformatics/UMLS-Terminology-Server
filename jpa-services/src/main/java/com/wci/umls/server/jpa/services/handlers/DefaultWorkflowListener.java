@@ -148,7 +148,8 @@ public class DefaultWorkflowListener implements WorkflowListener {
 
   @Override
   public void subsetMemberChanged(
-    SubsetMember<? extends ComponentHasAttributes, ? extends Subset> subsetMember, Action action) {
+    SubsetMember<? extends ComponentHasAttributes, ? extends Subset> subsetMember,
+    Action action) {
     // n/a
 
   }

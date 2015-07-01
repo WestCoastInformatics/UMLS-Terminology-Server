@@ -91,8 +91,8 @@ public class PfsParameterForComponentTest {
       } else if (CodeJpa.class.isAssignableFrom(sortClass)) {
         SearchResult sr = (SearchResult) result;
         obj =
-            contentService.getCode(sr.getTerminologyId(),
-                sr.getTerminology(), sr.getVersion(), Branch.ROOT);
+            contentService.getCode(sr.getTerminologyId(), sr.getTerminology(),
+                sr.getVersion(), Branch.ROOT);
       } else {
         obj = result;
       }

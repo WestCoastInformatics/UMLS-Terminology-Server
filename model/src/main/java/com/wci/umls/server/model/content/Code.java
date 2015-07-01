@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.model.content;
 
-
 /**
  * Represents a fuzzy conceptual meaning that may be a {@link Concept} or may be
  * a {@link Descriptor} but the exact nature of the classification is not

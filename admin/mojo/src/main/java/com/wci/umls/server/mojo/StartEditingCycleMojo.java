@@ -107,16 +107,16 @@ public class StartEditingCycleMojo extends AbstractMojo {
         getLog().info("Running directly");
 
         HistoryServiceRestImpl historyService = new HistoryServiceRestImpl();
-        historyService.startEditingCycle(releaseVersion, terminology,
-            version, authToken);
+        historyService.startEditingCycle(releaseVersion, terminology, version,
+            authToken);
 
       } else {
         getLog().info("Running against server");
 
         // invoke the client
         HistoryClientRest client = new HistoryClientRest(properties);
-        client.startEditingCycle(releaseVersion, terminology,
-            version, authToken);
+        client.startEditingCycle(releaseVersion, terminology, version,
+            authToken);
       }
 
       getLog().info("...done");

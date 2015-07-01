@@ -158,7 +158,7 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
   public void testNormalUseRestSecurity003() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
     service.authenticate("guest", "guest");
-    
+
     service.authenticate("admin", "admin");
     service.logout("guest");
     service.logout("admin");

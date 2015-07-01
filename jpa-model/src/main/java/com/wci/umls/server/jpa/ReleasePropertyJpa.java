@@ -62,7 +62,6 @@ public class ReleasePropertyJpa implements ReleaseProperty {
 
   /*
    * (non-Javadoc)
-   * 
    */
   @Override
   public void setId(Long id) {
@@ -71,7 +70,6 @@ public class ReleasePropertyJpa implements ReleaseProperty {
 
   /*
    * (non-Javadoc)
-   * 
    */
   @Override
   public String getName() {
@@ -80,7 +78,6 @@ public class ReleasePropertyJpa implements ReleaseProperty {
 
   /*
    * (non-Javadoc)
-   * 
    */
   @Override
   public void setName(String name) {
@@ -135,7 +132,7 @@ public class ReleasePropertyJpa implements ReleaseProperty {
    */
   @Override
   public String toString() {
-    return name + ", " + value ;
+    return name + ", " + value;
   }
 
 }

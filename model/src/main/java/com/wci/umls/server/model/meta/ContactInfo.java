@@ -21,7 +21,7 @@ public interface ContactInfo {
    * @param id the id
    */
   public void setId(Long id);
-  
+
   /**
    * Returns the value. Used for legacy data where contact information fields
    * are not normalized or structured.

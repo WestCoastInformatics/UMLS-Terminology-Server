@@ -155,7 +155,7 @@ public class ModelUnit033Test {
     tester.include("shortName");
     tester.include("synonymousNames");
     tester.include("terminology");
-    
+
     tester.proxy(ContactInfo.class, 1, contactInfoProxy);
     tester.proxy(ContactInfo.class, 2, contactInfoProxy2);
     tester.proxy(Terminology.class, 1, terminologyProxy);

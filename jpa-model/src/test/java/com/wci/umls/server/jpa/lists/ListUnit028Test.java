@@ -21,8 +21,7 @@ import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 /**
  * Unit testing for {@link TreeList}.
  */
-public class ListUnit028Test extends
-    AbstractListUnit<Tree> {
+public class ListUnit028Test extends AbstractListUnit<Tree> {
 
   /** test fixture . */
   private TreeList list1;
@@ -32,6 +31,7 @@ public class ListUnit028Test extends
 
   /** test fixture. */
   private Tree t1;
+
   /** test fixture. */
   private Tree t2;
 
@@ -59,10 +59,10 @@ public class ListUnit028Test extends
     t2 = (TreeJpa) tester.createObject(1);
     TreeJpa t22 = (TreeJpa) tester.createObject(22);
     List<Tree> list = new ArrayList<>();
-    list.add(t11);    
+    list.add(t11);
     t1.setChildren(list);
     list = new ArrayList<>();
-    list.add(t22);    
+    list.add(t22);
     t2.setChildren(list);
 
   }

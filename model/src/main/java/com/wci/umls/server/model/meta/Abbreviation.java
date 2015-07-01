@@ -47,14 +47,14 @@ public interface Abbreviation extends HasTerminology, HasLastModified {
    * @return the branch
    */
   public String getBranch();
-  
+
   /**
    * Sets the branch.
    *
    * @param branch the branch
    */
   public void setBranch(String branch);
-  
+
   /**
    * Returns the abbreviation.
    * 

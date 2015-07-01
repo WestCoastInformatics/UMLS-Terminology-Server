@@ -294,7 +294,8 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
 
     // ConceptRelationships
     if (objectsToReindex.contains("ConceptRelationshipJpa")) {
-      Logger.getLogger(getClass()).info("  Creating indexes for ConceptRelationshipJpa");
+      Logger.getLogger(getClass()).info(
+          "  Creating indexes for ConceptRelationshipJpa");
       fullTextEntityManager.purgeAll(ConceptRelationshipJpa.class);
       fullTextEntityManager.flushToIndexes();
       fullTextEntityManager.createIndexer(ConceptRelationshipJpa.class)
@@ -306,7 +307,8 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
 
     // DescriptorRelationship
     if (objectsToReindex.contains("DescriptorRelationshipJpa")) {
-      Logger.getLogger(getClass()).info("  Creating indexes for DescriptorRelationshipJpa");
+      Logger.getLogger(getClass()).info(
+          "  Creating indexes for DescriptorRelationshipJpa");
       fullTextEntityManager.purgeAll(DescriptorRelationshipJpa.class);
       fullTextEntityManager.flushToIndexes();
       fullTextEntityManager.createIndexer(DescriptorRelationshipJpa.class)
@@ -318,7 +320,8 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
 
     // CodeRelationship
     if (objectsToReindex.contains("CodeRelationshipJpa")) {
-      Logger.getLogger(getClass()).info("  Creating indexes for CodeRelationshipJpa");
+      Logger.getLogger(getClass()).info(
+          "  Creating indexes for CodeRelationshipJpa");
       fullTextEntityManager.purgeAll(CodeRelationshipJpa.class);
       fullTextEntityManager.flushToIndexes();
       fullTextEntityManager.createIndexer(CodeRelationshipJpa.class)

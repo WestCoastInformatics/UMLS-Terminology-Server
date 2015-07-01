@@ -55,7 +55,7 @@ public class TerminologyUtility {
     cacheIsaRels(terminology, version);
     return isaRelsMap.get(terminology + version);
   }
-  
+
   /**
    * Indicates whether or not the relationship is a hierarchical isa rel.
    *
@@ -67,8 +67,7 @@ public class TerminologyUtility {
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
     throws Exception {
     Set<String> isaRels =
-        cacheIsaRels(relationship.getTerminology(),
-            relationship.getVersion());
+        cacheIsaRels(relationship.getTerminology(), relationship.getVersion());
     return relationship != null
         && isaRels.contains(relationship.getRelationshipType());
   }
@@ -135,8 +134,7 @@ public class TerminologyUtility {
     }
     final List<Descriptor> results = new ArrayList<>();
     final Set<String> isaRels =
-        cacheIsaRels(descriptor.getTerminology(),
-            descriptor.getVersion());
+        cacheIsaRels(descriptor.getTerminology(), descriptor.getVersion());
     for (DescriptorRelationship rel : descriptor.getRelationships()) {
       if (isaRels.contains(rel.getRelationshipType()) && !rel.isObsolete()) {
         results.add(rel.getTo());

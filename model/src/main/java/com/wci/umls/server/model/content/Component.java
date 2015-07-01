@@ -11,7 +11,7 @@ import com.wci.umls.server.helpers.HasTerminologyId;
  * Represents a terminology component.
  */
 public interface Component extends HasTerminologyId {
-  
+
   /**
    * Returns the id.
    * 

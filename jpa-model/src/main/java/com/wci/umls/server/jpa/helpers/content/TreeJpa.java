@@ -56,8 +56,8 @@ public class TreeJpa implements Tree {
   /** The children. */
   private List<Tree> children = new ArrayList<>();
 
-  /** The marker sets. */
-  List<String> markerSets = new ArrayList<>();
+  /** The labels. */
+  List<String> labels = new ArrayList<>();
 
   /**
    * Instantiates an empty {@link TreeJpa}.
@@ -79,7 +79,7 @@ public class TreeJpa implements Tree {
     childCt = tree.getChildCt();
     ancestorPath = tree.getAncestorPath();
     totalCount = tree.getTotalCount();
-    markerSets = tree.getMarkerSets();
+    labels = tree.getLabels();
 
     // deep-copy children
     children = new ArrayList<>();
@@ -107,7 +107,7 @@ public class TreeJpa implements Tree {
     this.childCt = treePosition.getChildCt();
     this.ancestorPath = treePosition.getAncestorPath();
     this.children = new ArrayList<>();
-    this.markerSets = treePosition.getNode().getMarkerSets();
+    this.labels = treePosition.getNode().getLabels();
   }
 
   /*
@@ -347,51 +347,48 @@ public class TreeJpa implements Tree {
   /*
    * (non-Javadoc)
    * 
-   * @see com.wci.umls.server.helpers.HasMarkerSets#getMarkerSets()
+   * @see com.wci.umls.server.helpers.HasLabels#getLabels()
    */
   @Override
-  public List<String> getMarkerSets() {
-    return markerSets;
+  public List<String> getLabels() {
+    return labels;
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.helpers.HasMarkerSets#setMarkerSets(java.util.List)
+   * @see com.wci.umls.server.helpers.HasLabels#setLabels(java.util.List)
    */
   @Override
-  public void setMarkerSets(List<String> markerSets) {
-    this.markerSets = markerSets;
+  public void setLabels(List<String> labels) {
+    this.labels = labels;
 
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.helpers.HasMarkerSets#addMarkerSet(java.lang.String)
+   * @see com.wci.umls.server.helpers.HasLabels#addLabel(java.lang.String)
    */
   @Override
-  public void addMarkerSet(String markerSet) {
-    if (markerSets == null) {
-      markerSets = new ArrayList<String>();
+  public void addLabel(String label) {
+    if (labels == null) {
+      labels = new ArrayList<String>();
     }
-    markerSets.add(markerSet);
+    labels.add(label);
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * com.wci.umls.server.helpers.HasMarkerSets#removeMarkerSet(java.lang.String)
+   * @see com.wci.umls.server.helpers.HasLabels#removeLabel(java.lang.String)
    */
   @Override
-  public void removeMarkerSet(String markerSet) {
-    if (markerSets == null) {
-      markerSets = new ArrayList<String>();
+  public void removeLabel(String label) {
+    if (labels == null) {
+      labels = new ArrayList<String>();
     }
-    markerSets.remove(markerSet);
+    labels.remove(label);
 
   }
 
@@ -407,8 +404,7 @@ public class TreeJpa implements Tree {
     result =
         prime * result + ((ancestorPath == null) ? 0 : ancestorPath.hashCode());
     result = prime * result + ((children == null) ? 0 : children.hashCode());
-    result =
-        prime * result + ((markerSets == null) ? 0 : markerSets.hashCode());
+    result = prime * result + ((labels == null) ? 0 : labels.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
@@ -443,10 +439,10 @@ public class TreeJpa implements Tree {
         return false;
     } else if (!children.equals(other.children))
       return false;
-    if (markerSets == null) {
-      if (other.markerSets != null)
+    if (labels == null) {
+      if (other.labels != null)
         return false;
-    } else if (!markerSets.equals(other.markerSets))
+    } else if (!labels.equals(other.labels))
       return false;
     if (name == null) {
       if (other.name != null)

@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Represents a {@link PfsParameter} with the addition of search criteria.
  */
-public interface PfscParameter extends PfsParameter{
+public interface PfscParameter extends PfsParameter {
 
   /**
    * Returns the search criteria.
@@ -16,7 +16,7 @@ public interface PfscParameter extends PfsParameter{
    * @return the search criteria
    */
   public List<SearchCriteria> getSearchCriteria();
-  
+
   /**
    * Sets the search criteria.
    *

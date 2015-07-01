@@ -1845,12 +1845,12 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     term.setPreferredName(root.getPreferredName());
     term.setRootTerminology(root);
     addTerminology(term);
-    
+
     String[] labels = new String[] {
-        "Tree_Sort_Field"
+      "Tree_Sort_Field"
     };
     String[] labelValues = new String[] {
-        "nodeTerminologyId"
+      "nodeTerminologyId"
     };
     int i = 0;
     for (String label : labels) {
@@ -1866,7 +1866,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       entry.setKey("label_metadata");
       entry.setType("label_values");
       addGeneralMetadataEntry(entry);
-    }    
+    }
   }
 
 }

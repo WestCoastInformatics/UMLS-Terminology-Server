@@ -82,7 +82,6 @@ public class ModelUnit039Test {
     tester.include("suppressible");
     tester.include("usageType");
 
-
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());

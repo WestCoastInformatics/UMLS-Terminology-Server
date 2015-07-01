@@ -128,8 +128,7 @@ public class SearchResultJpa implements SearchResult {
   /*
    * (non-Javadoc)
    * 
-   * @see
-   * org.ihtsdo.otf.mapping.helpers.SearchResult#setVersion(java.
+   * @see org.ihtsdo.otf.mapping.helpers.SearchResult#setVersion(java.
    * lang.String)
    */
   @Override
@@ -173,10 +172,7 @@ public class SearchResultJpa implements SearchResult {
     result =
         prime * result
             + ((terminologyId == null) ? 0 : terminologyId.hashCode());
-    result =
-        prime
-            * result
-            + ((version == null) ? 0 : version.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
     return result;
   }
@@ -226,8 +222,8 @@ public class SearchResultJpa implements SearchResult {
   @Override
   public String toString() {
     return "SearchResultJpa [id=" + id + ", terminologyId=" + terminologyId
-        + ", terminology=" + terminology + ", version=" + version
-        + ", value=" + value + "]";
+        + ", terminology=" + terminology + ", version=" + version + ", value="
+        + value + "]";
   }
 
 }

@@ -19,7 +19,9 @@ import com.wci.umls.server.model.content.Code;
 @XmlRootElement(name = "codeList")
 public class CodeListJpa extends AbstractResultList<Code> implements CodeList {
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
    */
   @Override

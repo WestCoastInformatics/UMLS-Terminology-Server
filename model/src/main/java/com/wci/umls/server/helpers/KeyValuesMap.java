@@ -135,12 +135,14 @@ public class KeyValuesMap {
      *
      * @return the sets the
      */
-    @XmlElement(name="item")
+    @XmlElement(name = "item")
     public Set<String> getSet() {
       return set;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -148,7 +150,9 @@ public class KeyValuesMap {
       return set.toString();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -159,7 +163,9 @@ public class KeyValuesMap {
       return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override

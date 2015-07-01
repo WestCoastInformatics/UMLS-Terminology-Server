@@ -4917,7 +4917,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
 
     String query = "ancestorPath:\"" + fullAncPath + "\"";
-    System.out.println("query = " + query);
 
     FullTextQuery fullTextQuery =
         applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class, query, pfs);
@@ -4925,9 +4924,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     TreePositionList list = new TreePositionListJpa();
     list.setTotalCount(fullTextQuery.getResultSize());
     list.setObjects(fullTextQuery.getResultList());
-    for (TreePosition tp : list.getObjects()) {
-      System.out.println("tp = " + tp.getAncestorPath() + ", " + tp);
-    }
 
     return list;
   }

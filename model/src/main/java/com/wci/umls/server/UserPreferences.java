@@ -30,7 +30,7 @@ public interface UserPreferences {
    * @return the user
    */
   public User getUser();
-  
+
   /**
    * Sets the user.
    *
@@ -44,7 +44,6 @@ public interface UserPreferences {
    * @return the precedence list
    */
   public PrecedenceList getPrecedenceList();
-
 
   /**
    * Sets the precedence list.

@@ -27,9 +27,9 @@ public class UserImpl implements User {
   /** The application role. */
   private UserRole applicationRole;
 
-  /**  The user preferences. */
+  /** The user preferences. */
   private UserPreferences userPreferences;
-  
+
   /**
    * Instantiates an empty {@link UserImpl}.
    */

@@ -24,7 +24,7 @@ public class MapValueToCsvBridge implements StringBridge {
     if (value != null) {
       StringBuffer buf = new StringBuffer();
 
-      Map<?,?> map = (Map<?,?>) value;
+      Map<?, ?> map = (Map<?, ?>) value;
       Iterator<?> it = map.values().iterator();
       while (it.hasNext()) {
         String next = it.next().toString();

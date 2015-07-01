@@ -357,11 +357,10 @@ public class RrfFullLoadAndUnloadTest {
     }
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(0, service.getAllConcepts("UMLS", "latest", Branch.ROOT)
-        .getCount());
+    Assert.assertEquals(0, service
+        .getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
-
 
     // Load RF2 full
     request = new DefaultInvocationRequest();
@@ -391,8 +390,8 @@ public class RrfFullLoadAndUnloadTest {
     service.closeFactory();
 
     // Verify release info
-    Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US",
-        "latest"));
+    Assert
+        .assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US", "latest"));
     historyService.close();
     historyService.closeFactory();
 
@@ -459,7 +458,8 @@ public class RrfFullLoadAndUnloadTest {
     // Verify release info for 2015AA as "planned"
     // Verify release info
     historyService = new HistoryServiceJpa();
-    Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US", "20150131"));
+    Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US",
+        "20150131"));
     Assert.assertFalse(historyService.getReleaseInfo("SNOMEDCT_US", "20150131")
         .isPublished());
     Assert.assertTrue(historyService.getReleaseInfo("SNOMEDCT_US", "20150131")
@@ -486,12 +486,13 @@ public class RrfFullLoadAndUnloadTest {
 
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(0,
-        service.getAllConcepts("SNOMEDCT_US", "latest", Branch.ROOT)
-            .getCount());
+    Assert
+        .assertEquals(0,
+            service.getAllConcepts("SNOMEDCT_US", "latest", Branch.ROOT)
+                .getCount());
     service.close();
     service.closeFactory();
-   
+
     // Finish by clearing the DB again
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));

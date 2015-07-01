@@ -106,9 +106,9 @@ public class ModelUnit005Test {
    */
   @Test
   public void testModelNotNullField005() throws Exception {
-    // n/a    
+    // n/a
   }
-  
+
   /**
    * Teardown.
    */

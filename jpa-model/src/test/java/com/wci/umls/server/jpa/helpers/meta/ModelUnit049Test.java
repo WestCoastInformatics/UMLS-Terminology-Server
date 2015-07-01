@@ -17,16 +17,16 @@ import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.jpa.meta.MarkerSetJpa;
-import com.wci.umls.server.model.meta.MarkerSet;
+import com.wci.umls.server.jpa.meta.LabelSetJpa;
+import com.wci.umls.server.model.meta.LabelSet;
 
 /**
- * Unit testing for {@link MarkerSetJpa}.
+ * Unit testing for {@link LabelSetJpa}.
  */
 public class ModelUnit049Test {
 
   /** The model object to test. */
-  private MarkerSetJpa object;
+  private LabelSetJpa object;
 
   /**
    * Setup class.
@@ -44,7 +44,7 @@ public class ModelUnit049Test {
   @Before
   public void setup() throws Exception {
     // set up text fixtures
-    object = new MarkerSetJpa();    
+    object = new LabelSetJpa();
   }
 
   /**
@@ -76,7 +76,7 @@ public class ModelUnit049Test {
     tester.include("terminology");
     tester.include("version");
     tester.include("description");
-    tester.include("markerFor");
+    tester.include("derived");
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
@@ -96,7 +96,7 @@ public class ModelUnit049Test {
     Logger.getLogger(getClass()).debug("TEST testModelCopy040");
     CopyConstructorTester tester = new CopyConstructorTester(object);
 
-    assertTrue(tester.testCopyConstructor(MarkerSet.class));
+    assertTrue(tester.testCopyConstructor(LabelSet.class));
   }
 
   /**
@@ -130,7 +130,7 @@ public class ModelUnit049Test {
     tester.include("abbreviation");
     tester.include("expandedForm");
     tester.include("description");
-    tester.include("markerFor");
+    tester.include("derived");
 
     assertTrue(tester.testNotNullFields());
   }

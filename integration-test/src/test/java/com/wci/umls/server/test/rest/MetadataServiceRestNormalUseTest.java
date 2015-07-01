@@ -255,7 +255,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
   }
 
   /**
-   * Teardown.  
+   * Teardown.
    *
    * @throws Exception the exception
    */

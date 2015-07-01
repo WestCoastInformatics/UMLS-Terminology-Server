@@ -27,7 +27,7 @@ public class KeyValuePairList {
   public KeyValuePairList() {
     // do nothing
   }
-  
+
   /**
    * Instantiates a {@link KeyValuePairList} from the specified parameters.
    *
@@ -37,7 +37,7 @@ public class KeyValuePairList {
     name = list.getName();
     keyValuePairList = list.getKeyValuePairList();
   }
-  
+
   /**
    * Returns the key value pair list.
    * 
@@ -83,7 +83,7 @@ public class KeyValuePairList {
   public String getName() {
     return name;
   }
-  
+
   /**
    * Indicates whether not it contains the specified key pair.
    *
@@ -93,7 +93,7 @@ public class KeyValuePairList {
   public boolean contains(KeyValuePair pair) {
     return this.getKeyValuePairList().contains(pair);
   }
-  
+
   /**
    * Indicates whether not it contains the specified key pair list.
    *
@@ -104,7 +104,9 @@ public class KeyValuePairList {
     return this.getKeyValuePairList().contains(pairList.getKeyValuePairList());
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#hashCode()
    */
   @Override
@@ -118,7 +120,9 @@ public class KeyValuePairList {
     return result;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override
@@ -143,7 +147,9 @@ public class KeyValuePairList {
     return true;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see java.lang.Object#toString()
    */
   @Override

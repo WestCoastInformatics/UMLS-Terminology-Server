@@ -168,7 +168,8 @@ public class SecurityServiceJpa extends RootServiceJpa implements
         }
 
         if (tokenTimeoutMap.get(parsedToken).before(new Date())) {
-          throw new LocalException("AuthToken has expired. Please reload and log in again.");
+          throw new LocalException(
+              "AuthToken has expired. Please reload and log in again.");
         }
         tokenTimeoutMap.put(parsedToken, new Date(new Date().getTime()
             + timeout));
@@ -377,7 +378,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
 
   @Override
   public void refreshCaches() throws Exception {
-    // n/a    
+    // n/a
   }
 
 }

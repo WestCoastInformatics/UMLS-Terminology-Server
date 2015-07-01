@@ -305,14 +305,14 @@ public interface Project {
    * @param values the action workflow status values
    */
   public void setActionWorkflowStatusValues(Set<String> values);
-  
+
   /**
    * Returns the branch.
    *
    * @return the branch
    */
   public String getBranch();
-  
+
   /**
    * Sets the branch.
    *

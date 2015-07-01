@@ -138,7 +138,7 @@ public class DescriptorTransitiveRelationshipJpa extends
   public String getSuperTypeTerminology() {
     return superType == null ? null : superType.getTerminology();
   }
-  
+
   /**
    * Sets the super type terminology.
    *

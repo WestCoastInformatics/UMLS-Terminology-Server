@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.helpers;
 
-
 /**
  * Represents a thing that is associated with a terminology.
  */

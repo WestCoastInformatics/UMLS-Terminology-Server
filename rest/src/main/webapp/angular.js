@@ -1,7 +1,7 @@
 /**
  * @license AngularJS v1.2.12
  * (c) 2010-2014 Google, Inc. http://angularjs.org
- * License: MIT
+ * License: MITlabel
  */
 (function(window, document, undefined) {'use strict';
 
