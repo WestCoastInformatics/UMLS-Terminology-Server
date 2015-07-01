@@ -773,7 +773,7 @@ tsApp
           $http(
             {
               url : contentUrl + typePrefix + '/' + tree.terminology + '/'
-                + tree.version + '/' + tree.terminologyId + '/trees/children',
+                + tree.version + '/' + tree.nodeTerminologyId + '/trees/children',
               method : "POST",
               dataType : 'json',
               data : pfs,
@@ -787,7 +787,7 @@ tsApp
 
                 // construct ancestor path (for sake of completeness, not filled
                 // in on server-side)
-                var ancestorPath = tree.ancestorPath + '~' + tree.terminologyId;
+                var ancestorPath = tree.ancestorPath + '~' + tree.nodeTerminologyId;
 
                 // cycle over children, and construct tree nodes
                 for (var i = 0; i < data.tree.length; i++) {

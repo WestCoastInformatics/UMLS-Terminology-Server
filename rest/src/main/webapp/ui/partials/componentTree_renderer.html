@@ -12,13 +12,13 @@
 	<i ng-show="tree.childCt == 0" class="glyphicon glyphicon-leaf"></i>
 	
 	<!-- if not the component viewed, render with hyperlink -->
-	<span ng-show="tree.terminologyId != component.terminologyId"><a
-		ng-click="getComponent(tree.terminology, tree.terminologyId)">
-			{{tree.terminologyId}}</a>: {{tree.name}} </span>
+	<span ng-show="tree.nodeTerminologyId != component.terminologyId"><a
+		ng-click="getComponent(tree.terminology, tree.nodeTerminologyId)">
+			{{tree.nodeTerminologyId}}</a>: {{tree.nodeName}} </span>
 
 	<!-- if the component displayed, render in bold without hyperlink -->
-	<span ng-show="tree.terminologyId === component.terminologyId">
-		<span class="highlighted">{{tree.terminologyId}}: {{tree.name}}</span>
+	<span ng-show="tree.nodeTerminologyId === component.terminologyId">
+		<span class="highlighted">{{tree.nodeTerminologyId}}: {{tree.nodeName}}</span>
 	</span>
 
 	<!-- recursive display of next level of tree -->
