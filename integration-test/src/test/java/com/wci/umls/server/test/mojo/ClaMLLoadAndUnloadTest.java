@@ -68,16 +68,11 @@ public class ClaMLLoadAndUnloadTest {
    *   TEST: verify there is a project with the expected name
    * Start an editing cycle for "ICD10"
    *   TEST: verify there is a release info with the expected name and "planned" flag equal to true.
-   * Run the ClaML  mojo against the sample config/src/resources/data/icd10cm.xml" data.
-   *   TEST: verify each content table exists with the expected number of entries.
-   * Create an "ICD10CM" project (name="Sample Project" description="Sample project." terminology=ICD10CM version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
-   *   TEST: verify there is a project with the expected name
-   * Start an editing cycle for "ICD10CM"
-   *   TEST: verify there is a release info with the expected name and "planned" flag equal to true.
-   * Remove ICD10 terminology
-   *   TEST: verify there is a concepts table with no contents for ICD10
-   * Remove ICD10CM terminology
-   *   TEST: verify there is a concepts table with no contents for ICD10CM
+   * Repeat load steps and tests for ICD10CM
+   * Remove ICD10 terminolgoy
+   *   TEST: verify that it is gone
+   * Remove ICD10CM terminolgoy
+   *   TEST: verify that it is gone
    * Re-run "createdb" to restore database
    * </pre>
    * @throws Exception the exception
@@ -145,18 +140,17 @@ public class ClaMLLoadAndUnloadTest {
     service = new ContentServiceJpa();
     // Test a non-UMLS terminology too
     Assert.assertEquals(10293,
-        service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("ICD10", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 
     // Verify release info
     HistoryService historyService = new HistoryServiceJpa();
-    Assert
-        .assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US", "latest"));
+    Assert.assertNotNull(historyService.getReleaseInfo("ICD10", "latest"));
     historyService.close();
     historyService.closeFactory();
 
-    // Add a SNOMEDCT project
+    // Add a ICD10 project
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("Project"));
@@ -166,7 +160,7 @@ public class ClaMLLoadAndUnloadTest {
     p.setProperty("server", server);
     p.setProperty("name", "Sample project");
     p.setProperty("description", "Sample project.");
-    p.setProperty("terminology", "SNOMEDCT");
+    p.setProperty("terminology", "ICD10");
     p.setProperty("version", "latest");
     // scope ignored for now
     p.setProperty("scope.descendants.flag", "true");
@@ -185,7 +179,7 @@ public class ClaMLLoadAndUnloadTest {
       if (project.getName().equals("Sample project")
           && project.getDescription().equals("Sample project.")
           && project.getScopeDescendantsFlag()
-          && project.getTerminology().equals("SNOMEDCT")
+          && project.getTerminology().equals("ICD10")
           && project.getVersion().equals("latest")) {
         // Scope ignored for now - &&
         // project.getScopeConcepts().iterator().next().equals("138875005")) {
@@ -202,9 +196,9 @@ public class ClaMLLoadAndUnloadTest {
     securityService.close();
     securityService.closeFactory();
 
-    // Start SNOMEDCT editing cycle
+    // Start ICD10 editing cycle
 
-    // Add a SNOMEDCT project
+    // Add a ICD10 project
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/release/pom.xml"));
     request.setProfiles(Arrays.asList("StartEditingCycle"));
@@ -212,8 +206,8 @@ public class ClaMLLoadAndUnloadTest {
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
-    p.setProperty("release.version", "20150131");
-    p.setProperty("terminology", "SNOMEDCT");
+    p.setProperty("release.version", "2016");
+    p.setProperty("terminology", "ICD10");
     p.setProperty("version", "latest");
     request.setProperties(p);
     invoker = new DefaultInvoker();
@@ -225,13 +219,131 @@ public class ClaMLLoadAndUnloadTest {
     // Verify release info for 20160131 as "planned"
     // Verify release info
     historyService = new HistoryServiceJpa();
-    Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT", "20150131"));
-    Assert.assertFalse(historyService.getReleaseInfo("SNOMEDCT", "20150131")
+    Assert.assertNotNull(historyService.getReleaseInfo("ICD10", "2016"));
+    Assert.assertFalse(historyService.getReleaseInfo("ICD10", "2016")
         .isPublished());
-    Assert.assertTrue(historyService.getReleaseInfo("SNOMEDCT", "20150131")
+    Assert.assertTrue(historyService.getReleaseInfo("ICD10", "2016")
         .isPlanned());
     historyService.close();
     historyService.closeFactory();
+
+
+    // Verify no contents
+    service = new ContentServiceJpa();
+    Assert.assertEquals(0,
+        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
+    service.close();
+    service.closeFactory();
+
+    // Load RF2 snapshot
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/loader/pom.xml"));
+    request.setProfiles(Arrays.asList("ClaML"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("terminology", "ICD10CM");
+    p.setProperty("version", "latest");
+    p.setProperty("input.dir", "../../config/src/main/resources/data/icd10cm.xml");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+
+    // Verify expected contents
+    service = new ContentServiceJpa();
+    // Test a non-UMLS terminology too
+    Assert.assertEquals(10293,
+        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
+    service.close();
+    service.closeFactory();
+
+    // Verify release info
+    historyService = new HistoryServiceJpa();
+    Assert.assertNotNull(historyService.getReleaseInfo("ICD10CM", "latest"));
+    historyService.close();
+    historyService.closeFactory();
+
+    // Add a ICD10CM project
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/loader/pom.xml"));
+    request.setProfiles(Arrays.asList("Project"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("name", "Sample project");
+    p.setProperty("description", "Sample project.");
+    p.setProperty("terminology", "ICD10CM");
+    p.setProperty("version", "latest");
+    // scope ignored for now
+    p.setProperty("scope.descendants.flag", "true");
+    p.setProperty("admin.user", "admin");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+
+    // Verify project exists
+    projectService = new ProjectServiceJpa();
+    found = false;
+    for (Project project : projectService.getProjects().getObjects()) {
+      if (project.getName().equals("Sample project")
+          && project.getDescription().equals("Sample project.")
+          && project.getScopeDescendantsFlag()
+          && project.getTerminology().equals("ICD10CM")
+          && project.getVersion().equals("latest")) {
+        // Scope ignored for now - &&
+        // project.getScopeConcepts().iterator().next().equals("138875005")) {
+        found = true;
+      }
+    }
+    Assert.assertTrue(found);
+    projectService.close();
+    projectService.closeFactory();
+
+    // Verify admin user
+    securityService = new SecurityServiceJpa();
+    Assert.assertNotNull(securityService.getUser("admin"));
+    securityService.close();
+    securityService.closeFactory();
+
+    // Start ICD10CM editing cycle
+
+    // Add a ICD10CM project
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/release/pom.xml"));
+    request.setProfiles(Arrays.asList("StartEditingCycle"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("release.version", "2016");
+    p.setProperty("terminology", "ICD10CM");
+    p.setProperty("version", "latest");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+
+    // Verify release info for 20160131 as "planned"
+    // Verify release info
+    historyService = new HistoryServiceJpa();
+    Assert.assertNotNull(historyService.getReleaseInfo("ICD10CM", "2016"));
+    Assert.assertFalse(historyService.getReleaseInfo("ICD10CM", "2016")
+        .isPublished());
+    Assert.assertTrue(historyService.getReleaseInfo("ICD10CM", "2016")
+        .isPlanned());
+    historyService.close();
+    historyService.closeFactory();
+    
 
     // Remove terminology
     request = new DefaultInvocationRequest();
@@ -241,7 +353,7 @@ public class ClaMLLoadAndUnloadTest {
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
-    p.setProperty("terminology", "SNOMEDCT_US");
+    p.setProperty("terminology", "ICD10");
     p.setProperty("version", "latest");
     request.setProperties(p);
     invoker = new DefaultInvoker();
@@ -252,10 +364,33 @@ public class ClaMLLoadAndUnloadTest {
 
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert
-        .assertEquals(0,
-            service.getAllConcepts("SNOMEDCT_US", "latest", Branch.ROOT)
-                .getCount());
+    Assert.assertEquals(0,
+        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
+    service.close();
+    service.closeFactory();
+    
+
+    // Remove terminology
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/remover/pom.xml"));
+    request.setProfiles(Arrays.asList("Terminology"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("terminology", "ICD10CM");
+    p.setProperty("version", "latest");
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+
+    // Verify no contents
+    service = new ContentServiceJpa();
+    Assert.assertEquals(0,
+        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 

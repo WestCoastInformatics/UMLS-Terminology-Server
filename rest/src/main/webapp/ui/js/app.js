@@ -788,7 +788,6 @@ tsApp
                 // construct ancestor path (for sake of completeness, not filled
                 // in on server-side)
                 var ancestorPath = tree.ancestorPath + '~' + tree.nodeTerminologyId;
-
                 // cycle over children, and construct tree nodes
                 for (var i = 0; i < data.tree.length; i++) {
 
@@ -796,7 +795,7 @@ tsApp
                   // present data)
                   var childPresent = false;
                   for (var j = 0; j < tree.child.length; j++) {
-                    if (tree.child[j].terminologyId === data.tree[i].terminologyId) {
+                    if (tree.child[j].nodeTerminologyId === data.tree[i].nodeTerminologyId) {
                       childPresent = true;
                       break;
                     }

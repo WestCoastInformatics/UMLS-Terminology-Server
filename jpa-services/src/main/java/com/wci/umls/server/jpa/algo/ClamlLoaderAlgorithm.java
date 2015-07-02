@@ -1848,17 +1848,48 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     name.setAbbreviation("USAGE");
     addAttributeName(name);
 
+    // Build precedence list
     final PrecedenceList list = new PrecedenceListJpa();
     list.setDefaultList(true);
 
     final List<KeyValuePair> lkvp = new ArrayList<>();
 
+    // Start with preferred
     final KeyValuePair pr = new KeyValuePair();
     pr.setKey(terminology);
     pr.setValue("preferred");
     lkvp.add(pr);
+    // next do anything else starting with "preferred"
     for (String tty : termTypes) {
-      if (!tty.equals("preferred")) {
+      if (!tty.equals("preferred") && tty.startsWith("preferred")) {
+        final KeyValuePair pair = new KeyValuePair();
+        pair.setKey(terminology);
+        pair.setValue(tty);
+        lkvp.add(pair);
+      }
+    }
+    // do everything else, then inclusions and exclusions
+    for (String tty : termTypes) {
+      if (tty.indexOf("preferred") == -1 && !tty.equals("inclusion")
+          && !tty.equals("exclusion")) {
+        final KeyValuePair pair = new KeyValuePair();
+        pair.setKey(terminology);
+        pair.setValue(tty);
+        lkvp.add(pair);
+      }
+    }
+    // Then do inclusion
+    for (String tty : termTypes) {
+      if (tty.equals("inclusion")) {
+        final KeyValuePair pair = new KeyValuePair();
+        pair.setKey(terminology);
+        pair.setValue(tty);
+        lkvp.add(pair);
+      }
+    }
+    // Then do inclusion
+    for (String tty : termTypes) {
+      if (tty.equals("exclusion")) {
         final KeyValuePair pair = new KeyValuePair();
         pair.setKey(terminology);
         pair.setValue(tty);
