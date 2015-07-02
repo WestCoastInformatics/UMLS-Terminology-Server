@@ -55,9 +55,6 @@ tsApp
       '$q',
       function($scope, $http, $q) {
 
-        // the default viewed terminology, if available
-        var defaultTerminology = 'UMLS';
-
         $scope.$watch('component', function() {
           // n/a
         });
@@ -333,6 +330,11 @@ tsApp
                         $scope.terminologies.push(terminology);
 
                         if (terminology.metathesaurus) {
+                          $scope.setTerminology(terminology);
+                        }
+
+                        // For icd server
+                        if (terminology.terminology === "ICD10CM") {
                           $scope.setTerminology(terminology);
                         }
 
