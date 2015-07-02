@@ -1624,8 +1624,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     }
     br.close();
     // Override terminology version with parameter
-    releaseVersionDate = ConfigUtility.DATE_FORMAT3.parse(version);
-    Logger.getLogger(getClass()).info("terminologyVersion: " + version);
+    releaseVersionDate = ConfigUtility.DATE_FORMAT3.parse(releaseVersion);
+    Logger.getLogger(getClass()).info("terminologyVersion: " + releaseVersion);
   }
 
   /**
