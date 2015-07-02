@@ -128,7 +128,7 @@ public class ClaMLLoadAndUnloadTest {
     p.setProperty("server", server);
     p.setProperty("terminology", "ICD10");
     p.setProperty("version", "latest");
-    p.setProperty("input.dir", "../../config/src/main/resources/data/icd10.xml");
+    p.setProperty("input.file", "../../config/src/main/resources/data/icd10.xml");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
@@ -138,8 +138,7 @@ public class ClaMLLoadAndUnloadTest {
 
     // Verify expected contents
     service = new ContentServiceJpa();
-    // Test a non-UMLS terminology too
-    Assert.assertEquals(10293,
+    Assert.assertEquals(24470,
         service.getAllConcepts("ICD10", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
@@ -245,7 +244,7 @@ public class ClaMLLoadAndUnloadTest {
     p.setProperty("server", server);
     p.setProperty("terminology", "ICD10CM");
     p.setProperty("version", "latest");
-    p.setProperty("input.dir", "../../config/src/main/resources/data/icd10cm.xml");
+    p.setProperty("input.file", "../../config/src/main/resources/data/icd10cm.xml");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
@@ -256,7 +255,7 @@ public class ClaMLLoadAndUnloadTest {
     // Verify expected contents
     service = new ContentServiceJpa();
     // Test a non-UMLS terminology too
-    Assert.assertEquals(10293,
+    Assert.assertEquals(24470,
         service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
