@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -101,13 +102,13 @@ public class ProjectJpa implements Project {
 
   /** The concepts in scope for this project. */
   @ElementCollection
-  @JoinTable(name = "projects_scope_concepts", joinColumns = @JoinColumn(name = "projects_id"), inverseJoinColumns = @JoinColumn(name = "terminology_id"))
+  @CollectionTable(name = "projects_scope_concepts", joinColumns = @JoinColumn(name = "id"))
   @Column(nullable = true)
   private Set<String> scopeConcepts = new HashSet<>();
 
   /** The concepts excludes from scope of this project. */
   @ElementCollection
-  @JoinTable(name = "projects_scope_excludes_concepts", joinColumns = @JoinColumn(name = "projects_id"), inverseJoinColumns = @JoinColumn(name = "terminology_id"))
+  @CollectionTable(name = "projects_scope_excludes_concepts", joinColumns = @JoinColumn(name = "id"))
   @Column(nullable = true)
   private Set<String> scopeExcludesConcepts = new HashSet<>();
 
