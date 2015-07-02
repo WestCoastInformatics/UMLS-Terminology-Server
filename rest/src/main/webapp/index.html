@@ -230,11 +230,11 @@
                   <span class="pull-right">
 
                     <a class="glyphicon glyphicon-star"
-                      ng-show="showExtension && !terminology.metathesaurus"
+                      ng-show="showExtension && !terminology.metathesaurus && labelSets.length > 0"
                       tooltip="Click to hide extension highlights in tree"
                       ng-click="toggleExtension()"> </a>
                     <a class="glyphicon glyphicon-star-empty"
-                      ng-show="!showExtension && !terminology.metathesaurus"
+                      ng-show="!showExtension && !terminology.metathesaurus && labelSets.length > 0"
                       tooltip="Click to show extension highlights in tree"
                       ng-click="toggleExtension()"> </a>
                     &nbsp;

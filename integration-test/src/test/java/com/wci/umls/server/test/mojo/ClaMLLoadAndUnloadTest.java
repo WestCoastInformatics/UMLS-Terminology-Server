@@ -145,7 +145,7 @@ public class ClaMLLoadAndUnloadTest {
 
     // Verify release info
     HistoryService historyService = new HistoryServiceJpa();
-    Assert.assertNotNull(historyService.getReleaseInfo("ICD10", "latest"));
+    Assert.assertNotNull(historyService.getReleaseInfo("ICD10", "2010"));
     historyService.close();
     historyService.closeFactory();
 
@@ -234,7 +234,7 @@ public class ClaMLLoadAndUnloadTest {
     service.close();
     service.closeFactory();
 
-    // Load RF2 snapshot
+    // Load Claml
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("ClaML"));
@@ -245,6 +245,7 @@ public class ClaMLLoadAndUnloadTest {
     p.setProperty("terminology", "ICD10CM");
     p.setProperty("version", "latest");
     p.setProperty("input.file", "../../config/src/main/resources/data/icd10cm.xml");
+    request.setMavenOpts("-Xmx3000M");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
