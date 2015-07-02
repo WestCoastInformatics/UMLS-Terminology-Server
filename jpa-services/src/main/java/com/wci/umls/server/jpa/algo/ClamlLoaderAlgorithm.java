@@ -31,11 +31,13 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -87,6 +89,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
   /** The terminology version. */
   String version;
 
+  /** release version */
+  String releaseVersion;
+
   /** The release version date. */
   Date releaseVersionDate;
 
@@ -101,9 +106,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
   /** The input file. */
   private String inputFile;
-
-  /** The effective time. */
-  String effectiveTime;
 
   /** The concept map. */
   Map<String, Concept> conceptMap = new HashMap<>();
@@ -230,6 +232,25 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       // Handle metadata
       loadMetadata();
 
+      //
+      // Create ReleaseInfo for this release if it does not already exist
+      //
+      ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
+      if (info == null) {
+        info = new ReleaseInfoJpa();
+        info.setName(releaseVersion);
+        info.setDescription(terminology + " " + releaseVersion + " release");
+        info.setPlanned(false);
+        info.setPublished(true);
+        info.setReleaseBeginDate(releaseVersionDate);
+        info.setReleaseFinishDate(releaseVersionDate);
+        info.setTerminology(terminology);
+        info.setVersion(releaseVersion);
+        info.setLastModified(releaseVersionDate);
+        info.setLastModifiedBy(loader);
+        addReleaseInfo(info);
+      }
+      
       commit();
       clear();
       close();
@@ -1318,7 +1339,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       conceptSet.add(childConcept);
       // add relationship
       createIsaRelationship(parentConcept, childConcept, ("" + relId),
-          terminology, version, effectiveTime);
+          terminology, version);
       childToParentCodeMap.put(childConcept.getTerminologyId(),
           parentConcept.getTerminologyId());
       parentCodeHasChildrenMap.put(parentConcept.getTerminologyId(), true);
@@ -1589,17 +1610,15 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
    */
   public void findVersion(String inputFile) throws Exception {
     BufferedReader br = new BufferedReader(new FileReader(inputFile));
-    String version = null;
     String line = null;
     while ((line = br.readLine()) != null) {
       if (line.contains("<Title")) {
         int versionIndex = line.indexOf("version=");
         if (line.contains("></Title>"))
-          version =
+          releaseVersion =
               line.substring(versionIndex + 9, line.indexOf("></Title>") - 1);
         else
-          version = line.substring(versionIndex + 9, versionIndex + 13);
-        effectiveTime = version + "0101";
+          releaseVersion = line.substring(versionIndex + 9, versionIndex + 13);
         break;
       }
     }
@@ -1607,7 +1626,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     // Override terminology version with parameter
     releaseVersionDate = ConfigUtility.DATE_FORMAT3.parse(version);
     Logger.getLogger(getClass()).info("terminologyVersion: " + version);
-    Logger.getLogger(getClass()).info("effectiveTime: " + effectiveTime);
   }
 
   /**
@@ -1700,12 +1718,11 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param terminologyVersion the terminology version
-   * @param effectiveTime the effective time
    * @throws Exception the exception
    */
   public void createIsaRelationship(Concept parentConcept,
     Concept childConcept, String terminologyId, String terminology,
-    String terminologyVersion, String effectiveTime) throws Exception {
+    String terminologyVersion) throws Exception {
     if (parentConcept == null) {
       throw new Exception("Parent concept may not be null");
     }
