@@ -336,6 +336,11 @@ tsApp
                           $scope.setTerminology(terminology);
                         }
 
+                        // For icd server
+                        if (terminology.terminology === 'ICD10CM') {
+                          $scope.setTerminology(terminology);
+                        }
+
                         if (++ct == data.keyValuePairList.length
                           && !$scope.terminology) {
                           // If a "metathesaurus" wasn't found, pick the first
