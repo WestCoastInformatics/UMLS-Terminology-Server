@@ -1419,6 +1419,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     List<ConceptSubset> subsets = new ArrayList<>();
     for (String key : moduleConceptIdMap.keySet()) {
       Logger.getLogger(getClass()).info("  Create subset for module = " + key);
+      // bail if concept doesn't exist
+      if (!conceptIdMap.containsKey(key)) {
+        Logger.getLogger(getClass()).warn("    MISSING CONCEPT");
+        continue;        
+      }
       Concept concept = getConcept(conceptIdMap.get(key));
       ConceptSubset subset = new ConceptSubsetJpa();
       subset.setName(concept.getName());
