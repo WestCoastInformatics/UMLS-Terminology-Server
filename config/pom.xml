@@ -47,6 +47,7 @@
     <module>dev-windows</module>
     <module>prod</module>
     <module>prod-snomedct</module>
+    <module>prod-claml</module>
   </modules>
 
 </project>
