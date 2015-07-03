@@ -245,7 +245,7 @@ public class ClaMLLoadAndUnloadTest {
     p.setProperty("terminology", "ICD10CM");
     p.setProperty("version", "latest");
     p.setProperty("input.file", "../../config/src/main/resources/data/icd10cm.xml");
-    request.setMavenOpts("-Xmx3000M");
+    request.setMavenOpts("-Xmx4000M");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
@@ -275,8 +275,8 @@ public class ClaMLLoadAndUnloadTest {
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
-    p.setProperty("name", "Sample project");
-    p.setProperty("description", "Sample project.");
+    p.setProperty("name", "Sample project2");
+    p.setProperty("description", "Sample project2.");
     p.setProperty("terminology", "ICD10CM");
     p.setProperty("version", "latest");
     // scope ignored for now

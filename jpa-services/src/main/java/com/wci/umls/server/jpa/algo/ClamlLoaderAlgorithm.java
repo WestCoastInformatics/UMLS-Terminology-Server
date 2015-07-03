@@ -39,6 +39,7 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -54,6 +55,7 @@ import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -83,6 +85,12 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
 
+  /** The logging object ct threshold. */
+  private final static int logCt = 2000;
+
+  /** The commit count. */
+  private final static int commitCt = 2000;
+
   /** The terminology. */
   String terminology;
 
@@ -98,9 +106,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
   /** The terminology language. */
   String terminologyLanguage;
 
-  /** hash set for storing default preferred names. */
-  Map<Long, String> defaultPreferredNames = new HashMap<>();
-
   /** counter for objects created, reset in each load section. */
   int objectCt;
 
@@ -110,11 +115,11 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
   /** The concept map. */
   Map<String, Concept> conceptMap = new HashMap<>();
 
-  /** The concept set. */
-  Set<Concept> conceptSet = new HashSet<>();
-
   /** The relationship set. */
   Set<ConceptRelationship> relationshipSet = new HashSet<>();
+
+  /** The atoms relationship set. */
+  Set<AtomRelationship> atomRelationshipSet = new HashSet<>();
 
   /** The roots. */
   List<String> roots = null;
@@ -124,6 +129,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
   /** Indicates subclass relationships NOTE: this assumes a single superclass. */
   Map<String, Boolean> parentCodeHasChildrenMap;
+
+  /** The rubric id of the "preferred" rubric */
+  Map<String, String> preferredRubricMap = new HashMap<>();
 
   /** The additional relationship types. */
   Set<String> additionalRelationshipTypes = new HashSet<>();
@@ -250,7 +258,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
         info.setLastModifiedBy(loader);
         addReleaseInfo(info);
       }
-      
+
       commit();
       clear();
       close();
@@ -735,7 +743,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
                 "  Add concept " + concept.getTerminologyId() + " "
                     + concept.getName());
             conceptMap.put(code, concept);
-            conceptSet.add(concept);
           }
 
           // Add rubric for definition
@@ -788,6 +795,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
             atom.setTermType(rubricKind);
             termTypes.add(rubricKind);
             atom.setWorkflowStatus("PUBLISHED");
+            if (rubricKind.equals("preferred")) {
+              preferredRubricMap.put(code, atom.getTerminologyId());
+            }
 
             Logger.getLogger(getClass())
                 .info(
@@ -971,16 +981,89 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
             parentCode = tokens[0];
             type = tokens[2];
             id = tokens[1];
+            String relId = id;
             if (relDisambiguation.containsKey(id)) {
-              int ct = relDisambiguation.get(id);
+              int ct = relDisambiguation.get(relId);
               ct++;
-              relDisambiguation.put(id, ct);
-              id = id + "~" + ct;
+              relDisambiguation.put(relId, ct);
+              relId = relId + "~" + ct;
             } else {
-              relDisambiguation.put(id, 1);
-              id = id + "~1";
+              relDisambiguation.put(relId, 1);
+              relId = relId + "~1";
+
+              // Create an atom relationship between the "id"
+              // and the "preferred" rubric of the "parent code"
             }
             // tokens[3]; -- nothing to do with tokens[3] at this point
+
+            if (type.equals("aster"))
+              type = "dagger-to-asterisk";
+            if (type.equals("dagger"))
+              type = "asterisk-to-dagger";
+
+            for (Concept childConcept : mapEntry.getValue()) {
+
+              if (conceptMap.containsKey(parentCode)) {
+                Logger.getLogger(getClass()).info(
+                    "  Create Reference Relationship "
+                        + childConcept.getTerminologyId() + " " + type + " "
+                        + parentCode + " " + id);
+                // Create an atom relationship and continue
+                final AtomRelationship relationship = new AtomRelationshipJpa();
+                relationship.setTerminologyId(relId);
+
+                relationship.setTerminology(terminology);
+                relationship.setVersion(version);
+
+                Atom fromAtom = null;
+                for (Atom atom : childConcept.getAtoms()) {
+                  if (atom.getTerminologyId().equals(id)) {
+                    fromAtom = atom;
+                    break;
+                  }
+                }
+                if (fromAtom == null) {
+                  throw new Exception("Unable to find fromAtom - " + id);
+                }
+                relationship.setFrom(fromAtom);
+
+                Atom toAtom = null;
+                for (Atom atom : conceptMap.get(parentCode).getAtoms()) {
+                  if (atom.getTerminologyId().equals(preferredRubricMap.get(parentCode))) {
+                    toAtom = atom;
+                    break;
+                  }
+                }
+                if (toAtom == null) {
+                  throw new Exception("Unable to find prefered rubric for - " + parentCode);
+                }
+                relationship.setTo(toAtom);
+                relationship.setRelationshipType("RO");
+                relationship.setAdditionalRelationshipType(type);
+                additionalRelationshipTypes.add(type);
+                relationship.setGroup(null);
+                relationship.setAssertedDirection(true);
+                relationship.setInferred(true);
+                relationship.setStated(true);
+                relationship.setLastModified(releaseVersionDate);
+                relationship.setTimestamp(releaseVersionDate);
+                relationship.setLastModifiedBy(loader);
+                relationship.setObsolete(false);
+                relationship.setSuppressible(false);
+                relationship.setPublishable(true);
+                relationship.setPublished(true);
+                // fromAtom.addRelationship(relationship);
+                atomRelationshipSet.add(relationship);
+              } else if (modifierMap.containsKey(parentCode)) {
+                Logger.getLogger(getClass()).info("    IGNORE rel to modifier");
+              } else {
+                // throw new SAXException("Problem inserting relationship, code "
+                // + parentCode + " does not exist.");
+                Logger.getLogger(getClass()).info(
+                    "    WARNING rel to illegal concept");
+              }
+            }
+            continue;
           }
 
           // handle isa case
@@ -995,10 +1078,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
                 "Unexpected number of tokens for relsMap entry "
                     + tokens.length);
           }
-          if (type.equals("aster"))
-            type = "dagger-to-asterisk";
-          if (type.equals("dagger"))
-            type = "asterisk-to-dagger";
+
           for (Concept childConcept : mapEntry.getValue()) {
             Logger.getLogger(getClass()).info(
                 "  Create Relationship " + childConcept.getTerminologyId()
@@ -1036,7 +1116,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
               relationship.setSuppressible(false);
               relationship.setPublishable(true);
               relationship.setPublished(true);
-              childConcept.addRelationship(relationship);
+              // childConcept.addRelationship(relationship);
               relationshipSet.add(relationship);
 
             } else if (modifierMap.containsKey(parentCode)) {
@@ -1050,14 +1130,28 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
           }
         }
 
+        Logger.getLogger(getClass()).info("Load Concepts and Atoms");
+        Set<Concept> conceptSet = new HashSet<>(conceptMap.values());
         // Now add all objects to the database
+        int objectCt = 0;
         for (Concept concept : conceptSet) {
           // Add atoms
           for (Atom atom : concept.getAtoms()) {
             addAtom(atom);
           }
           addConcept(concept);
+          logAndCommit(objectCt++);
         }
+        commitClearBegin();
+
+        Logger.getLogger(getClass()).info("Load Atom Relationships");
+        for (AtomRelationship rel : atomRelationshipSet) {
+          addRelationship(rel);
+          logAndCommit(objectCt++);
+        }
+        commitClearBegin();
+
+        Logger.getLogger(getClass()).info("Load Concept Relationships");
         // add rels after all concepts exist
         for (ConceptRelationship rel : relationshipSet) {
           if (conceptSet.contains(rel.getFrom())
@@ -1069,7 +1163,10 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
                     + rel.getFrom().getTerminologyId() + ", "
                     + rel.getTo().getTerminologyId());
           }
+          logAndCommit(objectCt++);
         }
+        commitClearBegin();
+
       } catch (Exception e) {
         throw new SAXException(e);
       }
@@ -1155,6 +1252,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
         atom.setTermType(rubricKind);
         termTypes.add(rubricKind);
         atom.setWorkflowStatus("PUBLISHED");
+        if (rubricKind.equals("preferred")) {
+          preferredRubricMap.put(code, atom.getTerminologyId());
+        }
 
         concept.addAtom(atom);
       }
@@ -1336,7 +1436,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
             + childConcept.getTerminologyId() + " already in map");
 
       conceptMap.put(childConcept.getTerminologyId(), childConcept);
-      conceptSet.add(childConcept);
       // add relationship
       createIsaRelationship(parentConcept, childConcept, ("" + relId),
           terminology, version);
@@ -1654,19 +1753,19 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
   /**
    * Creates the new active concept and attached atom using default metadata.
    *
-   * @param terminologyId the terminology id
+   * @param code the terminology id
    * @param terminology the terminology
    * @param terminologyVersion the terminology version
    * @param defaultPreferredName the default preferred name
    * @return the concept
    * @throws Exception the exception
    */
-  public Concept createNewActiveConcept(String terminologyId,
+  public Concept createNewActiveConcept(String code,
     String terminology, String terminologyVersion, String defaultPreferredName)
     throws Exception {
 
     final Concept concept = new ConceptJpa();
-    concept.setTerminologyId(terminologyId);
+    concept.setTerminologyId(code);
     concept.setTerminology(terminology);
     concept.setVersion(terminologyVersion);
     concept.setName(defaultPreferredName);
@@ -1685,7 +1784,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
     // Create a preferred name description
     final Atom atom = new AtomJpa();
-    atom.setTerminologyId(terminologyId);
+    atom.setTerminologyId(code);
     atom.setTerminology(terminology);
     atom.setVersion(terminologyVersion);
     atom.setName(defaultPreferredName);
@@ -1706,6 +1805,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     termTypes.add("preferred");
     atom.setWorkflowStatus("PUBLISHED");
     concept.addAtom(atom);
+    preferredRubricMap.put(code, code);
+
 
     return concept;
   }
@@ -1955,10 +2056,10 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     addTerminology(term);
 
     String[] labels = new String[] {
-      "Tree_Sort_Field"
+        "Tree_Sort_Field", "Atoms_Label"
     };
     String[] labelValues = new String[] {
-      "nodeTerminologyId"
+        "nodeTerminologyId", "Rubrics"
     };
     int i = 0;
     for (String label : labels) {
@@ -1977,4 +2078,30 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     }
   }
 
+  /**
+   * Commit clear begin transaction.
+   *
+   * @throws Exception the exception
+   */
+  void commitClearBegin() throws Exception {
+    commit();
+    clear();
+    beginTransaction();
+  }
+
+  /**
+   * Log and commit.
+   * 
+   * @param objectCt the object ct
+   * @throws Exception the exception
+   */
+  void logAndCommit(int objectCt) throws Exception {
+    // log at regular intervals
+    if (objectCt % logCt == 0) {
+      Logger.getLogger(getClass()).info("    count = " + objectCt);
+    }
+    if (objectCt % commitCt == 0) {
+      commitClearBegin();
+    }
+  }
 }
