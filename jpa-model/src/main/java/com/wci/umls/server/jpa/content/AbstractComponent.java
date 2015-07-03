@@ -191,7 +191,7 @@ public abstract class AbstractComponent implements Component {
    * @return the last modified yyyymmdd
    */
   @Field(name="lastModifiedYYYYMMDD", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getLastModifiedYYYYMMDD() {
+  private String getLastModifiedYYYYMMDD() {
     return ConfigUtility.DATE_FORMAT.format(lastModified);
   }
 
@@ -264,7 +264,7 @@ public abstract class AbstractComponent implements Component {
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   @Field(name = "active", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public boolean isActive() {
+  private boolean isActive() {
     return !obsolete;
   }
 
