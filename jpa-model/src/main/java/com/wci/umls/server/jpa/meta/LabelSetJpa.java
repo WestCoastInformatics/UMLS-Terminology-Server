@@ -18,7 +18,7 @@ import com.wci.umls.server.model.meta.LabelSet;
  * JPA-enabled implementation of {@link AttributeName}.
  */
 @Entity
-@Table(name = "label", uniqueConstraints = @UniqueConstraint(columnNames = {
+@Table(name = "label_sets", uniqueConstraints = @UniqueConstraint(columnNames = {
     "abbreviation", "terminology"
 }))
 @Audited

@@ -167,6 +167,9 @@
 
                     <button class="btn btn-sm btn-primary" type="submit"
                       ng-click="findComponents(componentQuery, 1)">Search</button>
+                    <button class="btn btn-xs btn-warning"
+                      ng-show="componentQuery"
+                      ng-click="componentQuery = null; clearComponentQuery()">Clear</button>
 
                   </form></td>
               </tr>
@@ -183,14 +186,14 @@
                 <div class="alert alert-success"
                   ng-show="searchResults.length > 0">
                   {{searchResults.totalCount}} Results
-                  <a ng-show="!terminology.metathesaurus"
+                  <a ng-show="!terminology.metathesaurus && componentQuery"
                     class="pull-right glyphicon glyphicon-tree-conifer"
                     ng-click="setTreeView()" tooltip="Switch to tree view"></a>
                 </div>
                 <div class="alert alert-danger"
                   ng-show="searchResults && searchResults.length == 0">
                   Search returned no results.
-                  <a ng-show="!terminology.metathesaurus"
+                  <a ng-show="!terminology.metathesaurus && componentQuery"
                     class="pull-right glyphicon glyphicon-tree-conifer"
                     ng-click="setTreeView()" tooltip="Switch to tree view"></a>
                 </div>
@@ -230,15 +233,16 @@
                   <span class="pull-right">
 
                     <a class="glyphicon glyphicon-star"
-                      ng-show="showExtension && !terminology.metathesaurus && labelSets.length > 0"
+                      ng-show="showExtension && !terminology.metathesaurus && labelSets.length > 0 && componentQuery"
                       tooltip="Click to hide extension highlights in tree"
                       ng-click="toggleExtension()"> </a>
                     <a class="glyphicon glyphicon-star-empty"
-                      ng-show="!showExtension && !terminology.metathesaurus && labelSets.length > 0"
+                      ng-show="!showExtension && !terminology.metathesaurus && labelSets.length > 0 && componentQuery"
                       tooltip="Click to show extension highlights in tree"
                       ng-click="toggleExtension()"> </a>
                     &nbsp;
                     <a class="pull-right glyphicon glyphicon-th-list"
+                      ng-show="componentQuery"
                       ng-click="setListView()" tooltip="Switch to list view">
                     </a>
                   </span>
@@ -247,18 +251,9 @@
                   ng-show="searchResultsTree && searchResultsTree.totalCount == 0">
                   Search returned no results.
                   <span class="pull-right">
-
-                    <a class="glyphicon glyphicon-star"
-                      ng-show="showExtension && !terminology.metathesaurus"
-                      tooltip="Click to hide extension highlights in tree"
-                      ng-click="toggleExtension()"> </a>
-                    <a class="glyphicon glyphicon-star-empty"
-                      ng-show="!showExtension && !terminology.metathesaurus"
-                      tooltip="Click to show extension highlights in tree"
-                      ng-click="toggleExtension()"> </a>
-                    &nbsp;
                     <a class="pull-right glyphicon glyphicon-th-list"
-                      ng-click="setListView()" tooltip="Switch to list view">
+                      ng-click="setListView()" 
+                      ng-show="componentQuery" tooltip="Switch to list view">
                     </a>
                   </span>
                 </div>
@@ -756,6 +751,17 @@
                         ng-click="getComponent(component.terminology, item.toTerminologyId)"
                         tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
                     </span></li>
+                </ul>
+              </div>
+
+              <!-- Labels -->
+              <div ng-show="countLabels(component) > 0">
+                <h4>{{extensionsLabel}}
+                  ({{countLabels(component)}})&nbsp;&nbsp;</h4>
+                <ul class="icon-list">
+                  <li class="cr-list" ng-repeat="item in component.labels"
+                    ng-show="!item.startsWith('LABELFOR')">
+                    {{getLabelSetName(item)}} ({{item}})</li>
                 </ul>
               </div>
             </div>

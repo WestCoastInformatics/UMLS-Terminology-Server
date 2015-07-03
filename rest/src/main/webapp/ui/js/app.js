@@ -93,6 +93,7 @@ tsApp
         $scope.definitionsLabel = "Definitions";
         $scope.subsetsLabel = "Subsets";
         $scope.relationshipsLabel = "Relationships";
+        $scope.extensionsLabel = "Extensions";
 
         // full variable arrays
         $scope.searchResults = null;
@@ -106,6 +107,10 @@ tsApp
           $scope.error = null;
         }
 
+        $scope.clearComponentQuery = function() {
+          $scope.componentQuery = "";
+        }
+        
         $scope.setTerminology = function(terminology) {
           $scope.terminology = terminology;
           if (!$scope.terminology.metathesaurus) {
@@ -773,7 +778,8 @@ tsApp
           $http(
             {
               url : contentUrl + typePrefix + '/' + tree.terminology + '/'
-                + tree.version + '/' + tree.nodeTerminologyId + '/trees/children',
+                + tree.version + '/' + tree.nodeTerminologyId
+                + '/trees/children',
               method : "POST",
               dataType : 'json',
               data : pfs,
@@ -787,7 +793,8 @@ tsApp
 
                 // construct ancestor path (for sake of completeness, not filled
                 // in on server-side)
-                var ancestorPath = tree.ancestorPath + '~' + tree.nodeTerminologyId;
+                var ancestorPath = tree.ancestorPath + '~'
+                  + tree.nodeTerminologyId;
                 // cycle over children, and construct tree nodes
                 for (var i = 0; i < data.tree.length; i++) {
 
@@ -835,15 +842,19 @@ tsApp
         $scope.setTreeView = function() {
           $scope.queryForTree = true;
           $scope.queryForList = false;
-
-          $scope.findComponentsAsTree($scope.componentQuery);
+          console.debug($scope.componentQuery);
+          if ($scope.componentQuery) {
+            $scope.findComponentsAsTree($scope.componentQuery);
+          }
         }
 
         $scope.setListView = function() {
           $scope.queryForList = true;
           $scope.queryForTree = false;
-
-          $scope.findComponentsAsList($scope.componentQuery);
+          console.debug($scope.componentQuery);
+          if ($scope.componentQuery) {
+            $scope.findComponentsAsList($scope.componentQuery);
+          }
         }
 
         /**
@@ -1359,7 +1370,7 @@ tsApp
         var attributeNames = [];
         var termTypes = [];
         var generalEntries = [];
-        var labelSets = [];
+        $scope.labelSets = [];
 
         // on metadata changes
         $scope.setMetadata = function(terminology) {
@@ -1369,7 +1380,7 @@ tsApp
           attributeNames = [];
           termTypes = [];
           generalEntries = [];
-          labelSets = [];
+          $scope.labelSets = [];
           $scope.metadata = terminology;
 
           if (terminology == null)
@@ -1387,7 +1398,7 @@ tsApp
               termTypes = $scope.metadata[i].keyValuePair;
             }
             if ($scope.metadata[i].name === 'Label_Sets') {
-              labelSets = $scope.metadata[i].keyValuePair;
+              $scope.labelSets = $scope.metadata[i].keyValuePair;
             }
             if ($scope.metadata[i].name === 'General_Metadata_Entries') {
               generalEntries = $scope.metadata[i].keyValuePair;
@@ -1410,6 +1421,9 @@ tsApp
                 }
                 if (generalEntries[j].key === "Relationships_Label") {
                   $scope.relationshipsLabel = generalEntries[j].value;
+                }
+                if (generalEntries[j].key === "Extensions_Label") {
+                  $scope.extensionsLabel = generalEntries[j].value;
                 }
                 if (generalEntries[j].key === "Tree_Sort_Field") {
                   $scope.treeSortField = generalEntries[j].value;
@@ -1461,17 +1475,17 @@ tsApp
         }
 
         $scope.getLabelSetName = function(abbr) {
-          for (var i = 0; i < labelSets.length; i++) {
-            if (labelSets[i].key === abbr) {
-              return labelSets[i].value;
+          for (var i = 0; i < $scope.labelSets.length; i++) {
+            if ($scope.labelSets[i].key === abbr) {
+              return $scope.labelSets[i].value;
             }
           }
           return null;
         }
 
         $scope.isDerivedLabelSet = function(tree) {
-          for (var i = 0; i < tree.labelSets.length; i++) {
-            if (tree.labelSets[i].startsWith("LABELFOR")) {
+          for (var i = 0; i < tree.labels.length; i++) {
+            if (tree.labels[i].startsWith("LABELFOR")) {
               return true;
             }
           }
@@ -1479,48 +1493,64 @@ tsApp
         }
 
         $scope.isLabelSet = function(tree) {
-          for (var i = 0; i < tree.labelSets.length; i++) {
-            if (!tree.labelSets[i].startsWith("LABELFOR:")) {
+          for (var i = 0; i < tree.labels.length; i++) {
+            if (!tree.labels[i].startsWith("LABELFOR:")) {
               return true;
             }
           }
           return false;
         }
 
-        $scope.getderivedLabelSetsValue = function(tree) {
-          if (tree.labelSets == undefined) {
+        $scope.getDerivedLabelSetsValue = function(tree) {
+          if (tree.labels == undefined) {
             return;
           }
-          var retVal = "Ancestor of content in:<br>";
+          var retval = "Ancestor of content in:<br>";
           var j = 0;
-          for (var i = 0; i < tree.labelSets.length; i++) {
-            var name = $scope.getLabelSetName(tree.labelSets[i]);
-            if (tree.labelSets[i].startsWith("LABELFOR")) {
+          for (var i = 0; i < tree.labels.length; i++) {
+            var name = $scope.getLabelSetName(tree.labels[i]);
+            if (tree.labels[i].startsWith("LABELFOR")) {
               if (j++ > 0) {
-                retVal += "<br>";
+                retval += "<br>";
               }
-              retVal += "&#x2022;&nbsp;" + name;
+              retval += "&#x2022;&nbsp;" + name;
             }
           }
-          return retVal;
+          return retval;
         }
 
         $scope.getLabelSetsValue = function(tree) {
-          if (tree.labelSets == undefined) {
+          if (tree.labels == undefined) {
             return;
           }
-          var retVal = "Content in:<br>";
+          var retval = "Content in:<br>";
           var j = 0;
-          for (var i = 0; i < tree.labelSets.length; i++) {
-            var name = $scope.getLabelSetName(tree.labelSets[i]);
-            if (!tree.labelSets[i].startsWith("LABELFOR")) {
+          for (var i = 0; i < tree.labels.length; i++) {
+            var name = $scope.getLabelSetName(tree.labels[i]);
+            if (!tree.labels[i].startsWith("LABELFOR")) {
               if (j++ > 0) {
-                retVal += "<br>";
+                retval += "<br>";
               }
-              retVal += "&#x2022;&nbsp;" + name;
+              retval += "&#x2022;&nbsp;" + name;
             }
           }
-          return retVal;
+          return retval;
+        }
+
+        $scope.countLabels = function(component) {
+          var retval = 0;
+          if (typeof component == "undefined" || !component) {
+            return 0;
+          }
+          if (typeof component.labels == "undefined") {
+            return 0;
+          }
+          for (var i = 0; i < component.labels.length; i++) {
+            if (!component.labels[i].startsWith("LABELFOR")) {
+              retval++;
+            }
+          }
+          return retval;
         }
 
         // ////////////////////////////////////
