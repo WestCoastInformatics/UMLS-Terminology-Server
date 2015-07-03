@@ -22,6 +22,7 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 
@@ -98,6 +99,7 @@ public abstract class AbstractComponent implements Component {
    */
   public AbstractComponent(Component component) {
     id = component.getId();
+    timestamp = new Date();
     lastModified = component.getLastModified();
     lastModifiedBy = component.getLastModifiedBy();
     terminology = component.getTerminology();
@@ -183,6 +185,16 @@ public abstract class AbstractComponent implements Component {
     return lastModified;
   }
 
+  /**
+   * Returns the last modified in yyyymmdd format. 
+   *
+   * @return the last modified yyyymmdd
+   */
+  @Field(name="lastModifiedYYYYMMDD", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getLastModifiedYYYYMMDD() {
+    return ConfigUtility.DATE_FORMAT.format(lastModified);
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -244,6 +256,16 @@ public abstract class AbstractComponent implements Component {
   @Override
   public boolean isObsolete() {
     return obsolete;
+  }
+
+  /**
+   * Indicates whether or not active is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  @Field(name = "active", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public boolean isActive() {
+    return !obsolete;
   }
 
   /*

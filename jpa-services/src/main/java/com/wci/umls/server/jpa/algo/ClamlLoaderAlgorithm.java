@@ -112,27 +112,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
   /** The input file. */
   private String inputFile;
 
-  /** The concept map. */
-  Map<String, Concept> conceptMap = new HashMap<>();
-
-  /** The relationship set. */
-  Set<ConceptRelationship> relationshipSet = new HashSet<>();
-
-  /** The atoms relationship set. */
-  Set<AtomRelationship> atomRelationshipSet = new HashSet<>();
-
-  /** The roots. */
-  List<String> roots = null;
-
-  /** child to parent code map NOTE: this assumes a single superclass. */
-  Map<String, String> childToParentCodeMap;
-
-  /** Indicates subclass relationships NOTE: this assumes a single superclass. */
-  Map<String, Boolean> parentCodeHasChildrenMap;
-
-  /** The rubric id of the "preferred" rubric */
-  Map<String, String> preferredRubricMap = new HashMap<>();
-
   /** The additional relationship types. */
   Set<String> additionalRelationshipTypes = new HashSet<>();
 
@@ -218,9 +197,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       // open input file and get effective time and version and language
       findVersion(inputFile);
       findLanguage(inputFile);
-
-      childToParentCodeMap = new HashMap<>();
-      parentCodeHasChildrenMap = new HashMap<>();
 
       // Prep SAX parser
       SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -452,6 +428,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
      */
     Map<String, Set<Concept>> relsMap = new HashMap<>();
 
+    /** The modifier references map. */
+    Map<String, Set<String>> modifierRelsMap = new HashMap<>();
+
     /** Indicates rels are needed as a result of the SuperClass tag. */
     boolean isaRelNeeded = false;
 
@@ -466,6 +445,27 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
     /** The modifier map. */
     Map<String, Map<String, Concept>> modifierMap = new HashMap<>();
+
+    /** The concept map. */
+    Map<String, Concept> conceptMap = new HashMap<>();
+
+    /** The relationship set. */
+    Set<ConceptRelationship> relationshipSet = new HashSet<>();
+
+    /** The atoms relationship set. */
+    Set<AtomRelationship> atomRelationshipSet = new HashSet<>();
+
+    /** The roots. */
+    List<String> rootCodes = null;
+
+    /** child to parent code map NOTE: this assumes a single superclass. */
+    Map<String, String> childToParentCodeMap = new HashMap<>();
+
+    /** Indicates subclass relationships NOTE: this assumes a single superclass. */
+    Map<String, Boolean> parentCodeHasChildrenMap = new HashMap<>();
+
+    /** The rubric id of the "preferred" rubric */
+    Map<String, String> preferredRubricMap = new HashMap<>();
 
     /**
      * Tag stack.
@@ -498,15 +498,16 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
         String name = attributes.getValue("name");
         if (name != null && name.equalsIgnoreCase("toplevelsort")) {
           String value = attributes.getValue("value");
-          roots = new ArrayList<>();
+          rootCodes = new ArrayList<>();
           for (String code : value.split(" ")) {
             Logger.getLogger(getClass()).info("  Adding root: " + code.trim());
-            roots.add(code.trim());
+            rootCodes.add(code.trim());
           }
         }
-        if (roots.size() == 0)
+        if (rootCodes.size() == 0)
           throw new IllegalStateException("No roots found");
       }
+
       // Encountered Class tag, save code and class usage
       if (qName.equalsIgnoreCase("class")) {
         code = attributes.getValue("code");
@@ -774,30 +775,10 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
           // Add atom to concept for this rubric
           else {
-            final Atom atom = new AtomJpa();
-            atom.setTerminologyId(rubricId);
-            atom.setTerminology(terminology);
-            atom.setVersion(version);
-            atom.setName(labelChars.toString());
-            atom.setCodeId(concept.getTerminologyId());
-            atom.setConceptId(concept.getTerminologyId());
-            atom.setDescriptorId("");
-            atom.setLexicalClassId("");
-            atom.setStringClassId("");
-            atom.setLanguage(terminologyLanguage);
-            atom.setLastModified(releaseVersionDate);
-            atom.setTimestamp(releaseVersionDate);
-            atom.setLastModifiedBy(loader);
-            atom.setObsolete(false);
-            atom.setSuppressible(false);
-            atom.setPublishable(true);
-            atom.setPublished(true);
-            atom.setTermType(rubricKind);
-            termTypes.add(rubricKind);
-            atom.setWorkflowStatus("PUBLISHED");
-            if (rubricKind.equals("preferred")) {
-              preferredRubricMap.put(code, atom.getTerminologyId());
-            }
+            final Atom atom =
+                createAtom(rubricId, rubricKind, labelChars.toString(),
+                    concept.getTerminologyId());
+            concept.addAtom(atom);
 
             Logger.getLogger(getClass())
                 .info(
@@ -808,7 +789,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
                         + " - "
                         + (atom.getName().replaceAll("\r", "").replaceAll("\n",
                             "")));
-            concept.addAtom(atom);
           }
           // reset label characters
           labelChars = new StringBuilder();
@@ -850,6 +830,17 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
           Set<Concept> concepts = new HashSet<>();
           concepts.add(concept);
           relsMap.put(key, concepts);
+
+          // Save info that is connected to modifiers so it can be applied to
+          // generated concepts
+          if (modifierMap.containsKey(referenceCode)) {
+            final String modifierKey = referenceCode + ":" + rubricId;
+            if (!modifierRelsMap.containsKey(modifierKey)) {
+              modifierRelsMap.put(modifierKey, new HashSet<String>());
+            }
+            modifierRelsMap.get(modifierKey).add(
+                referenceUsage + ":" + reference);
+          }
         }
 
         // Encountered </ModifierClass>
@@ -903,20 +894,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
           // Record class level dagger/asterisk info as refset member
           if (classUsage != null) {
             // Make usage attribute
-            final Attribute att = new AttributeJpa();
-            att.setName("USAGE");
-            att.setValue(classUsage);
-            att.setTimestamp(releaseVersionDate);
-            att.setTerminologyId("");
-            att.setTerminology(terminology);
-            att.setVersion(version);
-            att.setLastModified(releaseVersionDate);
-            att.setLastModifiedBy(loader);
-            att.setObsolete(false);
-            att.setPublishable(true);
-            att.setPublished(true);
-            att.setSuppressible(false);
-
+            final Attribute att = createAttribute("USAGE", classUsage);
             concept.addAttribute(att);
             addAttribute(att, concept);
 
@@ -995,6 +973,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
               // and the "preferred" rubric of the "parent code"
             }
             // tokens[3]; -- nothing to do with tokens[3] at this point
+            // TODO: could make an attribute out of it ? or a RELA (and relType
+            // would be "dagger" or "reference", etc).
 
             if (type.equals("aster"))
               type = "dagger-to-asterisk";
@@ -1029,13 +1009,15 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
                 Atom toAtom = null;
                 for (Atom atom : conceptMap.get(parentCode).getAtoms()) {
-                  if (atom.getTerminologyId().equals(preferredRubricMap.get(parentCode))) {
+                  if (atom.getTerminologyId().equals(
+                      preferredRubricMap.get(parentCode))) {
                     toAtom = atom;
                     break;
                   }
                 }
                 if (toAtom == null) {
-                  throw new Exception("Unable to find prefered rubric for - " + parentCode);
+                  throw new Exception("Unable to find preferred rubric for - "
+                      + parentCode);
                 }
                 relationship.setTo(toAtom);
                 relationship.setRelationshipType("RO");
@@ -1057,7 +1039,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
               } else if (modifierMap.containsKey(parentCode)) {
                 Logger.getLogger(getClass()).info("    IGNORE rel to modifier");
               } else {
-                // throw new SAXException("Problem inserting relationship, code "
+                // throw new
+                // SAXException("Problem inserting relationship, code "
                 // + parentCode + " does not exist.");
                 Logger.getLogger(getClass()).info(
                     "    WARNING rel to illegal concept");
@@ -1135,6 +1118,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
         // Now add all objects to the database
         int objectCt = 0;
         for (Concept concept : conceptSet) {
+          if (modifierMap.containsKey(concept.getTerminologyId())) {
+            continue;
+          }
           // Add atoms
           for (Atom atom : concept.getAtoms()) {
             addAtom(atom);
@@ -1146,6 +1132,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
         Logger.getLogger(getClass()).info("Load Atom Relationships");
         for (AtomRelationship rel : atomRelationshipSet) {
+          if (modifierMap.containsKey(rel.getFrom().getConceptId())) {
+            continue;
+          }
           addRelationship(rel);
           logAndCommit(objectCt++);
         }
@@ -1155,7 +1144,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
         // add rels after all concepts exist
         for (ConceptRelationship rel : relationshipSet) {
           if (conceptSet.contains(rel.getFrom())
-              && conceptSet.contains(rel.getTo())) {
+              && conceptSet.contains(rel.getTo())
+              && !modifierMap.containsKey(rel.getFrom().getTerminologyId())
+              && !modifierMap.containsKey(rel.getTo().getTerminologyId())) {
             addRelationship(rel);
           } else {
             Logger.getLogger(getClass()).info(
@@ -1231,31 +1222,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       // Add atom to concept for this rubric
       else {
         // add atom to concept
-        final Atom atom = new AtomJpa();
-        atom.setTerminologyId(rubricId);
-        atom.setTerminology(terminology);
-        atom.setVersion(version);
-        atom.setName(chars.toString());
-        atom.setCodeId(concept.getTerminologyId());
-        atom.setConceptId(concept.getTerminologyId());
-        atom.setDescriptorId("");
-        atom.setLexicalClassId("");
-        atom.setStringClassId("");
-        atom.setLanguage(terminologyLanguage);
-        atom.setLastModified(releaseVersionDate);
-        atom.setTimestamp(releaseVersionDate);
-        atom.setLastModifiedBy(loader);
-        atom.setObsolete(false);
-        atom.setSuppressible(false);
-        atom.setPublishable(true);
-        atom.setPublished(true);
-        atom.setTermType(rubricKind);
-        termTypes.add(rubricKind);
-        atom.setWorkflowStatus("PUBLISHED");
-        if (rubricKind.equals("preferred")) {
-          preferredRubricMap.put(code, atom.getTerminologyId());
-        }
-
+        final Atom atom =
+            createAtom(rubricId, rubricKind, labelChars.toString(),
+                concept.getTerminologyId());
         concept.addAtom(atom);
       }
 
@@ -1366,8 +1335,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
                   childCode =
                       conceptMap.get(codeToModify).getTerminologyId()
                           + mapEntry.getKey();
-                createChildConcept(childCode, conceptMap.get(codeToModify),
-                    modConcept, relIdCounter++);
+                createNewActiveConcept(childCode, conceptMap.get(codeToModify),
+                    modConcept);
 
                 // Recursively call for 5th digit modifiers on generated classes
                 if (codeToModify.length() == 3 && modifiedByCode.endsWith("_4")) {
@@ -1392,13 +1361,27 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
                     + conceptToModify.getTerminologyId() + ".X");
             final Concept placeholderConcept = new ConceptJpa();
             placeholderConcept.setName(" - PLACEHOLDER 4th digit");
+            placeholderConcept.setTerminologyId(conceptToModify.getTerminologyId() + ".X");
+            placeholderConcept.setTerminology(terminology);
+            placeholderConcept.setVersion(version);
+            placeholderConcept.setLastModified(releaseVersionDate);
+            placeholderConcept.setTimestamp(releaseVersionDate);
+            placeholderConcept.setLastModifiedBy(loader);
+            placeholderConcept.setObsolete(false);
+            placeholderConcept.setSuppressible(false);
+            placeholderConcept.setPublishable(true);
+            placeholderConcept.setPublished(true);
+            placeholderConcept.setFullyDefined(false);
+            placeholderConcept.setAnonymous(false);
+            placeholderConcept.setUsesRelationshipIntersection(true);
+            placeholderConcept.setUsesRelationshipUnion(false);
 
             // Recursively call for 5th digit modifiers where there are no
             // child
             // concepts and the code is only 3 digits, fill in with X
             // create intermediate layer with X
-            createChildConcept(conceptToModify.getTerminologyId() + ".X",
-                conceptToModify, placeholderConcept, relIdCounter++);
+            createNewActiveConcept(conceptToModify.getTerminologyId() + ".X",
+                conceptToModify, placeholderConcept);
 
             modifierHelper(conceptMap.get(codeToModify).getTerminologyId()
                 + ".X");
@@ -1414,35 +1397,183 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     }
 
     /**
-     * Creates the child concept.
-     * 
-     * @param childCode the child code
-     * @param parentConcept the concept
+     * Creates the new active concept and attached atom using default metadata.
+     *
+     * @param code the code
+     * @param parentConcept the parent concept
      * @param modConcept the mod concept
-     * @param relId the rel id
      * @return the concept
      * @throws Exception the exception
      */
-    private Concept createChildConcept(String childCode, Concept parentConcept,
-      Concept modConcept, int relId) throws Exception {
-      Logger.getLogger(getClass()).info(
-          "        Creating concept " + childCode + " from "
-              + parentConcept.getTerminologyId());
-      Concept childConcept =
-          createNewActiveConcept(childCode, terminology, version,
-              parentConcept.getName() + " " + modConcept.getName());
-      if (conceptMap.containsKey(childConcept.getTerminologyId()))
-        throw new IllegalStateException("ALERT2!  "
-            + childConcept.getTerminologyId() + " already in map");
+    public Concept createNewActiveConcept(String code, Concept parentConcept,
+      Concept modConcept) throws Exception {
 
-      conceptMap.put(childConcept.getTerminologyId(), childConcept);
-      // add relationship
-      createIsaRelationship(parentConcept, childConcept, ("" + relId),
-          terminology, version);
-      childToParentCodeMap.put(childConcept.getTerminologyId(),
-          parentConcept.getTerminologyId());
-      parentCodeHasChildrenMap.put(parentConcept.getTerminologyId(), true);
-      return childConcept;
+      final Concept concept = new ConceptJpa(modConcept, false);
+      concept.setId(null);
+      concept.setTerminologyId(code);
+      concept.setName(parentConcept.getName() + " " + modConcept.getName());
+
+      // modConcept is a template, no need to copy concept rels, they are only
+      // ISA, which is created below
+
+      // modConcept is a template, copy any of its attributes
+      for (Attribute att : modConcept.getAttributes()) {
+        Attribute copy = new AttributeJpa(att);
+        copy.setId(null);
+        concept.addAttribute(copy);
+        addAttribute(copy, concept);
+        Logger.getLogger(getClass()).info(
+            "          copy attribute - " + copy.getName() + ", "
+                + copy.getValue());
+      }
+
+      // modConcept is a template, copy atoms and atom relationships
+      boolean preferredFound = false;
+      for (Atom atom : modConcept.getAtoms()) {
+        Atom copy = new AtomJpa(atom, false);
+        copy.setId(null);
+        copy.setConceptId(code);
+        copy.setTerminologyId(atom.getTerminologyId() + "~"
+            + concept.getTerminologyId());
+        if (atom.getTermType().equals("preferred")) {
+          copy.setName(parentConcept.getName() + " " + modConcept.getName());
+          preferredRubricMap.put(concept.getTerminologyId(), copy.getTerminologyId());
+          preferredFound = true;
+        }
+        concept.addAtom(copy);
+        Logger.getLogger(getClass()).info(
+            "          copy atom - " + copy.getTermType() + ", "
+                + copy.getName());
+
+        // Look for entries in modifierRelMap
+        final String modifierKey =
+            modConcept.getTerminologyId() + ":" + atom.getTerminologyId();
+        if (modifierRelsMap.containsKey(modifierKey)) {
+          for (String value : modifierRelsMap.get(modifierKey)) {
+            final String relsMapKey = modifierKey + ":" + value;
+            final String newRelsMapKey =
+                concept.getTerminologyId() + ":" + copy.getTerminologyId()
+                    + ":" + value;
+            Logger.getLogger(getClass()).info(
+                "            copy atom rels from " + relsMapKey + " to "
+                    + newRelsMapKey);
+            // Here, create new relsMap entries for THIS concept and atom.
+            relsMap.put(newRelsMapKey, relsMap.get(modifierKey + ":" + value));
+          }
+        }
+      }
+
+      if (!preferredFound) {
+        if (code.endsWith("X")) {
+          final Atom atom = createAtom(code, "preferred", parentConcept.getName(), concept.getTerminologyId());
+          concept.addAtom(atom);
+        } else {
+          throw new Exception(
+              "Non-placeholder ModifierClass without preferred rubric:  "
+                  + modConcept.getTerminologyId());
+        }
+      }
+
+      // Create isa rel
+      final ConceptRelationship relationship = new ConceptRelationshipJpa();
+      relationship.setTerminologyId("");
+      relationship.setTerminology(terminology);
+      relationship.setVersion(version);
+      relationship.setRelationshipType("CHD");
+      relationship.setAdditionalRelationshipType("isa");
+      additionalRelationshipTypes.add("isa");
+      relationship.setGroup(null);
+      relationship.setAssertedDirection(true);
+      relationship.setInferred(true);
+      relationship.setStated(true);
+      relationship.setLastModified(releaseVersionDate);
+      relationship.setTimestamp(releaseVersionDate);
+      relationship.setLastModifiedBy(loader);
+      relationship.setObsolete(false);
+      relationship.setSuppressible(false);
+      relationship.setPublishable(true);
+      relationship.setPublished(true);
+      relationship.setTo(parentConcept);
+      relationship.setFrom(concept);
+
+      Set<Concept> children = new HashSet<>();
+      // check if this parent already has children
+      String parentCode = parentConcept.getTerminologyId();
+      if (relsMap.containsKey(parentCode + ":" + "isa")) {
+        children = relsMap.get(parentCode + ":" + "isa");
+      }
+      children.add(concept);
+      relsMap.put(parentCode + ":" + "isa", children);
+      for (Concept child : children) {
+        childToParentCodeMap.put(child.getTerminologyId(), parentCode);
+      }
+      parentCodeHasChildrenMap.put(parentCode, true);
+
+      conceptMap.put(concept.getTerminologyId(), concept);
+      return concept;
+    }
+
+    /**
+     * Creates the attribute.
+     *
+     * @param name the name
+     * @param value the value
+     * @return the attribute
+     */
+    private Attribute createAttribute(String name, String value) {
+      final Attribute att = new AttributeJpa();
+      att.setName(name);
+      att.setValue(value);
+      att.setTimestamp(releaseVersionDate);
+      att.setTerminologyId("");
+      att.setTerminology(terminology);
+      att.setVersion(version);
+      att.setLastModified(releaseVersionDate);
+      att.setLastModifiedBy(loader);
+      att.setObsolete(false);
+      att.setPublishable(true);
+      att.setPublished(true);
+      att.setSuppressible(false);
+      return att;
+    }
+
+    /**
+     * Creates the atom.
+     *
+     * @param rubricId the rubric id
+     * @param rubricKind the rubric kind
+     * @param name the name
+     * @param conceptId the concept id
+     * @return the atom
+     */
+    private Atom createAtom(String rubricId, String rubricKind, String name,
+      String conceptId) {
+      final Atom atom = new AtomJpa();
+      atom.setTerminologyId(rubricId);
+      atom.setTerminology(terminology);
+      atom.setVersion(version);
+      // strip whitespace
+      atom.setName(name.trim().replaceAll("\r", "").replaceAll("\n", ""));
+      atom.setCodeId(conceptId);
+      atom.setConceptId(conceptId);
+      atom.setDescriptorId("");
+      atom.setLexicalClassId("");
+      atom.setStringClassId("");
+      atom.setLanguage(terminologyLanguage);
+      atom.setLastModified(releaseVersionDate);
+      atom.setTimestamp(releaseVersionDate);
+      atom.setLastModifiedBy(loader);
+      atom.setObsolete(false);
+      atom.setSuppressible(false);
+      atom.setPublishable(true);
+      atom.setPublished(true);
+      atom.setTermType(rubricKind);
+      termTypes.add(rubricKind);
+      atom.setWorkflowStatus("PUBLISHED");
+      if (rubricKind.equals("preferred")) {
+        preferredRubricMap.put(conceptId, atom.getTerminologyId());
+      }
+      return atom;
 
     }
 
@@ -1748,111 +1879,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     br.close();
     Logger.getLogger(getClass()).info(
         "terminologyLanguage: " + terminologyLanguage);
-  }
-
-  /**
-   * Creates the new active concept and attached atom using default metadata.
-   *
-   * @param code the terminology id
-   * @param terminology the terminology
-   * @param terminologyVersion the terminology version
-   * @param defaultPreferredName the default preferred name
-   * @return the concept
-   * @throws Exception the exception
-   */
-  public Concept createNewActiveConcept(String code,
-    String terminology, String terminologyVersion, String defaultPreferredName)
-    throws Exception {
-
-    final Concept concept = new ConceptJpa();
-    concept.setTerminologyId(code);
-    concept.setTerminology(terminology);
-    concept.setVersion(terminologyVersion);
-    concept.setName(defaultPreferredName);
-
-    concept.setLastModified(releaseVersionDate);
-    concept.setTimestamp(releaseVersionDate);
-    concept.setLastModifiedBy(loader);
-    concept.setObsolete(false);
-    concept.setSuppressible(false);
-    concept.setPublishable(true);
-    concept.setPublished(true);
-    concept.setFullyDefined(false);
-    concept.setAnonymous(false);
-    concept.setUsesRelationshipIntersection(true);
-    concept.setUsesRelationshipUnion(false);
-
-    // Create a preferred name description
-    final Atom atom = new AtomJpa();
-    atom.setTerminologyId(code);
-    atom.setTerminology(terminology);
-    atom.setVersion(terminologyVersion);
-    atom.setName(defaultPreferredName);
-    atom.setCodeId(concept.getTerminologyId());
-    atom.setConceptId(concept.getTerminologyId());
-    atom.setDescriptorId("");
-    atom.setLexicalClassId("");
-    atom.setStringClassId("");
-    atom.setLanguage(terminologyLanguage);
-    atom.setLastModified(releaseVersionDate);
-    atom.setTimestamp(releaseVersionDate);
-    atom.setLastModifiedBy(loader);
-    atom.setObsolete(false);
-    atom.setSuppressible(false);
-    atom.setPublishable(true);
-    atom.setPublished(true);
-    atom.setTermType("preferred");
-    termTypes.add("preferred");
-    atom.setWorkflowStatus("PUBLISHED");
-    concept.addAtom(atom);
-    preferredRubricMap.put(code, code);
-
-
-    return concept;
-  }
-
-  /**
-   * Creates the isa relationship with default metadata.
-   * 
-   * @param parentConcept the parent concept
-   * @param childConcept the child concept
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param terminologyVersion the terminology version
-   * @throws Exception the exception
-   */
-  public void createIsaRelationship(Concept parentConcept,
-    Concept childConcept, String terminologyId, String terminology,
-    String terminologyVersion) throws Exception {
-    if (parentConcept == null) {
-      throw new Exception("Parent concept may not be null");
-    }
-    final ConceptRelationship relationship = new ConceptRelationshipJpa();
-
-    relationship.setTerminologyId("");
-    relationship.setTerminology(terminology);
-    relationship.setVersion(version);
-
-    relationship.setRelationshipType("CHD");
-    relationship.setAdditionalRelationshipType("isa");
-    additionalRelationshipTypes.add("isa");
-    relationship.setGroup(null);
-    relationship.setAssertedDirection(true);
-    relationship.setInferred(true);
-    relationship.setStated(true);
-    relationship.setLastModified(releaseVersionDate);
-    relationship.setTimestamp(releaseVersionDate);
-    relationship.setLastModifiedBy(loader);
-    relationship.setObsolete(false);
-    relationship.setSuppressible(false);
-    relationship.setPublishable(true);
-    relationship.setPublished(true);
-    relationship.setTo(parentConcept);
-    relationship.setFrom(childConcept);
-
-    // default "isa" type
-    childConcept.addRelationship(relationship);
-    relationshipSet.add(relationship);
   }
 
   /**

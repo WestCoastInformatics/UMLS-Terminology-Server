@@ -215,10 +215,13 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     @SuppressWarnings("unchecked")
     List<Object[]> rels = query.getResultList();
     Map<Long, Set<Long>> parChd = new HashMap<>();
+    Set<Long> allNodes = new HashSet<>();
     int ct = 0;
     for (final Object[] rel : rels) {
       final Long chd = Long.parseLong(rel[0].toString());
       final Long par = Long.parseLong(rel[1].toString());
+      allNodes.add(par);
+      allNodes.add(chd);
       if (!parChd.containsKey(par)) {
         parChd.put(par, new HashSet<Long>());
       }
@@ -238,26 +241,10 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     //
     Logger.getLogger(getClass()).info(
         "  Create transitive closure rels... " + new Date());
-    ct = 0;
-    // initialize descendant map
-    descendantsMap = new HashMap<>();
-    beginTransaction();
-    int progressMax = parChd.keySet().size();
-    int progress = 0;
-    for (Long code : parChd.keySet()) {
-      if (requestCancel) {
-        rollback();
-        throw new CancelException("Transitive closure computation cancelled.");
-      }
 
-      // Scale the progress monitor from 8%-100%
-      ct++;
-      int ctProgress = (int) ((((ct * 100) / progressMax) * .92) + 8);
-      if (ctProgress > progress) {
-        progress = ctProgress;
-        fireProgressEvent((int) ((progress * .92) + 8),
-            "Creating transitive closure relationships");
-      }
+    // Create "self" entries
+    ct = 0;
+    for (Long code : allNodes) {
 
       // Create a "self" transitive relationship
       TransitiveRelationship<? extends ComponentHasAttributes> tr = null;
@@ -298,13 +285,36 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
       tr.setVersion(version);
       tr.setDepth(0);
       addTransitiveRelationship(tr);
+    }
+    allNodes = new HashSet<>();
+    
+    // initialize descendant map
+    descendantsMap = new HashMap<>();
+    beginTransaction();
+    int progressMax = parChd.keySet().size();
+    int progress = 0;
+    for (Long code : parChd.keySet()) {
+      if (requestCancel) {
+        rollback();
+        throw new CancelException("Transitive closure computation cancelled.");
+      }
+
+      // Scale the progress monitor from 8%-100%
+      ct++;
+      int ctProgress = (int) ((((ct * 100) / progressMax) * .92) + 8);
+      if (ctProgress > progress) {
+        progress = ctProgress;
+        fireProgressEvent((int) ((progress * .92) + 8),
+            "Creating transitive closure relationships");
+      }
+
 
       List<Long> ancPath = new ArrayList<>();
       ancPath.add(code);
       final Set<Long> descs = getDescendants(code, parChd, ancPath);
       final Set<Long> children = parChd.get(code);
       for (final Long desc : descs) {
-        tr = null;
+        TransitiveRelationship<? extends ComponentHasAttributes> tr = null;        
         if (idType == IdType.CONCEPT) {
           final ConceptTransitiveRelationship ctr =
               new ConceptTransitiveRelationshipJpa();
