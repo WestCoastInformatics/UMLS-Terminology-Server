@@ -6,7 +6,6 @@ package com.wci.umls.server.jpa.content;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
