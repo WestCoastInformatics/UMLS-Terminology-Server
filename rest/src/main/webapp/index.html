@@ -606,9 +606,9 @@
                                   class="label label-info"
                                   tooltip="{{getRelationshipTypeName(relationship.relationshipType)}}">{{relationship.relationshipType}}</span>
                                 {{relationship.additionalRelationshipType}} <a
-                                  ng-click="getComponent(component.terminology, relationship.toTerminologyId)"
-                                  tooltip="{{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toTerminologyId}}</a>
-                                {{relationship.toName}}</li>
+                                  ng-click="findComponents(relationship.toName, 1)"
+                                  tooltip="Search for {{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toName}}</a>
+                              </li>
                             </ul>
                           </div>
                         </div>
