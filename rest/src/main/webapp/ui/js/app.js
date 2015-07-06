@@ -156,6 +156,8 @@ tsApp
             $scope.glassPane--;
           });
           
+
+          $scope.glassPane++;
           $http(
              {
                url : metadataUrl + 'precedence/'
