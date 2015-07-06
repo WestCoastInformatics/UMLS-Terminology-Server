@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.model.meta.Terminology;
 
 /**
@@ -55,4 +56,15 @@ public interface MetadataServiceRest {
   public Terminology getTerminology(String terminology, String version,
     String authToken) throws Exception;
 
+  /**
+   * Gets the default precedence list.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the default precedence list
+   * @throws Exception the exception
+   */
+  public  PrecedenceList getDefaultPrecedenceList(String terminology,
+    String version, String authToken) throws Exception;
 }

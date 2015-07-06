@@ -65,6 +65,7 @@ tsApp
         // the currently viewed terminology (set by default or user)
         $scope.terminology = null;
         $scope.metadata = null;
+        $scope.precedenceList = null;
 
         // query base variables
         $scope.componentQuery = null;
@@ -152,8 +153,25 @@ tsApp
             $scope.handleError(data, status, headers, config);
             $scope.glassPane--;
           });
+          
+          $http(
+             {
+               url : metadataUrl + 'precedence/'
+                 + $scope.terminology.terminology + '/'
+                 + $scope.terminology.version,
+               method : "GET",
+               headers : {
+                 "Content-Type" : "application/json"
+               }
+             }).success(function(data) {
+               $scope.precedenceList = data.precedence;
+               $scope.glassPane--;
 
-        })
+             }).error(function(data, status, headers, config) {
+               $scope.handleError(data, status, headers, config);
+               $scope.glassPane--;
+             });
+          })
 
         $scope.login = function(name, password) {
 

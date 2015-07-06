@@ -771,12 +771,17 @@
                   <li>Version: {{terminology.terminologyVersion}}</li>
                   <li>Organizing Class Type:
                     {{terminology.organizingClassType}}</li>
+                  <li>Precedence List (in rank order)
+                  <ul><li ng-repeat="pair in precedenceList.keyValuePair">{{pair.key}}/{{pair.value}}</li></ul></li>
                   <li ng-repeat="item in metadata"
                     ng-show="item.keyValuePair.length > 0"><b>{{item.name}}</b>
                     <ul>
                       <li ng-repeat="pair in item.keyValuePair"><span
                           class="label label-info">{{pair.key}}</span>&nbsp;{{pair.value}}</li>
                     </ul></li>
+                    
+                   
+                    
                 </ul>
               </div>
             </div>
