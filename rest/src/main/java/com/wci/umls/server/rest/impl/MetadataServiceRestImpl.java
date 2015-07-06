@@ -21,6 +21,8 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
+import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -328,5 +330,48 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.MetadataServiceRest#getDefaultPrecedenceList(java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  @GET
+  @Path("/precedence/{terminology}/{version}")
+  @ApiOperation(value = "Get default precedence list", notes = "Gets the default precedence list ranking for the specified parameters", response = PrecedenceListJpa.class)
+  public PrecedenceList getDefaultPrecedenceList(
+    @ApiParam(value = "Terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Metadata): /precedence/" + terminology + "/"
+            + version);
+
+    String user = "";
+    MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      user = securityService.getUsernameForToken(authToken);
+
+      // authorize call
+      UserRole role = securityService.getApplicationRoleForToken(authToken);
+      if (!role.hasPrivilegesOf(UserRole.VIEWER))
+        throw new WebApplicationException(Response.status(401)
+            .entity("User does not have permissions to retrieve the metadata")
+            .build());
+
+      PrecedenceList precedenceList = metadataService.getDefaultPrecedenceList(terminology, version);
+      return precedenceList;
+
+    } catch (Exception e) {
+
+      handleException(e, "trying to retrieve the metadata", user);
+      return null;
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+  }
+
 
 }

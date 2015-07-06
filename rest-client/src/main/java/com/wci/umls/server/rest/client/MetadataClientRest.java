@@ -16,6 +16,8 @@ import com.sun.jersey.api.client.WebResource;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
+import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
 import com.wci.umls.server.model.meta.Terminology;
@@ -175,6 +177,39 @@ public class MetadataClientRest extends RootClientRest implements
     Terminology result =
         (Terminology) ConfigUtility.getGraphForString(resultString,
             TerminologyJpa.class);
+    return result;
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.rest.MetadataServiceRest#getDefaultPrecedenceList
+   * (java.lang.String, java.lang.String, java.lang.String)
+   */
+  @Override
+  public PrecedenceList getDefaultPrecedenceList(String terminology,
+    String version, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Metadata Client - get default precedence list " + terminology + ", " + version);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url")
+            + "/metadata/precedence/" + terminology + "/" + version);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get(ClientResponse.class);
+
+    String resultString = response.getEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    // converting to object
+    PrecedenceList result =
+        (PrecedenceList) ConfigUtility.getGraphForString(resultString,
+            PrecedenceListJpa.class);
     return result;
   }
 }
