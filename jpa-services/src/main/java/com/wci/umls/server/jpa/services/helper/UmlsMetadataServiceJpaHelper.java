@@ -243,6 +243,7 @@ public class UmlsMetadataServiceJpaHelper extends
       }
     }
 
+    list.setPrecedence(kvpl);
     // return the shorter list
     return list;
   }

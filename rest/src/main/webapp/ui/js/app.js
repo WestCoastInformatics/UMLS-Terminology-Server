@@ -108,7 +108,7 @@ tsApp
         $scope.clearComponentQuery = function() {
           $scope.componentQuery = "";
         }
-        
+
         $scope.setTerminology = function(terminology) {
           $scope.terminology = terminology;
           if (!$scope.terminology.metathesaurus) {
@@ -136,8 +136,7 @@ tsApp
             + $scope.terminology.terminology + '/' + $scope.terminology.version
             + "/autocomplete/";
 
-          $scope.glassPane++;
-
+          // $scope.glassPane++;
           $http(
             {
               url : metadataUrl + 'all/terminology/id/'
@@ -149,33 +148,32 @@ tsApp
               }
             }).success(function(data) {
             $scope.setMetadata(data.keyValuePairList);
-            $scope.glassPane--;
+            // $scope.glassPane--;
 
           }).error(function(data, status, headers, config) {
             $scope.handleError(data, status, headers, config);
-            $scope.glassPane--;
+            // $scope.glassPane--;
           });
-          
 
-          $scope.glassPane++;
+          // $scope.glassPane++;
           $http(
-             {
-               url : metadataUrl + 'precedence/'
-                 + $scope.terminology.terminology + '/'
-                 + $scope.terminology.version,
-               method : "GET",
-               headers : {
-                 "Content-Type" : "application/json"
-               }
-             }).success(function(data) {
-               $scope.precedenceList = data.precedence;
-               $scope.glassPane--;
+            {
+              url : metadataUrl + 'precedence/'
+                + $scope.terminology.terminology + '/'
+                + $scope.terminology.version,
+              method : "GET",
+              headers : {
+                "Content-Type" : "application/json"
+              }
+            }).success(function(data) {
+            $scope.precedenceList = data.precedence;
+            // $scope.glassPane--;
 
-             }).error(function(data, status, headers, config) {
-               $scope.handleError(data, status, headers, config);
-               $scope.glassPane--;
-             });
-          })
+          }).error(function(data, status, headers, config) {
+            $scope.handleError(data, status, headers, config);
+            // $scope.glassPane--;
+          });
+        });
 
         $scope.login = function(name, password) {
 
