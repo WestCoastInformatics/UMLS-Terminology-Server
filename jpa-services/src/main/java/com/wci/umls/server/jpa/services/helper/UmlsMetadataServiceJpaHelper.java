@@ -30,7 +30,6 @@ import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.RelationshipType;
-import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.services.MetadataService;
 
 /**
@@ -235,18 +234,11 @@ public class UmlsMetadataServiceJpaHelper extends
     PrecedenceList list = new PrecedenceListJpa(defaultList);
     list.setId(null);
 
-    // Get TTY values for this terminology/version
-    TermTypeList ttyList = getTermTypes(terminology, version);
-    Set<String> ttySet = new HashSet<>();
-    for (TermType tty : ttyList.getObjects()) {
-      ttySet.add(tty.getAbbreviation());
-    }
-
     // Restrict default list to just those ttys matching this terminology
     KeyValuePairList defaultKvpl = list.getPrecedence();
     KeyValuePairList kvpl = new KeyValuePairList();
     for (KeyValuePair pair : defaultKvpl.getKeyValuePairList()) {
-      if (ttySet.contains(pair.getKey())) {
+      if (pair.getKey().equals(terminology)) {
         kvpl.addKeyValuePair(pair);
       }
     }
