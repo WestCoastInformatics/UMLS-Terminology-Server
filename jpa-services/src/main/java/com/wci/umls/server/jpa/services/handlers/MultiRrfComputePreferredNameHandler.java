@@ -22,27 +22,21 @@ import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
- * Implementation {@link ComputePreferredNameHandler} for data with term-type ordering.
+ * Default implementation of {@link ComputePreferredNameHandler}.
  */
-public class RrfComputePreferredNameHandler implements
+public class MultiRrfComputePreferredNameHandler implements
     ComputePreferredNameHandler {
 
-  /** The UMLS terminology. */
-  public String umlsTerminology;
-
-  /** The UMLS version. */
-  public String umlsVersion;
-  
   /** The list. */
-  private PrecedenceList list = null;
+  private Map<String,PrecedenceList> listMap = new HashMap<>();
 
   /** The tty rank map. */
-  private Map<String, String> ttyRankMap = new HashMap<>();
+  private Map<String,Map<String, String>> ttyRankMap = new HashMap<>();
 
   /**
-   * Instantiates an empty {@link RrfComputePreferredNameHandler}.
+   * Instantiates an empty {@link MultiRrfComputePreferredNameHandler}.
    */
-  public RrfComputePreferredNameHandler() {
+  public MultiRrfComputePreferredNameHandler() {
     // n/a
   }
 
@@ -54,9 +48,8 @@ public class RrfComputePreferredNameHandler implements
    * )
    */
   @Override
-  public void setProperties(Properties p) {
-    umlsTerminology = p.getProperty("terminology");
-    umlsVersion = p.getProperty("version");
+  public void setProperties(Properties p) throws Exception {
+    // n/a
   }
 
   /*
@@ -124,19 +117,19 @@ public class RrfComputePreferredNameHandler implements
    * @throws Exception
    */
   protected String getRank(Atom atom) throws Exception {
-    if (list == null) {
+    if (!listMap.containsKey(atom.getTerminology()+atom.getVersion())) {
       // Use the atom's terminology/version.
       // In single source case, this will be correct
       // In UMLS case, this will map to "DEFAULT" which will use the
       // properties passed in for terminology/version
-      cacheList();
+      cacheList(atom.getTerminology(), atom.getVersion());
     }
     String rank = null;
     if (atom.getStringClassId() != null && !atom.getStringClassId().isEmpty()) {
       rank =
           (atom.isObsolete() ? 0 : 1)
               + (atom.isSuppressible() ? 0 : 1)
-              + ttyRankMap
+              + ttyRankMap.get(atom.getTerminology()+atom.getVersion())
                   .get(atom.getTerminology() + "/" + atom.getTermType())
               + (10000000000L - Long.parseLong(atom.getStringClassId()
                   .substring(1))) + (100000000000L - atom.getId());
@@ -144,7 +137,7 @@ public class RrfComputePreferredNameHandler implements
       rank =
           (atom.isObsolete() ? 0 : 1)
               + (atom.isSuppressible() ? 0 : 1)
-              + ttyRankMap
+              + ttyRankMap.get(atom.getTerminology()+atom.getVersion())
                   .get(atom.getTerminology() + "/" + atom.getTermType());
     }
     return rank;
@@ -153,20 +146,25 @@ public class RrfComputePreferredNameHandler implements
   /**
    * Cache list.
    *
+   * @param terminology the terminology
+   * @param version the version
    * @throws Exception the exception
    */
-  private void cacheList() throws Exception {
+  private void cacheList(String terminology, String version) throws Exception {
     MetadataService service = new MetadataServiceJpa();
-    list = service.getDefaultPrecedenceList(umlsTerminology, umlsVersion);
+    listMap.put(terminology+version,service.getDefaultPrecedenceList(terminology, version));
     service.close();
-    List<KeyValuePair> list2 = list.getPrecedence().getKeyValuePairList();
+    List<KeyValuePair> list2 = listMap.get(terminology+version).getPrecedence().getKeyValuePairList();
     int ct = 1;
+    Map <String,String> localTtyRankMap = new HashMap<>();
     for (int i = list2.size() - 1; i >= 0; i--) {
       String padded = "0000" + ct++;
       padded = padded.substring(padded.length() - 4);
       final KeyValuePair pair = list2.get(i);
-      ttyRankMap.put(pair.getKey() + "/" + pair.getValue(), padded);
+      localTtyRankMap.put(pair.getKey() + "/" + pair.getValue(), padded);
     }
+
+    ttyRankMap.put(terminology+version, localTtyRankMap);
     Logger.getLogger(getClass()).info(
         "  default precedence list = " + ttyRankMap);
   }

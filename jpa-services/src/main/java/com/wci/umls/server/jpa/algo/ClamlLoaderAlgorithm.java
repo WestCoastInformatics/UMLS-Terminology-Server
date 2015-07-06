@@ -789,6 +789,11 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
                         + " - "
                         + (atom.getName().replaceAll("\r", "").replaceAll("\n",
                             "")));
+            
+            // Set the concept name to the "preferred" rubric
+            if (rubricKind.equals("preferred")) {
+              concept.setName(atom.getName());
+            }
           }
           // reset label characters
           labelChars = new StringBuilder();

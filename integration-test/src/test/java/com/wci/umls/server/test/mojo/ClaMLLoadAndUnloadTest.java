@@ -69,9 +69,9 @@ public class ClaMLLoadAndUnloadTest {
    * Start an editing cycle for "ICD10"
    *   TEST: verify there is a release info with the expected name and "planned" flag equal to true.
    * Repeat load steps and tests for ICD10CM
-   * Remove ICD10 terminolgoy
+   * Remove ICD10 terminology
    *   TEST: verify that it is gone
-   * Remove ICD10CM terminolgoy
+   * Remove ICD10CM terminology
    *   TEST: verify that it is gone
    * Re-run "createdb" to restore database
    * </pre>

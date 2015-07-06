@@ -14,7 +14,7 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
  * A ClaML based implementation of {@link ComputePreferredNameHandler}.
  */
 public class Rf2ComputePreferredNameHandler extends
-    RrfComputePreferredNameHandler {
+    DefaultComputePreferredNameHandler {
 
   /** the defaultPreferredNames values. */
   private String dpnTypeId = "900000000000013009";
@@ -62,7 +62,6 @@ public class Rf2ComputePreferredNameHandler extends
    * @param atom the atom
    * @return the rank
    */
-  @Override
   protected String getRank(Atom atom) {
 
     // [active][LangPreferred][SyOrFn]
