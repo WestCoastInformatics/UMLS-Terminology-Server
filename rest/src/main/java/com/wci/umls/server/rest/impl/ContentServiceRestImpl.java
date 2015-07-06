@@ -2593,7 +2593,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
-
+      
+      childTrees.setTotalCount(childTreePositions.getTotalCount());
       return childTrees;
 
     } catch (Exception e) {
@@ -2639,7 +2640,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
-
+      
+      childTrees.setTotalCount(childTreePositions.getTotalCount());
       return childTrees;
 
     } catch (Exception e) {
@@ -2686,6 +2688,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         childTrees.addObject(childTree);
       }
 
+      childTrees.setTotalCount(childTreePositions.getTotalCount());
       return childTrees;
 
     } catch (Exception e) {

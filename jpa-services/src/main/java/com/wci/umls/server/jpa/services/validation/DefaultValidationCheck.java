@@ -55,7 +55,7 @@ public class DefaultValidationCheck extends AbstractValidationCheck {
       result.addError("Atom name contains trailing whitespace.");
     }
 
-    // Check for duplicatge whitespace
+    // Check for duplicate whitespace
     if (atom.getName().matches("\\s\\s")) {
       result.addError("Atom name contains duplicate whitespace.");
     }
@@ -73,13 +73,6 @@ public class DefaultValidationCheck extends AbstractValidationCheck {
 
     return result;
 
-  }
-
-  @Override
-  public ValidationResult validateMerge(String terminologyId1,
-    String terminologyId2, String terminology, String version) {
-    // TODO Auto-generated method stub
-    return null;
   }
 
 }

@@ -35,6 +35,7 @@ public class InitializationListener implements AbstractResourceModelListener {
    * com.sun.jersey.api.model.AbstractResourceModelListener#onLoaded(com.sun
    * .jersey.api.model.AbstractResourceModelContext)
    */
+  @SuppressWarnings("unused")
   @Override
   public void onLoaded(AbstractResourceModelContext modelContext) {
     // Set up a timer task to run at 2AM every day
@@ -44,7 +45,8 @@ public class InitializationListener implements AbstractResourceModelListener {
     today.set(Calendar.HOUR_OF_DAY, 2);
     today.set(Calendar.MINUTE, 0);
     today.set(Calendar.SECOND, 0);
-    timer.scheduleAtFixedRate(task, today.getTime(), 24 * 60 * 60 * 1000);
+    // FOR NOW: do nothing
+    // timer.scheduleAtFixedRate(task, today.getTime(), 24 * 60 * 60 * 1000);
 
     // Cache the "guest" user.
     // SecurityService service;
@@ -79,7 +81,8 @@ public class InitializationListener implements AbstractResourceModelListener {
       try {
 
         // For now, the timer is not doing anything
-
+        // TODO: consider making some kind of DB request once per hour to stay logged in.
+        
       } catch (Exception e) {
         e.printStackTrace();
         Logger.getLogger(getClass()).error("Error running the process to xxx.");

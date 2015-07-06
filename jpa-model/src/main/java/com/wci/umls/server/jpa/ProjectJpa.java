@@ -36,7 +36,8 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 
 /**
- * JPA enabled implementation of {@link Project}.
+ * JPA enabled implementation of {@link Project}. TODO: convert all sets to
+ * lists.
  */
 @Entity
 @Table(name = "projects", uniqueConstraints = @UniqueConstraint(columnNames = {
@@ -82,27 +83,32 @@ public class ProjectJpa implements Project {
   private String version;
 
   /** The leads. */
-  @ManyToMany(targetEntity = UserJpa.class, fetch = FetchType.LAZY)
+  @ManyToMany(targetEntity = UserJpa.class, fetch = FetchType.EAGER)
+  @JoinTable(name = "projects_leads", joinColumns = @JoinColumn(name = "projects_id"), inverseJoinColumns = @JoinColumn(name = "users_id"))
   @IndexedEmbedded(targetElement = UserJpa.class)
   private Set<User> leads = new HashSet<>();
 
   /** The authors. */
-  @ManyToMany(targetEntity = UserJpa.class, fetch = FetchType.LAZY)
+  @ManyToMany(targetEntity = UserJpa.class, fetch = FetchType.EAGER)
+  @JoinTable(name = "projects_authors", joinColumns = @JoinColumn(name = "projects_id"), inverseJoinColumns = @JoinColumn(name = "users_id"))
   @IndexedEmbedded(targetElement = UserJpa.class)
   private Set<User> authors = new HashSet<>();
 
   /** The administrators. */
   @ManyToMany(targetEntity = UserJpa.class, fetch = FetchType.EAGER)
+  @JoinTable(name = "projects_administrators", joinColumns = @JoinColumn(name = "projects_id"), inverseJoinColumns = @JoinColumn(name = "users_id"))
   @IndexedEmbedded(targetElement = UserJpa.class)
   private Set<User> administrators = new HashSet<>();
 
   /** The concepts in scope for this project. */
   @ElementCollection
+  @CollectionTable(name = "projects_scope_concepts", joinColumns = @JoinColumn(name = "id"))
   @Column(nullable = true)
   private Set<String> scopeConcepts = new HashSet<>();
 
   /** The concepts excludes from scope of this project. */
   @ElementCollection
+  @CollectionTable(name = "projects_scope_excludes_concepts", joinColumns = @JoinColumn(name = "id"))
   @Column(nullable = true)
   private Set<String> scopeExcludesConcepts = new HashSet<>();
 

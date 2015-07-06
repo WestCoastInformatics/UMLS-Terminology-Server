@@ -151,7 +151,8 @@
                   ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
 
                   <button class="btn btn-sm btn-primary"
-                    ng-click="browseHierarchy(1)">Browse</button></td>
+                    ng-click="browseHierarchy(1)"
+                    tooltip="Click to browse top level hierarchy">Browse</button></td>
               </tr>
               <tr>
                 <td>Query</td>
@@ -167,6 +168,10 @@
 
                     <button class="btn btn-sm btn-primary" type="submit"
                       ng-click="findComponents(componentQuery, 1)">Search</button>
+                    <button class="btn btn-xs btn-warning"
+                      ng-show="componentQuery"
+                      ng-click="componentQuery = null; clearComponentQuery()"
+                      tooltip="Click to clear search">Clear</button>
 
                   </form></td>
               </tr>
@@ -183,14 +188,14 @@
                 <div class="alert alert-success"
                   ng-show="searchResults.length > 0">
                   {{searchResults.totalCount}} Results
-                  <a ng-show="!terminology.metathesaurus"
+                  <a ng-show="!terminology.metathesaurus && componentQuery"
                     class="pull-right glyphicon glyphicon-tree-conifer"
                     ng-click="setTreeView()" tooltip="Switch to tree view"></a>
                 </div>
                 <div class="alert alert-danger"
                   ng-show="searchResults && searchResults.length == 0">
                   Search returned no results.
-                  <a ng-show="!terminology.metathesaurus"
+                  <a ng-show="!terminology.metathesaurus && componentQuery"
                     class="pull-right glyphicon glyphicon-tree-conifer"
                     ng-click="setTreeView()" tooltip="Switch to tree view"></a>
                 </div>
@@ -230,36 +235,26 @@
                   <span class="pull-right">
 
                     <a class="glyphicon glyphicon-star"
-                      ng-show="showExtension && !terminology.metathesaurus"
+                      ng-show="showExtension && !terminology.metathesaurus && labelSets.length > 0 && componentQuery"
                       tooltip="Click to hide extension highlights in tree"
                       ng-click="toggleExtension()"> </a>
                     <a class="glyphicon glyphicon-star-empty"
-                      ng-show="!showExtension && !terminology.metathesaurus"
+                      ng-show="!showExtension && !terminology.metathesaurus && labelSets.length > 0 && componentQuery"
                       tooltip="Click to show extension highlights in tree"
                       ng-click="toggleExtension()"> </a>
                     &nbsp;
                     <a class="pull-right glyphicon glyphicon-th-list"
-                      ng-click="setListView()" tooltip="Switch to list view">
-                    </a>
+                      ng-show="componentQuery" ng-click="setListView()"
+                      tooltip="Switch to list view"> </a>
                   </span>
                 </div>
                 <div class="alert alert-danger"
                   ng-show="searchResultsTree && searchResultsTree.totalCount == 0">
                   Search returned no results.
                   <span class="pull-right">
-
-                    <a class="glyphicon glyphicon-star"
-                      ng-show="showExtension && !terminology.metathesaurus"
-                      tooltip="Click to hide extension highlights in tree"
-                      ng-click="toggleExtension()"> </a>
-                    <a class="glyphicon glyphicon-star-empty"
-                      ng-show="!showExtension && !terminology.metathesaurus"
-                      tooltip="Click to show extension highlights in tree"
-                      ng-click="toggleExtension()"> </a>
-                    &nbsp;
                     <a class="pull-right glyphicon glyphicon-th-list"
-                      ng-click="setListView()" tooltip="Switch to list view">
-                    </a>
+                      ng-click="setListView()" ng-show="componentQuery"
+                      tooltip="Switch to list view"> </a>
                   </span>
                 </div>
 
@@ -395,25 +390,27 @@
                 <h4>Semantic Types ({{pagedSemanticTypes.totalCount}})</h4>
 
 
+                <span style="display: block;">
+                  <pagination items-per-page="pageSize" max-size="5"
+                    boundary-links="true" class="pagination-sm"
+                    previous-text="&lsaquo;" next-text="&rsaquo;"
+                    first-text="&laquo;" last-text="&raquo;"
+                    ng-show="pagedSemanticTypes.totalCount > pageSize"
+                    total-items="pagedSemanticTypes.totalCount"
+                    ng-model="semanticTypesPage"
+                    ng-change="getPagedSemanticTypes(semanticTypesPage, semanticTypesFilter)"></pagination>
 
-                <pagination items-per-page="pageSize" max-size="5"
-                  boundary-links="true" class="pagination-sm"
-                  previous-text="&lsaquo;" next-text="&rsaquo;"
-                  first-text="&laquo;" last-text="&raquo;"
-                  ng-show="pagedSemanticTypes.totalCount > pageSize"
-                  total-items="pagedSemanticTypes.totalCount"
-                  ng-model="semanticTypesPage"
-                  ng-change="getPagedSemanticTypes(semanticTypesPage, semanticTypesFilter)"></pagination>
+                  <input class="input-filter" placeholder="Enter filter text"
+                    ng-show="pagedSemanticTypes.totalCount > pageSize || semanticTypesFilter"
+                    type="text" ng-model="semanticTypesFilter"
+                    ng-model-options="{ debounce: 250 }"
+                    ng-change="getPagedSemanticTypes(semanticTypesPage, semanticTypesFilter)">
 
-                <input class="input-filter" placeholder="Enter filter text"
-                  ng-show="pagedSemanticTypes.totalCount > pageSize || semanticTypesFilter"
-                  type="text" ng-model="semanticTypesFilter"
-                  ng-model-options="{ debounce: 250 }"
-                  ng-change="getPagedSemanticTypes(semanticTypesPage, semanticTypesFilter)">
-
-                <button class="btn btn-xs btn-warning"
-                  ng-show="semanticTypesFilter"
-                  ng-click="semanticTypesFilter = null; getPagedSemanticTypes(semanticTypesPage, semanticTypesFilter)">Clear</button>
+                  <button class="btn btn-xs btn-warning"
+                    ng-show="semanticTypesFilter"
+                    ng-click="semanticTypesFilter = null; getPagedSemanticTypes(semanticTypesPage, semanticTypesFilter)"
+                    tooltip="Click to clear filter text">Clear</button>
+                </span>
 
                 <ul class="icon-list">
                   <li class="cr-list" ng-repeat="item in pagedSemanticTypes"
@@ -433,25 +430,27 @@
                 ng-show="pagedDefinitions.totalCount > 0 || definitionsFilter">
                 <h4>{{definitionsLabel}} ({{pagedDefinitions.totalCount}})</h4>
 
-                <pagination items-per-page="pageSize" max-size="5"
-                  boundary-links="true" class="pagination-sm"
-                  previous-text="&lsaquo;" next-text="&rsaquo;"
-                  first-text="&laquo;" last-text="&raquo;"
-                  ng-show="pagedDefinitions.totalCount > pageSize"
-                  total-items="pagedDefinitions.totalCount"
-                  ng-model="definitionsPage"
-                  ng-change="getPagedDefinitions(definitionsPage, definitionsFilter)"></pagination>
+                <span style="display: block;">
+                  <pagination items-per-page="pageSize" max-size="5"
+                    boundary-links="true" class="pagination-sm"
+                    previous-text="&lsaquo;" next-text="&rsaquo;"
+                    first-text="&laquo;" last-text="&raquo;"
+                    ng-show="pagedDefinitions.totalCount > pageSize"
+                    total-items="pagedDefinitions.totalCount"
+                    ng-model="definitionsPage"
+                    ng-change="getPagedDefinitions(definitionsPage, definitionsFilter)"></pagination>
 
-                <input class="input-filter" placeholder="Enter filter text"
-                  ng-show="pagedDefinitions.totalCount > pageSize || definitionsFilter"
-                  type="text" ng-model="definitionsFilter"
-                  ng-model-options="{ debounce: 250 }"
-                  ng-change="getPagedDefinitions(definitionsPage, definitionsFilter)">
+                  <input class="input-filter" placeholder="Enter filter text"
+                    ng-show="pagedDefinitions.totalCount > pageSize || definitionsFilter"
+                    type="text" ng-model="definitionsFilter"
+                    ng-model-options="{ debounce: 250 }"
+                    ng-change="getPagedDefinitions(definitionsPage, definitionsFilter)">
 
-                <button class="btn btn-xs btn-warning"
-                  ng-show="definitionsFilter"
-                  ng-click="definitionsFilter = null; getPagedDefinitions(definitionsPage, definitionsFilter)">Clear</button>
-
+                  <button class="btn btn-xs btn-warning"
+                    ng-show="definitionsFilter"
+                    ng-click="definitionsFilter = null; getPagedDefinitions(definitionsPage, definitionsFilter)"
+                    tooltip="Click to clear filter text">Clear</button>
+                </span>
                 <ul class="icon-list">
                   <li class="cr-list" ng-repeat="item in pagedDefinitions"
                     ng-show="showItem(item)"><span class="label label-info"
@@ -473,23 +472,25 @@
               <div ng-show="pagedAtoms.totalCount > 0 || atomsFilter">
                 <h4>{{atomsLabel}} ({{pagedAtoms.totalCount}})</h4>
 
-                <pagination items-per-page="pageSize" max-size="5"
-                  boundary-links="true" class="pagination-sm"
-                  previous-text="&lsaquo;" next-text="&rsaquo;"
-                  first-text="&laquo;" last-text="&raquo;"
-                  ng-show="component.atom.length > pageSize"
-                  total-items="pagedAtoms.totalCount" ng-model="atomsPage"
-                  ng-change="getPagedAtoms(atomsPage, atomsFilter)"></pagination>
+                <span style="display: block;">
+                  <pagination items-per-page="pageSize" max-size="5"
+                    boundary-links="true" class="pagination-sm"
+                    previous-text="&lsaquo;" next-text="&rsaquo;"
+                    first-text="&laquo;" last-text="&raquo;"
+                    ng-show="component.atom.length > pageSize"
+                    total-items="pagedAtoms.totalCount" ng-model="atomsPage"
+                    ng-change="getPagedAtoms(atomsPage, atomsFilter)"></pagination>
 
-                <input class="input-filter" placeholder="Enter filter text"
-                  ng-show="component.atom.length > pageSize || atomsFilter"
-                  type="text" ng-model="atomsFilter"
-                  ng-model-options="{ debounce: 250 }"
-                  ng-change="getPagedAtoms(atomsPage, atomsFilter)">
+                  <input class="input-filter" placeholder="Enter filter text"
+                    ng-show="component.atom.length > pageSize || atomsFilter"
+                    type="text" ng-model="atomsFilter"
+                    ng-model-options="{ debounce: 250 }"
+                    ng-change="getPagedAtoms(atomsPage, atomsFilter)">
 
-                <button class="btn btn-xs btn-warning" ng-show="atomsFilter"
-                  ng-click="atomsFilter = null; getPagedAtoms(atomsPage, atomsFilter)">Clear</button>
-
+                  <button class="btn btn-xs btn-warning" ng-show="atomsFilter"
+                    ng-click="atomsFilter = null; getPagedAtoms(atomsPage, atomsFilter)"
+                    tooltip="Click to clear filter text">Clear</button>
+                </span>
 
                 <ul class="icon-list">
                   <li ng-class="cr-list" ng-repeat="item in pagedAtoms"
@@ -605,9 +606,9 @@
                                   class="label label-info"
                                   tooltip="{{getRelationshipTypeName(relationship.relationshipType)}}">{{relationship.relationshipType}}</span>
                                 {{relationship.additionalRelationshipType}} <a
-                                  ng-click="getComponent(component.terminology, relationship.toTerminologyId)"
-                                  tooltip="{{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toTerminologyId}}</a>
-                                {{relationship.toName}}</li>
+                                  ng-click="findComponents(relationship.toName, 1)"
+                                  tooltip="Search for {{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toName}}</a>
+                              </li>
                             </ul>
                           </div>
                         </div>
@@ -621,25 +622,27 @@
               <!--  Attributes -->
               <div ng-show="component.attribute.length > 0 || attributesFilter">
                 <h4>{{attributesLabel}} ({{pagedAttributes.totalCount}})</h4>
-                <pagination items-per-page="pageSize" max-size="5"
-                  boundary-links="true" class="pagination-sm"
-                  previous-text="&lsaquo;" next-text="&rsaquo;"
-                  first-text="&laquo;" last-text="&raquo;"
-                  ng-show="pagedAttributes.totalCount > pageSize"
-                  total-items="pagedAttributes.totalCount"
-                  ng-model="attributesPage"
-                  ng-change="getPagedAttributes(attributesPage, attributesFilter)"></pagination>
+                <span style="display: block;">
+                  <pagination items-per-page="pageSize" max-size="5"
+                    boundary-links="true" class="pagination-sm"
+                    previous-text="&lsaquo;" next-text="&rsaquo;"
+                    first-text="&laquo;" last-text="&raquo;"
+                    ng-show="pagedAttributes.totalCount > pageSize"
+                    total-items="pagedAttributes.totalCount"
+                    ng-model="attributesPage"
+                    ng-change="getPagedAttributes(attributesPage, attributesFilter)"></pagination>
 
-                <input class="input-filter" placeholder="Enter filter text"
-                  ng-show="pagedAttributes.totalCount > pageSize || attributesFilter"
-                  type="text" ng-model="attributesFilter"
-                  ng-model-options="{ debounce: 250 }"
-                  ng-change="getPagedAttributes(attributesPage, attributesFilter)">
+                  <input class="input-filter" placeholder="Enter filter text"
+                    ng-show="pagedAttributes.totalCount > pageSize || attributesFilter"
+                    type="text" ng-model="attributesFilter"
+                    ng-model-options="{ debounce: 250 }"
+                    ng-change="getPagedAttributes(attributesPage, attributesFilter)">
 
-                <button class="btn btn-xs btn-warning"
-                  ng-show="attributesFilter"
-                  ng-click="attributesFilter = null; getPagedAttributes(attributesPage, attributesFilter)">Clear</button>
-
+                  <button class="btn btn-xs btn-warning"
+                    ng-show="attributesFilter"
+                    ng-click="attributesFilter = null; getPagedAttributes(attributesPage, attributesFilter)"
+                    tooltip="Click to clear filter text">Clear</button>
+                </span>
 
                 <ul class="icon-list">
                   <li class="cr-list" ng-repeat="item in pagedAttributes"
@@ -658,22 +661,25 @@
               <!--  Subsets -->
               <div ng-show="component.member.length > 0 || membersFilter">
                 <h4>{{subsetsLabel}} ({{pagedMembers.totalCount}})</h4>
-                <pagination items-per-page="pageSize" max-size="5"
-                  boundary-links="true" class="pagination-sm"
-                  previous-text="&lsaquo;" next-text="&rsaquo;"
-                  first-text="&laquo;" last-text="&raquo;"
-                  ng-show="pagedMembers.totalCount > pageSize"
-                  total-items="pagedMembers.totalCount" ng-model="membersPage"
-                  ng-change="getPagedMembers(membersPage, membersFilter)"></pagination>
+                <span style="display: block;">
+                  <pagination items-per-page="pageSize" max-size="5"
+                    boundary-links="true" class="pagination-sm"
+                    previous-text="&lsaquo;" next-text="&rsaquo;"
+                    first-text="&laquo;" last-text="&raquo;"
+                    ng-show="pagedMembers.totalCount > pageSize"
+                    total-items="pagedMembers.totalCount" ng-model="membersPage"
+                    ng-change="getPagedMembers(membersPage, membersFilter)"></pagination>
 
-                <input class="input-filter" placeholder="Enter filter text"
-                  ng-show="pagedMembers.totalCount > pageSize || membersFilter"
-                  type="text" ng-model="membersFilter"
-                  ng-model-options="{ debounce: 250 }"
-                  ng-change="getPagedMembers(membersPage, membersFilter)">
+                  <input class="input-filter" placeholder="Enter filter text"
+                    ng-show="pagedMembers.totalCount > pageSize || membersFilter"
+                    type="text" ng-model="membersFilter"
+                    ng-model-options="{ debounce: 250 }"
+                    ng-change="getPagedMembers(membersPage, membersFilter)">
 
-                <button class="btn btn-xs btn-warning" ng-show="membersFilter"
-                  ng-click="membersFilter = null; getPagedMembers(membersPage, membersFilter)">Clear</button>
+                  <button class="btn btn-xs btn-warning" ng-show="membersFilter"
+                    ng-click="membersFilter = null; getPagedMembers(membersPage, membersFilter)"
+                    tooltip="Click to clear filter text">Clear</button>
+                </span>
 
                 <ul>
                   <li class="cr-list" ng-repeat="item in pagedMembers"
@@ -711,24 +717,27 @@
                       tooltip="Showing stated, click for inferred">Stated</span>
                   </button>
                 </h4>
-                <pagination items-per-page="relsPageSize" max-size="5"
-                  boundary-links="true" class="pagination-sm"
-                  previous-text="&lsaquo;" next-text="&rsaquo;"
-                  first-text="&laquo;" last-text="&raquo;"
-                  ng-show="pagedRelationships.totalCount > relsPageSize"
-                  total-items="pagedRelationships.totalCount"
-                  ng-model="relationshipsPage"
-                  ng-change="getPagedRelationships(relationshipsPage, relationshipsFilter)"></pagination>
+                <span style="display: block;">
+                  <pagination items-per-page="relsPageSize" max-size="5"
+                    boundary-links="true" class="pagination-sm"
+                    previous-text="&lsaquo;" next-text="&rsaquo;"
+                    first-text="&laquo;" last-text="&raquo;"
+                    ng-show="pagedRelationships.totalCount > relsPageSize"
+                    total-items="pagedRelationships.totalCount"
+                    ng-model="relationshipsPage"
+                    ng-change="getPagedRelationships(relationshipsPage, relationshipsFilter)"></pagination>
 
-                <input class="input-filter" placeholder="Enter filter text"
-                  ng-show="pagedRelationships.totalCount > relsPageSize || relationshipsFilter != null"
-                  type="text" ng-model="relationshipsFilter"
-                  ng-model-options="{ debounce: 250 }"
-                  ng-change="getPagedRelationships(relationshipsPage, relationshipsFilter)">
+                  <input class="input-filter" placeholder="Enter filter text"
+                    ng-show="pagedRelationships.totalCount > relsPageSize || relationshipsFilter != null"
+                    type="text" ng-model="relationshipsFilter"
+                    ng-model-options="{ debounce: 250 }"
+                    ng-change="getPagedRelationships(relationshipsPage, relationshipsFilter)">
 
-                <button class="btn btn-xs btn-warning"
-                  ng-show="relationshipsFilter"
-                  ng-click="relationshipsFilter = null; getPagedRelationships(relationshipsPage, relationshipsFilter)">Clear</button>
+                  <button class="btn btn-xs btn-warning"
+                    ng-show="relationshipsFilter"
+                    ng-click="relationshipsFilter = null; getPagedRelationships(relationshipsPage, relationshipsFilter)"
+                    tooltip="Click to clear filter text">Clear</button>
+                </span>
 
                 <ul class="icon-list">
                   <li class="cr-list" ng-repeat="item in pagedRelationships"
@@ -756,6 +765,17 @@
                         ng-click="getComponent(component.terminology, item.toTerminologyId)"
                         tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
                     </span></li>
+                </ul>
+              </div>
+
+              <!-- Labels -->
+              <div ng-show="countLabels(component) > 0">
+                <h4>{{extensionsLabel}}
+                  ({{countLabels(component)}})&nbsp;&nbsp;</h4>
+                <ul class="icon-list">
+                  <li class="cr-list" ng-repeat="item in component.labels"
+                    ng-show="!item.startsWith('LABELFOR')">
+                    {{getLabelSetName(item)}} ({{item}})</li>
                 </ul>
               </div>
             </div>

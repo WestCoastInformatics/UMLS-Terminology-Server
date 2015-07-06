@@ -584,7 +584,11 @@ public class ConfigUtility {
     }
 
     MimeMessage msg = new MimeMessage(session);
-    msg.setContent(body.toString(), "text/html; charset=utf-8");
+    if (body.contains("<html")) {
+      msg.setContent(body.toString(), "text/html; charset=utf-8");
+    } else {
+      msg.setText(body.toString());
+    }
     msg.setSubject(subject);
     msg.setFrom(new InternetAddress(from));
     String[] recipientsArray = recipients.split(";");
@@ -664,4 +668,52 @@ public class ConfigUtility {
     });
   }
 
+  /**
+   * To arabic.
+   *
+   * @param number the number
+   * @return the int
+   * @throws Exception the exception
+   */
+  public static int toArabic(String number) throws Exception {
+    if (number.isEmpty())
+      return 0;
+    if (number.startsWith("M"))
+      return 1000 + toArabic(number.substring(1));
+    if (number.startsWith("CM"))
+      return 900 + toArabic(number.substring(2));
+    if (number.startsWith("D"))
+      return 500 + toArabic(number.substring(1));
+    if (number.startsWith("CD"))
+      return 400 + toArabic(number.substring(2));
+    if (number.startsWith("C"))
+      return 100 + toArabic(number.substring(1));
+    if (number.startsWith("XC"))
+      return 90 + toArabic(number.substring(2));
+    if (number.startsWith("L"))
+      return 50 + toArabic(number.substring(1));
+    if (number.startsWith("XL"))
+      return 40 + toArabic(number.substring(2));
+    if (number.startsWith("X"))
+      return 10 + toArabic(number.substring(1));
+    if (number.startsWith("IX"))
+      return 9 + toArabic(number.substring(2));
+    if (number.startsWith("V"))
+      return 5 + toArabic(number.substring(1));
+    if (number.startsWith("IV"))
+      return 4 + toArabic(number.substring(2));
+    if (number.startsWith("I"))
+      return 1 + toArabic(number.substring(1));
+    throw new Exception("something bad happened");
+  }
+  
+  /**
+   * Indicates whether or not roman numeral is the case.
+   *
+   * @param number the number
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public static boolean isRomanNumeral(String number) {
+    return number.matches("^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$");
+  }
 }

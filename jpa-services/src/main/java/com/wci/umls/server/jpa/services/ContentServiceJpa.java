@@ -4423,7 +4423,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @return the tree position list
    * @throws Exception
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({
+      "unchecked", "rawtypes"
+  })
   private TreePositionList findTreePositionsHelper(String terminologyId,
     String terminology, String version, String branch, String query,
     PfsParameter pfs, Class<?> clazz) throws Exception {
@@ -4449,6 +4451,34 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     list.setTotalCount(fullTextQuery.getResultSize());
     list.setObjects(fullTextQuery.getResultList());
 
+    // If the list has <30 entries and all are roman numerals
+    // and the sortField is "nodeTerminologyId" then use a roman numeral sort
+    if (list.getCount() < 30 && pfs != null && pfs.getSortField() != null
+        && pfs.getSortField().equals("nodeTerminologyId")) {
+      boolean nonRomanFound = false;
+      for (TreePosition treepos : list.getObjects()) {
+        if (!ConfigUtility.isRomanNumeral(treepos.getNode().getTerminologyId())) {
+          nonRomanFound = true;
+          break;
+        }
+      }
+      if (!nonRomanFound) {
+        Collections.sort(list.getObjects(), new Comparator<TreePosition>() {
+          @Override
+          public int compare(TreePosition o1, TreePosition o2) {
+            try {
+              return ConfigUtility.toArabic(o1.getNode().getTerminologyId())
+                  - ConfigUtility.toArabic(o2.getNode().getTerminologyId());
+            } catch (Exception e) {
+              // just return zero, don't worry about handling the error
+              e.printStackTrace();
+              return 0;
+            }
+          }
+
+        });
+      }
+    }
     return list;
 
   }
@@ -4869,7 +4899,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @return the child tree positions helper
    * @throws Exception the exception
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({
+      "unchecked", "rawtypes"
+  })
   private TreePositionList getTreePositionChildrenHelper(String terminologyId,
     String terminology, String version, String branch, PfsParameter pfs,
     Class<?> clazz) throws Exception {
@@ -4900,6 +4932,35 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     TreePositionList list = new TreePositionListJpa();
     list.setTotalCount(fullTextQuery.getResultSize());
     list.setObjects(fullTextQuery.getResultList());
+
+    // If the list has <30 entries and all are roman numerals
+    // and the sortField is "nodeTerminologyId" then use a roman numeral sort
+    if (list.getCount() < 30 && pfs != null && pfs.getSortField() != null
+        && pfs.getSortField().equals("nodeTerminologyId")) {
+      boolean nonRomanFound = false;
+      for (TreePosition treepos : list.getObjects()) {
+        if (!ConfigUtility.isRomanNumeral(treepos.getNode().getTerminologyId())) {
+          nonRomanFound = true;
+          break;
+        }
+      }
+      if (!nonRomanFound) {
+        Collections.sort(list.getObjects(), new Comparator<TreePosition>() {
+          @Override
+          public int compare(TreePosition o1, TreePosition o2) {
+            try {
+              return ConfigUtility.toArabic(o1.getNode().getTerminologyId())
+                  - ConfigUtility.toArabic(o2.getNode().getTerminologyId());
+            } catch (Exception e) {
+              // just return zero, don't worry about handling the error
+              e.printStackTrace();
+              return 0;
+            }
+          }
+
+        });
+      }
+    }
 
     return list;
   }

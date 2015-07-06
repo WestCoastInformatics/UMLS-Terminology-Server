@@ -13,18 +13,18 @@
   <span ng-show="tree.id">
     <!-- if this node has no children reported by child count -->
     <i class="glyphicon glyphicon-leaf" ng-show="tree.childCt == 0"></i>
-    <a ng-click="getComponent(tree.terminology, tree.terminologyId)">
+    <a ng-click="getComponent(tree.terminology, tree.nodeTerminologyId)">
       <span ng-show="!showExtension || !isDerivedLabelSet(tree)"
-        ng-bind-html="tree.terminologyId | highlight:componentQuery"></span>
+        ng-bind-html="tree.nodeTerminologyId | highlight:componentQuery"></span>
       <span ng-show="showExtension && isDerivedLabelSet(tree)"
-        ng-bind-html="tree.terminologyId | highlightLabelFor:tree.terminologyId"
+        ng-bind-html="tree.nodeTerminologyId | highlightLabelFor:tree.nodeTerminologyId"
         tooltip-html-unsafe="<div style='text-align:left;'>{{getDerivedLabelSetsValue(tree)}}</div>"></span>
     </a>
 
     <span ng-show="!showExtension || !isLabelSet(tree)"
-      ng-bind-html="tree.name | highlight:componentQuery"></span>
+      ng-bind-html="tree.nodeName | highlight:componentQuery"></span>
     <span ng-show="showExtension && isLabelSet(tree)"
-      ng-bind-html="tree.name | highlightLabel:tree.name"
+      ng-bind-html="tree.nodeName | highlightLabel:tree.nodeName"
       tooltip-html-unsafe="<div style='text-align:left;'>{{getLabelSetsValue(tree)}}</div>"></span>
   </span>
   </span>
