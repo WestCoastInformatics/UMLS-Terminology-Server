@@ -4453,7 +4453,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     // If the list has <30 entries and all are roman numerals
     // and the sortField is "nodeTerminologyId" then use a roman numeral sort
-    if (list.getCount() < 30 && pfs != null
+    if (list.getCount() < 30 && pfs != null && pfs.getSortField() != null
         && pfs.getSortField().equals("nodeTerminologyId")) {
       boolean nonRomanFound = false;
       for (TreePosition treepos : list.getObjects()) {
@@ -4935,7 +4935,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     // If the list has <30 entries and all are roman numerals
     // and the sortField is "nodeTerminologyId" then use a roman numeral sort
-    if (list.getCount() < 30 && pfs != null
+    if (list.getCount() < 30 && pfs != null && pfs.getSortField() != null
         && pfs.getSortField().equals("nodeTerminologyId")) {
       boolean nonRomanFound = false;
       for (TreePosition treepos : list.getObjects()) {

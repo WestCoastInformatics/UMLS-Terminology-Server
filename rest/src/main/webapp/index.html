@@ -151,7 +151,8 @@
                   ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
 
                   <button class="btn btn-sm btn-primary"
-                    ng-click="browseHierarchy(1)">Browse</button></td>
+                    ng-click="browseHierarchy(1)"
+                    tooltip="Click to browse top level hierarchy">Browse</button></td>
               </tr>
               <tr>
                 <td>Query</td>
@@ -169,7 +170,8 @@
                       ng-click="findComponents(componentQuery, 1)">Search</button>
                     <button class="btn btn-xs btn-warning"
                       ng-show="componentQuery"
-                      ng-click="componentQuery = null; clearComponentQuery()">Clear</button>
+                      ng-click="componentQuery = null; clearComponentQuery()"
+                      tooltip="Click to clear search">Clear</button>
 
                   </form></td>
               </tr>
@@ -406,7 +408,8 @@
 
                   <button class="btn btn-xs btn-warning"
                     ng-show="semanticTypesFilter"
-                    ng-click="semanticTypesFilter = null; getPagedSemanticTypes(semanticTypesPage, semanticTypesFilter)">Clear</button>
+                    ng-click="semanticTypesFilter = null; getPagedSemanticTypes(semanticTypesPage, semanticTypesFilter)"
+                    tooltip="Click to clear filter text">Clear</button>
                 </span>
 
                 <ul class="icon-list">
@@ -445,7 +448,8 @@
 
                   <button class="btn btn-xs btn-warning"
                     ng-show="definitionsFilter"
-                    ng-click="definitionsFilter = null; getPagedDefinitions(definitionsPage, definitionsFilter)">Clear</button>
+                    ng-click="definitionsFilter = null; getPagedDefinitions(definitionsPage, definitionsFilter)"
+                    tooltip="Click to clear filter text">Clear</button>
                 </span>
                 <ul class="icon-list">
                   <li class="cr-list" ng-repeat="item in pagedDefinitions"
@@ -484,7 +488,8 @@
                     ng-change="getPagedAtoms(atomsPage, atomsFilter)">
 
                   <button class="btn btn-xs btn-warning" ng-show="atomsFilter"
-                    ng-click="atomsFilter = null; getPagedAtoms(atomsPage, atomsFilter)">Clear</button>
+                    ng-click="atomsFilter = null; getPagedAtoms(atomsPage, atomsFilter)"
+                    tooltip="Click to clear filter text">Clear</button>
                 </span>
 
                 <ul class="icon-list">
@@ -635,7 +640,8 @@
 
                   <button class="btn btn-xs btn-warning"
                     ng-show="attributesFilter"
-                    ng-click="attributesFilter = null; getPagedAttributes(attributesPage, attributesFilter)">Clear</button>
+                    ng-click="attributesFilter = null; getPagedAttributes(attributesPage, attributesFilter)"
+                    tooltip="Click to clear filter text">Clear</button>
                 </span>
 
                 <ul class="icon-list">
@@ -671,7 +677,8 @@
                     ng-change="getPagedMembers(membersPage, membersFilter)">
 
                   <button class="btn btn-xs btn-warning" ng-show="membersFilter"
-                    ng-click="membersFilter = null; getPagedMembers(membersPage, membersFilter)">Clear</button>
+                    ng-click="membersFilter = null; getPagedMembers(membersPage, membersFilter)"
+                    tooltip="Click to clear filter text">Clear</button>
                 </span>
 
                 <ul>
@@ -728,9 +735,10 @@
 
                   <button class="btn btn-xs btn-warning"
                     ng-show="relationshipsFilter"
-                    ng-click="relationshipsFilter = null; getPagedRelationships(relationshipsPage, relationshipsFilter)">Clear</button>
+                    ng-click="relationshipsFilter = null; getPagedRelationships(relationshipsPage, relationshipsFilter)"
+                    tooltip="Click to clear filter text">Clear</button>
                 </span>
-                
+
                 <ul class="icon-list">
                   <li class="cr-list" ng-repeat="item in pagedRelationships"
                     ng-show="showItem(item)"><span ng-show="item.group > 0">
