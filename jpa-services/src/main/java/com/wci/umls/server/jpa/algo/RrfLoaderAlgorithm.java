@@ -1438,9 +1438,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       subset.setSuppressible(false);
       subset.setPublishable(false);
       subset.setPublished(false);
-      subset.setTerminology(terminology);
+      subset.setTerminology(concept.getTerminology());
       subset.setTerminologyId(concept.getTerminologyId());
-      subset.setVersion(version);
+      subset.setVersion(concept.getVersion());
       addSubset(subset);
       subsets.add(subset);
       commitClearBegin();
@@ -1461,8 +1461,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         member.setPublishable(false);
         member.setPublishable(false);
         member.setTerminologyId("");
-        member.setTerminology(terminology);
-        member.setVersion(version);
+        member.setTerminology(concept.getTerminology());
+        member.setVersion(concept.getTerminology());
         member.setSubset(subset);
         addSubsetMember(member);
         logAndCommit(++objectCt);

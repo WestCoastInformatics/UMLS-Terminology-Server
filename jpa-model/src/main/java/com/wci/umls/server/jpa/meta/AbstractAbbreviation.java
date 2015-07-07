@@ -8,6 +8,7 @@ import javax.persistence.MappedSuperclass;
 
 import org.hibernate.envers.Audited;
 
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.model.meta.Abbreviation;
 
 /**
@@ -44,7 +45,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
 
   /** The branch. */
   @Column(nullable = true)
-  private String branch;
+  private String branch = Branch.ROOT;
 
   /**
    * Instantiates an empty {@link AbstractAbbreviation}.

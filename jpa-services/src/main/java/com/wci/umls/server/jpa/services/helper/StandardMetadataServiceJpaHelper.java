@@ -164,10 +164,11 @@ public class StandardMetadataServiceJpaHelper extends
 
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
-    LabelSetList names = new LabelSetListJpa();
-    names.setObjects(query.getResultList());
-    names.setTotalCount(names.getObjects().size());
-    return names;
+    LabelSetList labelSets = new LabelSetListJpa();
+    labelSets.setObjects(query.getResultList());
+    labelSets.setTotalCount(labelSets.getObjects().size());
+    System.out.println("label sets = " + labelSets);
+    return labelSets;
   }
 
   /*

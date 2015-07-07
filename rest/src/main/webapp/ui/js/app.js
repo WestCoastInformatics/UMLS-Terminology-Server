@@ -262,7 +262,7 @@ tsApp
 
           // NO GLASS PANE
           $http({
-            url : $scope.autocompleteUrl + searchTerms,
+            url : $scope.autocompleteUrl + encodeURIComponent(searchTerms),
             method : "GET",
             headers : {
               "Content-Type" : "text/plain"
