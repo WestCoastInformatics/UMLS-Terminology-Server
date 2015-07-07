@@ -365,10 +365,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
 
       PrecedenceList precedenceList =
           metadataService.getDefaultPrecedenceList(terminology, version);
-      // verify we're using a precedence list
-      if (precedenceList == null) {
-        return new PrecedenceListJpa();
-      }
+
       return precedenceList;
 
     } catch (Exception e) {
