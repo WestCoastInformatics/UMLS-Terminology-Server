@@ -3,12 +3,14 @@
  */
 package com.wci.umls.server.jpa.services.helper;
 
+import javax.persistence.NoResultException;
+
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
-import com.wci.umls.server.helpers.meta.LanguageList;
 import com.wci.umls.server.helpers.meta.LabelSetList;
+import com.wci.umls.server.helpers.meta.LanguageList;
 import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
@@ -16,8 +18,8 @@ import com.wci.umls.server.helpers.meta.TermTypeList;
 import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
 import com.wci.umls.server.jpa.helpers.meta.GeneralMetadataEntryListJpa;
-import com.wci.umls.server.jpa.helpers.meta.LanguageListJpa;
 import com.wci.umls.server.jpa.helpers.meta.LabelSetListJpa;
+import com.wci.umls.server.jpa.helpers.meta.LanguageListJpa;
 import com.wci.umls.server.jpa.helpers.meta.PropertyChainListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
@@ -341,7 +343,11 @@ public class StandardMetadataServiceJpaHelper extends
             + " and version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
+    try {
     return (PrecedenceList) query.getSingleResult();
+    }catch (NoResultException e) {
+      return null;
+    }
   }
 
   @Override
