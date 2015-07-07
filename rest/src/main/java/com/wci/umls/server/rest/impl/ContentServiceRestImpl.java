@@ -2670,7 +2670,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId + "/" + "/trees/children");
     ContentService contentService = new ContentServiceJpa();
     try {
-      authenticate(securityService, authToken, "find trees for the code",
+      authenticate(securityService, authToken, "find trees for the descriptor",
           UserRole.VIEWER);
 
       // the TreeList to return
@@ -2678,7 +2678,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // instantiate child tree positions array, used to construct trees
       TreePositionList childTreePositions =
-          contentService.findConceptTreePositionChildren(terminologyId,
+          contentService.findDescriptorTreePositionChildren(terminologyId,
               terminology, version, Branch.ROOT, pfs);
 
       // for each tree position, construct a tree
