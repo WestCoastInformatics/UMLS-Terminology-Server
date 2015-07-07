@@ -62,12 +62,10 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
    */
   @Override
   public void compute() throws Exception {
-    Logger.getLogger(getClass()).info("Start computing marked set");
+    Logger.getLogger(getClass()).info("Start computing marked parent label set");
     Logger.getLogger(getClass()).info("  subset = " + subset);
     setTransactionPerOperation(false);
     beginTransaction();
-
-    fireProgressEvent(0, "Starting...");
 
     if (subset == null) {
       throw new Exception("Subset must not be null.");
@@ -94,7 +92,7 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
       Date startDate = new Date();
       ancestorLabelSet = new LabelSetJpa();
       ancestorLabelSet.setAbbreviation("LABELFOR:" + subset.getTerminologyId());
-      ancestorLabelSet.setDescription("Marked parent for " + subset.getName());
+      ancestorLabelSet.setDescription("label parent for " + subset.getName());
       ancestorLabelSet.setExpandedForm(subset.getName());
       ancestorLabelSet.setLastModified(startDate);
       ancestorLabelSet.setTimestamp(startDate);
@@ -138,7 +136,7 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
       final Concept concept = (Concept) member.getMember();
       // Save this to mark it later
       conceptIds.add(concept.getId());
-      // If the concept is already marked as an ancestor, its ancestors
+      // If the concept is already label as an ancestor, its ancestors
       // have been computed and we can move on
       if (ancestorConceptIds.contains(concept.getId())) {
         continue;

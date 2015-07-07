@@ -40,11 +40,11 @@ public class UserJpa implements User {
   private Long id;
 
   /** The user name. */
-  @Column(nullable = false, unique = true, length = 25)
+  @Column(nullable = false, unique = true, length = 250)
   private String userName;
 
   /** The name. */
-  @Column(nullable = false, length = 25)
+  @Column(nullable = false, length = 250)
   private String name;
 
   /** The email. */

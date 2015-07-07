@@ -4697,9 +4697,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     } catch (ParseException e) {
 
       try {
-        // If we got here, try escaping the query and running it again.
+        // Code for escaping the query
         luceneQuery =
             queryParser.parse(QueryParserBase.escape(pfsQuery.toString()));
+
       } catch (ParseException e2) {
 
         Logger.getLogger(getClass()).info("  query = " + pfsQuery.toString());

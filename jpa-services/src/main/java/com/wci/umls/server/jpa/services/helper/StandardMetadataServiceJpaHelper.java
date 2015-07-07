@@ -167,7 +167,6 @@ public class StandardMetadataServiceJpaHelper extends
     LabelSetList labelSets = new LabelSetListJpa();
     labelSets.setObjects(query.getResultList());
     labelSets.setTotalCount(labelSets.getObjects().size());
-    System.out.println("label sets = " + labelSets);
     return labelSets;
   }
 

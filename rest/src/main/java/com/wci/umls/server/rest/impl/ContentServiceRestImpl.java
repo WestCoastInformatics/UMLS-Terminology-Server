@@ -358,24 +358,26 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         }
       }
 
-      
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
-      for (Subset subset : contentService.getConceptSubsets(terminology,
-          version, Branch.ROOT).getObjects()) {
-        final ConceptSubset conceptSubset = (ConceptSubset) subset;
-        if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass()).info(
-              "  Create label set for subset = " + subset);
-          LabelSetMarkedParentAlgorithm algo3 =
-              new LabelSetMarkedParentAlgorithm();
-          algo3.setSubset(conceptSubset);
-          algo3.compute();
-          algo3.close();
+      for (Terminology t : contentService.getTerminologyLatestVersions()
+          .getObjects()) {
+        for (Subset subset : contentService.getConceptSubsets(
+            t.getTerminology(), t.getVersion(), Branch.ROOT).getObjects()) {
+          final ConceptSubset conceptSubset = (ConceptSubset) subset;
+          if (conceptSubset.isLabelSubset()) {
+            Logger.getLogger(getClass()).info(
+                "  Create label set for subset = " + subset);
+            LabelSetMarkedParentAlgorithm algo3 =
+                new LabelSetMarkedParentAlgorithm();
+            algo3.setSubset(conceptSubset);
+            algo3.compute();
+            algo3.close();
+          }
         }
       }
       // Clean-up
-      
+
       ConfigUtility
           .deleteDirectory(new File(inputDirFile, "/RRF-sorted-temp/"));
 
@@ -2593,7 +2595,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
-      
+
       childTrees.setTotalCount(childTreePositions.getTotalCount());
       return childTrees;
 
@@ -2640,7 +2642,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
-      
+
       childTrees.setTotalCount(childTreePositions.getTotalCount());
       return childTrees;
 
@@ -2739,8 +2741,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findConceptTreePositionChildren(
-                rootTree.getNodeTerminologyId(), terminology, version, Branch.ROOT,
-                pfs);
+                rootTree.getNodeTerminologyId(), terminology, version,
+                Branch.ROOT, pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2817,8 +2819,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findDescriptorTreePositionChildren(
-                rootTree.getNodeTerminologyId(), terminology, version, Branch.ROOT,
-                pfs);
+                rootTree.getNodeTerminologyId(), terminology, version,
+                Branch.ROOT, pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2895,8 +2897,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findCodeTreePositionChildren(
-                rootTree.getNodeTerminologyId(), terminology, version, Branch.ROOT,
-                pfs);
+                rootTree.getNodeTerminologyId(), terminology, version,
+                Branch.ROOT, pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions

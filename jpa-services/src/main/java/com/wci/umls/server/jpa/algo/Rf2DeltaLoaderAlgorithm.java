@@ -533,14 +533,12 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
         newConcept.addAttribute(attribute);
-        addAttribute(attribute, newConcept);
 
         Attribute attribute2 = new AttributeJpa();
         setCommonFields(attribute2);
         attribute2.setName("definitionStatusId");
         attribute2.setValue(fields[4].intern());
         newConcept.addAttribute(attribute2);
-        addAttribute(attribute2, newConcept);
 
         // If concept is new, add it
         if (concept == null) {
