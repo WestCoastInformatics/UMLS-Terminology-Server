@@ -22,6 +22,7 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService.MetadataKeys;
@@ -251,6 +252,36 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertNull(msh.getRootTerminology().getAcquisitionContact());
     assertNull(msh.getRootTerminology().getContentContact());
     assertNull(msh.getRootTerminology().getLicenseContact());
+
+  }
+  
+  @Test
+  public void testNormalUseRestMetadata005() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    // test precedence list
+    PrecedenceList precedence =
+        metadataService.getDefaultPrecedenceList("UMLS", "latest", authToken);
+    assertEquals("loader", precedence.getLastModifiedBy());
+    assertEquals("UMLS", precedence.getTerminology());
+    assertEquals("latest", precedence.getVersion());
+    assertEquals("MTH", precedence.getPrecedence().getKeyValuePairList().get(0).getKey());
+    assertEquals("PN", precedence.getPrecedence().getKeyValuePairList().get(0).getValue());
+    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairList().get(1).getKey());
+    assertEquals("MH", precedence.getPrecedence().getKeyValuePairList().get(1).getValue());
+    assertEquals("DEFAULT", precedence.getName());
+
+    precedence =
+        metadataService.getDefaultPrecedenceList("MSH", "2015_2014_09_08", authToken);
+    //assertEquals("loader", precedence.getLastModifiedBy());
+    assertEquals("UMLS", precedence.getTerminology());
+    assertEquals("latest", precedence.getVersion());
+    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairList().get(0).getKey());
+    assertEquals("MH", precedence.getPrecedence().getKeyValuePairList().get(0).getValue());
+    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairList().get(1).getKey());
+    assertEquals("TQ", precedence.getPrecedence().getKeyValuePairList().get(1).getValue());
+    
+    assertEquals("DEFAULT", precedence.getName());
 
   }
 
