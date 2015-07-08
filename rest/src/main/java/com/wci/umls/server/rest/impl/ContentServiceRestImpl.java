@@ -841,21 +841,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/cui")
-  @ApiOperation(value = "Find concepts matching a lucene or hql search query", notes = "Gets a list of search results that match the lucene or hql query for the root branch", response = SearchResultList.class)
+  @ApiOperation(value = "Find concepts matching a lucene or jql search query", notes = "Gets a list of search results that match the lucene or jql query for the root branch", response = SearchResultList.class)
   public SearchResultList findConceptsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "HQL Query", required = true) @QueryParam("hql") String hql,
+    @ApiParam(value = "HQL Query", required = true) @QueryParam("jql") String jql,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
     String queryStr = query == null ? "" : query;
-    String hqlStr = hql == null ? "" : hql;
+    String jqlStr = jql == null ? "" : jql;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui?" + "query=" + queryStr + "&hql="
-            + hqlStr + " with PFS parameter "
+        "RESTful call (Content): /cui?" + "query=" + queryStr + "&jql="
+            + jqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -863,7 +863,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findConceptsForGeneralQuery(queryStr, hqlStr,
+          contentService.findConceptsForGeneralQuery(queryStr, jqlStr,
               Branch.ROOT, pfs);
       return sr;
 
@@ -886,20 +886,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/code")
-  @ApiOperation(value = "Find codes matching a lucene or hql search query", notes = "Gets a list of search results that match the lucene or hql query for the root branch", response = SearchResultList.class)
+  @ApiOperation(value = "Find codes matching a lucene or jql search query", notes = "Gets a list of search results that match the lucene or jql query for the root branch", response = SearchResultList.class)
   public SearchResultList findCodesForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "HQL Query", required = true) @QueryParam("hql") String hql,
+    @ApiParam(value = "HQL Query", required = true) @QueryParam("jql") String jql,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
     String queryStr = query == null ? "" : query;
-    String hqlStr = hql == null ? "" : hql;
+    String jqlStr = jql == null ? "" : jql;
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /code?" + "query=" + queryStr + "&hql="
-            + hqlStr + " with PFS parameter "
+        "RESTful call (Content): /code?" + "query=" + queryStr + "&jql="
+            + jqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -907,7 +907,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findCodesForGeneralQuery(queryStr, hqlStr,
+          contentService.findCodesForGeneralQuery(queryStr, jqlStr,
               Branch.ROOT, pfs);
       return sr;
 
@@ -1065,21 +1065,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/dui/")
-  @ApiOperation(value = "Find descriptors matching a lucene or hql search query", notes = "Gets a list of search results that match the lucene or hql query for the root branch", response = SearchResultList.class)
+  @ApiOperation(value = "Find descriptors matching a lucene or jql search query", notes = "Gets a list of search results that match the lucene or jql query for the root branch", response = SearchResultList.class)
   public SearchResultList findDescriptorsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "HQL Query", required = true) @QueryParam("hql") String hql,
+    @ApiParam(value = "HQL Query", required = true) @QueryParam("jql") String jql,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
     String queryStr = query == null ? "" : query;
-    String hqlStr = hql == null ? "" : hql;
+    String jqlStr = jql == null ? "" : jql;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui" + "?query=" + queryStr + "&hql="
-            + hqlStr + " with PFS parameter "
+        "RESTful call (Content): /dui" + "?query=" + queryStr + "&jql="
+            + jqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1087,7 +1087,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findDescriptorsForGeneralQuery(queryStr, hqlStr,
+          contentService.findDescriptorsForGeneralQuery(queryStr, jqlStr,
               Branch.ROOT, pfs);
       return sr;
 

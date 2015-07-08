@@ -115,10 +115,10 @@ tsApp
           cleanQuery = queryStr.replace(new RegExp('[/\\\\]', 'g'), ' ');
           // Remove brackets if not using a fielded query
           if (queryStr.indexOf(':') == -1) {
-            cleanQuery = queryStr.replace(new RegExp('[^a-zA-Z0-9:\\.\\-\']', 'g'), ' ');
+            cleanQuery = queryStr.replace(new RegExp('[^a-zA-Z0-9:\\.\\-\'\\*]', 'g'), ' ');
           }
           console.debug(queryStr, " => ", cleanQuery);
-
+          return cleanQuery;
         }
 
         $scope.setTerminology = function(terminology) {
@@ -933,20 +933,13 @@ tsApp
 
           // find concepts
           $scope.glassPane++;
-          var cleanQuery = queryStr;
-          cleanQuery = queryStr.replace(new RegExp('[\/]', 'g'), ' ');
-          // Remove brackets if not using a fielded query
-          if (queryStr.indexOf(':') == -1) {
-            cleanQuery = queryStr.replace(new RegExp('[^a-zA-Z0-9:\\.\\-\']', 'g'), ' ');
-          }
-          console.debug(queryStr, " => ", cleanQuery);
           $http(
             {
               url : contentUrl
                 + getTypePrefix($scope.terminology.organizingClassType) + "/"
                 + $scope.terminology.terminology + "/"
                 + $scope.terminology.version + "?query="
-                + encodeURIComponent(cleanQuery),
+                + encodeURIComponent($scope.cleanQuery(queryStr)),
               method : "POST",
               dataType : "json",
               data : pfs,
@@ -1052,20 +1045,13 @@ tsApp
 
           // find concepts
           $scope.glassPane++;
-          var cleanQuery = queryStr;
-          cleanQuery = queryStr.replace(new RegExp('[\/]', 'g'), ' ');
-          // Remove brackets if not using a fielded query
-          if (queryStr.indexOf(':') == -1) {
-            cleanQuery = queryStr.replace(new RegExp('[^a-zA-Z0-9:\\.\\-\']', 'g'), ' ');
-          }
-          console.debug(queryStr, " => ", cleanQuery);
           $http(
             {
               url : contentUrl
                 + getTypePrefix($scope.terminology.organizingClassType) + "/"
                 + $scope.terminology.terminology + "/"
                 + $scope.terminology.version + "/trees?query="
-                + encodeURIComponent(cleanQuery),
+                + encodeURIComponent($scope.cleanQuery(queryStr)),
               method : "POST",
               dataType : "json",
               data : pfs,
@@ -1811,14 +1797,6 @@ tsApp
           if (!page)
             page = 1;
 
-          // hack for wildcard searching, may impair other lucene functionality
-          if (query) {
-            // append wildcard to end of query string if not present and not
-            // quoted
-            if (query.indexOf("*") == -1 && query.indexOf("\"") == -1) {
-              query = query + "*";
-            }
-          }
           if (!query)
             query = "";
 
@@ -1854,19 +1832,12 @@ tsApp
           }
 
           $scope.glassPane++;
-          var cleanQuery = query;
-          cleanQuery = query.replace(new RegExp('[\/]', 'g'), ' ');
-          // Remove brackets if not using a fielded query
-          if (query.indexOf(':') == -1) {
-            cleanQuery = query.replace(new RegExp('[^a-zA-Z0-9:\\.\\-\']', 'g'), ' ');
-          }
-          console.debug(query, " => ", cleanQuery);
           $http(
             {
               url : contentUrl + typePrefix + "/"
                 + $scope.component.terminology + "/" + $scope.component.version
                 + "/" + $scope.component.terminologyId
-                + "/relationships?query=" + encodeURIComponent(cleanQuery),
+                + "/relationships?query=" + encodeURIComponent($scope.cleanQuery(query)),
               method : "POST",
               dataType : "json",
               data : pfs,
