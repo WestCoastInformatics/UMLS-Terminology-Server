@@ -82,6 +82,7 @@ public class InitializationListener implements AbstractResourceModelListener {
 
         // We need to "ping" the server to keep DB connections alive.
         // Do 4 times per day.  Just get users list.
+        Logger.getLogger(getClass()).info("  PING");
         SecurityService service = new SecurityServiceJpa();
         service.getUsers();
         

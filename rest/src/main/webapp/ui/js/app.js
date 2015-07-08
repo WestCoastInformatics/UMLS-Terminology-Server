@@ -53,7 +53,9 @@ tsApp
       '$scope',
       '$http',
       '$q',
-      function($scope, $http, $q) {
+      '$location',
+      '$anchorScroll',
+      function($scope, $http, $q, $location, $anchorScroll) {
 
         $scope.$watch('component', function() {
           // n/a
@@ -65,7 +67,6 @@ tsApp
         $scope.precedenceList = null;
 
         // query base variables
-        $scope.componentQuery = null;
         $scope.autocompleteUrl = null; // set on terminology change
 
         // query boolean variables for return types
@@ -93,9 +94,65 @@ tsApp
         $scope.relationshipsLabel = "Relationships";
         $scope.extensionsLabel = "Extensions";
 
+        $scope.searchParams = {
+          page : 1,
+          query : ""
+        }
+
         // full variable arrays
         $scope.searchResults = null;
         $scope.searchResultsTree = null;
+
+        // paged variable lists
+        // NOTE: Each list must have a totalCount variable
+        // either from ResultList object or calculated
+        $scope.pagedSearchResults = null;
+        $scope.pagedAttributes = null;
+        $scope.pagedMembers = null;
+        $scope.pagedSemanticTypes = null;
+        $scope.pagedDescriptions = null;
+        $scope.pagedRelationships = null;
+        $scope.pagedAtoms = null;
+
+        // variable page numbers
+        $scope.atomPaging = {
+          page : 1,
+          filter : ""
+        };
+
+        $scope.styPaging = {
+          page : 1,
+          filter : ""
+        }
+
+        $scope.defPaging = {
+          page : 1,
+          filter : ""
+        }
+
+        $scope.attributePaging = {
+          page : 1,
+          filter : ""
+        }
+
+        $scope.memberPaging = {
+          page : 1,
+          filter : ""
+        }
+
+        $scope.relPaging = {
+          page : 1,
+          filter : ""
+        }
+
+        // default page size
+        $scope.pageSize = 10;
+        $scope.relsPageSize = 10;
+        $scope.treePageSize = 5;
+        $scope.rootsPageSize = 25;
+
+        // hierarchy sort
+        $scope.treeSortField = "nodeName";
 
         $scope.handleError = function(data, status, headers, config) {
           $scope.error = data.replace(/"/g, '');
@@ -106,18 +163,22 @@ tsApp
         }
 
         $scope.clearComponentQuery = function() {
-          $scope.componentQuery = "";
+          $scope.searchParams.query = "";
         }
-        
+
         $scope.cleanQuery = function(queryStr) {
+          if (queryStr == null) {
+            return "";
+          }
           var cleanQuery = queryStr;
           // Replace all slash characters
           cleanQuery = queryStr.replace(new RegExp('[/\\\\]', 'g'), ' ');
           // Remove brackets if not using a fielded query
           if (queryStr.indexOf(':') == -1) {
-            cleanQuery = queryStr.replace(new RegExp('[^a-zA-Z0-9:\\.\\-\'\\*]', 'g'), ' ');
+            cleanQuery = queryStr.replace(new RegExp(
+              '[^a-zA-Z0-9:\\.\\-\'\\*]', 'g'), ' ');
           }
-          console.debug(queryStr, " => ", cleanQuery);
+          // console.debug(queryStr, " => ", cleanQuery);
           return cleanQuery;
         }
 
@@ -148,7 +209,7 @@ tsApp
             + $scope.terminology.terminology + '/' + $scope.terminology.version
             + "/autocomplete/";
 
-          // $scope.glassPane++;
+          $scope.glassPane++;
           $http(
             {
               url : metadataUrl + 'all/terminology/id/'
@@ -160,14 +221,14 @@ tsApp
               }
             }).success(function(data) {
             $scope.setMetadata(data.keyValuePairList);
-            // $scope.glassPane--;
+            $scope.glassPane--;
 
           }).error(function(data, status, headers, config) {
             $scope.handleError(data, status, headers, config);
-            // $scope.glassPane--;
+            $scope.glassPane--;
           });
 
-          // $scope.glassPane++;
+          $scope.glassPane++;
           $http(
             {
               url : metadataUrl + 'precedence/'
@@ -179,11 +240,11 @@ tsApp
               }
             }).success(function(data) {
             $scope.precedenceList = data.precedence;
-            // $scope.glassPane--;
+            $scope.glassPane--;
 
           }).error(function(data, status, headers, config) {
             $scope.handleError(data, status, headers, config);
-            // $scope.glassPane--;
+            $scope.glassPane--;
           });
         });
 
@@ -400,6 +461,7 @@ tsApp
          * type.
          */
         $scope.getComponent = function(terminologyName, terminologyId) {
+
           // if terminology matches scope terminology
           if (terminologyName === $scope.terminology.terminology) {
             getComponentHelper($scope.terminology, terminologyId,
@@ -861,7 +923,7 @@ tsApp
          */
         $scope.clearQuery = function() {
           $scope.suggestions = null;
-          $scope.componentQuery = null;
+          $scope.searchParams.query = "";
         }
 
         // ///////////////////////////////////////////
@@ -874,18 +936,20 @@ tsApp
         $scope.setTreeView = function() {
           $scope.queryForTree = true;
           $scope.queryForList = false;
-          console.debug($scope.componentQuery);
-          if ($scope.componentQuery) {
-            $scope.findComponentsAsTree($scope.componentQuery);
+          console.debug($scope.searchParams.query);
+          if ($scope.searchParams.query) {
+            $scope.searchParams.page = 1;
+            $scope.findComponentsAsTree($scope.searchParams.query);
           }
         }
 
         $scope.setListView = function() {
           $scope.queryForList = true;
           $scope.queryForTree = false;
-          console.debug($scope.componentQuery);
-          if ($scope.componentQuery) {
-            $scope.findComponentsAsList($scope.componentQuery);
+          console.debug($scope.searchParams.query);
+          if ($scope.searchParams.query) {
+            $scope.searchParams.page = 1;
+            $scope.findComponentsAsList($scope.searchParams.query);
           }
         }
 
@@ -893,12 +957,23 @@ tsApp
          * Find concepts based on current search type e.g. list or tree based on
          * booleans
          */
-        $scope.findComponents = function(queryStr, page) {
+        $scope.findComponents = function(queryStr, page, loadFirst) {
+
+          if ($scope.searchParams.page != page) {
+            $scope.searchParams.page = page;
+          }
+
+          if ($scope.searchParams.query != queryStr) {
+            $scope.searchParams.query = queryStr;
+          }
 
           if ($scope.queryForList)
-            $scope.findComponentsAsList(queryStr, page);
+            $scope.findComponentsAsList(queryStr, page, loadFirst);
           if ($scope.queryForTree)
-            $scope.findComponentsAsTree(queryStr, page);
+            $scope.findComponentsAsTree(queryStr, page, loadFirst);
+
+          $location.hash('top');
+          $anchorScroll();
 
         }
 
@@ -907,10 +982,7 @@ tsApp
          * is List Does not currently use any p/f/s settings NOTE: Always uses
          * the selected terminology
          */
-        $scope.findComponentsAsList = function(queryStr, page) {
-
-          if (!page)
-            page = 1;
+        $scope.findComponentsAsList = function(queryStr, page, loadFirst) {
 
           // ensure query string has minimum length
           if (queryStr == null || queryStr.length < 3) {
@@ -920,10 +992,7 @@ tsApp
 
           clearPaging();
 
-          // force the search box to sync with query string
-          $scope.componentQuery = queryStr;
-
-          // TODO Enable paging
+          // handle paging
           var pfs = {
             startIndex : (page - 1) * $scope.pageSize,
             maxResults : $scope.pageSize,
@@ -951,10 +1020,10 @@ tsApp
               $scope.searchResults = data.searchResult;
               $scope.searchResults.totalCount = data.totalCount;
 
-              // select the first component if results returned
-              if ($scope.searchResults.length != 0)
+              if (loadFirst) {
                 $scope.getComponent($scope.terminology.terminology,
                   $scope.searchResults[0].terminologyId);
+              }
 
               $scope.glassPane--;
 
@@ -972,8 +1041,7 @@ tsApp
           $scope.queryForList = false
           $scope.browsingHierarchy = true;
 
-          if (!page)
-            page = 1;
+          $scope.searchParams.page = 1;
 
           // construct the pfs
           var pfs = {
@@ -1019,10 +1087,7 @@ tsApp
          * Expected return type is List Does not currently use any p/f/s
          * settings NOTE: Always uses the selected terminology
          */
-        $scope.findComponentsAsTree = function(queryStr, page) {
-
-          if (!page)
-            page = 1;
+        $scope.findComponentsAsTree = function(queryStr, page, loadFirst) {
 
           // ensure query string has minimum length
           if (!queryStr || queryStr.length < 1) {
@@ -1031,9 +1096,6 @@ tsApp
           }
 
           clearPaging();
-
-          // force the search box to sync with query string
-          $scope.componentQuery = queryStr;
 
           // construct the pfs
           var pfs = {
@@ -1067,6 +1129,9 @@ tsApp
             $scope.searchResultsTree.push(data); // treeList array of size 1
             $scope.searchResultsTree.totalCount = data.totalCount;
             $scope.searchResultsTree.count = data.count;
+
+            // Load first functionality is not obvious here
+            // so leave it alone for now.
 
             $scope.glassPane--;
 
@@ -1721,57 +1786,22 @@ tsApp
         // Pagination
         // //////////////////////////////////
 
-        // paged variable lists
-        // NOTE: Each list must have a totalCount variable
-        // either from ResultList object or calculated
-        $scope.pagedSearchResults = null;
-        $scope.pagedAttributes = null;
-        $scope.pagedMembers = null;
-        $scope.pagedSemanticTypes = null;
-        $scope.pagedDescriptions = null;
-        $scope.pagedRelationships = null;
-        $scope.pagedAtoms = null;
-
-        // variable page numbers
-        $scope.searchResultsPage = 1;
-        $scope.semanticTypesPage = 1;
-        $scope.definitionsPage = 1;
-        $scope.relationshipsPage = 1;
-        $scope.atomsPage = 1;
-
-        // variable filter variables
-        $scope.semanticTypesFilter = null;
-        $scope.descriptionsFilter = null;
-        $scope.relationshipsFilter = null;
-        $scope.atomsFilter = null;
-        $scope.attributesFilter = null;
-        $scope.membersFilter = null;
-
-        // default page size
-        $scope.pageSize = 10;
-        $scope.relsPageSize = 10;
-        $scope.treePageSize = 5;
-        $scope.rootsPageSize = 25;
-
-        // hierarchy sort
-        $scope.treeSortField = "nodeName";
-
         // reset all paginator pages
         function clearPaging() {
-          $scope.searchResultsPage = 1;
-          $scope.semanticTypesPage = 1;
-          $scope.definitionsPage = 1;
-          $scope.relationshipsPage = 1;
-          $scope.atomsPage = 1;
-          $scope.attributesPage = 1;
-          $scope.membersPage = 1;
 
-          $scope.semanticTypesFilter = null;
-          $scope.descriptionsFilter = null;
-          $scope.relationshipsFilter = null;
-          $scope.atomsFilter = null;
-          $scope.attributesFilter = null;
-          $scope.membersFilter = null;
+          $scope.styPaging.page = 1;
+          $scope.defPaging.page = 1;
+          $scope.atomPaging.page = 1;
+          $scope.attributePaging.page = 1;
+          $scope.memberPaging.page = 1;
+          $scope.relPaging.page = 1;
+
+          $scope.styPaging.filter = "";
+          $scope.defPaging.filter = "";
+          $scope.atomPaging.filter = "";
+          $scope.attributePaging.filter = "";
+          $scope.memberPaging.filter = "";
+          $scope.relPaging.filter = "";
 
         }
 
@@ -1792,16 +1822,10 @@ tsApp
         // Server-side Paging
         // Functions for arrays paged by server-side find methods
         // ///////////////////////////////////////////////////////////////
-        $scope.getPagedRelationships = function(page, query) {
-
-          if (!page)
-            page = 1;
-
-          if (!query)
-            query = "";
+        $scope.getPagedRelationships = function() {
 
           var typePrefix = getTypePrefix($scope.componentType);
-          var pfs = getPfs(page);
+          var pfs = getPfs($scope.relPaging.page);
 
           // Show only inferred rels for now
           // construct query restriction if needed
@@ -1831,13 +1855,15 @@ tsApp
             $scope.relsPageSize = $scope.pageSize;
           }
 
+          var query = $scope.relPaging.filter;
           $scope.glassPane++;
           $http(
             {
               url : contentUrl + typePrefix + "/"
                 + $scope.component.terminology + "/" + $scope.component.version
                 + "/" + $scope.component.terminologyId
-                + "/relationships?query=" + encodeURIComponent($scope.cleanQuery(query)),
+                + "/relationships?query="
+                + encodeURIComponent($scope.cleanQuery(query)),
               method : "POST",
               dataType : "json",
               data : pfs,
@@ -1876,76 +1902,45 @@ tsApp
         // Client-side Paging
         // Functions for arrays retrieved in full, then paged by js.
         // //////////////////////////////////////////////////////////////
-        $scope.getPagedAtoms = function(page, query) {
-
-          // set the page if supplied, otherwise use the current value
-          if (page)
-            $scope.atomsPage = page;
-          if (!query)
-            query = null;
-
+        $scope.getPagedAtoms = function() {
           // get the paged array, with flags and filter (TODO: Support
           // filtering)
           $scope.pagedAtoms = $scope.getPagedArray($scope.component.atom,
-            $scope.atomsPage, true, query);
+            $scope.atomPaging.page, true, $scope.atomPaging.filter);
         }
 
-        $scope.getPagedDefinitions = function(page, query) {
-
-          // set the page if supplied, otherwise use the current value
-          if (page)
-            $scope.definitionsPage = page;
-          if (!query)
-            query = null;
+        $scope.getPagedDefinitions = function() {
 
           // get the paged array, with flags and filter (TODO: Support
           // filtering)
           $scope.pagedDefinitions = $scope.getPagedArray(
-            $scope.component.definition, $scope.definitionsPage, true, query,
-            'value', false);
+            $scope.component.definition, $scope.defPaging.page, true,
+            $scope.defPaging.filter, 'value', false);
         }
 
-        $scope.getPagedAttributes = function(page, query) {
+        $scope.getPagedAttributes = function() {
 
-          // set the page if supplied, otherwise use the current value
-          if (page)
-            $scope.attributesPage = page;
-          if (!query)
-            query = null;
-
-          // get the paged array, with flags and filter (TODO: Support
-          // filtering)
+          // get the paged array, with flags and filter
           $scope.pagedAttributes = $scope.getPagedArray(
-            $scope.component.attribute, $scope.attributesPage, true, query,
-            'name', false);
+            $scope.component.attribute, $scope.attributePaging.page, true,
+            $scope.attributePaging.filter, 'name', false);
 
         }
 
-        $scope.getPagedMembers = function(page, query) {
+        $scope.getPagedMembers = function() {
 
-          // set the page if supplied, otherwise use the current value
-          if (page)
-            $scope.membersPage = page;
-          if (!query)
-            query = null;
-
-          // get the paged array, with flags and filter (TODO: Support
-          // filtering)
+          // get the paged array, with flags and filter
           $scope.pagedMembers = $scope.getPagedArray($scope.component.member,
-            $scope.membersPage, true, query, 'name', false);
+            $scope.memberPaging.page, true, $scope.memberPaging.filter, 'name',
+            false);
         }
 
-        $scope.getPagedSemanticTypes = function(page, query) {
+        $scope.getPagedSemanticTypes = function() {
 
-          // set the page if supplied, otherwise use the current value
-          if (page)
-            $scope.semanticTypesPage = page;
-
-          // get the paged array, with flags and filter (TODO: Support
-          // filtering)
+          // get the paged array, with flags and filter
           $scope.pagedSemanticTypes = $scope.getPagedArray(
-            $scope.component.semanticType, $scope.semanticTypesPage, true,
-            null, 'semanticType', false);
+            $scope.component.semanticType, $scope.styPaging.page, true,
+            $scope.styPaging.filter, 'semanticType', false);
         }
 
         /**
