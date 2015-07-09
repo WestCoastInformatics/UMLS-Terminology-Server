@@ -4,6 +4,8 @@
 package com.wci.umls.server.jpa.services.validation;
 
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -41,22 +43,37 @@ public class DefaultValidationCheck extends AbstractValidationCheck {
     return result;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.validation.AbstractValidationCheck#validate(com.wci.umls.server.model.content.Atom)
+   */
   @Override
   public ValidationResult validate(Atom atom) {
     ValidationResult result = new ValidationResultJpa();
 
+    if (atom == null) {     
+      return null;
+    }
+    
+    if (atom.getName() == null) {
+       result.addError("Atom does not have a preferred name.");
+       return result;
+    }
+    
     // Check for leading whitespace
-    if (atom.getName().matches("^\\s")) {
+    if (atom.getName().length() > 0 && Character.isWhitespace(atom.getName().charAt(0))) {
       result.addError("Atom name contains leading whitespace.");
     }
 
     // Check for trailing whitespace
-    if (atom.getName().matches("\\s$")) {
+    if (atom.getName().length() > 0 && Character.isWhitespace(
+        atom.getName().charAt(atom.getName().length() - 1))) {
       result.addError("Atom name contains trailing whitespace.");
     }
 
     // Check for duplicate whitespace
-    if (atom.getName().matches("\\s\\s")) {
+    Pattern pattern = Pattern.compile("(\\s)(\\s)");
+    Matcher matcher = pattern.matcher(atom.getName());
+    if (matcher.find()) {
       result.addError("Atom name contains duplicate whitespace.");
     }
 
