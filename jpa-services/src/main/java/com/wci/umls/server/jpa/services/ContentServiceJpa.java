@@ -137,12 +137,22 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   protected boolean assignIdentifiersFlag = false;
 
   /** The id assignment handler . */
-  public static Map<String, IdentifierAssignmentHandler> idHandlerMap =
+  static Map<String, IdentifierAssignmentHandler> idHandlerMap =
       new HashMap<>();
+
+  /** The query timeout. */
+  static int queryTimeout = 1000;
 
   static {
 
     try {
+      if (ConfigUtility.getConfigProperties().containsKey(
+          "javax.persistence.query.timeout")) {
+        queryTimeout =
+            Integer.parseInt(ConfigUtility.getConfigProperties().getProperty(
+                "javax.persistence.query.timeout"));
+      }
+
       if (config == null)
         config = ConfigUtility.getConfigProperties();
       String key = "identifier.assignment.handler";
@@ -1584,7 +1594,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " and tr.superType = super" + " and tr.subType = a "
             + " and tr.superType != tr.subType"
             + (childrenOnly ? " and depth = 1" : "");
-    javax.persistence.Query query = applyPfsToHqlQuery(queryStr, pfs);
+    javax.persistence.Query query = applyPfsToJqlQuery(queryStr, pfs);
 
     javax.persistence.Query ctQuery =
         manager.createQuery("select count(*) from "
@@ -1643,7 +1653,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             + " and tr.subType = sub" + " and tr.superType = a "
             + " and tr.subType != tr.superType"
             + (parentsOnly ? " and depth = 1" : "");
-    javax.persistence.Query query = applyPfsToHqlQuery(queryStr, pfs);
+    javax.persistence.Query query = applyPfsToJqlQuery(queryStr, pfs);
 
     javax.persistence.Query ctQuery =
         manager.createQuery("select count(*) from "
@@ -2948,7 +2958,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    *
    * @param <T> the
    * @param luceneQuery the lucene query
-   * @param hqlQuery the hql query
+   * @param jqlQuery the jql query
    * @param branch the branch
    * @param pfs the pfs
    * @param fieldNamesKey the field names key
@@ -2958,7 +2968,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @SuppressWarnings("unchecked")
   private <T extends AtomClass> SearchResultList findForGeneralQueryHelper(
-    String luceneQuery, String hqlQuery, String branch, PfsParameter pfs,
+    String luceneQuery, String jqlQuery, String branch, PfsParameter pfs,
     Class<?> fieldNamesKey, Class<T> clazz) throws Exception {
     // Prepare results
     SearchResultList results = new SearchResultListJpa();
@@ -2975,29 +2985,33 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       luceneQueryFlag = true;
     }
 
-    boolean hqlQueryFlag = false;
-    List<T> hqlQueryClasses = new ArrayList<>();
-    if (hqlQuery != null && !hqlQuery.equals("")) {
-      if (!hqlQuery.toLowerCase().startsWith("select"))
+    boolean jqlQueryFlag = false;
+    List<T> jqlQueryClasses = new ArrayList<>();
+    if (jqlQuery != null && !jqlQuery.equals("")) {
+      if (!jqlQuery.toLowerCase().startsWith("select"))
         throw new Exception(
-            "The hql query did not start with the keyword 'select'. "
-                + hqlQuery);
-      if (hqlQuery.contains(";"))
-        throw new Exception("The hql query must not contain the ';'. "
-            + hqlQuery);
-      javax.persistence.Query hQuery = manager.createQuery(hqlQuery);
-      hQuery.setHint("javax.persistence.query.timeout", 50);
+            "The jql query did not start with the keyword 'select'. "
+                + jqlQuery);
+      if (jqlQuery.contains(";"))
+        throw new Exception("The jql query must not contain the ';'. "
+            + jqlQuery);
+      javax.persistence.Query hQuery = manager.createQuery(jqlQuery);
+
+      // Support for this is probably in Mysql 5.7.4
+      // See http://mysqlserverteam.com/server-side-select-statement-timeouts/
+      // It doesn't work with Mysql 5.6, seems to simply be ignored
+      hQuery.setHint("javax.persistence.query.timeout", queryTimeout);
       try {
-        List<T> hqlResults = hQuery.getResultList();
-        for (T r : hqlResults) {
-          hqlQueryClasses.add(r);
+        List<T> jqlResults = hQuery.getResultList();
+        for (T r : jqlResults) {
+          jqlQueryClasses.add(r);
         }
       } catch (ClassCastException e) {
         throw new Exception(
-            "The hql query returned items of an unexpected type. ", e);
+            "The jql query returned items of an unexpected type. ", e);
       }
 
-      hqlQueryFlag = true;
+      jqlQueryFlag = true;
     }
 
     // Determine whether both query and criteria were used, or just one or the
@@ -3008,14 +3022,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       classes = luceneQueryClasses;
     }
 
-    if (hqlQueryFlag) {
+    if (jqlQueryFlag) {
 
       if (luceneQueryFlag) {
         // Intersect the lucene and HQL results
-        classes.retainAll(hqlQueryClasses);
+        classes.retainAll(jqlQueryClasses);
       } else {
-        // Otherwise, just use hql classes
-        classes = hqlQueryClasses;
+        // Otherwise, just use jql classes
+        classes = jqlQueryClasses;
       }
 
       // Here we know the total size
@@ -3082,17 +3096,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     results.setTotalCount(totalCt[0]);
     return results;
 
-    /*
-     * if (results == null) throw new
-     * Exception("Failed to retrieve results for query");
-     * 
-     * SearchResultList srl = new SearchResultListJpa(); for (Object result :
-     * results) { SearchResult sr = new SearchResultJpa();
-     * sr.setTerminology(((AtomClass)result).getTerminology());
-     * sr.setVersion(((AtomClass)result).getVersion());
-     * sr.setTerminologyId(((AtomClass)result).getTerminologyId());
-     * sr.setId(((AtomClass)result).getId()); srl.addObject(sr); } return srl;
-     */
   }
 
   /**
@@ -3319,8 +3322,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @return the string list
    * @throws Exception the exception
    */
-  private StringList autocompleteHelper(String terminology, String version,
-    String searchTerm, Class<?> clazz) throws Exception {
+  private <T extends AtomClass> StringList autocompleteHelper(
+    String terminology, String version, String searchTerm, Class<T> clazz)
+    throws Exception {
 
     if (terminology == null || version == null || searchTerm == null) {
       return new StringList();
@@ -3334,10 +3338,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         fullTextEntityManager.getSearchFactory().buildQueryBuilder()
             .forEntity(clazz).get();
 
-    // TODO:, try matching on name with boost
     Query query =
         titleQB.phrase().withSlop(2).onField(TITLE_NGRAM_INDEX)
             .andField(TITLE_EDGE_NGRAM_INDEX).boostedTo(5)
+            .andField("atoms.name").boostedTo(5)
             .sentence(searchTerm.toLowerCase()).createQuery();
 
     Query term1 = new TermQuery(new Term("terminology", terminology));
@@ -4493,10 +4497,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public SearchResultList findCodesForGeneralQuery(String luceneQuery,
-    String hqlQuery, String branch, PfsParameter pfs) throws Exception {
+    String jqlQuery, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
-        "Content Service - find codes " + luceneQuery + "/" + hqlQuery + "/");
-    return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
+        "Content Service - find codes " + luceneQuery + "/" + jqlQuery + "/");
+    return findForGeneralQueryHelper(luceneQuery, jqlQuery, branch, pfs,
         CodeJpa.class, CodeJpa.class);
   }
 
@@ -4510,12 +4514,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
-    String hqlQuery, String branch, PfsParameter pfs) throws Exception {
+    String jqlQuery, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
         .info(
-            "Content Service - find concepts " + luceneQuery + "/" + hqlQuery
+            "Content Service - find concepts " + luceneQuery + "/" + jqlQuery
                 + "/");
-    return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
+    return findForGeneralQueryHelper(luceneQuery, jqlQuery, branch, pfs,
         ConceptJpa.class, ConceptJpa.class);
   }
 
@@ -4529,11 +4533,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @Override
   public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
-    String hqlQuery, String branch, PfsParameter pfs) throws Exception {
+    String jqlQuery, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
-        "Content Service - find descriptors " + luceneQuery + "/" + hqlQuery
+        "Content Service - find descriptors " + luceneQuery + "/" + jqlQuery
             + "/");
-    return findForGeneralQueryHelper(luceneQuery, hqlQuery, branch, pfs,
+    return findForGeneralQueryHelper(luceneQuery, jqlQuery, branch, pfs,
         DescriptorJpa.class, DescriptorJpa.class);
   }
 
@@ -4697,9 +4701,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     } catch (ParseException e) {
 
       try {
-        // If we got here, try escaping the query and running it again.
+        // Code for escaping the query
         luceneQuery =
             queryParser.parse(QueryParserBase.escape(pfsQuery.toString()));
+
       } catch (ParseException e2) {
 
         Logger.getLogger(getClass()).info("  query = " + pfsQuery.toString());
@@ -4782,7 +4787,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @param pfs the pfs
    * @return the javax.persistence. query
    */
-  protected javax.persistence.Query applyPfsToHqlQuery(String queryStr,
+  protected javax.persistence.Query applyPfsToJqlQuery(String queryStr,
     PfsParameter pfs) {
     StringBuilder localQueryStr = new StringBuilder();
     localQueryStr.append(queryStr);

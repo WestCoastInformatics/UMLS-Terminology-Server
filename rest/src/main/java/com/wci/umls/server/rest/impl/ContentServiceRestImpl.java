@@ -358,24 +358,26 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         }
       }
 
-      
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
-      for (Subset subset : contentService.getConceptSubsets(terminology,
-          version, Branch.ROOT).getObjects()) {
-        final ConceptSubset conceptSubset = (ConceptSubset) subset;
-        if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass()).info(
-              "  Create label set for subset = " + subset);
-          LabelSetMarkedParentAlgorithm algo3 =
-              new LabelSetMarkedParentAlgorithm();
-          algo3.setSubset(conceptSubset);
-          algo3.compute();
-          algo3.close();
+      for (Terminology t : contentService.getTerminologyLatestVersions()
+          .getObjects()) {
+        for (Subset subset : contentService.getConceptSubsets(
+            t.getTerminology(), t.getVersion(), Branch.ROOT).getObjects()) {
+          final ConceptSubset conceptSubset = (ConceptSubset) subset;
+          if (conceptSubset.isLabelSubset()) {
+            Logger.getLogger(getClass()).info(
+                "  Create label set for subset = " + subset);
+            LabelSetMarkedParentAlgorithm algo3 =
+                new LabelSetMarkedParentAlgorithm();
+            algo3.setSubset(conceptSubset);
+            algo3.compute();
+            algo3.close();
+          }
         }
       }
       // Clean-up
-      
+
       ConfigUtility
           .deleteDirectory(new File(inputDirFile, "/RRF-sorted-temp/"));
 
@@ -839,21 +841,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/cui")
-  @ApiOperation(value = "Find concepts matching a lucene or hql search query", notes = "Gets a list of search results that match the lucene or hql query for the root branch", response = SearchResultList.class)
+  @ApiOperation(value = "Find concepts matching a lucene or jql search query", notes = "Gets a list of search results that match the lucene or jql query for the root branch", response = SearchResultList.class)
   public SearchResultList findConceptsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "HQL Query", required = true) @QueryParam("hql") String hql,
+    @ApiParam(value = "HQL Query", required = true) @QueryParam("jql") String jql,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
     String queryStr = query == null ? "" : query;
-    String hqlStr = hql == null ? "" : hql;
+    String jqlStr = jql == null ? "" : jql;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /cui?" + "query=" + queryStr + "&hql="
-            + hqlStr + " with PFS parameter "
+        "RESTful call (Content): /cui?" + "query=" + queryStr + "&jql="
+            + jqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -861,7 +863,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findConceptsForGeneralQuery(queryStr, hqlStr,
+          contentService.findConceptsForGeneralQuery(queryStr, jqlStr,
               Branch.ROOT, pfs);
       return sr;
 
@@ -884,20 +886,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/code")
-  @ApiOperation(value = "Find codes matching a lucene or hql search query", notes = "Gets a list of search results that match the lucene or hql query for the root branch", response = SearchResultList.class)
+  @ApiOperation(value = "Find codes matching a lucene or jql search query", notes = "Gets a list of search results that match the lucene or jql query for the root branch", response = SearchResultList.class)
   public SearchResultList findCodesForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "HQL Query", required = true) @QueryParam("hql") String hql,
+    @ApiParam(value = "HQL Query", required = true) @QueryParam("jql") String jql,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
     String queryStr = query == null ? "" : query;
-    String hqlStr = hql == null ? "" : hql;
+    String jqlStr = jql == null ? "" : jql;
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /code?" + "query=" + queryStr + "&hql="
-            + hqlStr + " with PFS parameter "
+        "RESTful call (Content): /code?" + "query=" + queryStr + "&jql="
+            + jqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -905,7 +907,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findCodesForGeneralQuery(queryStr, hqlStr,
+          contentService.findCodesForGeneralQuery(queryStr, jqlStr,
               Branch.ROOT, pfs);
       return sr;
 
@@ -1063,21 +1065,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/dui/")
-  @ApiOperation(value = "Find descriptors matching a lucene or hql search query", notes = "Gets a list of search results that match the lucene or hql query for the root branch", response = SearchResultList.class)
+  @ApiOperation(value = "Find descriptors matching a lucene or jql search query", notes = "Gets a list of search results that match the lucene or jql query for the root branch", response = SearchResultList.class)
   public SearchResultList findDescriptorsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "HQL Query", required = true) @QueryParam("hql") String hql,
+    @ApiParam(value = "HQL Query", required = true) @QueryParam("jql") String jql,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
     String queryStr = query == null ? "" : query;
-    String hqlStr = hql == null ? "" : hql;
+    String jqlStr = jql == null ? "" : jql;
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /dui" + "?query=" + queryStr + "&hql="
-            + hqlStr + " with PFS parameter "
+        "RESTful call (Content): /dui" + "?query=" + queryStr + "&jql="
+            + jqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -1085,7 +1087,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       SearchResultList sr =
-          contentService.findDescriptorsForGeneralQuery(queryStr, hqlStr,
+          contentService.findDescriptorsForGeneralQuery(queryStr, jqlStr,
               Branch.ROOT, pfs);
       return sr;
 
@@ -2593,7 +2595,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
-      
+
       childTrees.setTotalCount(childTreePositions.getTotalCount());
       return childTrees;
 
@@ -2640,7 +2642,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
-      
+
       childTrees.setTotalCount(childTreePositions.getTotalCount());
       return childTrees;
 
@@ -2670,7 +2672,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId + "/" + "/trees/children");
     ContentService contentService = new ContentServiceJpa();
     try {
-      authenticate(securityService, authToken, "find trees for the code",
+      authenticate(securityService, authToken, "find trees for the descriptor",
           UserRole.VIEWER);
 
       // the TreeList to return
@@ -2678,7 +2680,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // instantiate child tree positions array, used to construct trees
       TreePositionList childTreePositions =
-          contentService.findConceptTreePositionChildren(terminologyId,
+          contentService.findDescriptorTreePositionChildren(terminologyId,
               terminology, version, Branch.ROOT, pfs);
 
       // for each tree position, construct a tree
@@ -2739,8 +2741,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findConceptTreePositionChildren(
-                rootTree.getNodeTerminologyId(), terminology, version, Branch.ROOT,
-                pfs);
+                rootTree.getNodeTerminologyId(), terminology, version,
+                Branch.ROOT, pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2817,8 +2819,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findDescriptorTreePositionChildren(
-                rootTree.getNodeTerminologyId(), terminology, version, Branch.ROOT,
-                pfs);
+                rootTree.getNodeTerminologyId(), terminology, version,
+                Branch.ROOT, pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2895,8 +2897,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         // get the children tree positions
         TreePositionList childTreePositions =
             contentService.findCodeTreePositionChildren(
-                rootTree.getNodeTerminologyId(), terminology, version, Branch.ROOT,
-                pfs);
+                rootTree.getNodeTerminologyId(), terminology, version,
+                Branch.ROOT, pfs);
 
         // construct and add children
         for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions

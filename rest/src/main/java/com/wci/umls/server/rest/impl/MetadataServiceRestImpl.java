@@ -331,8 +331,12 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.rest.MetadataServiceRest#getDefaultPrecedenceList(java.lang.String, java.lang.String, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.rest.MetadataServiceRest#
+   * getDefaultPrecedenceList(java.lang.String, java.lang.String,
+   * java.lang.String)
    */
   @Override
   @GET
@@ -345,8 +349,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Metadata): /precedence/" + terminology + "/"
-            + version);
+        "RESTful call (Metadata): /precedence/" + terminology + "/" + version);
 
     String user = "";
     MetadataService metadataService = new MetadataServiceJpa();
@@ -360,7 +363,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
             .entity("User does not have permissions to retrieve the metadata")
             .build());
 
-      PrecedenceList precedenceList = metadataService.getDefaultPrecedenceList(terminology, version);
+      PrecedenceList precedenceList =
+          metadataService.getDefaultPrecedenceList(terminology, version);
+
       return precedenceList;
 
     } catch (Exception e) {
@@ -372,6 +377,5 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-
 
 }

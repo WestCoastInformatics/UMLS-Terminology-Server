@@ -13,6 +13,8 @@ import org.apache.log4j.Logger;
 
 import com.sun.jersey.api.model.AbstractResourceModelContext;
 import com.sun.jersey.api.model.AbstractResourceModelListener;
+import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.services.SecurityService;
 
 /**
  * The listener interface for receiving initialization events. The class that is
@@ -35,7 +37,6 @@ public class InitializationListener implements AbstractResourceModelListener {
    * com.sun.jersey.api.model.AbstractResourceModelListener#onLoaded(com.sun
    * .jersey.api.model.AbstractResourceModelContext)
    */
-  @SuppressWarnings("unused")
   @Override
   public void onLoaded(AbstractResourceModelContext modelContext) {
     // Set up a timer task to run at 2AM every day
@@ -45,8 +46,7 @@ public class InitializationListener implements AbstractResourceModelListener {
     today.set(Calendar.HOUR_OF_DAY, 2);
     today.set(Calendar.MINUTE, 0);
     today.set(Calendar.SECOND, 0);
-    // FOR NOW: do nothing
-    // timer.scheduleAtFixedRate(task, today.getTime(), 24 * 60 * 60 * 1000);
+    timer.scheduleAtFixedRate(task, today.getTime(), 6 * 60 * 60 * 1000);
 
     // Cache the "guest" user.
     // SecurityService service;
@@ -80,8 +80,11 @@ public class InitializationListener implements AbstractResourceModelListener {
     public void run() {
       try {
 
-        // For now, the timer is not doing anything
-        // TODO: consider making some kind of DB request once per hour to stay logged in.
+        // We need to "ping" the server to keep DB connections alive.
+        // Do 4 times per day.  Just get users list.
+        Logger.getLogger(getClass()).info("  PING");
+        SecurityService service = new SecurityServiceJpa();
+        service.getUsers();
         
       } catch (Exception e) {
         e.printStackTrace();

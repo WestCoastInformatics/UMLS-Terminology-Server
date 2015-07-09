@@ -338,10 +338,10 @@ public class ContentClientRest extends RootClientRest implements
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public SearchResultList findConceptsForGeneralQuery(String query, String hql,
+  public SearchResultList findConceptsForGeneralQuery(String query, String jql,
     PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find concepts " + query + ", " + hql + ", " + pfs);
+        "Content Client - find concepts " + query + ", " + jql + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
@@ -350,8 +350,8 @@ public class ContentClientRest extends RootClientRest implements
             + "?query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20")
-            + "?hql="
-            + URLEncoder.encode(hql == null ? "" : hql, "UTF-8").replaceAll(
+            + "?jql="
+            + URLEncoder.encode(jql == null ? "" : jql, "UTF-8").replaceAll(
                 "\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -514,9 +514,9 @@ public class ContentClientRest extends RootClientRest implements
    */
   @Override
   public SearchResultList findDescriptorsForGeneralQuery(String query,
-    String hql, PfsParameterJpa pfs, String authToken) throws Exception {
+    String jql, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find descriptors " + query + ", " + hql + ", " + pfs);
+        "Content Client - find descriptors " + query + ", " + jql + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
@@ -525,8 +525,8 @@ public class ContentClientRest extends RootClientRest implements
             + "?query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20")
-            + "?hql="
-            + URLEncoder.encode(hql == null ? "" : hql, "UTF-8").replaceAll(
+            + "?jql="
+            + URLEncoder.encode(jql == null ? "" : jql, "UTF-8").replaceAll(
                 "\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -687,10 +687,10 @@ public class ContentClientRest extends RootClientRest implements
    * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
    */
   @Override
-  public SearchResultList findCodesForGeneralQuery(String query, String hql,
+  public SearchResultList findCodesForGeneralQuery(String query, String jql,
     PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find codes " + query + ", " + hql + ", " + pfs);
+        "Content Client - find codes " + query + ", " + jql + ", " + pfs);
 
     Client client = Client.create();
     WebResource resource =
@@ -699,8 +699,8 @@ public class ContentClientRest extends RootClientRest implements
             + "?query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20")
-            + "?hql="
-            + URLEncoder.encode(hql == null ? "" : hql, "UTF-8").replaceAll(
+            + "?jql="
+            + URLEncoder.encode(jql == null ? "" : jql, "UTF-8").replaceAll(
                 "\\+", "%20"));
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()

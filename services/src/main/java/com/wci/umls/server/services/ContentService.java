@@ -1433,40 +1433,40 @@ public interface ContentService extends MetadataService {
    * Find codes for query.
    *
    * @param luceneQuery the lucene query
-   * @param hqlQuery the hql query
+   * @param jqlQuery the jql query
    * @param rOOT the r oot
    * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findCodesForGeneralQuery(String luceneQuery,
-    String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+    String jqlQuery, String rOOT, PfsParameter pfs) throws Exception;
 
   /**
    * Find concepts for query.
    *
    * @param luceneQuery the lucene query
-   * @param hqlQuery the hql query
+   * @param jqlQuery the jql query
    * @param rOOT the r oot
    * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
-    String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+    String jqlQuery, String rOOT, PfsParameter pfs) throws Exception;
 
   /**
    * Find descriptors for query.
    *
    * @param luceneQuery the lucene query
-   * @param hqlQuery the hql query
+   * @param jqlQuery the jql query
    * @param rOOT the r oot
    * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
-    String hqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+    String jqlQuery, String rOOT, PfsParameter pfs) throws Exception;
 
   /**
    * Returns the tree for tree position. The tree position type is the same as

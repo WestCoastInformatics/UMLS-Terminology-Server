@@ -1438,9 +1438,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       subset.setSuppressible(false);
       subset.setPublishable(false);
       subset.setPublished(false);
-      subset.setTerminology(terminology);
+      subset.setTerminology(concept.getTerminology());
       subset.setTerminologyId(concept.getTerminologyId());
-      subset.setVersion(version);
+      subset.setVersion(concept.getVersion());
       addSubset(subset);
       subsets.add(subset);
       commitClearBegin();
@@ -1461,8 +1461,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         member.setPublishable(false);
         member.setPublishable(false);
         member.setTerminologyId("");
-        member.setTerminology(terminology);
-        member.setVersion(version);
+        member.setTerminology(concept.getTerminology());
+        member.setVersion(concept.getVersion());
         member.setSubset(subset);
         addSubsetMember(member);
         logAndCommit(++objectCt);
@@ -1541,6 +1541,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (fields[2].equals("CUI") && fields[6].equals("CUI")) {
         final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
 
+        System.out.println("cui = " + fields[4]);
         final Concept fromConcept =
             getConcept(conceptIdMap.get(terminology + fields[4]));
         conceptRel.setFrom(fromConcept);
