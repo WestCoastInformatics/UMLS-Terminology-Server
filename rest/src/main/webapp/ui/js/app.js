@@ -1020,7 +1020,7 @@ tsApp
               $scope.searchResults = data.searchResult;
               $scope.searchResults.totalCount = data.totalCount;
 
-              if (loadFirst) {
+              if (loadFirst && $scope.searchResults.length>0) {
                 $scope.getComponent($scope.terminology.terminology,
                   $scope.searchResults[0].terminologyId);
               }
