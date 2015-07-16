@@ -3150,7 +3150,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // execute the query
     @SuppressWarnings("unchecked")
     List<T> classes = fullTextQuery.getResultList();
-
+    
     // Use this code to see the actual score values
     // fullTextQuery.setProjection(FullTextQuery.SCORE, FullTextQuery.ID);
     // List<T> classes = new ArrayList<>();

@@ -899,7 +899,11 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
           // Record class level dagger/asterisk info as refset member
           if (classUsage != null) {
             // Make usage attribute
-            final Attribute att = createAttribute("USAGE", classUsage);
+            String value = "* (asterisk)";
+            if (classUsage.equals("dagger")) {
+              value = "\u2020 (dagger)";
+            }
+            final Attribute att = createAttribute("USAGE", value);
             concept.addAttribute(att);
             addAttribute(att, concept);
 
@@ -982,9 +986,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
             // would be "dagger" or "reference", etc).
 
             if (type.equals("aster"))
-              type = "dagger-to-asterisk";
+              type = "* (asterisk)";
             if (type.equals("dagger"))
-              type = "asterisk-to-dagger";
+              type = "\u2020 (dagger)";
 
             for (Concept childConcept : mapEntry.getValue()) {
 
@@ -2087,10 +2091,10 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     addTerminology(term);
 
     String[] labels = new String[] {
-        "Tree_Sort_Field", "Atoms_Label"
+        "Tree_Sort_Field", "Atoms_Label", "Attributes_Label", "Atom_Relationships_Label"
     };
     String[] labelValues = new String[] {
-        "nodeTerminologyId", "Rubrics"
+        "nodeTerminologyId", "Rubrics", "Usage", "References"
     };
     int i = 0;
     for (String label : labels) {
