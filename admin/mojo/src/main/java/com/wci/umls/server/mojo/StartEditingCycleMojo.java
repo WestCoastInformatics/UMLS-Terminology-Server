@@ -52,11 +52,7 @@ public class StartEditingCycleMojo extends AbstractMojo {
    */
   private boolean server = false;
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.maven.plugin.Mojo#execute()
-   */
+  /* see superclass */
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     try {

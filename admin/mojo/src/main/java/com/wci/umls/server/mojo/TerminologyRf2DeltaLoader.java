@@ -50,11 +50,7 @@ public class TerminologyRf2DeltaLoader extends AbstractMojo {
    */
   private boolean server = false;
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.maven.plugin.Mojo#execute()
-   */
+  /* see superclass */
   @Override
   public void execute() throws MojoFailureException {
     try {

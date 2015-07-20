@@ -13,8 +13,8 @@ import org.apache.log4j.Logger;
 
 import com.sun.jersey.api.model.AbstractResourceModelContext;
 import com.sun.jersey.api.model.AbstractResourceModelListener;
-import com.wci.umls.server.jpa.services.SecurityServiceJpa;
-import com.wci.umls.server.services.SecurityService;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
+import com.wci.umls.server.services.MetadataService;
 
 /**
  * The listener interface for receiving initialization events. The class that is
@@ -83,8 +83,8 @@ public class InitializationListener implements AbstractResourceModelListener {
         // We need to "ping" the server to keep DB connections alive.
         // Do 4 times per day.  Just get users list.
         Logger.getLogger(getClass()).info("  PING");
-        SecurityService service = new SecurityServiceJpa();
-        service.getUsers();
+        MetadataService service = new MetadataServiceJpa();
+        service.getTerminologies();
         
       } catch (Exception e) {
         e.printStackTrace();

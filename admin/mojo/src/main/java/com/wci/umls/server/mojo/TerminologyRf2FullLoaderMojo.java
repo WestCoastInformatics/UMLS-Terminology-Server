@@ -61,11 +61,7 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
     // do nothing
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.maven.plugin.Mojo#execute()
-   */
+  /* see superclass */
   @SuppressWarnings("unused")
   @Override
   public void execute() throws MojoFailureException {

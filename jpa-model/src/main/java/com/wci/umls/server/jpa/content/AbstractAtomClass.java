@@ -128,16 +128,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.AtomClass#getAtoms()
-   */
-  /**
-   * Returns the atoms.
-   *
-   * @return the atoms
-   */
+  /* see superclass */
   @XmlElement(type = AtomJpa.class, name = "atom")
   @Override
   public List<Atom> getAtoms() {
@@ -147,33 +138,13 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     return atoms;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.AtomClass#setAtoms(java.util.List)
-   */
-  /**
-   * Sets the atoms.
-   *
-   * @param atoms the atoms
-   */
+  /* see superclass */
   @Override
   public void setAtoms(List<Atom> atoms) {
     this.atoms = atoms;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.AtomClass#addAtom(com.wci.umls.server
-   * .model.content.Atom)
-   */
-  /**
-   * Adds the atom.
-   *
-   * @param atom the atom
-   */
+  /* see superclass */
   @Override
   public void addAtom(Atom atom) {
     if (atoms == null) {
@@ -182,18 +153,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     atoms.add(atom);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.AtomClass#removeAtom(com.wci.umls.server
-   * .model.content.Atom)
-   */
-  /**
-   * Removes the atom.
-   *
-   * @param atom the atom
-   */
+  /* see superclass */
   @Override
   public void removeAtom(Atom atom) {
     if (atoms == null) {
@@ -202,16 +162,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     atoms.remove(atom);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.AtomClass#getName()
-   */
-  /**
-   * Returns the name.
-   *
-   * @return the name
-   */
+  /* see superclass */
   @Override
   @Fields({
       @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
@@ -222,65 +173,27 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     return name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.AtomClass#setName(java .lang.String)
-   */
-  /**
-   * Sets the name.
-   *
-   * @param name the name
-   */
+  /* see superclass */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.AtomClass#getWorkflowStatus()
-   */
-  /**
-   * Returns the workflow status.
-   *
-   * @return the workflow status
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getWorkflowStatus() {
     return workflowStatus;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.AtomClass#setWorkflowStatus(java.lang
-   * .String)
-   */
-  /**
-   * Sets the workflow status.
-   *
-   * @param workflowStatus the workflow status
-   */
+  /* see superclass */
   @Override
   public void setWorkflowStatus(String workflowStatus) {
     this.workflowStatus = workflowStatus;
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
-   */
-  /**
-   * Hash code.
-   *
-   * @return the int
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -289,18 +202,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
-   */
-  /**
-   * Equals.
-   *
-   * @param obj the obj
-   * @return true, if successful
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -318,34 +220,20 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.AtomClass#getBranchedTo()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getBranchedTo() {
     return branchedTo;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.AtomClass#setBranchedTo(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setBranchedTo(String branchedTo) {
     this.branchedTo = branchedTo;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.AtomClass#addBranchedTo(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void addBranchedTo(String newBranch) {
     if (newBranch.indexOf(Branch.SEPARATOR) != -1) {
@@ -355,13 +243,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     branchedTo += newBranch + Branch.SEPARATOR;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.AtomClass#removeBranchedTo(java.lang.
-   * String)
-   */
+  /* see superclass */
   @Override
   public void removeBranchedTo(String closedBranch) {
     if (closedBranch.indexOf(Branch.SEPARATOR) != -1) {
@@ -377,11 +259,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return getClass().getSimpleName() + " [" + super.toString() + ", name="

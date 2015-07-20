@@ -37,11 +37,6 @@ public class UpdateDbMojo extends AbstractMojo {
     // do nothing
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.maven.plugin.Mojo#execute()
-   */
   @Override
   public void execute() throws MojoFailureException {
     getLog().info("Start updating database schema...");

@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.mojo;
 
 import java.util.Properties;
@@ -37,7 +40,8 @@ public class TreeposComputerMojo extends AbstractMojo {
   private String version;
 
   /**
-   * Whether to run this mojo against an active server
+   * Whether to run this mojo against an active server.
+   *
    * @parameter
    */
   private boolean server = false;
@@ -50,11 +54,7 @@ public class TreeposComputerMojo extends AbstractMojo {
     // do nothing
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.maven.plugin.Mojo#execute()
-   */
+  /* see superclass */
   @Override
   public void execute() throws MojoFailureException {
     getLog().info("Starting computation of tree positions");

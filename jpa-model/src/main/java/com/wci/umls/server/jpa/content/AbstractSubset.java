@@ -53,73 +53,43 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
     description = subset.getDescription();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Subset#getName()
-   */
+  /* see superclass */
   @Override
   public String getName() {
     return name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Subset#setName(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Subset#getDescription()
-   */
+  /* see superclass */
   @Override
   public String getDescription() {
     return description;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Subset#setDescription(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setDescription(String description) {
     this.description = description;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Subset#getBranchedTo()
-   */
+  /* see superclass */
   @Override
   public String getBranchedTo() {
     return branchedTo;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Subset#setBranchedTo(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setBranchedTo(String branchedTo) {
     this.branchedTo = branchedTo;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -130,12 +100,7 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -158,11 +123,7 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return getClass().getSimpleName() + " [name=" + name + ", description="

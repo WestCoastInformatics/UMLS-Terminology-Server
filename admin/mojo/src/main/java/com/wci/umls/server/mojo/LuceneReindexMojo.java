@@ -46,11 +46,7 @@ public class LuceneReindexMojo extends AbstractMojo {
     // do nothing
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.maven.plugin.Mojo#execute()
-   */
+  /* see superclass */
   @Override
   public void execute() throws MojoFailureException {
     try {

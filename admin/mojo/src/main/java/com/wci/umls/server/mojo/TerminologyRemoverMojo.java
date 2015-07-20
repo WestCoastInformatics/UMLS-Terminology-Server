@@ -59,11 +59,7 @@ public class TerminologyRemoverMojo extends AbstractMojo {
     // do nothing
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.maven.plugin.Mojo#execute()
-   */
+  /* see superclass */
   @Override
   public void execute() throws MojoFailureException {
     getLog().info("Starting removing terminology");
