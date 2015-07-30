@@ -70,23 +70,14 @@ public class ConceptSubsetMemberJpa extends
     this.member = member.getMember();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.SubsetMember#getMember()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public Concept getMember() {
     return member;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.SubsetMember#setMember(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public void setMember(Concept member) {
     this.member = member;
@@ -203,24 +194,14 @@ public class ConceptSubsetMemberJpa extends
     member.setName(name);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.ConceptSubsetMember#getSubset()
-   */
+  /* see superclass */
   @XmlTransient
   @Override
   public ConceptSubset getSubset() {
     return subset;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.ConceptSubsetMember#setSubset(com.wci
-   * .umls .server.model.content.ConceptSubset)
-   */
+  /* see superclass */
   @Override
   public void setSubset(ConceptSubset subset) {
     this.subset = subset;
@@ -339,6 +320,8 @@ public class ConceptSubsetMemberJpa extends
 
   /**
    * CUSTOM equals method for subset.getTerminologyId()
+   *
+   * @return the int
    */
   @Override
   public int hashCode() {

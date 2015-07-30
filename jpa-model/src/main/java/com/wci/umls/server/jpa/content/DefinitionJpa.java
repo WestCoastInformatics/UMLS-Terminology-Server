@@ -62,34 +62,20 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
     alternateTerminologyIds = definition.getAlternateTerminologyIds();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Definition#getValue()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getValue() {
     return value;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Definition#setValue(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setValue(String value) {
     this.value = value;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * getAlternateTerminologyIds()
-   */
+  /* see superclass */
   @Override
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
@@ -98,24 +84,14 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
     return alternateTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * setAlternateTerminologyIds(java.util.Map)
-   */
+  /* see superclass */
   @Override
   public void setAlternateTerminologyIds(
     Map<String, String> alternateTerminologyIds) {
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * putAlternateTerminologyId(java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void putAlternateTerminologyId(String terminology, String terminologyId) {
     if (alternateTerminologyIds == null) {
@@ -124,12 +100,7 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
     alternateTerminologyIds.put(terminology, terminologyId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * removeAlternateTerminologyId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeAlternateTerminologyId(String terminology) {
     if (alternateTerminologyIds == null) {
@@ -139,11 +110,7 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -157,12 +124,7 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -185,11 +147,7 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "DefinitionJpa [value=" + value + ", alternateTerminologyIds="

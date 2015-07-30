@@ -61,51 +61,50 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
     alternateTerminologyIds = attribute.getAlternateTerminologyIds();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Attribute#getName()
+  /**
+   * Returns the name.
+   *
+   * @return the name
    */
   @Override
   public String getName() {
     return name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Attribute#setName(java.lang.String)
+  /**
+   * Sets the name.
+   *
+   * @param name the name
    */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Attribute#getValue()
+  /**
+   * Returns the value.
+   *
+   * @return the value
    */
   @Override
   public String getValue() {
     return value;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Attribute#setValue(java.lang.String)
+  /**
+   * Sets the value.
+   *
+   * @param value the value
    */
   @Override
   public void setValue(String value) {
     this.value = value;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * getAlternateTerminologyIds()
+  /**
+   * Returns the alternate terminology ids.
+   *
+   * @return the alternate terminology ids
    */
   @Override
   public Map<String, String> getAlternateTerminologyIds() {
@@ -115,11 +114,10 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
     return alternateTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * setAlternateTerminologyIds(java.util.Map)
+  /**
+   * Sets the alternate terminology ids.
+   *
+   * @param alternateTerminologyIds the alternate terminology ids
    */
   @Override
   public void setAlternateTerminologyIds(
@@ -127,11 +125,11 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * putAlternateTerminologyId(java.lang.String, java.lang.String)
+  /**
+   * Put alternate terminology id.
+   *
+   * @param terminology the terminology
+   * @param terminologyId the terminology id
    */
   @Override
   public void putAlternateTerminologyId(String terminology, String terminologyId) {
@@ -141,11 +139,10 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
     alternateTerminologyIds.put(terminology, terminologyId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * removeAlternateTerminologyId(java.lang.String)
+  /**
+   * Removes the alternate terminology id.
+   *
+   * @param terminology the terminology
    */
   @Override
   public void removeAlternateTerminologyId(String terminology) {
@@ -176,11 +173,11 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
+  /**
+   * Equals.
+   *
+   * @param obj the obj
+   * @return true, if successful
    */
   @Override
   public boolean equals(Object obj) {
@@ -209,10 +206,10 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
+  /**
+   * To string.
+   *
+   * @return the string
    */
   @Override
   public String toString() {

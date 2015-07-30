@@ -157,11 +157,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasDefinitions#getDefinitions()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = DefinitionJpa.class, name = "definition")
   public List<Definition> getDefinitions() {
@@ -171,22 +167,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     return definitions;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasDefinitions#setDefinitions(java.util.List)
-   */
+  /* see superclass */
   @Override
   public void setDefinitions(List<Definition> definitions) {
     this.definitions = definitions;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasRelationships#getRelationships()
-   */
+  /* see superclass */
   @XmlElement(type = AtomRelationshipJpa.class, name = "relationship")
   @Override
   public List<AtomRelationship> getRelationships() {
@@ -196,23 +183,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     return relationships;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasRelationships#setRelationships(java.util
-   * .List)
-   */
+  /* see superclass */
   @Override
   public void setRelationships(List<AtomRelationship> relationships) {
     this.relationships = relationships;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#getConceptTerminologyIds()
-   */
+  /* see superclass */
   @Override
   @FieldBridge(impl = MapValueToCsvBridge.class)
   @Field(name = "conceptTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
@@ -223,24 +200,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     return conceptTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#setConceptTerminologyIds(java.
-   * util.Map)
-   */
+  /* see superclass */
   @Override
   public void setConceptTerminologyIds(Map<String, String> conceptTerminologyIds) {
     this.conceptTerminologyIds = conceptTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Atom#putConceptTerminologyId(java.lang
-   * .String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void putConceptTerminologyId(String terminology, String terminologyId) {
     if (conceptTerminologyIds == null) {
@@ -249,13 +215,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     conceptTerminologyIds.put(terminology, terminologyId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Atom#removeConceptTerminologyId(java.
-   * lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeConceptTerminologyId(String terminology) {
     if (conceptTerminologyIds == null) {
@@ -264,140 +224,85 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     conceptTerminologyIds.remove(terminology);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#getCodeId()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getCodeId() {
     return codeId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#setCodeId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setCodeId(String codeId) {
     this.codeId = codeId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#getDescriptorId()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getDescriptorId() {
     return descriptorId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Atom#setDescriptorId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setDescriptorId(String descriptorId) {
     this.descriptorId = descriptorId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#getConceptId()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getConceptId() {
     return conceptId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#setConceptId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setConceptId(String conceptId) {
     this.conceptId = conceptId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#getLanguage()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getLanguage() {
     return language;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#setLanguage(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setLanguage(String language) {
     this.language = language;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#getLexicalClassId()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getLexicalClassId() {
     return lexicalClassId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Atom#setLexicalClassId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setLexicalClassId(String lexicalClassId) {
     this.lexicalClassId = lexicalClassId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#getStringClassId()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getStringClassId() {
     return stringClassId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Atom#setStringClassId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setStringClassId(String stringClassId) {
     this.stringClassId = stringClassId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#getTerm()
-   */
+  /* see superclass */
   @Override
   @Fields({
       @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord")),
@@ -409,67 +314,40 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     return name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#setTerm(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#getTermType()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTermType() {
     return termType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#setTermType(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTermType(String termType) {
     this.termType = termType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Atom#getWorkflowStatus()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getWorkflowStatus() {
     return workflowStatus;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Atom#setWorkflowStatus(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setWorkflowStatus(String workflowStatus) {
     this.workflowStatus = workflowStatus;
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasDefinitions#addDefinition(com.wci.umls.server
-   * .model.content.Definition)
-   */
+  /* see superclass */
   @Override
   public void addDefinition(Definition definition) {
     if (definitions == null) {
@@ -478,13 +356,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     definitions.add(definition);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasDefinitions#removeDefinition(com.wci.umls
-   * .server.model.content.Definition)
-   */
+  /* see superclass */
   @Override
   public void removeDefinition(Definition definition) {
     if (definitions == null) {
@@ -493,13 +365,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     definitions.remove(definition);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasRelationships#addRelationship(com.wci.umls
-   * .server.model.content.Relationship)
-   */
+  /* see superclass */
   @Override
   public void addRelationship(AtomRelationship relationship) {
     if (relationships == null) {
@@ -508,13 +374,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     relationships.add(relationship);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasRelationships#removeRelationship(com.wci
-   * .umls.server.model.content.Relationship)
-   */
+  /* see superclass */
   @Override
   public void removeRelationship(AtomRelationship relationship) {
     if (relationships == null) {
@@ -523,12 +383,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     relationships.remove(relationship);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Component#getAlternateTerminologyIds()
-   */
+  /* see superclass */
   @Override
   @FieldBridge(impl = MapValueToCsvBridge.class)
   @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
@@ -539,26 +394,14 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     return alternateTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Component#setAlternateTerminologyIds(
-   * java.util.Map)
-   */
+  /* see superclass */
   @Override
   public void setAlternateTerminologyIds(
     Map<String, String> alternateTerminologyIds) {
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Component#putAlternateTerminologyId(java
-   * .lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void putAlternateTerminologyId(String terminology, String terminologyId) {
     if (alternateTerminologyIds == null) {
@@ -567,13 +410,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     alternateTerminologyIds.put(terminology, terminologyId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Component#removeAlternateTerminologyId
-   * (java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeAlternateTerminologyId(String terminology) {
     if (alternateTerminologyIds == null) {
@@ -583,11 +420,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasMembers#getMembers()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = AtomSubsetMemberJpa.class, name = "member")
   public List<AtomSubsetMember> getMembers() {
@@ -597,23 +430,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     return members;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasMembers#setMembers(java.util.List)
-   */
+  /* see superclass */
   @Override
   public void setMembers(List<AtomSubsetMember> members) {
     this.members = members;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasMembers#addMember(com.wci.umls.server.model
-   * .content.SubsetMember)
-   */
+  /* see superclass */
   @Override
   public void addMember(AtomSubsetMember member) {
     if (members == null) {
@@ -622,13 +445,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     members.add(member);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasMembers#removeMember(com.wci.umls.server
-   * .model.content.SubsetMember)
-   */
+  /* see superclass */
   @Override
   public void removeMember(AtomSubsetMember member) {
     if (members == null) {
@@ -673,12 +490,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -741,11 +553,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "AtomJpa [name=" + name + ", conceptTerminologyIds="

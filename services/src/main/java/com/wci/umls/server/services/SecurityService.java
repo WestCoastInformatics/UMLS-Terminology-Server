@@ -87,7 +87,7 @@ public interface SecurityService extends RootService {
    * @return the users
    */
   public UserList getUsers();
-
+  
   /**
    * Adds the user.
    *

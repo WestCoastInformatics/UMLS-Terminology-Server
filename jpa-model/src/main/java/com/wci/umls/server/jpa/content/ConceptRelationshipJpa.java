@@ -79,25 +79,15 @@ public class ConceptRelationshipJpa extends
     from = relationship.getFrom();
     alternateTerminologyIds = relationship.getAlternateTerminologyIds();
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Relationship#getFrom()
-   */
+  
+  /* see superclass */
   @Override
   @XmlTransient
   public Concept getFrom() {
     return from;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Relationship#setFrom(com.wci.umls.server
-   * .model.content.Component)
-   */
+  /* see superclass */
   @Override
   public void setFrom(Concept component) {
     this.from = component;
@@ -135,7 +125,7 @@ public class ConceptRelationshipJpa extends
   }
 
   /**
-   * Sets the from terminology
+   * Sets the from terminology.
    *
    * @param terminology the from terminology
    */
@@ -212,24 +202,15 @@ public class ConceptRelationshipJpa extends
     from.setName(term);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Relationship#getTo()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public Concept getTo() {
     return to;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Relationship#setTo(com.wci.umls.server
-   * .model.content.Component)
-   */
+
+  /* see superclass */
   @Override
   public void setTo(Concept component) {
     this.to = component;
@@ -344,12 +325,8 @@ public class ConceptRelationshipJpa extends
     to.setName(term);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * getAlternateTerminologyIds()
-   */
+
+  /* see superclass */
   @Override
   @FieldBridge(impl = MapValueToCsvBridge.class)
   @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
@@ -360,24 +337,16 @@ public class ConceptRelationshipJpa extends
     return alternateTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * setAlternateTerminologyIds(java.util.Map)
-   */
+ 
+  /* see superclass */
   @Override
   public void setAlternateTerminologyIds(
     Map<String, String> alternateTerminologyIds) {
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * putAlternateTerminologyId(java.lang.String, java.lang.String)
-   */
+
+  /* see superclass */
   @Override
   public void putAlternateTerminologyId(String terminology, String terminologyId) {
     if (alternateTerminologyIds == null) {
@@ -386,12 +355,7 @@ public class ConceptRelationshipJpa extends
     alternateTerminologyIds.put(terminology, terminologyId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * removeAlternateTerminologyId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeAlternateTerminologyId(String terminology) {
     if (alternateTerminologyIds == null) {

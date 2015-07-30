@@ -17,16 +17,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * API origin filter (CORS)
+ * API origin filter (CORS).
  */
 public class ApiOriginFilter implements Filter {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
-   * javax.servlet.ServletResponse, javax.servlet.FilterChain)
-   */
+  /* see superclass */
   @Override
   public void doFilter(ServletRequest request, ServletResponse response,
     FilterChain chain) throws IOException, ServletException {
@@ -38,11 +33,13 @@ public class ApiOriginFilter implements Filter {
     chain.doFilter(request, response);
   }
 
+  /* see superclass */
   @Override
   public void destroy() {
     // do nothing
   }
 
+  /* see superclass */
   @Override
   public void init(FilterConfig arg0) throws ServletException {
     // do nothing

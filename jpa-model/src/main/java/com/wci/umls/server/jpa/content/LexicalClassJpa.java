@@ -93,32 +93,22 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
     this.normalizedName = normalizedName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#getLabels()
-   */
+
+  /* see superclass */
   @Override
   public List<String> getLabels() {
     return labels;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#setLabels(java.util.List)
-   */
+
+  /* see superclass */
   @Override
   public void setLabels(List<String> labels) {
     this.labels = labels;
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#addLabel(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void addLabel(String label) {
     if (labels == null) {
@@ -127,11 +117,7 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
     labels.add(label);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#removeLabel(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeLabel(String label) {
     if (labels == null) {
@@ -141,11 +127,8 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#hashCode()
-   */
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -156,12 +139,8 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractAtomClass#equals(java.lang.Object)
-   */
+ 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

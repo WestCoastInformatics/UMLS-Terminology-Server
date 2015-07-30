@@ -69,11 +69,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.ConceptSubset#getMembers()
-   */
+  /* see superclass */
   @XmlElement(type = ConceptSubsetMemberJpa.class, name = "member")
   @Override
   public List<ConceptSubsetMember> getMembers() {
@@ -83,24 +79,13 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     return members;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.ConceptSubset#setMembers(java.util.List)
-   */
+  /* see superclass */
   @Override
   public void setMembers(List<ConceptSubsetMember> members) {
     this.members = members;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.ConceptSubset#addMember(com.wci.umls.
-   * server .model.content.ConceptSubsetMember)
-   */
+  /* see superclass */
   @Override
   public void addMember(ConceptSubsetMember member) {
     if (members == null) {
@@ -109,13 +94,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     members.add(member);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.ConceptSubset#removeMember(com.wci.umls.
-   * server.model.content.ConceptSubsetMember)
-   */
+  /* see superclass */
   @Override
   public void removeMember(ConceptSubsetMember member) {
     if (members == null) {
@@ -124,46 +103,37 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     members.remove(member);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Subset#clearMembers()
-   */
+  /* see superclass */
   @Override
   public void clearMembers() {
     members = new ArrayList<>();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Subset#isDisjointSubset()
-   */
+  /* see superclass */
   @Override
   public boolean isDisjointSubset() {
     return disjointSubset;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Subset#setDisjointSubset(boolean)
-   */
+  /* see superclass */
   @Override
   public void setDisjointSubset(boolean disjointSubset) {
     this.disjointSubset = disjointSubset;
   }
 
+  /* see superclass */
   @Override
   public boolean isLabelSubset() {
     return labelSubset;
   }
 
+  /* see superclass */
   @Override
   public void setLabelSubset(boolean labelSubset) {
     this.labelSubset = labelSubset;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -173,6 +143,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -189,11 +160,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return getClass().getSimpleName() + " [name=" + getName()

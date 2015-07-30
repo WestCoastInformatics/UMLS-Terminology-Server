@@ -66,14 +66,7 @@ public class ContentClientRest extends RootClientRest implements
     this.config = config;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyRrf
-   * (java.lang.String, java.lang.String, boolean, java.lang.String,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void loadTerminologyRrf(String terminology, String version,
     boolean singleMode, String inputDir, String authToken) throws Exception {
@@ -104,13 +97,7 @@ public class ContentClientRest extends RootClientRest implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * computeTransitiveClosure(java.lang.String, java.lang.String,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void computeTransitiveClosure(String terminology, String version,
     String authToken) throws Exception {
@@ -139,13 +126,7 @@ public class ContentClientRest extends RootClientRest implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#computeTreePositions
-   * (java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void computeTreePositions(String terminology, String version,
     String authToken) throws Exception {
@@ -174,13 +155,7 @@ public class ContentClientRest extends RootClientRest implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#luceneReindex(
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void luceneReindex(String indexedObjects, String authToken)
     throws Exception {
@@ -206,13 +181,7 @@ public class ContentClientRest extends RootClientRest implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#removeTerminology
-   * (java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public boolean removeTerminology(String terminology, String version,
     String authToken) throws Exception {
@@ -239,13 +208,7 @@ public class ContentClientRest extends RootClientRest implements
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getConcept(java
-   * .lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public Concept getConcept(String terminologyId, String terminology,
     String version, String authToken) throws Exception {
@@ -277,14 +240,7 @@ public class ContentClientRest extends RootClientRest implements
     return concept;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findConceptsForQuery
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfscParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String query, PfscParameterJpa pfsc, String authToken)
@@ -329,14 +285,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findConceptsForQuery
-   * (java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public SearchResultList findConceptsForGeneralQuery(String query, String jql,
     PfsParameterJpa pfs, String authToken) throws Exception {
@@ -376,13 +325,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#autocompleteConcepts
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public StringList autocompleteConcepts(String terminology, String version,
     String searchTerm, String authToken) throws Exception {
@@ -415,13 +358,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getDescriptor(
-   * java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public Descriptor getDescriptor(String terminologyId, String terminology,
     String version, String authToken) throws Exception {
@@ -454,14 +391,7 @@ public class ContentClientRest extends RootClientRest implements
     return descriptor;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findDescriptorsForQuery(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfscParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public SearchResultList findDescriptorsForQuery(String terminology,
     String version, String query, PfscParameterJpa pfsc, String authToken)
@@ -505,13 +435,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findDescriptorsForQuery(java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public SearchResultList findDescriptorsForGeneralQuery(String query,
     String jql, PfsParameterJpa pfs, String authToken) throws Exception {
@@ -551,13 +475,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * autocompleteDescriptors(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public StringList autocompleteDescriptors(String terminology, String version,
     String searchTerm, String authToken) throws Exception {
@@ -590,13 +508,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getCode(java.lang
-   * .String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public Code getCode(String terminologyId, String terminology, String version,
     String authToken) throws Exception {
@@ -628,14 +540,7 @@ public class ContentClientRest extends RootClientRest implements
     return descriptor;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findCodesForQuery
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfscParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public SearchResultList findCodesForQuery(String terminology, String version,
     String query, PfscParameterJpa pfsc, String authToken) throws Exception {
@@ -678,14 +583,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findCodesForQuery
-   * (java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public SearchResultList findCodesForGeneralQuery(String query, String jql,
     PfsParameterJpa pfs, String authToken) throws Exception {
@@ -725,13 +623,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#autocompleteCodes
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public StringList autocompleteCodes(String terminology, String version,
     String searchTerm, String authToken) throws Exception {
@@ -764,13 +656,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getLexicalClass
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public LexicalClass getLexicalClass(String terminologyId, String terminology,
     String version, String authToken) throws Exception {
@@ -803,13 +689,7 @@ public class ContentClientRest extends RootClientRest implements
     return lexicalClass;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getStringClass
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public StringClass getStringClass(String terminologyId, String terminology,
     String version, String authToken) throws Exception {
@@ -842,14 +722,7 @@ public class ContentClientRest extends RootClientRest implements
     return stringClass;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorConcepts
-   * (java.lang.String, java.lang.String, java.lang.String, boolean,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public ConceptList findAncestorConcepts(String terminologyId,
     String terminology, String version, boolean parentsOnly,
@@ -889,14 +762,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findDescendantConcepts
-   * (java.lang.String, java.lang.String, java.lang.String, boolean,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public ConceptList findDescendantConcepts(String terminologyId,
     String terminology, String version, boolean childrenOnly,
@@ -936,14 +802,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findAncestorDescriptors(java.lang.String, java.lang.String,
-   * java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public DescriptorList findAncestorDescriptors(String terminologyId,
     String terminology, String version, boolean parentsOnly,
@@ -983,14 +842,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findDescendantDescriptors(java.lang.String, java.lang.String,
-   * java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public DescriptorList findDescendantDescriptors(String terminologyId,
     String terminology, String version, boolean childrenOnly,
@@ -1030,14 +882,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorCodes
-   * (java.lang.String, java.lang.String, java.lang.String, boolean,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public CodeList findAncestorCodes(String terminologyId, String terminology,
     String version, boolean parentsOnly, PfsParameterJpa pfs, String authToken)
@@ -1078,14 +923,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findDescendantCodes
-   * (java.lang.String, java.lang.String, java.lang.String, boolean,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public CodeList findDescendantCodes(String terminologyId, String terminology,
     String version, boolean childrenOnly, PfsParameterJpa pfs, String authToken)
@@ -1125,13 +963,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * getSubsetMembersForConcept(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public SubsetMemberList getSubsetMembersForConcept(String terminologyId,
     String terminology, String version, String authToken) throws Exception {
@@ -1164,13 +996,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * getSubsetMembersForAtom(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public SubsetMemberList getSubsetMembersForAtom(String terminologyId,
     String terminology, String version, String authToken) throws Exception {
@@ -1203,13 +1029,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * loadTerminologyRf2Snapshot(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void loadTerminologyRf2Snapshot(String terminology, String version,
     String inputDir, String authToken) throws Exception {
@@ -1237,13 +1057,7 @@ public class ContentClientRest extends RootClientRest implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * loadTerminologyRf2Delta(java.lang.String, java.lang.String,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void loadTerminologyRf2Delta(String terminology, String inputDir,
     String authToken) throws Exception {
@@ -1270,13 +1084,7 @@ public class ContentClientRest extends RootClientRest implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyClaml
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void loadTerminologyClaml(String terminology, String version,
     String inputFile, String authToken) throws Exception {
@@ -1303,14 +1111,34 @@ public class ContentClientRest extends RootClientRest implements
       throw new Exception("Unexpected status " + response.getStatus());
     }
   }
+  @Override
+  public void loadTerminologyOwl(String terminology, String version,
+    String inputFile, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - load terminology Owl " + terminology + ", "
+            + version);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    validateNotEmpty(inputFile, "inputFile");
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getAtomSubsets
-   * (java.lang.String, java.lang.String, java.lang.String)
-   */
+    Client client = Client.create();
+    WebResource resource =
+        client.resource(config.getProperty("base.url")
+            + "/terminology/load/owl/" + terminology + "/" + version);
+    ClientResponse response =
+        resource.accept(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .header("Content-type", MediaType.APPLICATION_XML)
+            .put(ClientResponse.class, inputFile);
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing
+    } else {
+      throw new Exception("Unexpected status " + response.getStatus());
+    }
+  }
+
+  /* see superclass */
   @Override
   public SubsetList getAtomSubsets(String terminology, String version,
     String authToken) throws Exception {
@@ -1341,13 +1169,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getConceptSubsets
-   * (java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public SubsetList getConceptSubsets(String terminology, String version,
     String authToken) throws Exception {
@@ -1378,14 +1200,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAtomSubsetMembers
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public SubsetMemberList findAtomSubsetMembers(String subsetId,
     String terminology, String version, String query, PfsParameterJpa pfs,
@@ -1432,14 +1247,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findConceptSubsetMembers(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public SubsetMemberList findConceptSubsetMembers(String subsetId,
     String terminology, String version, String query, PfsParameterJpa pfs,
@@ -1486,14 +1294,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findDeepRelationshipsForConcept(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public RelationshipList findDeepRelationshipsForConcept(String terminologyId,
     String terminology, String version, PfsParameterJpa pfs, String authToken)
@@ -1533,14 +1334,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * getRelationshipsForConcept(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public RelationshipList findRelationshipsForConcept(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
@@ -1559,14 +1353,7 @@ public class ContentClientRest extends RootClientRest implements
         query, pfs, authToken);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findRelationshipsForDescriptor(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public RelationshipList findRelationshipsForDescriptor(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
@@ -1581,14 +1368,7 @@ public class ContentClientRest extends RootClientRest implements
         query, pfs, authToken);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findRelationshipsForCode(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public RelationshipList findRelationshipsForCode(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
@@ -1658,14 +1438,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findTreesForConcept
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public TreeList findConceptTrees(String terminologyId, String terminology,
     String version, PfsParameterJpa pfs, String authToken) throws Exception {
@@ -1679,14 +1452,7 @@ public class ContentClientRest extends RootClientRest implements
         authToken);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findTreesForDescriptor
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public TreeList findDescriptorTrees(String terminologyId, String terminology,
     String version, PfsParameterJpa pfs, String authToken) throws Exception {
@@ -1700,14 +1466,7 @@ public class ContentClientRest extends RootClientRest implements
         authToken);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findTreesForCode
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public TreeList findCodeTrees(String terminologyId, String terminology,
     String version, PfsParameterJpa pfs, String authToken) throws Exception {
@@ -1765,14 +1524,7 @@ public class ContentClientRest extends RootClientRest implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findConceptTreeForQuery(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public Tree findConceptTreeForQuery(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
@@ -1785,14 +1537,7 @@ public class ContentClientRest extends RootClientRest implements
         authToken);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findDescriptorTreeForQuery(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public Tree findDescriptorTreeForQuery(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
@@ -1805,14 +1550,7 @@ public class ContentClientRest extends RootClientRest implements
         authToken);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findCodeTreeForQuery
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public Tree findCodeTreeForQuery(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
@@ -1876,6 +1614,7 @@ public class ContentClientRest extends RootClientRest implements
     return tree;
   }
 
+  /* see superclass */
   @Override
   public TreeList findConceptTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
@@ -1909,6 +1648,7 @@ public class ContentClientRest extends RootClientRest implements
 
   }
 
+  /* see superclass */
   @Override
   public TreeList findDescriptorTreeChildren(String terminology,
     String version, String terminologyId, PfsParameterJpa pfs, String authToken)
@@ -1941,6 +1681,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
+  /* see superclass */
   @Override
   public TreeList findCodeTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
@@ -1973,6 +1714,7 @@ public class ContentClientRest extends RootClientRest implements
     return list;
   }
 
+  /* see superclass */
   @Override
   public Tree findConceptTreeRoots(String terminology, String version,
     PfsParameterJpa pfs, String authToken) throws Exception {
@@ -2003,6 +1745,7 @@ public class ContentClientRest extends RootClientRest implements
     return tree;
   }
 
+  /* see superclass */
   @Override
   public Tree findCodeTreeRoots(String terminology, String version,
     PfsParameterJpa pfs, String authToken) throws Exception {
@@ -2033,6 +1776,7 @@ public class ContentClientRest extends RootClientRest implements
     return tree;
   }
 
+  /* see superclass */
   @Override
   public Tree findDescriptorTreeRoots(String terminology, String version,
     PfsParameterJpa pfs, String authToken) throws Exception {

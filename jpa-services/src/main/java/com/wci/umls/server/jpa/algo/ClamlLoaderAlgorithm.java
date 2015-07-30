@@ -77,7 +77,7 @@ import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
- * Implementation of an algorithm to import RF2 snapshot data.
+ * Implementation of an algorithm to import ClaML data.
  */
 public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     Algorithm {

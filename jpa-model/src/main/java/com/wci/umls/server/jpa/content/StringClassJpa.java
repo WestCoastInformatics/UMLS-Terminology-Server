@@ -57,32 +57,18 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
     labels = stringClass.getLabels();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#getLabels()
-   */
+
   @Override
   public List<String> getLabels() {
     return labels;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#setLabels(java.util.List)
-   */
   @Override
   public void setLabels(List<String> labels) {
     this.labels = labels;
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#addLabel(java.lang.String)
-   */
   @Override
   public void addLabel(String label) {
     if (labels == null) {
