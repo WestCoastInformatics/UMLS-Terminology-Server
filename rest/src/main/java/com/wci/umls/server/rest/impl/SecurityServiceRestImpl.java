@@ -44,7 +44,6 @@ import com.wordnik.swagger.annotations.ApiParam;
 public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     SecurityServiceRest {
 
-
   @Override
   @POST
   @Path("/authenticate/{username}")
@@ -84,8 +83,8 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/logout/{authToken}")
-  @ApiOperation(value = "Log out an auth token", notes = "Performs logout on specified auth token")
-  public void logout(
+  @ApiOperation(value = "Log out an auth token", notes = "Performs logout on specified auth token", response = String.class)
+  public String logout(
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @PathParam("authToken") String authToken)
     throws Exception {
 
@@ -94,6 +93,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     SecurityService securityService = new SecurityServiceJpa();
     try {
       securityService.logout(authToken);
+      return null;
     } catch (LocalException e) {
       throw new WebApplicationException(Response.status(401)
           .entity(e.getMessage()).build());
@@ -103,6 +103,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     } finally {
       securityService.close();
     }
+    return null;
 
   }
 
@@ -176,7 +177,6 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-
   @Override
   @PUT
   @Path("/user/add")
@@ -230,7 +230,6 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
- 
   @Override
   @POST
   @Path("/user/update")

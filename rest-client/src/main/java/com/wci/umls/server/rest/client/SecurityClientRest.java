@@ -63,7 +63,7 @@ public class SecurityClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public void logout(String authToken) throws Exception {
+  public String logout(String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - logout");
     Client client = Client.create();
     WebResource resource =
@@ -77,7 +77,7 @@ public class SecurityClientRest extends RootClientRest implements
     } else {
       throw new Exception(response.toString());
     }
-
+    return null;
   }
 
   /* see superclass */
