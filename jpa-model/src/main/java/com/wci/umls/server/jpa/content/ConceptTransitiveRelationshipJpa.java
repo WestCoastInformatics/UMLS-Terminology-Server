@@ -61,25 +61,13 @@ public class ConceptTransitiveRelationshipJpa extends
     subType = relationship.getSubType();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TransitiveRelationship#getSuperType()
-   */
   @XmlTransient
   @Override
   public Concept getSuperType() {
     return superType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TransitiveRelationship#setSuperType(com
-   * .wci.umls.server.model.content.AtomClass)
-   */
+ 
   @Override
   public void setSuperType(Concept ancestor) {
     this.superType = ancestor;
@@ -193,24 +181,13 @@ public class ConceptTransitiveRelationshipJpa extends
     superType.setName(term);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.TransitiveRelationship#getSubType()
-   */
+ 
   @XmlTransient
   @Override
   public Concept getSubType() {
     return subType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TransitiveRelationship#setSubType(com
-   * .wci.umls.server.model.content.AtomClass)
-   */
   @Override
   public void setSubType(Concept descendant) {
     this.subType = descendant;

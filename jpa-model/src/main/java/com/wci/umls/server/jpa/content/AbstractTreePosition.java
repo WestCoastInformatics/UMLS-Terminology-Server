@@ -66,98 +66,55 @@ public abstract class AbstractTreePosition<T extends AtomClass> extends
     descendantCt = treepos.getDescendantCt();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TreePosition#getAdditionalRelationshipType
-   * ()
-   */
+
   @Override
   public String getAdditionalRelationshipType() {
     return additionalRelationshipType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TreePosition#setAdditionalRelationshipType
-   * (java.lang.String)
-   */
+
   @Override
   public void setAdditionalRelationshipType(String additionalRelationshipType) {
     this.additionalRelationshipType = additionalRelationshipType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.TreePosition#getAncestorPath()
-   */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public String getAncestorPath() {
     return ancestorPath;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TreePosition#setAncestorPath(java.lang
-   * .String)
-   */
+
   @Override
   public void setAncestorPath(String ancestorPath) {
     this.ancestorPath = ancestorPath;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.TreePosition#getChildCt()
-   */
+
   @Override
   public int getChildCt() {
     return childCt;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.TreePosition#setChildCt(int)
-   */
+  
   @Override
   public void setChildCt(int childCt) {
     this.childCt = childCt;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.TreePosition#getDescendantCt()
-   */
+  
   @Override
   public int getDescendantCt() {
     return descendantCt;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.TreePosition#setDescendantCt(int)
-   */
+
   @Override
   public void setDescendantCt(int descendantCt) {
     this.descendantCt = descendantCt;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
-   */
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -174,12 +131,7 @@ public abstract class AbstractTreePosition<T extends AtomClass> extends
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
-   */
+
   @SuppressWarnings("rawtypes")
   @Override
   public boolean equals(Object obj) {
@@ -208,11 +160,7 @@ public abstract class AbstractTreePosition<T extends AtomClass> extends
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
+
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[node=" + getNode() + ", "

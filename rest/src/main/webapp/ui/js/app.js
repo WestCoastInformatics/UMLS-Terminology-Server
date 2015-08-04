@@ -92,6 +92,7 @@ tsApp
         $scope.definitionsLabel = "Definitions";
         $scope.subsetsLabel = "Subsets";
         $scope.relationshipsLabel = "Relationships";
+        $scope.atomRelationshipsLabel = "References";
         $scope.extensionsLabel = "Extensions";
 
         $scope.searchParams = {
@@ -1518,6 +1519,9 @@ tsApp
                 }
                 if (generalEntries[j].key === "Relationships_Label") {
                   $scope.relationshipsLabel = generalEntries[j].value;
+                }
+                if (generalEntries[j].key === "Atom_Relationships_Label") {
+                  $scope.atomRelationshipsLabel = generalEntries[j].value;
                 }
                 if (generalEntries[j].key === "Extensions_Label") {
                   $scope.extensionsLabel = generalEntries[j].value;

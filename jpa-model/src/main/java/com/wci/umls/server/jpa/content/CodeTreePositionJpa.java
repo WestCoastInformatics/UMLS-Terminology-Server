@@ -63,11 +63,7 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
     node = treepos.getNode();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.TreePosition#getNode()
-   */
+  /* see superclass */
   @XmlTransient
   @Override
   public Code getNode() {
@@ -189,23 +185,13 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
     node.setVersion(version);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TreePosition#setNode(com.wci.umls.server
-   * .model.content.ComponentHasAttributesAndName)
-   */
+  /* see superclass */
   @Override
   public void setNode(Code code) {
     this.node = code;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractTreePosition#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;

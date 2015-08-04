@@ -179,32 +179,20 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
     relationships.remove(relationship);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#getLabels()
-   */
+  /* see superclass */
   @Override
   public List<String> getLabels() {
     return labels;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#setLabels(java.util.List)
-   */
+  /* see superclass */
   @Override
   public void setLabels(List<String> labels) {
     this.labels = labels;
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#addLabel(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void addLabel(String label) {
     if (labels == null) {
@@ -213,11 +201,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
     labels.add(label);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#removeLabel(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeLabel(String label) {
     if (labels == null) {

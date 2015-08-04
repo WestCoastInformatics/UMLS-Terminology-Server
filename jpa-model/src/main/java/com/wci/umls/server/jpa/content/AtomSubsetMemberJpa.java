@@ -68,23 +68,14 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
     this.member = member.getMember();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.SubsetMember#getMember()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public Atom getMember() {
     return member;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.SubsetMember#setMember(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public void setMember(Atom member) {
     this.member = member;
@@ -201,24 +192,14 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
     member.setName(name);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.AtomSubsetMember#getSubset()
-   */
+  /* see superclass */
   @XmlTransient
   @Override
   public AtomSubset getSubset() {
     return subset;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.AtomSubsetMember#setSubset(com.wci.umls
-   * .server.model.content.AtomSubset)
-   */
+  /* see superclass */
   @Override
   public void setSubset(AtomSubset subset) {
     this.subset = subset;
@@ -337,6 +318,8 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
 
   /**
    * CUSTOM equals method for subset/member.getTerminologyId()
+   *
+   * @return the int
    */
   @Override
   public int hashCode() {

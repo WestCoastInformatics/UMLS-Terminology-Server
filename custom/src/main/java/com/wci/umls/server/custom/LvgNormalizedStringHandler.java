@@ -26,13 +26,7 @@ public class LvgNormalizedStringHandler implements NormalizedStringHandler {
   /** The api. */
   private LuiNormApi api;
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
-   * )
-   */
+  /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
     if (p.getProperty("lvg.dir") == null) {
@@ -46,12 +40,7 @@ public class LvgNormalizedStringHandler implements NormalizedStringHandler {
     api = new LuiNormApi(LVG_DIR + "/data/config/lvg.properties", properties);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.NormalizedStringHandler#
-   * getNormalizedString(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public String getNormalizedString(String string) throws Exception {
     return api.Mutate(string);

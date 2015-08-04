@@ -77,24 +77,14 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     alternateTerminologyIds = relationship.getAlternateTerminologyIds();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Relationship#getFrom()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public Code getFrom() {
     return from;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Relationship#setFrom(com.wci.umls.server
-   * .model.content.Component)
-   */
+  /* see superclass */
   @Override
   public void setFrom(Code component) {
     this.from = component;
@@ -132,7 +122,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
   }
 
   /**
-   * Sets the from terminology
+   * Sets the from terminology.
    *
    * @param terminology the from terminology
    */
@@ -209,24 +199,14 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     from.setName(term);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Relationship#getTo()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public Code getTo() {
     return to;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Relationship#setTo(com.wci.umls.server
-   * .model.content.Component)
-   */
+  /* see superclass */
   @Override
   public void setTo(Code component) {
     this.to = component;
@@ -341,12 +321,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     to.setName(term);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * getAlternateTerminologyIds()
-   */
+  /* see superclass */
   @Override
   @FieldBridge(impl = MapValueToCsvBridge.class)
   @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
@@ -357,24 +332,14 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     return alternateTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * setAlternateTerminologyIds(java.util.Map)
-   */
+  /* see superclass */
   @Override
   public void setAlternateTerminologyIds(
     Map<String, String> alternateTerminologyIds) {
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * putAlternateTerminologyId(java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void putAlternateTerminologyId(String terminology, String terminologyId) {
     if (alternateTerminologyIds == null) {
@@ -383,12 +348,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     alternateTerminologyIds.put(terminology, terminologyId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * removeAlternateTerminologyId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeAlternateTerminologyId(String terminology) {
     if (alternateTerminologyIds == null) {

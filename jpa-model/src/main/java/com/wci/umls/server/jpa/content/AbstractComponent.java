@@ -81,7 +81,7 @@ public abstract class AbstractComponent implements Component {
   @Column(nullable = false)
   private String version;
 
-  /** The branch set to include empty branch */
+  /** The branch set to include empty branch. */
   @Column(nullable = true)
   private String branch = Branch.ROOT;
 
@@ -112,21 +112,13 @@ public abstract class AbstractComponent implements Component {
     branch = component.getBranch();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#getId()
-   */
+  /* see superclass */
   @Override
   public Long getId() {
     return this.id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#setId(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void setId(Long id) {
     this.id = id;
@@ -153,32 +145,19 @@ public abstract class AbstractComponent implements Component {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Component#timestamp()
-   */
+  /* see superclass */
   @Override
   public Date getTimestamp() {
     return timestamp;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Component#setTimestamp(java.util.Date)
-   */
+  /* see superclass */
   @Override
   public void setTimestamp(Date timestamp) {
     this.timestamp = timestamp;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#getLastModified()
-   */
+  /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public Date getLastModified() {
@@ -186,72 +165,48 @@ public abstract class AbstractComponent implements Component {
   }
 
   /**
-   * Returns the last modified in yyyymmdd format. 
+   * Returns the last modified in yyyymmdd format.
    *
    * @return the last modified yyyymmdd
    */
-  @Field(name="lastModifiedYYYYMMDD", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(name = "lastModifiedYYYYMMDD", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   private String getLastModifiedYYYYMMDD() {
     return ConfigUtility.DATE_FORMAT.format(lastModified);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#setLastModified(java.util.Date)
-   */
+  /* see superclass */
   @Override
   public void setLastModified(Date lastModified) {
     this.lastModified = lastModified;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#getLastModifiedBy()
-   */
+  /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public String getLastModifiedBy() {
     return lastModifiedBy;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#setLastModifiedBy(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setLastModifiedBy(String lastModifiedBy) {
     this.lastModifiedBy = lastModifiedBy;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Component#isSuppressible()
-   */
+  /* see superclass */
   @Override
   @Field(name = "suppressible", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isSuppressible() {
     return suppressible;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Component#setSuppressible(boolean)
-   */
+  /* see superclass */
   @Override
   public void setSuppressible(boolean suppressible) {
     this.suppressible = suppressible;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Component#isObsolete()
-   */
+  /* see superclass */
   @Field(name = "obsolete", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public boolean isObsolete() {
@@ -268,127 +223,78 @@ public abstract class AbstractComponent implements Component {
     return !obsolete;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Component#setObsolete(boolean)
-   */
+  /* see superclass */
   @Override
   public void setObsolete(boolean obsolete) {
     this.obsolete = obsolete;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#isPublished()
-   */
+  /* see superclass */
   @Override
   @Field(name = "published", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isPublished() {
     return published;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#setPublished(boolean)
-   */
+  /* see superclass */
   @Override
   public void setPublished(boolean published) {
     this.published = published;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#isPublishable()
-   */
+  /* see superclass */
   @Override
   @Field(name = "publishable", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isPublishable() {
     return publishable;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#setPublishable(boolean)
-   */
+  /* see superclass */
   @Override
   public void setPublishable(boolean publishable) {
     this.publishable = publishable;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Component#getBranch()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getBranch() {
     return branch;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Component#setBranch(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setBranch(String branch) {
     this.branch = branch;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#getVersion()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getVersion() {
     return version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#setVersion(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#getTerminology()
-   */
+  /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public String getTerminology() {
     return terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#setTerminology(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#getTerminologyId()
-   */
+  /* see superclass */
   @Override
   @XmlID
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
@@ -396,11 +302,7 @@ public abstract class AbstractComponent implements Component {
     return terminologyId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#setTerminologyId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTerminologyId(String terminologyId) {
     this.terminologyId = terminologyId;
@@ -429,11 +331,7 @@ public abstract class AbstractComponent implements Component {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -470,11 +368,7 @@ public abstract class AbstractComponent implements Component {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "id=" + id + ", terminologyId=" + terminologyId + ", lastModified="

@@ -69,24 +69,14 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     alternateTerminologyIds = relationship.getAlternateTerminologyIds();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Relationship#getFrom()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public Atom getFrom() {
     return from;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Relationship#setFrom(com.wci.umls.server
-   * .model.content.Component)
-   */
+  /* see superclass */
   @Override
   public void setFrom(Atom component) {
     this.from = component;
@@ -155,11 +145,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     from.setName(name);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Relationship#getTo()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public Atom getTo() {
@@ -229,24 +215,13 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     to.setName(name);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Relationship#setTo(com.wci.umls.server
-   * .model.content.Component)
-   */
+  /* see superclass */
   @Override
   public void setTo(Atom component) {
     this.to = component;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * getAlternateTerminologyIds()
-   */
+  /* see superclass */
   @Override
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
@@ -255,24 +230,14 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     return alternateTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * setAlternateTerminologyIds(java.util.Map)
-   */
+  /* see superclass */
   @Override
   public void setAlternateTerminologyIds(
     Map<String, String> alternateTerminologyIds) {
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * putAlternateTerminologyId(java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void putAlternateTerminologyId(String terminology, String terminologyId) {
     if (alternateTerminologyIds == null) {
@@ -281,12 +246,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     alternateTerminologyIds.put(terminology, terminologyId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasAlternateTerminologyIds#
-   * removeAlternateTerminologyId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeAlternateTerminologyId(String terminology) {
     if (alternateTerminologyIds == null) {

@@ -38,13 +38,7 @@ public class SecurityClientRest extends RootClientRest implements
     this.config = config;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.rest.SecurityServiceRest#authenticate(java.lang.
-   * String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public String authenticate(String username, String password) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -67,13 +61,9 @@ public class SecurityClientRest extends RootClientRest implements
     return resultString.replaceAll("\"", "");
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rest.SecurityServiceRest#logout(java.lang.String)
-   */
+  /* see superclass */
   @Override
-  public boolean logout(String authToken) throws Exception {
+  public String logout(String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - logout");
     Client client = Client.create();
     WebResource resource =
@@ -81,22 +71,16 @@ public class SecurityClientRest extends RootClientRest implements
             + authToken);
     resource.accept(MediaType.APPLICATION_JSON);
     ClientResponse response = resource.get(ClientResponse.class);
-    String resultString = response.getEntity(String.class);
+
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
       throw new Exception(response.toString());
     }
-    return resultString.toLowerCase().equals("true");
-
+    return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rest.SecurityServiceRest#getUser(java.lang.Long,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public User getUser(Long id, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - get user " + id);
@@ -125,12 +109,7 @@ public class SecurityClientRest extends RootClientRest implements
     return user;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rest.SecurityServiceRest#getUser(java.lang.String,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public User getUser(String username, String authToken) throws Exception {
     Logger.getLogger(getClass())
@@ -160,11 +139,7 @@ public class SecurityClientRest extends RootClientRest implements
     return user;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rest.SecurityServiceRest#getUsers(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public UserList getUsers(String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - get users");
@@ -190,13 +165,7 @@ public class SecurityClientRest extends RootClientRest implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.SecurityServiceRest#addUser(org.ihtsdo.otf.ts.helpers
-   * .UserJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public User addUser(UserJpa user, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - add user " + user);
@@ -226,12 +195,7 @@ public class SecurityClientRest extends RootClientRest implements
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rest.SecurityServiceRest#removeUser(java.lang.Long,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeUser(Long id, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - remove user " + id);
@@ -251,13 +215,7 @@ public class SecurityClientRest extends RootClientRest implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.SecurityServiceRest#updateUser(org.ihtsdo.otf.ts
-   * .helpers.UserJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void updateUser(UserJpa user, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - update user " + user);

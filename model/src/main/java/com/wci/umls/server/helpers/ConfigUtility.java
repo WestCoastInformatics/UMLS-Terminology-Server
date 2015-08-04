@@ -706,7 +706,7 @@ public class ConfigUtility {
       return 1 + toArabic(number.substring(1));
     throw new Exception("something bad happened");
   }
-  
+
   /**
    * Indicates whether or not roman numeral is the case.
    *
@@ -714,6 +714,8 @@ public class ConfigUtility {
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   public static boolean isRomanNumeral(String number) {
-    return number.matches("^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$");
+    return number
+        .matches("^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$");
   }
+
 }

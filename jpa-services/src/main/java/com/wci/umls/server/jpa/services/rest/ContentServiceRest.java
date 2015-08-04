@@ -438,7 +438,7 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
-   * Load all termionlogies from an RRF directory.
+   * Load all terminologies from an RRF directory.
    *
    * @param terminology the terminology
    * @param version the terminology version
@@ -483,6 +483,18 @@ public interface ContentServiceRest {
    * @throws Exception the exception
    */
   public void loadTerminologyClaml(String terminology, String version,
+    String inputFile, String authToken) throws Exception;
+
+  /**
+   * Load terminology owl.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param inputFile the input file
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologyOwl(String terminology, String version,
     String inputFile, String authToken) throws Exception;
 
   /**

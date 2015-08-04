@@ -53,11 +53,7 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Component#getAttributes()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = AttributeJpa.class, name = "attribute")
   public List<Attribute> getAttributes() {
@@ -67,24 +63,13 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
     return attributes;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Component#setAttributes(java.util.List)
-   */
+  /* see superclass */
   @Override
   public void setAttributes(List<Attribute> attributes) {
     this.attributes = attributes;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Component#addAttribute(com.wci.umls.server
-   * .model.content.Attribute)
-   */
+  /* see superclass */
   @Override
   public void addAttribute(Attribute attribute) {
     if (attributes == null) {
@@ -93,13 +78,7 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
     attributes.add(attribute);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Component#removeAttribute(com.wci.umls
-   * .server.model.content.Attribute)
-   */
+  /* see superclass */
   @Override
   public void removeAttribute(Attribute attribute) {
     if (attributes == null) {
@@ -108,13 +87,7 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
     attributes.remove(attribute);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasAttributes#getAttributeByName(java.lang.
-   * String)
-   */
+  /* see superclass */
   @Override
   public Attribute getAttributeByName(String name) {
     for (Attribute attribute : getAttributes()) {

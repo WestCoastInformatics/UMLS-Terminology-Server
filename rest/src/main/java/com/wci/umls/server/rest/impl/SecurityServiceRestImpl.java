@@ -44,13 +44,6 @@ import com.wordnik.swagger.annotations.ApiParam;
 public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     SecurityServiceRest {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.SecurityServiceRest#authenticate(java.lang.String,
-   * java.lang.String)
-   */
   @Override
   @POST
   @Path("/authenticate/{username}")
@@ -87,16 +80,11 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rest.SecurityServiceRest#logout(java.lang.String)
-   */
   @Override
   @GET
   @Path("/logout/{authToken}")
-  @ApiOperation(value = "Log out an auth token", notes = "Performs logout on specified auth token", response = Boolean.class)
-  public boolean logout(
+  @ApiOperation(value = "Log out an auth token", notes = "Performs logout on specified auth token", response = String.class)
+  public String logout(
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @PathParam("authToken") String authToken)
     throws Exception {
 
@@ -105,26 +93,20 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     SecurityService securityService = new SecurityServiceJpa();
     try {
       securityService.logout(authToken);
-      return true;
+      return null;
     } catch (LocalException e) {
       throw new WebApplicationException(Response.status(401)
           .entity(e.getMessage()).build());
     } catch (Exception e) {
       securityService.close();
       handleException(e, "trying to authenticate a user");
-      return false;
     } finally {
       securityService.close();
     }
+    return null;
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rest.SecurityServiceRest#getUser(java.lang.Long,
-   * java.lang.String)
-   */
   @Override
   @GET
   @Path("/user/id/{id}")
@@ -149,12 +131,6 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rest.SecurityServiceRest#getUser(java.lang.String,
-   * java.lang.String)
-   */
   @Override
   @GET
   @Path("/user/name/{username}")
@@ -179,11 +155,6 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rest.SecurityServiceRest#getUsers(java.lang.String)
-   */
   @Override
   @GET
   @Path("/user/users")
@@ -206,13 +177,6 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.SecurityServiceRest#addUser(org.ihtsdo.otf.ts.helpers
-   * .UserJpa, java.lang.String)
-   */
   @Override
   @PUT
   @Path("/user/add")
@@ -241,12 +205,6 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rest.SecurityServiceRest#removeUser(java.lang.Long,
-   * java.lang.String)
-   */
   @Override
   @DELETE
   @Path("/user/remove/{id}")
@@ -272,13 +230,6 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.SecurityServiceRest#updateUser(org.ihtsdo.otf.ts
-   * .jpa.UserJpa, java.lang.String)
-   */
   @Override
   @POST
   @Path("/user/update")

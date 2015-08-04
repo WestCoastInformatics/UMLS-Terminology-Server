@@ -55,6 +55,7 @@ import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -313,7 +314,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       //
 
       // Load semantic types
-      loadSrdef();
+      if (!singleMode)
+        loadSrdef();
 
       // Load MRDOC data
       loadMrdoc();
@@ -1422,7 +1424,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // bail if concept doesn't exist
       if (!conceptIdMap.containsKey(key)) {
         Logger.getLogger(getClass()).warn("    MISSING CONCEPT");
-        continue;        
+        continue;
       }
       Concept concept = getConcept(conceptIdMap.get(key));
       ConceptSubset subset = new ConceptSubsetJpa();

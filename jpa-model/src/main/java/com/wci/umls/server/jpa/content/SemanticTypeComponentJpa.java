@@ -56,11 +56,7 @@ public class SemanticTypeComponentJpa extends AbstractComponent implements
     workflowStatus = semanticType.getWorkflowStatus();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -70,12 +66,7 @@ public class SemanticTypeComponentJpa extends AbstractComponent implements
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -93,58 +84,32 @@ public class SemanticTypeComponentJpa extends AbstractComponent implements
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "SemanticTypeComponentJpa [value=" + semanticType + "]";
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.SemanticTypeComponent#getSemanticType()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getSemanticType() {
     return semanticType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.SemanticTypeComponent#setSemanticType
-   * (java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setSemanticType(String semanticType) {
     this.semanticType = semanticType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.SemanticTypeComponent#getWorkflowStatus()
-   */
+  /* see superclass */
   @Override
   public String getWorkflowStatus() {
     return workflowStatus;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.SemanticTypeComponent#setWorkflowStatus
-   * (java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setWorkflowStatus(String workflowStatus) {
     this.workflowStatus = workflowStatus;

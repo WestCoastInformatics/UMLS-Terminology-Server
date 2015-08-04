@@ -143,6 +143,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /** The query timeout. */
   static int queryTimeout = 1000;
 
+  /** The sort field analyzed map. */
+  public static Map<String, Map<String, Boolean>> sortFieldAnalyzedMap =
+      new HashMap<>();
+
   static {
 
     try {
@@ -3381,10 +3385,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @throws NoSuchMethodException the no such method exception
    * @throws SecurityException the security exception
    */
-  @SuppressWarnings("static-method")
-  private Map<String, Boolean> getNameAnalyzedPairsFromAnnotation(
+  public static Map<String, Boolean> getNameAnalyzedPairsFromAnnotation(
     Class<?> clazz, String sortField) throws NoSuchMethodException,
     SecurityException {
+    final String key = clazz.getName() + "." + sortField;
+    if (sortFieldAnalyzedMap.containsKey(key)) {
+      return sortFieldAnalyzedMap.get(key);
+    }
 
     // initialize the name->analyzed pair map
     Map<String, Boolean> nameAnalyzedPairs = new HashMap<>();
@@ -3416,6 +3423,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       nameAnalyzedPairs.put(f.name(), f.analyze().equals(Analyze.YES) ? true
           : false);
     }
+
+    sortFieldAnalyzedMap.put(key, nameAnalyzedPairs);
 
     return nameAnalyzedPairs;
   }
@@ -4742,7 +4751,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       // if sort field is specified, set sort key
       if (pfs.getSortField() != null && !pfs.getSortField().isEmpty()) {
         Map<String, Boolean> nameToAnalyzedMap =
-            this.getNameAnalyzedPairsFromAnnotation(clazz, pfs.getSortField());
+            getNameAnalyzedPairsFromAnnotation(clazz, pfs.getSortField());
         String sortField = null;
 
         if (nameToAnalyzedMap.size() == 0) {

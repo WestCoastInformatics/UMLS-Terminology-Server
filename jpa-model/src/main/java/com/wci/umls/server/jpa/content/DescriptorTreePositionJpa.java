@@ -65,11 +65,7 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
     node = treepos.getNode();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.TreePosition#getNode()
-   */
+  /* see superclass */
   @XmlTransient
   @Override
   public Descriptor getNode() {
@@ -191,23 +187,13 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
     node.setVersion(version);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TreePosition#setNode(com.wci.umls.server
-   * .model.content.ComponentHasAttributesAndName)
-   */
+  /* see superclass */
   @Override
   public void setNode(Descriptor descriptor) {
     this.node = descriptor;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractTreePosition#hashDescriptor()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;

@@ -1,8 +1,6 @@
-/*
- * Copyright 2015 West Coast Informatics, LLC
- */
 package com.wci.umls.server.mojo;
 
+import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -10,41 +8,46 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
 import com.wci.umls.server.services.SecurityService;
 
 /**
- * Goal which loads an RF2 Full of SNOMED CT data into a database.
+ * Converts owl data to RF2 objects.
  * 
- * See admin/loader/pom.xml for sample usage
+ * See admin/loader/pom.xml for a sample execution.
  * 
- * @goal load-rf2-full
- * 
+ * @goal load-owl
  * @phase package
  */
-public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
+public class TerminologyOwlLoaderMojo extends AbstractMojo {
+
+  /** The date format. */
+  final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
+
+  /**
+   * The input file.
+   *
+   * @parameter
+   * @required
+   */
+  String inputFile;
 
   /**
    * Name of terminology to be loaded.
    * @parameter
    * @required
    */
-  private String terminology;
+  String terminology;
 
   /**
-   * The terminology version.
+   * Terminology version.
+   *
    * @parameter
    * @required
    */
-  private String version;
-
-  /**
-   * Input directory.
-   * @parameter
-   * @required
-   */
-  private String inputDir;
+  String version;
 
   /**
    * Whether to run this mojo against an active server
@@ -52,26 +55,14 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
    */
   private boolean server = false;
 
-  /**
-   * Instantiates a {@link TerminologyRf2FullLoaderMojo} from the specified
-   * parameters.
-   * 
-   */
-  public TerminologyRf2FullLoaderMojo() {
-    // do nothing
-  }
-
   /* see superclass */
-  @SuppressWarnings("unused")
   @Override
   public void execute() throws MojoFailureException {
-
+    getLog().info("Starting removing terminology");
+    getLog().info("  terminology = " + terminology);
+    getLog().info("  version = " + version);
+    getLog().info("  inputFile = " + inputFile);
     try {
-      getLog().info("RF2 Full Terminology Loader called via mojo.");
-      getLog().info("  Terminology        : " + terminology);
-      getLog().info("  Terminology Version: " + version);
-      getLog().info("  Input directory    : " + inputDir);
-      getLog().info("  Expect server up   : " + server);
 
       Properties properties = ConfigUtility.getConfigProperties();
 
@@ -95,25 +86,28 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
       String authToken =
           service.authenticate(properties.getProperty("admin.user"),
               properties.getProperty("admin.password"));
-      service.close();
 
       if (!serverRunning) {
         getLog().info("Running directly");
 
-        ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        // TODO:
-        // contentService.loadTerminologyRf2Full(terminology, version, inputDir,
-        // authToken);
+        getLog().info("  Remove concepts");
+        ContentServiceRest contentService = new ContentServiceRestImpl();
+        contentService.loadTerminologyOwl(terminology, version, inputFile,
+            authToken);
 
       } else {
         getLog().info("Running against server");
 
-        // invoke the client
-        ContentClientRest client = new ContentClientRest(properties);
-        // client
-        // .loadTerminologyRf2Full(terminology, version, inputDir, authToken);
-      }
+        getLog().info("  Remove concepts");
+        ContentClientRest contentService = new ContentClientRest(properties);
+        contentService.loadTerminologyOwl(terminology, version, inputFile,
+            authToken);
 
+      }
+      service.close();
+
+      getLog().info("done ...");
+      System.exit(0);
     } catch (Exception e) {
       e.printStackTrace();
       throw new MojoFailureException("Unexpected exception:", e);

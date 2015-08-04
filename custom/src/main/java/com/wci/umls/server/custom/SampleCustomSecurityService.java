@@ -17,22 +17,16 @@ import com.wci.umls.server.jpa.services.handlers.DefaultSecurityServiceHandler;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 
 /**
- * A sample security service handler that is basically the
- * same as {@link DefaultSecurityServiceHandler} but exists to
- * demonstrate how and where to use a custom handler.
+ * A sample security service handler that is basically the same as
+ * {@link DefaultSecurityServiceHandler} but exists to demonstrate how and where
+ * to use a custom handler.
  */
 public class SampleCustomSecurityService implements SecurityServiceHandler {
 
   /** The properties. */
   private Properties properties;
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.services.SecurityServiceHandler#authenticate(java
-   * .lang.String, java.lang.String, java.util.Properties)
-   */
+  /* see superclass */
   @Override
   public User authenticate(String username, String password) throws Exception {
 
@@ -78,12 +72,7 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
     return null;
   }
 
-  /**
-   * Times out all users except "guest".
-   *
-   * @param user the user
-   * @return true, if successful
-   */
+  /* see superclass */
   @Override
   public boolean timeoutUser(String user) {
     if (user.equals("guest")) {
@@ -92,23 +81,13 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
     return true;
   }
 
-  /**
-   * Use the username as a token.
-   *
-   * @param user the user
-   * @return the string
-   */
+  /* see superclass */
   @Override
   public String computeTokenForUser(String user) {
     return user;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.helpers.Configurable#setProperties(java.util.Properties)
-   */
+  /* see superclass */
   @Override
   public void setProperties(Properties properties) {
     this.properties = properties;

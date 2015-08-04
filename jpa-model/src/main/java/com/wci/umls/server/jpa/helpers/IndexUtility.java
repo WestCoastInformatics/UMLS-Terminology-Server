@@ -4,7 +4,6 @@
 package com.wci.umls.server.jpa.helpers;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -55,23 +54,33 @@ public class IndexUtility {
         continue;
       }
 
-      // check for @IndexEmbedded
+      // check for @IndexedEmbedded
       if (m.isAnnotationPresent(IndexedEmbedded.class)) {
         throw new Exception(
             "Unable to handle @IndexedEmbedded on methods, specify on field");
       }
 
+      // determine if there's a fieldBridge (which converts the field)
+      boolean hasFieldBridge = false;
+      if (m.isAnnotationPresent(Field.class)) {
+        if (!m.getAnnotation(Field.class).bridge().impl().toString()
+            .equals("void")) {
+          hasFieldBridge = true;
+        }
+      }
+
       // for non-embedded fields, only process strings
       // This is because we're handling string based query here
       // Other fields can always be used with fielded query clauses
-      if (stringOnly && !m.getReturnType().equals(String.class))
+      if (stringOnly && !hasFieldBridge
+          && !m.getReturnType().equals(String.class)) {
         continue;
+      }
 
       // check for @Field annotation
       if (m.isAnnotationPresent(Field.class)) {
         String fieldName =
             getFieldNameFromMethod(m, m.getAnnotation(Field.class));
-
         fieldNames.add(fieldName);
       }
 
@@ -87,39 +96,46 @@ public class IndexUtility {
 
     // second cycle over all fields
     for (java.lang.reflect.Field f : getAllFields(clazz)) {
-
-      // check for @IndexEmbedded
+      System.out.println(clazz.getName() + "." + f + " - "
+          + f.isAnnotationPresent(IndexedEmbedded.class));
+      // check for @IndexedEmbedded
       if (f.isAnnotationPresent(IndexedEmbedded.class)) {
 
         // Assumes field is a collection, and has a OneToMany, ManyToMany, or
         // ManyToOne
         // annotation
-        if (Collection.class.isAssignableFrom(f.getType())) {
-          Class<?> jpaType = null;
-          if (f.isAnnotationPresent(OneToMany.class)) {
-            jpaType = f.getAnnotation(OneToMany.class).targetEntity();
-          } else if (f.isAnnotationPresent(ManyToMany.class)) {
-            jpaType = f.getAnnotation(ManyToMany.class).targetEntity();
-          } else if (f.isAnnotationPresent(ManyToOne.class)) {
-            jpaType = f.getAnnotation(ManyToOne.class).targetEntity();
-          } else {
-            throw new Exception("Unable to determine jpa type ");
-          }
-
-          for (String embeddedField : getIndexedStringFieldNames(jpaType,
-              stringOnly)) {
-            fieldNames.add(f.getName() + "." + embeddedField);
-          }
+        Class<?> jpaType = null;
+        if (f.isAnnotationPresent(OneToMany.class)) {
+          jpaType = f.getAnnotation(OneToMany.class).targetEntity();
+        } else if (f.isAnnotationPresent(ManyToMany.class)) {
+          jpaType = f.getAnnotation(ManyToMany.class).targetEntity();
+        } else if (f.isAnnotationPresent(ManyToOne.class)) {
+          jpaType = f.getAnnotation(ManyToOne.class).targetEntity();
         } else {
-          for (String embeddedField : getIndexedStringFieldNames(f.getClass(),
-              stringOnly)) {
-            fieldNames.add(f.getName() + "." + embeddedField);
-          }
+          throw new Exception(
+              "Unable to determine jpa type, @IndexedEmbedded must be used with @OneToMany, @ManyToOne, or @ManyToMany ");
+
+        }
+
+        for (String embeddedField : getIndexedStringFieldNames(jpaType,
+            stringOnly)) {
+          System.out.println(" add fields " + f.getName() + ". " + fieldNames);
+          fieldNames.add(f.getName() + "." + embeddedField);
+
+        }
+      }
+
+      // determine if there's a fieldBridge (which converts the field)
+      boolean hasFieldBridge = false;
+      if (f.isAnnotationPresent(Field.class)) {
+        if (f.getAnnotation(Field.class).bridge().impl().toString()
+            .equals("void")) {
+          hasFieldBridge = true;
         }
       }
 
       // for non-embedded fields, only process strings
-      if (stringOnly && !f.getType().equals(String.class))
+      if (stringOnly && !hasFieldBridge && !f.getType().equals(String.class))
         continue;
 
       // check for @Field annotation
@@ -132,7 +148,6 @@ public class IndexUtility {
       // check for @Fields annotation
       if (f.isAnnotationPresent(Fields.class)) {
         for (Field field : f.getAnnotation(Fields.class).value()) {
-
           String fieldName = getFieldNameFromField(f, field);
           fieldNames.add(fieldName);
         }
@@ -156,6 +171,8 @@ public class IndexUtility {
       filteredFieldNames.add(fieldName);
     }
 
+    System.out.println("filtered: " + clazz.getName() + " = "
+        + filteredFieldNames);
     return filteredFieldNames;
   }
 

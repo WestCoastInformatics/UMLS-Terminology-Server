@@ -36,6 +36,7 @@ import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.LabelSetMarkedParentAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
+import com.wci.umls.server.jpa.algo.OwlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2FileSorter;
@@ -103,13 +104,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     securityService = new SecurityServiceJpa();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#luceneReindex(
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/reindex")
@@ -147,13 +142,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * computeTransitiveClosure(java.lang.String, java.lang.String,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/terminology/closure/compute/{terminology}/{version}")
@@ -202,13 +191,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#computeTreePositions
-   * (java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/terminology/treepos/compute/{terminology}/{version}")
@@ -257,13 +240,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyRrf
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @PUT
   @Path("/terminology/load/rrf/{singleMode}/{terminology}/{version}")
@@ -394,13 +371,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * loadTerminologyRf2Delta(java.lang.String, java.lang.String,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @PUT
   @Path("/terminology/load/rf2/delta/{terminology}")
@@ -489,13 +460,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * loadTerminologyRf2Snapshot(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @PUT
   @Path("/terminology/load/rf2/snapshot/{terminology}/{version}")
@@ -610,13 +575,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#loadTerminologyClaml
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @PUT
   @Path("/terminology/load/claml/{terminology}/{version}")
@@ -642,7 +601,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     TransitiveClosureAlgorithm algo2 = new TransitiveClosureAlgorithm();
     TreePositionAlgorithm algo3 = new TreePositionAlgorithm();
     try {
-      authenticate(securityService, authToken, "start editing cycle",
+      authenticate(securityService, authToken, "loading owl",
           UserRole.ADMINISTRATOR);
 
       // Load snapshot
@@ -683,13 +642,74 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#removeTerminology
-   * (java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
+  @Override
+  @PUT
+  @Path("/terminology/load/owl/{terminology}/{version}")
+  @Consumes({
+    MediaType.TEXT_PLAIN
+  })
+  @ApiOperation(value = "Loads Owl terminology from file", notes = "Loads terminology from Owl file, assigning specified version")
+  public void loadTerminologyOwl(
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Owl input file", required = true) String inputFile,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Content): /terminology/load/owl/" + terminology
+            + "/" + version + " from input file " + inputFile);
+
+    // Track system level information
+    long startTimeOrig = System.nanoTime();
+
+    OwlLoaderAlgorithm algo = new OwlLoaderAlgorithm();
+    TransitiveClosureAlgorithm algo2 = new TransitiveClosureAlgorithm();
+    TreePositionAlgorithm algo3 = new TreePositionAlgorithm();
+    try {
+      authenticate(securityService, authToken, "loading owl",
+          UserRole.ADMINISTRATOR);
+
+      // Load snapshot
+      Logger.getLogger(getClass()).info("Load Owl data from " + inputFile);
+      algo.setTerminology(terminology);
+      algo.setVersion(version);
+      algo.setInputFile(inputFile);
+      algo.compute();
+
+      // Let service begin its own transaction
+      Logger.getLogger(getClass()).info("Start computing transtive closure");
+      algo2.setIdType(IdType.CONCEPT);
+      algo2.setCycleTolerant(false);
+      algo2.setTerminology(terminology);
+      algo2.setVersion(version);
+      algo2.compute();
+      algo2.close();
+
+      // compute tree positions
+      algo3.setCycleTolerant(false);
+      algo3.setIdType(IdType.CONCEPT);
+      algo3.setTerminology(terminology);
+      algo3.setVersion(version);
+      algo3.compute();
+      algo3.close();
+
+      // Final logging messages
+      Logger.getLogger(getClass()).info(
+          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+      Logger.getLogger(getClass()).info("done ...");
+
+    } catch (Exception e) {
+      handleException(e, "trying to load terminology from Owl file");
+    } finally {
+      algo.close();
+      algo2.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
   @Override
   @DELETE
   @Path("/terminology/remove/{terminology}/{version}")
@@ -737,13 +757,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getConcept(java
-   * .lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/cui/{terminology}/{version}/{terminologyId}")
@@ -786,14 +800,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findConceptsForQuery
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfscParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/cui/{terminology}/{version}")
@@ -831,13 +838,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findConceptsForGeneralQuery(java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/cui")
@@ -876,13 +877,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findCodesForGeneralQuery(java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/code")
@@ -920,13 +915,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#autocompleteConcepts
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/cui/{terminology}/{version}/autocomplete/{searchTerm}")
@@ -958,13 +947,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getDescriptor(
-   * java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/dui/{terminology}/{version}/{terminologyId}")
@@ -1009,14 +992,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findDescriptorsForQuery(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfscParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/dui/{terminology}/{version}")
@@ -1055,13 +1031,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findDescriptorsForGeneralQuery(java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/dui/")
@@ -1100,13 +1070,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * autocompleteDescriptors(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/dui/{terminology}/{version}/autocomplete/{searchTerm}")
@@ -1138,12 +1102,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#getCode(java
-   * .lang .String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/code/{terminology}/{version}/{terminologyId}")
@@ -1187,14 +1146,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findCodesForQuery
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfscParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/code/{terminology}/{version}")
@@ -1233,13 +1185,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#autocompleteCodes
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/code/{terminology}/{version}/autocomplete/{searchTerm}")
@@ -1269,13 +1215,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getLexicalClass
-   * (java.lang .String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/lui/{terminology}/{version}/{terminologyId}")
@@ -1318,13 +1258,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getStringClass
-   * (java.lang .String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/sui/{terminology}/{version}/{terminologyId}")
@@ -1366,14 +1300,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorConcepts
-   * (java.lang.String, java.lang.String, java.lang.String, boolean,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/cui/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
@@ -1418,14 +1345,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findDescendantConcepts (java.lang.String, java.lang.String,
-   * java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/cui/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
@@ -1470,14 +1390,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findAncestorDescriptors(java.lang.String, java.lang.String,
-   * java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/dui/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
@@ -1521,14 +1434,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findDescendantDescriptors(java.lang.String, java.lang.String,
-   * java.lang.String, boolean, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/dui/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
@@ -1572,14 +1478,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findAncestorCodes
-   * (java.lang.String, java.lang.String, java.lang.String, boolean,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
@@ -1622,14 +1521,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findDescendantCodes
-   * (java.lang.String, java.lang.String, java.lang.String, boolean,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
@@ -1673,13 +1565,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * getSubsetMembersForConcept(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/cui/{terminology}/{version}/{terminologyId}/members")
@@ -1719,13 +1605,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * getSubsetMembersForAtom(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/aui/{terminology}/{version}/{terminologyId}/members")
@@ -1764,14 +1644,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findRelationshipsForConcept(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/cui/{terminology}/{version}/{terminologyId}/relationships")
@@ -1817,14 +1690,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findDeepRelationshipsForConcept(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/cui/{terminology}/{version}/{terminologyId}/relationships/deep")
@@ -1858,14 +1724,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findRelationshipsForDescriptor(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/dui/{terminology}/{version}/{terminologyId}/relationships")
@@ -1911,14 +1770,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findRelationshipsForCode(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/relationships")
@@ -1962,13 +1814,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getAtomSubsets
-   * (java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/aui/subset/all/{terminology}/{version}")
@@ -2003,13 +1849,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#getConceptSubsets
-   * (java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/cui/subset/all/{terminology}/{version}")
@@ -2043,14 +1883,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findAtomSubsetMembers(java.lang.String, java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Produces({
       MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
   })
@@ -2095,14 +1928,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findConceptSubsetMembers(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/cui/subset/{subsetId}/{terminology}/{version}/members")
@@ -2144,14 +1970,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findTreesForConcept
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/cui/{terminology}/{version}/{terminologyId}/trees")
@@ -2195,14 +2014,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findTreesForDescriptor(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/dui/{terminology}/{version}/{terminologyId}/trees/")
@@ -2246,14 +2058,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findTreesForCode
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/trees")
@@ -2297,14 +2102,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findConceptTreeForQuery(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/cui/{terminology}/{version}/trees")
@@ -2380,22 +2178,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findDescriptorTreeForQuery(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findConceptTreeForQuery(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/dui/{terminology}/{version}/trees")
@@ -2471,22 +2254,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.ContentServiceRest#findCodeTreeForQuery
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa, java.lang.String)
-   */
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.ContentServiceRest#
-   * findConceptTreeForQuery(java.lang.String, java.lang.String,
-   * java.lang.String, com.wci.umls.server.jpa.helpers.PfsParameterJpa,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/trees")
@@ -2561,6 +2329,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
+  /* see superclass */
   @Override
   @POST
   @Path("/cui/{terminology}/{version}/{terminologyId}/trees/children")
@@ -2608,6 +2377,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /* see superclass */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/trees/children")
@@ -2655,6 +2425,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /* see superclass */
   @Override
   @POST
   @Path("/dui/{terminology}/{version}/{terminologyId}/trees/children")
@@ -2702,6 +2473,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /* see superclass */
   @Override
   @POST
   @Path("/cui/{terminology}/{version}/trees/roots")
@@ -2779,6 +2551,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /* see superclass */
   @Override
   @POST
   @Path("/dui/{terminology}/{version}/trees/roots")
@@ -2857,6 +2630,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /* see superclass */
   @Override
   @POST
   @Path("/code/{terminology}/{version}/trees/roots")

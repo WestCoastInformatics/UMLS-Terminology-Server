@@ -47,8 +47,9 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
   private String inputDir;
 
   /**
-   * Whether to run this mojo against an active server
-   * @parameter
+   * Whether to run this mojo against an active server.
+   *
+   * @parameter 
    */
   private boolean server = false;
 
@@ -61,11 +62,7 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
     // do nothing
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.maven.plugin.Mojo#execute()
-   */
+  /* see superclass */
   @Override
   public void execute() throws MojoFailureException {
 

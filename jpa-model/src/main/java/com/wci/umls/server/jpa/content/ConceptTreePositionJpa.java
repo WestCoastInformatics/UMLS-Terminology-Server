@@ -64,24 +64,12 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
     node = treepos.getNode();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.TreePosition#getNode()
-   */
   @XmlTransient
   @Override
   public Concept getNode() {
     return node;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TreePosition#setNode(com.wci.umls.server
-   * .model.content.ComponentHasAttributesAndName)
-   */
   @Override
   public void setNode(Concept concept) {
     this.node = concept;
@@ -202,11 +190,6 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
     node.setVersion(version);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractTreePosition#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;

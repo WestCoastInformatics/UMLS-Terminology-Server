@@ -44,31 +44,18 @@ public abstract class AbstractTransitiveRelationship<T extends AtomClass>
     super(relationship, deepCopy);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.TransitiveRelationship#getDepth()
-   */
+
   @Override
   public int getDepth() {
     return depth;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.TransitiveRelationship#setDepth(int)
-   */
   @Override
   public void setDepth(int depth) {
     this.depth = depth;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
+
   @Override
   public String toString() {
     return getClass().getSimpleName() + " [superType=" + getSuperType()

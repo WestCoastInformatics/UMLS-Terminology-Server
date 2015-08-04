@@ -30,7 +30,7 @@ public interface SecurityService extends RootService {
    * Logout.
    *
    * @param authToken the auth token
-   * @throws Exception
+   * @throws Exception the exception
    */
   public void logout(String authToken) throws Exception;
 

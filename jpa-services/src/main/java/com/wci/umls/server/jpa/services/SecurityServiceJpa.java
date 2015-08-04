@@ -54,13 +54,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     super();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.services.SecurityService#authenticate(java.lang.
-   * String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public String authenticate(String username, String password) throws Exception {
     // Check username and password are not null
@@ -129,23 +123,14 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     return token;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.services.SecurityService#logout(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void logout(String authToken) throws Exception {
     tokenUsernameMap.remove(authToken);
     tokenTimeoutMap.remove(authToken);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ping.services.SecurityService#getUsernameForToken(java
-   * .lang.String)
-   */
+  /* see superclass */
   @Override
   public String getUsernameForToken(String authToken) throws Exception {
     // use guest user for null auth token
@@ -180,12 +165,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ping.services.SecurityService#authorizeToken(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public UserRole getApplicationRoleForToken(String authToken) throws Exception {
 
@@ -210,13 +190,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     return user.getApplicationRole();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.SecurityService#getProjectRoleForToken(java.
-   * lang.String, java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public UserRole getProjectRoleForToken(String authToken, Long projectId)
     throws Exception {
@@ -235,23 +209,13 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.services.SecurityService#getUser(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public User getUser(Long id) throws Exception {
     return manager.find(UserJpa.class, id);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.services.SecurityService#getUser(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public User getUser(String username) throws Exception {
     javax.persistence.Query query =
@@ -265,13 +229,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.services.SecurityService#addUser(org.ihtsdo.otf.
-   * mapping.helpers.User)
-   */
+  /* see superclass */
   @Override
   public User addUser(User user) {
     Logger.getLogger(getClass()).debug("Security Service - add user " + user);
@@ -294,11 +252,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     return user;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.services.SecurityService#removeUser(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void removeUser(Long id) {
     Logger.getLogger(getClass()).debug("Security Service - remove user " + id);
@@ -331,13 +285,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.services.SecurityService#updateUser(org.ihtsdo.otf
-   * .mapping.helpers.User)
-   */
+  /* see superclass */
   @Override
   public void updateUser(User user) {
     Logger.getLogger(getClass())
@@ -359,11 +307,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.services.SecurityService#getUsers()
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public UserList getUsers() {
@@ -376,6 +320,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     return mapUserList;
   }
 
+  /* see superclass */
   @Override
   public void refreshCaches() throws Exception {
     // n/a

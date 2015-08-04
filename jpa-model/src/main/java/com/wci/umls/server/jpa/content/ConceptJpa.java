@@ -265,11 +265,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     this.anonymous = anonymous;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Concept#getSemanticTypes()
-   */
+  /* see superclass */
   @XmlElement(type = SemanticTypeComponentJpa.class, name = "semanticType")
   @Override
   public List<SemanticTypeComponent> getSemanticTypes() {
@@ -279,24 +275,13 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     return semanticTypes;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Concept#setSemanticTypes(java.util.List)
-   */
+  /* see superclass */
   @Override
   public void setSemanticTypes(List<SemanticTypeComponent> semanticTypes) {
     this.semanticTypes = semanticTypes;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Concept#addSemanticType(com.wci.umls.
-   * server.model.content.SemanticTypeComponent)
-   */
+  /* see superclass */
   @Override
   public void addSemanticType(SemanticTypeComponent semanticType) {
     if (semanticTypes == null) {
@@ -305,13 +290,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     semanticTypes.add(semanticType);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Concept#removeSemanticType(com.wci.umls
-   * .server.model.content.SemanticTypeComponent)
-   */
+  /* see superclass */
   @Override
   public void removeSemanticType(SemanticTypeComponent semanticType) {
     if (semanticTypes == null) {
@@ -320,56 +299,32 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     semanticTypes.remove(semanticType);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Concept#getUsesRelationshipIntersection()
-   */
+  /* see superclass */
   @Override
   public boolean getUsesRelationshipIntersection() {
     return usesRelationshipIntersection;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Concept#setUsesRelationshipIntersection
-   * (boolean)
-   */
+  /* see superclass */
   @Override
   public void setUsesRelationshipIntersection(
     boolean usesRelationshipIntersection) {
     this.usesRelationshipIntersection = usesRelationshipIntersection;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Concept#getUsesRelationshipUnion()
-   */
+  /* see superclass */
   @Override
   public boolean getUsesRelationshipUnion() {
     return usesRelationshipUnion;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Concept#setUsesRelationshipUnion(boolean)
-   */
+  /* see superclass */
   @Override
   public void setUsesRelationshipUnion(boolean usesRelationshipUnion) {
     this.usesRelationshipUnion = usesRelationshipUnion;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasMembers#getMembers()
-   */
+  /* see superclass */
   @XmlElement(type = ConceptSubsetMemberJpa.class, name = "member")
   @Override
   public List<ConceptSubsetMember> getMembers() {
@@ -379,23 +334,13 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     return members;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasMembers#setMembers(java.util.List)
-   */
+  /* see superclass */
   @Override
   public void setMembers(List<ConceptSubsetMember> members) {
     this.members = members;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasMembers#addMember(com.wci.umls.server.model
-   * .content.SubsetMember)
-   */
+  /* see superclass */
   @Override
   public void addMember(ConceptSubsetMember member) {
     if (members == null) {
@@ -404,13 +349,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     members.add(member);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasMembers#removeMember(com.wci.umls.server
-   * .model.content.SubsetMember)
-   */
+  /* see superclass */
   @Override
   public void removeMember(ConceptSubsetMember member) {
     if (members == null) {
@@ -419,6 +358,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     members.remove(member);
   }
 
+  /* see superclass */
   @Override
   @FieldBridge(impl = CollectionToCsvBridge.class)
   @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
@@ -426,12 +366,14 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     return labels;
   }
 
+  /* see superclass */
   @Override
   public void setLabels(List<String> labels) {
     this.labels = labels;
 
   }
 
+  /* see superclass */
   @Override
   public void addLabel(String label) {
     if (labels == null) {
@@ -440,6 +382,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     labels.add(label);
   }
 
+  /* see superclass */
   @Override
   public void removeLabel(String label) {
     if (labels == null) {
@@ -449,11 +392,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractAtomClass#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -465,12 +404,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractAtomClass#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

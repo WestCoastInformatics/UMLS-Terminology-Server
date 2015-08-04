@@ -62,6 +62,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
     // do nothing
   }
 
+
   /**
    * Instantiates a {@link AbstractRelationship} from the specified parameters.
    *
@@ -78,142 +79,80 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
     assertedDirection = relationship.isAssertedDirection();
   }
 
-  /**
-   * Returns the relationship type.
-   *
-   * @return the relationship type
-   */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getRelationshipType() {
     return relationshipType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Relationship#setRelationshipType(java
-   * .lang.String)
-   */
+
   @Override
   public void setRelationshipType(String relationshipType) {
     this.relationshipType = relationshipType;
   }
-
-  /**
-   * Returns the additional relationship type.
-   *
-   * @return the additional relationship type
-   */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getAdditionalRelationshipType() {
     return additionalRelationshipType;
   }
 
-  /**
-   * Sets the additional relationship type.
-   *
-   * @param additionalRelationshipType the additional relationship type
-   */
   @Override
   public void setAdditionalRelationshipType(String additionalRelationshipType) {
     this.additionalRelationshipType = additionalRelationshipType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Relationship#getGroup()
-   */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getGroup() {
     return group;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Relationship#setGroup(java.lang.String)
-   */
+ 
   @Override
   public void setGroup(String group) {
     this.group = group;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Relationship#isInferred()
-   */
+
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isInferred() {
     return inferred;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Relationship#setInferred(boolean)
-   */
+ 
   @Override
   public void setInferred(boolean inferred) {
     this.inferred = inferred;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Relationship#isStated()
-   */
+  
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isStated() {
     return stated;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Relationship#setStated(boolean)
-   */
+  
   @Override
   public void setStated(boolean stated) {
     this.stated = stated;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Relationship#isAssertedDirection()
-   */
+ 
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isAssertedDirection() {
     return assertedDirection;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.Relationship#setAssertedDirection(boolean
-   * )
-   */
+ 
   @Override
   public void setAssertedDirection(boolean assertedDirection) {
     this.assertedDirection = assertedDirection;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
-   */
+  
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -233,12 +172,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
-   */
+ 
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -273,11 +207,7 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#toString()
-   */
+ 
   @Override
   public String toString() {
     return getClass().getSimpleName() + " [from = " + getFrom() + ", to = "

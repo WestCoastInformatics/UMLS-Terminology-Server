@@ -60,25 +60,14 @@ public class CodeTransitiveRelationshipJpa extends
     subType = relationship.getSubType();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TransitiveRelationship#getSuperType()
-   */
+  /* see superclass */
   @XmlTransient
   @Override
   public Code getSuperType() {
     return superType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TransitiveRelationship#setSuperType(com
-   * .wci.umls.server.model.content.AtomClass)
-   */
+  /* see superclass */
   @Override
   public void setSuperType(Code ancestor) {
     this.superType = ancestor;
@@ -117,7 +106,7 @@ public class CodeTransitiveRelationshipJpa extends
   /**
    * Sets the super type terminology id.
    *
-   * @param id the super type terminology id
+   * @param terminologyId the super type terminology id
    */
   /**
    * @param terminologyId
@@ -192,24 +181,14 @@ public class CodeTransitiveRelationshipJpa extends
     superType.setName(term);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.TransitiveRelationship#getSubType()
-   */
+  /* see superclass */
   @XmlTransient
   @Override
   public Code getSubType() {
     return subType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.TransitiveRelationship#setSubType(com
-   * .wci.umls.server.model.content.AtomClass)
-   */
+  /* see superclass */
   @Override
   public void setSubType(Code descendant) {
     this.subType = descendant;
@@ -320,6 +299,7 @@ public class CodeTransitiveRelationshipJpa extends
     subType.setName(term);
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -329,6 +309,7 @@ public class CodeTransitiveRelationshipJpa extends
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

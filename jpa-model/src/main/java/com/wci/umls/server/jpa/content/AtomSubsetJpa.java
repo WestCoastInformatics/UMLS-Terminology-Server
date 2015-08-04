@@ -58,11 +58,7 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.AtomSubset#getMembers()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = AtomSubsetMemberJpa.class, name = "member")
   public List<AtomSubsetMember> getMembers() {
@@ -72,24 +68,13 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
     return members;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.AtomSubset#setMembers(java.util.List)
-   */
+  /* see superclass */
   @Override
   public void setMembers(List<AtomSubsetMember> members) {
     this.members = members;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.AtomSubset#addMember(com.wci.umls.server
-   * .model.content.AtomSubsetMember)
-   */
+  /* see superclass */
   @Override
   public void addMember(AtomSubsetMember member) {
     if (members == null) {
@@ -98,13 +83,7 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
     members.add(member);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.content.AtomSubset#removeMember(com.wci.umls.
-   * server.model.content.AtomSubsetMember)
-   */
+  /* see superclass */
   @Override
   public void removeMember(AtomSubsetMember member) {
     if (members == null) {
@@ -113,11 +92,7 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
     members.remove(member);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.content.Subset#clearMembers()
-   */
+  /* see superclass */
   @Override
   public void clearMembers() {
     members = new ArrayList<>();

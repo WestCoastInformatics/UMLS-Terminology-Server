@@ -20,6 +20,7 @@ import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
@@ -65,7 +66,7 @@ public class PrecedenceListJpa implements PrecedenceList {
 
   /** The branch. */
   @Column(nullable = true)
-  private String branch;
+  private String branch = Branch.ROOT;
 
   /** The name. */
   @Column(nullable = false)
