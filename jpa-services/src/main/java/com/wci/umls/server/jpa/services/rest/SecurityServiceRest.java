@@ -20,7 +20,7 @@ public interface SecurityServiceRest {
    * @return the string
    * @throws Exception if anything goes wrong
    */
-  public String authenticate(String username, String password) throws Exception;
+  public User authenticate(String username, String password) throws Exception;
 
   /**
    * Logout.

@@ -44,14 +44,15 @@ import com.wordnik.swagger.annotations.ApiParam;
 public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     SecurityServiceRest {
 
+  /* see superclass */
   @Override
   @POST
   @Path("/authenticate/{username}")
   @Consumes({
     MediaType.TEXT_PLAIN
   })
-  @ApiOperation(value = "Authenticate a user", notes = "Performs authentication on specified username and password and returns a token upon successful authentication. Throws 401 error if not.", response = String.class)
-  public String authenticate(
+  @ApiOperation(value = "Authenticate a user", notes = "Performs authentication on specified username and password and returns a token upon successful authentication. Throws 401 error if not.", response = User.class)
+  public User authenticate(
     @ApiParam(value = "Username, e.g. 'guest'", required = true) @PathParam("username") String username,
     @ApiParam(value = "Password, as string post data, e.g. 'guest'", required = true) String password)
     throws Exception {
@@ -62,15 +63,12 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
                 + username);
     SecurityService securityService = new SecurityServiceJpa();
     try {
-      String authToken = securityService.authenticate(username, password);
+      User user = securityService.authenticate(username, password);
       securityService.close();
 
-      if (authToken == null)
+      if (user == null || user.getAuthToken() == null)
         throw new LocalException("Unable to authenticate user");
-      return authToken;
-    } catch (LocalException e) {
-      throw new WebApplicationException(Response.status(401)
-          .entity(e.getMessage()).build());
+      return user;
     } catch (Exception e) {
       handleException(e, "trying to authenticate a user");
       return null;
@@ -80,6 +78,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
+  /* see superclass */
   @Override
   @GET
   @Path("/logout/{authToken}")
@@ -107,16 +106,16 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
+  /* see superclass */
   @Override
   @GET
-  @Path("/user/id/{id}")
+  @Path("/user/{id}")
   @ApiOperation(value = "Get user by id", notes = "Gets the user for the specified id", response = User.class)
   public User getUser(
     @ApiParam(value = "User internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Security): /user/id/" + id);
+    Logger.getLogger(getClass()).info("RESTful call (Security): /user/" + id);
     SecurityService securityService = new SecurityServiceJpa();
     try {
       authenticate(securityService, authToken, "retrieve the user",
@@ -131,6 +130,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /* see superclass */
   @Override
   @GET
   @Path("/user/name/{username}")
@@ -155,6 +155,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /* see superclass */
   @Override
   @GET
   @Path("/user/users")
@@ -177,6 +178,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /* see superclass */
   @Override
   @PUT
   @Path("/user/add")
@@ -205,6 +207,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /* see superclass */
   @Override
   @DELETE
   @Path("/user/remove/{id}")
@@ -230,6 +233,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
+  /* see superclass */
   @Override
   @POST
   @Path("/user/update")

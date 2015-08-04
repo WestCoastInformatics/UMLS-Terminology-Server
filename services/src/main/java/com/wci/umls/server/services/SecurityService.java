@@ -24,7 +24,7 @@ public interface SecurityService extends RootService {
    * @return the token
    * @throws Exception the exception
    */
-  public String authenticate(String username, String password) throws Exception;
+  public User authenticate(String username, String password) throws Exception;
 
   /**
    * Logout.

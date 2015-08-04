@@ -58,6 +58,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     securityService = new SecurityServiceJpa();
   }
 
+  /* see superclass */
   @Override
   @GET
   @Path("/terminology/id/{terminology}/{version}")
@@ -100,13 +101,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.rest.MetadataServiceRest#getMetadata(java.lang.String
-   * , java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/all/terminology/id/{terminology}/{version}")
@@ -220,12 +215,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.rest.MetadataServiceRest#
-   * getAllTerminologiesLatestVersions(java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/terminology/terminologies/latest")
@@ -272,13 +262,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.rest.MetadataServiceRest#getAllTerminologiesVersions
-   * (java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/terminology/terminologies")
@@ -331,13 +315,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.MetadataServiceRest#
-   * getDefaultPrecedenceList(java.lang.String, java.lang.String,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/precedence/{terminology}/{version}")

@@ -91,4 +91,18 @@ public interface User {
    * @param preferences the user preferences
    */
   public void setUserPreferences(UserPreferences preferences);
+
+  /**
+   * Returns the auth token.
+   *
+   * @return the auth token
+   */
+  public String getAuthToken();
+
+  /**
+   * Sets the auth token.
+   *
+   * @param authToken the auth token
+   */
+  public void setAuthToken(String authToken);
 }

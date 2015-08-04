@@ -96,8 +96,6 @@ public class IndexUtility {
 
     // second cycle over all fields
     for (java.lang.reflect.Field f : getAllFields(clazz)) {
-      System.out.println(clazz.getName() + "." + f + " - "
-          + f.isAnnotationPresent(IndexedEmbedded.class));
       // check for @IndexedEmbedded
       if (f.isAnnotationPresent(IndexedEmbedded.class)) {
 
@@ -119,9 +117,7 @@ public class IndexUtility {
 
         for (String embeddedField : getIndexedStringFieldNames(jpaType,
             stringOnly)) {
-          System.out.println(" add fields " + f.getName() + ". " + fieldNames);
           fieldNames.add(f.getName() + "." + embeddedField);
-
         }
       }
 
@@ -171,8 +167,6 @@ public class IndexUtility {
       filteredFieldNames.add(fieldName);
     }
 
-    System.out.println("filtered: " + clazz.getName() + " = "
-        + filteredFieldNames);
     return filteredFieldNames;
   }
 

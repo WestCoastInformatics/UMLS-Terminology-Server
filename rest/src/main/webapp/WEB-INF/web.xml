@@ -3,16 +3,20 @@
 "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app>
-  <display-name>Terminology Server REST Services</display-name>
+  <display-name>Term Server REST Services</display-name>
 
-  <!-- Jersey configuration -->
+  <!-- Jersey configuration. 
+    For additional configuration see the class TermServerApplication
+  -->
   <servlet>
-    <servlet-name>Jersey</servlet-name>
-    <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+    <servlet-name>jersey</servlet-name>
+    <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
     <init-param>
-      <param-name>com.sun.jersey.config.property.packages</param-name>
-      <param-value>com.fasterxml.jackson.jaxrs.json;com.wci.umls.server;com.wci.umls.server.services.helpers;com.wci.umls.server.jpa.services.rest;com.wci.umls.server.rest.impl;com.wci.umls.server.model.meta;com.wci.umls.server.model.content;com.wci.umls.server.jpa;com.wci.umls.server.jpa.meta;com.wci.umls.server.jpa.content;com.wordnik.swagger.jersey.listing</param-value>
-    </init-param>
+      <param-name>jersey.config.server.provider.packages</param-name>
+      <param-value>
+        com.wordnik.swagger.jaxrs.json
+      </param-value>
+    </init-param>    
     <load-on-startup>1</load-on-startup>
   </servlet>
 
@@ -22,7 +26,7 @@
     <servlet-class>com.wordnik.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
     <init-param>
       <param-name>api.version</param-name>
-      <param-value>${project.version}</param-value>
+      <param-value>1.0.0</param-value>
     </init-param>
     <init-param>
       <!-- This URL is the path to the REST web service itself. In the index.html 
@@ -38,6 +42,7 @@
     <param-name>debug</param-name> <param-value>0</param-value> </init-param> <init-param> 
     <param-name>listings</param-name> <param-value>false</param-value> </init-param> 
     <load-on-startup>1</load-on-startup> </servlet> -->
+    
   <!-- Redirect swagger ui pages to swagger UI -->
   <servlet-mapping>
     <servlet-name>default</servlet-name>
@@ -59,7 +64,7 @@
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>default</servlet-name>
-    <url-pattern>/index-mobile.html</url-pattern>
+    <url-pattern>/index2.html</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>default</servlet-name>
@@ -77,22 +82,17 @@
     <servlet-name>default</servlet-name>
     <url-pattern>/ui/*</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/ui2/*</url-pattern>
+  </servlet-mapping>
 
   <!-- Generally redirect to Jersey -->
   <!-- Keep this part after the "default" section otherwise it overrides it -->
   <servlet-mapping>
-    <servlet-name>Jersey</servlet-name>
-    <url-pattern>/*</url-pattern>
+    <servlet-name>jersey</servlet-name>
+    <url-pattern>/api/*</url-pattern>
   </servlet-mapping>
-
-  <filter>
-    <filter-name>ApiOriginFilter</filter-name>
-    <filter-class>com.wci.umls.server.rest.impl.ApiOriginFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>ApiOriginFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
 
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>

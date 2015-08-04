@@ -12,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -57,6 +58,10 @@ public class UserJpa implements User {
   @Column(nullable = false)
   private UserRole applicationRole;
 
+  /** The auth token. */
+  @Transient
+  private String authToken;
+
   /** The user preferences. */
   @OneToOne(targetEntity = UserPreferencesJpa.class, fetch = FetchType.EAGER, mappedBy = "user", optional = true)
   private UserPreferences userPreferences;
@@ -65,25 +70,6 @@ public class UserJpa implements User {
    * The default constructor.
    */
   public UserJpa() {
-  }
-
-  /**
-   * Instantiates a new user jpa.
-   *
-   * @param id the id
-   * @param userName the user name
-   * @param name the name
-   * @param email the email
-   * @param applicationRole the application role
-   */
-  public UserJpa(long id, String userName, String name, String email,
-      UserRole applicationRole) {
-    super();
-    this.id = id;
-    this.userName = userName;
-    this.name = name;
-    this.email = email;
-    this.applicationRole = applicationRole;
   }
 
   /**
@@ -98,6 +84,8 @@ public class UserJpa implements User {
     this.name = user.getName();
     this.email = user.getEmail();
     this.applicationRole = user.getApplicationRole();
+    this.authToken = user.getAuthToken();
+    this.userPreferences = user.getUserPreferences();
   }
 
   /*
@@ -254,14 +242,14 @@ public class UserJpa implements User {
     this.applicationRole = role;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public String toString() {
+  public String getAuthToken() {
+    return authToken;
+  }
 
-    return this.getId() + "," + this.getUserName() + "," + this.getEmail()
-        + "," + this.getName() + "," + this.getApplicationRole().getValue();
+  @Override
+  public void setAuthToken(String authToken) {
+    this.authToken = authToken;
   }
 
   @Override
@@ -271,6 +259,7 @@ public class UserJpa implements User {
     result =
         prime * result
             + ((applicationRole == null) ? 0 : applicationRole.hashCode());
+    result = prime * result + ((authToken == null) ? 0 : authToken.hashCode());
     result = prime * result + ((email == null) ? 0 : email.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((userName == null) ? 0 : userName.hashCode());
@@ -287,6 +276,11 @@ public class UserJpa implements User {
       return false;
     UserJpa other = (UserJpa) obj;
     if (applicationRole != other.applicationRole)
+      return false;
+    if (authToken == null) {
+      if (other.authToken != null)
+        return false;
+    } else if (!authToken.equals(other.authToken))
       return false;
     if (email == null) {
       if (other.email != null)
@@ -327,6 +321,13 @@ public class UserJpa implements User {
   @Override
   public void setUserPreferences(UserPreferences preferences) {
     this.userPreferences = preferences;
+  }
+
+  @Override
+  public String toString() {
+    return "UserJpa [id=" + id + ", userName=" + userName + ", name=" + name
+        + ", email=" + email + ", applicationRole=" + applicationRole
+        + ", authToken=" + authToken + "]";
   }
 
 }

@@ -55,7 +55,6 @@ import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -1543,7 +1542,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (fields[2].equals("CUI") && fields[6].equals("CUI")) {
         final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
 
-        System.out.println("cui = " + fields[4]);
         final Concept fromConcept =
             getConcept(conceptIdMap.get(terminology + fields[4]));
         conceptRel.setFrom(fromConcept);

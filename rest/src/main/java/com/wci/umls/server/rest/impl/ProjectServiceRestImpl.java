@@ -60,13 +60,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     securityService = new SecurityServiceJpa();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ProjectServiceRest#addProject(org.ihtsdo.otf.ts.
-   * jpa.ProjectJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @PUT
   @Path("/add")
@@ -106,13 +100,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ProjectServiceRest#updateProject(org.ihtsdo.otf.
-   * ts.jpa.ProjectJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/update")
@@ -155,13 +143,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ProjectServiceRest#removeProject(java.lang.Long,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @DELETE
   @Path("/remove/id/{id}")
@@ -190,13 +172,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ProjectServiceRest#findConceptsInScope(java.lang
-   * .Long, org.ihtsdo.otf.ts.helpers.PfsParameterJpa, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/scope/id/{id}")
@@ -234,12 +210,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rest.ProjectServiceRest#getProject(java.lang.Long,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/id/{id}")
@@ -268,12 +239,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ProjectServiceRest#getProjects(java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/projects")

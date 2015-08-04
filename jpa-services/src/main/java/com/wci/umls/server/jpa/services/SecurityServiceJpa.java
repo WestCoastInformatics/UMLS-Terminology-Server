@@ -56,7 +56,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
 
   /* see superclass */
   @Override
-  public String authenticate(String username, String password) throws Exception {
+  public User authenticate(String username, String password) throws Exception {
     // Check username and password are not null
     if (username == null || username.isEmpty())
       throw new LocalException("Invalid username: null");
@@ -77,7 +77,18 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     // Call the security service
     //
     User authUser = handler.authenticate(username, password);
+    return authHelper(authUser);
+  }
 
+
+  /**
+   * Auth helper.
+   *
+   * @param authUser the auth user
+   * @return the user
+   * @throws Exception the exception
+   */
+  private User authHelper(User authUser) throws Exception {
     if (authUser == null)
       return null;
 
@@ -114,14 +125,16 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     }
 
     // Generate application-managed token
-    String token = handler.computeTokenForUser(username);
+    String token = handler.computeTokenForUser(authUser.getUserName());
     tokenUsernameMap.put(token, authUser.getUserName());
     tokenTimeoutMap.put(token, new Date(new Date().getTime() + timeout));
 
-    Logger.getLogger(getClass()).info("User = " + authUser.getUserName());
+    Logger.getLogger(getClass()).debug("User = " + authUser.getUserName());
 
-    return token;
+    authUser.setAuthToken(token);
+    return authUser;
   }
+
 
   /* see superclass */
   @Override

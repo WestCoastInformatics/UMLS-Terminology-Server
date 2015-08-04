@@ -30,6 +30,9 @@ public class UserImpl implements User {
   /** The user preferences. */
   private UserPreferences userPreferences;
 
+  /** The auth token. */
+  private String authToken;
+
   /**
    * Instantiates an empty {@link UserImpl}.
    */
@@ -47,113 +50,82 @@ public class UserImpl implements User {
     name = user.getName();
     email = user.getEmail();
     applicationRole = user.getApplicationRole();
+    authToken = user.getAuthToken();
+    userPreferences = user.getUserPreferences();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.User#getUserName()
-   */
+  /* see superclass */
   @Override
   public String getUserName() {
     return userName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.User#setUserName(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setUserName(String username) {
     this.userName = username;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.User#getName()
-   */
+  /* see superclass */
   @Override
   public String getName() {
     return name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.User#setName(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.User#getEmail()
-   */
+  /* see superclass */
   @Override
   public String getEmail() {
     return email;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.User#setEmail(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setEmail(String email) {
     this.email = email;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.User#getApplicationRole()
-   */
+  /* see superclass */
   @Override
   public UserRole getApplicationRole() {
     return applicationRole;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.User#setApplicationRole(org.ihtsdo.otf.ts.UserRole)
-   */
+  /* see superclass */
   @Override
   public void setApplicationRole(UserRole role) {
     this.applicationRole = role;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.User#getId()
-   */
+  @Override
+  public String getAuthToken() {
+    return authToken;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAuthToken(String authToken) {
+    this.authToken = authToken;
+  }
+
+  /* see superclass */
   @Override
   public Long getId() {
     return id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.User#setId(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void setId(Long id) {
     this.id = id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -167,11 +139,7 @@ public class UserImpl implements User {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -201,11 +169,13 @@ public class UserImpl implements User {
     return true;
   }
 
+  /* see superclass */
   @Override
   public UserPreferences getUserPreferences() {
     return userPreferences;
   }
 
+  /* see superclass */
   @Override
   public void setUserPreferences(UserPreferences preferences) {
     this.userPreferences = preferences;

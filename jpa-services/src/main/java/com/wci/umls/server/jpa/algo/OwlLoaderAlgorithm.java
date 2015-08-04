@@ -301,6 +301,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("unused")
   private void loadMetadata() throws Exception {
 
     // relationship types - CHD, PAR, and RO
@@ -538,6 +539,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @param objectCt the object ct
    * @throws Exception the exception
    */
+  @SuppressWarnings("unused")
   private void logAndCommit(int objectCt) throws Exception {
     // log at regular intervals
     if (objectCt % logCt == 0) {

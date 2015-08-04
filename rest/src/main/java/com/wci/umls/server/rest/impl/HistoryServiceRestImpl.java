@@ -56,13 +56,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     securityService = new SecurityServiceJpa();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.HistoryServiceRest#getReleaseHistory
-   * (java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/releases/{terminology}")
@@ -91,13 +85,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#getCurrentReleaseInfo(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/release/{terminology}/current")
@@ -126,13 +114,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#getPreviousReleaseInfo(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/release/{terminology}/previous")
@@ -161,13 +143,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.HistoryServiceRest#getPlannedReleaseInfo
-   * (java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/release/{terminology}/planned")
@@ -196,13 +172,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#getReleaseInfo(java.lang.String,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   @GET
   @Path("/release/{terminology}/{name}")
@@ -232,13 +202,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#addReleaseInfo(org.ihtsdo.otf
-   * .ts.helpers.ReleaseInfo, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @PUT
   @Path("/release/add")
@@ -269,13 +233,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#updateReleaseInfo(org.ihtsdo.
-   * otf.ts.helpers.ReleaseInfo, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/release/update")
@@ -303,13 +261,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#removeReleaseInfo(java.lang.String
-   * , java.lang.String)
-   */
+  /* see superclass */
   @Override
   @DELETE
   @Path("/release/remove/{id}")
@@ -335,13 +287,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.HistoryServiceRest#startEditingCycle
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   @POST
   @Path("/release/startEditingCycle/{releaseVersion}/{terminology}/{version}")

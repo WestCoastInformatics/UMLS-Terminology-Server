@@ -42,7 +42,7 @@ public class SecurityClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public String authenticate(String username, String password) throws Exception {
+  public User authenticate(String username, String password) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Security Client - authenticate " + username);
     validateNotEmpty(username, "username");
@@ -60,8 +60,10 @@ public class SecurityClientRest extends RootClientRest implements
     } else {
       throw new Exception(response.toString());
     }
-    // return auth token
-    return resultString.replaceAll("\"", "");
+    // return user
+    UserJpa user =
+        (UserJpa) ConfigUtility.getGraphForString(resultString, UserJpa.class);
+    return user;
   }
 
   /* see superclass */
@@ -89,8 +91,7 @@ public class SecurityClientRest extends RootClientRest implements
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/security/user/id/"
-            + id);
+        client.target(config.getProperty("base.url") + "/security/user/" + id);
     Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
