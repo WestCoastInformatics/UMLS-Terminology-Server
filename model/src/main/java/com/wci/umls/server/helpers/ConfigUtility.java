@@ -30,7 +30,11 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -58,9 +62,7 @@ import org.xml.sax.SAXException;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
+
 
 /**
  * Loads and serves configuration.
@@ -119,12 +121,12 @@ public class ConfigUtility {
 
     try {
       // Attempt to logout to verify service is up (this works like a "ping").
-      Client client = Client.create();
-      WebResource resource =
-          client.resource(config.getProperty("base.url")
+      Client client = ClientBuilder.newClient();
+      WebTarget target =
+          client.target(config.getProperty("base.url")
               + "/security/logout/dummy");
-      resource.accept(MediaType.APPLICATION_JSON);
-      ClientResponse response = resource.get(ClientResponse.class);
+
+      Response response = target.request(MediaType.APPLICATION_JSON).get();
       if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
         return true;
       } else {

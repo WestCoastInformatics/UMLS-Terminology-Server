@@ -5,14 +5,16 @@ package com.wci.umls.server.rest.client;
 
 import java.util.Properties;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 
 import org.apache.log4j.Logger;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 import com.wci.umls.server.User;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.UserList;
@@ -45,13 +47,14 @@ public class SecurityClientRest extends RootClientRest implements
         "Security Client - authenticate " + username);
     validateNotEmpty(username, "username");
     validateNotEmpty(password, "password");
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url")
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url")
             + "/security/authenticate/" + username);
-    resource.accept(MediaType.APPLICATION_JSON);
-    ClientResponse response = resource.post(ClientResponse.class, password);
-    String resultString = response.getEntity(String.class);
+
+    Response response =
+        target.request(MediaType.APPLICATION_JSON).post(Entity.text(password));
+    String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
@@ -65,12 +68,11 @@ public class SecurityClientRest extends RootClientRest implements
   @Override
   public String logout(String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - logout");
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url") + "/security/logout/"
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/security/logout/"
             + authToken);
-    resource.accept(MediaType.APPLICATION_JSON);
-    ClientResponse response = resource.get(ClientResponse.class);
+    Response response = target.request(MediaType.APPLICATION_JSON).get();
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -85,18 +87,18 @@ public class SecurityClientRest extends RootClientRest implements
   public User getUser(Long id, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - get user " + id);
     validateNotEmpty(id, "id");
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url") + "/security/user/id/"
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/security/user/id/"
             + id);
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get(ClientResponse.class);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
 
     if (response.getStatus() == 204)
       return null;
 
-    String resultString = response.getEntity(String.class);
+    String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
@@ -115,18 +117,18 @@ public class SecurityClientRest extends RootClientRest implements
     Logger.getLogger(getClass())
         .debug("Security Client - get user " + username);
     validateNotEmpty(username, "username");
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url") + "/security/user/name/"
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/security/user/name/"
             + username);
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get(ClientResponse.class);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
 
     if (response.getStatus() == 204)
       return null;
 
-    String resultString = response.getEntity(String.class);
+    String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
@@ -143,15 +145,14 @@ public class SecurityClientRest extends RootClientRest implements
   @Override
   public UserList getUsers(String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - get users");
-    Client client = Client.create();
-    WebResource resource =
-        client
-            .resource(config.getProperty("base.url") + "/security/user/users");
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get(ClientResponse.class);
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/security/user/users");
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
 
-    String resultString = response.getEntity(String.class);
+    String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
@@ -169,19 +170,17 @@ public class SecurityClientRest extends RootClientRest implements
   @Override
   public User addUser(UserJpa user, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - add user " + user);
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url") + "/security/user/add");
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/security/user/add");
 
     String userString =
         (user != null ? ConfigUtility.getStringForGraph(user) : "");
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .put(ClientResponse.class, userString);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).put(Entity.xml(userString));
 
-    String resultString = response.getEntity(String.class);
+    String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
@@ -200,13 +199,13 @@ public class SecurityClientRest extends RootClientRest implements
   public void removeUser(Long id, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - remove user " + id);
     validateNotEmpty(id, "id");
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/security/user/remove/" + id);
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).delete(ClientResponse.class);
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/security/user/remove/"
+            + id);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).delete();
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -219,18 +218,15 @@ public class SecurityClientRest extends RootClientRest implements
   @Override
   public void updateUser(UserJpa user, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - update user " + user);
-    Client client = Client.create();
-    WebResource resource =
-        client.resource(config.getProperty("base.url")
-            + "/security/user/update");
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/security/user/update");
 
     String userString =
         (user != null ? ConfigUtility.getStringForGraph(user) : "");
-    ClientResponse response =
-        resource.accept(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .header("Content-type", MediaType.APPLICATION_XML)
-            .post(ClientResponse.class, userString);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.xml(userString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
