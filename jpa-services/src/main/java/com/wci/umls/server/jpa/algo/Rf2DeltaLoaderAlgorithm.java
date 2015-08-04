@@ -20,19 +20,25 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
+import com.wci.umls.server.model.content.ConceptSubsetMember;
+import com.wci.umls.server.model.content.Subset;
+import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.services.helpers.ReportHelper;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
@@ -86,6 +92,9 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
   /** The language ref set member cache. */
   private Map<String, AtomSubsetMember> languageRefSetMemberCache =
+      new HashMap<>();
+  
+  private Map<String, Attribute> attributeCache =
       new HashMap<>();
 
   /** The atom subset map. */
@@ -209,12 +218,14 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       //
       Logger.getLogger(getClass()).info("    Loading Atoms ...");
       loadAtoms();
+      loadDefinitions();
 
       //
       // Load language refset members
       //
       Logger.getLogger(getClass()).info("    Loading Language Ref Sets...");
       loadAtomSubsetMembers();
+      
 
       // Compute preferred names
       Logger.getLogger(getClass()).info(
@@ -238,6 +249,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       commit();
       clear();
       beginTransaction();
+      /*
 
       // cache existing concepts again (after relationships)
       // Cascade objects are finished, these just need a concept with an id.
@@ -365,7 +377,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         info.setLastModifiedBy(loader);
         addReleaseInfo(info);
       }
-
+*/
       // Commit and clear resources
       commit();
       clear();
@@ -532,13 +544,17 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         setCommonFields(attribute);
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
+        attribute.setTimestamp(ConfigUtility.DATE_FORMAT.parse(fields[1]));
         newConcept.addAttribute(attribute);
+        addAttribute(attribute, newConcept);
 
         Attribute attribute2 = new AttributeJpa();
         setCommonFields(attribute2);
         attribute2.setName("definitionStatusId");
         attribute2.setValue(fields[4].intern());
+        attribute2.setTimestamp(ConfigUtility.DATE_FORMAT.parse(fields[1]));
         newConcept.addAttribute(attribute2);
+        addAttribute(attribute2, newConcept);
 
         // If concept is new, add it
         if (concept == null) {
@@ -564,6 +580,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
   }
 
+
+  
   /**
    * Load atoms.
    *
@@ -643,12 +661,17 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           newAtom.setLastModified(releaseVersionDate);
           newAtom.setPublished(true);
           newAtom.setWorkflowStatus(published);
+          newAtom.setDescriptorId("");
+          newAtom.setCodeId("");
+          newAtom.setLexicalClassId("");
+          newAtom.setStringClassId("");
 
           // Attributes
           Attribute attribute = new AttributeJpa();
           setCommonFields(attribute);
           attribute.setName("moduleId");
           attribute.setValue(fields[3].intern());
+          attribute.setTimestamp(ConfigUtility.DATE_FORMAT.parse(fields[1]));
           newAtom.addAttribute(attribute);
           addAttribute(attribute, newAtom);
 
@@ -656,6 +679,144 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           setCommonFields(attribute2);
           attribute2.setName("caseSignificanceId");
           attribute2.setValue(fields[8].intern());
+          attribute2.setTimestamp(ConfigUtility.DATE_FORMAT.parse(fields[1]));
+          newAtom.addAttribute(attribute2);
+          addAttribute(attribute2, newAtom);
+
+          // If atom is new, add it
+          if (atom == null) {
+            newAtom = addAtom(newAtom);
+            concept.addAtom(newAtom);
+            objectsAdded++;
+          }
+
+          // If atom has changed, update it
+          else if (!newAtom.equals(atom)) {
+            Logger.getLogger(getClass()).debug("  update atom - " + newAtom);
+
+            // do not actually update the atom, the concept is cached
+            // and will be updated later, simply update the data structure
+            concept.removeAtom(atom);
+            concept.addAtom(newAtom);
+            objectsUpdated++;
+          }
+
+          // forcably recache the concept in case the atom is new.
+          conceptCache.remove(concept.getTerminologyId());
+          cacheConcept(concept);
+
+        }
+
+        // Major error if there is a delta atom with a
+        // non-existent concept
+        else {
+          throw new Exception("Could not find concept " + fields[4]
+              + " for Atom " + fields[0]);
+        }
+      }
+    }
+    Logger.getLogger(getClass()).info("      new = " + objectsAdded);
+    Logger.getLogger(getClass()).info("      updated = " + objectsUpdated);
+  }
+  
+  /**
+   * Load definitions.
+   *
+   * @throws Exception the exception
+   */
+  private void loadDefinitions() throws Exception {
+
+    // Setup vars
+    String line = "";
+    objectCt = 0;
+    int objectsAdded = 0;
+    int objectsUpdated = 0;
+    // Iterate through atom reader
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.DEFINITION);
+    while ((line = reader.readLine()) != null) {
+      // split line
+      String fields[] = line.split("\t");
+
+      // if not header
+      if (!fields[0].equals("id")) {
+
+        // Skip if the effective time is before the release version
+        if (fields[1].compareTo(releaseVersion) < 0) {
+          continue;
+        }
+
+        // Stop if the effective time is past the release version
+        if (fields[1].compareTo(releaseVersion) > 0) {
+          reader.push(line);
+          break;
+        }
+
+        // Get concept from cache or from db
+        Concept concept = null;
+        if (conceptCache.containsKey(fields[4])) {
+          concept = conceptCache.get(fields[4]);
+        } else if (existingConceptCache.containsKey(fields[4])) {
+          concept = existingConceptCache.get(fields[4]);
+          // it's not yet in the cache, put it there
+          cacheConcept(concept);
+        } else {
+          // if the concept is new, it will have been added
+          // if the concept is existing it will either have been udpated
+          // or will be in the existing concept cache
+          throw new Exception(
+              "Concept of atom should either be in cache or existing cache: "
+                  + fields[4]);
+        }
+
+        // if the concept is not null
+        if (concept != null) {
+
+          // Load atom from cache or db
+          Atom atom = null;
+          if (atomCache.containsKey(fields[0])) {
+            atom = atomCache.get(fields[0]);
+          }
+
+          // Setup delta atom (either new or based on existing one)
+          Atom newAtom = null;
+          if (atom == null) {
+            newAtom = new AtomJpa();
+          } else {
+            newAtom = new AtomJpa(atom, false);
+          }
+
+          // Set fields
+          newAtom.setTerminologyId(fields[0]);
+          newAtom.setTimestamp(ConfigUtility.DATE_FORMAT.parse(fields[1]));
+          newAtom.setObsolete(fields[2].equals("0"));
+          newAtom.setLanguage(fields[5]);
+          newAtom.setTermType(fields[6]);
+          newAtom.setName(fields[7]);
+          newAtom.setTerminology(terminology);
+          newAtom.setVersion(version);
+          newAtom.setLastModifiedBy(loader);
+          newAtom.setLastModified(releaseVersionDate);
+          newAtom.setPublished(true);
+          newAtom.setWorkflowStatus(published);
+          newAtom.setDescriptorId("");
+          newAtom.setCodeId("");
+          newAtom.setLexicalClassId("");
+          newAtom.setStringClassId("");
+
+          // Attributes
+          Attribute attribute = new AttributeJpa();
+          setCommonFields(attribute);
+          attribute.setName("moduleId");
+          attribute.setValue(fields[3].intern());
+          attribute.setTimestamp(ConfigUtility.DATE_FORMAT.parse(fields[1]));
+          newAtom.addAttribute(attribute);
+          addAttribute(attribute, newAtom);
+
+          Attribute attribute2 = new AttributeJpa();
+          setCommonFields(attribute2);
+          attribute2.setName("caseSignificanceId");
+          attribute2.setValue(fields[8].intern());
+          attribute2.setTimestamp(ConfigUtility.DATE_FORMAT.parse(fields[1]));
           newAtom.addAttribute(attribute2);
           addAttribute(attribute2, newAtom);
 
@@ -777,18 +938,42 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         setCommonFields(attribute);
         attribute.setName("acceptabilityId");
         attribute.setValue(fields[6].intern());
-        member.addAttribute(attribute);
+        attribute.setTimestamp(ConfigUtility.DATE_FORMAT.parse(fields[1]));
+        newMember.addAttribute(attribute);
         addAttribute(attribute, newMember);
 
+        // look up refset id to get atom subset
         if (!atomSubsetMap.containsKey(fields[4])) {
           AtomSubset subset =
               (AtomSubset) getSubset(fields[4], terminology, version,
                   Branch.ROOT, AtomSubset.class);
-          atomSubsetMap.put(fields[4], subset);
+          // TODO: confirm correct, in our case refset id 448879004 not in atom subset list,
+          // so creating atom subset  load mini first, then 
+          if (subset == null) {
+            subset = new AtomSubsetJpa();
+            setCommonFields(subset);
+            subset.setTerminologyId(fields[4].intern());
+            subset.setName(getConcept(fields[4], terminology, version, Branch.ROOT).getName());
+            subset.setDescription(subset.getName());
+
+            final Attribute attribute2 = new AttributeJpa();
+            setCommonFields(attribute2);
+            attribute2.setName("moduleId");
+            attribute2.setValue(fields[3].intern());
+            subset.addAttribute(attribute2);
+            addAttribute(attribute2, member);
+            addSubset(subset);
+            atomSubsetMap.put(fields[4], subset);
+            commitClearBegin();
+
+            
+          } else {
+            atomSubsetMap.put(fields[4], subset);
+          }
         }
         AtomSubset subset = atomSubsetMap.get(fields[4]);
-        member.setSubset(subset);
-        subset.addMember(member);
+        newMember.setSubset(subset);
+        subset.addMember(newMember);
 
         // If language refset entry is new, add it
         if (member == null) {
@@ -1069,8 +1254,13 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     component.setPublishable(true);
     component.setPublished(true);
     component.setSuppressible(false);
-  }
+    
+    component.setTerminologyId("");
+    component.setTerminology(terminology);
+    component.setVersion(version);
 
+  }
+  
   /*
    * (non-Javadoc)
    * 
