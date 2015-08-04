@@ -42,8 +42,10 @@ public class SecurityServiceRestEdgeCasesTest extends SecurityServiceRestTest {
     // Authenticate user
     // Authenticate user again with same password
     // TEST: no exception
-    authToken = service.authenticate(viewerUserName, viewerUserPassword);
-    authToken = service.authenticate(viewerUserName, viewerUserPassword);
+    authToken =
+        service.authenticate(viewerUserName, viewerUserPassword).getAuthToken();
+    authToken =
+        service.authenticate(viewerUserName, viewerUserPassword).getAuthToken();
     service.logout(authToken);
   }
 
@@ -72,7 +74,8 @@ public class SecurityServiceRestEdgeCasesTest extends SecurityServiceRestTest {
     // Logout of "guest" again user without logging in.
     // TEST: no exception
 
-    String authToken = service.authenticate(viewerUserName, viewerUserPassword);
+    String authToken =
+        service.authenticate(viewerUserName, viewerUserPassword).getAuthToken();
     service.logout(authToken);
     service.logout(authToken);
 

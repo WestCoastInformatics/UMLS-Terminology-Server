@@ -31,7 +31,7 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
   public void setup() throws Exception {
 
     // authentication
-    authToken = securityClient.authenticate(testUser, testPassword);
+    authToken = securityClient.authenticate(testUser, testPassword).getAuthToken();
 
   }
 

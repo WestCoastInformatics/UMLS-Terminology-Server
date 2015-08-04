@@ -4,10 +4,6 @@
 package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -17,18 +13,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.handlers.DefaultComputePreferredNameHandler;
 import com.wci.umls.server.jpa.services.validation.DefaultValidationCheck;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
- *  Testing for {@link DefaultValidationCheckTest}.
+ * Testing for {@link DefaultValidationCheckTest}.
  */
 public class DefaultValidationCheckTest {
 
@@ -65,7 +55,6 @@ public class DefaultValidationCheckTest {
   public void testHandlerNormalUse001() throws Exception {
     Logger.getLogger(getClass()).info("TEST testHandlerNormalUse001");
 
-
     Atom atom = new AtomJpa();
     atom.setTerminologyId("12345");
     atom.setName("disallowed\twhitespace");
@@ -73,29 +62,29 @@ public class DefaultValidationCheckTest {
     Logger.getLogger(getClass()).info(result);
     assertEquals(result.getErrors().iterator().next(),
         "Atom name contains invalid whitespace.");
-       
+
     atom.setName(" leadingwhitespace");
     result = defaultValidationCheck.validate(atom);
     Logger.getLogger(getClass()).info(result);
     assertEquals(result.getErrors().iterator().next(),
         "Atom name contains leading whitespace.");
-    
+
     atom.setName("trailing whitespace ");
     result = defaultValidationCheck.validate(atom);
     Logger.getLogger(getClass()).info(result);
     assertEquals(result.getErrors().iterator().next(),
         "Atom name contains trailing whitespace.");
-    
+
     atom.setName("duplicate    whitespace");
     result = defaultValidationCheck.validate(atom);
     Logger.getLogger(getClass()).info(result);
     assertEquals(result.getErrors().iterator().next(),
-        "Atom name contains duplicate whitespace."); 
+        "Atom name contains duplicate whitespace.");
 
     atom.setName("duplicate    whitespace and trailing whitespace ");
     result = defaultValidationCheck.validate(atom);
     Logger.getLogger(getClass()).info(result);
-    assertEquals(result.getErrors().size(), 2);    
+    assertEquals(result.getErrors().size(), 2);
   }
 
   /*
@@ -110,12 +99,12 @@ public class DefaultValidationCheckTest {
    */
   @Test
   public void testHandlerDegenerateUse001() throws Exception {
- 
-      Atom atom = null;
-      ValidationResult result = defaultValidationCheck.validate(atom);
-      Logger.getLogger(getClass()).info(result);
 
-      assertEquals(result, null);  
+    Atom atom = null;
+    ValidationResult result = defaultValidationCheck.validate(atom);
+    Logger.getLogger(getClass()).info(result);
+
+    assertEquals(result, null);
   }
 
   /**

@@ -78,7 +78,8 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   public void setup() throws Exception {
 
     // authentication
-    authToken = securityService.authenticate(testUser, testPassword);
+    authToken =
+        securityService.authenticate(testUser, testPassword).getAuthToken();
 
   }
 

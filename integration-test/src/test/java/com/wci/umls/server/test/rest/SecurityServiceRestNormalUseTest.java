@@ -40,12 +40,14 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
   public void testNormalUseRestSecurity001() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
-    String authToken = service.authenticate(viewerUserName, viewerUserPassword);
+    String authToken =
+        service.authenticate(viewerUserName, viewerUserPassword).getAuthToken();
     if (authToken == null || authToken.isEmpty()) {
       fail("Failed to authenticate viewer user");
     }
 
-    authToken = service.authenticate(adminUserName, adminUserPassword);
+    authToken =
+        service.authenticate(adminUserName, adminUserPassword).getAuthToken();
     if (authToken == null || authToken.isEmpty()) {
       fail("Failed to authenticate admin user");
     }
@@ -65,7 +67,8 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
     String viewerUserNameAuthToken, adminAuthToken;
 
     // authorize the user
-    adminAuthToken = service.authenticate(adminUserName, adminUserPassword);
+    adminAuthToken =
+        service.authenticate(adminUserName, adminUserPassword).getAuthToken();
 
     // PROCEDURE 1: add a user
     Logger.getLogger(getClass()).info("  Procedure 1: add a user");
@@ -118,7 +121,7 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
 
     // authenticate user based on config parameters
     viewerUserNameAuthToken =
-        service.authenticate(viewerUserName, viewerUserPassword);
+        service.authenticate(viewerUserName, viewerUserPassword).getAuthToken();
     assertTrue(viewerUserNameAuthToken != null
         && !viewerUserNameAuthToken.isEmpty());
 
@@ -141,7 +144,7 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
 
     // authenticate the user and verify email overwritten
     viewerUserNameAuthToken =
-        service.authenticate(viewerUserName, viewerUserPassword);
+        service.authenticate(viewerUserName, viewerUserPassword).getAuthToken();
     assertTrue(viewerUserNameAuthToken != null
         && !viewerUserNameAuthToken.isEmpty());
     user = service.getUser(viewerUserName, adminAuthToken);

@@ -40,8 +40,10 @@ public class ProjectServiceRestRoleCheckTest extends ProjectServiceRestTest {
   public void setup() throws Exception {
 
     // authentication
-    viewerAuthToken = securityService.authenticate(testUser, testPassword);
-    adminAuthToken = securityService.authenticate(adminUser, adminPassword);
+    viewerAuthToken =
+        securityService.authenticate(testUser, testPassword).getAuthToken();
+    adminAuthToken =
+        securityService.authenticate(adminUser, adminPassword).getAuthToken();
 
   }
 

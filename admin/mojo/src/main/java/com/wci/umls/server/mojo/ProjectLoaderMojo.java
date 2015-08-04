@@ -159,7 +159,7 @@ public class ProjectLoaderMojo extends AbstractMojo {
       SecurityService service = new SecurityServiceJpa();
       String authToken =
           service.authenticate(properties.getProperty("admin.user"),
-              properties.getProperty("admin.password"));
+              properties.getProperty("admin.password")).getAuthToken();
 
       ProjectJpa project = new ProjectJpa();
       project.setName(name);

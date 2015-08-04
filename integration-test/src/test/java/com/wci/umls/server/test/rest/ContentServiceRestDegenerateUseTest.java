@@ -72,7 +72,8 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
   public void setup() throws Exception {
 
     // authentication
-    authToken = securityService.authenticate(testUser, testPassword);
+    authToken =
+        securityService.authenticate(testUser, testPassword).getAuthToken();
 
     // set terminology and version
     testTerminology = "SNOMEDCT_US";

@@ -28,7 +28,7 @@ public class ValidationServiceRestTest {
 
   /** The security service. */
   protected static SecurityClientRest securityService;
-  
+
   /** The content service. */
   protected static ContentService contentService;
 
@@ -69,7 +69,6 @@ public class ValidationServiceRestTest {
       throw new Exception(
           "Test prerequisite: viewer.password must be specified");
     }
-
 
   }
 

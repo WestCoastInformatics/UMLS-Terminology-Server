@@ -13,36 +13,29 @@ import javax.persistence.FlushModeType;
 
 import org.apache.log4j.Logger;
 
-import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.content.ConceptList;
-import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
-import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Component;
-import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
-import com.wci.umls.server.model.content.ConceptSubsetMember;
-import com.wci.umls.server.model.content.Subset;
-import com.wci.umls.server.model.content.SubsetMember;
-import com.wci.umls.server.services.helpers.ReportHelper;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
+import com.wci.umls.server.services.helpers.ReportHelper;
 
 /**
  * Implementation of an algorithm to import RF2 delta data.
@@ -93,9 +86,10 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
   /** The language ref set member cache. */
   private Map<String, AtomSubsetMember> languageRefSetMemberCache =
       new HashMap<>();
-  
-  private Map<String, Attribute> attributeCache =
-      new HashMap<>();
+
+  /** The attribute cache. */
+  @SuppressWarnings("unused")
+  private Map<String, Attribute> attributeCache = new HashMap<>();
 
   /** The atom subset map. */
   private Map<String, AtomSubset> atomSubsetMap = new HashMap<>();
@@ -225,11 +219,11 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       //
       Logger.getLogger(getClass()).info("    Loading Language Ref Sets...");
       loadAtomSubsetMembers();
-      
 
       // Compute preferred names
       Logger.getLogger(getClass()).info(
           "  Compute preferred names for modified concepts");
+      @SuppressWarnings("unused")
       int ct = 0;
       for (String terminologyId : conceptCache.keySet()) {
         Concept concept = conceptCache.get(terminologyId);
@@ -246,138 +240,95 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         }
       }
 
-      commit();
-      clear();
-      beginTransaction();
+      commitClearBegin();
+      
       /*
-
-      // cache existing concepts again (after relationships)
-      // Cascade objects are finished, these just need a concept with an id.
-      conceptCache.clear();
-      // Save atoms cache for attributeValue/AssocationRef processing
-      // atomCache.clear();
-      languageRefSetMemberCache.clear();
-      Logger.getLogger(getClass()).info("  Cache concepts");
-      conceptList = getAllConcepts(terminology, version, Branch.ROOT);
-      for (Concept c : conceptList.getObjects()) {
-        existingConceptCache.put(c.getTerminologyId(), c);
-      }
-      Logger.getLogger(getClass())
-          .info("    count = " + conceptList.getCount());
-
-      //
-      // Load relationships - stated and inferred
-      //
-      Logger.getLogger(getClass()).info("    Loading Relationships ...");
-      loadRelationships();
-
-      // Clear relationships cache
-      relationshipCache = null;
-
-      commit();
-      clear();
-      beginTransaction();
-
-      //
-      // Load simple refset members
-      //
-      Logger.getLogger(getClass()).info("    Loading Simple Ref Sets...");
-      loadSimpleRefSetMembers();
-
-      commit();
-      clear();
-      beginTransaction();
-
-      //
-      // Load simple map refset members
-      //
-      Logger.getLogger(getClass()).info("    Loading Simple Map Ref Sets...");
-      loadSimpleMapRefSetMembers();
-
-      commit();
-      clear();
-      beginTransaction();
-
-      //
-      // Load complex map refset members
-      //
-      Logger.getLogger(getClass()).info("    Loading Complex Map Ref Sets...");
-      loadComplexMapRefSetMembers();
-
-      //
-      // Load extended map refset members
-      //
-      Logger.getLogger(getClass()).info("    Loading Extended Map Ref Sets...");
-      loadExtendedMapRefSetMembers();
-
-      //
-      // Load atom type refset members
-      //
-      Logger.getLogger(getClass()).info("    Loading Atom Type Ref Sets...");
-      loadAtomTypeRefSetMembers();
-
-      //
-      // Load refset descriptor refset members
-      //
-      Logger.getLogger(getClass()).info(
-          "    Loading Refset Descriptor Ref Sets...");
-      loadRefsetDescriptorRefSetMembers();
-
-      //
-      // Load module dependency refset members
-      //
-      Logger.getLogger(getClass()).info(
-          "    Loading Module Dependency Ref Sets...");
-      loadModuleDependencyRefSetMembers();
-
-      commit();
-      clear();
-      beginTransaction();
-
-      //
-      // Load module dependency refset members
-      //
-      Logger.getLogger(getClass()).info(
-          "    Loading Attribute Value Ref Sets...");
-      loadAttributeValueRefSetMembers();
-
-      commit();
-      clear();
-      beginTransaction();
-
-      //
-      // Load association reference refset members
-      //
-      Logger.getLogger(getClass()).info(
-          "    Loading Association Reference Ref Sets...");
-      loadAssociationReferenceRefSetMembers();
-
-      commit();
-      clear();
-      beginTransaction();
-
-      Logger.getLogger(getClass()).info("    changed = " + ct);
-
-      // Commit the content changes
-      Logger.getLogger(getClass()).info("  Committing");
-
-      //
-      // Create ReleaseInfo for this release if it does not already exist
-      //
-      ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
-      if (info == null) {
-        info = new ReleaseInfoJpa();
-        info.setName(releaseVersion);
-        info.setDescription(terminology + " " + releaseVersion + " release");
-        info.setPlanned(false);
-        info.setPublished(true);
-        info.setTerminology(terminology);
-        info.setVersion(version);
-        info.setLastModified(releaseVersionDate);
-        info.setLastModifiedBy(loader);
-        addReleaseInfo(info);
-      }
-*/
+       * 
+       * // cache existing concepts again (after relationships) // Cascade
+       * objects are finished, these just need a concept with an id.
+       * conceptCache.clear(); // Save atoms cache for
+       * attributeValue/AssocationRef processing // atomCache.clear();
+       * languageRefSetMemberCache.clear();
+       * Logger.getLogger(getClass()).info("  Cache concepts"); conceptList =
+       * getAllConcepts(terminology, version, Branch.ROOT); for (Concept c :
+       * conceptList.getObjects()) {
+       * existingConceptCache.put(c.getTerminologyId(), c); }
+       * Logger.getLogger(getClass()) .info("    count = " +
+       * conceptList.getCount());
+       * 
+       * // // Load relationships - stated and inferred //
+       * Logger.getLogger(getClass()).info("    Loading Relationships ...");
+       * loadRelationships();
+       * 
+       * // Clear relationships cache relationshipCache = null;
+       * 
+       * commit(); clear(); beginTransaction();
+       * 
+       * // // Load simple refset members //
+       * Logger.getLogger(getClass()).info("    Loading Simple Ref Sets...");
+       * loadSimpleRefSetMembers();
+       * 
+       * commit(); clear(); beginTransaction();
+       * 
+       * // // Load simple map refset members //
+       * Logger.getLogger(getClass()).info
+       * ("    Loading Simple Map Ref Sets..."); loadSimpleMapRefSetMembers();
+       * 
+       * commit(); clear(); beginTransaction();
+       * 
+       * // // Load complex map refset members //
+       * Logger.getLogger(getClass()).info
+       * ("    Loading Complex Map Ref Sets..."); loadComplexMapRefSetMembers();
+       * 
+       * // // Load extended map refset members //
+       * Logger.getLogger(getClass()).info
+       * ("    Loading Extended Map Ref Sets...");
+       * loadExtendedMapRefSetMembers();
+       * 
+       * // // Load atom type refset members //
+       * Logger.getLogger(getClass()).info("    Loading Atom Type Ref Sets...");
+       * loadAtomTypeRefSetMembers();
+       * 
+       * // // Load refset descriptor refset members //
+       * Logger.getLogger(getClass()).info(
+       * "    Loading Refset Descriptor Ref Sets...");
+       * loadRefsetDescriptorRefSetMembers();
+       * 
+       * // // Load module dependency refset members //
+       * Logger.getLogger(getClass()).info(
+       * "    Loading Module Dependency Ref Sets...");
+       * loadModuleDependencyRefSetMembers();
+       * 
+       * commit(); clear(); beginTransaction();
+       * 
+       * // // Load module dependency refset members //
+       * Logger.getLogger(getClass()).info(
+       * "    Loading Attribute Value Ref Sets...");
+       * loadAttributeValueRefSetMembers();
+       * 
+       * commit(); clear(); beginTransaction();
+       * 
+       * // // Load association reference refset members //
+       * Logger.getLogger(getClass()).info(
+       * "    Loading Association Reference Ref Sets...");
+       * loadAssociationReferenceRefSetMembers();
+       * 
+       * commit(); clear(); beginTransaction();
+       * 
+       * Logger.getLogger(getClass()).info("    changed = " + ct);
+       * 
+       * // Commit the content changes
+       * Logger.getLogger(getClass()).info("  Committing");
+       * 
+       * // // Create ReleaseInfo for this release if it does not already exist
+       * // ReleaseInfo info = getReleaseInfo(terminology, releaseVersion); if
+       * (info == null) { info = new ReleaseInfoJpa();
+       * info.setName(releaseVersion); info.setDescription(terminology + " " +
+       * releaseVersion + " release"); info.setPlanned(false);
+       * info.setPublished(true); info.setTerminology(terminology);
+       * info.setVersion(version); info.setLastModified(releaseVersionDate);
+       * info.setLastModifiedBy(loader); addReleaseInfo(info); }
+       */
       // Commit and clear resources
       commit();
       clear();
@@ -400,6 +351,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    * 
    * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#reset()
    */
+  /* see superclass */
   @Override
   public void reset() throws Exception {
     // do nothing
@@ -457,6 +409,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    * 
    * @see org.ihtsdo.otf.ts.jpa.algo.Algorithm#cancel()
    */
+  /* see superclass */
   @Override
   public void cancel() {
     throw new UnsupportedOperationException("cannot cancel.");
@@ -580,8 +533,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
   }
 
-
-  
   /**
    * Load atoms.
    *
@@ -718,7 +669,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     Logger.getLogger(getClass()).info("      new = " + objectsAdded);
     Logger.getLogger(getClass()).info("      updated = " + objectsUpdated);
   }
-  
+
   /**
    * Load definitions.
    *
@@ -861,7 +812,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("unused")
   private void loadAtomSubsetMembers() throws Exception {
 
     // Setup variables
@@ -947,13 +897,15 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           AtomSubset subset =
               (AtomSubset) getSubset(fields[4], terminology, version,
                   Branch.ROOT, AtomSubset.class);
-          // TODO: confirm correct, in our case refset id 448879004 not in atom subset list,
-          // so creating atom subset  load mini first, then 
+          // TODO: confirm correct, in our case refset id 448879004 not in atom
+          // subset list,
+          // so creating atom subset load mini first, then
           if (subset == null) {
             subset = new AtomSubsetJpa();
             setCommonFields(subset);
             subset.setTerminologyId(fields[4].intern());
-            subset.setName(getConcept(fields[4], terminology, version, Branch.ROOT).getName());
+            subset.setName(getConcept(fields[4], terminology, version,
+                Branch.ROOT).getName());
             subset.setDescription(subset.getName());
 
             final Attribute attribute2 = new AttributeJpa();
@@ -966,7 +918,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
             atomSubsetMap.put(fields[4], subset);
             commitClearBegin();
 
-            
           } else {
             atomSubsetMap.put(fields[4], subset);
           }
@@ -1014,6 +965,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("unused")
   private void loadSimpleRefSetMembers() throws Exception {
     // n/a
   }
@@ -1023,6 +975,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("unused")
   private void loadSimpleMapRefSetMembers() throws Exception {
     // n/a
   }
@@ -1032,7 +985,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
-
+  @SuppressWarnings("unused")
   private void loadComplexMapRefSetMembers() throws Exception {
     // n/a
   }
@@ -1042,7 +995,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
-
+  @SuppressWarnings("unused")
   private void loadExtendedMapRefSetMembers() throws Exception {
     // TODO: do when we have mapping objects
   }
@@ -1052,7 +1005,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
-
+  @SuppressWarnings("unused")
   private void loadAtomTypeRefSetMembers() throws Exception {
     // n/a
   }
@@ -1062,7 +1015,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
-
+  @SuppressWarnings("unused")
   private void loadRefsetDescriptorRefSetMembers() throws Exception {
     // n/a
   }
@@ -1072,7 +1025,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
-
+  @SuppressWarnings("unused")
   private void loadModuleDependencyRefSetMembers() throws Exception {
     // n/a
   }
@@ -1082,7 +1035,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
-
+  @SuppressWarnings("unused")
   private void loadAttributeValueRefSetMembers() throws Exception {
     // n/a
   }
@@ -1092,7 +1045,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
-
+  @SuppressWarnings("unused")
   private void loadAssociationReferenceRefSetMembers() throws Exception {
     // n/a
   }
@@ -1102,7 +1055,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
-
+  @SuppressWarnings("unused")
   private void loadRelationships() throws Exception {
 
     // Setup variables
@@ -1254,18 +1207,19 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     component.setPublishable(true);
     component.setPublished(true);
     component.setSuppressible(false);
-    
+
     component.setTerminologyId("");
     component.setTerminology(terminology);
     component.setVersion(version);
 
   }
-  
+
   /*
    * (non-Javadoc)
    * 
    * @see org.ihtsdo.otf.ts.jpa.services.RootServiceJpa#close()
    */
+  /* see superclass */
   @Override
   public void close() throws Exception {
     super.close();

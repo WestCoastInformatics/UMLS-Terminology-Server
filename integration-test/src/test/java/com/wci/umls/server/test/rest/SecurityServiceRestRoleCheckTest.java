@@ -36,9 +36,10 @@ public class SecurityServiceRestRoleCheckTest extends SecurityServiceRestTest {
   public void setup() throws Exception {
 
     // ensure useres are logged in prior to tests
-    adminUserAuthToken = service.authenticate(adminUserName, adminUserPassword);
+    adminUserAuthToken =
+        service.authenticate(adminUserName, adminUserPassword).getAuthToken();
     viewerUserAuthToken =
-        service.authenticate(viewerUserName, viewerUserPassword);
+        service.authenticate(viewerUserName, viewerUserPassword).getAuthToken();
   }
 
   //

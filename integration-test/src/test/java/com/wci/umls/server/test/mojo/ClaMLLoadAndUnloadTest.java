@@ -128,7 +128,8 @@ public class ClaMLLoadAndUnloadTest {
     p.setProperty("server", server);
     p.setProperty("terminology", "ICD10");
     p.setProperty("version", "latest");
-    p.setProperty("input.file", "../../config/src/main/resources/data/icd10.xml");
+    p.setProperty("input.file",
+        "../../config/src/main/resources/data/icd10.xml");
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
@@ -226,7 +227,6 @@ public class ClaMLLoadAndUnloadTest {
     historyService.close();
     historyService.closeFactory();
 
-
     // Verify no contents
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
@@ -244,7 +244,8 @@ public class ClaMLLoadAndUnloadTest {
     p.setProperty("server", server);
     p.setProperty("terminology", "ICD10CM");
     p.setProperty("version", "latest");
-    p.setProperty("input.file", "../../config/src/main/resources/data/icd10cm.xml");
+    p.setProperty("input.file",
+        "../../config/src/main/resources/data/icd10cm.xml");
     request.setMavenOpts("-Xmx4000M");
     request.setProperties(p);
     invoker = new DefaultInvoker();
@@ -343,7 +344,6 @@ public class ClaMLLoadAndUnloadTest {
         .isPlanned());
     historyService.close();
     historyService.closeFactory();
-    
 
     // Remove terminology
     request = new DefaultInvocationRequest();
@@ -368,7 +368,6 @@ public class ClaMLLoadAndUnloadTest {
         service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
-    
 
     // Remove terminology
     request = new DefaultInvocationRequest();

@@ -33,7 +33,7 @@ public class GetDescriptorByTerminologyIdTest extends ExampleSupport {
   public void setup() throws Exception {
 
     // authentication
-    authToken = securityClient.authenticate(testUser, testPassword);
+    authToken = securityClient.authenticate(testUser, testPassword).getAuthToken();
 
   }
 

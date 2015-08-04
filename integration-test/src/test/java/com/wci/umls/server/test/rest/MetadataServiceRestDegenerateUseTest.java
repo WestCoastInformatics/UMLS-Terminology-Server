@@ -29,7 +29,8 @@ public class MetadataServiceRestDegenerateUseTest extends
   public void setup() throws Exception {
 
     // authentication
-    authToken = securityService.authenticate(testUser, testPassword);
+    authToken =
+        securityService.authenticate(testUser, testPassword).getAuthToken();
   }
 
   /**
@@ -121,7 +122,12 @@ public class MetadataServiceRestDegenerateUseTest extends
     }
 
   }
-  
+
+  /**
+   * Test degenerate use rest metadata005.
+   *
+   * @throws Exception the exception
+   */
   @Test
   public void testDegenerateUseRestMetadata005() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");

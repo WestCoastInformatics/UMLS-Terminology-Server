@@ -50,9 +50,10 @@ public class ContentServiceGeneralQueryTimeoutTest {
     Logger.getLogger(getClass()).info("Start test");
 
     Logger.getLogger(getClass()).info("  Test general query timeout");
-    SearchResultList list = service.findConceptsForGeneralQuery("",
-        "SELECT c FROM ConceptJpa c WHERE name like '%x%' AND terminology IN"
-            + " (SELECT b.name FROM AttributeJpa b)", Branch.ROOT, null);
+    SearchResultList list =
+        service.findConceptsForGeneralQuery("",
+            "SELECT c FROM ConceptJpa c WHERE name like '%x%' AND terminology IN"
+                + " (SELECT b.name FROM AttributeJpa b)", Branch.ROOT, null);
     Logger.getLogger(getClass()).info(" list = " + list);
   }
 

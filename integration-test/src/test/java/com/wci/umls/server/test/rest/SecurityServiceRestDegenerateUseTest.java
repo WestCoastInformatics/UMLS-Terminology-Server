@@ -40,7 +40,8 @@ public class SecurityServiceRestDegenerateUseTest extends
   @Before
   public void setup() throws Exception {
     // authenticate user
-    authToken = service.authenticate(adminUserName, adminUserPassword);
+    authToken =
+        service.authenticate(adminUserName, adminUserPassword).getAuthToken();
   }
 
   /**

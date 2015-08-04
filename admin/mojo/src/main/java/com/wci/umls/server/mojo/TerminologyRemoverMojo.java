@@ -88,7 +88,7 @@ public class TerminologyRemoverMojo extends AbstractMojo {
       SecurityService service = new SecurityServiceJpa();
       String authToken =
           service.authenticate(properties.getProperty("admin.user"),
-              properties.getProperty("admin.password"));
+              properties.getProperty("admin.password")).getAuthToken();
 
       if (!serverRunning) {
         getLog().info("Running directly");

@@ -45,7 +45,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
   public void setup() throws Exception {
 
     // authentication
-    authToken = securityService.authenticate(testUser, testPassword);
+    authToken =
+        securityService.authenticate(testUser, testPassword).getAuthToken();
 
   }
 
@@ -254,7 +255,12 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertNull(msh.getRootTerminology().getLicenseContact());
 
   }
-  
+
+  /**
+   * Test normal use rest metadata005.
+   *
+   * @throws Exception the exception
+   */
   @Test
   public void testNormalUseRestMetadata005() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
@@ -265,22 +271,31 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertEquals("loader", precedence.getLastModifiedBy());
     assertEquals("UMLS", precedence.getTerminology());
     assertEquals("latest", precedence.getVersion());
-    assertEquals("MTH", precedence.getPrecedence().getKeyValuePairList().get(0).getKey());
-    assertEquals("PN", precedence.getPrecedence().getKeyValuePairList().get(0).getValue());
-    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairList().get(1).getKey());
-    assertEquals("MH", precedence.getPrecedence().getKeyValuePairList().get(1).getValue());
+    assertEquals("MTH", precedence.getPrecedence().getKeyValuePairList().get(0)
+        .getKey());
+    assertEquals("PN", precedence.getPrecedence().getKeyValuePairList().get(0)
+        .getValue());
+    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairList().get(1)
+        .getKey());
+    assertEquals("MH", precedence.getPrecedence().getKeyValuePairList().get(1)
+        .getValue());
     assertEquals("DEFAULT", precedence.getName());
 
     precedence =
-        metadataService.getDefaultPrecedenceList("MSH", "2015_2014_09_08", authToken);
-    //assertEquals("loader", precedence.getLastModifiedBy());
+        metadataService.getDefaultPrecedenceList("MSH", "2015_2014_09_08",
+            authToken);
+    // assertEquals("loader", precedence.getLastModifiedBy());
     assertEquals("UMLS", precedence.getTerminology());
     assertEquals("latest", precedence.getVersion());
-    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairList().get(0).getKey());
-    assertEquals("MH", precedence.getPrecedence().getKeyValuePairList().get(0).getValue());
-    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairList().get(1).getKey());
-    assertEquals("TQ", precedence.getPrecedence().getKeyValuePairList().get(1).getValue());
-    
+    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairList().get(0)
+        .getKey());
+    assertEquals("MH", precedence.getPrecedence().getKeyValuePairList().get(0)
+        .getValue());
+    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairList().get(1)
+        .getKey());
+    assertEquals("TQ", precedence.getPrecedence().getKeyValuePairList().get(1)
+        .getValue());
+
     assertEquals("DEFAULT", precedence.getName());
 
   }

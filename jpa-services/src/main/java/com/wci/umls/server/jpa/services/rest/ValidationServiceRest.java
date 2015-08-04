@@ -8,7 +8,6 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
-import com.wci.umls.server.model.content.Concept;
 
 /**
  * Represents a service for validating content.
