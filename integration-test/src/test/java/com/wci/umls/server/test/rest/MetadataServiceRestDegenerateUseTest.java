@@ -121,6 +121,20 @@ public class MetadataServiceRestDegenerateUseTest extends
     }
 
   }
+  
+  @Test
+  public void testDegenerateUseRestMetadata005() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    // test bad authorization
+    try {
+      metadataService.getDefaultPrecedenceList(null, null, authToken);
+      fail("Getting default precedence list with null parameters failed");
+    } catch (Exception e) {
+      // do nothing
+    }
+
+  }
 
   /**
    * Teardown.

@@ -94,8 +94,7 @@ public class AbstractValidationCheck implements ValidationCheck {
    * .lang.String, java.lang.String, java.lang.String, java.lang.String)
    */
   @Override
-  public ValidationResult validateMerge(String terminologyId1,
-    String terminologyId2, String terminology, String version) {
+  public ValidationResult validateMerge(Concept concept1, Concept concept2) {
     ValidationResult result = new ValidationResultJpa();
     // no checks
     return result;

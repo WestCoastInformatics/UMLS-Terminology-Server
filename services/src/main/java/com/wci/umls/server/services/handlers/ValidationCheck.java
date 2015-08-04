@@ -50,13 +50,11 @@ public interface ValidationCheck extends Configurable {
   /**
    * Validates the concept merge.
    *
-   * @param terminologyId1 the terminology id1
-   * @param terminologyId2 the terminology id2
-   * @param terminology the terminology
-   * @param version the version
+   * @param concept1 the concept1
+   * @param concept2 the concept2
    * @return the validation result
    */
-  public ValidationResult validateMerge(String terminologyId1,
-    String terminologyId2, String terminology, String version);
+  public ValidationResult validateMerge(Concept concept1,
+    Concept concept2);
 
 }
