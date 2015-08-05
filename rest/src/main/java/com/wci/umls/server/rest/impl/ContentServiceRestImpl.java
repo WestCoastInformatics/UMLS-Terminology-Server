@@ -3,7 +3,14 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -19,6 +26,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -53,6 +61,7 @@ import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
@@ -72,6 +81,7 @@ import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.services.HistoryService;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
@@ -486,7 +496,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     ContentService contentService = new ContentServiceJpa();
 
     try {
-      authenticate(securityService, authToken, "start editing cycle",
+      authenticate(securityService, authToken, "load snapshot",
           UserRole.ADMINISTRATOR);
 
       // Check the input directory
@@ -575,6 +585,208 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
+  /* see superclass */
+  @SuppressWarnings("resource")
+  @Override
+  @PUT
+  @Path("/terminology/load/rf2/full/{terminology}/{version}")
+  @Consumes({
+    MediaType.TEXT_PLAIN
+  })
+  @ApiOperation(value = "Loads terminology RF2 full from directory", notes = "Loads terminology RF2 full from directory for specified terminology and version")
+  public void loadTerminologyRf2Full(
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "RF2 input directory", required = true) String inputDir,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info(
+            "RESTful POST call (Content): /terminology/load/rf2/full/"
+                + terminology + "/" + version + " from input directory "
+                + inputDir);
+
+    // Track system level information
+    long startTimeOrig = System.nanoTime();
+    ContentService contentService = new ContentServiceJpa();
+
+    try {
+      authenticate(securityService, authToken, "load full",
+          UserRole.ADMINISTRATOR);
+
+
+      // Check the input directory
+      File inputDirFile = new File(inputDir);
+      if (!inputDirFile.exists()) {
+        throw new Exception("Specified input directory does not exist");
+      }
+
+      // Get the release versions (need to look in complex map too for October
+      // releases)
+      Logger.getLogger(getClass()).info("  Get release versions");
+      Rf2FileSorter sorter = new Rf2FileSorter();
+      File conceptsFile =
+          sorter.findFile(new File(inputDir, "Terminology"), "sct2_Concept");
+      Set<String> releaseSet = new HashSet<>();
+      BufferedReader reader = new BufferedReader(new FileReader(conceptsFile));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        final String fields[] = line.split("\t");
+        if (!fields[1].equals("effectiveTime")) {
+          try {
+            ConfigUtility.DATE_FORMAT.parse(fields[1]);
+          } catch (Exception e) {
+            throw new Exception("Improperly formatted date found: " + fields[1]);
+          }
+          releaseSet.add(fields[1]);
+        }
+      }
+      reader.close();
+      File complexMapFile =
+          sorter.findFile(new File(inputDir, "Refset/Map"),
+              "der2_iissscRefset_ComplexMap");
+      reader = new BufferedReader(new FileReader(complexMapFile));
+      while ((line = reader.readLine()) != null) {
+        final String fields[] = line.split("\t");
+        if (!fields[1].equals("effectiveTime")) {
+          try {
+            ConfigUtility.DATE_FORMAT.parse(fields[1]);
+          } catch (Exception e) {
+            throw new Exception("Improperly formatted date found: " + fields[1]);
+          }
+          releaseSet.add(fields[1]);
+        }
+      }
+      File extendedMapFile =
+          sorter.findFile(new File(inputDir, "Refset/Map"),
+              "der2_iisssccRefset_ExtendedMap");
+      reader = new BufferedReader(new FileReader(extendedMapFile));
+      while ((line = reader.readLine()) != null) {
+        final String fields[] = line.split("\t");
+        if (!fields[1].equals("effectiveTime")) {
+          try {
+            ConfigUtility.DATE_FORMAT.parse(fields[1]);
+          } catch (Exception e) {
+            throw new Exception("Improperly formatted date found: " + fields[1]);
+          }
+          releaseSet.add(fields[1]);
+        }
+      }
+
+      reader.close();
+      List<String> releases = new ArrayList<>(releaseSet);
+      Collections.sort(releases);
+
+      // check that release info does not already exist
+      HistoryService historyService = new HistoryServiceJpa();
+      Logger.getLogger(getClass()).info("  Releases to process");
+      for (String release : releases) {
+        Logger.getLogger(getClass()).info("    release = " + release);
+
+        ReleaseInfo releaseInfo =
+            historyService.getReleaseInfo(terminology, release);
+        if (releaseInfo != null) {
+          throw new Exception("A release info already exists for " + release);
+        }
+      }
+      historyService.close();
+
+      // Sort files
+      Logger.getLogger(getClass()).info("  Sort RF2 Files");
+      sorter = new Rf2FileSorter();
+      sorter.setSortByEffectiveTime(true);
+      sorter.setRequireAllFiles(true);
+      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
+      sorter.sortFiles(inputDirFile, outputDir);
+
+      // Open readers
+      Rf2Readers readers = new Rf2Readers(outputDir);
+      readers.openReaders();
+
+      // Load initial snapshot - first release version
+      Rf2SnapshotLoaderAlgorithm algorithm = new Rf2SnapshotLoaderAlgorithm();
+      algorithm.setTerminology(terminology);
+      algorithm.setVersion(version);
+      algorithm.setReleaseVersion(releases.get(0));
+      algorithm.setReaders(readers);
+      algorithm.compute();
+      algorithm.close();
+      algorithm = null;
+
+      // Load deltas
+      for (String release : releases) {
+        if (release.equals(releases.get(0))) {
+          continue;
+        }
+
+        Rf2DeltaLoaderAlgorithm algorithm2 = new Rf2DeltaLoaderAlgorithm();
+        algorithm2.setTerminology(terminology);
+        algorithm2.setVersion(version);
+        algorithm2.setReleaseVersion(release);
+        algorithm2.setReaders(readers);
+        algorithm2.compute();
+        algorithm2.close();
+        algorithm2.closeFactory();
+        algorithm2 = null;
+
+      }
+
+      // Compute transitive closure
+      Logger.getLogger(getClass()).info(
+          "  Compute transitive closure from  " + terminology + "/" + version);
+      TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+      algo.setCycleTolerant(false);
+      algo.setIdType(IdType.CONCEPT);
+      algo.setTerminology(terminology);
+      algo.setVersion(version);
+      algo.reset();
+      algo.compute();
+
+      // compute tree positions
+      TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
+      algo2.setCycleTolerant(false);
+      algo2.setIdType(IdType.CONCEPT);
+      algo2.setTerminology(terminology);
+      algo2.setVersion(version);
+      algo2.compute();
+      algo2.close();
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      for (Subset subset : contentService.getConceptSubsets(terminology,
+          version, Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isLabelSubset()) {
+          Logger.getLogger(getClass()).info(
+              "  Create label set for subset = " + subset);
+          LabelSetMarkedParentAlgorithm algo3 =
+              new LabelSetMarkedParentAlgorithm();
+          algo3.setSubset(conceptSubset);
+          algo3.compute();
+          algo3.close();
+        }
+      }
+
+      // Clean-up
+      readers.closeReaders();
+      ConfigUtility
+          .deleteDirectory(new File(inputDirFile, "/RF2-sorted-temp/"));
+
+      // Final logging messages
+      Logger.getLogger(getClass()).info(
+          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+      Logger.getLogger(getClass()).info("done ...");
+      
+    } catch (Exception e) {
+      handleException(e,
+          "trying to load terminology snapshot from RF2 directory");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
   /* see superclass */
   @Override
   @PUT

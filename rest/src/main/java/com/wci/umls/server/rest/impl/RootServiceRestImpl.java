@@ -16,6 +16,9 @@ import com.wci.umls.server.services.handlers.ExceptionHandler;
  */
 public class RootServiceRestImpl {
 
+  /** The websocket. */
+  private static NotificationWebsocket websocket = null;
+
   /**
    * Instantiates an empty {@link RootServiceRestImpl}.
    */
@@ -119,4 +122,21 @@ public class RootServiceRestImpl {
     return result;
   }
 
+  /**
+   * Returns the notification websocket.
+   *
+   * @return the notification websocket
+   */
+  public static NotificationWebsocket getNotificationWebsocket() {
+    return websocket;
+  }
+
+  /**
+   * Sets the notification websocket.
+   *
+   * @param websocket2 the notification websocket
+   */
+  public static void setNotificationWebsocket(NotificationWebsocket websocket2) {
+    websocket = websocket2;
+  }
 }

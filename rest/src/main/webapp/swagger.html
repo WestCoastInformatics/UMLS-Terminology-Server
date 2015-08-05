@@ -8,6 +8,15 @@
 <link href='css/highlight.default.css' media='screen' rel='stylesheet'
   type='text/css' />
 <link href='css/screen.css' media='screen' rel='stylesheet' type='text/css' />
+
+<!-- Bootstrap CSS  -->
+<link rel="stylesheet"
+  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+<!-- Application style overrides -->
+<link href="ui/css/tsMobile.css" rel="stylesheet">
+
+
 <script type="text/javascript" src="lib/shred.bundle.js"></script>
 <script src='lib/jquery-1.8.0.min.js' type='text/javascript'></script>
 <script src='lib/jquery.slideto.min.js' type='text/javascript'></script>
@@ -19,10 +28,11 @@
 <script src='lib/swagger.js' type='text/javascript'></script>
 <script src='swagger-ui.js' type='text/javascript'></script>
 <script src='lib/highlight.7.3.pack.js' type='text/javascript'></script>
+
 <script type="text/javascript">
   $(function() {
     window.swaggerUi = new SwaggerUi({
-      url : "http://localhost:8080/umls-server-rest/api-docs",
+      url : "${base.url}/api-docs",
       dom_id : "swagger-ui-container",
       supportedSubmitMethods : [ 'get', 'post', 'put', 'delete' ],
       onComplete : function(swaggerApi, swaggerUi) {
@@ -43,12 +53,32 @@
 </head>
 
 <body>
-  <div id='header' style="background: #00008A url('images/background.jpg'); ">
-    <div class="swagger-ui-wrap">
-      <img style="background-color: white; margin-left: 58px; border: 3px solid white; border-radius: 5px;" class="pull-left"
-        src="images/logo.jpg" > <b style="margin-bottom: 35px; color: white;"> UMLS Terminology Server REST API</b>
+
+  <nav style="background: #00008A url('images/background.jpg');"
+    class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <table>
+          <tr>
+            <td><a href="http://www.westcoastinformatics.com">
+                <img class="hidden-xs" height="72px"
+                  style="background-color: white; padding: 5px; margin: 5px; border-radius: 5px;"
+                  src="images/logo65x72.jpg"> <img class="visible-xs"
+                  height="40px"
+                  style="background-color: white; padding: 3px; margin: 3px; border-radius: 3px;"
+                  src="images/logo36x40.jpg">
+              </a></td>
+            <td style="vertical-align: middle"><b style="color: white;">
+                Terminology Server REST API </b></td>
+          </tr>
+        </table>
+      </div>
     </div>
-  </div>
+  </nav>
+  <div class="hidden-xs" style="height: 94px;">Makes room for content</div>
+  <div class="visible-xs" style="height: 60px;">Makes room for content</div>
+
 
   <div id="message-bar" class="swagger-ui-wrap">&nbsp;</div>
   <div id="swagger-ui-container" class="swagger-ui-wrap"></div>

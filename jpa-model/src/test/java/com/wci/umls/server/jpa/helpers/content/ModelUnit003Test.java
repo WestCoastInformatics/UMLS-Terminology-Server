@@ -75,6 +75,7 @@ public class ModelUnit003Test {
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("applicationRole");
     tester.include("email");
+    tester.include("authToken");
     tester.include("name");
     tester.include("userName");
 

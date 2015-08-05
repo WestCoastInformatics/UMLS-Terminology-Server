@@ -474,6 +474,18 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
+   * Load terminology rf2 full.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologyRf2Full(String terminology, String version,
+    String inputDir, String authToken) throws Exception;
+
+  /**
    * Load terminology from ClaML file.
    *
    * @param terminology the terminology

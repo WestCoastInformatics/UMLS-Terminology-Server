@@ -1397,6 +1397,16 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     } else {
       throw new Exception("Unable to determine refset type.");
     }
+
+    // Add moduleId attribute
+    final Attribute attribute = new AttributeJpa();
+    setCommonFields(attribute, date);
+    attribute.setName("moduleId");
+    attribute.setValue(fields[3].intern());
+    cacheAttributeMetadata(attribute);
+    member.addAttribute(attribute);
+    addAttribute(attribute, member);
+    
   }
 
   /**

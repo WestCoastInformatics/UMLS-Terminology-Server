@@ -1038,6 +1038,32 @@ public class ContentClientRest extends RootClientRest implements
 
   }
 
+  @Override
+  public void loadTerminologyRf2Full(String terminology, String version,
+    String inputDir, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - load terminology rf2 full " + terminology + ", "
+            + version);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/terminology/load/rf2/full/" + terminology + "/" + version);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken)
+            .put(Entity.text(inputDir));
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing
+    } else {
+      throw new Exception("Unexpected status " + response.getStatus());
+    }
+
+  }
+
   /* see superclass */
   @Override
   public void loadTerminologyRf2Delta(String terminology, String inputDir,

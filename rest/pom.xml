@@ -29,7 +29,7 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
+      <scope>compile</scope>
     </dependency>
     <!-- Model interfaces. -->
     <dependency>
@@ -85,6 +85,13 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
+    </dependency>
+
+    <!-- Websocket API -->
+    <dependency>
+      <groupId>javax.websocket</groupId>
+      <artifactId>javax.websocket-api</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Required for Jersey and JSON -->
@@ -147,7 +154,7 @@
       <groupId>javax.ws.rs</groupId>
       <artifactId>jsr311-api</artifactId>
     </dependency>
-    
+
   </dependencies>
 
   <!-- Always build, use dev configuration by default -->
