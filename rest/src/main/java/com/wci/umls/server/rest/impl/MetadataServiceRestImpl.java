@@ -61,7 +61,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/terminology/id/{terminology}/{version}")
+  @Path("/terminology/{terminology}/{version}")
   @ApiOperation(value = "Get terminology", notes = "Gets the terminology for the specified parameters", response = TerminologyJpa.class)
   public Terminology getTerminology(
     @ApiParam(value = "Terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
@@ -70,8 +70,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Metadata): /terminology/id/" + terminology + "/"
-            + version);
+        "RESTful call (Metadata): /terminology/" + terminology + "/" + version);
 
     String user = "";
     MetadataService metadataService = new MetadataServiceJpa();
@@ -87,6 +86,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
 
       Terminology termInfo =
           metadataService.getTerminology(terminology, version);
+      if (termInfo == null) {
+        return new TerminologyJpa();
+      }
       metadataService.getGraphResolutionHandler(terminology).resolve(termInfo);
 
       return termInfo;
@@ -104,7 +106,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/all/terminology/id/{terminology}/{version}")
+  @Path("/all/terminology/{terminology}/{version}")
   @ApiOperation(value = "Get metadata for terminology and version", notes = "Gets the key-value pairs representing all metadata for a particular terminology and version", response = KeyValuePairLists.class)
   public KeyValuePairLists getAllMetadata(
     @ApiParam(value = "Terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
@@ -113,7 +115,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Metadata): /all/terminology/id/" + terminology + "/"
+        "RESTful call (Metadata): /all/terminology/" + terminology + "/"
             + version);
 
     String user = "";

@@ -59,7 +59,7 @@ public class MetadataClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/metadata/all/terminology/id/" + terminology + "/" + version);
+            + "/metadata/all/terminology/" + terminology + "/" + version);
     Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -163,7 +163,7 @@ public class MetadataClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url")
-            + "/metadata/terminology/id/" + terminology + "/" + version);
+            + "/metadata/terminology/" + terminology + "/" + version);
     Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();

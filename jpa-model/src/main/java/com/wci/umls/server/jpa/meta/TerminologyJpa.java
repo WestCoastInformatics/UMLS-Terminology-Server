@@ -128,111 +128,63 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     metathesaurus = terminology.isMetathesaurus();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#getCitation()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = CitationJpa.class, name = "citation")
   public Citation getCitation() {
     return citation;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Terminology#setCitation(com.wci.umls.server
-   * .model.meta.Citation)
-   */
+  /* see superclass */
   @Override
   public void setCitation(Citation citation) {
     this.citation = citation;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#getEndDate()
-   */
+  /* see superclass */
   @Override
   public Date getEndDate() {
     return endDate;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#setEndDate(java.util.Date)
-   */
+  /* see superclass */
   @Override
   public void setEndDate(Date endDate) {
     this.endDate = endDate;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#getOrganizingClassType()
-   */
+  /* see superclass */
   @Override
   public IdType getOrganizingClassType() {
     return organizingClassType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Terminology#setOrganizingClassType(com.wci
-   * .umls.server.model.meta.IdType)
-   */
+  /* see superclass */
   @Override
   public void setOrganizingClassType(IdType organizingClassType) {
     this.organizingClassType = organizingClassType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#getPreferredName()
-   */
+  /* see superclass */
   @Override
   public String getPreferredName() {
     return preferredName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Terminology#setPreferredName(java.lang.String
-   * )
-   */
+  /* see superclass */
   @Override
   public void setPreferredName(String preferredName) {
     this.preferredName = preferredName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#getRootTerminology()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public RootTerminology getRootTerminology() {
     return rootTerminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Terminology#setRootTerminology(com.wci.umls
-   * .server.model.meta.RootTerminology)
-   */
+  /* see superclass */
   @Override
   public void setRootTerminology(RootTerminology rootTerminology) {
     this.rootTerminology = rootTerminology;
@@ -285,6 +237,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
    * 
    * @see com.wci.umls.server.model.meta.Terminology#getStartDate()
    */
+  /* see superclass */
   @Override
   public Date getStartDate() {
     return startDate;
@@ -296,6 +249,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
    * @see
    * com.wci.umls.server.model.meta.Terminology#setStartDate(java.util.Date)
    */
+  /* see superclass */
   @Override
   public void setStartDate(Date startDate) {
     this.startDate = startDate;
@@ -306,6 +260,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
    * 
    * @see com.wci.umls.server.model.meta.Terminology#getSynonymousNames()
    */
+  /* see superclass */
   @Override
   public List<String> getSynonymousNames() {
     if (synonymousNames == null) {
@@ -314,144 +269,85 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     return synonymousNames;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Terminology#setSynonymousNames(java.util
-   * .List)
-   */
+  /* see superclass */
   @Override
   public void setSynonymousNames(List<String> synonymousNames) {
     this.synonymousNames = synonymousNames;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#getTerminology()
-   */
+  /* see superclass */
   @Override
   public String getTerminology() {
     return terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Terminology#setTerminology(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#getVersion()
-   */
+  /* see superclass */
   @Override
   public String getVersion() {
     return version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#setVersion(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#isAssertsRelDirection()
-   */
+  /* see superclass */
   @Override
   public boolean isAssertsRelDirection() {
     return assertsRelDirection;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Terminology#setAssertsRelDirection(boolean)
-   */
+  /* see superclass */
   @Override
   public void setAssertsRelDirection(boolean isAssertsRelDirection) {
     this.assertsRelDirection = isAssertsRelDirection;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#isCurrent()
-   */
+  /* see superclass */
   @Override
   public boolean isCurrent() {
     return current;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#setCurrent(boolean)
-   */
+  /* see superclass */
   @Override
   public void setCurrent(boolean isCurrent) {
     this.current = isCurrent;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#isMetathesaurus()
-   */
+  /* see superclass */
   @Override
   public boolean isMetathesaurus() {
     return metathesaurus;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#setMetathesaurus(boolean)
-   */
+  /* see superclass */
   @Override
   public void setMetathesaurus(boolean metathesaurus) {
     this.metathesaurus = metathesaurus;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Terminology#isDescriptionLogicTerminology()
-   */
+  /* see superclass */
   @Override
   public boolean isDescriptionLogicTerminology() {
     return descriptionLogicTerminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Terminology#setDescriptionLogicTerminology
-   * (boolean)
-   */
+  /* see superclass */
   @Override
   public void setDescriptionLogicTerminology(boolean flag) {
     descriptionLogicTerminology = flag;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -480,6 +376,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -540,6 +437,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "TerminologyJpa [terminology=" + terminology + ", citation="

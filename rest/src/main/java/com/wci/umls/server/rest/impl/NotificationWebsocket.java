@@ -26,7 +26,8 @@ import javax.websocket.server.ServerEndpoint;
 public class NotificationWebsocket {
 
   /** The sessions. */
-  private static Set<Session> sessions = Collections.synchronizedSet(new HashSet<Session>());
+  private static Set<Session> sessions = Collections
+      .synchronizedSet(new HashSet<Session>());
 
   /**
    * Instantiates an empty {@link NotificationWebsocket}.
@@ -40,6 +41,7 @@ public class NotificationWebsocket {
    *
    * @param session the session
    */
+  @SuppressWarnings("static-method")
   @OnOpen
   public void onOpen(Session session) {
     // Add to sessions list
@@ -51,11 +53,12 @@ public class NotificationWebsocket {
    *
    * @param userSession the user session
    */
+  @SuppressWarnings("static-method")
   @OnClose
   public void onClose(Session userSession) {
-      sessions.remove(userSession);
+    sessions.remove(userSession);
   }
-  
+
   /**
    * Echo text.
    *
@@ -73,6 +76,7 @@ public class NotificationWebsocket {
    *
    * @param message the message
    */
+  @SuppressWarnings("static-method")
   public void send(String message) {
     // Remove closed sessions
     Set<Session> copy = new HashSet<>(sessions);
@@ -83,19 +87,22 @@ public class NotificationWebsocket {
     }
 
     // Send message to all listeners
-    for (Session session : sessions) {
-      try {
-        // Send async message
-        session.getAsyncRemote().sendText(message);
-      } catch (Exception e) {
-        // if anything went wrong, close the session and remove it
+    synchronized (sessions) {
+      for (Session session : sessions) {
         try {
-          session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION,
-              "Closing"));
-        } catch (Exception e2) {
-          // do nothing
+          // Send async message
+          session.getAsyncRemote().sendText(message);
+        } catch (Exception e) {
+          e.printStackTrace();
+          // if anything went wrong, close the session and remove it
+          try {
+            session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION,
+                "Closing"));
+          } catch (Exception e2) {
+            // do nothing
+          }
+          sessions.remove(session);
         }
-        sessions.remove(session);
       }
     }
 

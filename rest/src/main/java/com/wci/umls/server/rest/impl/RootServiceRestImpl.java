@@ -40,21 +40,29 @@ public class RootServiceRestImpl {
       // do nothing
     }
 
+    // Ensure message has quotes.
+    // When migrating from jersey 1 to jersey 2, messages no longer
+    // had quotes around them when returned to client and angular
+    // could not parse them as json.
+    String message = e.getMessage();
+    if (!message.startsWith("\"")) {
+      message = "\"" + message + "\"";
+    }
     // throw the local exception as a web application exception
     if (e instanceof LocalException) {
-      throw new WebApplicationException(Response.status(500)
-          .entity(e.getMessage()).build());
+      throw new WebApplicationException(Response.status(500).entity(message)
+          .build());
     }
 
     // throw the web application exception as-is, e.g. for 401 errors
     if (e instanceof WebApplicationException) {
-      throw (WebApplicationException) e;
+      throw new WebApplicationException(message, e);
     }
     throw new WebApplicationException(Response
         .status(500)
         .entity(
-            "Unexpected error trying to " + whatIsHappening
-                + ". Please contact the administrator.").build());
+            "\"Unexpected error trying to " + whatIsHappening
+                + ". Please contact the administrator.\"").build());
 
   }
 
@@ -76,8 +84,8 @@ public class RootServiceRestImpl {
     throw new WebApplicationException(Response
         .status(500)
         .entity(
-            "Unexpected error trying to " + whatIsHappening
-                + ". Please contact the administrator.").build());
+            "\"Unexpected error trying to " + whatIsHappening
+                + ". Please contact the administrator.\"").build());
 
   }
 

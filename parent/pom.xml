@@ -142,7 +142,7 @@
         <groupId>javax.websocket</groupId>
         <artifactId>javax.websocket-api</artifactId>
         <version>1.1</version>
-        <scope>compile</scope>
+        <scope>provided</scope>
       </dependency>
 
       <!-- Required for Jersey and JSON -->

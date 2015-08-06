@@ -457,8 +457,10 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
    */
   @Override
   public void resolve(Terminology terminology) {
-    terminology.getSynonymousNames().size();
-    terminology.getRootTerminology().getTerminology();
+    if (terminology != null) {
+      terminology.getSynonymousNames().size();
+      terminology.getRootTerminology().getTerminology();
+    }
   }
 
   /*

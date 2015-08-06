@@ -8,8 +8,6 @@ package com.wci.umls.server.rest.impl;
 
 import javax.websocket.server.ServerEndpointConfig;
 
-import org.apache.log4j.Logger;
-
 /**
  * Configurator to obtain reference to the notification websocket for use by the
  * application.
@@ -23,7 +21,6 @@ public class NotificationWebsocketConfigurator extends
   public <T> T getEndpointInstance(Class<T> endpointClass)
     throws InstantiationException {
     if (endpointClass.equals(NotificationWebsocket.class)) {
-      Logger.getLogger(getClass()).info("  Configure notification websocket");
       NotificationWebsocket endpoint = new NotificationWebsocket();
 
       // Ensure root implementation of all services has access to this

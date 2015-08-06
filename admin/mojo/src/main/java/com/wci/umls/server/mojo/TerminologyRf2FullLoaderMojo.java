@@ -62,7 +62,6 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
   }
 
   /* see superclass */
-  @SuppressWarnings("unused")
   @Override
   public void execute() throws MojoFailureException {
 
