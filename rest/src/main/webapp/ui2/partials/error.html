@@ -1,0 +1,15 @@
+<div ng-controller="ErrorCtrl" class="row">
+  <!-- padding -->
+  <div class="col-md-1 col-xs-0"></div>
+  <div class="col-md-10 col-xs-12" id="errorMsg"
+    class="border-error alert-error" ng-show="error.message.length > 0">
+    <h4 class="alert alert-danger alert-error">
+      {{error.message}}
+      <div style="display: inline; float: right; width: 3%;">
+        <i class="glyphicon glyphicon-remove" ng-click="clearError()"></i>
+      </div>
+    </h4>
+  </div>
+  <!-- padding -->
+  <div class="col-md-1 col-xs-0"></div>
+</div>
