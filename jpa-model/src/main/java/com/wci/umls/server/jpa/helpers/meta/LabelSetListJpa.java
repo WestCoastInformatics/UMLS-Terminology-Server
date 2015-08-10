@@ -20,11 +20,7 @@ import com.wci.umls.server.model.meta.LabelSet;
 public class LabelSetListJpa extends AbstractResultList<LabelSet> implements
     LabelSetList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = LabelSetJpa.class, name = "name")
   public List<LabelSet> getObjects() {

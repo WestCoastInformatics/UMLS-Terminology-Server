@@ -23,13 +23,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
   /** The properties. */
   private Properties properties;
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.services.SecurityServiceHandler#authenticate(java
-   * .lang.String, java.lang.String, java.util.Properties)
-   */
+  /* see superclass */
   @Override
   public User authenticate(String username, String password) throws Exception {
 
@@ -77,6 +71,9 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
 
   /**
    * Times out all users except "guest".
+   *
+   * @param user the user
+   * @return true, if successful
    */
   @Override
   public boolean timeoutUser(String user) {
@@ -88,18 +85,16 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
 
   /**
    * Use the username as a token.
+   *
+   * @param user the user
+   * @return the string
    */
   @Override
   public String computeTokenForUser(String user) {
     return user;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.helpers.Configurable#setProperties(java.util.Properties)
-   */
+  /* see superclass */
   @Override
   public void setProperties(Properties properties) {
     this.properties = properties;

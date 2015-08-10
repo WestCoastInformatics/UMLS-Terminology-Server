@@ -135,21 +135,13 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
     this.cycleTolerant = cycleTolerant;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#compute()
-   */
+  /* see superclass */
   @Override
   public void compute() throws Exception {
     removeTerminology(terminology, version, idType);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#reset()
-   */
+  /* see superclass */
   @Override
   public void reset() throws Exception {
     // n/a
@@ -710,35 +702,19 @@ public class RemoveTerminologyAlgorithm extends ContentServiceJpa implements
     Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#addProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
-   */
+  /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#removeProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
-   */
+  /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.jpa.algo.Algorithm#cancel()
-   */
+  /* see superclass */
   @Override
   public void cancel() {
     requestCancel = true;

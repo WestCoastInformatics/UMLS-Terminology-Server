@@ -13,12 +13,7 @@ import org.hibernate.search.bridge.StringBridge;
  */
 public class CollectionToCsvBridge implements StringBridge {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.hibernate.search.bridge.StringBridge#objectToString(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public String objectToString(Object value) {
     if (value != null) {

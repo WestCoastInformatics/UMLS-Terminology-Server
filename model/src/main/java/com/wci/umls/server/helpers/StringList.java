@@ -21,11 +21,6 @@ public class StringList extends AbstractResultList<String> {
     // do nothing
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.AbstractResultList#getObjects()
-   */
   @Override
   @XmlElement(type = String.class, name = "string")
   public List<String> getObjects() {

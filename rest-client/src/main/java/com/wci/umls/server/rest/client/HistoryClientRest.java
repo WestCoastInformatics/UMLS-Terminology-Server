@@ -39,13 +39,7 @@ public class HistoryClientRest implements HistoryServiceRest {
     this.config = config;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#getReleaseHistory(java.lang.String
-   * , java.lang.String)
-   */
+  /* see superclass */
   @Override
   public ReleaseInfoList getReleaseHistory(String terminology, String authToken)
     throws Exception {
@@ -78,13 +72,7 @@ public class HistoryClientRest implements HistoryServiceRest {
     return c;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#getCurrentReleaseInfo(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public ReleaseInfo getCurrentReleaseInfo(String terminology, String authToken)
     throws Exception {
@@ -117,13 +105,7 @@ public class HistoryClientRest implements HistoryServiceRest {
     return info;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#getPreviousReleaseInfo(java.lang
-   * .String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public ReleaseInfo getPreviousReleaseInfo(String terminology, String authToken)
     throws Exception {
@@ -156,13 +138,7 @@ public class HistoryClientRest implements HistoryServiceRest {
     return info;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#getPlannedReleaseInfo(java.lang
-   * .String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public ReleaseInfo getPlannedReleaseInfo(String terminology, String authToken)
     throws Exception {
@@ -195,13 +171,7 @@ public class HistoryClientRest implements HistoryServiceRest {
     return info;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#getReleaseInfo(java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public ReleaseInfo getReleaseInfo(String terminology, String name,
     String authToken) throws Exception {
@@ -230,13 +200,7 @@ public class HistoryClientRest implements HistoryServiceRest {
     return info;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#addReleaseInfo(org.ihtsdo.otf
-   * .ts.helpers.ReleaseInfo, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public ReleaseInfo addReleaseInfo(ReleaseInfoJpa releaseInfo, String authToken)
     throws Exception {
@@ -267,13 +231,7 @@ public class HistoryClientRest implements HistoryServiceRest {
     return info;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#updateReleaseInfo(org.ihtsdo.
-   * otf.ts.helpers.ReleaseInfo, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void updateReleaseInfo(ReleaseInfoJpa releaseInfo, String authToken)
     throws Exception {
@@ -297,13 +255,7 @@ public class HistoryClientRest implements HistoryServiceRest {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.HistoryServiceRest#removeReleaseInfo(java.lang.Long,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeReleaseInfo(Long id, String authToken) throws Exception {
     Client client = ClientBuilder.newClient();
@@ -323,13 +275,7 @@ public class HistoryClientRest implements HistoryServiceRest {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.HistoryServiceRest#startEditingCycle
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void startEditingCycle(String releaseVersion, String terminology,
     String version, String authToken) throws Exception {

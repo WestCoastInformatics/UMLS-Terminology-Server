@@ -22,7 +22,8 @@ import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
- * Implementation {@link ComputePreferredNameHandler} for data with term-type ordering.
+ * Implementation {@link ComputePreferredNameHandler} for data with term-type
+ * ordering.
  */
 public class RrfComputePreferredNameHandler implements
     ComputePreferredNameHandler {
@@ -32,7 +33,7 @@ public class RrfComputePreferredNameHandler implements
 
   /** The UMLS version. */
   public String umlsVersion;
-  
+
   /** The list. */
   private PrecedenceList list = null;
 
@@ -46,25 +47,14 @@ public class RrfComputePreferredNameHandler implements
     // n/a
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
-   * )
-   */
+  /* see superclass */
   @Override
   public void setProperties(Properties p) {
     umlsTerminology = p.getProperty("terminology");
     umlsVersion = p.getProperty("version");
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#
-   * computePreferredName(java.util.Collection)
-   */
+  /* see superclass */
   @Override
   public String computePreferredName(Collection<Atom> atoms) throws Exception {
     // Use ranking algorithm from MetamorphoSys
@@ -89,12 +79,7 @@ public class RrfComputePreferredNameHandler implements
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#
-   * sortByPreference(java.util.Collection)
-   */
+  /* see superclass */
   @Override
   public List<Atom> sortByPreference(Collection<Atom> atoms) throws Exception {
 
@@ -121,7 +106,7 @@ public class RrfComputePreferredNameHandler implements
    *
    * @param atom the atom
    * @return the rank
-   * @throws Exception
+   * @throws Exception the exception
    */
   protected String getRank(Atom atom) throws Exception {
     if (list == null) {

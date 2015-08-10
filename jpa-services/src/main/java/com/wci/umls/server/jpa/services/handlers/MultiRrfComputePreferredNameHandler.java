@@ -28,10 +28,10 @@ public class MultiRrfComputePreferredNameHandler implements
     ComputePreferredNameHandler {
 
   /** The list. */
-  private Map<String,PrecedenceList> listMap = new HashMap<>();
+  private Map<String, PrecedenceList> listMap = new HashMap<>();
 
   /** The tty rank map. */
-  private Map<String,Map<String, String>> ttyRankMap = new HashMap<>();
+  private Map<String, Map<String, String>> ttyRankMap = new HashMap<>();
 
   /**
    * Instantiates an empty {@link MultiRrfComputePreferredNameHandler}.
@@ -40,24 +40,13 @@ public class MultiRrfComputePreferredNameHandler implements
     // n/a
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
-   * )
-   */
+  /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
     // n/a
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#
-   * computePreferredName(java.util.Collection)
-   */
+  /* see superclass */
   @Override
   public String computePreferredName(Collection<Atom> atoms) throws Exception {
     // Use ranking algorithm from MetamorphoSys
@@ -82,12 +71,7 @@ public class MultiRrfComputePreferredNameHandler implements
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#
-   * sortByPreference(java.util.Collection)
-   */
+  /* see superclass */
   @Override
   public List<Atom> sortByPreference(Collection<Atom> atoms) throws Exception {
 
@@ -114,10 +98,10 @@ public class MultiRrfComputePreferredNameHandler implements
    *
    * @param atom the atom
    * @return the rank
-   * @throws Exception
+   * @throws Exception the exception
    */
   protected String getRank(Atom atom) throws Exception {
-    if (!listMap.containsKey(atom.getTerminology()+atom.getVersion())) {
+    if (!listMap.containsKey(atom.getTerminology() + atom.getVersion())) {
       // Use the atom's terminology/version.
       // In single source case, this will be correct
       // In UMLS case, this will map to "DEFAULT" which will use the
@@ -129,16 +113,16 @@ public class MultiRrfComputePreferredNameHandler implements
       rank =
           (atom.isObsolete() ? 0 : 1)
               + (atom.isSuppressible() ? 0 : 1)
-              + ttyRankMap.get(atom.getTerminology()+atom.getVersion())
-                  .get(atom.getTerminology() + "/" + atom.getTermType())
+              + ttyRankMap.get(atom.getTerminology() + atom.getVersion()).get(
+                  atom.getTerminology() + "/" + atom.getTermType())
               + (10000000000L - Long.parseLong(atom.getStringClassId()
                   .substring(1))) + (100000000000L - atom.getId());
     } else {
       rank =
           (atom.isObsolete() ? 0 : 1)
               + (atom.isSuppressible() ? 0 : 1)
-              + ttyRankMap.get(atom.getTerminology()+atom.getVersion())
-                  .get(atom.getTerminology() + "/" + atom.getTermType());
+              + ttyRankMap.get(atom.getTerminology() + atom.getVersion()).get(
+                  atom.getTerminology() + "/" + atom.getTermType());
     }
     return rank;
   }
@@ -152,11 +136,14 @@ public class MultiRrfComputePreferredNameHandler implements
    */
   private void cacheList(String terminology, String version) throws Exception {
     MetadataService service = new MetadataServiceJpa();
-    listMap.put(terminology+version,service.getDefaultPrecedenceList(terminology, version));
+    listMap.put(terminology + version,
+        service.getDefaultPrecedenceList(terminology, version));
     service.close();
-    List<KeyValuePair> list2 = listMap.get(terminology+version).getPrecedence().getKeyValuePairList();
+    List<KeyValuePair> list2 =
+        listMap.get(terminology + version).getPrecedence()
+            .getKeyValuePairList();
     int ct = 1;
-    Map <String,String> localTtyRankMap = new HashMap<>();
+    Map<String, String> localTtyRankMap = new HashMap<>();
     for (int i = list2.size() - 1; i >= 0; i--) {
       String padded = "0000" + ct++;
       padded = padded.substring(padded.length() - 4);
@@ -164,7 +151,7 @@ public class MultiRrfComputePreferredNameHandler implements
       localTtyRankMap.put(pair.getKey() + "/" + pair.getValue(), padded);
     }
 
-    ttyRankMap.put(terminology+version, localTtyRankMap);
+    ttyRankMap.put(terminology + version, localTtyRankMap);
     Logger.getLogger(getClass()).info(
         "  default precedence list = " + ttyRankMap);
   }

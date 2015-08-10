@@ -133,10 +133,10 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     this.cycleTolerant = cycleTolerant;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#compute()
+  /**
+   * Compute.
+   *
+   * @throws Exception the exception
    */
   @Override
   public void compute() throws Exception {
@@ -382,10 +382,10 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#reset()
+  /**
+   * Reset.
+   *
+   * @throws Exception the exception
    */
   @Override
   public void reset() throws Exception {
@@ -405,34 +405,28 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#addProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
+  /**
+   * Adds the progress listener.
+   *
+   * @param l the l
    */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#removeProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
+  /**
+   * Removes the progress listener.
+   *
+   * @param l the l
    */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.jpa.algo.Algorithm#cancel()
+  /**
+   * Cancel.
    */
   @Override
   public void cancel() {

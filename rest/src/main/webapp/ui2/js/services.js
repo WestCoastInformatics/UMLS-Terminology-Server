@@ -1,8 +1,8 @@
 // Error service
-console.debug('configure errorService');
+console.debug('configure utilService');
 tsApp
   .service(
-    'errorService',
+    'utilService',
     [
       '$location',
       function($location) {
@@ -79,6 +79,23 @@ tsApp
           }
           return year + "-" + month + "-" + day;
         }
+
+        // Utility for cleaning a query
+        this.cleanQuery = function(queryStr) {
+          if (queryStr == null) {
+            return "";
+          }
+          var cleanQuery = queryStr;
+          // Replace all slash characters
+          cleanQuery = queryStr.replace(new RegExp('[/\\\\]', 'g'), ' ');
+          // Remove brackets if not using a fielded query
+          if (queryStr.indexOf(':') == -1) {
+            cleanQuery = queryStr.replace(new RegExp(
+              '[^a-zA-Z0-9:\\.\\-\'\\*]', 'g'), ' ');
+          }
+          // console.debug(queryStr, " => ", cleanQuery);
+          return cleanQuery;
+        }
       } ]);
 
 // Glass pane service
@@ -111,8 +128,8 @@ tsApp.service('gpService', function() {
 
 // Security service
 console.debug('configure securityService');
-tsApp.service('securityService', [ '$http', '$location', 'errorService',
-  'gpService', function($http, $location, errorService, gpService) {
+tsApp.service('securityService', [ '$http', '$location', 'utilService',
+  'gpService', function($http, $location, utilService, gpService) {
 
     // Declare the user
     var user = {
@@ -176,7 +193,7 @@ tsApp.service('securityService', [ '$http', '$location', 'errorService',
       },
       // error
       function(response) {
-        errorService.handleError(response);
+        utilService.handleError(response);
         gpService.decrement();
       });
     }
@@ -184,8 +201,8 @@ tsApp.service('securityService', [ '$http', '$location', 'errorService',
 
 // Tab service
 console.debug('configure tabService');
-tsApp.service('tabService', [ '$location', 'errorService', 'gpService',
-  function($location, errorService, gpService) {
+tsApp.service('tabService', [ '$location', 'utilService', 'gpService',
+  function($location, utilService, gpService) {
     // Available tabs
     this.tabs = [ {
       link : '#/content',
@@ -219,8 +236,8 @@ tsApp.service('tabService', [ '$location', 'errorService', 'gpService',
 
 // Websocket service
 console.debug('configure websocketService');
-tsApp.service('websocketService', [ '$location', 'errorService', 'gpService',
-  function($location, errorService, gpService) {
+tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
+  function($location, utilService, gpService) {
 
     this.data = {
       message : null
@@ -255,7 +272,7 @@ tsApp.service('websocketService', [ '$location', 'errorService', 'gpService',
 
     // error handler
     this.connection.onerror = function(error) {
-      errorService.handleError(error, null, null, null);
+      utilService.handleError(error, null, null, null);
     }
 
     // handle receipt of a message

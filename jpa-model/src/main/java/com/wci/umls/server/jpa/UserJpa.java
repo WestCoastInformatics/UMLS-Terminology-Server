@@ -88,21 +88,13 @@ public class UserJpa implements User {
     this.userPreferences = user.getUserPreferences();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.User#getId()
-   */
+  /* see superclass */
   @Override
   public Long getId() {
     return id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.User#setId(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void setId(Long id) {
     this.id = id;
@@ -129,129 +121,70 @@ public class UserJpa implements User {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.model.MapUser#getUserName()
-   */
-  /**
-   * Returns the user name.
-   *
-   * @return the user name
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getUserName() {
     return userName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.model.MapUser#setUserName(java.lang.String)
-   */
-  /**
-   * Sets the user name.
-   *
-   * @param username the user name
-   */
+  /* see superclass */
   @Override
   public void setUserName(String username) {
     this.userName = username;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.model.MapUser#getName()
-   */
-  /**
-   * Returns the name.
-   *
-   * @return the name
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getName() {
     return name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.model.MapUser#setName(java.lang.String)
-   */
-  /**
-   * Sets the name.
-   *
-   * @param name the name
-   */
+  /* see superclass */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.model.MapUser#getEmail()
-   */
-  /**
-   * Returns the email.
-   *
-   * @return the email
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getEmail() {
     return email;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.model.MapUser#setEmail(java.lang.String)
-   */
-  /**
-   * Sets the email.
-   *
-   * @param email the email
-   */
+  /* see superclass */
   @Override
   public void setEmail(String email) {
     this.email = email;
   }
 
-  /**
-   * Returns the application role.
-   *
-   * @return the application role
-   */
+  /* see superclass */
   @Override
   public UserRole getApplicationRole() {
     return applicationRole;
   }
 
-  /**
-   * Sets the application role.
-   *
-   * @param role the application role
-   */
+  /* see superclass */
   @Override
   public void setApplicationRole(UserRole role) {
     this.applicationRole = role;
   }
 
+  /* see superclass */
   @Override
   public String getAuthToken() {
     return authToken;
   }
 
+  /* see superclass */
   @Override
   public void setAuthToken(String authToken) {
     this.authToken = authToken;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -266,6 +199,7 @@ public class UserJpa implements User {
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -300,29 +234,20 @@ public class UserJpa implements User {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.User#getUserPreferences()
-   */
+  /* see superclass */
   @XmlElement(type = UserPreferencesJpa.class, name = "userPreferences")
   @Override
   public UserPreferences getUserPreferences() {
     return userPreferences;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.User#setUserPreferences(com.wci.umls.server.UserPreferences
-   * )
-   */
+  /* see superclass */
   @Override
   public void setUserPreferences(UserPreferences preferences) {
     this.userPreferences = preferences;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "UserJpa [id=" + id + ", userName=" + userName + ", name=" + name

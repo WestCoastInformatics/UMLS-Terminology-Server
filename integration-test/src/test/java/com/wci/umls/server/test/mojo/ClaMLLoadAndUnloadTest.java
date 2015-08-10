@@ -139,7 +139,7 @@ public class ClaMLLoadAndUnloadTest {
 
     // Verify expected contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(24470,
+    Assert.assertEquals(24719,
         service.getAllConcepts("ICD10", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
@@ -257,14 +257,14 @@ public class ClaMLLoadAndUnloadTest {
     // Verify expected contents
     service = new ContentServiceJpa();
     // Test a non-UMLS terminology too
-    Assert.assertEquals(24470,
+    Assert.assertEquals(103974,
         service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 
     // Verify release info
     historyService = new HistoryServiceJpa();
-    Assert.assertNotNull(historyService.getReleaseInfo("ICD10CM", "latest"));
+    Assert.assertNotNull(historyService.getReleaseInfo("ICD10CM", "2014"));
     historyService.close();
     historyService.closeFactory();
 

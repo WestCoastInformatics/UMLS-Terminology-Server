@@ -6,8 +6,8 @@ tsApp.controller('LoginCtrl', [
   '$location',
   'securityService',
   'gpService',
-  'errorService',
-  function($scope, $http, $location, securityService, gpService, errorService) {
+  'utilService',
+  function($scope, $http, $location, securityService, gpService, utilService) {
 
     // Clear user info
     securityService.clearUser();
@@ -37,7 +37,7 @@ tsApp.controller('LoginCtrl', [
       }).then(
       // success
       function(response) {
-        errorService.clearError();
+        utilService.clearError();
         console.debug("user = ", response.data);
         securityService.setUser(response.data);
 
@@ -50,7 +50,7 @@ tsApp.controller('LoginCtrl', [
 
       // error
       function(response) {
-        errorService.handleError(response);
+        utilService.handleError(response);
         gpService.decrement();
       });
     }

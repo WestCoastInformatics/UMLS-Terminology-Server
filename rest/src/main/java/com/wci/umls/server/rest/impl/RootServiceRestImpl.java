@@ -66,28 +66,7 @@ public class RootServiceRestImpl {
 
   }
 
-  /**
-   * Handle exception.
-   *
-   * @param e the e
-   * @param whatIsHappening the what is happening
-   * @param userName the user name
-   */
-  public static void handleException(Exception e, String whatIsHappening,
-    String userName) {
-    try {
-      ExceptionHandler.handleException(e, whatIsHappening, userName);
-    } catch (Exception e1) {
-      // do nothing
-    }
 
-    throw new WebApplicationException(Response
-        .status(500)
-        .entity(
-            "\"Unexpected error trying to " + whatIsHappening
-                + ". Please contact the administrator.\"").build());
-
-  }
 
   /**
    * Authenticate.

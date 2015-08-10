@@ -32,12 +32,7 @@ public class Rf2ComputePreferredNameHandler extends
     // do nothing
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.helpers.Configurable#setProperties(java.util.Properties)
-   */
+ 
   @Override
   public void setProperties(Properties p) throws Exception {
     Properties config = ConfigUtility.getConfigProperties();

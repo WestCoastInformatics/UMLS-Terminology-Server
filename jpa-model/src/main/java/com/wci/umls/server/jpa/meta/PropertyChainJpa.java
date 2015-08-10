@@ -56,11 +56,7 @@ public class PropertyChainJpa extends AbstractAbbreviation implements
     result = chain.getResult();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.PropertyChain#getChain()
-   */
+  /* see superclass */
   @Override
   public List<AdditionalRelationshipType> getChain() {
     if (chain == null) {
@@ -69,33 +65,19 @@ public class PropertyChainJpa extends AbstractAbbreviation implements
     return chain;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.PropertyChain#setChain(java.util.List)
-   */
+  /* see superclass */
   @Override
   public void setChain(List<AdditionalRelationshipType> chain) {
     this.chain = chain;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.PropertyChain#getResult()
-   */
+  /* see superclass */
   @Override
   public AdditionalRelationshipType getResult() {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.PropertyChain#setResult(com.wci.umls.server
-   * .model.meta.AdditionalRelationshipType)
-   */
+  /* see superclass */
   @Override
   public void setResult(AdditionalRelationshipType result) {
     this.result = result;

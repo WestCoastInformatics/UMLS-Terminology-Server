@@ -39,25 +39,13 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
  */
 public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
-   * )
-   */
+  /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
     // do nothing
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.Concept, java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void resolve(Concept concept, Set<String> hierarchicalRelTypeIds)
     throws Exception {
@@ -101,13 +89,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolveEmpty
-   * (com.wci.umls.server.model.content.Concept)
-   */
+  /* see superclass */
   @Override
   public void resolveEmpty(Concept concept) {
     concept.setAtoms(new ArrayList<Atom>());
@@ -118,13 +100,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     concept.setMembers(new ArrayList<ConceptSubsetMember>());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolveEmpty
-   * (com.wci.umls.server.model.content.Descriptor)
-   */
+  /* see superclass */
   @Override
   public void resolveEmpty(Descriptor descriptor) {
     descriptor.setAtoms(new ArrayList<Atom>());
@@ -133,13 +109,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolveEmpty
-   * (com.wci.umls.server.model.content.Code)
-   */
+  /* see superclass */
   @Override
   public void resolveEmpty(Code code) {
     code.setAtoms(new ArrayList<Atom>());
@@ -147,13 +117,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     code.setRelationships(new ArrayList<CodeRelationship>());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.Atom)
-   */
+  /* see superclass */
   @Override
   public void resolve(Atom atom) throws Exception {
     if (atom != null) {
@@ -186,13 +150,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.Relationship)
-   */
+  /* see superclass */
   @Override
   public void resolve(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
@@ -213,13 +171,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.TreePosition)
-   */
+  /* see superclass */
   @Override
   public void resolve(TreePosition<? extends AtomClass> treepos)
     throws Exception {
@@ -232,25 +184,13 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.SemanticTypeComponent)
-   */
+  /* see superclass */
   @Override
   public void resolve(SemanticTypeComponent sty) {
     sty.getSemanticType();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.Descriptor, java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void resolve(Descriptor descriptor, Set<String> isaRelTypeIds)
     throws Exception {
@@ -283,13 +223,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.Code, java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void resolve(Code code, Set<String> isaRelTypeIds) throws Exception {
     if (code != null) {
@@ -316,13 +250,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.LexicalClass)
-   */
+  /* see superclass */
   @Override
   public void resolve(LexicalClass lexicalClass) throws Exception {
     if (lexicalClass != null && lexicalClass.getId() != null) {
@@ -348,13 +276,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.StringClass)
-   */
+  /* see superclass */
   @Override
   public void resolve(StringClass stringClass) throws Exception {
     if (stringClass != null && stringClass.getId() != null) {
@@ -379,6 +301,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
   }
 
+  /* see superclass */
   @Override
   public void resolve(Subset subset) throws Exception {
     if (subset != null) {
@@ -395,6 +318,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
   }
 
+  /* see superclass */
   @Override
   public void resolve(
     SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member)
@@ -448,13 +372,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     resolveAttributes(definition, nullId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.meta.Terminology)
-   */
+  /* see superclass */
   @Override
   public void resolve(Terminology terminology) {
     if (terminology != null) {
@@ -463,13 +381,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.meta.RootTerminology)
-   */
+  /* see superclass */
   @Override
   public void resolve(RootTerminology rootTerminology) {
     rootTerminology.getSynonymousNames().size();

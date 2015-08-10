@@ -60,11 +60,7 @@ public class StartEditingCycleAlgorithm extends ContentServiceJpa implements
     this.version = version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.jpa.algo.Algorithm#reset()
-   */
+  /* see superclass */
   @Override
   public void reset() throws Exception {
     // do nothing
@@ -89,11 +85,7 @@ public class StartEditingCycleAlgorithm extends ContentServiceJpa implements
     this.user = user;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.jpa.algo.Algorithm#compute()
-   */
+  /* see superclass */
   @Override
   public void compute() throws Exception {
     Logger.getLogger(getClass()).info(
@@ -125,35 +117,19 @@ public class StartEditingCycleAlgorithm extends ContentServiceJpa implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#addProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
-   */
+  /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#removeProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
-   */
+  /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.jpa.algo.Algorithm#cancel()
-   */
+  /* see superclass */
   @Override
   public void cancel() {
     requestCancel = true;

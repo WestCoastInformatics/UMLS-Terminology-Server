@@ -88,154 +88,91 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
     usageType = tty.getUsageType();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.TermType#isObsolete()
-   */
+  /* see superclass */
   @Override
   public boolean isObsolete() {
     return obsolete;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.TermType#setObsolete(boolean)
-   */
+  /* see superclass */
   @Override
   public void setObsolete(boolean obsolete) {
     this.obsolete = obsolete;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.TermType#isSuppressible()
-   */
+  /* see superclass */
   @Override
   public boolean isSuppressible() {
     return suppressible;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.TermType#setSuppressible(boolean)
-   */
+  /* see superclass */
   @Override
   public void setSuppressible(boolean suppressible) {
     this.suppressible = suppressible;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.TermType#setNameVariantType(com.wci.umls
-   * .server.model.meta.NameVariantType)
-   */
+  /* see superclass */
   @Override
   public void setNameVariantType(NameVariantType nameVariantType) {
     this.nameVariantType = nameVariantType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.TermType#getNameVariantType()
-   */
+  /* see superclass */
   @Override
   public NameVariantType getNameVariantType() {
     return nameVariantType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.TermType#setCodeVariantType(com.wci.umls
-   * .server.model.meta.CodeVariantType)
-   */
+  /* see superclass */
   @Override
   public void setCodeVariantType(CodeVariantType codeVariantType) {
     this.codeVariantType = codeVariantType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.TermType#getCodeVariantType()
-   */
+  /* see superclass */
   @Override
   public CodeVariantType getCodeVariantType() {
     return codeVariantType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.TermType#setHierarchicalType(boolean)
-   */
+  /* see superclass */
   @Override
   public void setHierarchicalType(boolean hierarchicalType) {
     this.hierarchicalType = hierarchicalType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.TermType#isHierarchicalType()
-   */
+  /* see superclass */
   @Override
   public boolean isHierarchicalType() {
     return hierarchicalType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.TermType#setUsageType(com.wci.umls.server
-   * .model.meta.UsageType)
-   */
+  /* see superclass */
   @Override
   public void setUsageType(UsageType usageType) {
     this.usageType = usageType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.TermType#getUsageType()
-   */
+  /* see superclass */
   @Override
   public UsageType getUsageType() {
     return usageType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.TermType#setStyle(com.wci.umls.server.model
-   * .meta.TermTypeStyle)
-   */
+  /* see superclass */
   @Override
   public void setStyle(TermTypeStyle style) {
     this.style = style;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.TermType#getStyle()
-   */
+  /* see superclass */
   @Override
   public TermTypeStyle getStyle() {
     return style;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -254,6 +191,7 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -280,6 +218,7 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "TermTypeJpa [" + super.toString() + "codeVariantType="

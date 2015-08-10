@@ -21,11 +21,7 @@ public class GeneralMetadataEntryListJpa extends
     AbstractResultList<GeneralMetadataEntry> implements
     GeneralMetadataEntryList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = GeneralMetadataEntryJpa.class, name = "type")
   public List<GeneralMetadataEntry> getObjects() {

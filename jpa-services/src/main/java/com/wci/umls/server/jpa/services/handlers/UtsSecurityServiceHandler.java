@@ -32,13 +32,7 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
     // do nothing
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.SecurityServiceHandler#authenticate
-   * (java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public User authenticate(String username, String password) throws Exception {
 
@@ -102,37 +96,20 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.SecurityServiceHandler#timeoutUser
-   * (java.lang.String)
-   */
+  /* see superclass */
   @Override
   public boolean timeoutUser(String user) {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.SecurityServiceHandler#
-   * computeTokenForUser(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public String computeTokenForUser(String user) {
     String token = UUID.randomUUID().toString();
     return token;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
-   * )
-   */
+  /* see superclass */
   @Override
   public void setProperties(Properties properties) {
     this.properties = properties;

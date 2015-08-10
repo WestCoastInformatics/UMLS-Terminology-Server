@@ -45,31 +45,26 @@ tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService',
 
 // Simple error controller
 console.debug('configure ErrorCtrl');
-tsApp.controller('ErrorCtrl', [ '$scope', 'errorService',
-  function($scope, errorService) {
+tsApp.controller('ErrorCtrl', [ '$scope', 'utilService',
+  function($scope, utilService) {
 
-    $scope.error = errorService.error;
+    $scope.error = utilService.error;
 
     $scope.clearError = function() {
-      errorService.clearError();
+      utilService.clearError();
     }
 
     $scope.setError = function(message) {
-      errorService.setError(message);
+      utilService.setError(message);
     }
 
   } ]);
 
 // Tab controller
 console.debug('configure TabCtrl');
-tsApp.controller('TabCtrl', [
-  '$scope',
-  '$interval',
-  '$timeout',
-  'securityService',
-  'tabService',
-  function($scope, $interval, $timeout, securityService, 
-    tabService) {
+tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout',
+  'securityService', 'tabService',
+  function($scope, $interval, $timeout, securityService, tabService) {
 
     // Setup tabs
     $scope.tabs = tabService.tabs;
@@ -117,9 +112,7 @@ tsApp.controller('FooterCtrl', [ '$scope', 'gpService', 'securityService',
     $scope.user = securityService.getUser();
 
     // Logout method
-    $scope.logout = function() {
-      securityService.logout();
-    }
+    $scope.logout = securityService.logout;
 
     // Check gp status
     $scope.isGlassPaneNegative = function() {
@@ -130,5 +123,5 @@ tsApp.controller('FooterCtrl', [ '$scope', 'gpService', 'securityService',
     $scope.getGlassPaneCounter = function() {
       return gpService.glassPane.counter;
     }
-
+    
   } ]);

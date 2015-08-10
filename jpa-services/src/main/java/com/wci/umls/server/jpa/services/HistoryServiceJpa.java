@@ -34,13 +34,7 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.HistoryService#getReleaseHistory(java.lang.String
-   * )
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public ReleaseInfoList getReleaseHistory(String terminology) throws Exception {
@@ -64,13 +58,7 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.HistoryService#getCurrentReleaseInfo(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public ReleaseInfo getCurrentReleaseInfo(String terminology) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -86,13 +74,7 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.HistoryService#getPreviousReleaseInfo(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public ReleaseInfo getPreviousReleaseInfo(String terminology)
     throws Exception {
@@ -113,13 +95,7 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.HistoryService#getPlannedReleaseInfo(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public ReleaseInfo getPlannedReleaseInfo(String terminology) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -135,13 +111,7 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.HistoryService#getReleaseInfo(java.lang.String,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public ReleaseInfo getReleaseInfo(String terminology, String name)
     throws ParseException {
@@ -163,13 +133,7 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.HistoryService#addReleaseInfo(org.ihtsdo.otf
-   * .ts.helpers.ReleaseInfo)
-   */
+  /* see superclass */
   @Override
   public ReleaseInfo addReleaseInfo(ReleaseInfo releaseInfo) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -196,13 +160,7 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
     return releaseInfo;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.HistoryService#updateReleaseInfo(org.ihtsdo.
-   * otf.ts.helpers.ReleaseInfo)
-   */
+  /* see superclass */
   @Override
   public void updateReleaseInfo(ReleaseInfo releaseInfo) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -227,12 +185,7 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.HistoryService#removeReleaseInfo(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void removeReleaseInfo(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(

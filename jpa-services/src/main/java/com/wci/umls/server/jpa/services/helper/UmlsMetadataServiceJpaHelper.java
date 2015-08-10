@@ -73,13 +73,7 @@ public class UmlsMetadataServiceJpaHelper extends
     refreshCachesHelper();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getRelationshipTypes(java.
-   * lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings({
     "unchecked"
   })
@@ -106,6 +100,7 @@ public class UmlsMetadataServiceJpaHelper extends
     return types;
   }
 
+  /* see superclass */
   @SuppressWarnings({
     "unchecked"
   })
@@ -131,13 +126,7 @@ public class UmlsMetadataServiceJpaHelper extends
     return types;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getAdditionalRelationshipTypes
-   * (java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public AdditionalRelationshipTypeList getAdditionalRelationshipTypes(
@@ -159,13 +148,7 @@ public class UmlsMetadataServiceJpaHelper extends
     return types;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getAttributeNames(java.lang
-   * .String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public AttributeNameList getAttributeNames(String terminology, String version)
@@ -185,13 +168,7 @@ public class UmlsMetadataServiceJpaHelper extends
     return types;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getTermTypes(java.lang.String,
-   * java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public TermTypeList getTermTypes(String terminology, String version)
@@ -212,13 +189,7 @@ public class UmlsMetadataServiceJpaHelper extends
     return types;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.helper.StandardMetadataServiceJpaHelper
-   * #getDefaultPrecedenceList(java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version) throws Exception {
@@ -248,13 +219,7 @@ public class UmlsMetadataServiceJpaHelper extends
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getHierarchicalRelationshipTypes
-   * (java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public RelationshipTypeList getHierarchicalRelationshipTypes(
     String terminology, String version) throws Exception {
@@ -276,31 +241,20 @@ public class UmlsMetadataServiceJpaHelper extends
     return types;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#isHierarchcialRelationship
-   * (com.wci.umls.server.model.content.Relationship)
-   */
+  /* see superclass */
   @Override
   public boolean isHierarchcialRelationship(Relationship<?, ?> relationship) {
     return relationship.getRelationshipType().equals("CHD");
   }
 
+  /* see superclass */
   @Override
   public void setProperties(Properties p) {
     umlsTerminology = p.getProperty("terminology");
     umlsVersion = p.getProperty("version");
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.helper.StandardMetadataServiceJpaHelper
-   * #refreshCaches()
-   */
+  /* see superclass */
   @Override
   public void refreshCaches() throws Exception {
     close();

@@ -71,14 +71,13 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful call (Validation): /validate/cui/merge/" + terminology + "/" +
-        version + "/" + cui1 + "/" + cui2);
+        "RESTful call (Validation): /validate/cui/merge/" + terminology + "/"
+            + version + "/" + cui1 + "/" + cui2);
 
-    String user = "";
     ValidationService validationService = new ValidationServiceJpa();
     ContentService contentService = new ContentServiceJpa();
     try {
-      user = securityService.getUsernameForToken(authToken);
+      securityService.getUsernameForToken(authToken);
 
       // authorize call
       UserRole role = securityService.getApplicationRoleForToken(authToken);
@@ -87,9 +86,11 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
             .entity("User does not have permissions to retrieve the metadata")
             .build());
 
-      Concept concept1 = contentService.getConcept(cui1, terminology, version, Branch.ROOT);
-      Concept concept2 = contentService.getConcept(cui2, terminology, version, Branch.ROOT);
-      
+      Concept concept1 =
+          contentService.getConcept(cui1, terminology, version, Branch.ROOT);
+      Concept concept2 =
+          contentService.getConcept(cui2, terminology, version, Branch.ROOT);
+
       ValidationResult result =
           validationService.validateMerge(concept1, concept2);
 
@@ -97,7 +98,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
 
     } catch (Exception e) {
 
-      handleException(e, "trying to validate the concept merge", user);
+      handleException(e, "trying to validate the concept merge");
       return null;
     } finally {
       validationService.close();
@@ -120,7 +121,6 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
     try {
       authenticate(securityService, authToken, "validate descriptor",
           UserRole.VIEWER);
-
 
       return validationService.validateDescriptor(descriptor);
     } catch (Exception e) {
@@ -146,9 +146,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
 
     ValidationService validationService = new ValidationServiceJpa();
     try {
-      authenticate(securityService, authToken, "validate atom",
-          UserRole.VIEWER);
-
+      authenticate(securityService, authToken, "validate atom", UserRole.VIEWER);
 
       return validationService.validateAtom(atom);
     } catch (Exception e) {
@@ -174,9 +172,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
 
     ValidationService validationService = new ValidationServiceJpa();
     try {
-      authenticate(securityService, authToken, "validate code",
-          UserRole.VIEWER);
-
+      authenticate(securityService, authToken, "validate code", UserRole.VIEWER);
 
       return validationService.validateCode(code);
     } catch (Exception e) {
@@ -205,7 +201,6 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
       authenticate(securityService, authToken, "validate concept",
           UserRole.VIEWER);
 
-
       return validationService.validateConcept(concept);
     } catch (Exception e) {
       handleException(e, "trying to validate concept");
@@ -216,7 +211,5 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
     }
 
   }
-
-
 
 }

@@ -14,13 +14,7 @@ import com.wci.umls.server.model.content.Concept;
  */
 public class NewConceptMinRequirementsCheck extends AbstractValidationCheck {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.ValidationCheck#validate(com.wci.
-   * umls.server.model.content.Concept)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validate(Concept c) {
     ValidationResult result = new ValidationResultJpa();

@@ -22,11 +22,7 @@ public class TreePositionListJpa extends
     AbstractResultList<TreePosition<? extends AtomClass>> implements
     TreePositionList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = AbstractTreePosition.class, name = "treepos")
   public List<TreePosition<? extends AtomClass>> getObjects() {

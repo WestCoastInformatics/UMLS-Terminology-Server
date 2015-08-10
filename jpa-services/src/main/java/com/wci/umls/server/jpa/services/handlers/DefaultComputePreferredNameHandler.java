@@ -17,24 +17,13 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 public class DefaultComputePreferredNameHandler implements
     ComputePreferredNameHandler {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
-   * )
-   */
+  /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
     // Needs a precedence list
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.ComputePreferredNameHandler#
-   * computePreferredName(java.util.Set)
-   */
+  /* see superclass */
   @Override
   public String computePreferredName(Collection<Atom> atoms) throws Exception {
     // Use ranking algorithm from MetamorphoSys
@@ -44,6 +33,7 @@ public class DefaultComputePreferredNameHandler implements
 
   }
 
+  /* see superclass */
   @Override
   public List<Atom> sortByPreference(Collection<Atom> atoms) throws Exception {
     // n/a

@@ -62,134 +62,79 @@ public class SearchCriteriaJpa implements SearchCriteria {
     findSelf = searchCriteria.getFindSelf();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#getFindDescendants()
-   */
+  /* see superclass */
   @Override
   public boolean getFindDescendants() {
     return findDescendants;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#setFindDescendants(boolean)
-   */
+  /* see superclass */
   @Override
   public void setFindDescendants(boolean descendants) {
     this.findDescendants = descendants;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#getFindSelf()
-   */
+  /* see superclass */
   @Override
   public boolean getFindSelf() {
     return findSelf;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#setFindSelf(boolean)
-   */
+  /* see superclass */
   @Override
   public void setFindSelf(boolean self) {
     this.findSelf = self;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#getPrimitiveOnly()
-   */
+  /* see superclass */
   @Override
   public boolean getPrimitiveOnly() {
     return primitiveOnly;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#setPrimitiveOnly(boolean)
-   */
+  /* see superclass */
   @Override
   public void setPrimitiveOnly(boolean primitiveOnly) {
     this.primitiveOnly = primitiveOnly;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#getDefinedOnly()
-   */
+  /* see superclass */
   @Override
   public boolean getDefinedOnly() {
     return definedOnly;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#setDefinedOnly(boolean)
-   */
+  /* see superclass */
   @Override
   public void setDefinedOnly(boolean definedOnly) {
     this.definedOnly = definedOnly;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#getRelationshipFromId()
-   */
+  /* see superclass */
   @Override
   public String getRelationshipFromId() {
     return relationshipFromId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#getRelationshipType()
-   */
+  /* see superclass */
   @Override
   public String getRelationshipType() {
     return relationshipType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.SearchCriteria#getRelationshipToId()
-   */
+  /* see superclass */
   @Override
   public String getRelationshipToId() {
     return relationshipToId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.SearchCriteria#getRelationshipDescendantsFlag()
-   */
+  /* see superclass */
   @Override
   public boolean getRelationshipDescendantsFlag() {
     return relationshipDescendantsFlag;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.SearchCriteria#setFindFromByRelationshipTypeAndTo
-   * (java.lang.String, java.lang.String, boolean)
-   */
+  /* see superclass */
   @Override
   public void setFindFromByRelationshipTypeAndTo(String type,
     String destinationId, boolean descendants) {
@@ -198,13 +143,7 @@ public class SearchCriteriaJpa implements SearchCriteria {
     this.relationshipDescendantsFlag = descendants;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.SearchCriteria#setFindToByRelationshipFromAndType
-   * (java.lang.String, java.lang.String, boolean)
-   */
+  /* see superclass */
   @Override
   public void setFindToByRelationshipFromAndType(String type, String sourceId,
     boolean descendants) {
@@ -213,11 +152,7 @@ public class SearchCriteriaJpa implements SearchCriteria {
     this.relationshipDescendantsFlag = descendants;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -240,11 +175,7 @@ public class SearchCriteriaJpa implements SearchCriteria {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -319,11 +250,7 @@ public class SearchCriteriaJpa implements SearchCriteria {
     this.relationshipFromId = findBySourceId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "SearchCriteriaJpa [relationshipToId=" + relationshipToId
@@ -334,39 +261,21 @@ public class SearchCriteriaJpa implements SearchCriteria {
         + ", findSelf=" + findSelf + "]";
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.SearchCriteria#setRelationshipFromId(java.lang
-   * .String)
-   */
+  /* see superclass */
   @XmlElement
   @Override
   public void setRelationshipFromId(String relationshipFromId) {
     this.relationshipFromId = relationshipFromId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.SearchCriteria#setRelationshipType(java.lang
-   * .String)
-   */
+  /* see superclass */
   @XmlElement
   @Override
   public void setRelationshipType(String relationshipType) {
     this.relationshipType = relationshipType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.SearchCriteria#setRelationshipToId(java.lang
-   * .String)
-   */
+  /* see superclass */
   @XmlElement
   @Override
   public void setRelationshipToId(String relationshipToId) {

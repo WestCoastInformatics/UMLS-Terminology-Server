@@ -3,9 +3,9 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.model.meta.Terminology;
 
 /**
@@ -31,7 +31,7 @@ public interface MetadataServiceRest {
    * @return the all terminologies latest versions
    * @throws Exception if anything goes wrong
    */
-  public KeyValuePairList getAllTerminologiesLatestVersions(String authToken)
+  public TerminologyList getAllTerminologiesLatestVersions(String authToken)
     throws Exception;
 
   /**
@@ -41,8 +41,7 @@ public interface MetadataServiceRest {
    * @throws Exception if anything goes wrong
    */
 
-  public KeyValuePairLists getAllTerminologiesVersions(String authToken)
-    throws Exception;
+  public TerminologyList getTerminologies(String authToken) throws Exception;
 
   /**
    * Gets the terminology information for a terminology
@@ -65,6 +64,6 @@ public interface MetadataServiceRest {
    * @return the default precedence list
    * @throws Exception the exception
    */
-  public  PrecedenceList getDefaultPrecedenceList(String terminology,
+  public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version, String authToken) throws Exception;
 }

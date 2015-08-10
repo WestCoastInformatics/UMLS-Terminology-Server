@@ -194,7 +194,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** The Constant metadataModuleId. */
   private final static String metadataModuleId = "900000000000012004";
 
-  /** non-core modules map */
+  /** non-core modules map. */
   private Map<String, Set<Long>> moduleConceptIdMap = new HashMap<>();
 
   /** The lat code map. */
@@ -278,11 +278,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     this.readers = readers;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#compute()
-   */
+  /* see superclass */
   @Override
   public void compute() throws Exception {
     try {
@@ -2249,11 +2245,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     subset.setTerminologyId(fields[13]);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#reset()
-   */
+  /* see superclass */
   @Override
   public void reset() throws Exception {
     // do nothing
@@ -2272,48 +2264,19 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#addProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
-   */
-  /**
-   * Adds the progress listener.
-   *
-   * @param l the l
-   */
+  /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#removeProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
-   */
-  /**
-   * Removes the progress listener.
-   *
-   * @param l the l
-   */
+  /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.jpa.algo.Algorithm#cancel()
-   */
-  /**
-   * Cancel.
-   */
+  /* see superclass */
   @Override
   public void cancel() {
     throw new UnsupportedOperationException("cannot cancel.");
@@ -2349,11 +2312,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.jpa.services.RootServiceJpa#close()
-   */
+  /* see superclass */
   @Override
   public void close() throws Exception {
     super.close();
@@ -2401,22 +2360,13 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // n/a
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see gnu.trove.strategy.HashingStrategy#computeHashCode(java.lang.Object)
-     */
+    /* see superclass */
     @Override
     public int computeHashCode(String object) {
       return object.hashCode();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see gnu.trove.strategy.HashingStrategy#equals(java.lang.Object,
-     * java.lang.Object)
-     */
+    /* see superclass */
     @Override
     public boolean equals(String o1, String o2) {
       return o1.equals(o2);

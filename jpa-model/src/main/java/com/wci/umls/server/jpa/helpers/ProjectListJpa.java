@@ -20,11 +20,7 @@ import com.wci.umls.server.jpa.ProjectJpa;
 public class ProjectListJpa extends AbstractResultList<Project> implements
     ProjectList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = ProjectJpa.class, name = "project")
   public List<Project> getObjects() {

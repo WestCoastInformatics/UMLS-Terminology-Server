@@ -49,55 +49,31 @@ public class GeneralMetadataEntryJpa extends AbstractAbbreviation implements
     type = entry.getType();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.GeneralMetadataEntry#getKey()
-   */
+  /* see superclass */
   @Override
   public String getKey() {
     return key;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.GeneralMetadataEntry#setKey(java.lang.String
-   * )
-   */
+  /* see superclass */
   @Override
   public void setKey(String key) {
     this.key = key;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.GeneralMetadataEntry#getType()
-   */
+  /* see superclass */
   @Override
   public String getType() {
     return type;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.GeneralMetadataEntry#setType(java.lang.String
-   * )
-   */
+  /* see superclass */
   @Override
   public void setType(String type) {
     this.type = type;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -107,12 +83,7 @@ public class GeneralMetadataEntryJpa extends AbstractAbbreviation implements
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.meta.AbstractAbbreviation#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -135,11 +106,7 @@ public class GeneralMetadataEntryJpa extends AbstractAbbreviation implements
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "GeneralMetadataEntryJpa [key=" + key + ", type=" + type + "] "

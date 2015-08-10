@@ -23,81 +23,49 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
   /** The objects. */
   private List<T> objects = new ArrayList<>();
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.helpers.ResultList#getTotalCount()
-   */
+  /* see superclass */
   @Override
   public int getTotalCount() {
     return totalCount;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.helpers.ResultList#setTotalCount(int)
-   */
+  /* see superclass */
   @Override
   public void setTotalCount(int totalCount) {
     this.totalCount = totalCount;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ResultList#getCount()
-   */
+  /* see superclass */
   @Override
   public int getCount() {
     return objects.size();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ResultList#sortBy(java.util.Comparator)
-   */
+  /* see superclass */
   @Override
   public void sortBy(Comparator<T> comparator) {
     Collections.sort(objects, comparator);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ResultList#contains(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean contains(T element) {
     return objects.contains(element);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ResultList#addObject(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public void addObject(T object) {
     objects.add(object);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ResultList#removeObject(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public void removeObject(T object) {
     objects.remove(object);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ResultList#setObjects(java.util.List)
-   */
+  /* see superclass */
   @Override
   public void setObjects(List<T> objects) {
     this.objects = objects;
@@ -113,11 +81,7 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     return objects;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -126,11 +90,7 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -149,11 +109,7 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();

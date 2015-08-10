@@ -93,44 +93,25 @@ public class SearchResultJpa implements SearchResult {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.helpers.SearchResult#getTerminology()
-   */
+  /* see superclass */
   @Override
   public String getTerminology() {
     return this.terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.helpers.SearchResult#setTerminology(java.lang.String
-   * )
-   */
+  /* see superclass */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.helpers.SearchResult#getVersion()
-   */
+  /* see superclass */
   @Override
   public String getVersion() {
     return this.version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.helpers.SearchResult#setVersion(java.
-   * lang.String)
-   */
+  /* see superclass */
   @Override
   public void setVersion(String version) {
     this.version = version;
@@ -158,11 +139,7 @@ public class SearchResultJpa implements SearchResult {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -177,11 +154,7 @@ public class SearchResultJpa implements SearchResult {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -214,11 +187,7 @@ public class SearchResultJpa implements SearchResult {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "SearchResultJpa [id=" + id + ", terminologyId=" + terminologyId

@@ -20,11 +20,7 @@ import com.wci.umls.server.model.meta.PropertyChain;
 public class PropertyChainListJpa extends AbstractResultList<PropertyChain>
     implements PropertyChainList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = PropertyChainJpa.class, name = "type")
   public List<PropertyChain> getObjects() {

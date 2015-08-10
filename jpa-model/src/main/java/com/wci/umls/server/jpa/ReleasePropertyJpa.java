@@ -55,45 +55,43 @@ public class ReleasePropertyJpa implements ReleaseProperty {
 
   }
 
+  /* see superclass */
   @Override
   public Long getId() {
     return id;
   }
 
-  /*
-   * (non-Javadoc)
-   */
+  /* see superclass */
   @Override
   public void setId(Long id) {
     this.id = id;
   }
 
-  /*
-   * (non-Javadoc)
-   */
+  /* see superclass */
   @Override
   public String getName() {
     return name;
   }
 
-  /*
-   * (non-Javadoc)
-   */
+  /* see superclass */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
+  /* see superclass */
   @Override
   public String getValue() {
     return value;
   }
 
+  /* see superclass */
   @Override
   public void setValue(String value) {
     this.value = value;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -103,6 +101,7 @@ public class ReleasePropertyJpa implements ReleaseProperty {
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -125,11 +124,7 @@ public class ReleasePropertyJpa implements ReleaseProperty {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return name + ", " + value;

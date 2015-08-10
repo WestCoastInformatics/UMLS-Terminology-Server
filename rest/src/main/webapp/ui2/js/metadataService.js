@@ -7,8 +7,8 @@ tsApp
       '$http',
       '$q',
       'gpService',
-      'errorService',
-      function($http, $q, gpService, errorService) {
+      'utilService',
+      function($http, $q, gpService, utilService) {
 
         // The metadata for current terminology
         var metadata = {
@@ -27,43 +27,20 @@ tsApp
           subsetsLabel : "Subsets",
           relationshipsLabel : "Relationships",
           atomRelationshipsLabel : "References",
-          extensionsLabel : "Extensions"
+          extensionsLabel : "Extensions",
+          treeSortField : "nodeName",
+          terminologies : null
         };
 
         // Obtain the data model
-        this.getMetadata = function() {
+        this.getModel = function() {
           return metadata;
         }
 
-        // Performs service lookup of a terminology object
-        this.getTerminology = function(name, version) {
-          console.debug("get terminology", name, version);
-          var deferred = $q.defer();
-          // get terminology
-          gpService.increment();
-          $http.get(metadataUrl + 'terminology/' + name + '/' + version)
-            .then(
-            // success
-            function(response) {
-              metadata.terminology = response.data;
-              console.debug("  terminology = ", metadata.terminology);
-              gpService.decrement();
-              deferred.resolve(response.data);
-            },
-            // error
-            function(response) {
-              errorService.handleError(response);
-              gpService.decrement();
-              deferred.reject(response.data);
-            });
-          return deferred.promise;
-        }
-
-        // ASYNC
-        // Sets terminology and performs lookup of all related metadata
+        // Sets terminology object
+        // and performs lookup of all related metadata
         this.setTerminology = function(terminology) {
-          console.debug("set terminology", terminology);
-          metadata.terminology = terminology;
+          console.debug("setTerminology", terminology);
 
           var deferred = $q.defer();
 
@@ -71,13 +48,13 @@ tsApp
           gpService.increment();
           $http
             .get(
-              metadataUrl + 'all/terminology/' + terminology.terminology
-                + '/' + terminology.version)
+              metadataUrl + 'all/terminology/' + terminology.terminology + '/'
+                + terminology.version)
             .then(
               // success
               function(response) {
+                metadata.terminology = terminology;
                 metadata.entries = response.data.keyValuePairList;
-                console.debug("  entries = ", metadata.entries);
                 metadata.relationshipTypes = null;
                 metadata.attributeNames = null;
                 metadata.termTypes = null;
@@ -88,7 +65,6 @@ tsApp
                   return;
 
                 for (var i = 0; i < metadata.entries.length; i++) {
-                  console.debug("metadata.entries["+i+"] = ",metadata.entries[i].name);
                   // extract relationship types for convenience
                   if (metadata.entries[i].name === 'Relationship_Types') {
                     metadata.relationshipTypes = metadata.entries[i].keyValuePair;
@@ -105,45 +81,45 @@ tsApp
                   if (metadata.entries[i].name === 'General_Metadata_Entries') {
                     metadata.generalEntries = metadata.entries[i].keyValuePair;
 
-                    for (var j = 0; j < generalEntries.length; j++) {
-                      if (metadatageneralEntries[j].key === "Atoms_Label") {
+                    for (var j = 0; j < metadata.generalEntries.length; j++) {
+                      if (metadata.generalEntries[j].key === "Atoms_Label") {
                         metadata.atomsLabel = generalEntries[j].value;
                       }
-                      if (metadatageneralEntries[j].key === "Hierarchies_Label") {
+                      if (metadata.generalEntries[j].key === "Hierarchies_Label") {
                         metadata.hierarchiesLabel = generalEntries[j].value;
                       }
-                      if (metadatageneralEntries[j].key === "Definitions_Label") {
+                      if (metadata.generalEntries[j].key === "Definitions_Label") {
                         metadata.definitionsLabel = generalEntries[j].value;
                       }
-                      if (metadatageneralEntries[j].key === "Attributes_Label") {
+                      if (metadata.generalEntries[j].key === "Attributes_Label") {
                         metadata.attributesLabel = generalEntries[j].value;
                       }
-                      if (metadatageneralEntries[j].key === "Subsets_Label") {
+                      if (metadata.generalEntries[j].key === "Subsets_Label") {
                         metadata.subsetsLabel = generalEntries[j].value;
                       }
-                      if (metadatageneralEntries[j].key === "Relationships_Label") {
+                      if (metadata.generalEntries[j].key === "Relationships_Label") {
                         metadata.relationshipsLabel = generalEntries[j].value;
                       }
-                      if (metadatageneralEntries[j].key === "Atom_Relationships_Label") {
+                      if (metadata.generalEntries[j].key === "Atom_Relationships_Label") {
                         metadata.atomRelationshipsLabel = generalEntries[j].value;
                       }
-                      if (metadatageneralEntries[j].key === "Extensions_Label") {
+                      if (metadata.generalEntries[j].key === "Extensions_Label") {
                         metadata.extensionsLabel = generalEntries[j].value;
                       }
-                      if (metadatageneralEntries[j].key === "Tree_Sort_Field") {
+                      if (metadata.generalEntries[j].key === "Tree_Sort_Field") {
                         metadata.treeSortField = generalEntries[j].value;
                       }
                     }
                   }
                 }
                 gpService.decrement();
-                deferred.resolve("");
+                deferred.resolve(response.data);
               },
               // error
               function(response) {
-                errorService.handleError(response);
+                utilService.handleError(response);
                 gpService.decrement();
-                deferred.reject("");
+                deferred.reject(response.data);
               });
 
           // get precedence
@@ -154,25 +130,47 @@ tsApp
               + terminology.version).then(
           // success
           function(response) {
-            console.debug("  precedenceList = ", response.data);
             metadata.precedenceList = response.data.precedence;
             gpService.decrement();
             deferred2.resolve("");
           },
           // error
           function(response) {
-            errorService.handleError(response);
+            utilService.handleError(response);
             gpService.decrement();
             deferred2.reject("");
           });
-          
+
           // Return all deferred promises
-          return $q.all([deferred.promise, deferred2.promise]);
+          return $q.all([ deferred.promise, deferred2.promise ]);
         }
 
-        // Returns a deferred promise that contains the terminology list
-        this.getTerminologies = function() {
-          console.debug("get terminologies");
+        // Returns the terminology object for the terminology name
+        this.getTerminology = function(terminology, version) {
+          // check for full terminology object by comparing to selected
+          // terminology
+          if (terminology != metadata.terminology.terminology) {
+
+            // cycle over available terminologies for match
+            for (var i = 0; i < metadata.terminologies.length; i++) {
+              if (metadata.terminologies[i].terminology === terminology) {
+
+                // skip if version is set and does not match
+                if (!version || version != metadata.terminologies[i].version) {
+                  continue;
+                }
+
+                return metadata.terminologies[i];
+              }
+            }
+          } else {
+            return metadata.terminology;
+          }
+        }
+
+        // initialize all terminologies
+        this.initTerminologies = function() {
+          console.debug("initTerminologies");
           var deferred = $q.defer();
 
           // Get terminologies
@@ -180,16 +178,16 @@ tsApp
           $http.get(metadataUrl + 'terminology/terminologies').then(
           // success
           function(response) {
+            console.debug("  terminologies = ", response.data);
+            metadata.terminologies = response.data.terminology;
             gpService.decrement();
-            console.debug("  terminologies = ", repsonse.data);
             deferred.resolve(response.data);
           },
-
           // error
           function(response) {
-            errorService.handleError(response);
+            utilService.handleError(response);
             gpService.decrement();
-            defer.reject(response.data);
+            deferred.reject(response.data);
           });
           return deferred.promise;
         }
@@ -244,4 +242,76 @@ tsApp
           return null;
         }
 
-      } ]);
+        this.isDerivedLabelSet = function(tree) {
+          for (var i = 0; i < tree.labels.length; i++) {
+            if (tree.labels[i].startsWith("LABELFOR")) {
+              return true;
+            }
+          }
+          return false;
+        }
+
+        this.isLabelSet = function(tree) {
+          for (var i = 0; i < tree.labels.length; i++) {
+            if (!tree.labels[i].startsWith("LABELFOR:")) {
+              return true;
+            }
+          }
+          return false;
+        }
+
+        this.getDerivedLabelSetsValue = function(tree) {
+          if (tree.labels == undefined) {
+            return;
+          }
+          var retval = "Ancestor of content in:<br>";
+          var j = 0;
+          for (var i = 0; i < tree.labels.length; i++) {
+            var name = this.getLabelSetName(tree.labels[i]);
+            if (tree.labels[i].startsWith("LABELFOR")) {
+              if (j++ > 0) {
+                retval += "<br>";
+              }
+              retval += "&#x2022;&nbsp;" + name;
+            }
+          }
+          return retval;
+        }
+
+        this.getLabelSetsValue = function(tree) {
+          if (tree.labels == undefined) {
+            return;
+          }
+          var retval = "Content in:<br>";
+          var j = 0;
+          for (var i = 0; i < tree.labels.length; i++) {
+            var name = this.getLabelSetName(tree.labels[i]);
+            if (!tree.labels[i].startsWith("LABELFOR")) {
+              if (j++ > 0) {
+                retval += "<br>";
+              }
+              retval += "&#x2022;&nbsp;" + name;
+            }
+          }
+          return retval;
+        }
+
+        this.countLabels = function(component) {
+          var retval = 0;
+          if (typeof component == "undefined" || !component) {
+            return 0;
+          }
+          if (typeof component.labels == "undefined") {
+            return 0;
+          }
+          for (var i = 0; i < component.labels.length; i++) {
+            if (!component.labels[i].startsWith("LABELFOR")) {
+              retval++;
+            }
+          }
+          return retval;
+        }        
+        
+      }
+
+    ]);

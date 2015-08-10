@@ -97,7 +97,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
   /** The terminology version. */
   String version;
 
-  /** release version */
+  /** release version. */
   String releaseVersion;
 
   /** The release version date. */
@@ -165,16 +165,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     this.inputFile = inputFile;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#compute()
-   */
-  /**
-   * Compute.
-   *
-   * @throws Exception the exception
-   */
+  /* see superclass */
   @Override
   public void compute() throws Exception {
     Logger.getLogger(getClass()).info("Starting loading Claml terminology");
@@ -270,11 +261,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#reset()
-   */
+  /* see superclass */
   @Override
   public void reset() throws Exception {
     // do nothing
@@ -293,48 +280,19 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#addProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
-   */
-  /**
-   * Adds the progress listener.
-   *
-   * @param l the l
-   */
+  /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#removeProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
-   */
-  /**
-   * Removes the progress listener.
-   *
-   * @param l the l
-   */
+  /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.jpa.algo.Algorithm#cancel()
-   */
-  /**
-   * Cancel.
-   */
+  /* see superclass */
   @Override
   public void cancel() {
     throw new UnsupportedOperationException("cannot cancel.");
@@ -464,7 +422,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     /** Indicates subclass relationships NOTE: this assumes a single superclass. */
     Map<String, Boolean> parentCodeHasChildrenMap = new HashMap<>();
 
-    /** The rubric id of the "preferred" rubric */
+    /** The rubric id of the "preferred" rubric. */
     Map<String, String> preferredRubricMap = new HashMap<>();
 
     /**
@@ -479,12 +437,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       super();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
-     * java.lang.String, java.lang.String, org.xml.sax.Attributes)
-     */
+    /* see superclass */
     @Override
     public void startElement(String uri, String localName, String qName,
       Attributes attributes) throws SAXException {
@@ -668,12 +621,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xml.sax.helpers.DefaultHandler#endElement(java.lang.String,
-     * java.lang.String, java.lang.String)
-     */
+    /* see superclass */
     @Override
     public void endElement(String uri, String localName, String qName)
       throws SAXException {
@@ -789,7 +737,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
                         + " - "
                         + (atom.getName().replaceAll("\r", "").replaceAll("\n",
                             "")));
-            
+
             // Set the concept name to the "preferred" rubric
             if (rubricKind.equals("preferred")) {
               concept.setName(atom.getName());
@@ -934,21 +882,13 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xml.sax.helpers.DefaultHandler#characters(char[], int, int)
-     */
+    /* see superclass */
     @Override
     public void characters(char ch[], int start, int length) {
       chars.append(new String(ch, start, length));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xml.sax.helpers.DefaultHandler#endDocument()
-     */
+    /* see superclass */
     @Override
     public void endDocument() throws SAXException {
       // Add relationships now that all concepts have been created
@@ -1370,7 +1310,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
                     + conceptToModify.getTerminologyId() + ".X");
             final Concept placeholderConcept = new ConceptJpa();
             placeholderConcept.setName(" - PLACEHOLDER 4th digit");
-            placeholderConcept.setTerminologyId(conceptToModify.getTerminologyId() + ".X");
+            placeholderConcept.setTerminologyId(conceptToModify
+                .getTerminologyId() + ".X");
             placeholderConcept.setTerminology(terminology);
             placeholderConcept.setVersion(version);
             placeholderConcept.setLastModified(releaseVersionDate);
@@ -1446,7 +1387,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
             + concept.getTerminologyId());
         if (atom.getTermType().equals("preferred")) {
           copy.setName(parentConcept.getName() + " " + modConcept.getName());
-          preferredRubricMap.put(concept.getTerminologyId(), copy.getTerminologyId());
+          preferredRubricMap.put(concept.getTerminologyId(),
+              copy.getTerminologyId());
           preferredFound = true;
         }
         concept.addAtom(copy);
@@ -1474,7 +1416,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
       if (!preferredFound) {
         if (code.endsWith("X")) {
-          final Atom atom = createAtom(code, "preferred", parentConcept.getName(), concept.getTerminologyId());
+          final Atom atom =
+              createAtom(code, "preferred", parentConcept.getName(),
+                  concept.getTerminologyId());
           concept.addAtom(atom);
         } else {
           throw new Exception(
@@ -2090,9 +2034,11 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     term.setRootTerminology(root);
     addTerminology(term);
 
-    String[] labels = new String[] {
-        "Tree_Sort_Field", "Atoms_Label", "Attributes_Label", "Atom_Relationships_Label"
-    };
+    String[] labels =
+        new String[] {
+            "Tree_Sort_Field", "Atoms_Label", "Attributes_Label",
+            "Atom_Relationships_Label"
+        };
     String[] labelValues = new String[] {
         "nodeTerminologyId", "Rubrics", "Usage", "References"
     };

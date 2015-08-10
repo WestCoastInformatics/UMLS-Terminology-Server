@@ -49,54 +49,33 @@ public class RestPrimitiveJpa implements RestPrimitive {
     this.type = type;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.helpers.RestPrimitive#getValue()
-   */
+  /* see superclass */
   @Override
   @XmlElement(name = "value")
   public String getValue() {
     return value;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.helpers.RestPrimitive#setValue(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setValue(String value) {
     this.value = value;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.helpers.RestPrimitive#getType()
-   */
+  /* see superclass */
   @Override
   public String getType() {
     return type;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.helpers.RestPrimitive#setType(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setType(String type) {
     this.type = type;
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -106,11 +85,7 @@ public class RestPrimitiveJpa implements RestPrimitive {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

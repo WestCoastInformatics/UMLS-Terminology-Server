@@ -39,11 +39,6 @@ public class PfscParameterJpa extends PfsParameterJpa implements PfscParameter {
     searchCriteria = pfsc.getSearchCriteria();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PfscParameter#getSearchCriteria()
-   */
   @XmlElement(type = SearchCriteriaJpa.class)
   @Override
   public List<SearchCriteria> getSearchCriteria() {
@@ -53,13 +48,6 @@ public class PfscParameterJpa extends PfsParameterJpa implements PfscParameter {
     return searchCriteria;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.PfscParameter#addSearchCriteria(com.wci.umls
-   * .server.helpers.SearchCriteria)
-   */
   @Override
   public void addSearchCriteria(SearchCriteria criteria) {
     if (searchCriteria == null) {
@@ -68,22 +56,11 @@ public class PfscParameterJpa extends PfsParameterJpa implements PfscParameter {
     searchCriteria.add(criteria);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.PfscParameter#setSearchCriteria(java.util.List)
-   */
   @Override
   public void setSearchCriteria(List<SearchCriteria> searchCriteria) {
     this.searchCriteria = searchCriteria;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.helpers.PfsParameterJpa#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -94,12 +71,6 @@ public class PfscParameterJpa extends PfsParameterJpa implements PfscParameter {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.helpers.PfsParameterJpa#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -117,11 +88,7 @@ public class PfscParameterJpa extends PfsParameterJpa implements PfscParameter {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.helpers.PfsParameterJpa#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return super.toString() + ", searchCriteria = " + searchCriteria;

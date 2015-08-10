@@ -15,9 +15,9 @@ import javax.ws.rs.core.Response.Status.Family;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
@@ -41,13 +41,7 @@ public class MetadataClientRest extends RootClientRest implements
     this.config = config;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.MetadataServiceRest#getAllMetadata(java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public KeyValuePairLists getAllMetadata(String terminology, String version,
     String authToken) throws Exception {
@@ -78,14 +72,9 @@ public class MetadataClientRest extends RootClientRest implements
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.rest.MetadataServiceRest#
-   * getAllTerminologiesLatestVersions(java.lang.String)
-   */
+  /* see superclass */
   @Override
-  public KeyValuePairList getAllTerminologiesLatestVersions(String authToken)
+  public TerminologyList getAllTerminologiesLatestVersions(String authToken)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Metadata Client - get all terminologies latest versions");
@@ -105,22 +94,15 @@ public class MetadataClientRest extends RootClientRest implements
     }
 
     // converting to object
-    KeyValuePairList result =
-        (KeyValuePairList) ConfigUtility.getGraphForString(resultString,
-            KeyValuePairList.class);
+    TerminologyList result =
+        (TerminologyList) ConfigUtility.getGraphForString(resultString,
+            TerminologyList.class);
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.rest.MetadataServiceRest#getAllTerminologiesVersions
-   * (java.lang.String)
-   */
+  /* see superclass */
   @Override
-  public KeyValuePairLists getAllTerminologiesVersions(String authToken)
-    throws Exception {
+  public TerminologyList getTerminologies(String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Metadata Client - get all terminologyies versions");
     Client client = ClientBuilder.newClient();
@@ -139,19 +121,13 @@ public class MetadataClientRest extends RootClientRest implements
     }
 
     // converting to object
-    KeyValuePairLists result =
-        (KeyValuePairLists) ConfigUtility.getGraphForString(resultString,
-            KeyValuePairLists.class);
+    TerminologyList result =
+        (TerminologyList) ConfigUtility.getGraphForString(resultString,
+            TerminologyList.class);
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.rest.MetadataServiceRest#getTerminology
-   * (java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public Terminology getTerminology(String terminology, String version,
     String authToken) throws Exception {
@@ -162,8 +138,8 @@ public class MetadataClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/metadata/terminology/" + terminology + "/" + version);
+        client.target(config.getProperty("base.url") + "/metadata/terminology/"
+            + terminology + "/" + version);
     Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -181,13 +157,7 @@ public class MetadataClientRest extends RootClientRest implements
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.rest.MetadataServiceRest#
-   * getDefaultPrecedenceList (java.lang.String, java.lang.String,
-   * java.lang.String)
-   */
+  /* see superclass */
   @Override
   public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version, String authToken) throws Exception {

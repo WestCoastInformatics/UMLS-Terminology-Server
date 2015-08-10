@@ -17,25 +17,13 @@ import com.wci.umls.server.model.content.Concept;
  */
 public class DefaultValidationCheck extends AbstractValidationCheck {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
-   * )
-   */
+  /* see superclass */
   @Override
   public void setProperties(Properties p) {
     // n/a
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.ValidationCheck#validate(com.wci.
-   * umls.server.model.content.Concept)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validate(Concept c) {
     ValidationResult result = new ValidationResultJpa();
@@ -43,30 +31,30 @@ public class DefaultValidationCheck extends AbstractValidationCheck {
     return result;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.validation.AbstractValidationCheck#validate(com.wci.umls.server.model.content.Atom)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validate(Atom atom) {
     ValidationResult result = new ValidationResultJpa();
 
-    if (atom == null) {     
+    if (atom == null) {
       return null;
     }
-    
+
     if (atom.getName() == null) {
-       result.addError("Atom does not have a preferred name.");
-       return result;
+      result.addError("Atom does not have a preferred name.");
+      return result;
     }
-    
+
     // Check for leading whitespace
-    if (atom.getName().length() > 0 && Character.isWhitespace(atom.getName().charAt(0))) {
+    if (atom.getName().length() > 0
+        && Character.isWhitespace(atom.getName().charAt(0))) {
       result.addError("Atom name contains leading whitespace.");
     }
 
     // Check for trailing whitespace
-    if (atom.getName().length() > 0 && Character.isWhitespace(
-        atom.getName().charAt(atom.getName().length() - 1))) {
+    if (atom.getName().length() > 0
+        && Character.isWhitespace(atom.getName().charAt(
+            atom.getName().length() - 1))) {
       result.addError("Atom name contains trailing whitespace.");
     }
 

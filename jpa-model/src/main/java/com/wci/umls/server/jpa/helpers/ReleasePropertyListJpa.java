@@ -20,22 +20,14 @@ import com.wci.umls.server.jpa.ReleasePropertyJpa;
 public class ReleasePropertyListJpa extends AbstractResultList<ReleaseProperty>
     implements ReleasePropertyList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = ReleasePropertyJpa.class, name = "releaseProperty")
   public List<ReleaseProperty> getObjects() {
     return super.getObjectsTransient();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "ReleasePropertyListJpa [releaseProperties =" + getObjects()

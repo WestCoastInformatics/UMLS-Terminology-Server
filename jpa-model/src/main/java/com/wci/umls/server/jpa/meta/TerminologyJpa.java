@@ -232,34 +232,18 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     rootTerminology.setTerminology(abbreviation);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#getStartDate()
-   */
   /* see superclass */
   @Override
   public Date getStartDate() {
     return startDate;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Terminology#setStartDate(java.util.Date)
-   */
   /* see superclass */
   @Override
   public void setStartDate(Date startDate) {
     this.startDate = startDate;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Terminology#getSynonymousNames()
-   */
   /* see superclass */
   @Override
   public List<String> getSynonymousNames() {

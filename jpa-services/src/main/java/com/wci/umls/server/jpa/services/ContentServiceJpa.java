@@ -286,24 +286,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.ContentService#getConcept(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public Concept getConcept(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get concept " + id);
     return getComponent(id, ConceptJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getConcepts(java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public ConceptList getConcepts(String terminologyId, String terminology,
@@ -322,13 +312,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getConcept(java.lang.String,
-   * java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public Concept getConcept(String terminologyId, String terminology,
     String version, String branch) throws Exception {
@@ -339,13 +323,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         ConceptJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#addConcept(com.wci.umls.server
-   * .model.content.Concept)
-   */
+  /* see superclass */
   @Override
   public Concept addConcept(Concept concept) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -374,13 +352,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newConcept;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#updateConcept(com.wci.umls.
-   * server.model.content.Concept)
-   */
+  /* see superclass */
   @Override
   public void updateConcept(Concept concept) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -413,12 +385,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#removeConcept(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void removeConcept(Long id) throws Exception {
     Logger.getLogger(getClass())
@@ -433,6 +400,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public Subset getSubset(Long id, Class<? extends Subset> subsetClass)
     throws Exception {
@@ -448,6 +416,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public Subset getSubset(String terminologyId, String terminology,
     String version, String branch, Class<? extends Subset> subsetClass)
@@ -472,6 +441,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public SubsetList getAtomSubsets(String terminology, String version,
     String branch) throws Exception {
@@ -498,6 +468,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public SubsetList getConceptSubsets(String terminology, String version,
     String branch) throws Exception {
@@ -524,14 +495,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findAtomSubsetMembers(java.
-   * lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public SubsetMemberList findAtomSubsetMembers(String subsetId,
@@ -561,6 +525,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public SubsetMemberList findConceptSubsetMembers(String subsetId,
@@ -590,13 +555,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getSubsetMembersForAtom(java
-   * .lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public SubsetMemberList getSubsetMembersForAtom(String atomId,
@@ -632,13 +591,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getSubsetMembersForConcept(
-   * java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public SubsetMemberList getSubsetMembersForConcept(String conceptId,
@@ -673,6 +626,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public SubsetList getAllSubsets(String terminology, String version,
     String branch) throws Exception {
@@ -696,6 +650,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public Definition getDefinition(Long id) throws Exception {
     Logger.getLogger(getClass())
@@ -703,6 +658,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return getComponent(id, DefinitionJpa.class);
   }
 
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public DefinitionList getDefinitions(String terminologyId,
@@ -721,6 +677,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
+  /* see superclass */
   @Override
   public Definition getDefinition(String terminologyId, String terminology,
     String version, String branch) throws Exception {
@@ -731,6 +688,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         DefinitionJpa.class);
   }
 
+  /* see superclass */
   @Override
   public Definition addDefinition(Definition definition,
     ComponentHasDefinitions component) throws Exception {
@@ -760,6 +718,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newDefinition;
   }
 
+  /* see superclass */
   @Override
   public void updateDefinition(Definition definition,
     ComponentHasDefinitions component) throws Exception {
@@ -795,13 +754,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#removeDefinition(java.lang.
-   * Long)
-   */
+  /* see superclass */
   @Override
   public void removeDefinition(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -816,6 +769,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public SemanticTypeComponent addSemanticTypeComponent(
     SemanticTypeComponent semanticTypeComponent, Concept concept)
@@ -849,6 +803,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newSemanticTypeComponent;
   }
 
+  /* see superclass */
   @Override
   public void updateSemanticTypeComponent(
     SemanticTypeComponent semanticTypeComponent, Concept concept)
@@ -888,13 +843,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#removeSemanticTypeComponent
-   * (java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void removeSemanticTypeComponent(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -911,12 +860,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getDescriptor(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public Descriptor getDescriptor(Long id) throws Exception {
     Logger.getLogger(getClass())
@@ -924,13 +868,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return getComponent(id, DescriptorJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getDescriptors(java.lang.String
-   * , java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public DescriptorList getDescriptors(String terminologyId,
@@ -949,13 +887,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getDescriptor(java.lang.String,
-   * java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public Descriptor getDescriptor(String terminologyId, String terminology,
     String version, String branch) throws Exception {
@@ -966,13 +898,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         DescriptorJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#addDescriptor(com.wci.umls.
-   * server.model.content.Descriptor)
-   */
+  /* see superclass */
   @Override
   public Descriptor addDescriptor(Descriptor descriptor) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1001,13 +927,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newDescriptor;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#updateDescriptor(com.wci.umls
-   * .server.model.content.Descriptor)
-   */
+  /* see superclass */
   @Override
   public void updateDescriptor(Descriptor descriptor) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1040,13 +960,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#removeDescriptor(java.lang.
-   * Long)
-   */
+  /* see superclass */
   @Override
   public void removeDescriptor(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1061,11 +975,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.ContentService#getCode(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public Code getCode(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get code " + id);
@@ -1073,12 +983,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return c;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.ContentService#getCodes(java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public CodeList getCodes(String terminologyId, String terminology,
@@ -1097,12 +1002,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.ContentService#getCode(java.lang.String,
-   * java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public Code getCode(String terminologyId, String terminology, String version,
     String branch) throws Exception {
@@ -1113,13 +1013,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         CodeJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#addCode(com.wci.umls.server
-   * .model.content.Code)
-   */
+  /* see superclass */
   @Override
   public Code addCode(Code code) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - add code " + code);
@@ -1147,13 +1041,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newCode;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#updateCode(com.wci.umls.server
-   * .model.content.Code)
-   */
+  /* see superclass */
   @Override
   public void updateCode(Code code) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - update code " + code);
@@ -1185,11 +1073,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.ContentService#removeCode(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void removeCode(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - remove code " + id);
@@ -1203,12 +1087,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getLexicalClass(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public LexicalClass getLexicalClass(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1216,13 +1095,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return getComponent(id, LexicalClassJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getLexicalClasses(java.lang
-   * .String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public LexicalClassList getLexicalClasses(String terminologyId,
@@ -1243,13 +1116,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getLexicalClass(java.lang.String
-   * , java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public LexicalClass getLexicalClass(String terminologyId, String terminology,
     String version, String branch) throws Exception {
@@ -1260,13 +1127,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         LexicalClassJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#addLexicalClass(com.wci.umls
-   * .server.model.content.LexicalClass)
-   */
+  /* see superclass */
   @Override
   public LexicalClass addLexicalClass(LexicalClass lexicalClass)
     throws Exception {
@@ -1297,13 +1158,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newLexicalClass;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#updateLexicalClass(com.wci.
-   * umls.server.model.content.LexicalClass)
-   */
+  /* see superclass */
   @Override
   public void updateLexicalClass(LexicalClass lexicalClass) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1337,13 +1192,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#removeLexicalClass(java.lang
-   * .Long)
-   */
+  /* see superclass */
   @Override
   public void removeLexicalClass(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1359,12 +1208,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getStringClass(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public StringClass getStringClass(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1372,13 +1216,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return getComponent(id, StringClassJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getStringClasses(java.lang.
-   * String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public StringClassList getStringClasses(String terminologyId,
@@ -1397,13 +1235,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getStringClass(java.lang.String
-   * , java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public StringClass getStringClass(String terminologyId, String terminology,
     String version, String branch) throws Exception {
@@ -1414,13 +1246,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         StringClass.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#addStringClass(com.wci.umls
-   * .server.model.content.StringClass)
-   */
+  /* see superclass */
   @Override
   public StringClass addStringClass(StringClass stringClass) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1450,13 +1276,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newStringClass;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#updateStringClass(com.wci.umls
-   * .server.model.content.StringClass)
-   */
+  /* see superclass */
   @Override
   public void updateStringClass(StringClass stringClass) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1490,13 +1310,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#removeStringClass(java.lang
-   * .Long)
-   */
+  /* see superclass */
   @Override
   public void removeStringClass(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -1512,14 +1326,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findDescendantConcepts(java
-   * .lang.String, java.lang.String, java.lang.String, boolean,
-   * java.lang.String, com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @Override
   public ConceptList findDescendantConcepts(String terminologyId,
     String terminology, String version, boolean childrenOnly, String branch,
@@ -1538,14 +1345,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findAncestorConcepts(java.lang
-   * .String, java.lang.String, java.lang.String, boolean, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @Override
   public ConceptList findAncestorConcepts(String terminologyId,
     String terminology, String version, boolean parentsOnly, String branch,
@@ -1682,14 +1482,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return query.getResultList();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findDescendantDescriptors(java
-   * .lang.String, java.lang.String, java.lang.String, boolean,
-   * java.lang.String, com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @Override
   public DescriptorList findDescendantDescriptors(String terminologyId,
     String terminology, String version, boolean childrenOnly, String branch,
@@ -1708,14 +1501,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findAncestorDescriptors(java
-   * .lang.String, java.lang.String, java.lang.String, boolean,
-   * java.lang.String, com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @Override
   public DescriptorList findAncestorDescriptors(String terminologyId,
     String terminology, String version, boolean childrenOnly, String branch,
@@ -1734,14 +1520,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findDescendantCodes(java.lang
-   * .String, java.lang.String, java.lang.String, boolean, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @Override
   public CodeList findDescendantCodes(String terminologyId, String terminology,
     String version, boolean childrenOnly, String branch, PfsParameter pfs)
@@ -1760,14 +1539,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findAncestorCodes(java.lang
-   * .String, java.lang.String, java.lang.String, boolean, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @Override
   public CodeList findAncestorCodes(String terminologyId, String terminology,
     String version, boolean parentsOnly, String branch, PfsParameter pfs)
@@ -1786,23 +1558,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.ContentService#getAtom(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public Atom getAtom(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get atom " + id);
     return getComponent(id, AtomJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.ContentService#getAtoms(java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public AtomList getAtoms(String terminologyId, String terminology,
@@ -1821,12 +1584,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.ContentService#getAtom(java.lang.String,
-   * java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public Atom getAtom(String terminologyId, String terminology, String version,
     String branch) throws Exception {
@@ -1837,13 +1595,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         AtomJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#addAtom(com.wci.umls.server
-   * .model.content.Atom)
-   */
+  /* see superclass */
   @Override
   public Atom addAtom(Atom atom) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - add atom " + atom);
@@ -1874,13 +1626,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newAtom;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#updateAtom(com.wci.umls.server
-   * .model.content.Atom)
-   */
+  /* see superclass */
   @Override
   public void updateAtom(Atom atom) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - update atom " + atom);
@@ -1906,11 +1652,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.ContentService#removeAtom(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void removeAtom(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - remove atom " + id);
@@ -1924,6 +1666,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
     Long id,
@@ -1949,6 +1692,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public RelationshipList getRelationships(
@@ -1995,6 +1739,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
+  /* see superclass */
   @Override
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
     String terminologyId,
@@ -2028,13 +1773,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return rel;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#addRelationship(com.wci.umls
-   * .server.model.content.Relationship)
-   */
+  /* see superclass */
   @Override
   public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> addRelationship(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel)
@@ -2066,13 +1805,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newRel;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#updateRelationship(com.wci.
-   * umls.server.model.content.Relationship)
-   */
+  /* see superclass */
   @Override
   public void updateRelationship(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel)
@@ -2109,6 +1842,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public void removeRelationship(
@@ -2133,6 +1867,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public TransitiveRelationship<? extends AtomClass> getTransitiveRelationship(
     Long id,
@@ -2155,14 +1890,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#addTransitiveRelationship(com
-   * .wci.umls.server.model.content.TransitiveRelationship)
-   */
-
+  /* see superclass */
   @Override
   public TransitiveRelationship<? extends ComponentHasAttributes> addTransitiveRelationship(
     TransitiveRelationship<? extends ComponentHasAttributes> rel)
@@ -2188,13 +1916,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newRel;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#updateTransitiveRelationship
-   * (com.wci.umls.server.model.content.TransitiveRelationship)
-   */
+  /* see superclass */
   @Override
   public void updateTransitiveRelationship(
     TransitiveRelationship<? extends ComponentHasAttributes> rel)
@@ -2225,6 +1947,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public void removeTransitiveRelationship(
     Long id,
@@ -2238,6 +1961,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     removeComponent(id, rel.getClass());
   }
 
+  /* see superclass */
   @Override
   public TreePosition<? extends AtomClass> getTreePosition(Long id,
     Class<? extends TreePosition<? extends AtomClass>> treeposClass)
@@ -2259,6 +1983,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public TreePosition<? extends ComponentHasAttributesAndName> addTreePosition(
     TreePosition<? extends ComponentHasAttributesAndName> treepos)
@@ -2284,6 +2009,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newTreepos;
   }
 
+  /* see superclass */
   @Override
   public void updateTreePosition(
     TreePosition<? extends ComponentHasAttributesAndName> treepos)
@@ -2314,6 +2040,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public void removeTreePosition(Long id,
     Class<? extends TreePosition<? extends AtomClass>> treeposClass)
@@ -2325,13 +2052,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     removeComponent(id, treepos.getClass());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#addSubset(com.wci.umls.server
-   * .model.content.Subset)
-   */
+  /* see superclass */
   @Override
   public Subset addSubset(Subset subset) throws Exception {
     Logger.getLogger(getClass())
@@ -2363,13 +2084,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newSubset;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#updateSubset(com.wci.umls.server
-   * .model.content.Subset)
-   */
+  /* see superclass */
   @Override
   public void updateSubset(Subset subset) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -2396,6 +2111,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public void removeSubset(Long id, Class<? extends Subset> subsetClass)
     throws Exception {
@@ -2416,6 +2132,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
+  /* see superclass */
   @Override
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
     Long id,
@@ -2436,6 +2153,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public SubsetMemberList getSubsetMembers(
@@ -2473,6 +2191,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
+  /* see superclass */
   @Override
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
     String terminologyId,
@@ -2500,13 +2219,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#addSubsetMember(com.wci.umls
-   * .server.model.content.SubsetMember)
-   */
+  /* see superclass */
   @Override
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> addSubsetMember(
     SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> subsetMember)
@@ -2542,13 +2255,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newSubsetMember;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#updateSubsetMember(com.wci.
-   * umls.server.model.content.SubsetMember)
-   */
+  /* see superclass */
   @Override
   public void updateSubsetMember(
     SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> subsetMember)
@@ -2580,13 +2287,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#removeSubsetMember(java.lang
-   * .Long)
-   */
+  /* see superclass */
   @Override
   public void removeSubsetMember(
     Long id,
@@ -2606,25 +2307,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getAttribute(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public Attribute getAttribute(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get attribute " + id);
     return getComponent(id, AttributeJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getAttributes(java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public AttributeList getAttributes(String terminologyId, String terminology,
@@ -2643,13 +2333,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return list;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getAttribute(java.lang.String,
-   * java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public Attribute getAttribute(String terminologyId, String terminology,
     String version, String branch) throws Exception {
@@ -2660,6 +2344,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         AttributeJpa.class);
   }
 
+  /* see superclass */
   @Override
   public Attribute addAttribute(Attribute attribute,
     ComponentHasAttributes component) throws Exception {
@@ -2689,6 +2374,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return newAttribute;
   }
 
+  /* see superclass */
   @Override
   public void updateAttribute(Attribute attribute,
     ComponentHasAttributes component) throws Exception {
@@ -2723,12 +2409,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#removeAttribute(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void removeAttribute(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
@@ -2743,14 +2424,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findConceptsForQuery(java.lang
-   * .String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfscParameter)
-   */
+  /* see superclass */
   @Override
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String branch, String query, PfscParameter pfsc)
@@ -2762,13 +2436,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         ConceptJpa.class, ConceptJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#autocompleteConcepts(java.lang
-   * .String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public StringList autocompleteConcepts(String terminology, String version,
     String searchTerm) throws Exception {
@@ -2779,14 +2447,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         ConceptJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findDescriptorsForQuery(java
-   * .lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfscParameter)
-   */
+  /* see superclass */
   @Override
   public SearchResultList findDescriptorsForQuery(String terminology,
     String version, String branch, String query, PfscParameter pfsc)
@@ -2798,13 +2459,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         DescriptorJpa.class, DescriptorJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#autocompleteDescriptors(java
-   * .lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public StringList autocompleteDescriptors(String terminology, String version,
     String searchTerm) throws Exception {
@@ -3173,6 +2828,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /**
    * Returns the search criteria results.
    *
+   * @param <T> the
    * @param terminology the terminology
    * @param version the version
    * @param criteria the criteria
@@ -3319,6 +2975,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   /**
    * Autocomplete helper.
    *
+   * @param <T> the
    * @param terminology the terminology
    * @param version the version
    * @param searchTerm the search term
@@ -3429,14 +3086,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return nameAnalyzedPairs;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findCodesForQuery(java.lang
-   * .String, java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @Override
   public SearchResultList findCodesForQuery(String terminology, String version,
     String branch, String query, PfscParameter pfsc) throws Exception {
@@ -3447,13 +3097,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         CodeJpa.class, CodeJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#autocompleteCodes(java.lang
-   * .String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public StringList autocompleteCodes(String terminology, String version,
     String searchTerm) throws Exception {
@@ -3463,13 +3107,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return autocompleteHelper(terminology, version, searchTerm, CodeJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getAllConcepts(java.lang.String
-   * , java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public ConceptList getAllConcepts(String terminology, String version,
     String branch) {
@@ -3498,13 +3136,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getAllDescriptors(java.lang
-   * .String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public DescriptorList getAllDescriptors(String terminology, String version,
     String branch) {
@@ -3534,13 +3166,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getAllCodes(java.lang.String,
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public CodeList getAllCodes(String terminology, String version, String branch) {
     Logger.getLogger(getClass()).debug(
@@ -3568,13 +3194,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#clearTransitiveClosure(java
-   * .lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void clearTransitiveClosure(String terminology, String version)
     throws Exception {
@@ -3634,13 +3254,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#clearTreePositions(java.lang
-   * .String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void clearTreePositions(String terminology, String version)
     throws Exception {
@@ -3699,24 +3313,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#clearBranch(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void clearBranch(String branch) {
     // TODO: part of implementing branching
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getIdentifierAssignmentHandler
-   * (java.lang.String)
-   */
+  /* see superclass */
   @Override
   public IdentifierAssignmentHandler getIdentifierAssignmentHandler(
     String terminology) throws Exception {
@@ -3727,13 +3330,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getComputePreferredNameHandler
-   * (java.lang.String)
-   */
+  /* see superclass */
   @Override
   public ComputePreferredNameHandler getComputePreferredNameHandler(
     String terminology) throws Exception {
@@ -3743,13 +3340,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return pnHandlerMap.get(ConfigUtility.DEFAULT);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getComputedPreferredName(com
-   * .wci.umls.server.model.content.AtomClass)
-   */
+  /* see superclass */
   @Override
   public String getComputedPreferredName(AtomClass atomClass) throws Exception {
     try {
@@ -3774,64 +3365,31 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getNormalizedString(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public String getNormalizedString(String string) throws Exception {
     return normalizedStringHandler.getNormalizedString(string);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.services.ContentService#isLastModifiedFlag()
-   */
-  /**
-   * Indicates whether or not last modified flag is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  /* see superclass */
   @Override
   public boolean isLastModifiedFlag() {
     return lastModifiedFlag;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.services.MetadataServiceJpa#setLastModifiedFlag
-   * (boolean)
-   */
+  /* see superclass */
   @Override
   public void setLastModifiedFlag(boolean lastModifiedFlag) {
     this.lastModifiedFlag = lastModifiedFlag;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#setAssignIdentifiersFlag(boolean
-   * )
-   */
+  /* see superclass */
   @Override
   public void setAssignIdentifiersFlag(boolean assignIdentifiersFlag) {
     this.assignIdentifiersFlag = assignIdentifiersFlag;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#getComponentStats(java.lang
-   * .String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public Map<String, Integer> getComponentStats(String terminology,
     String version, String branch) throws Exception {
@@ -4083,14 +3641,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findRelationshipsForConcept
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * boolean, com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @Override
   public RelationshipList findRelationshipsForConcept(String conceptId,
     String terminology, String version, String branch, String query,
@@ -4104,14 +3655,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         branch, query, inverseFlag, pfs, ConceptRelationshipJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findDeepRelationshipsForConcept
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * boolean, com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @SuppressWarnings({
       "rawtypes", "unchecked"
   })
@@ -4285,14 +3829,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findRelationshipsForDescriptor
-   * (java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * boolean, com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @Override
   public RelationshipList findRelationshipsForDescriptor(String descriptorId,
     String terminology, String version, String branch, String query,
@@ -4308,14 +3845,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findRelationshipsForCode(java
-   * .lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * boolean, com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @Override
   public RelationshipList findRelationshipsForCode(String codeId,
     String terminology, String version, String branch, String query,
@@ -4389,6 +3919,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
+  /* see superclass */
   @Override
   public TreePositionList findTreePositionsForConcept(String terminologyId,
     String terminology, String version, String branch, PfsParameter pfs)
@@ -4400,6 +3931,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "", pfs, ConceptTreePositionJpa.class);
   }
 
+  /* see superclass */
   @Override
   public TreePositionList findTreePositionsForDescriptor(String terminologyId,
     String terminology, String version, String branch, PfsParameter pfs)
@@ -4411,6 +3943,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "", pfs, DescriptorTreePositionJpa.class);
   }
 
+  /* see superclass */
   @Override
   public TreePositionList findTreePositionsForCode(String terminologyId,
     String terminology, String version, String branch, PfsParameter pfs)
@@ -4434,7 +3967,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @param pfs the pfs
    * @param clazz the clazz
    * @return the tree position list
-   * @throws Exception
+   * @throws Exception the exception
    */
   @SuppressWarnings({
       "unchecked", "rawtypes"
@@ -4496,14 +4029,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findCodesForGeneralQuery(java
-   * .lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @Override
   public SearchResultList findCodesForGeneralQuery(String luceneQuery,
     String jqlQuery, String branch, PfsParameter pfs) throws Exception {
@@ -4513,14 +4039,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         CodeJpa.class, CodeJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findConceptsForGeneralQuery
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @Override
   public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
     String jqlQuery, String branch, PfsParameter pfs) throws Exception {
@@ -4532,14 +4051,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         ConceptJpa.class, ConceptJpa.class);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.ContentService#findDescriptorsForGeneralQuery
-   * (java.lang.String, java.lang.String, java.lang.String,
-   * com.wci.umls.server.helpers.PfsParameter)
-   */
+  /* see superclass */
   @Override
   public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
     String jqlQuery, String branch, PfsParameter pfs) throws Exception {
@@ -4550,6 +4062,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         DescriptorJpa.class, DescriptorJpa.class);
   }
 
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public Tree getTreeForTreePosition(
@@ -4831,6 +4344,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return query;
   }
 
+  /* see superclass */
   @Override
   public TreePositionList findConceptTreePositionsForQuery(String terminology,
     String version, String branch, String query, PfsParameter pfs)
@@ -4842,6 +4356,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         query, pfs, ConceptTreePositionJpa.class);
   }
 
+  /* see superclass */
   @Override
   public TreePositionList findDescriptorTreePositionsForQuery(
     String terminology, String version, String branch, String query,
@@ -4853,6 +4368,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         query, pfs, DescriptorTreePositionJpa.class);
   }
 
+  /* see superclass */
   @Override
   public TreePositionList findCodeTreePositionsForQuery(String terminology,
     String version, String branch, String query, PfsParameter pfs)
@@ -4864,6 +4380,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         query, pfs, CodeTreePositionJpa.class);
   }
 
+  /* see superclass */
   @Override
   public TreePositionList findConceptTreePositionChildren(String terminologyId,
     String terminology, String version, String branch, PfsParameter pfs)
@@ -4876,6 +4393,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         branch, pfs, ConceptTreePositionJpa.class);
   }
 
+  /* see superclass */
   @Override
   public TreePositionList findDescriptorTreePositionChildren(
     String terminologyId, String terminology, String version, String branch,
@@ -4888,6 +4406,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         branch, pfs, DescriptorTreePositionJpa.class);
   }
 
+  /* see superclass */
   @Override
   public TreePositionList findCodeTreePositionChildren(String terminologyId,
     String terminology, String version, String branch, PfsParameter pfs)

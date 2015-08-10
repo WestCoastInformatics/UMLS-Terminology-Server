@@ -67,11 +67,7 @@ public abstract class RootServiceJpa implements RootService {
     tx = manager.getTransaction();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.services.RootService#openFactory()
-   */
+  /* see superclass */
   @Override
   public void openFactory() throws Exception {
 
@@ -87,11 +83,7 @@ public abstract class RootServiceJpa implements RootService {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.services.RootService#closeFactory()
-   */
+  /* see superclass */
   @Override
   public void closeFactory() throws Exception {
     if (factory.isOpen()) {
@@ -99,35 +91,19 @@ public abstract class RootServiceJpa implements RootService {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.services.MappingService#getTransactionPerOperation
-   * ()
-   */
+  /* see superclass */
   @Override
   public boolean getTransactionPerOperation() {
     return transactionPerOperation;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.services.MappingService#setTransactionPerOperation
-   * (boolean)
-   */
+  /* see superclass */
   @Override
   public void setTransactionPerOperation(boolean transactionPerOperation) {
     this.transactionPerOperation = transactionPerOperation;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.services.MappingService#beginTransaction()
-   */
+  /* see superclass */
   @Override
   public void beginTransaction() throws Exception {
 
@@ -142,11 +118,7 @@ public abstract class RootServiceJpa implements RootService {
     tx.begin();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.services.MappingService#commit()
-   */
+  /* see superclass */
   @Override
   public void commit() throws Exception {
 
@@ -163,11 +135,7 @@ public abstract class RootServiceJpa implements RootService {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.services.RootService#rollback()
-   */
+  /* see superclass */
   @Override
   public void rollback() throws Exception {
 
@@ -184,11 +152,7 @@ public abstract class RootServiceJpa implements RootService {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.services.RootService#close()
-   */
+  /* see superclass */
   @Override
   public void close() throws Exception {
     if (manager.isOpen()) {
@@ -196,11 +160,7 @@ public abstract class RootServiceJpa implements RootService {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.services.RootService#clear()
-   */
+  /* see superclass */
   @Override
   public void clear() throws Exception {
     if (manager.isOpen()) {

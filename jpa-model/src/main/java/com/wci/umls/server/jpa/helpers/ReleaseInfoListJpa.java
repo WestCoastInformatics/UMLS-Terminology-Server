@@ -20,22 +20,14 @@ import com.wci.umls.server.jpa.ReleaseInfoJpa;
 public class ReleaseInfoListJpa extends AbstractResultList<ReleaseInfo>
     implements ReleaseInfoList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.AbstrazctResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = ReleaseInfoJpa.class, name = "releaseInfo")
   public List<ReleaseInfo> getObjects() {
     return super.getObjectsTransient();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "ReleaseInfoListJpa [releaseInfos=" + getObjects() + ", getCount()="

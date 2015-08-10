@@ -36,13 +36,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     super();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.ProjectService#getConceptsInScope(org.ihtsdo
-   * .otf.ts.Project)
-   */
+  /* see superclass */
   @Override
   public ConceptList findConceptsInScope(Project project, PfsParameter pfs)
     throws Exception {
@@ -60,11 +54,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.services.ProjectService#getProject(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public Project getProject(Long id) {
     Logger.getLogger(getClass()).debug("Project Service - get project " + id);
@@ -73,11 +63,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     return project;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.services.ProjectService#getProjects()
-   */
+  /* see superclass */
   @Override
   @SuppressWarnings("unchecked")
   public ProjectList getProjects() {
@@ -97,13 +83,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.ProjectService#getUserRoleForProject(java.lang
-   * .String, java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public UserRole getUserRoleForProject(String username, Long projectId)
     throws Exception {
@@ -139,13 +119,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.ProjectService#addProject(org.ihtsdo.otf.ts.
-   * Project)
-   */
+  /* see superclass */
   @Override
   public Project addProject(Project project) {
     Logger.getLogger(getClass()).debug(
@@ -172,13 +146,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.ProjectService#updateProject(org.ihtsdo.otf.
-   * ts.Project)
-   */
+  /* see superclass */
   @Override
   public void updateProject(Project project) {
     Logger.getLogger(getClass()).debug(
@@ -205,12 +173,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.services.ProjectService#removeProject(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void removeProject(Long id) {
     Logger.getLogger(getClass())
@@ -352,6 +315,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     }
   }
 
+  /* see superclass */
   @Override
   public void refreshCaches() throws Exception {
     // n/a

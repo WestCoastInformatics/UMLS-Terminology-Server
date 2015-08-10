@@ -5,12 +5,15 @@ package com.wci.umls.server.jpa.helpers.content;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.content.Tree;
@@ -112,6 +115,7 @@ public class TreeJpa implements Tree {
     this.labels = treePosition.getNode().getLabels();
   }
 
+  /* see superclass */
   @Override
   public void mergeTree(Tree tree, String sortField) throws Exception {
 
@@ -144,154 +148,91 @@ public class TreeJpa implements Tree {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#getId()
-   */
+  /* see superclass */
   @Override
   public Long getId() {
     return id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#setId(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void setId(Long id) {
     this.id = id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#getTerminology()
-   */
+  /* see superclass */
   @Override
   public String getTerminology() {
     return terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.content.Tree#setTerminology(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#getVersion()
-   */
+  /* see superclass */
   @Override
   public String getVersion() {
     return version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#setVersion(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#getNodeTerminologyId()
-   */
+  /* see superclass */
   @Override
   public String getNodeTerminologyId() {
     return nodeTerminologyId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.content.Tree#setNodeTerminologyId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setNodeTerminologyId(String terminologyId) {
     this.nodeTerminologyId = terminologyId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#getNodeName()
-   */
+  /* see superclass */
   @Override
   public String getNodeName() {
     return nodeName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#setNodeName(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setNodeName(String name) {
     this.nodeName = name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#getAncestorPath()
-   */
+  /* see superclass */
   @Override
   public String getAncestorPath() {
     return ancestorPath;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.content.Tree#setAncestorPath(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setAncestorPath(String ancestorPath) {
     this.ancestorPath = ancestorPath;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#getChildCt()
-   */
+  /* see superclass */
   @Override
   public int getChildCt() {
     return childCt;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#setChildCt(int)
-   */
+  /* see superclass */
   @Override
   public void setChildCt(int childCt) {
     this.childCt = childCt;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#getChildren()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = TreeJpa.class, name = "child")
   public List<Tree> getChildren() {
@@ -301,74 +242,44 @@ public class TreeJpa implements Tree {
     return children;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#setChildren(java.util.List)
-   */
+  /* see superclass */
   @Override
   public void setChildren(List<Tree> children) {
     this.children = children;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#getTotalCount()
-   */
+  /* see superclass */
   @Override
   public int getTotalCount() {
     return totalCount;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.content.Tree#setTotalCount(int)
-   */
+  /* see superclass */
   @Override
   public void setTotalCount(int totalCount) {
     this.totalCount = totalCount;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.content.Tree#addChild(com.wci.umls.server.helpers
-   * .content.Tree)
-   */
+  /* see superclass */
   @Override
   public void addChild(Tree child) {
     this.children.add(child);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#getLabels()
-   */
+  /* see superclass */
   @Override
   public List<String> getLabels() {
     return labels;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#setLabels(java.util.List)
-   */
+  /* see superclass */
   @Override
   public void setLabels(List<String> labels) {
     this.labels = labels;
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#addLabel(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void addLabel(String label) {
     if (labels == null) {
@@ -377,11 +288,7 @@ public class TreeJpa implements Tree {
     labels.add(label);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#removeLabel(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeLabel(String label) {
     if (labels == null) {
@@ -391,11 +298,7 @@ public class TreeJpa implements Tree {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -414,11 +317,7 @@ public class TreeJpa implements Tree {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -466,22 +365,38 @@ public class TreeJpa implements Tree {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "TreeJpa [id=" + id + ", terminology=" + terminology + ", version="
-        + version + ", terminologyId=" + nodeTerminologyId + ", name=" + nodeName
-        + ", ancestorPath=" + ancestorPath + ", childCt=" + childCt
+        + version + ", terminologyId=" + nodeTerminologyId + ", name="
+        + nodeName + ", ancestorPath=" + ancestorPath + ", childCt=" + childCt
         + ", totalCount=" + totalCount + ", children=" + children + "]";
   }
 
+  /* see superclass */
+  @XmlTransient
   @Override
   public List<Tree> getLeafNodes() throws Exception {
-    // TODO Reimplement this, was lost in a merge (damn you Git!)
-    return null;
+    Set<Tree> results = new HashSet<>();
+    getLeafNodesHelper(this, results);
+    // package as list
+    return new ArrayList<Tree>(results);
+  }
+
+  /**
+   * Returns the leaf nodes helper.
+   *
+   * @param tree the tree
+   * @param leafNodes the leaf nodes
+   */
+  private void getLeafNodesHelper(Tree tree, Set<Tree> leafNodes) {
+    if (tree.getChildren().size() == 0) {
+      leafNodes.add(tree);
+    } else {
+      for (Tree chd : getChildren()) {
+        getLeafNodesHelper(chd, leafNodes);
+      }
+    }
   }
 }

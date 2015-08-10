@@ -19,22 +19,14 @@ import com.wci.umls.server.helpers.SearchResultList;
 public class SearchResultListJpa extends AbstractResultList<SearchResult>
     implements SearchResultList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = SearchResultJpa.class, name = "searchResult")
   public List<SearchResult> getObjects() {
     return super.getObjectsTransient();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "SearchResultListJpa [searchResults=" + getObjects()

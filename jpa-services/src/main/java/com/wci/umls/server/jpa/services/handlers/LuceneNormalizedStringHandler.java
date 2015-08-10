@@ -23,24 +23,13 @@ import com.wci.umls.server.services.handlers.NormalizedStringHandler;
  */
 public class LuceneNormalizedStringHandler implements NormalizedStringHandler {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
-   * )
-   */
+  /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
     // n/a
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.NormalizedStringHandler#
-   * getNormalizedString(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public String getNormalizedString(String string) {
     List<String> result = new ArrayList<String>();

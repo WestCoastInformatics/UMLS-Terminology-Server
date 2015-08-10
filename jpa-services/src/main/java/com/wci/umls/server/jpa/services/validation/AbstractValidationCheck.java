@@ -18,25 +18,13 @@ import com.wci.umls.server.services.handlers.ValidationCheck;
  */
 public class AbstractValidationCheck implements ValidationCheck {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
-   * )
-   */
+  /* see superclass */
   @Override
   public void setProperties(Properties p) {
     // n/a
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.ValidationCheck#validate(com.wci.
-   * umls.server.model.content.Concept)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validate(Concept c) {
     ValidationResult result = new ValidationResultJpa();
@@ -44,13 +32,7 @@ public class AbstractValidationCheck implements ValidationCheck {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.ValidationCheck#validate(com.wci.
-   * umls.server.model.content.Descriptor)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validate(Descriptor descriptor) {
     ValidationResult result = new ValidationResultJpa();
@@ -58,13 +40,7 @@ public class AbstractValidationCheck implements ValidationCheck {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.ValidationCheck#validate(com.wci.
-   * umls.server.model.content.Code)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validate(Code code) {
     ValidationResult result = new ValidationResultJpa();
@@ -72,13 +48,7 @@ public class AbstractValidationCheck implements ValidationCheck {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.ValidationCheck#validate(com.wci.
-   * umls.server.model.content.Atom)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validate(Atom atom) {
     ValidationResult result = new ValidationResultJpa();
@@ -86,13 +56,7 @@ public class AbstractValidationCheck implements ValidationCheck {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.ValidationCheck#validateMerge(java
-   * .lang.String, java.lang.String, java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validateMerge(Concept concept1, Concept concept2) {
     ValidationResult result = new ValidationResultJpa();

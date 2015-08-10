@@ -63,7 +63,6 @@ import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 
-
 /**
  * Loads and serves configuration.
  */
@@ -191,6 +190,7 @@ public class ConfigUtility {
   /**
    * New handler instance.
    *
+   * @param <T> the
    * @param handler the handler
    * @param handlerClass the handler class
    * @param type the type
@@ -232,7 +232,7 @@ public class ConfigUtility {
    * @param handlerName the handler name
    * @param type the type
    * @return the t
-   * @throws Exception
+   * @throws Exception the exception
    */
   public static <T extends Configurable> T newStandardHandlerInstanceWithConfiguration(
     String property, String handlerName, Class<T> type) throws Exception {
@@ -612,11 +612,7 @@ public class ConfigUtility {
       // do nothing
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.mail.Authenticator#getPasswordAuthentication()
-     */
+    /* see superclass */
     @Override
     public PasswordAuthentication getPasswordAuthentication() {
       Properties config = null;

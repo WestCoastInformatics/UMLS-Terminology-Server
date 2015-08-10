@@ -2,7 +2,170 @@
 <div class="row">
 
   <!-- Content -->
-  <div class="col-md-12 col-xs-12">SAMPLE CONTENT PAGE</div>
+  <div class="col-md-12 col-xs-12">
+
+    <div>
+      <table class="table">
+        <tr>
+          <td width="15%;">Terminology</td>
+          <td width="85%;"><select width="100%" ng-model="metadata.terminology"
+            ng-change="setTerminology(metadata.terminology)"
+            ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
+
+            <button 
+              ng-disabled="metadata.terminology.metathesaurus"
+              class="btn btn-sm btn-primary" ng-click="browseHierarchy()"
+              tooltip="Click to browse top level hierarchy">Browse</button></td>
+        </tr>
+        <tr>
+          <td>Query</td>
+          <td><form width="100%">
+
+              <input type="text" ng-model="searchParams.query"
+                placeholder="Enter search terms"
+                typeahead="suggestion for suggestion in autocomplete($viewValue)"
+                typeahead-loading="loadingSuggestions"
+                typeahead-focus-first="false"
+                typeahead-on-select="findComponents(searchParams.query, 1, 1)"
+                typeahead-editable="true" typeahead-min-length="3">
+
+              <button class="btn btn-sm btn-primary" type="submit"
+                ng-click="findComponents(searchParams.query, 1, 1)">Search</button>
+              <button class="btn btn-sm btn-warning"
+                ng-show="searchParams.query"
+                ng-click="searchParams.query = ''; clearQuery()"
+                tooltip="Click to clear search">Clear</button>
+
+            </form></td>
+        </tr>
+      </table>
+    </div>
+    <!-- End search field -->
+    <!-- Search Results -->
+    <div class="row">
+
+      <!-- search results field is 3 columns -->
+      <div class="col-md-4 col-xs-12">
+
+        <div ng-show="queryForList">
+          <div class="alert alert-success" ng-show="searchResults.length > 0">
+            {{searchResults.totalCount}} Results
+            <a ng-show="!metadata.terminology.metathesaurus && searchParams.query"
+              class="pull-right glyphicon glyphicon-tree-conifer"
+              ng-click="setTreeView()" tooltip="Switch to tree view"></a>
+          </div>
+          <div class="alert alert-danger"
+            ng-show="searchParams.query && searchResults && searchResults.length == 0">
+            Search returned no results.
+            <a ng-show="!terminology.metathesaurus && searchParams.query"
+              class="pull-right glyphicon glyphicon-tree-conifer"
+              ng-click="setTreeView()" tooltip="Switch to tree view"></a>
+          </div>
+
+          <!--  Margin added to prevent crowding -->
+          <pagination items-per-page="pageSize" max-size="5"
+            boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
+            next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+            ng-show="searchResults.totalCount > pageSize"
+            total-items="searchResults.totalCount" ng-model="searchParams.page"
+            ng-change="findComponents(searchParams.query, searchParams.page)"></pagination>
+
+
+          <table class="table table-hover" style="margin-top: 10px;"
+            ng-show="searchResults.length > 0">
+
+            <tbody>
+              <tr ng-class="{active: searchResult.active}"
+                ng-repeat="searchResult in searchResults"
+                ng-click="getComponent(searchResult.terminologyId, searchResult.terminology, searchResult.version)">
+                <td><span
+                    ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>{{searchResult.terminologyId}}</td>
+                <td style="word-break: break-word;">{{searchResult.value}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tree view -->
+        <div ng-show="queryForTree">
+          <div class="alert alert-success"
+            ng-show="searchResultsTree.totalCount > 0">
+
+            {{searchResultsTree.totalCount}} Results
+            <span class="pull-right">
+
+              <a class="glyphicon glyphicon-star"
+                ng-show="showExtension && !terminology.metathesaurus && labelSets.length > 0 && searchParams.query"
+                tooltip="Click to hide extension highlights in tree"
+                ng-click="toggleExtension()"> </a>
+              <a class="glyphicon glyphicon-star-empty"
+                ng-show="!showExtension && !terminology.metathesaurus && labelSets.length > 0 && searchParams.query"
+                tooltip="Click to show extension highlights in tree"
+                ng-click="toggleExtension()"> </a>
+              &nbsp;
+              <a class="pull-right glyphicon glyphicon-th-list"
+                ng-show="searchParams.query" ng-click="setListView()"
+                tooltip="Switch to list view"> </a>
+            </span>
+          </div>
+          <div class="alert alert-danger"
+            ng-show="searchParams.query && searchResultsTree && searchResultsTree.totalCount == 0">
+            Search returned no results.
+            <span class="pull-right">
+              <a class="pull-right glyphicon glyphicon-th-list"
+                ng-click="setListView()" ng-show="searchParams.query"
+                tooltip="Switch to list view"> </a>
+            </span>
+          </div>
+
+          <pagination style="display:block;" items-per-page="treePageSize"
+            max-size="5" boundary-links="true" class="pagination-sm"
+            previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
+            last-text="&raquo;"
+            ng-show="searchResultsTree.totalCount > treePageSize"
+            total-items="searchResultsTree.totalCount"
+            ng-model="searchParams.page"
+            ng-change="findComponents(searchParams.query, searchParams.page, false)"></pagination>
+
+          <div ng-if="searchResultsTree && searchResultsTree.totalCount > 0"
+            style="display: block;" ui-tree>
+            <ol ui-tree-nodes="" ng-model="searchResultsTree" id="tree-root"
+              data-nodrop-enabled="true">
+              <li ng-repeat="tree in searchResultsTree" ui-tree-node data-nodrag
+                ng-include="'ui2/partials/searchResultsTree_renderer.html'"></li>
+            </ol>
+          </div>
+
+          <p style="display: block;">&nbsp;</p>
+        </div>
+
+      </div>
+
+      <!-- Component display -->
+      <div class="col-md-8 col-xs-12" ng-show="component.object != null">
+        <span ng-show="component.object.terminology != metadata.terminology.terminology">{{component.object.terminology}}</span>
+        {{component.type}} Report
+
+      </div>
+      <h3>
+        {{component.object.terminologyId}} {{component.object.name}}
+        <span class="label label-warning"
+          ng-show="metadata.terminology.metathesaurus && component.object.suppressible == true"
+          tooltip="Suppressible">S</span>
+        <span class="label label-default" ng-show="component.object.obsolete == true"
+          tooltip="Obsolete">O</span>
+        <span
+          ng-show="metadata.terminology.descriptionLogicTerminology && !component.object.fullyDefined"
+          class="label label-info" tooltip="Primitive">P</span>
+        <span style="padding-bottom: 2px;"
+          ng-show="metadata.terminology.descriptionLogicTerminology && component.object.fullyDefined"
+          class="label label-info" tooltip="Necessary and sufficient definition">D</span>
+      </h3>
+
+    </div>
+
+  </div>
+</div>
 
 
 
