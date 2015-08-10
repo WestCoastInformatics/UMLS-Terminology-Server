@@ -213,7 +213,7 @@ tsApp
           $scope.glassPane++;
           $http(
             {
-              url : metadataUrl + 'all/terminology/id/'
+              url : metadataUrl + 'all/terminology/'
                 + $scope.terminology.terminology + '/'
                 + $scope.terminology.version,
               method : "GET",
@@ -271,12 +271,12 @@ tsApp
               "Content-Type" : "text/plain"
             }
           }).success(function(data) {
-            console.log(name + " = " + data);
+            console.log("user", data);
 
             $scope.clearError();
 
-            $scope.userName = name;
-            $scope.authToken = data;
+            $scope.userName = data.userName;
+            $scope.authToken = data.authToken;
             $scope.password = "";
 
             // set request header
@@ -358,7 +358,7 @@ tsApp
             $scope.glassPane++;
             // login
             $http({
-              url : metadataUrl + 'terminology/id/' + name + '/' + version,
+              url : metadataUrl + 'terminology/' + name + '/' + version,
               method : "GET",
               headers : {
                 "Content-Type" : "text/plain"
@@ -394,67 +394,18 @@ tsApp
             headers : {
               "Content-Type" : "text/plain"
             }
-          })
-            .success(
-              function(data) {
-                $scope.terminologies = new Array();
-                // console
-                // .debug(
-                // "Retrieved terminologies:",
-                // data.keyValuePairList);
+          }).success(function(data) {
+            $scope.terminologies = new Array();
+            console.debug("Retrieved terminologies:", data);
 
-                // results are in pair list, want full terminologies
-                var ct = 0;
-                for (var i = 0; i < data.keyValuePairList.length; i++) {
-                  var pair = data.keyValuePairList[i].keyValuePair[0];
+            $scope.terminologies = data.terminology;
 
-                  var terminologyObj = {
-                    name : pair['key'],
-                    version : pair['value']
-                  };
+            $scope.glassPane--;
 
-                  // call helper function to get the full terminology object
-                  var terminologyObj = $scope.getTerminology(pair['key'],
-                    pair['value']);
-
-                  terminologyObj
-                    .then(
-                      function(terminology) {
-
-                        terminology.hidden = (terminology.terminology === 'MTH' || terminology.terminology === 'SRC');
-
-                        // add result to the list of terminologies
-                        $scope.terminologies.push(terminology);
-
-                        if (terminology.metathesaurus) {
-                          $scope.setTerminology(terminology);
-                        }
-
-                        // For icd server
-                        if (terminology.terminology === "ICD10CM") {
-                          $scope.setTerminology(terminology);
-                        }
-
-                        if (++ct == data.keyValuePairList.length
-                          && !$scope.terminology) {
-                          // If a "metathesaurus" wasn't found, pick the first
-                          if ($scope.terminologies[0]) {
-                            $scope.setTerminology($scope.terminologies[0]);
-                          }
-                        }
-
-                      }, function(reason) {
-                        // do error message here
-                      });
-
-                }
-
-                $scope.glassPane--;
-
-              }).error(function(data, status, headers, config) {
-              $scope.handleError(data, status, headers, config);
-              $scope.glassPane--;
-            });
+          }).error(function(data, status, headers, config) {
+            $scope.handleError(data, status, headers, config);
+            $scope.glassPane--;
+          });
         }
 
         /**
@@ -1021,7 +972,7 @@ tsApp
               $scope.searchResults = data.searchResult;
               $scope.searchResults.totalCount = data.totalCount;
 
-              if (loadFirst && $scope.searchResults.length>0) {
+              if (loadFirst && $scope.searchResults.length > 0) {
                 $scope.getComponent($scope.terminology.terminology,
                   $scope.searchResults[0].terminologyId);
               }

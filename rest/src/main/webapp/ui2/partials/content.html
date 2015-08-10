@@ -75,6 +75,7 @@
             ng-show="searchResults.length > 0">
 
             <tbody>
+            <!-- table-hover makes use of the active class -->
               <tr ng-class="{active: searchResult.active}"
                 ng-repeat="searchResult in searchResults"
                 ng-click="getComponent(searchResult.terminologyId, searchResult.terminology, searchResult.version)">
