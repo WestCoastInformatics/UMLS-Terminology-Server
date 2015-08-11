@@ -12,12 +12,12 @@
 	<i ng-show="tree.childCt == 0" class="glyphicon glyphicon-leaf"></i>
 	
 	<!-- if not the component viewed, render with hyperlink -->
-	<span ng-show="tree.nodeTerminologyId != component.terminologyId"><a
+	<span ng-show="tree.nodeTerminologyId != component.object.terminologyId"><a
 		ng-click="getComponent(tree.nodeTerminologyId, tree.terminology, tree.version)">
 			{{tree.nodeTerminologyId}}</a>: {{tree.nodeName}} </span>
 
 	<!-- if the component displayed, render in bold without hyperlink -->
-	<span ng-show="tree.nodeTerminologyId === component.terminologyId">
+	<span ng-show="tree.nodeTerminologyId === component.object.terminologyId">
 		<span class="highlighted">{{tree.nodeTerminologyId}}: {{tree.nodeName}}</span>
 	</span>
 
@@ -27,7 +27,7 @@
 		
 		<!--  render the children -->
 		<li ng-repeat="tree in tree.child" ui-tree-node
-			ng-include="'ui2/partials/componentTree_renderer.html'"></li>
+			ng-include="'app/component/tree/componentTree_renderer.html'"></li>
 			
 		<!-- if not all children displayed, display a message -->
 		<li ng-show="hasHiddenSiblings(tree) == true">

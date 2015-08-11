@@ -78,9 +78,8 @@
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>default</servlet-name>
-    <url-pattern>/ui2/*</url-pattern>
+    <url-pattern>/app/*</url-pattern>
   </servlet-mapping>
-
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>

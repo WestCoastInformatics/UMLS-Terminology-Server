@@ -294,8 +294,8 @@ public class ClaMLLoadAndUnloadTest {
     projectService = new ProjectServiceJpa();
     found = false;
     for (Project project : projectService.getProjects().getObjects()) {
-      if (project.getName().equals("Sample project")
-          && project.getDescription().equals("Sample project.")
+      if (project.getName().equals("Sample project2")
+          && project.getDescription().equals("Sample project2.")
           && project.getScopeDescendantsFlag()
           && project.getTerminology().equals("ICD10CM")
           && project.getVersion().equals("latest")) {

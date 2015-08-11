@@ -50,7 +50,6 @@ tsApp
           $http.get(autocompleteUrl + encodeURIComponent(searchTerms)).then(
           // success
           function(response) {
-            console.debug("  output = ", response.data);
             deferred.resolve(response.data.string);
           },
           // error

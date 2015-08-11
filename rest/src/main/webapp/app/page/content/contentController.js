@@ -323,10 +323,12 @@ tsApp
         // 
         // Search
         // 
-
+        
         // Clear the search box and perform any additional operations required
         $scope.clearQuery = function() {
           $scope.searchParams.query = "";
+          $scope.searchResults = [];
+          $scope.searchResultsTree = [];
         }
 
         // Perform a search for the tree view
@@ -640,7 +642,6 @@ tsApp
 
         // Helper function to select an item in the list view
         $scope.setActiveRow = function(terminologyId) {
-          console.debug("SET ACTIVE ROW ", terminologyId);
           if (!$scope.searchResults || $scope.searchResults.length == 0)
             return;
           for (var i = 0; i < $scope.searchResults.length; i++) {
@@ -714,7 +715,6 @@ tsApp
                 var found = false;
                 for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
                   var terminology = $scope.metadata.terminologies[i];
-                  console.debug("TERMINOLOGY=", terminology);
                   // Determine whether to set as default
                   if (terminology.metathesaurus) {
                     metadataService.setTerminology(terminology);

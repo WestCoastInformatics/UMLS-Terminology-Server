@@ -1,8 +1,8 @@
 'use strict'
 
-var tsApp = angular.module('tsApp', [ 'ngRoute', 'ui.bootstrap' ]).config(
+var tsApp = angular.module('tsApp', [ 'ngRoute', 'ui.bootstrap', 'ui.tree' ]).config(
   function() {
-
+    // n/a
   });
 
 // Declare top level URL vars
@@ -12,21 +12,21 @@ var contentUrl = "content/";
 
 // Initialization of tsApp
 tsApp.run(function($rootScope, $http, $location) {
-
+  // nothing yet -- may want to put metadata retrieval here
 });
 
-console.debug('configure route provider');
+console.debug('configure $routeProvider');
 // Route provider configuration
 tsApp.config([ '$routeProvider', function($routeProvider) {
 
   $routeProvider.when('/', {
-    templateUrl : 'ui2/partials/login.html',
+    templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl'
   }).when('/content', {
-    templateUrl : 'ui2/partials/content.html',
+    templateUrl : 'app/page/content/content.html',
     controller : 'ContentCtrl'
   }).when('/metadata', {
-    templateUrl : 'ui2/partials/metadata.html',
+    templateUrl : 'app/page/metadata/metadata.html',
     controller : 'MetadataCtrl'
   }).otherwise({
     redirectTo : '/'
@@ -123,5 +123,7 @@ tsApp.controller('FooterCtrl', [ '$scope', 'gpService', 'securityService',
     $scope.getGlassPaneCounter = function() {
       return gpService.glassPane.counter;
     }
-    
-  } ]);
+
+  }
+ 
+ ]);

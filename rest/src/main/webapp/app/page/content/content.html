@@ -48,14 +48,14 @@
       <div class="col-md-4 col-xs-12">
 
         <div ng-show="queryForList">
-          <div class="alert alert-success" ng-show="searchResults.length > 0">
+          <div class="alert alert-success" ng-show="searchResults.totalCount > 0">
             {{searchResults.totalCount}} Results
             <a ng-show="!metadata.terminology.metathesaurus && searchParams.query"
               class="pull-right glyphicon glyphicon-tree-conifer"
               ng-click="setTreeView()" tooltip="Switch to tree view"></a>
           </div>
           <div class="alert alert-danger"
-            ng-show="searchParams.query && searchResults && searchResults.length == 0">
+            ng-show="searchParams.query && searchResults && searchResults.totalCount == 0">
             Search returned no results.
             <a ng-show="!terminology.metathesaurus && searchParams.query"
               class="pull-right glyphicon glyphicon-tree-conifer"
@@ -85,6 +85,7 @@
               </tr>
             </tbody>
           </table>
+          <p style="display: block;">&nbsp;</p>
         </div>
 
         <!-- Tree view -->
@@ -133,7 +134,7 @@
             <ol ui-tree-nodes="" ng-model="searchResultsTree" id="tree-root"
               data-nodrop-enabled="true">
               <li ng-repeat="tree in searchResultsTree" ui-tree-node data-nodrag
-                ng-include="'ui2/partials/searchResultsTree_renderer.html'"></li>
+                ng-include="'app/component/tree/searchResultsTree_renderer.html'"></li>
             </ol>
           </div>
 

@@ -8,7 +8,6 @@ tsApp.controller('LoginCtrl', [
   'gpService',
   'utilService',
   function($scope, $http, $location, securityService, gpService, utilService) {
-
     // Clear user info
     securityService.clearUser();
 
