@@ -315,8 +315,6 @@ public class ClaMLLoadAndUnloadTest {
     securityService.closeFactory();
 
     // Start ICD10CM editing cycle
-
-    // Add a ICD10CM project
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/release/pom.xml"));
     request.setProfiles(Arrays.asList("StartEditingCycle"));
@@ -365,7 +363,7 @@ public class ClaMLLoadAndUnloadTest {
     // Verify no contents
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
-        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("ICD10", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 

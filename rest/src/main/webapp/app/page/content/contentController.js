@@ -52,6 +52,7 @@ tsApp
         // Variables for iterating through trees in report
         $scope.treeCount = null;
         $scope.treeViewed = null;
+        $scope.componentTree = null;
 
         //
         // Watch expressions
@@ -107,43 +108,43 @@ tsApp
         // 
 
         // Function to get a single (paged) hierarchical tree for the displayed
-        $scope.getTree = function(component, typePrefix, startIndex) {
-
+        $scope.getTree = function(startIndex) {
           // Call content service to retrieve the tree
-          contentService.getTree(component, typePrefix, startIndex).then(
-            function(data) {
+          contentService.getTree($scope.component.object.terminologyId,
+            $scope.component.object.terminology,
+            $scope.component.object.version, startIndex).then(function(data) {
 
-              $scope.componentTree = data.tree;
+            $scope.componentTree = data.tree;
 
-              // set the count and position variables
-              $scope.treeCount = data.totalCount;
-              if (data.count > 0)
-                $scope.treeViewed = startIndex;
-              else
-                $scope.treeViewed = 0;
+            // set the count and position variables
+            $scope.treeCount = data.totalCount;
+            if (data.count > 0)
+              $scope.treeViewed = startIndex;
+            else
+              $scope.treeViewed = 0;
 
-              // if parent tree cannot be read, clear the component tree
-              // (indicates no hierarchy present)
-              if ($scope.componentTree.length == 0) {
-                $scope.componentTree = null;
-                return;
-              }
+            // if parent tree cannot be read, clear the component tree
+            // (indicates no hierarchy present)
+            if ($scope.componentTree.length == 0) {
+              $scope.componentTree = null;
+              return;
+            }
 
-              // get the ancestor path of the bottom element (the component)
-              // ASSUMES: unilinear path (e.g. A~B~C~D, no siblings)
-              var parentTree = $scope.componentTree[0];
-              while (parentTree.child.length > 0) {
-                // check if child has no children
-                if (parentTree.child[0].child.length == 0)
-                  break;
-                parentTree = parentTree.child[0];
-              }
+            // get the ancestor path of the bottom element (the component)
+            // ASSUMES: unilinear path (e.g. A~B~C~D, no siblings)
+            var parentTree = $scope.componentTree[0];
+            while (parentTree.child.length > 0) {
+              // check if child has no children
+              if (parentTree.child[0].child.length == 0)
+                break;
+              parentTree = parentTree.child[0];
+            }
 
-              // replace the parent tree of the lowest level with first page of
-              // siblings computed
-              $scope.getAndSetChildTrees(parentTree, 0);
+            // replace the parent tree of the lowest level with first page of
+            // siblings computed
+            $scope.getAndSetChildTrees(parentTree, 0);
 
-            });
+          });
 
         }
 
@@ -160,8 +161,7 @@ tsApp
           if (treeViewed < 0)
             treeViewed = treeViewed + $scope.treeCount;
 
-          $scope.getTree($scope.component, $scope.component.typePrefix,
-            treeViewed);
+          $scope.getTree(treeViewed);
 
         }
 
@@ -254,7 +254,7 @@ tsApp
             return false;
           }
         }
-        
+
         // Helper function to determine whether to toggle children and/or
         // retrieve children if necessary
         $scope.getChildTrees = function(tree, treeHandleScope) {
@@ -321,9 +321,9 @@ tsApp
         }
 
         // 
-        // Search
+        // Search functions
         // 
-        
+
         // Clear the search box and perform any additional operations required
         $scope.clearQuery = function() {
           $scope.searchParams.query = "";
@@ -354,9 +354,11 @@ tsApp
         // Get a component and set the local component data model
         // e.g. this is called when a user clicks on a search result
         $scope.getComponent = function(terminologyId, terminology, version) {
+          console.debug("GET COMPONENT", terminologyId, terminology, version);
           contentService.getComponent(terminologyId, terminology, version)
             .then(function() {
-              // console.debug("COMPONENT LOADED",$scope.component);
+              $scope.getTree(0);
+              applyPaging();
             });
         }
 
@@ -404,6 +406,8 @@ tsApp
                   $scope.metadata.terminology.terminology,
                   $scope.metadata.terminology.version).then(function(data) {
                   $scope.setActiveRow($scope.component.object.terminologyId);
+                  $scope.getTree(0);
+                  applyPaging();
                 });
               }
 
@@ -461,21 +465,6 @@ tsApp
             });
         }
 
-        // Sets the current component and performs any related operations
-        $scope.setComponent = function(component, typePrefix) {
-
-          // set the component
-          $scope.component.object = component;
-
-          // get the initial tree
-          $scope.getTree(component.terminologyId, component.terminology,
-            component.version, 0);
-
-          // apply the initial paging
-          // TODO:restore this
-          // applyPaging();
-        }
-
         // 
         // Show/Hide List Elements
         // 
@@ -528,7 +517,7 @@ tsApp
         // Helper function to determine whether an item should be shown based on
         // obsolete/suppressible
         $scope.showItem = function(item) {
-
+// TDOO: investigate this
           // trigger on suppressible (model data)
           if ($scope.showSuppressible == false && item.suppressible == true) {
             return false;
@@ -636,6 +625,264 @@ tsApp
             return 'glyphicon glyphicon-plus';
         }
 
+        //
+        // Paging functions
+        //
+
+        // paged variable lists
+        // NOTE: Each list must have a totalCount variable
+        // either from ResultList object or calculated
+        $scope.pagedAttributes = null;
+        $scope.pagedMembers = null;
+        $scope.pagedSemanticTypes = null;
+        $scope.pagedDescriptions = null;
+        $scope.pagedRelationships = null;
+        $scope.pagedAtoms = null;
+
+        // variable page numbers
+        $scope.atomPaging = {
+          page : 1,
+          filter : ""
+        };
+
+        $scope.styPaging = {
+          page : 1,
+          filter : ""
+        }
+
+        $scope.defPaging = {
+          page : 1,
+          filter : ""
+        }
+
+        $scope.attributePaging = {
+          page : 1,
+          filter : ""
+        }
+
+        $scope.memberPaging = {
+          page : 1,
+          filter : ""
+        }
+
+        $scope.relPaging = {
+          page : 1,
+          filter : ""
+        }
+
+        // apply paging to all elements
+        function applyPaging() {
+
+          // call each get function without paging (use current paging info)
+          $scope.getPagedAtoms();
+          $scope.getPagedRelationships();
+          $scope.getPagedDefinitions();
+          $scope.getPagedAttributes();
+          $scope.getPagedMembers();
+          $scope.getPagedSemanticTypes();
+
+        }
+
+        // Handle paging of relationships (requires content service call).
+        $scope.getPagedRelationships = function() {
+
+          var filters = {
+            showSuppressible : $scope.showSuppressible,
+            showObsolete : $scope.showObsolete,
+            showInferred : $scope.showInferred,
+            text : $scope.relPaging.filter
+          };
+
+          // Request from service
+          contentService.findRelationships(
+            $scope.component.object.terminologyId,
+            $scope.component.object.terminology,
+            $scope.component.object.version, $scope.relPaging.page, filters).then(function(data) {
+
+            // if description logic terminology, sort relationships also by
+            // group
+            if ($scope.metadata.terminology.descriptionLogicTerminology) {
+              data.relationship.sort(function(a, b) {
+                if (a.relationshipType < b.relationshipType)
+                  return -1;
+                if (a.relationshipType > b.relationshipType)
+                  return 1;
+                if (a.group < b.group)
+                  return -1;
+                if (a.group > b.group)
+                  return 1;
+                return 0;
+              });
+            }
+
+            $scope.pagedRelationships = data.relationship;
+            $scope.pagedRelationships.totalCount = data.totalCount;
+
+          });
+        }
+
+        // Get paged atoms (assume all are loaded)
+        $scope.getPagedAtoms = function() {
+          $scope.pagedAtoms = $scope.getPagedArray($scope.component.object.atom,
+            $scope.atomPaging.page, true, $scope.atomPaging.filter);
+        }
+
+        // Get paged definitions (assume all are loaded)
+        $scope.getPagedDefinitions = function() {
+
+          // get the paged array, with flags and filter (TODO: Support
+          // filtering)
+          $scope.pagedDefinitions = $scope.getPagedArray(
+            $scope.component.object.definition, $scope.defPaging.page, true,
+            $scope.defPaging.filter, 'value', false);
+        }
+
+        // Get paged attributes (assume all are loaded)
+        $scope.getPagedAttributes = function() {
+
+          // get the paged array, with flags and filter
+          $scope.pagedAttributes = $scope.getPagedArray(
+            $scope.component.object.attribute, $scope.attributePaging.page, true,
+            $scope.attributePaging.filter, 'name', false);
+
+        }
+
+        // Get paged members (assume all are loaded)
+        $scope.getPagedMembers = function() {
+
+          // get the paged array, with flags and filter
+          $scope.pagedMembers = $scope.getPagedArray($scope.component.object.member,
+            $scope.memberPaging.page, true, $scope.memberPaging.filter, 'name',
+            false);
+        }
+
+        // Get paged STYs (assume all are loaded)
+        $scope.getPagedSemanticTypes = function() {
+
+          // get the paged array, with flags and filter
+          $scope.pagedSemanticTypes = $scope.getPagedArray(
+            $scope.component.object.semanticType, $scope.styPaging.page, true,
+            $scope.styPaging.filter, 'semanticType', false);
+        }
+
+        // Helper to get a paged array with show/hide flags (ENABLED) and
+        // filtered by
+        // / query string (NOT ENABLED)
+        $scope.getPagedArray = function(array, page, applyFlags, filterStr,
+          sortField, ascending) {
+
+          console.debug("GET PAGED ARRAY", array, page, applyFlags, filterStr, sortField);
+          var newArray = new Array();
+
+          // if array blank or not an array, return blank list
+          if (array == null || array == undefined
+            || Array.isArray(array) == false)
+            return newArray;
+
+          // apply page 1 if not supplied
+          if (!page)
+            page = 1;
+
+          newArray = array;
+
+          // apply sort if specified
+          if (sortField) {
+            // if ascending specified, use that value, otherwise use false
+            newArray.sort($scope.sort_by(sortField, ascending ? ascending
+              : false))
+          }
+
+          // apply flags
+          if (applyFlags) {
+            newArray = getArrayByFlags(newArray);
+          }
+
+          // apply filter
+          if (filterStr) {
+            newArray = getArrayByFilter(newArray, filterStr);
+          }
+
+          // get the page indices
+          var fromIndex = (page - 1) * $scope.pageSize;
+          var toIndex = Math.min(fromIndex + $scope.pageSize, array.length);
+
+          // slice the array
+          var results = newArray.slice(fromIndex, toIndex);
+
+          // add the total count before slicing
+          results.totalCount = newArray.length;
+
+          return results;
+        }
+
+        // function for sorting an array by (string) field and direction
+        $scope.sort_by = function(field, reverse) {
+
+          // key: function to return field value from object
+          var key = function(x) {
+            return x[field]
+          };
+
+          // convert reverse to integer (1 = ascending, -1 = descending)
+          reverse = !reverse ? 1 : -1;
+
+          return function(a, b) {
+            return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+          }
+        }
+
+        // Filter array by show/hide flags
+        function getArrayByFlags(array) {
+
+          var newArray = new Array();
+
+          // if array blank or not an array, return blank list
+          if (array == null || array == undefined
+            || Array.isArray(array) == false)
+            return newArray;
+
+          // apply show/hide flags via showItem() function
+          for (var i = 0; i < array.length; i++) {
+            if ($scope.showItem(array[i]) == true) {
+              newArray.push(array[i]);
+            }
+          }
+
+          return newArray;
+        }
+
+        // Get array by filter text matching terminologyId or name
+        function getArrayByFilter(array, filter) {
+          var newArray = [];
+
+          for ( var object in array) {
+
+            if (objectContainsFilterText(array[object], filter)) {
+              newArray.push(array[object]);
+            }
+          }
+          return newArray;
+        }
+
+        // Returns true if any field on object contains filter text
+        function objectContainsFilterText(object, filter) {
+
+          if (!filter || !object)
+            return false;
+
+          for ( var prop in object) {
+            var value = object[prop];
+            // check property for string, note this will cover child elements
+            // TODO May want to make this more restrictive?
+            if (value
+              && value.toString().toLowerCase().indexOf(filter.toLowerCase()) != -1) {
+              return true;
+            }
+          }
+
+          return false;
+        }
+
         // 
         // Misc helper functions
         // 
@@ -654,7 +901,7 @@ tsApp
         }
 
         //
-        // METADATA related methods
+        // METADATA related functions
         //
 
         // Function to filter viewable terminologies for picklist
@@ -697,7 +944,7 @@ tsApp
           return metadataService.getLabelSetName(abbr);
         }
 
-        // Label methods
+        // Label functions
         $scope.isDerivedLabelSet = metadataService.isDerivedLabelSet;
         $scope.isLabelSet = metadataService.isLabelSet;
         $scope.getDerivedLabelSetsValue = metadataService.getDerivedLabelSetsValue;
@@ -742,6 +989,40 @@ tsApp
                   }
                 }
               });
+        }
+
+        // 
+        // HISTORY related functions
+        //
+
+        // Retrieve a component from the history list
+        $scope.getComponentFromHistory = function(index) {
+
+          // if currently viewed do nothing
+          if (index === $scope.component.historyIndex)
+            return;
+
+          // set the index and get the component from history information
+          $scope.component.historyIndex = index;
+          contentService
+            .getComponentFromType(
+              $scope.component.history[$scope.component.historyIndex].terminologyId,
+              $scope.component.history[$scope.component.historyIndex].terminology,
+              $scope.component.history[$scope.component.historyIndex].version,
+              $scope.component.history[$scope.component.historyIndex].type)
+            .then(function() {
+              $scope.getTree(0);
+              applyPaging();
+            });
+        }
+
+        // Get a string representation fo the component
+        $scope.getComponentStr = function(component) {
+          if (!component)
+            return null;
+
+          return component.terminology + "/" + component.terminologyId + " "
+            + component.type + ": " + component.name;
         }
 
       } ]);

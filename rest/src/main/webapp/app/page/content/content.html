@@ -8,12 +8,12 @@
       <table class="table">
         <tr>
           <td width="15%;">Terminology</td>
-          <td width="85%;"><select width="100%" ng-model="metadata.terminology"
+          <td width="85%;"><select width="100%"
+            ng-model="metadata.terminology"
             ng-change="setTerminology(metadata.terminology)"
             ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
 
-            <button 
-              ng-disabled="metadata.terminology.metathesaurus"
+            <button ng-disabled="metadata.terminology.metathesaurus"
               class="btn btn-sm btn-primary" ng-click="browseHierarchy()"
               tooltip="Click to browse top level hierarchy">Browse</button></td>
         </tr>
@@ -48,9 +48,11 @@
       <div class="col-md-4 col-xs-12">
 
         <div ng-show="queryForList">
-          <div class="alert alert-success" ng-show="searchResults.totalCount > 0">
+          <div class="alert alert-success"
+            ng-show="searchResults.totalCount > 0">
             {{searchResults.totalCount}} Results
-            <a ng-show="!metadata.terminology.metathesaurus && searchParams.query"
+            <a
+              ng-show="!metadata.terminology.metathesaurus && searchParams.query"
               class="pull-right glyphicon glyphicon-tree-conifer"
               ng-click="setTreeView()" tooltip="Switch to tree view"></a>
           </div>
@@ -75,7 +77,7 @@
             ng-show="searchResults.length > 0">
 
             <tbody>
-            <!-- table-hover makes use of the active class -->
+              <!-- table-hover makes use of the active class -->
               <tr ng-class="{active: searchResult.active}"
                 ng-repeat="searchResult in searchResults"
                 ng-click="getComponent(searchResult.terminologyId, searchResult.terminology, searchResult.version)">
@@ -97,11 +99,11 @@
             <span class="pull-right">
 
               <a class="glyphicon glyphicon-star"
-                ng-show="showExtension && !terminology.metathesaurus && labelSets.length > 0 && searchParams.query"
+                ng-show="showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchParams.query"
                 tooltip="Click to hide extension highlights in tree"
                 ng-click="toggleExtension()"> </a>
               <a class="glyphicon glyphicon-star-empty"
-                ng-show="!showExtension && !terminology.metathesaurus && labelSets.length > 0 && searchParams.query"
+                ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchParams.query"
                 tooltip="Click to show extension highlights in tree"
                 ng-click="toggleExtension()"> </a>
               &nbsp;
@@ -145,31 +147,148 @@
 
       <!-- Component display -->
       <div class="col-md-8 col-xs-12" ng-show="component.object != null">
-        <span ng-show="component.object.terminology != metadata.terminology.terminology">{{component.object.terminology}}</span>
-        {{component.type}} Report
 
+        <!-- title bar for reports section -->
+        <div ng-show="component.error != null" class="alert alert-warning">
+          {{component.error}}
+          <button class="btn btn-xs btn-primary"
+            ng-click="getConceptFromHistory(component.historyIndex - 1)"
+            tooltip="{{getComponentStr(component.history[component.historyIndex - 1])}}">Back</button>
+        </div>
+        <div class="alert alert-info">
+          <span class="dropdown" dropdown dropdown-append-to-body
+            tooltip="View All History">
+            <a ng-show="component.history.length > 2"
+              class="glyphicon glyphicon-time dropdown-toggle" dropdown-toggle></a>
+            <ul class="dropdown-menu">
+              <li ng-show="localHistoryNextCt > 0">...
+                {{localHistoryNextCt}} more recent</li>
+              <li ng-repeat="component in localHistory | orderBy:'index':true"
+                ng-click="getComponentFromHistory(component.index)"><a>
+                  <i style="margin-right: 1em" class="glyphicon glyphicon-ok"
+                    ng-show="component.index === component.historyIndex"></i>
+                  {{getComponentStr(component)}}
+                </a></li>
+              <li ng-show="localHistoryPreviousCt > 0">...
+                {{localHistoryPreviousCt}} less recent</li>
+            </ul>
+          </span>
+          <a class="glyphicon glyphicon-step-backward"
+            ng-click="getComponentFromHistory(component.historyIndex -1)"
+            ng-show="component.historyIndex > 0"
+            tooltip="{{getComponentStr(component.history[component.historyIndex - 1])}}"></a>
+          <span
+            ng-show="component.object.terminology != metadata.terminology.terminology">{{component.object.terminology}}</span>
+          {{component.type}} Report
+          <a class="glyphicon glyphicon-step-forward"
+            ng-click="getComponentFromHistory(component.historyIndex + 1)"
+            ng-show="component.history.length > component.historyIndex + 1 && component.history.length > 0"
+            tooltip="{{getComponentStr(component.history[component.historyIndex + 1])}}"></a>
+
+        </div>
+
+
+        <!-- report -->
+        <!-- TODO: directive
+        <div report component="component" metadata="metadata"></div>
+ -->
+
+        <!-- Title -->
+        <h3>
+          {{component.object.terminologyId}} {{component.object.name}}
+          <span class="label label-warning"
+            ng-show="terminology.metathesaurus && component.object.suppressible == true"
+            tooltip="Suppressible">S</span>
+          <span class="label label-default"
+            ng-show="component.object.obsolete == true" tooltip="Obsolete">O</span>
+          <span
+            ng-show="terminology.descriptionLogicTerminology && !component.object.fullyDefined"
+            class="label label-info" tooltip="Primitive">P</span>
+          <span style="padding-bottom: 2px;"
+            ng-show="terminology.descriptionLogicTerminology && component.object.fullyDefined"
+            class="label label-info"
+            tooltip="Necessary and sufficient definition">D</span>
+        </h3>
+
+        <!-- Buttons for suppressible/obsolete -->
+
+        <button ng-show="!metadata.terminology.descriptionLogicTerminology"
+          ng-click="toggleSuppressible()" class="btn btn-xs btn-primary">
+          <span ng-show="showSuppressible == true">Hide Suppressible</span>
+          <span ng-show="showSuppressible != true">Show Suppressible</span>
+        </button>
+        <button ng-click="toggleObsolete()" class="btn btn-xs btn-primary">
+          <span ng-show="showObsolete == true">Hide Obsolete</span>
+          <span ng-show="showObsolete != true">Show Obsolete</span>
+        </button>
+
+
+        <!-- Hierarchical Tree -->
+        <div ng-show="treeCount > 0">
+          <h4>
+            {{metadata.hierarchiesLabel}} (
+            <a class="glyphicon glyphicon-step-backward"
+              ng-click="getTreeByOffset(-1)"></a>
+            {{treeViewed+1}} of {{treeCount}}
+            <a class="glyphicon glyphicon-step-forward"
+              ng-click="getTreeByOffset(1)"></a>
+            )
+          </h4>
+
+          <div ui-tree>
+            <ol ui-tree-nodes="" ng-model="componentTree" id="tree-root"
+              data-nodrop-enabled="true">
+              <li ng-repeat="tree in componentTree" ui-tree-node data-nodrag
+                ng-include="'app/component/tree/componentTree_renderer.html'"></li>
+            </ol>
+          </div>
+        </div>
+
+
+              <!--  Semantic types -->
+              <div ng-show="component.object.semanticType.length> 0">
+                <h4>Semantic Types ({{pagedSemanticTypes.totalCount}})</h4>
+
+
+                <span style="display: block;">
+                  <pagination items-per-page="pageSize" max-size="5"
+                    boundary-links="true" class="pagination-sm"
+                    previous-text="&lsaquo;" next-text="&rsaquo;"
+                    first-text="&laquo;" last-text="&raquo;"
+                    ng-show="component.object.semanticType.length > pageSize"
+                    total-items="pagedSemanticTypes.totalCount"
+                    ng-model="semanticTypesPage"
+                    ng-change="getPagedSemanticTypes()"></pagination>
+
+                  <input class="input-filter" placeholder="Enter filter text"
+                    ng-show="component.object.semanticType.length > pageSize"
+                    type="text" ng-model="styPaging.filter"
+                    ng-model-options="{ debounce: 300 }"
+                    ng-change="getPagedSemanticTypes()">
+
+                  <button class="btn btn-xs btn-warning"
+                    ng-show="styPaging.filter"
+                    ng-click="styPaging.filter = ''; getPagedSemanticTypes()"
+                    tooltip="Click to clear filter text">Clear</button>
+                </span>
+
+                <ul class="icon-list">
+                  <li class="cr-list" ng-repeat="item in pagedSemanticTypes"
+                    ng-show="showItem(item)"><span
+                      class="label label-warning"
+                      ng-show="terminology.metathesaurus && item.suppressible"
+                      tooltip="Suppressible">S</span> <span
+                      class="label label-default"
+                      ng-show="item.obsolete" tooltip="Obsolete">O</span>
+                    {{item.semanticType}}</li>
+                </ul>
+
+              </div>
+              
+              
       </div>
-      <h3>
-        {{component.object.terminologyId}} {{component.object.name}}
-        <span class="label label-warning"
-          ng-show="metadata.terminology.metathesaurus && component.object.suppressible == true"
-          tooltip="Suppressible">S</span>
-        <span class="label label-default" ng-show="component.object.obsolete == true"
-          tooltip="Obsolete">O</span>
-        <span
-          ng-show="metadata.terminology.descriptionLogicTerminology && !component.object.fullyDefined"
-          class="label label-info" tooltip="Primitive">P</span>
-        <span style="padding-bottom: 2px;"
-          ng-show="metadata.terminology.descriptionLogicTerminology && component.object.fullyDefined"
-          class="label label-info" tooltip="Necessary and sufficient definition">D</span>
-      </h3>
 
     </div>
-
   </div>
-</div>
-
-
-
 
 </div>

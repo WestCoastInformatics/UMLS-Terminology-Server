@@ -26,6 +26,7 @@ tsApp
 
         // Search paging parameters
         this.pageSize = 10;
+        this.relsPageSize = 10;
         this.rootsPageSize = 25;
 
         // Accessor function for component
@@ -348,7 +349,7 @@ tsApp
             gpService.decrement();
             deferred.reject(response.data);
           });
-          
+
           return deferred.promise;
         }
 
@@ -438,6 +439,69 @@ tsApp
 
           return deferred.promise;
         }
-      }
 
-    ]);
+        // Handle paging of relationships (requires content service call).
+        this.findRelationships = function(terminologyId, terminology, version,
+          page, filters) {
+          console.debug("findRelationships", terminologyId, terminology,
+            version, page, filters);
+          var deferred = $q.defer();
+
+          var prefix = this.getPrefixForTerminologyAndVersion(terminology,
+            version);
+
+          var pfs = {
+            startIndex : (page - 1) * this.pageSize,
+            maxResults : this.pageSize,
+            sortField : null,
+            queryRestriction : null
+          };
+
+          // Show only inferred rels for now
+          // construct query restriction if needed
+          // TODO Change these to use pfs object parameters
+          var qr = '';
+          if (filters.showSuppressible == false) {
+            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'suppressible:false';
+          }
+          if (filters.showObsolete == false) {
+            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'obsolete:false';
+          }
+          if (filters.showInferred == true) {
+            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'inferred:true';
+          }
+          if (filters.showInferred == false) {
+            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'stated:true';
+          }
+          pfs.queryRestriction = qr;
+          pfs.sortField = 'relationshipType';
+
+          // For description logic sources, simply read all rels.
+          // That way we ensure all "groups" are represented.
+          if (metadata.terminology.descriptionLogicTerminology) {
+            pfs.startIndex = -1;
+            pfs.maxResults = 1000000;
+          } else {
+            pfs.maxResults = this.pageSize;
+          }
+
+          var query = filters.text;
+          gpService.increment();
+          $http.post(
+            contentUrl + prefix + "/" + component.object.terminology + "/"
+              + component.object.version + "/" + component.object.terminologyId
+              + "/relationships?query="
+              + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(
+            function(response) {
+              console.debug("  relationships =", response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            }, function(response) {
+              errorService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+
+          return deferred.promise;
+        }
+      } ]);

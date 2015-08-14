@@ -1,0 +1,28 @@
+
+<!-- Title -->
+<h3>
+  {{component.object.terminologyId}} {{component.object.name}}
+  <span class="label label-warning"
+    ng-show="terminology.metathesaurus && component.object.suppressible == true"
+    tooltip="Suppressible">S</span>
+  <span class="label label-default" ng-show="component.object.obsolete == true"
+    tooltip="Obsolete">O</span>
+  <span
+    ng-show="terminology.descriptionLogicTerminology && !component.object.fullyDefined"
+    class="label label-info" tooltip="Primitive">P</span>
+  <span style="padding-bottom: 2px;"
+    ng-show="terminology.descriptionLogicTerminology && component.object.fullyDefined"
+    class="label label-info" tooltip="Necessary and sufficient definition">D</span>
+</h3>
+
+<!-- Buttons for suppressible/obsolete -->
+
+<button ng-show="!metadata.terminology.descriptionLogicTerminology"
+  ng-click="toggleSuppressible()" class="btn btn-xs btn-primary">
+  <span ng-show="showSuppressible == true">Hide Suppressible</span>
+  <span ng-show="showSuppressible != true">Show Suppressible</span>
+</button>
+<button ng-click="toggleObsolete()" class="btn btn-xs btn-primary">
+  <span ng-show="showObsolete == true">Hide Obsolete</span>
+  <span ng-show="showObsolete != true">Show Obsolete</span>
+</button>
