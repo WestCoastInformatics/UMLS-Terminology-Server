@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -31,9 +32,9 @@ import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 
 /**
- * Implementation of the "RF2 Full Load and Unload Test Case".
+ * Implementation of the "RRF UMLS Load and Unload Test Case".
  */
-public class RrfFullLoadAndUnloadTest {
+public class RrfUmlsLoadAndUnloadTest {
 
   /** The properties. */
   static Properties config;
@@ -82,7 +83,6 @@ public class RrfFullLoadAndUnloadTest {
    * </pre>
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void test() throws Exception {
 
@@ -120,10 +120,15 @@ public class RrfFullLoadAndUnloadTest {
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0, service
         .getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
+    // Print component Stats
+    Logger.getLogger(getClass()).info(
+        "  component stats = "
+            + service.getComponentStats("UMLS", "latest",
+                Branch.ROOT));
     service.close();
     service.closeFactory();
 
-    // Load RF2 full
+    // Load RRF umls
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("RRF-umls"));
@@ -144,12 +149,23 @@ public class RrfFullLoadAndUnloadTest {
 
     // Verify expected contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(2013,
+    Assert.assertEquals(2014,
         service.getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
+    // Print component Stats
+    Logger.getLogger(getClass()).info(
+        "  component stats = "
+            + service.getComponentStats("UMLS", "latest",
+                Branch.ROOT));
+
     // Test a non-UMLS terminology too
-    Assert.assertEquals(3902,
+    Assert.assertEquals(3903,
         service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT)
             .getCount());
+    // Print component Stats
+    Logger.getLogger(getClass()).info(
+        "  component stats = "
+            + service.getComponentStats("SNOMEDCT_US", "2014_09_01",
+                Branch.ROOT));
     service.close();
     service.closeFactory();
 
@@ -261,6 +277,12 @@ public class RrfFullLoadAndUnloadTest {
     Assert.assertEquals(0,
         service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT)
             .getCount());
+
+    // Print component Stats
+    Logger.getLogger(getClass()).info(
+        "  component stats = "
+            + service.getComponentStats("SNOMEDCT_US", "2014_09_01",
+                Branch.ROOT));
     service.close();
     service.closeFactory();
 
@@ -290,6 +312,11 @@ public class RrfFullLoadAndUnloadTest {
             .getCount());
     Assert.assertEquals(0,
         service.getAllCodes("MSH", "2015_2014_09_08", Branch.ROOT).getCount());
+    // Print component Stats
+    Logger.getLogger(getClass()).info(
+        "  component stats = "
+            + service.getComponentStats("MSH", "2015_2014_09_08",
+                Branch.ROOT));
     service.close();
     service.closeFactory();
 
@@ -311,8 +338,13 @@ public class RrfFullLoadAndUnloadTest {
     }
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(0, service.getAllConcepts("MTH", "latest", Branch.ROOT)
+    Assert.assertEquals(0, service.getAllConcepts("SRC", "latest", Branch.ROOT)
         .getCount());
+    // Print component Stats
+    Logger.getLogger(getClass()).info(
+        "  component stats = "
+            + service.getComponentStats("SRC", "latest",
+                Branch.ROOT));
     service.close();
     service.closeFactory();
 
@@ -336,6 +368,11 @@ public class RrfFullLoadAndUnloadTest {
     service = new ContentServiceJpa();
     Assert.assertEquals(0, service.getAllConcepts("MTH", "latest", Branch.ROOT)
         .getCount());
+    // Print component Stats
+    Logger.getLogger(getClass()).info(
+        "  component stats = "
+            + service.getComponentStats("MTH", "latest",
+                Branch.ROOT));
     service.close();
     service.closeFactory();
 
@@ -359,137 +396,11 @@ public class RrfFullLoadAndUnloadTest {
     service = new ContentServiceJpa();
     Assert.assertEquals(0, service
         .getAllConcepts("UMLS", "latest", Branch.ROOT).getCount());
-    service.close();
-    service.closeFactory();
-
-    // Load RF2 full
-    request = new DefaultInvocationRequest();
-    request.setPomFile(new File("../admin/loader/pom.xml"));
-    request.setProfiles(Arrays.asList("RRF-single"));
-    request.setGoals(Arrays.asList("clean", "install"));
-    p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
-    p.setProperty("server", server);
-    p.setProperty("terminology", "SNOMEDCT_US");
-    p.setProperty("version", "latest");
-    p.setProperty("input.dir",
-        "../../config/src/main/resources/data/SCTMSH_2014AB");
-    request.setProperties(p);
-    invoker = new DefaultInvoker();
-    result = invoker.execute(request);
-    if (result.getExitCode() != 0) {
-      throw result.getExecutionException();
-    }
-
-    // Verify expected contents
-    service = new ContentServiceJpa();
-    Assert.assertEquals(3902,
-        service.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT)
-            .getCount());
-    service.close();
-    service.closeFactory();
-
-    // Verify release info
-    Assert
-        .assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US", "latest"));
-    historyService.close();
-    historyService.closeFactory();
-
-    // Add a SNOMEDCT_US project
-    request = new DefaultInvocationRequest();
-    request.setPomFile(new File("../admin/loader/pom.xml"));
-    request.setProfiles(Arrays.asList("Project"));
-    request.setGoals(Arrays.asList("clean", "install"));
-    p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
-    p.setProperty("server", server);
-    p.setProperty("name", "Sample project");
-    p.setProperty("description", "Sample project.");
-    p.setProperty("terminology", "SNOMEDCT_US");
-    p.setProperty("version", "latest");
-    // scope ignored for now
-    p.setProperty("scope.descendants.flag", "true");
-    p.setProperty("admin.user", "admin");
-    request.setProperties(p);
-    invoker = new DefaultInvoker();
-    result = invoker.execute(request);
-    if (result.getExitCode() != 0) {
-      throw result.getExecutionException();
-    }
-
-    // Verify project exists
-    projectService = new ProjectServiceJpa();
-    found = false;
-    for (Project project : projectService.getProjects().getObjects()) {
-      if (project.getName().equals("Sample project")
-          && project.getDescription().equals("Sample project.")
-          && project.getScopeDescendantsFlag()
-          && project.getTerminology().equals("SNOMEDCT_US")
-          && project.getVersion().equals("latest")) {
-        // Scope ignored for now - &&
-        // project.getScopeConcepts().iterator().next().equals("138875005")) {
-        found = true;
-      }
-    }
-    Assert.assertTrue(found);
-    projectService.close();
-    projectService.closeFactory();
-
-    // Start SNOMEDCT editing cycle
-
-    // Add a SNOMEDCT project
-    request = new DefaultInvocationRequest();
-    request.setPomFile(new File("../admin/release/pom.xml"));
-    request.setProfiles(Arrays.asList("StartEditingCycle"));
-    request.setGoals(Arrays.asList("clean", "install"));
-    p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
-    p.setProperty("server", server);
-    p.setProperty("release.version", "20150131");
-    p.setProperty("terminology", "SNOMEDCT_US");
-    p.setProperty("version", "latest");
-    request.setProperties(p);
-    invoker = new DefaultInvoker();
-    result = invoker.execute(request);
-    if (result.getExitCode() != 0) {
-      throw result.getExecutionException();
-    }
-
-    // Verify release info for 2015AA as "planned"
-    // Verify release info
-    historyService = new HistoryServiceJpa();
-    Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US",
-        "20150131"));
-    Assert.assertFalse(historyService.getReleaseInfo("SNOMEDCT_US", "20150131")
-        .isPublished());
-    Assert.assertTrue(historyService.getReleaseInfo("SNOMEDCT_US", "20150131")
-        .isPlanned());
-    historyService.close();
-    historyService.closeFactory();
-
-    // Remove terminology
-    request = new DefaultInvocationRequest();
-    request.setPomFile(new File("../admin/remover/pom.xml"));
-    request.setProfiles(Arrays.asList("Terminology"));
-    request.setGoals(Arrays.asList("clean", "install"));
-    p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
-    p.setProperty("server", server);
-    p.setProperty("terminology", "SNOMEDCT_US");
-    p.setProperty("version", "latest");
-    request.setProperties(p);
-    invoker = new DefaultInvoker();
-    result = invoker.execute(request);
-    if (result.getExitCode() != 0) {
-      throw result.getExecutionException();
-    }
-
-    // Verify no contents
-    service = new ContentServiceJpa();
-    Assert
-        .assertEquals(0,
-            service.getAllConcepts("SNOMEDCT_US", "latest", Branch.ROOT)
-                .getCount());
+    // Print component Stats
+    Logger.getLogger(getClass()).info(
+        "  component stats = "
+            + service.getComponentStats("UMLS", "latest",
+                Branch.ROOT));
     service.close();
     service.closeFactory();
 

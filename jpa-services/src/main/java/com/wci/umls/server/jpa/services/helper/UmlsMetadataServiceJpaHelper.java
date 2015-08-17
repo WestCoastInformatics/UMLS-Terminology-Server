@@ -193,12 +193,10 @@ public class UmlsMetadataServiceJpaHelper extends
   @Override
   public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version) throws Exception {
+    // Assume there is only one default precedence list (because this is from a UMLS loader)
     javax.persistence.Query query =
         manager.createQuery("SELECT p from PrecedenceListJpa p"
-            + " where defaultList = 1 " + " and terminology = :terminology "
-            + " and version = :version");
-    query.setParameter("terminology", umlsTerminology);
-    query.setParameter("version", umlsVersion);
+            + " where defaultList = 1 ");
 
     PrecedenceList defaultList = (PrecedenceList) query.getSingleResult();
     // copy and prune to this terminology/version

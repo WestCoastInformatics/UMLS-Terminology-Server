@@ -197,8 +197,15 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     commitClearBegin();
 
     // remove property chain
-    for (PropertyChain chain : getPropertyChains(terminology, version)
-        .getObjects()) {
+    // Need to use query for metadata to override what the handler may be doing
+    // this specifically means to remove things with this terminology/version tuple
+    Query query =
+        manager
+            .createQuery("SELECT a FROM PropertyChainJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    for (PropertyChain chain : (List<PropertyChain>) query.getResultList()) {
       Logger.getLogger(getClass()).info("  remove property chain = " + chain);
       removePropertyChain(chain.getId());
 
@@ -206,23 +213,40 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     commitClearBegin();
 
     // remove attribute names
-    for (AttributeName name : getAttributeNames(terminology, version)
-        .getObjects()) {
+    query =
+        manager
+            .createQuery("SELECT a FROM AttributeNameJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    for (AttributeName name : (List<AttributeName>) query.getResultList()) {
       Logger.getLogger(getClass()).info("  remove attribute name = " + name);
       removeAttributeName(name.getId());
     }
     commitClearBegin();
 
     // remove additional relationship type
-    for (AdditionalRelationshipType rela : getAdditionalRelationshipTypes(
-        terminology, version).getObjects()) {
+    query =
+        manager
+            .createQuery("SELECT a FROM AdditionalRelationshipTypeJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    for (AdditionalRelationshipType rela : (List<AdditionalRelationshipType>) query
+        .getResultList()) {
       Logger.getLogger(getClass()).info("  set inverse to null = " + rela);
       rela.setInverseType(null);
       updateAdditionalRelationshipType(rela);
     }
     commitClearBegin();
-    for (AdditionalRelationshipType rela : getAdditionalRelationshipTypes(
-        terminology, version).getObjects()) {
+    query =
+        manager
+            .createQuery("SELECT a FROM AdditionalRelationshipTypeJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    for (AdditionalRelationshipType rela : (List<AdditionalRelationshipType>) query
+        .getResultList()) {
       Logger.getLogger(getClass()).info(
           "  remove additional relationship type = " + rela);
       removeAdditionalRelationshipType(rela.getId());
@@ -230,8 +254,14 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     commitClearBegin();
 
     // remove general metadata entry
-    for (GeneralMetadataEntry entry : getGeneralMetadataEntries(terminology,
-        version).getObjects()) {
+    query =
+        manager
+            .createQuery("SELECT a FROM GeneralMetadataEntryJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    for (GeneralMetadataEntry entry : (List<GeneralMetadataEntry>) query
+        .getResultList()) {
       Logger.getLogger(getClass()).info(
           "  remove general metadata entry = " + entry);
       removeGeneralMetadataEntry(entry.getId());
@@ -239,43 +269,71 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     commitClearBegin();
 
     // remove semantic types
-    for (SemanticType sty : getSemanticTypes(terminology, version).getObjects()) {
+    query =
+        manager
+            .createQuery("SELECT a FROM SemanticTypeJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    for (SemanticType sty : (List<SemanticType>) query.getResultList()) {
       Logger.getLogger(getClass()).info("  remove semantic types = " + sty);
       removeSemanticType(sty.getId());
     }
     commitClearBegin();
 
     // remove term types
-    for (TermType tty : getTermTypes(terminology, version).getObjects()) {
+    query =
+        manager
+            .createQuery("SELECT a FROM TermTypeJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    for (TermType tty : (List<TermType>) query.getResultList()) {
       Logger.getLogger(getClass()).info("  remove term types = " + tty);
       removeTermType(tty.getId());
     }
     commitClearBegin();
 
     // remove relationship type
-    for (RelationshipType rel : getRelationshipTypes(terminology, version)
-        .getObjects()) {
+    query =
+        manager
+            .createQuery("SELECT a FROM RelationshipTypeJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    for (RelationshipType rel : (List<RelationshipType>) query.getResultList()) {
       Logger.getLogger(getClass()).info("  set inverse to null = " + rel);
       rel.setInverse(null);
       updateRelationshipType(rel);
     }
     commitClearBegin();
-    for (RelationshipType rel : getRelationshipTypes(terminology, version)
-        .getObjects()) {
+    query =
+        manager
+            .createQuery("SELECT a FROM RelationshipTypeJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    for (RelationshipType rel : (List<RelationshipType>) query.getResultList()) {
       Logger.getLogger(getClass()).info("  remove relationship type = " + rel);
       removeRelationshipType(rel.getId());
     }
     commitClearBegin();
 
     // remove languages
-    for (Language lat : getLanguages(terminology, version).getObjects()) {
+    query =
+        manager
+            .createQuery("SELECT a FROM LanguageJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    for (Language lat : (List<Language>) query.getResultList()) {
       Logger.getLogger(getClass()).info("  remove languages = " + lat);
-      removeTermType(lat.getId());
+      removeLanguage(lat.getId());
     }
     commitClearBegin();
 
     // remove concept subset members
-    Query query =
+    query =
         manager
             .createQuery("SELECT a.id FROM ConceptSubsetMemberJpa a WHERE terminology = :terminology "
                 + " AND version = :version");

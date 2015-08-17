@@ -110,13 +110,25 @@ public class RrfComputePreferredNameHandler implements
    */
   protected String getRank(Atom atom) throws Exception {
     if (list == null) {
-      // Use the atom's terminology/version.
-      // In single source case, this will be correct
-      // In UMLS case, this will map to "DEFAULT" which will use the
-      // properties passed in for terminology/version
+      // If the "umlsTerminology" and version are not set, use info from the
+      // atom
+      // This will assume that all term types are present.
+      // IF we encounter an exception (because say RRF-single loader was used
+      // for >1 terminology)
+      // this will fail later.
+      if (umlsTerminology == null && umlsVersion == null) {
+        umlsTerminology = atom.getTerminology();
+        umlsVersion = atom.getVersion();
+      }
       cacheList();
     }
     String rank = null;
+    if (!ttyRankMap.containsKey(atom.getTerminology() + "/"
+        + atom.getTermType())) {
+      // See caveats in the cacheList call above for more info
+      throw new Exception(
+          "Atom terminology/type are not present in the default precedence list.");
+    }
     if (atom.getStringClassId() != null && !atom.getStringClassId().isEmpty()) {
       rank =
           (atom.isObsolete() ? 0 : 1)

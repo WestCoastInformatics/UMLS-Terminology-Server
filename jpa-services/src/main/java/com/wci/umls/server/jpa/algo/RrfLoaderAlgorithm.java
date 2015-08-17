@@ -886,6 +886,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // e.g.
       // 0586|MTH|PN|N|
 
+      // Skip entries for other terminologies
+      if (singleMode && !fields[1].equals(terminology)) {
+        continue;
+      }
+
       KeyValuePair pair = new KeyValuePair();
       pair.setKey(fields[1]);
       pair.setValue(fields[2]);

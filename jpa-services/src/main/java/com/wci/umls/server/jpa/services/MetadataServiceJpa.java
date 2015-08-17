@@ -319,7 +319,9 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getDefaultPrecedenceList(terminology,
           version);
-    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
+    } 
+    // ASSUMPTION: there is a configured "DEFAULT" metadata handler
+    else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
       return helperMap.get(ConfigUtility.DEFAULT).getDefaultPrecedenceList(
           terminology, version);
     } else {
