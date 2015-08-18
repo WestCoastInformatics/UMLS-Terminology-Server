@@ -101,14 +101,11 @@ tsApp
           version, type) {
           switch (type) {
           case 'CONCEPT':
-            this.getConcept(terminologyId, terminology, version);
-            break;
+            return this.getConcept(terminologyId, terminology, version);
           case 'DESCRIPTOR':
-            this.getDescriptor(terminologyId, terminology, version);
-            break;
+            return this.getDescriptor(terminologyId, terminology, version);
           case 'CODE':
-            this.getCode(terminologyId, terminology, version);
-            break;
+            return this.getCode(terminologyId, terminology, version);
           default:
             this.componentError = "Could not retrieve " + type + " for "
               + terminologyId + "/" + terminology + "/" + version;
@@ -178,8 +175,10 @@ tsApp
 
               if (!data) {
                 component.error = "Could not retrieve " + component.type
-                  + " data for " + terminology + "/" + terminologyId;
+                  + " data for " + terminologyId + "/" + terminology + "/"
+                  + version;
               } else {
+
                 // cycle over all atoms for pre-processing
                 for (var i = 0; i < data.atom.length; i++) {
 
@@ -206,12 +205,75 @@ tsApp
               }
               component.object = data;
               console.debug("  component = ", component);
+
+              // Add component to history
+              addComponentToHistory(data.terminologyId, data.terminology,
+                data.version, component.type, data.name);
+
               gpService.decrement();
               deferred.resolve(data);
             }, function(response) {
               utilService.handleError(response);
               gpService.decrement();
               deferred.reject(response.data);
+            });
+          return deferred.promise;
+        }
+
+        // add a component history entry
+        function addComponentToHistory(terminologyId, terminology, version,
+          type, name) {
+
+          // if history exists
+          if (component.historyIndex != -1) {
+
+            // if this component currently viewed, do not add
+            if (component.history[component.historyIndex].terminology === terminology
+              && component.history[component.historyIndex].version === version
+              && component.history[component.historyIndex].terminologyId === terminologyId)
+              return;
+          }
+
+          // add item and set index to last
+          component.history.push({
+            'version' : version,
+            'terminology' : terminology,
+            'terminologyId' : terminologyId,
+            'type' : type,
+            'name' : name,
+            'index' : component.history.length
+          });
+          component.historyIndex = component.history.length - 1;
+        }
+
+        // Clears history
+        this.clearHistory = function() {
+
+          component.history = [];
+          component.historyIndex = -1;
+
+          // set currently viewed item as first history item
+          addComponentToHistory(component.terminologyId, component.terminology,
+            component.version, component.type, component.name);
+        }
+
+        // Retrieve a component from history based on the index
+        this.getComponentFromHistory = function(index) {
+          var deferred = $q.defer();
+
+          // if currently viewed do nothing
+          if (index === component.historyIndex)
+            return;
+
+          // set the index and get the component from history information
+          component.historyIndex = index;
+          this.getComponentFromType(
+            component.history[component.historyIndex].terminologyId,
+            component.history[component.historyIndex].terminology,
+            component.history[component.historyIndex].version,
+            component.history[component.historyIndex].type).then(
+            function(data) {
+              deferred.resolve(data);
             });
           return deferred.promise;
         }

@@ -33,11 +33,15 @@ tsApp
         $scope.user = securityService.getUser();
         $scope.component = contentService.getModel();
 
+        // Search parameters
         $scope.searchParams = {
           page : 1,
           query : ""
         }
 
+        // siblings page size
+        $scope.siblingPageSize = 10;
+        
         // set on terminology change
         $scope.autocompleteUrl = null;
 
@@ -217,7 +221,7 @@ tsApp
 
         // Determine the icon to show (plus, right, down, or blank)
         $scope.getTreeNodeIcon = function(tree, collapsed) {
-
+          
           // if childCt is zero, return leaf
           if (tree.childCt == 0)
             return 'glyphicon-leaf';
@@ -235,6 +239,7 @@ tsApp
             else
               return 'glyphicon-chevron-down';
           default:
+            console.debug("QUESTION",tree,collapsed);
             return 'glyphicon-question-sign';
           }
         }
@@ -354,13 +359,22 @@ tsApp
         // Get a component and set the local component data model
         // e.g. this is called when a user clicks on a search result
         $scope.getComponent = function(terminologyId, terminology, version) {
-          console.debug("GET COMPONENT", terminologyId, terminology, version);
           contentService.getComponent(terminologyId, terminology, version)
             .then(function() {
               $scope.getTree(0);
               applyPaging();
             });
         }
+        
+        // Get a component and set the local component data model
+        // e.g. this is called when a user clicks on a link in a report
+        $scope.getComponentFromType = function(terminologyId, terminology, version, type) {
+            contentService.getComponentFromType(terminologyId, terminology, version, type)
+              .then(function() {
+                $scope.getTree(0);
+                applyPaging();
+              });
+          }
 
         // Find concepts based on current search
         // - loadFirst indicates whether to auto-load result[0]
@@ -494,17 +508,16 @@ tsApp
             }
 
             // if an array, check the array's items
-            else if (Array.isArray(value) == true) {
+            else if (Array.isArray(value)) {
               for (var i = 0; i < value.length; i++) {
-                if (value[i][fieldToCheck] == true) {
+                if (value[i][fieldToCheck]) {
                   return true;
                 }
               }
             }
 
             // if not an array, check the item itself
-            else if (value.hasOwnProperty(fieldToCheck)
-              && value[fieldToCheck] == true) {
+            else if (value.hasOwnProperty(fieldToCheck) && value[fieldToCheck]) {
               return true;
             }
 
@@ -517,19 +530,19 @@ tsApp
         // Helper function to determine whether an item should be shown based on
         // obsolete/suppressible
         $scope.showItem = function(item) {
-// TDOO: investigate this
+
           // trigger on suppressible (model data)
-          if ($scope.showSuppressible == false && item.suppressible == true) {
+          if (!$scope.showSuppressible && item.suppressible) {
             return false;
           }
 
           // trigger on obsolete (model data)
-          if ($scope.showObsolete == false && item.obsolete == true) {
+          if (!$scope.showObsolete && item.obsolete) {
             return false;
           }
 
           // trigger on applied showAtomElement flag
-          if ($scope.showAtomElement == false && item.atomElement == true) {
+          if (!$scope.showAtomElement && item.atomElement) {
             return false;
           }
 
@@ -697,34 +710,36 @@ tsApp
           contentService.findRelationships(
             $scope.component.object.terminologyId,
             $scope.component.object.terminology,
-            $scope.component.object.version, $scope.relPaging.page, filters).then(function(data) {
+            $scope.component.object.version, $scope.relPaging.page, filters)
+            .then(function(data) {
 
-            // if description logic terminology, sort relationships also by
-            // group
-            if ($scope.metadata.terminology.descriptionLogicTerminology) {
-              data.relationship.sort(function(a, b) {
-                if (a.relationshipType < b.relationshipType)
-                  return -1;
-                if (a.relationshipType > b.relationshipType)
-                  return 1;
-                if (a.group < b.group)
-                  return -1;
-                if (a.group > b.group)
-                  return 1;
-                return 0;
-              });
-            }
+              // if description logic terminology, sort relationships also by
+              // group
+              if ($scope.metadata.terminology.descriptionLogicTerminology) {
+                data.relationship.sort(function(a, b) {
+                  if (a.relationshipType < b.relationshipType)
+                    return -1;
+                  if (a.relationshipType > b.relationshipType)
+                    return 1;
+                  if (a.group < b.group)
+                    return -1;
+                  if (a.group > b.group)
+                    return 1;
+                  return 0;
+                });
+              }
 
-            $scope.pagedRelationships = data.relationship;
-            $scope.pagedRelationships.totalCount = data.totalCount;
+              $scope.pagedRelationships = data.relationship;
+              $scope.pagedRelationships.totalCount = data.totalCount;
 
-          });
+            });
         }
 
         // Get paged atoms (assume all are loaded)
         $scope.getPagedAtoms = function() {
-          $scope.pagedAtoms = $scope.getPagedArray($scope.component.object.atom,
-            $scope.atomPaging.page, true, $scope.atomPaging.filter);
+          $scope.pagedAtoms = $scope.getPagedArray(
+            $scope.component.object.atom, $scope.atomPaging.page, true,
+            $scope.atomPaging.filter);
         }
 
         // Get paged definitions (assume all are loaded)
@@ -742,8 +757,8 @@ tsApp
 
           // get the paged array, with flags and filter
           $scope.pagedAttributes = $scope.getPagedArray(
-            $scope.component.object.attribute, $scope.attributePaging.page, true,
-            $scope.attributePaging.filter, 'name', false);
+            $scope.component.object.attribute, $scope.attributePaging.page,
+            true, $scope.attributePaging.filter, 'name', false);
 
         }
 
@@ -751,9 +766,9 @@ tsApp
         $scope.getPagedMembers = function() {
 
           // get the paged array, with flags and filter
-          $scope.pagedMembers = $scope.getPagedArray($scope.component.object.member,
-            $scope.memberPaging.page, true, $scope.memberPaging.filter, 'name',
-            false);
+          $scope.pagedMembers = $scope.getPagedArray(
+            $scope.component.object.member, $scope.memberPaging.page, true,
+            $scope.memberPaging.filter, 'name', false);
         }
 
         // Get paged STYs (assume all are loaded)
@@ -771,12 +786,10 @@ tsApp
         $scope.getPagedArray = function(array, page, applyFlags, filterStr,
           sortField, ascending) {
 
-          console.debug("GET PAGED ARRAY", array, page, applyFlags, filterStr, sortField);
           var newArray = new Array();
 
           // if array blank or not an array, return blank list
-          if (array == null || array == undefined
-            || Array.isArray(array) == false)
+          if (array == null || array == undefined || !Array.isArray(array))
             return newArray;
 
           // apply page 1 if not supplied
@@ -803,8 +816,9 @@ tsApp
           }
 
           // get the page indices
-          var fromIndex = (page - 1) * $scope.pageSize;
-          var toIndex = Math.min(fromIndex + $scope.pageSize, array.length);
+          var fromIndex = (page - 1) * contentService.pageSize;
+          var toIndex = Math.min(fromIndex + contentService.pageSize,
+            array.length);
 
           // slice the array
           var results = newArray.slice(fromIndex, toIndex);
@@ -837,13 +851,12 @@ tsApp
           var newArray = new Array();
 
           // if array blank or not an array, return blank list
-          if (array == null || array == undefined
-            || Array.isArray(array) == false)
+          if (array == null || array == undefined || !Array.isArray(array))
             return newArray;
 
           // apply show/hide flags via showItem() function
           for (var i = 0; i < array.length; i++) {
-            if ($scope.showItem(array[i]) == true) {
+            if ($scope.showItem(array[i])) {
               newArray.push(array[i]);
             }
           }
@@ -904,6 +917,14 @@ tsApp
         // METADATA related functions
         //
 
+        // Find a terminology version
+        $scope.getTerminologyVersion = function(terminology) {
+          for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+            if (terminology === $scope.metadata.terminologies[i].terminology) {
+              return $scope.metadata.terminologies[i].version;
+            }
+          }
+        }
         // Function to filter viewable terminologies for picklist
         $scope.getViewableTerminologies = function() {
           var viewableTerminologies = new Array();
@@ -995,23 +1016,18 @@ tsApp
         // HISTORY related functions
         //
 
+        // Local history variables for the display.
+        $scope.localHistory = null;
+        $scope.localHistoryPageSize = 10; // NOTE: must be even number!
+        $scope.localHistoryPreviousCt = 0;
+        $scope.localHistoryNextCt = 0;
+
         // Retrieve a component from the history list
         $scope.getComponentFromHistory = function(index) {
-
-          // if currently viewed do nothing
-          if (index === $scope.component.historyIndex)
-            return;
-
-          // set the index and get the component from history information
-          $scope.component.historyIndex = index;
-          contentService
-            .getComponentFromType(
-              $scope.component.history[$scope.component.historyIndex].terminologyId,
-              $scope.component.history[$scope.component.historyIndex].terminology,
-              $scope.component.history[$scope.component.historyIndex].version,
-              $scope.component.history[$scope.component.historyIndex].type)
-            .then(function() {
-              $scope.getTree(0);
+          contentService.getComponentFromHistory(index).then(
+            function(data) {
+              // manage local history
+              setComponentLocalHistory(index);
               applyPaging();
             });
         }
@@ -1023,6 +1039,38 @@ tsApp
 
           return component.terminology + "/" + component.terminologyId + " "
             + component.type + ": " + component.name;
+        }
+
+        // Function to set the local history for drop down list based on an
+        // index For cases where history > page size, returns array [index -
+        // pageSize / 2 + 1 : index + pageSize]
+        function setComponentLocalHistory(index) {
+
+          // if not a full page of history, simply set to component history and
+          // stop
+          if ($scope.component.history.length <= $scope.localHistoryPageSize) {
+            $scope.localHistory = $scope.component.history;
+            return;
+          }
+
+          // get upper bound
+          var upperBound = Math.min(index + $scope.localHistoryPageSize / 2,
+            $scope.component.history.length);
+          var lowerBound = Math
+            .max(upperBound - $scope.localHistoryPageSize, 0);
+
+          // resize upper bound to ensure full page (for cases near beginning of
+          // history)
+          upperBound = lowerBound + $scope.localHistoryPageSize;
+
+          // calculate unshown element numbers
+          $scope.localHistoryNextCt = $scope.component.history.length
+            - upperBound;
+          $scope.localHistoryPreviousCt = lowerBound;
+
+          // return the local history
+          $scope.localHistory = $scope.component.history.slice(lowerBound,
+            upperBound);
         }
 
       } ]);

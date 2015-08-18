@@ -26,7 +26,7 @@ tsApp
           definitionsLabel : "Definitions",
           subsetsLabel : "Subsets",
           relationshipsLabel : "Relationships",
-          atomRelationshipsLabel : "References",
+          atomRelationshipsLabel : "Relationships",
           extensionsLabel : "Extensions",
           treeSortField : "nodeName",
           terminologies : null

@@ -99,11 +99,11 @@
             <span class="pull-right">
 
               <a class="glyphicon glyphicon-star"
-                ng-show="showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchParams.query"
+                ng-show="showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResultsTree.totalCount > 0"
                 tooltip="Click to hide extension highlights in tree"
                 ng-click="toggleExtension()"> </a>
               <a class="glyphicon glyphicon-star-empty"
-                ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchParams.query"
+                ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResultsTree.totalCount > 0"
                 tooltip="Click to show extension highlights in tree"
                 ng-click="toggleExtension()"> </a>
               &nbsp;
@@ -197,10 +197,10 @@
         <h3>
           {{component.object.terminologyId}} {{component.object.name}}
           <span class="label label-warning"
-            ng-show="terminology.metathesaurus && component.object.suppressible == true"
+            ng-show="terminology.metathesaurus && component.object.suppressible"
             tooltip="Suppressible">S</span>
-          <span class="label label-default"
-            ng-show="component.object.obsolete == true" tooltip="Obsolete">O</span>
+          <span class="label label-default" ng-show="component.object.obsolete"
+            tooltip="Obsolete">O</span>
           <span
             ng-show="terminology.descriptionLogicTerminology && !component.object.fullyDefined"
             class="label label-info" tooltip="Primitive">P</span>
@@ -214,12 +214,12 @@
 
         <button ng-show="!metadata.terminology.descriptionLogicTerminology"
           ng-click="toggleSuppressible()" class="btn btn-xs btn-primary">
-          <span ng-show="showSuppressible == true">Hide Suppressible</span>
-          <span ng-show="showSuppressible != true">Show Suppressible</span>
+          <span ng-show="showSuppressible">Hide Suppressible</span>
+          <span ng-show="!showSuppressible">Show Suppressible</span>
         </button>
         <button ng-click="toggleObsolete()" class="btn btn-xs btn-primary">
-          <span ng-show="showObsolete == true">Hide Obsolete</span>
-          <span ng-show="showObsolete != true">Show Obsolete</span>
+          <span ng-show="showObsolete">Hide Obsolete</span>
+          <span ng-show="!showObsolete">Show Obsolete</span>
         </button>
 
 
@@ -245,48 +245,396 @@
         </div>
 
 
-              <!--  Semantic types -->
-              <div ng-show="component.object.semanticType.length> 0">
-                <h4>Semantic Types ({{pagedSemanticTypes.totalCount}})</h4>
+        <!--  Semantic types -->
+        <div ng-show="component.object.semanticType.length > 0">
+          <h4>Semantic Types ({{pagedSemanticTypes.totalCount}})</h4>
 
 
-                <span style="display: block;">
-                  <pagination items-per-page="pageSize" max-size="5"
-                    boundary-links="true" class="pagination-sm"
-                    previous-text="&lsaquo;" next-text="&rsaquo;"
-                    first-text="&laquo;" last-text="&raquo;"
-                    ng-show="component.object.semanticType.length > pageSize"
-                    total-items="pagedSemanticTypes.totalCount"
-                    ng-model="semanticTypesPage"
-                    ng-change="getPagedSemanticTypes()"></pagination>
+          <span style="display: block;">
+            <pagination items-per-page="pageSize" max-size="5"
+              boundary-links="true" class="pagination-sm"
+              previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
+              last-text="&raquo;"
+              ng-show="component.object.semanticType.length > pageSize"
+              total-items="pagedSemanticTypes.totalCount"
+              ng-model="styPaging.page" ng-change="getPagedSemanticTypes()"></pagination>
 
-                  <input class="input-filter" placeholder="Enter filter text"
-                    ng-show="component.object.semanticType.length > pageSize"
-                    type="text" ng-model="styPaging.filter"
-                    ng-model-options="{ debounce: 300 }"
-                    ng-change="getPagedSemanticTypes()">
+            <input class="input-filter" placeholder="Enter filter text"
+              ng-show="component.object.semanticType.length > pageSize"
+              type="text" ng-model="styPaging.filter"
+              ng-model-options="{ debounce: 300 }"
+              ng-change="getPagedSemanticTypes()">
 
-                  <button class="btn btn-xs btn-warning"
-                    ng-show="styPaging.filter"
-                    ng-click="styPaging.filter = ''; getPagedSemanticTypes()"
-                    tooltip="Click to clear filter text">Clear</button>
-                </span>
+            <button class="btn btn-xs btn-warning" ng-show="styPaging.filter"
+              ng-click="styPaging.filter = ''; getPagedSemanticTypes()"
+              tooltip="Click to clear filter text">Clear</button>
+          </span>
 
-                <ul class="icon-list">
-                  <li class="cr-list" ng-repeat="item in pagedSemanticTypes"
-                    ng-show="showItem(item)"><span
-                      class="label label-warning"
-                      ng-show="terminology.metathesaurus && item.suppressible"
-                      tooltip="Suppressible">S</span> <span
-                      class="label label-default"
-                      ng-show="item.obsolete" tooltip="Obsolete">O</span>
-                    {{item.semanticType}}</li>
+          <ul class="icon-list">
+            <li class="cr-list" ng-repeat="item in pagedSemanticTypes"
+              ng-show="showItem(item)"><span class="label label-warning"
+                ng-show="terminology.metathesaurus && item.suppressible"
+                tooltip="Suppressible">S</span> <span
+                class="label label-default" ng-show="item.obsolete"
+                tooltip="Obsolete">O</span> {{item.semanticType}}</li>
+          </ul>
+
+        </div>
+        <!--  end Semantic types -->
+
+        <!--  Definitions -->
+        <div ng-show="component.object.definition.length > 0">
+          <h4>{{metadata.definitionsLabel}}
+            ({{pagedDefinitions.totalCount}})</h4>
+
+          <span style="display: block;">
+            <pagination items-per-page="pageSize" max-size="5"
+              boundary-links="true" class="pagination-sm"
+              previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
+              last-text="&raquo;"
+              ng-show="component.object.definition.length > pageSize"
+              total-items="pagedDefinitions.totalCount"
+              ng-model="defPaging.page" ng-change="getPagedDefinitions()"></pagination>
+
+            <input class="input-filter" placeholder="Enter filter text"
+              ng-show="component.object.definition.length > pageSize"
+              type="text" ng-model="defPaging.filter"
+              ng-model-options="{ debounce: 300 }"
+              ng-change="getPagedDefinitions()">
+
+            <button class="btn btn-xs btn-warning" ng-show="defPaging.fitler"
+              ng-click="defPaging.filter = ''; getPagedDefinitions()"
+              tooltip="Click to clear filter text">Clear</button>
+          </span>
+          <ul class="icon-list">
+            <li class="cr-list" ng-repeat="item in pagedDefinitions"
+              ng-show="showItem(item)"><span class="label label-info"
+                ng-show="item.atomElement" tooltip="{{item.atomElementStr}}">i</span>
+              <span class="label label-warning"
+                ng-show="terminology.metathesaurus && item.suppressible"
+                tooltip="Suppressible">S</span> <span
+                class="label label-default" ng-show="item.obsolete"
+                tooltip="Obsolete">O</span> {{item.value}}</li>
+          </ul>
+        </div>
+        <!-- end Definitions -->
+
+        <!-- Atoms -->
+        <div ng-show="component.object.atom.length > 0">
+          <h4>{{metadata.atomsLabel}} ({{pagedAtoms.totalCount}})</h4>
+
+          <span style="display: block;">
+            <pagination items-per-page="pageSize" max-size="5"
+              boundary-links="true" class="pagination-sm"
+              previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
+              last-text="&raquo;"
+              ng-show="component.object.atom.length > pageSize"
+              total-items="pagedAtoms.totalCount" ng-model="atomPaging.page"
+              ng-change="getPagedAtoms()"></pagination>
+
+            <input class="input-filter" placeholder="Enter filter text"
+              ng-show="component.object.atom.length > pageSize" type="text"
+              ng-model="atomPaging.filter" ng-model-options="{ debounce: 300 }"
+              ng-change="getPagedAtoms()">
+
+            <button class="btn btn-xs btn-warning" ng-show="atomPaging.filter"
+              ng-click="atomPaging.filter = ''; getPagedAtoms()"
+              tooltip="Click to clear filter text">Clear</button>
+          </span>
+
+          <ul class="icon-list">
+            <li ng-class="cr-list" ng-repeat="item in pagedAtoms"
+              ng-show="showItem(item)"><div>
+                <div style="display: table-cell; padding: 1px;">
+                  <a ng-class="getCollapseIcon(item)"
+                    ng-click="toggleItemCollapse(item)"></a>
+                </div>
+                <div style="display: table-cell; padding: 1px;">
+                  <span class="label label-warning"
+                    ng-show="terminology.metathesaurus && item.suppressible"
+                    tooltip="Suppressible">S</span>
+                  <span class="label label-default" ng-show="item.obsolete"
+                    tooltip="Obsolete">O</span>
+                  <!-- Format:  termType name [ terminology ] codeId componentId descriptorId conceptTerminologyIds
+                                                NOTE: codeId, componentId, descriptorId automatically shown if of differing terminology, 
+                                                see each type below for additional rules -->
+                  {{item.name}}
+                  <!-- Mobile friendly line-break -->
+                  <br class="visible-xs-inline" />
+                  <span style="margin-left: 20px;" class="visible-xs-inline">
+                  </span>
+                  <!-- Terminology and term type -->
+                  [
+                  <span
+                    ng-show="item.terminology != component.object.terminology">
+                    {{item.terminology}} /</span>
+                  <span tooltip="{{getTermTypeName(item.termType)}}">{{item.termType}}</span>
+                  , {{item.language}} ]
+                  <!-- For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
+                  <span
+                    ng-show="item.codeId != component.object.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
+                    tooltip="{{item.terminology}} code">
+                    <a ng-show="item.codeId != 'NOCODE'"
+                      ng-click="getComponentFromType(item.codeId, item.terminology, item.version,'CODE')">{{item.codeId}}</a>
+                    <span ng-show="item.codeId==='NOCODE'">NOCODE</span>
+                  </span>
+                  <!-- For concept id, do not show if identical to component id -->
+                  <span
+                    ng-show="item.terminology != component.object.terminology || item.conceptId != component.object.terminologyId"
+                    tooltip="{{item.terminology}} concept">
+                    <a
+                      ng-click="getComponentFromType(item.conceptId, item.terminology, item.version,'CONCEPT')">{{item.conceptId}}</a>
+                  </span>
+
+                  <!-- For descriptor id, do not show if identical to component id -->
+                  <span
+                    ng-show="item.terminology != component.object.terminology || item.descriptorId != component.object.terminologyId"
+                    tooltip="{{item.terminology}} descriptor">
+                    <a
+                      ng-click="getComponentFromType(item.descriptorId, item.terminology, item.version,'DESCRIPTOR')">{{item.descriptorId}}</a>
+                  </span>
+
+                  <!-- Show any referenced components in the concept terminology id list -->
+                  <span ng-repeat="(key, value) in item.conceptTerminologyIds">
+                    <a
+                      ng-show="key != component.object.terminology || value != component.object.terminologyId"
+                      tooltip="{{key}} concept"
+                      ng-click="getComponentFromType(value, key, getTerminologyVersion(key),'CONCEPT')">{{value}}</a>
+                  </span>
+
+                  <div style="margin-left: 20px;" ng-show="item.expanded">
+
+                    <!-- Atom Definitions -->
+                    <div ng-show="item.definition.length > 0">
+                      <strong>{{metadata.definitionsLabel}}</strong>
+                      <ul>
+                        <li
+                          ng-repeat="definition in item.definition | orderBy:'value'">
+                          {{definition.value}}</li>
+                      </ul>
+                    </div>
+                    <!-- end Atom Definitions -->
+
+                    <!-- Atom Attributes -->
+                    <div ng-show="item.attribute.length > 0">
+                      <strong>{{metadata.attributesLabel}}</strong>
+                      <ul>
+                        <li
+                          ng-repeat="attribute in item.attribute | orderBy: ['name', 'value']">
+                          <span class="label label-info"
+                            tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+                          = {{attribute.value}}
+                        </li>
+                      </ul>
+                    </div>
+                    <!-- end Atom Attributes -->
+
+                    <!-- Atom Subsets -->
+                    <div ng-show="item.member.length > 0">
+                      <strong>{{metadata.subsetsLabel}}</strong>
+                      <ul>
+                        <li
+                          ng-repeat="member in item.member | orderBy: ['name', 'value']">
+                          {{member.subsetName}}
+                          <div ng-show="item.attribute.length > 0">
+                            <ul>
+                              <li
+                                ng-repeat="attribute in member.attribute | orderBy: ['name', 'value']">
+                                <span class="label label-info"
+                                  tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+                                = {{attribute.value}}
+                              </li>
+                            </ul>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                    <!-- end Atom Subsets -->
+
+                    <!-- Atom Relationship -->
+                    <div ng-show="item.relationship.length > 0">
+                      <strong>{{metadata.atomRelationshipsLabel}}</strong>
+                      <ul>
+                        <li
+                          ng-repeat="relationship in item.relationship | orderBy:['relationshipType', 'toName']"><span
+                            class="label label-info"
+                            tooltip="{{getRelationshipTypeName(relationship.relationshipType)}}">{{relationship.relationshipType}}</span>
+                          {{relationship.additionalRelationshipType}} <a
+                            ng-click="findComponents(relationship.toName, 1, 1)"
+                            tooltip="Search for {{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toName}}</a>
+                        </li>
+                      </ul>
+                    </div>
+                    <!-- end Atom Relationship -->
+
+
+                  </div>
+                </div>
+              </div></li>
+
+          </ul>
+        </div>
+        <!-- end Atoms -->
+
+
+        <!-- Attributes -->
+        <div ng-show="component.object.attribute.length > 0">
+          <h4>{{metadata.attributesLabel}} ({{pagedAttributes.totalCount}})</h4>
+          <span style="display: block;">
+            <pagination items-per-page="pageSize" max-size="5"
+              boundary-links="true" class="pagination-sm"
+              previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
+              last-text="&raquo;"
+              ng-show="component.object.attribute.length > pageSize"
+              total-items="pagedAttributes.totalCount"
+              ng-model="attributePaging.page" ng-change="getPagedAttributes()"></pagination>
+
+            <input class="input-filter" placeholder="Enter filter text"
+              ng-show="component.object.attribute.length > pageSize" type="text"
+              ng-model="attributePaging.filter"
+              ng-model-options="{ debounce: 300 }"
+              ng-change="getPagedAttributes()">
+
+            <button class="btn btn-xs btn-warning"
+              ng-show="attributePaging.filter"
+              ng-click="attributePaging.filter = ''; getPagedAttributes()"
+              tooltip="Click to clear filter text">Clear</button>
+          </span>
+
+          <ul class="icon-list">
+            <li class="cr-list" ng-repeat="item in pagedAttributes"
+              ng-show="showItem(item)"><span class="label label-warning"
+                ng-show="terminology.metathesaurus && item.suppressible"
+                tooltip="Suppressible">S</span> <span
+                class="label label-default" ng-show="item.obsolete"
+                tooltip="Obsolete">O</span> <span class="label label-info"
+                tooltip="{{getAttributeNameName(item.name)}}">{{item.name}}</span>
+              = {{item.value}}
+          </ul>
+        </div>
+        <!-- end Attributes -->
+
+        <!-- Subsets -->
+        <div ng-show="component.object.member.length > 0">
+          <h4>{{metadata.subsetsLabel}} ({{pagedMembers.totalCount}})</h4>
+          <span style="display: block;">
+            <pagination items-per-page="pageSize" max-size="5"
+              boundary-links="true" class="pagination-sm"
+              previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
+              last-text="&raquo;"
+              ng-show="component.object.member.length > pageSize"
+              total-items="pagedMembers.totalCount"
+              ng-model="membersPaging.page" ng-change="getPagedMembers()"></pagination>
+
+            <input class="input-filter" placeholder="Enter filter text"
+              ng-show="component.object.member.length > pageSize" type="text"
+              ng-model="memberPaging.filter"
+              ng-model-options="{ debounce: 300 }" ng-change="getPagedMembers()">
+
+            <button class="btn btn-xs btn-warning" ng-show="memberPaging.filter"
+              ng-click="memberPaging.filter = ''; getPagedMembers()"
+              tooltip="Click to clear filter text">Clear</button>
+          </span>
+
+          <ul>
+            <li class="cr-list" ng-repeat="item in pagedMembers"
+              ng-show="showItem(item)"><span class="label label-warning"
+                ng-show="terminology.metathesaurus && item.suppressible"
+                tooltip="Suppressible">S</span> <span
+                class="label label-default" ng-show="item.obsolete"
+                tooltip="Obsolete">O</span> {{item.subsetName}}
+              <div ng-show="item.attribute.length > 0">
+                <ul>
+                  <li
+                    ng-repeat="attribute in item.attribute | orderBy: ['name', 'value']">
+                    <span class="label label-info"
+                      tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+                    = {{attribute.value}}
+                  </li>
                 </ul>
-
               </div>
-              
-              
+          </ul>
+        </div>
+        <!-- end Subsets -->
+
+        <!-- Relationships -->
+        <div ng-show="pagedRelationships.totalCount > 0 || relPaging.filter">
+          <h4>
+            {{metadata.relationshipsLabel}}
+            ({{pagedRelationships.totalCount}})&nbsp;&nbsp;
+            <button ng-show="terminology.descriptionLogicTerminology"
+              ng-click="toggleInferred()" class="btn btn-xs btn-primary">
+              <span ng-show="showInferred"
+                tooltip="Showing inferred, click for stated">Inferred</span>
+              <span ng-show="!showInferred"
+                tooltip="Showing stated, click for inferred">Stated</span>
+            </button>
+          </h4>
+          <span style="display: block;">
+            <pagination items-per-page="relsPageSize" max-size="5"
+              boundary-links="true" class="pagination-sm"
+              previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
+              last-text="&raquo;"
+              ng-show="pagedRelationships.totalCount > relsPageSize || relPaging.filter"
+              total-items="pagedRelationships.totalCount"
+              ng-model="relPaging.page" ng-change="getPagedRelationships()"></pagination>
+
+            <input class="input-filter" placeholder="Enter filter text"
+              ng-show="pagedRelationships.totalCount > relsPageSize || relPaging.filter"
+              type="text" ng-model="relPaging.filter"
+              ng-model-options="{ debounce: 300 }"
+              ng-change="getPagedRelationships()">
+
+            <button class="btn btn-xs btn-warning" ng-show="relPaging.filter"
+              ng-click="relPaging.filter = ''; getPagedRelationships()"
+              tooltip="Click to clear filter text">Clear</button>
+          </span>
+
+          <ul class="icon-list">
+            <li class="cr-list" ng-repeat="item in pagedRelationships"
+              ng-show="showItem(item)"><span ng-show="item.group > 0">
+                <span class="label label-success"
+                  tooltip="Relationship group {{item.group}}">{{item.group}}</span>
+                &nbsp;
+              </span> <span class="label label-warning"
+                ng-show="terminology.metathesaurus && item.suppressible"
+                tooltip="Suppressible">S</span> <span
+                class="label label-default" ng-show="item.obsolete"
+                tooltip="Obsolete">O</span> <span class="label label-info"
+                tooltip="{{getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
+
+              {{item.additionalRelationshipType}} <!-- Mobile friendly switch -->
+              <span class="hidden-xs">
+                <a
+                  ng-click="getComponent(item.toTerminologyId, component.object.terminology, component.object.version)"
+                  tooltip="{{item.terminology}} {{componentType | lowercase}}">{{item.toTerminologyId}}</a>
+                {{item.toName}}
+
+              </span> <span class="visible-xs-inline">
+                <a
+                  ng-click="getComponent(item.toTerminologyId, component.object.terminology, component.object.version)"
+                  tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
+              </span></li>
+          </ul>
+        </div>
+        <!-- end Relationships -->
+
+        <!-- Labels -->
+        <div ng-show="countLabels(component) > 0">
+          <h4>{{metadata.extensionsLabel}}
+            ({{countLabels(component)}})&nbsp;&nbsp;</h4>
+          <ul class="icon-list">
+            <li class="cr-list" ng-repeat="item in component.object.labels"
+              ng-show="!item.startsWith('LABELFOR')">
+              {{getLabelSetName(item)}} ({{item}})</li>
+          </ul>
+        </div>
+        <!-- end Labels -->
+
+
+
       </div>
+      <!-- end Component Display -->
 
     </div>
   </div>
