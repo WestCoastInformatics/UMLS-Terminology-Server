@@ -293,10 +293,6 @@ tsApp
         this.getComponentFromHistory = function(index) {
           var deferred = $q.defer();
 
-          // if currently viewed do nothing
-          if (index === component.historyIndex)
-            return;
-
           // set the index and get the component from history information
           component.historyIndex = index;
           this.getComponentFromType(

@@ -32,8 +32,7 @@
               <button class="btn btn-sm btn-primary" type="submit"
                 ng-click="searchParams.page = 1 && findComponents(true)">Search</button>
               <button class="btn btn-sm btn-warning"
-                ng-show="searchParams.query"
-                ng-click="clearQuery()"
+                ng-show="searchParams.query" ng-click="clearQuery()"
                 tooltip="Click to clear search">Clear</button>
 
             </form></td>
@@ -69,8 +68,8 @@
             boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
             next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
             ng-show="searchResults.list.totalCount > pageSizes.general"
-            total-items="searchResults.list.totalCount" ng-model="searchParams.page"
-            ng-change="findComponents(false)"></pagination>
+            total-items="searchResults.list.totalCount"
+            ng-model="searchParams.page" ng-change="findComponents(false)"></pagination>
 
 
           <table class="table table-hover" style="margin-top: 10px;"
@@ -128,14 +127,14 @@
             last-text="&raquo;"
             ng-show="searchResults.tree.totalCount > pageSizes.trees"
             total-items="searchResults.tree.totalCount"
-            ng-model="searchParams.page"
-            ng-change="findComponents(false)"></pagination>
+            ng-model="searchParams.page" ng-change="findComponents(false)"></pagination>
 
           <div ng-if="searchResults.tree && searchResults.tree.totalCount > 0"
             style="display: block;" ui-tree>
             <ol ui-tree-nodes="" ng-model="searchResults.tree" id="tree-root"
               data-nodrop-enabled="true">
-              <li ng-repeat="tree in searchResults.tree" ui-tree-node data-nodrag
+              <li ng-repeat="tree in searchResults.tree" ui-tree-node
+                data-nodrag
                 ng-include="'app/component/tree/searchResultsTree_renderer.html'"></li>
             </ol>
           </div>
@@ -333,9 +332,9 @@
               ng-change="getPagedAtoms()"></pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
-              ng-show="component.object.atom.length > pageSizes.general" type="text"
-              ng-model="atomPaging.filter" ng-model-options="{ debounce: 300 }"
-              ng-change="getPagedAtoms()">
+              ng-show="component.object.atom.length > pageSizes.general"
+              type="text" ng-model="atomPaging.filter"
+              ng-model-options="{ debounce: 300 }" ng-change="getPagedAtoms()">
 
             <button class="btn btn-xs btn-warning" ng-show="atomPaging.filter"
               ng-click="atomPaging.filter = ''; getPagedAtoms()"
@@ -490,8 +489,8 @@
               ng-model="attributePaging.page" ng-change="getPagedAttributes()"></pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
-              ng-show="component.object.attribute.length > pageSizes.general" type="text"
-              ng-model="attributePaging.filter"
+              ng-show="component.object.attribute.length > pageSizes.general"
+              type="text" ng-model="attributePaging.filter"
               ng-model-options="{ debounce: 300 }"
               ng-change="getPagedAttributes()">
 
@@ -527,8 +526,8 @@
               ng-model="membersPaging.page" ng-change="getPagedMembers()"></pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
-              ng-show="component.object.member.length > pageSizes.general" type="text"
-              ng-model="memberPaging.filter"
+              ng-show="component.object.member.length > pageSizes.general"
+              type="text" ng-model="memberPaging.filter"
               ng-model-options="{ debounce: 300 }" ng-change="getPagedMembers()">
 
             <button class="btn btn-xs btn-warning" ng-show="memberPaging.filter"

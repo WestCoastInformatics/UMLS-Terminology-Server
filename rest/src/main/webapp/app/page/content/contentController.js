@@ -45,7 +45,6 @@ tsApp
         $scope.queryForList = true // whether to query for list, default
         $scope.queryForTree = false; // whether to query for tree
 
-
         // Variables for iterating through trees in report
         $scope.treeCount = null;
         $scope.treeViewed = null;
@@ -270,7 +269,6 @@ tsApp
 
         // Get a tree node's children and add to the parent
         $scope.getAndSetChildTrees = function(tree, startIndex) {
-          console.debug("getAndSetChildTrees",tree,startIndex);//
           if (!tree) {
             return;
           }
@@ -284,12 +282,10 @@ tsApp
             .getChildTrees(tree, startIndex)
             .then(
               function(data) {
-                console.debug("child trees",data);
                 // construct ancestor path (for sake of completeness, not filled
                 // in on server-side)
                 var ancestorPath = tree.ancestorPath + '~'
                   + tree.nodeTerminologyId;
-                console.debug("ancestorPath",ancestorPath);
 
                 // cycle over children, and construct tree nodes
                 for (var i = 0; i < data.tree.length; i++) {
@@ -350,24 +346,32 @@ tsApp
         // Get a component and set the local component data model
         // e.g. this is called when a user clicks on a search result
         $scope.getComponent = function(terminologyId, terminology, version) {
-          contentService.getComponent(terminologyId, terminology, version)
-            .then(function() {
-              $scope.setActiveRow($scope.component.object.terminologyId);
-              $scope.getTree(0);
-              applyPaging();
-            });
+          contentService
+            .getComponent(terminologyId, terminology, version)
+            .then(
+              function() {
+                $scope.setActiveRow($scope.component.object.terminologyId);
+                $scope.getTree(0);
+                $scope
+                  .setComponentLocalHistory($scope.component.historyIndex);
+                applyPaging();
+              });
         }
 
         // Get a component and set the local component data model
         // e.g. this is called when a user clicks on a link in a report
         $scope.getComponentFromType = function(terminologyId, terminology,
           version, type) {
-          contentService.getComponentFromType(terminologyId, terminology,
-            version, type).then(function() {
-            $scope.setActiveRow($scope.component.object.terminologyId);
-            $scope.getTree(0);
-            applyPaging();
-          });
+          contentService
+            .getComponentFromType(terminologyId, terminology, version, type)
+            .then(
+              function() {
+                $scope.setActiveRow($scope.component.object.terminologyId);
+                $scope
+                  .setComponentLocalHistory($scope.component.historyIndex);
+                $scope.getTree(0);
+                applyPaging();
+              });
         }
 
         // Find components for a programmatic query
@@ -402,23 +406,29 @@ tsApp
             return;
           }
 
-          contentService.findComponentsAsList($scope.searchParams.query,
-            $scope.metadata.terminology.terminology,
-            $scope.metadata.terminology.version, $scope.searchParams.page)
+          contentService
+            .findComponentsAsList($scope.searchParams.query,
+              $scope.metadata.terminology.terminology,
+              $scope.metadata.terminology.version, $scope.searchParams.page)
             .then(
               function(data) {
                 $scope.searchResults.list = data.searchResult;
                 $scope.searchResults.list.totalCount = data.totalCount;
 
                 if (loadFirst && $scope.searchResults.list.length > 0) {
-                  contentService.getComponent(
-                    $scope.searchResults.list[0].terminologyId,
-                    $scope.metadata.terminology.terminology,
-                    $scope.metadata.terminology.version).then(function(data) {
-                    $scope.setActiveRow($scope.component.object.terminologyId);
-                    $scope.getTree(0);
-                    applyPaging();
-                  });
+                  contentService
+                    .getComponent($scope.searchResults.list[0].terminologyId,
+                      $scope.metadata.terminology.terminology,
+                      $scope.metadata.terminology.version)
+                    .then(
+                      function(data) {
+                        $scope
+                          .setActiveRow($scope.component.object.terminologyId);
+                        $scope
+                          .setComponentLocalHistory($scope.component.historyIndex);
+                        $scope.getTree(0);
+                        applyPaging();
+                      });
                 }
               });
         }
@@ -901,7 +911,8 @@ tsApp
 
         // Helper function to select an item in the list view
         $scope.setActiveRow = function(terminologyId) {
-          if (!$scope.searchResults.list || $scope.searchResults.list.length == 0)
+          if (!$scope.searchResults.list
+            || $scope.searchResults.list.length == 0)
             return;
           for (var i = 0; i < $scope.searchResults.list.length; i++) {
             if ($scope.searchResults.list[i].terminologyId === terminologyId) {
@@ -1024,9 +1035,13 @@ tsApp
 
         // Retrieve a component from the history list
         $scope.getComponentFromHistory = function(index) {
+          // if currently viewed do nothing
+          if (index === $scope.component.historyIndex)
+            return;
+
           contentService.getComponentFromHistory(index).then(function(data) {
             // manage local history
-            setComponentLocalHistory(index);
+            $scope.setComponentLocalHistory(index);
             applyPaging();
           });
         }
@@ -1043,8 +1058,7 @@ tsApp
         // Function to set the local history for drop down list based on an
         // index For cases where history > page size, returns array [index -
         // pageSize / 2 + 1 : index + pageSize]
-        function setComponentLocalHistory(index) {
-
+        $scope.setComponentLocalHistory = function(index) {
           // if not a full page of history, simply set to component history and
           // stop
           if ($scope.component.history.length <= $scope.localHistoryPageSize) {
