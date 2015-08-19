@@ -24,14 +24,46 @@ tsApp
           historyIndex : -1
         }
 
-        // Search paging parameters
-        this.pageSize = 10;
-        this.relsPageSize = 10;
-        this.rootsPageSize = 25;
+        // Page size
+        var pageSizes = {
+          general : 10,
+          rels : 10,
+          roots : 25,
+          trees : 5,
+          search : 10,
+          sibling : 10
+        }
 
+        // Search results
+        var searchParams = {
+          page : 1,
+          query : null
+        }
+        
+        // Search results
+        var searchResults = {
+          list: [],
+          tree: []
+        }
+        
         // Accessor function for component
         this.getModel = function() {
           return component;
+        }
+
+        // Accessor for the page sizes object
+        this.getPageSizes = function() {
+          return pageSizes;
+        }
+        
+        // Accessor for search params
+        this.getSearchParams = function() {
+          return searchParams;
+        }
+
+        // Accessor for search results
+        this.getSearchResults = function() {
+          return searchResults;
         }
 
         // Autocomplete function
@@ -343,7 +375,7 @@ tsApp
           // PFS
           var pfs = {
             startIndex : startIndex,
-            maxResults : this.pageSize,
+            maxResults : pageSizes.general,
             sortField : null,
             queryRestriction : null
           };
@@ -388,8 +420,8 @@ tsApp
           // PFS
           // construct the pfs
           var pfs = {
-            startIndex : (page - 1) * this.pageSize,
-            maxResults : this.rootsPageSize,
+            startIndex : (page - 1) * pageSizes.general,
+            maxResults : pageSizes.roots,
             sortField : metadata.treeSortField,
             queryRestriction : null
           }
@@ -425,8 +457,8 @@ tsApp
 
           // PFS
           var pfs = {
-            startIndex : (page - 1) * this.pageSize,
-            maxResults : this.pageSize,
+            startIndex : (page - 1) * pageSizes.general,
+            maxResults : pageSizes.general,
             sortField : null,
             queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
           }
@@ -470,8 +502,8 @@ tsApp
 
           // PFS
           var pfs = {
-            startIndex : (page - 1) * this.pageSize,
-            maxResults : this.pageSize,
+            startIndex : (page - 1) * pageSizes.trees,
+            maxResults : pageSizes.trees,
             sortField : metadata.treeSortField,
             queryRestriction : null
           }
@@ -513,8 +545,8 @@ tsApp
             version);
 
           var pfs = {
-            startIndex : (page - 1) * this.pageSize,
-            maxResults : this.pageSize,
+            startIndex : (page - 1) * pageSizes.general,
+            maxResults : pageSizes.general,
             sortField : null,
             queryRestriction : null
           };
@@ -544,7 +576,7 @@ tsApp
             pfs.startIndex = -1;
             pfs.maxResults = 1000000;
           } else {
-            pfs.maxResults = this.pageSize;
+            pfs.maxResults = pageSizes.general;
           }
 
           var query = filters.text;

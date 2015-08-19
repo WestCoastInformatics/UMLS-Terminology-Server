@@ -1,8 +1,9 @@
 'use strict'
 
 var tsApp = angular.module('tsApp', [ 'ngRoute', 'ui.bootstrap', 'ui.tree' ]).config(
-  function() {
-    // n/a
+  function($rootScopeProvider) {
+    // Set recursive digest limit higher to handle very deep trees.
+    $rootScopeProvider.digestTtl(15);
   });
 
 // Declare top level URL vars

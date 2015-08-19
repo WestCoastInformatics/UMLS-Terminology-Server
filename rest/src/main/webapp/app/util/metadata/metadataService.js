@@ -20,6 +20,7 @@ tsApp
           termTypes : null,
           generalEntries : null,
           labelSets : null,
+          generalEntries: null,
           atomsLabel : "Atoms",
           hierarchiesLabel : "Hierarchies",
           attributesLabel : "Attributes",
@@ -83,31 +84,31 @@ tsApp
 
                     for (var j = 0; j < metadata.generalEntries.length; j++) {
                       if (metadata.generalEntries[j].key === "Atoms_Label") {
-                        metadata.atomsLabel = generalEntries[j].value;
+                        metadata.atomsLabel = metadata.generalEntries[j].value;
                       }
                       if (metadata.generalEntries[j].key === "Hierarchies_Label") {
-                        metadata.hierarchiesLabel = generalEntries[j].value;
+                        metadata.hierarchiesLabel = metadata.generalEntries[j].value;
                       }
                       if (metadata.generalEntries[j].key === "Definitions_Label") {
-                        metadata.definitionsLabel = generalEntries[j].value;
+                        metadata.definitionsLabel = metadata.generalEntries[j].value;
                       }
                       if (metadata.generalEntries[j].key === "Attributes_Label") {
-                        metadata.attributesLabel = generalEntries[j].value;
+                        metadata.attributesLabel = metadata.generalEntries[j].value;
                       }
                       if (metadata.generalEntries[j].key === "Subsets_Label") {
-                        metadata.subsetsLabel = generalEntries[j].value;
+                        metadata.subsetsLabel = metadata.generalEntries[j].value;
                       }
                       if (metadata.generalEntries[j].key === "Relationships_Label") {
-                        metadata.relationshipsLabel = generalEntries[j].value;
+                        metadata.relationshipsLabel = metadata.generalEntries[j].value;
                       }
                       if (metadata.generalEntries[j].key === "Atom_Relationships_Label") {
-                        metadata.atomRelationshipsLabel = generalEntries[j].value;
+                        metadata.atomRelationshipsLabel = metadata.generalEntries[j].value;
                       }
                       if (metadata.generalEntries[j].key === "Extensions_Label") {
-                        metadata.extensionsLabel = generalEntries[j].value;
+                        metadata.extensionsLabel = metadata.generalEntries[j].value;
                       }
                       if (metadata.generalEntries[j].key === "Tree_Sort_Field") {
-                        metadata.treeSortField = generalEntries[j].value;
+                        metadata.treeSortField = metadata.generalEntries[j].value;
                       }
                     }
                   }
