@@ -32,7 +32,9 @@ tsApp
         $scope.metadata = metadataService.getModel();
         $scope.user = securityService.getUser();
         $scope.component = contentService.getModel();
-
+        $scope.pageSize = contentService.pageSize;
+        $scope.relsPageSize = contentService.relsPageSize;
+        
         // Search parameters
         $scope.searchParams = {
           page : 1,
