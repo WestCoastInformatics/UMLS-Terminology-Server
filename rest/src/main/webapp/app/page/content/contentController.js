@@ -1,5 +1,4 @@
 // Content controller
-console.debug('configure ContentCtrl');
 tsApp
   .controller(
     'ContentCtrl',
@@ -18,7 +17,8 @@ tsApp
       function($scope, $http, $modal, $location, $anchorScroll, gpService,
         utilService, tabService, securityService, metadataService,
         contentService) {
-
+        console.debug('configure ContentCtrl');
+        
         // Handle resetting tabs on "back" button
         if (tabService.selectedTab.label != 'Content') {
           tabService.setSelectedTabByLabel('Content');
@@ -694,7 +694,6 @@ tsApp
 
         // apply paging to all elements
         function applyPaging() {
-
           // call each get function without paging (use current paging info)
           $scope.getPagedAtoms();
           $scope.getPagedRelationships();

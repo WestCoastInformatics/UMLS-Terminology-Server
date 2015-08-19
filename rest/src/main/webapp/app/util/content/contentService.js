@@ -1,5 +1,4 @@
 // Content Service
-console.debug("configure contentService");
 tsApp
   .service(
     'contentService',
@@ -10,6 +9,7 @@ tsApp
       'utilService',
       'metadataService',
       function($http, $q, gpService, utilService, metadataService) {
+        console.debug("configure contentService");
 
         // Terminology metadata
         var metadata = metadataService.getModel();

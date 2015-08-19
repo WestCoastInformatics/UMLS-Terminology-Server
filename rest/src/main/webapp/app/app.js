@@ -1,7 +1,7 @@
 'use strict'
 
-var tsApp = angular.module('tsApp', [ 'ngRoute', 'ui.bootstrap', 'ui.tree' ]).config(
-  function($rootScopeProvider) {
+var tsApp = angular.module('tsApp', [ 'ngRoute', 'ui.bootstrap', 'ui.tree' ])
+  .config(function($rootScopeProvider) {
     // Set recursive digest limit higher to handle very deep trees.
     $rootScopeProvider.digestTtl(15);
   });
@@ -25,10 +25,12 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
     controller : 'LoginCtrl'
   }).when('/content', {
     templateUrl : 'app/page/content/content.html',
-    controller : 'ContentCtrl'
+    controller : 'ContentCtrl',
+    reloadOnSearch : false
   }).when('/metadata', {
     templateUrl : 'app/page/metadata/metadata.html',
-    controller : 'MetadataCtrl'
+    controller : 'MetadataCtrl',
+    reloadOnSearch : false
   }).otherwise({
     redirectTo : '/'
   });
@@ -126,5 +128,5 @@ tsApp.controller('FooterCtrl', [ '$scope', 'gpService', 'securityService',
     }
 
   }
- 
- ]);
+
+]);

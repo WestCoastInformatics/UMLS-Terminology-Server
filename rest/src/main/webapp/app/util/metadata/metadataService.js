@@ -1,5 +1,4 @@
 // MetadataService
-console.debug("configure metadataService");
 tsApp
   .service(
     'metadataService',
@@ -9,6 +8,7 @@ tsApp
       'gpService',
       'utilService',
       function($http, $q, gpService, utilService) {
+        console.debug("configure metadataService");
 
         // The metadata for current terminology
         var metadata = {

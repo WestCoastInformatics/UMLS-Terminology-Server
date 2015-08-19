@@ -1,11 +1,11 @@
 // Error service
-console.debug('configure utilService');
 tsApp
   .service(
     'utilService',
     [
       '$location',
       function($location) {
+        console.debug('configure utilService');
         // declare the error
         this.error = {
           message : null
@@ -99,8 +99,8 @@ tsApp
       } ]);
 
 // Glass pane service
-console.debug('configure gpService');
 tsApp.service('gpService', function() {
+  console.debug('configure gpService');
   // declare the glass pane counter
   this.glassPane = {
     counter : 0
@@ -127,9 +127,9 @@ tsApp.service('gpService', function() {
 });
 
 // Security service
-console.debug('configure securityService');
 tsApp.service('securityService', [ '$http', '$location', 'utilService',
   'gpService', function($http, $location, utilService, gpService) {
+  console.debug('configure securityService');
 
     // Declare the user
     var user = {
@@ -200,9 +200,9 @@ tsApp.service('securityService', [ '$http', '$location', 'utilService',
   } ]);
 
 // Tab service
-console.debug('configure tabService');
 tsApp.service('tabService', [ '$location', 'utilService', 'gpService',
   function($location, utilService, gpService) {
+  console.debug('configure tabService');
     // Available tabs
     this.tabs = [ {
       link : '#/content',
@@ -235,10 +235,10 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService',
   } ]);
 
 // Websocket service
-console.debug('configure websocketService');
+
 tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
   function($location, utilService, gpService) {
-
+  console.debug('configure websocketService');
     this.data = {
       message : null
     };
