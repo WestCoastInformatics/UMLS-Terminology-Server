@@ -178,7 +178,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
                     + tableName
                     + " r where "
                     + "version = :version and terminology = :terminology "
-                    + "and relationshipType = :relationshipType and obsolete = 0 "
+                    + "and relationshipType = :relationshipType and inferred = 1 and obsolete = 0 "
                     + "and r.from in (select o from " + tableName2
                     + " o where obsolete = 0)")
             .setParameter("relationshipType", chdRel)

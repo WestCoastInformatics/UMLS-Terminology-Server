@@ -196,7 +196,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
         manager
             .createQuery(
                 "select r.from.id, r.to.id from " + tableName
-                    + " r where obsolete = 0 "
+                    + " r where obsolete = 0 and inferred = 1 "
                     + "and terminology = :terminology "
                     + "and version = :version "
                     + "and relationshipType = :relationshipType")
