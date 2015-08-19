@@ -1,6 +1,6 @@
 // Content controller
-console.debug('configure report directive');
 tsApp.directive('report', [ function() {
+  console.debug('configure report directive');
   return {
     restrict : 'A',
     scope : {
@@ -9,4 +9,4 @@ tsApp.directive('report', [ function() {
     },
     templateUrl : 'app/component/report/report.html'
   };
-}]);
+} ]);

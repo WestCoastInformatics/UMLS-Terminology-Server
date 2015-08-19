@@ -3,6 +3,7 @@ tsApp.controller('MetadataCtrl', [ '$scope', 'gpService', 'tabService',
   'securityService', 'metadataService',
   function($scope, gpService, tabService, securityService, metadataService) {
     console.debug("configure MetadataCtrl");
+
     // Handle resetting tabs on "back" button
     gpService.increment();
     if (tabService.selectedTab.label != 'Metadata') {

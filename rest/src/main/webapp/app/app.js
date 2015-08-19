@@ -2,8 +2,10 @@
 
 var tsApp = angular.module('tsApp', [ 'ngRoute', 'ui.bootstrap', 'ui.tree' ])
   .config(function($rootScopeProvider) {
+
     // Set recursive digest limit higher to handle very deep trees.
     $rootScopeProvider.digestTtl(15);
+
   });
 
 // Declare top level URL vars
@@ -16,13 +18,16 @@ tsApp.run(function($rootScope, $http, $location) {
   // nothing yet -- may want to put metadata retrieval here
 });
 
-console.debug('configure $routeProvider');
 // Route provider configuration
 tsApp.config([ '$routeProvider', function($routeProvider) {
+  console.debug('configure $routeProvider');
 
+  // Set reloadOnSearch so that $location.hash() calls do not reload the
+  // controller
   $routeProvider.when('/', {
     templateUrl : 'app/page/login/login.html',
-    controller : 'LoginCtrl'
+    controller : 'LoginCtrl',
+    reloadOnSearch : false
   }).when('/content', {
     templateUrl : 'app/page/content/content.html',
     controller : 'ContentCtrl',
@@ -38,18 +43,18 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
 } ]);
 
 // Simple glass pane controller
-console.debug('configure GlassPaneCtrl');
 tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService',
   function($scope, gpService) {
+    console.debug('configure GlassPaneCtrl');
 
     $scope.glassPane = gpService.glassPane;
 
   } ]);
 
 // Simple error controller
-console.debug('configure ErrorCtrl');
 tsApp.controller('ErrorCtrl', [ '$scope', 'utilService',
   function($scope, utilService) {
+    console.debug('configure ErrorCtrl');
 
     $scope.error = utilService.error;
 
@@ -64,10 +69,10 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService',
   } ]);
 
 // Tab controller
-console.debug('configure TabCtrl');
 tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout',
   'securityService', 'tabService',
   function($scope, $interval, $timeout, securityService, tabService) {
+    console.debug('configure TabCtrl');
 
     // Setup tabs
     $scope.tabs = tabService.tabs;
@@ -94,9 +99,9 @@ tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout',
   } ]);
 
 // Header controller
-console.debug('configure HeaderCtrl');
 tsApp.controller('HeaderCtrl', [ '$scope', 'securityService',
   function($scope, securityService) {
+    console.debug('configure HeaderCtrl');
 
     // Declare user
     $scope.user = securityService.getUser();
@@ -108,9 +113,9 @@ tsApp.controller('HeaderCtrl', [ '$scope', 'securityService',
   } ]);
 
 // Footer controller
-console.debug('configure FooterCtrl');
 tsApp.controller('FooterCtrl', [ '$scope', 'gpService', 'securityService',
   function($scope, gpService, securityService) {
+    console.debug('configure FooterCtrl');
     // Declare user
     $scope.user = securityService.getUser();
 

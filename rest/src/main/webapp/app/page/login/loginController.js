@@ -1,13 +1,9 @@
 // Login controller
-console.debug('configure LoginCtrl');
-tsApp.controller('LoginCtrl', [
-  '$scope',
-  '$http',
-  '$location',
-  'securityService',
-  'gpService',
-  'utilService',
+tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location',
+  'securityService', 'gpService', 'utilService',
   function($scope, $http, $location, securityService, gpService, utilService) {
+    console.debug('configure LoginCtrl');
+
     // Clear user info
     securityService.clearUser();
 

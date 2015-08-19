@@ -378,7 +378,7 @@ tsApp
         $scope.findComponentsForQuery = function(queryStr) {
           $scope.searchParams.page = 1;
           $scope.searchParams.query = queryStr;
-          findComponents(true);
+          $scope.findComponents(true);
         }
 
         // Find concepts based on current search
