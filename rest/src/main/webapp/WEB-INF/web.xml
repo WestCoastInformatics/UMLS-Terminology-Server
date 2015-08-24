@@ -74,7 +74,7 @@
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>default</servlet-name>
-    <url-pattern>/google*.html</url-pattern>
+    <url-pattern>/${site.verification.file}</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>default</servlet-name>
