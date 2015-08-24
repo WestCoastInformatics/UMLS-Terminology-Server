@@ -231,6 +231,7 @@
                 <include>app/page/login/login.html</include>
                 <include>app/page/general/footer.html</include>
                 <include>app/page/general/header.html</include>
+                <include>index.html</include>
                 <include>swagger.html</include>
                 <include>WEB-INF/web.xml</include>
               </includes>
@@ -242,6 +243,7 @@
                 <exclude>app/page/login/login.html</exclude>
                 <exclude>app/page/general/footer.html</exclude>
                 <exclude>app/page/general/header.html</exclude>
+                <exclude>index.html</exclude>
                 <exclude>swagger.html</exclude>
                 <exclude>WEB-INF/web.xml</exclude>
               </excludes>
