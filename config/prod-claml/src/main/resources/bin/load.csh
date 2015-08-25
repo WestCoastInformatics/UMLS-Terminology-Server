@@ -101,6 +101,39 @@ if ($status != 0) then
     exit 1
 endif
 
+
+echo "    Load ICD9CM ...`/bin/date`"
+cd $ICD10_CODE/admin/loader
+mvn install -PClaML -Drun.config.claml=$ICD10_CONFIG -Dserver=$SERVER -Dterminology=ICD9CM -Dversion=latest -Dinput.file=$ICD10_DATA/icd9cm_2013.xml >&! mvn.log
+if ($status != 0) then
+    echo "ERROR loading ICD9CM"
+    cat mvn.log
+    exit 1
+endif
+
+echo "    Add ICD9CM project ...`/bin/date`"
+cd $ICD10_CODE/admin/loader
+mvn install -PProject -Drun.config.claml=$ICD10_CONFIG -Dserver=$SERVER \
+  -Dname="Sample Project" -Ddescription="Sample project." \
+  -Dterminology=ICD9CM -Dversion=latest \
+  -Dadmin.user=admin >&! mvn.log
+if ($status != 0) then
+    echo "ERROR adding project for ICD9CM"
+    cat mvn.log
+    exit 1
+endif
+
+echo "    Start ICD9CM editing ...`/bin/date`"
+cd $ICD10_CODE/admin/release
+mvn install -PStartEditingCycle -Drun.config.claml=$ICD10_CONFIG \
+  -Dserver=$SERVER -Drelease.version=20150131 -Dterminology=ICD9CM \
+  -Dversion=latest >&! mvn.log
+if ($status != 0) then
+    echo "ERROR starting editing for ICD9CM"
+    cat mvn.log
+    exit 1
+endif
+
 echo "------------------------------------------------"
 echo "Finished ...`/bin/date`"
 echo "------------------------------------------------"
