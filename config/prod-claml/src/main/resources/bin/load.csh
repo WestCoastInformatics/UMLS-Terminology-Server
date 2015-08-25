@@ -104,7 +104,7 @@ endif
 
 echo "    Load ICD9CM ...`/bin/date`"
 cd $ICD10_CODE/admin/loader
-mvn install -PClaML -Drun.config.claml=$ICD10_CONFIG -Dserver=$SERVER -Dterminology=ICD9CM -Dversion=latest -Dinput.file=$ICD10_DATA/icd9cm_2013.xml >&! mvn.log
+mvn install -PClaML -Drun.config.claml=$ICD10_CONFIG -Dserver=$SERVER -Dterminology=ICD9CM -Dversion=latest -Dinput.file=$ICD10_DATA/icd9cm-2013.xml >&! mvn.log
 if ($status != 0) then
     echo "ERROR loading ICD9CM"
     cat mvn.log
