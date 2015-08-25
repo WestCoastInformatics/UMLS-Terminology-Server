@@ -402,7 +402,7 @@ tsApp
           // ensure query string has minimum length
           if ($scope.searchParams.query == null
             || $scope.searchParams.query.length < 3) {
-            alert("You must use at least three characters to search");
+            alert("You must use at least one character to search");
             return;
           }
 
@@ -442,7 +442,7 @@ tsApp
           // ensure query string has minimum length
           if (!$scope.searchParams.query
             || $scope.searchParams.query.length < 1) {
-            alert("You must use at least three characters to search");
+            alert("You must use at least one character to search");
             return;
           }
 

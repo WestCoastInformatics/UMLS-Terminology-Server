@@ -1,0 +1,1000 @@
+A-A	Alveolar to Arterial
+AA	Alveolar to Arterial
+A-VO2	Arteriovenous Oxygen
+AVO2	Arteriovenous Oxygen
+A/G	Albumin Globulin ratio
+AAA	Abdominal Aortic Aneurysm
+AAS	Acute Abdominal Series
+AB	Abortion
+ABD	Abdomen
+ABG	Arterial Blood Gases
+ABX	Antibiotics
+AC	Anterior Cephalic vein
+ACE	Angiotensin Converting Enzyme
+ACEI	Angiotensin Converting Enzyme Inhibitor
+ACL	Anterior Cruciate Ligament
+ACLS	Advanced Cardiac Life Support
+ACP	Acyl Carrier Protein
+ACR	Albumin Creatinine Ratio
+ACS	Acute Coronary Syndrome
+ACTH	Adrenocorticotropic Hormone
+AD	Autonomic Dysreflexia
+ADA	American Diabetes Association
+ADH	Antidiuretic Hormone
+ADL	Activities of Daily Living
+AECB	Acute Exacerbation of Chronic Bronchitis
+AED	Automated External Defibrillator
+AF	Atrial Fibrillation
+AFA	Advanced First Aid
+AFB	Acid-Fast Bacilli
+AFO	Ankle foot orthosis
+AFP	Alpha-Fetoprotein
+AGA	Appropriate for Gestational Age
+AI	Aortic Insufficiency
+AID	Artificial Insemination Donor
+AIDS	Acquired Immune Deficiency Syndrome
+AKA	Above Knee Amputation
+AKF	Acute Kidney Failure
+ALL	Acute Lymphocytic Leukemia
+ALP	Alkaline Phosphatase
+ALS	Amyotrophic lateral sclerosis
+ALT	Alanine Transaminase
+ALT	Alanine Aminotransferase
+AMA	Against Medical Advice
+AMI	Acute Myocardial Infarction
+AML	Acute Myelogenous Leukemia
+ANA	Antinuclear antibody
+ANS	Autonomic Nervous System
+ANUG	Acute Necrotizing Ulcerative Gingivitis
+AOB	Alcohol on Breath
+AODM	Adult Onset Diabetes Mellitus
+AOG	Age of Gestation
+AP	Acupuncture Physician
+AP	Apical Pulse
+APE	Acute Pulmonary Edema Embolism
+APO	Acute Pulmonary Oedema
+APSGN	Acute Poststreptococcal Glomerulonephritis
+APTT	Activated Partial Thromboplastin Time
+ARDS	Acute Respiratory Distress Syndrome
+ARF	Acute Renal Failure
+AS	Auricle Sinistrus
+AS	Aortic Stenosis
+ASAD	Arthroscopic Subacromial Decompression
+ASCUS	Atypical Squamous Cells of Unknown Significance
+ASCVD	Atherosclerotic Cardiovascular Disease
+ASD	Atrial Septal Defect
+ASHD	Arteriosclerotic Heart Disease
+AST	Aspartate Aminotransferase
+ATN	Acute Tubular Necrosis
+AU	Auris Utraque
+AuD	Audiology
+AV	Atrio-Ventricular
+AVB	Atrio-Ventricular Block
+AVI	Arteriovenous Insufficiency
+AVM	Arteriovenous Malformation
+B/K	Below Knee
+BA	Breathing Apparatus
+BAC	Blood Alcohol Content
+BAIAE	Bronchial Asthma In Acute Exacerbation
+BBB	Blood Brain Barrier
+BBB	Bundle Branch Block
+BBP	Blood-Borne Pathogen
+BBS	Bilateral Breath Sounds
+BBT	Basal Body Temperature
+BC	Bowel care
+BCAA	Branched Chain Amino Acids
+BE	Barium Enema
+BG	Blood Glucose
+BGL	Blood Glucose Level
+BI	Brain Injury
+BIAD	Blind insertion Airway Device
+BID	Twice a Day
+bilat	Bilateral
+BM	Bowel Movement
+BM	Breast Milk
+BMD	Bone Mineral Density
+BMed	Behavioural Medicine
+BMI	Body Mass Index
+BMR	Basal Metabolic Rate
+BNP	Brain Natriuretic Peptide
+BOM	Bilateral Otitis Media
+BP	Blood Pressure
+BPH	Benign Prostatic Hypertrophy
+BPM	Beats Per Minute
+BPN	Bronchopneumonia
+BPP	Biophysical Profile
+BPPV	Benign positional paroxysmal vertigo
+BPV	Benign Positional Vertigo
+BPV	Bovine Papilloma Virus
+BRBPR	Bright Red Blood Per Rectum
+BRM	Biologic Response Modifiers
+BRP	Bathroom Privileges
+BRT	Body Restorative Therapy
+BS	Bowel Sounds
+BSA	Body Surface Area
+BSE	Breast Self Examination
+BSER	Brainstem Evoked Response
+BSI	Bodily Substance Isolation
+BSL	Blood Sugar Level
+BT	Bowel Tones
+BUN	Blood Urea Nitrogen
+BW	Body Weight
+BX	Biopsy
+BZD	BenZoDiazepine
+C&S	Culture and Sensitivity
+C/O	Complains Of
+Ca	Calcium
+Ca	Cancer
+Ca	Carcinoma
+CAA	Crystalline amino acids
+CABA	Compressed Air Breathing Apparatus
+CABG	Coronary Artery Bypass Graft
+CAD	Coronary Artery Disease
+CAG	Coronary Angiogram
+CAM	Complementary and Alternative Medicine
+CAOx4	Conscious Alert Oriented x4
+CAP	Community Acquired Pneumonia
+CAPD	Continuous Ambulatory Peritoneal Dialysis
+CAT	Computerized Tomography Scan
+CBC	Complete Blood Count
+CBD	Common Bile Duct
+CBE	Clinical Breast Examination
+CBG	Capillary Blood Glucose
+CBI	Continuous Bladder Irrigation
+CBS	Capillary Blood Sugar
+CC	Chief Complaint
+CCK	Cholecystokinin
+CCPD	Continuous Cyclic Peritoneal Dialysis
+CCU	Clean Catch Urine
+CCU	Cardiac Care Unit
+CCV	Critical Closing Volume
+CD	Clinical Dietitian
+CEA	Cultured Epithelial Autograft
+CEP	Congenital Erythropoietic Porphyria
+CF	Cystic Fibrosis
+CFT	Complement-Fixation Test
+CGA	Catabolite Gene Activator
+CGL	Chronic Granulocytic Leukemia
+CHD	Coronary Heart Disease
+CHF	Congestive Heart Failure
+CHO	Carbohydrate
+CI	ContraIndications
+CI	Cardiac index
+CID	Cervical Immobilization Device
+CIN	Cervical Intraepithelial Neoplasm
+CIQ	Cognitive Laterality Quotient
+CIU	Chronic Idiopathic Urticaria
+CJD	Creutzfeldt-Jakob Disease
+CL	Cleft Lip
+CLIA	Clinical Laboratory Improvement Amendments
+CME	Continuing Medical Education
+CMI	Cell Mediated Immunity
+CML	Chronic Myelogenous Leukemia
+CMO	Chief Medical Officer
+CMS	Circulation Motion Sensation
+CMT	Certified Medical Transcriptionist
+CMV	Cytomegalovirus
+CN	Cranial Nerves
+CNS	Central Nervous System
+CNS	Clinical Nurse Specialist
+CO	Cardiac Output
+COAD	Chronic Obstructive Airways Disease
+COLD	Chronic Obstructive Lung Disease
+COPD	Chronic Obstructive Pulmonary Disease
+CP	Chest Pain
+CP	Cleft Palate
+CP	Cerebral palsy
+CPAP	Continuous Positive Airway Pressure
+CPD	Cephalo-Pelvic Disproportion
+CPH	Certificate in Public Health
+CPK	Creatinine Phosphokinase
+CPM	Continuous Passive Motility
+CPP	Cerebral Perfusion Pressure
+CPPB	Con* Positive Pressure Breathing
+CPPD	Chest Percussion and Post Drainage
+CPPV	Continuous Positive Pressure Ventilation
+CPR	Cardiopulmonary resuscitation
+CRCL	Creatinine Clearance
+CRD	Chronic Respiratory Disease
+CRF	Chronic Renal Failure
+CRH	Corticotropin Releasing Hormone
+CRP	C-Reactive Protein
+CRRT	Continuous Renal Replacement Therapy
+CRT	Capillary Refill Time
+CRTS	Certified Recreational Therapy Specialist
+CSD	Catscratch Disease
+CSF	Cerebrospinal Fluid
+CSF	Colony Stimulating Factors
+CSW	Certified Social Worker
+CT	Chest Tube
+CT	Computed Tomography
+CTD	Close To Death
+CVA	Cerebral Vascular Accident
+CVA	Costovertebral Angle
+CVAT	CVA tenderness
+CVP	Central Venous Pressure
+CVS	Chorionic Villus Sampling
+Cx	Cervix
+CXR	Chest X-Ray
+D&C	Dilation and Curettage
+D&E	Dilatation and Evacuation
+D5W	Dextrose 5% in Water IV
+DAA	Denitrogenation Absorption Atelectasis
+DAT	Diet As Tolerated
+DAW	Dispense as written
+DC	Discontinue
+DCCT	Diabetes Control and Complication Trials
+DDx	Differential diagnosis
+DEV	Duck Embryo Vaccine Virus
+DEX	Dexamethasone
+DXT	Dexamethasone
+DEXA	Dual Energy X-Ray Absorptiometry
+DI	Diabetes Insipidus
+DIA	Digital Image Analysis
+DIC	Disseminated Intravascular Coagulation
+DIP	Distal Interphalangeal Joint
+DIP	Desquamative Interstitial Pneumonia
+DJD	Degenerative joint disease
+DKA	Diabetic Ketoacidosis
+DM	Diabetic Mellitus
+DNA	Deoxyribonucleic Acid
+DNR	Do Not Resuscitate
+DOA	Dead On Arrival
+DOE	Dyspnea on exertion
+DOT	Directly Observed Therapy
+DP	Direct Pressure
+DPL	Diagnostic peritoneal lavage
+DPT	Diphtheria Pertussis Tetanus
+DRE	Digital Rectal Examination
+DSA	Digital Subtraction Angiography
+DT	Delirium Tremens
+DT	Duration of Tetany
+DTR	Deep Tendon Reflex
+DU	Duodenal Ulcer
+DVT	Deep Vein Thrombosis
+Dx	Diagnosis
+EAA	Essential Amino Acids
+EBL	Estimated Blood Loss
+EBV	Epstein Barr virus
+ECD	External continence device
+ECF	Extracellular Fluid
+ECF	Extended Care Facility
+ECG	Electrocardiogram
+ECM	Erythema Chronicum Migrans
+ECMO	Extracorporeal Membrane Oxygenation
+ECS	Electrocerebral Silence
+ECT	Electroconvulsive Therapy
+ED	Erectile dysfunction
+EEG	Electroencephalogram
+EENT	Eye Ear Nose Throat
+EFAD	Essential fatty acid deficiency
+EHOB	Elevated Head Of Bed
+ELISA	Enzyme-Linked Immunosorbent Assay
+EMC	Ensephalomyocarditis
+EMG	Electromyogram
+EMS	Eosinophilia Myalgia Syndrome
+EMT	Emergency Medical Technician
+EMV	Eyes Motor Verbal response
+ENT	Ears nose throat
+EOA	Esophageal Obturator Airway
+EOG	Electrooculography
+EOM	Extraocular muscles
+EPAP	Expiratory Positive Airway Pressure
+ER	Emergency Room
+ERBF	Effective Renal Blood Flow
+ERCP	Endoscopic Retrograde Cholangiopancreatography
+ERG	Electroretinogram
+ERPF	Effective Renal Plasma Flow
+ERT	Estrogen Replacement Therapy
+ERV	Expiratory Reserve Volume
+ESP	Extrasensory Perception
+ESR	Erythrocyte sedimentation rate
+ESRD	End Stage Renal Disease
+ESWL	Extracorporeal Shockwave Lithotripsy
+ETCO2	End Tidal Carbon Dioxide
+ETT	Endotracheal Tube
+EUA	Examination Under Anesthesia
+F&R	Force and Rhythm
+FA	Fatty Acid
+FAP	Familial Adenomatous Polyposis
+FAS	Fetal Alcohol Syndrome
+FB	Foreign Body
+FBS	Fasting Blood Sugar
+FD	Fatal Dose
+FD	Focal Distance
+FDA	Food & Drug Administration
+FES	Functional Electrical Stimulation
+FEV	Forced expiratory volume
+FFA	Fellow Faculty of Anaesthetists
+FFCM	Fellow Faculty of Community Medicine
+FFFP	Fellow of the Faculty of Family Planning
+FFP	Fresh frozen plasma
+FFPath	Fellow Faculty of Pathology
+FFPHM	Fellow Faculty of Public Health Medicine
+FFR	Fellow Faculty of Radiologists
+FHR	Foetal Heart Rate
+FHT	Foetal Heart Tones
+FISH	Fluorescent In Situ Hybridizatio
+FMS	Fibromyalgia Syndrome
+FNA	Fine-Needle Aspiration
+FRC	Functional residual capacity
+FRCA	Fellow Royal College of Anaesthetists
+FRCGP	Fellow Royal College of General Practitioners
+FRCOG	Fellow Royal College of Obstetricians and Gynaecologists
+FRCOphth	Fellow College of Ophthalmology
+FRCPath	Fellow Royal College of Pathologists
+FRCPS	Fellow Royal College of Physicians & Surgeons
+FRCPsych	Fellow Royal College of Psychiatrists
+FRCR	Fellow Royal College of Radiologists
+FRCS	Fellow Royal College of Surgeons
+FRCSI	Fellow Royal College of Surgeons of Ireland
+FRS	Fellow of the Royal Society
+FRSH	Fellow Royal Society of Health
+FSH	Follicle Stimulating Hormone
+FUO	Fever of Unknown Origin
+FVC	Forced Vital Capacity
+FVD	Fluid Volume Deficit
+Fx	Fracture
+GAD	Generalized Anxiety Disorder
+Gal	Galactose
+GB	Gallbladder
+GC	Gonorrhea
+GCS	Glasgow Coma Scale
+GDM	Gestational Diabetes Melitus
+GERD	Gastroesophageal Reflux Disease
+GETT	General by Endotracheal Tube
+GFR	Glomerular Filtration Rate
+GGT	Gamma-Glutamyl Transferase
+GHRH	Growth Hormone Releasing Hormone
+GI	Gastro-Intestinal
+GIP	Gastric Inhibitory Polypeptide
+GLC	Gas Liquid Chromatography
+GLP	Good Laboratory Practice
+GnRH	Gonadotropin Releasing Hormone
+GOT	Glutamic Oxalic Transaminase
+GP	General Practitioner
+GPI	Gingival Periodontal Index
+GPT	Glutamic Pyruvic Transaminase
+GSR	Galvanic Skin Response
+GSW	Gun shot wound
+GTT	Glucose Tolerance Test
+GU	Genito-Urinary
+GVHD	Graft-Versus-Host-Disease
+GXT	Graded Exercise Tolerance
+HA	Headache
+HA	Hyaluronic Acid
+HAART	Highly Active Anti-Retroviral Therapy
+HASHD	Hypertensive ArterioSclerotic Heart Disease
+HAV	Hepatitis A virus
+Hb	Hemoglobin
+HbA	Adult Hemoglobin
+HbF	Fetal Hemoglobin
+HBIG	Hepatitis B Immune Globulin
+HBP	High Blood Pressure
+HCFA	Health Care Financing Administration
+HCG	Human Chorionic Gonadotropin
+HCO3	Bicarbonate
+HCS	Human Chorionic Somatomammotropin
+HCT	Hematocrit
+HD	Hemodialysis
+HDL	High Density Lipoprotein
+HEENT	Head Eye Ear Nose Throat
+HFJV	High Frequency Jet Ventilation
+HFOV	High Frequency Oscillatory Ventilation
+HFPPV	High Frequency Positive Pressure Ventilation
+HFV	High Frequency Ventilation
+Hgb	Hemoglobin
+HGE	Human Granulocytic Ehrlichiosis
+HGSIL	High Grade Squamous Intraepithelial Lesion
+HIPAA	Health Insurance Portability and Accountability Act
+HIV	Human Immunodeficiency Virus
+HJR	Hepatojugular reflex
+HLA	Histocompatibility Locus Antigen
+HLA	Human Lymphocyte Antigen
+HLA	Human Leukocyte Antigen
+HME	Human Monocytic Ehrlichiosis
+HMG	Human Menopausal Gonadotropin
+HPE	Histopathology Examination
+HPF	High Power Field
+HPI	History of Present Illness
+HPL	Human Placental Lactogen
+HPLC	High Performance Liquid Chromatography
+HPV	Human Papiloma Virus
+HR	Heart Rate
+HRCT	High-Resolution Computed Tomography
+HRT	Hormone Replacement Therapy
+HS	Half Strength
+HSM	Hepatosplenomegaly
+HSV	Herpes simplex virus
+HTN	Hypertension
+Hx	History
+I&D	Incision and drainage
+I&O	Intake and output
+I:E	Inspiratory to Expiratory ratio
+IABP	Intra-Aortic Balloon Pump
+IAP	Intermittent Acute Porphyria
+IBC	Iron Binding Capacity
+IBD	Inflammatory Bowel Disease
+IBS	Irritable Bowel Syndrome
+IBW	Ideal Body Weight
+ICA	Internal Carotid Artery
+ICCE	Intracapsular Cataract Extraction
+ICF	Intermediate Care Facility
+ICF	Intracellular Fluid
+ICP	Intracranial Pressure
+ICS	Intercostal Space
+ICSH	Interstitial Cell Stimulating Hormone
+ICT	Inflammation of Connective Tissue
+ICU	Intensive Care Unit
+IDDM	Insulin Dependent Diabetes Mellitus
+IDM	Infant of Diabetic Mother
+IDU	Inject* Drug User
+IE	Inspiratory Exerciser
+IGF	Insulinlike Growth Factor
+IH	Infectious Hepatitis
+IHD	Ischemic Heart Disease
+IHSS	Idiopathic Hypertropic Subaortic Stenosis
+IIP	Implantable Insulin Pump
+IM	Intramuscular
+IMV	Intermittent Mandatory Ventilation
+INF	Intravenous Nutritional Fluid
+INN	International Nonpropritary Names
+INR	International Normalization Ratio
+IOF	International Operation Forces
+IPAP	Inspiratory Positive Airway Pressure
+IPD	Intermittent Peritoneal Dialysis
+IPPB	Intermittent Positive Pressure Breathing
+IPPV	Intermittent Positive Pressure Ventilation
+IPV	Inactivated Poliovirus Vaccine
+IQ	Intelligence Quotient
+IRBBB	Incomplete Right Bundle Branch Block
+IRDM	Insulin Resistant Diabetes Mellitus
+ITP	Immune Thrombocytopenic Purpura
+IUCD	Intrauterine Contraceptive Device
+IUD	IntraUterine Device
+IV	Intravenous
+IVC	Intravenous Cholangiogram
+IVC	Inferior Vena Cava
+IVDA	IV Drug Abuse
+IVDP	Intervertebral Disc Prolapase
+IVF	In Vitro Fertilization
+IVH	Intraventricular hemorrhage
+IVIG	Intravenous Immunoglobulin
+IVP	Intravenous Pyelography
+JODM	Juvenile Onset Diabetes Mellitus
+JVD	Jugular Vein Distention
+JVP	Jugular Venous Pressure
+K	Potassium
+KAFO	Knee Ankle Foot Orthosis
+KCl	Potassium Chloride
+KCT	Kaolin Clotting Time
+KI	Potassium Iodide
+KOR	Keep Open Rate
+KT	Kinesio Therapy  Kinesiotherapist
+KUB	Kidney Ureter Bladder
+KVO	Keep Vein Open
+L & A	Light and Accommodation
+LAc	Licensed Acupuncturist
+LAD	Left Anterior Descending
+LAE	Left atrial enlargement
+LAHB	Left Anterior Hemiblock
+LAO	Left Anterior Oblique
+LAP	Left Atrial Pressure
+LAP	Leukocyte Alkaline Phosphatase
+LATS	Long Acting Thyroid Stimulator
+LB	Large Bowel
+LBBB	Left Bundle Branch Block
+LBT	Lupus Band Test
+LBW	Low Birth Weight
+LCA	Left Coronary Artery
+LCAT	Lecithin Cholesterol Acyltransferase
+LDH	Lactate Dehydrogenase
+LDL	Low Density Lipoprotein
+LE	Lupus Erythematosus
+LE	Lower Extremities
+LEEP	Loop Electrosurgical Excision Procedure
+LES	Lower Esophageal Sphincter
+LFTs	Liver Function Test
+LGSIL	Low Grade Squamous Intraepithelial Lesion
+LGV	Lymphogranuloma Venereum
+LIH	Left Inguinal Hernia
+LIJ	Left Internal Jugular
+LLL	Left Lower Lobe
+LLQ	Left Lower Quadrant
+LMA	Laryngeal Mask Airway
+LMP	Last Menstrual Period
+LMS	Licentiate of Medicine Surgery
+LNMP	Last Normal Menstrual Period
+LNPF	Lymph Node Permeability Factor
+LOC	Loss of Conciousness
+LOX	Liquid Oxygen
+LP	Lumbar Puncture
+LPH	Lipotropic Pituitary Hormone
+LPN	Licensed Practical Nurse
+LRCP	Licentiate Royal College of Physicians
+LRCPI	Licentiate Royal College of Physicians of Ireland
+LRCPS	Licentiate Royal College of Physicians Surgeons
+LRCS	Licentiate Royal College of Surgeons
+LRCSI	Licentiate Royal College of Surgeons of Ireland
+LSC	Left Subclavian
+LSIL	Low Grade Squamous Intraepithelial Lesion
+LT	Left
+LUQ	Left Upper Quadrant
+LVEDP	Left Ventricular End Diastolic Pressure
+LVEF	Left Ventricular Ejection Fraction
+LVET	Left Ventricular Ejection Time
+LVF	Left Ventricular Failure
+LVH	Left Ventricular Hypertrophy
+LVN	Licensed V* Nurse
+M.D.	Doctorate of Medicine
+MD	Doctorate of Medicine
+MAA	Macroaggregated Albumin
+MAb	Monoclonal Antibody
+MAC	Mycobacterium Avium Complex
+MAI	Mycobacterium Avium Intracellulare
+MAO	Monoamine Oxidase
+MAP	Mean Arterial Pressure
+MAP	Morning After Pill
+MAR	Medication Administration Record
+MAST	Medical Antishock Trousers
+MBAcA	Member British Acupuncture Association
+MBC	Maximum Breathing Capacity
+MBT	Maternal blood type
+MCH	Mean Cell Hemoglobin
+MCH	Mean Corpuscular Hemoglobin
+MCHC	Mean Cell Hemoglobin Concentration
+MCL	Modified Chest Lead
+MCV	Mean Cell Volume
+MD	Doctor of Medicine
+MDD	Major Depressive Disorder
+MDF	Myocardial Depressant Factor
+MDI	Multiple Daily Vitamin
+MDI	Metered Dose Inhaler
+MDS	Myleodyplastic Syndrome
+MEDLARS	Medical Literature Analysis and Retrieval System
+MEP	Maximal Expiratory Pressure
+MET	Metabolic Equivalent of Task
+MFFP	Member Faculty of Family Planning
+MFOM	Member Faculty of Occupational Medicine
+MFPHM	Member Faculty of Public Health Medicine
+MHC	Major Histocompatibility Complex
+MHz	Megahertz
+MI	Myocardial Infarction
+MICU	Medical Intesnive Care Unit
+MID	Minimal Infecting Dose
+MIP	Maximum Inspiratory Pressure
+MLC	Midline Catheter
+MLD	Minimal Lethal Dose
+MLE	Midline episiotomy
+MM	Mucous Membrane
+MMEF	Maximal mid expiratory flow
+MMR	Measles Mumps Rubella
+MoAbs	Monoclonal Antibodies
+MOM	Milk of Magnesia
+MPD	Maximal Permissible Dose
+MPS	Mononuclear Phagocyte System
+MRA	Magnetic Resonance Augiography
+MRCGP	Member Royal College of General Practitioners
+MRCOG	Member Royal College of Obstetricians and Gynaecologists
+MRCP	Member Royal College of Physicians
+MRCPath	Member Royal College of Pathologists
+MRCPI	Member Royal College of Physicians of Ireland
+MRCPsych	Member Royal College of Psychiatrists
+MRCS	Member Royal College of Surgeons
+MRD	Minimal Reacting Dose
+MRDD	Mental Retarded Developmentally Disabled
+MRI	Magnetic Resonance Imaging
+MRM	Modified Radical Mastectomy
+MRSA	Methicillin Resistant Staph Aureus
+MS	Multiple Sclerosis
+MS	Morphine Sulfate
+MSG	Monosodium Glutamate
+MSH	Melanocyte Stimulating Hormone
+MSO4	Morphine Sulfate
+MSSA	Methicillin-sensitive staph aureus
+MTP	Medically Termination of Pregnancy
+MUSE	Medicated urethral system erection
+MVA	Motor Vehicle Accident
+MVI	Multivitamin injection
+MVP	Mitral Valve Prolapse
+MVV	Maximum Voluntary Ventilation
+N/T	Not tender
+N/T	No tenderness
+Na	Sodium
+NaCl	Sodium Chloride
+NAD	No Acute Distress
+NANDA	North American Nursing Diagnosis Association
+NAS	No Added Salt
+NC	Nasal Cannula
+NCV	Nerve Conduction Velocity
+NDA	New Drug Application
+NED	No Evidence of Disease
+NEEP	Negative End Expiratory Pressure
+NG	NasoGastric
+NGF	Nerve Growth Factor
+NIBP	Non Invasive Blood pressure
+NICU	Neonatal Intensive Care Unit
+NIDDM	Noninsulin Dependent Diabetes Mellitus
+NIH	National Institutes of Health
+NKA	No Known Allergies
+NKDA	Non-Ketotic Diabetic Acidosis
+NKDA	No Known Drug Allergies
+NKHC	Non-Ketotic Hyperglycemic Coma
+NKHHC	NonKetonic Hyperglycemic-Hyperosmolar Coma
+NKMA	No Known Medcation Allergies
+NLM	National Library of Medicine
+NMN	Nicotinamide Mononucleotide
+NOS	Not Otherwise Specified
+NP	Nurse Practitioner
+NPA	Nasopharyngeal Airway
+NPD	Nightly Peritoneal Dialysis
+NPO	Nothing by Mouth
+NPQ	Not Physically Qualified
+NREM	Nonrapid Eye Movement
+NRM	No regular medications
+NS	Normal Saline
+NSAID	Nonsteroidal Anti-Inflammatory Drug
+NSR	Normal Sinus Rythym
+NT	NasoTracheal
+NTD	Neural Tube Defect
+NUG	Necrotizing Ulcerative Gingivitis
+NV	Nausea Vomiting
+NWB	NON-WEIGHT BEARING
+NYD	Not Yet Diagnosed
+O&P	Ova and Parasites
+O2	Oxygen
+OBS	Organic Brain Syndrome
+OCD	Obsessive Compulsive Disorder
+OCG	Oral cholecystogram
+OD	Overdose
+OD	Oculus dexter
+OGTT	Oral Glucose Tolerance Test
+OMS	Organic Mental Syndrome
+OOB	Out of Bed
+OP	Osmotic Pressure
+OP	Outpatient
+OPA	Oropharyngeal Airway
+OPV	Oral polio vaccine
+ORD	Optical Rotatory Dispersion
+ORIF	Open Reduction and Internal Fixation
+ORIF	Open Reduction Internal Fixation
+OS	Oculus siniste
+OSHA	Occupational Safety and Health Administration
+OT	Occupational Therapy Therapist
+OU	Oculus uterque
+PARP	Poly ADP-Ribose Polymerase
+P.A.R.P	Poly ADP-Ribose Polymerase
+PA	Posteroanterior
+PA	Physician Assistant
+PA-C	Physician Assistant Certified
+PABA	Para-Aminobenzoic Acid
+PAC	Premature Atrial Contraction
+PAD	Peripheral Arterial Disease
+PAF	Platelet-Aggregating Factor
+PAF	Platelet-Activating Factor
+PAP	Pulmonary artery pressure
+PAT	Paroxysymal Atrial Tachycardia
+PCA	Patient Controlled Analgesia
+PCA	Posterior Communicating Artery
+PCN	Penicillin 
+PCN	Primary Care Nurse
+PCNL	Percutaneous Nephrolithotomy
+PCP	Plasma Cell Pneumonia
+PCR	Polymerase Chain Reaction
+PCT	Percutaneous Transhepatic Cholangiograph
+PCV	Packed Cell Volume
+PCWP	Pulmonary Capillary Wedge Pressure
+PD	Peritoneal Dialysis
+PD	Prism Diopter
+PDA	Patent Ductus Arteriosus
+PDA	Posterior Descending Artery
+PDD	Pervasive Development Disorder
+PDGF	Platelet Derived Growth Factor
+PDLL	Poorly Differentiated Lymphocytic Lymphoma
+PDR	Physician's Desk Reference
+PE	Pulmonary Edema embolism
+PE	Pleural Effusion
+PEEP	Positive End Expiratory Pressure
+PEG	Percutaneous Endoscopic Gastrostomy
+PEG	Polyethylene Glycol
+PEJ	Percutaneous Endoscopic Jejunostomy
+PERL	Pupils Equal React to Light
+PERRLA	Pupils Equal Round  React to Light Accommodation
+PET	Positron Emission Tomography
+PFT	Pulmonary Function Test
+PG	Prostaglandin
+PH	Past History
+pH	Power of the concentration of the Hydrogen ion
+PH.D.	Doctorate of Philosophy
+PHD	Doctorate of Philosophy
+PHA	Phytohemagglutinin
+PHN	Public Health Nurse
+PHN	Postherpetic Neuralgia
+PI	Present Illness
+PICC	Peripherally Inserted Central Venous Catheter
+PID	Pelvic Inflammatory Disease
+PIH	Pregnancy Induced Hypertension
+PK	Pyruvate Kinase
+PKU	Phenylketonuria
+PM	ParaMedic
+PMHx	Prior Previous Medical History
+PMI	Point of Maximal Impulse
+PML	Progressive Multifocal Leukoencephalopathy
+PMN	Polymorphonuclear Leukocyte
+PMR	Polymyalgia Rheumatica
+PMS	Pre Menstrual Syndrome
+PMS	Peripheral Motor System
+PNB	Pulseless Not Breathing
+PND	Paroxysmal Nocturnal Dyspnea
+PNDT	Pre natal diagnostic tests
+PNH	Paroxysmal Nocturnal Hemoglobinuria
+PNS	Peripheral Nervous System
+PO	Per Oral
+PO2	Partial pressure of O2
+POD	Post-Op Day
+POTS	POSTURAL ORTHOSTATIC TACHYCARDIA SYNDROME
+PP	Postprandial
+PP	pulsus paradoxus
+PPCA	Proserum Prothrombin Conversion Accelerator
+PPD	Purified Protein Derivative
+PPM	Permanent Pacemaker
+PPMS	Primary Progressive Multiple Sclerosis
+PPS	Post-Polio Syndrome
+PPV	Positive Pressure Ventilation
+PR	Per Rectum
+Pr	Praseodymium; Presbyopia
+PRA	Plasma Renin Activity
+PRBC	Packed Red Blood Cells
+PRHO	Pre-Registration House Officer
+PRN	Pro Re Nata
+PROM	Passive Range Of Motion
+PROM	Premature Rupture Of Membranes
+PRP	Platelet Rich Plasma
+PS	Pyloric Stenosis
+PSA	Prostate Specific Antigen
+PSVT	Paroxysmal Supra-Ventricular Tachycardia
+PT	Prothrombin Time
+PTA	Plasma Thromboplastin Anteceden
+PTAH	Phosphotungstic Acid Hematoxylin
+PTCA	Percutaneous Transluminal Coronary Angioplasty
+PTH	Parathyroid hormone
+PTHC	Percutanous transhepatic cholangiogram
+PTSD	Post-Traumatic Stress Disorder
+PTT	Partial Thromboplastin Time
+PUD	Peptic Ulcer Disease
+PUD	Pelvic Uterine Disease
+PUJ	Pelviureteral Junction
+PUPPP	Pruritic Urticarial Papules and Plaques of Pregnancy
+PVC	Premature ventricular contraction
+PVD	Peripheral Vascular Disease
+PVL	Plasma Viral Load
+PVR	Post voiding residual
+PWB	PARTIAL WEIGHT BEARING
+Px	Pneumothorax
+QD	Quaque die
+QID	Quater in die
+QNS	Quantity Not Sufficient
+QOD	Every Other Day
+QS	Quantity Sufficient Required
+R/O	Rule out
+RA	Rheumatoid Arthritis
+RAD	Reactive Airway Disease
+RAD	Right atrial axis deviation
+RAE	Right Atrial Enlargement
+RAI	Radioactive Iodine
+RAIU	Radioactive Iodine Uptake
+RAP	Right Atrial Pressure
+RAS	Reticular Activating System
+RBBB	Right Bundle Branch Block
+RBC	Red blood cells
+RBP	Retinol-binding protein
+RCA	Right Coronary Artery
+RDA	Recommended daily allowance
+RDH	Registered Dental Hygienist
+rDNA	ribosomal DNA
+RDW	Red Cell Distribution Width
+REEDA	Redness Edema Ecchymosis Drainage Approximation
+RFLP	Restriction Fragment Length Polymorphism
+RHD	Rheumatic Heart Disease
+RHD	Relative Hepatic Dullness
+RIA	Radioimmunoassay
+RIH	Right inguinal hernia
+RIJ	Right Internal Jugular
+RLL	Right Lower Lobe
+RLQ	Right Lower Quadrant
+RM	Respiratory Movement
+RML	Right Middle Lobe
+RNA	Ribonucleic Aacid
+ROM	Range of Motion
+ROS	Review of Systems
+RPA	Registered Physician Assistant
+RPA-C	Registered Physician Assistant - Certified
+RPF	Renal Plasma Flow
+RPG	Retrograde Pyelogram
+RPMS	Relapsing-progressive multiple sclerosis
+RPR	Rapid Plasma Regain (Test)
+RRMS	Relapsing-Remitting Multiple Sclerosis
+RRR	Regular rate and rhyth
+RSC	Right Subclavian
+RSR	Regular Sinus Rhythym
+RSV	Respiratory Syncitial Virus
+RT	Respiratory Therapy
+RT	Radiation Therapy
+RTA	Renal Tubular Acidosis
+RTE	Renal Tubular Epithelium
+RU	Resin Uptake
+RUG	Retrograde urethogram
+RUL	Right Upper Lobe
+RUQ	Right Upper Quadrant
+RV	Residual Volume
+RVEF	Right Ventricular Ejection Fraction
+RVH	Right ventricular hyperthrophy
+Rx	Prescription
+Rx	Pharmacy
+S/S	Signs and Symptoms
+SA	Sinoatrial
+SAA	Synthetic Amino Acid
+SAB	Spontaneous Abortion
+SABA	Supplied Air Breathing Apparatus
+SAED	SemiAutomatic External Defibrillator
+SAST	Serum Aspartate Aminotransferase
+SB	Spina Bifida
+SBE	Subacute Bacterial Endocarditis
+SBFT	Small bowel follow through
+SBO	Small Bowel Obstruction
+SBS	Short bowel syndrome
+SC	Subcutaneous
+SCBU	Special care baby Unit
+SCI	Spinal Cord Injury
+SCr	Serum creatinine
+SDFI	Secure Digital forensic Imaging
+SEM	Systolic ejection murmur
+SG	Swan-Ganz
+SGA	Small for Gestational Age
+SGGT	Serum gamma-glutamyl transpeptidase
+SGOT	Serum Glutamic Oxaloacetic Transaminase
+SGPT	Serum Glutamic-Pyruvic Transaminase
+SHO	Senior House Officer
+SIADH	Syndrome of inappropriate antidiuretic hormone
+SIDS	Sudden Infant Death Syndrome
+SIMV	Synchronous intermittent mandatory ventilation
+SLE	Systemic Lupus Erythematosus
+SLUD	Salivation Lacrimation Urination Defecation
+SMO	Standing Medical Orders
+SNF	Skilled Nursing Facility
+SOAP	Subjective Objective Assessment Plan
+SOB	Short* Of Breath
+SPECT	Single Photon Emission Computed Tomography
+SPMS	Secondary preogressive multiple sclerosis
+SPO2	Saturation of peripheral Oxygen
+SpR	Specialist Registrar
+SQ	Subcutaneous
+SR	Sedimentation Rate
+SRIF	Somatotropin Release Inhibiting Factor
+SS	Social Services
+SSRI	Selective Serotonin Reuptake Inhibitor
+SSS	Sick Sinus Syndrome
+SSS	Subclavian Steal Syndrome
+ST	Sinus Tachycardia
+STD	Sexually Transmitted Disease
+STH	Somatotropic Hormone
+STM	Short Term Memory
+SUI	Stress Urinary Incontinence
+SVC	Superior Vena Cava
+SVCAD	Single Vessel Coronary Artery Disease
+SVD	Spontaneous Vaginal Delivery
+SVR	Systemic Vascular Resistance
+SVT	Supra-Ventricular Tachycardia
+Sx	Surgery
+Sx	Symptoms
+Sz	Seizure
+T&H	Type and hold
+T3	Triiodothyronine
+T4	Thyroxine
+TAH	Total Abdominal Hysterectomy
+TB	Tuberculosis
+TB	Trouble Breathing
+TBF	Total Body Failure
+TBG	Total binding globulin
+TBI	Traumatic Brain Injury
+TBSA	Total Body Surface Area
+TCDB	Turn Cough Deep Breath
+Td	Tetanus-diphtheria toxoid
+TED	Thrombo-Embolism Deterrent
+TEF	Tracheo-Esophageal Fistula
+TEN	Toxic Epidermal Necroly-sis
+TEP	Transesophageal Puncture
+TESD	Total End-Systolic Diameter
+TFCI	Transient Focal Cerebral Ischemia
+THR	Total Hip Replacement
+TIA	Transient Ischemic Attack
+TIBC	Total Iron Binding Capacity
+TID	Ter in die
+TIG	Tetanus immune globulin
+TIL	Tumor Infiltrating Lymphocytes
+TKO	To keep open
+TKR	Total Knee Replacement
+TLC	Total lung capacity
+TM	Tympanic Membrane
+TMJ	Temporo mandibular joint
+TNF	Tumor Necrosis Factor
+TNM	Tumor Node Metastases
+TNTC	Too Numerous To Mention
+TOF	Tetralogy of falot
+TOPV	Trivalent Oral Polio Vaccine
+TP	Tuberculin Precipitation
+tPA	Tissue Plasminogen Activator
+TPN	Total Parenteral Nutrition
+TPR	Temperature Pulse Respirations
+TRH	Thyrotropin Releasing Hormone
+tRNA	transfer RNA
+TSH	Thyroid stimulating hormone
+TSTA	Tumor-Specific Trans-plantation Antigen
+TT	Thrombin Time
+TTN	Transient Tachypnea of the Newborn
+TTO	Trans Tracheal Oxygen
+TTP	Thrombotic Thrombocytopenia Purpura
+TU	Tuberculin units
+TUPR	Trans-Urethral Prostatic Resection
+TUR (or TURP)	Trans-Urethral Resection of the Prostate
+TURBT	Transurethral Resection of Bladder Tumor
+TVH	Total vaginal hysterectomy
+TVUS	Transvaginal Ultrasound
+tw	Twice a week
+TWB	Touch Weight Bear
+TWE	Tap Water Enema
+Tx	Treatment
+Tx	Traction
+UA	Urinalysis
+UAC	Uric acid
+UAO	Upper Airway Obstruction
+UBW	Usual Body Weight
+UDP	Uridine Diphosphate
+UGI	Upper Gastrointestinal
+UPJ	Ureteropelvic Junction
+URI	Upper Respiratory Infection
+URI	Urinary Incontinence
+URS	Ureteroscopic Lithotripsy
+US	Ultrasonic Ultrasound
+UTI	Urinary Tract Infection
+UTP	Uridine Triphosphate
+UUN	Urinary urea nitrogen
+UVJ	Ureterovesical Junction
+VA	Visual Acuity
+VBAC	Vaginal Birth After Caeserean
+VC	Vital capacity
+VCUG	Voiding cystourethrogram
+VF/Vfib	Ventricular Fibrillation
+VIP	Vasoactive Intestinal Polypeptide
+VLDL	Very Low Density Lipoprotein
+VMA	Vanillylmandelic Acid
+VMD	Veterinary Medical Doctor
+VNS	Vagus Nerve Stimulation
+VO	Verbal Voice order
+VPB	Ventricular Premature Beat
+VPC	Ventricular Premature Contraction
+VSA	Vital Signs Absent
+VSD	Ventricular Septal Defect
+VSS	Vital Signs Stable
+Vtach	Ventricular Tachycardia
+VT	Ventricular Tachycardia
+VW	Vessel Wall
+W/C	Wheelchair
+WB	Whole blood
+WBC	White Blood Cell
+WD	Well Developed
+WDI	Warm Dry Intact
+WHO	World Health Organization
+WMA	World Medical Association
+WN	Well Nourished
+WNL	Within Normal Limits
+WPW	Wolf-Parkinson-White
+XRT	X-ray therapy
+Y	Yttrium
+Yb	Ytterbium
+Z	Carbobenzoxy
+ZE	Zollinger-Ellison
+ZEEP	Zero End-Expiratory Pressure
+Zn	Zinc
+Zr	Zirconium
+ZSR	Zeta Sedimentation Ratio
