@@ -177,6 +177,7 @@
                 </goals>
                 <configuration>
                   <terminology>${terminology}</terminology>
+                  <version>${version}</version>
                   <inputDir>${input.dir}</inputDir>
                   <server>${server}</server>
                 </configuration>

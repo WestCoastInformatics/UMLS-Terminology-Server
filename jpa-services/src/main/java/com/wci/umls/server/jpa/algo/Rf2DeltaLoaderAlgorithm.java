@@ -16,9 +16,11 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
@@ -191,6 +193,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       //
       Logger.getLogger(getClass()).info("    Loading Atoms ...");
       loadAtoms();
+      
+      Logger.getLogger(getClass()).info("    Loading Definitions ...");
       loadDefinitions();
 
       //
@@ -225,93 +229,87 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
       commitClearBegin();
 
-      /*
-       * 
-       * // cache existing concepts again (after relationships) // Cascade
-       * objects are finished, these just need a concept with an id.
-       * conceptCache.clear(); // Save atoms cache for
-       * attributeValue/AssocationRef processing // atomCache.clear();
-       * languageRefSetMemberCache.clear();
-       * Logger.getLogger(getClass()).info("  Cache concepts"); conceptList =
-       * getAllConcepts(terminology, version, Branch.ROOT); for (Concept c :
-       * conceptList.getObjects()) {
-       * existingConceptCache.put(c.getTerminologyId(), c); }
-       * Logger.getLogger(getClass()) .info("    count = " +
-       * conceptList.getCount());
-       * 
-       * // // Load relationships - stated and inferred //
-       * Logger.getLogger(getClass()).info("    Loading Relationships ...");
-       * loadRelationships();
-       * 
-       * // Clear relationships cache relationshipCache = null;
-       * 
-       * commit(); clear(); beginTransaction();
-       * 
-       * // // Load simple refset members //
-       * Logger.getLogger(getClass()).info("    Loading Simple Ref Sets...");
-       * loadSimpleRefSetMembers();
-       * 
-       * commit(); clear(); beginTransaction();
-       * 
-       * // // Load simple map refset members //
-       * Logger.getLogger(getClass()).info
-       * ("    Loading Simple Map Ref Sets..."); loadSimpleMapRefSetMembers();
-       * 
-       * commit(); clear(); beginTransaction();
-       * 
-       * // // Load complex map refset members //
-       * Logger.getLogger(getClass()).info
-       * ("    Loading Complex Map Ref Sets..."); loadComplexMapRefSetMembers();
-       * 
-       * // // Load extended map refset members //
-       * Logger.getLogger(getClass()).info
-       * ("    Loading Extended Map Ref Sets...");
-       * loadExtendedMapRefSetMembers();
-       * 
-       * // // Load atom type refset members //
-       * Logger.getLogger(getClass()).info("    Loading Atom Type Ref Sets...");
-       * loadAtomTypeRefSetMembers();
-       * 
-       * // // Load refset descriptor refset members //
-       * Logger.getLogger(getClass()).info(
-       * "    Loading Refset Descriptor Ref Sets...");
-       * loadRefsetDescriptorRefSetMembers();
-       * 
-       * // // Load module dependency refset members //
-       * Logger.getLogger(getClass()).info(
-       * "    Loading Module Dependency Ref Sets...");
-       * loadModuleDependencyRefSetMembers();
-       * 
-       * commit(); clear(); beginTransaction();
-       * 
-       * // // Load module dependency refset members //
-       * Logger.getLogger(getClass()).info(
-       * "    Loading Attribute Value Ref Sets...");
-       * loadAttributeValueRefSetMembers();
-       * 
-       * commit(); clear(); beginTransaction();
-       * 
-       * // // Load association reference refset members //
-       * Logger.getLogger(getClass()).info(
-       * "    Loading Association Reference Ref Sets...");
-       * loadAssociationReferenceRefSetMembers();
-       * 
-       * commit(); clear(); beginTransaction();
-       * 
-       * Logger.getLogger(getClass()).info("    changed = " + ct);
-       * 
-       * // Commit the content changes
-       * Logger.getLogger(getClass()).info("  Committing");
-       * 
-       * // // Create ReleaseInfo for this release if it does not already exist
-       * // ReleaseInfo info = getReleaseInfo(terminology, releaseVersion); if
-       * (info == null) { info = new ReleaseInfoJpa();
-       * info.setName(releaseVersion); info.setDescription(terminology + " " +
-       * releaseVersion + " release"); info.setPlanned(false);
-       * info.setPublished(true); info.setTerminology(terminology);
-       * info.setVersion(version); info.setLastModified(releaseVersionDate);
-       * info.setLastModifiedBy(loader); addReleaseInfo(info); }
-       */
+
+      
+      // // Load relationships - stated and inferred //
+      Logger.getLogger(getClass()).info("    Loading Relationships ...");
+      loadRelationships();
+      
+      commitClearBegin();
+      
+      // // Load simple refset members //
+      Logger.getLogger(getClass()).info("    Loading Simple Ref Sets...");
+      loadSimpleRefSetMembers();
+      
+      commitClearBegin();
+      
+      // // Load simple map refset members //
+      Logger.getLogger(getClass()).info
+      ("    Loading Simple Map Ref Sets..."); 
+      loadSimpleMapRefSetMembers();
+      
+      commitClearBegin();
+      
+      // // Load complex map refset members //
+      Logger.getLogger(getClass()).info
+      ("    Loading Complex Map Ref Sets..."); 
+      loadComplexMapRefSetMembers();
+      
+      // // Load extended map refset members //
+      Logger.getLogger(getClass()).info
+      ("    Loading Extended Map Ref Sets...");
+      loadExtendedMapRefSetMembers();
+      
+      // // Load atom type refset members //
+      Logger.getLogger(getClass()).info("    Loading Atom Type Ref Sets...");
+      loadAtomTypeRefSetMembers();
+      
+      // // Load refset descriptor refset members //
+      Logger.getLogger(getClass()).info(
+      "    Loading Refset Descriptor Ref Sets...");
+      loadRefsetDescriptorRefSetMembers();
+      
+      // // Load module dependency refset members //
+      Logger.getLogger(getClass()).info(
+      "    Loading Module Dependency Ref Sets...");
+      loadModuleDependencyRefSetMembers();
+      
+      commitClearBegin();
+      
+      // // Load module dependency refset members //
+      Logger.getLogger(getClass()).info(
+      "    Loading Attribute Value Ref Sets...");
+      loadAttributeValueRefSetMembers();
+      
+      commitClearBegin();
+      
+      // // Load association reference refset members //
+      Logger.getLogger(getClass()).info(
+      "    Loading Association Reference Ref Sets...");
+      loadAssociationReferenceRefSetMembers();
+      
+      commitClearBegin();
+      
+      Logger.getLogger(getClass()).info("    changed = " + ct);
+      
+      // Commit the content changes
+      Logger.getLogger(getClass()).info("  Committing");
+      
+      // // Create ReleaseInfo for this release if it does not already exist
+       ReleaseInfo info = getReleaseInfo(terminology, releaseVersion); 
+      if (info == null) {
+        info = new ReleaseInfoJpa();
+        info.setName(releaseVersion);
+        info.setDescription(terminology + " " + releaseVersion + " release");
+        info.setPlanned(false);
+        info.setPublished(true);
+        info.setTerminology(terminology);
+        info.setVersion(version);
+        info.setLastModified(releaseVersionDate);
+        info.setLastModifiedBy(loader);
+        addReleaseInfo(info);
+      }
+       
       // Commit and clear resources
       commit();
       clear();
@@ -461,25 +459,31 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         concept2.setWorkflowStatus(published);
 
         // Attributes
-        Attribute attribute = new AttributeJpa();
+        Attribute attribute = null;
+        if (concept != null) {
+          attribute = concept.getAttributeByName("moduleId");
+        } else {
+          attribute = new AttributeJpa();          
+          concept2.addAttribute(attribute);
+        }
         setCommonFields(attribute, date);
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
-        concept2.addAttribute(attribute);
         cacheAttributeMetadata(attribute);
-        if (concept != null) {
-          attribute.setId(concept.getAttributeByName("moduleId").getId());
-        }
+        
 
-        Attribute attribute2 = new AttributeJpa();
+        Attribute attribute2 = null;
+        if (concept != null) {
+          attribute2 = concept.getAttributeByName("definitionStatusId");
+        } else {
+          attribute2 = new AttributeJpa();          
+          concept2.addAttribute(attribute2);
+        }
         setCommonFields(attribute2, date);
         attribute2.setName("definitionStatusId");
         attribute2.setValue(fields[4].intern());
-        concept2.addAttribute(attribute2);
         cacheAttributeMetadata(attribute2);
-        if (concept != null) {
-          attribute2.setId(concept.getAttributeByName("definitionStatusId").getId());
-        }
+
 
         // If concept is new, add it and all of its attributes
         if (concept == null) {
@@ -507,10 +511,11 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         }
 
         // Log and commit
-        if ((objectsAdded + objectsUpdated) % logCt == 0) {
+        /*if ((objectsAdded + objectsUpdated) % logCt == 0) {
           logAndCommit(objectsAdded + objectsUpdated);
-        }
+        }*/
       }
+      commitClearBegin();
     }
 
     logAndCommit(objectsAdded + objectsUpdated);
@@ -614,27 +619,34 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           atom2.setCodeId("");
           atom2.setLexicalClassId("");
           atom2.setStringClassId("");
+          atom2.setConceptId(concept.getTerminologyId());
 
           // Attributes
-          Attribute attribute = new AttributeJpa();
+          Attribute attribute = null;
+          if (atom != null) {
+            attribute = atom.getAttributeByName("moduleId");
+          } else {
+            attribute = new AttributeJpa();          
+            atom2.addAttribute(attribute);
+          }
           setCommonFields(attribute, date);
           attribute.setName("moduleId");
           attribute.setValue(fields[3].intern());
-          atom2.addAttribute(attribute);
           cacheAttributeMetadata(attribute);
-          if (atom != null) {
-            attribute.setId(atom.getAttributeByName("moduleId").getId());
-          }
+          
 
-          Attribute attribute2 = new AttributeJpa();
+          Attribute attribute2 = null;
+          if (atom != null) {
+            attribute2 = atom.getAttributeByName("caseSignificanceId");
+          } else {
+            attribute2 = new AttributeJpa();          
+            atom2.addAttribute(attribute2);
+          }
           setCommonFields(attribute2, date);
           attribute2.setName("caseSignificanceId");
           attribute2.setValue(fields[8].intern());
-          atom2.addAttribute(attribute2);
           cacheAttributeMetadata(attribute2);
-          if (atom != null) {
-            attribute2.setId(atom.getAttributeByName("caseSignificanceId").getId());
-          }
+
 
           // If atom is new, add it
           if (atom == null) {
@@ -686,7 +698,9 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       }
     }
 
-    logAndCommit(objectsAdded + objectsUpdated);
+    /*logAndCommit(objectsAdded + objectsUpdated);*/
+
+    commitClearBegin();
     for (Concept modifiedConcept : modifiedConcepts) {
       Logger.getLogger(getClass()).debug(
           "      update concept - " + modifiedConcept);
@@ -784,23 +798,28 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           def2.setStringClassId("");
 
           // Attributes
-          Attribute attribute = new AttributeJpa();
+          Attribute attribute = null;
+          if (def != null) {
+            attribute = def.getAttributeByName("moduleId");
+          } else {
+            attribute = new AttributeJpa();          
+            def2.addAttribute(attribute);
+          }
           setCommonFields(attribute, date);
           attribute.setName("moduleId");
           attribute.setValue(fields[3].intern());
-          def2.addAttribute(attribute);
+          
+          Attribute attribute2 = null;
           if (def != null) {
-            attribute.setId(def.getAttributeByName("moduleId").getId());
+            attribute2 = def.getAttributeByName("caseSignificanceId");
+          } else {
+            attribute2 = new AttributeJpa();          
+            def2.addAttribute(attribute2);
           }
-
-          Attribute attribute2 = new AttributeJpa();
           setCommonFields(attribute2, date);
           attribute2.setName("caseSignificanceId");
           attribute2.setValue(fields[8].intern());
-          def2.addAttribute(attribute2);
-          if (def != null) {
-            attribute2.setId(def.getAttributeByName("caseSignificanceId").getId());
-          }
+          
 
           // If atom is new, add it
           if (def == null) {
@@ -832,7 +851,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           }
 
           if ((objectsAdded + objectsUpdated) % logCt == 0) {
-            logAndCommit(objectsAdded + objectsUpdated);
+            /*logAndCommit(objectsAdded + objectsUpdated);*/
+            commitClearBegin();
             for (Concept modifiedConcept : modifiedConcepts) {
               Logger.getLogger(getClass()).debug(
                   "      update concept - " + modifiedConcept);
@@ -853,7 +873,9 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       }
     }
 
-    logAndCommit(objectsAdded + objectsUpdated);
+    /*logAndCommit(objectsAdded + objectsUpdated);*/
+    commitClearBegin();
+    
     for (Concept modifiedConcept : modifiedConcepts) {
       Logger.getLogger(getClass()).debug(
           "      update concept - " + modifiedConcept);
@@ -924,7 +946,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         // Add moduleId attribute
         final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
-        final Attribute attribute = new AttributeJpa();
+        /*final Attribute attribute = new AttributeJpa();
         setCommonFields(attribute, date);
         attribute.setName("acceptabilityId");
         attribute.setValue(fields[6].intern());
@@ -932,9 +954,20 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         member2.addAttribute(attribute);
         if (member != null) {
           attribute.setId(member.getAttributeByName("acceptabilityId").getId());
+        }*/
+        Attribute attribute = null;
+        if (member != null) {
+          attribute = member.getAttributeByName("acceptabilityId");
+        } else {
+          attribute = new AttributeJpa();          
+          member2.addAttribute(attribute);
         }
+        setCommonFields(attribute, date);
+        attribute.setName("acceptabilityId");
+        attribute.setValue(fields[6].intern());
+        cacheAttributeMetadata(attribute);        
 
-        final Atom atom = member2.getMember();
+        final Atom atom = getAtom(member2.getMember().getId());
 
         // If language refset entry is new, add it
         if (member == null) {
@@ -1196,35 +1229,41 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         rel2.setPublished(true);
 
         // Attributes
-        Attribute attribute = new AttributeJpa();
+        Attribute attribute = null;
+        if (rel != null) {
+          attribute = rel.getAttributeByName("moduleId");
+        } else {
+          attribute = new AttributeJpa();          
+          rel2.addAttribute(attribute);
+        }
         setCommonFields(attribute, date);
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
         cacheAttributeMetadata(attribute);
-        rel.addAttribute(attribute);
-        if (rel != null) {
-          attribute.setId(rel.getAttributeByName("moduleId").getId());
-        }
 
-        Attribute attribute2 = new AttributeJpa();
+        Attribute attribute2 = null;
+        if (rel != null) {
+          attribute2 = rel.getAttributeByName("characteristicTypeId");
+        } else {
+          attribute2 = new AttributeJpa();          
+          rel2.addAttribute(attribute2);
+        }
         setCommonFields(attribute2, date);
         attribute2.setName("characteristicTypeId");
         attribute2.setValue(fields[8].intern());
         cacheAttributeMetadata(attribute2);
-        rel.addAttribute(attribute2);
-        if (rel != null) {
-          attribute2.setId(rel.getAttributeByName("characteristicTypeId").getId());
-        }
 
-        Attribute attribute3 = new AttributeJpa();
+        Attribute attribute3 = null;
+        if (rel != null) {
+          attribute3 = rel.getAttributeByName("modifierId");
+        } else {
+          attribute3 = new AttributeJpa();          
+          rel2.addAttribute(attribute3);
+        }
         setCommonFields(attribute3, date);
         attribute3.setName("modifierId");
         attribute3.setValue(fields[9].intern());
         cacheAttributeMetadata(attribute3);
-        rel.addAttribute(attribute3);
-        if (rel != null) {
-          attribute3.setId(rel.getAttributeByName("modifierId").getId());
-        }
 
         // If atom is new, add it
         if (rel == null) {
@@ -1310,8 +1349,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
   private void cacheSubsetsAndMembers() throws Exception {
     // Cache existing subsets
     Query query =
-        manager.createQuery("select a AtomSubsetJpa "
-            + "where version = :version " + "and terminology = :terminology ");
+        manager.createQuery("select a from AtomSubsetJpa a "
+            + "where a.version = :version " + "and a.terminology = :terminology ");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     @SuppressWarnings("unchecked")
@@ -1321,8 +1360,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     }
 
     query =
-        manager.createQuery("select a ConceptSubsetJpa "
-            + "where version = :version " + "and terminology = :terminology ");
+        manager.createQuery("select a from ConceptSubsetJpa a "
+            + "where a.version = :version " + "and a.terminology = :terminology ");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     @SuppressWarnings("unchecked")
@@ -1335,8 +1374,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     query =
         manager
             .createQuery("select a.terminologyId, a.id from AtomSubsetMemberJpa a "
-                + "where version = :version "
-                + "and terminology = :terminology ");
+                + "where a.version = :version "
+                + "and a.terminology = :terminology ");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     @SuppressWarnings("unchecked")
@@ -1348,8 +1387,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     query =
         manager
             .createQuery("select a.terminologyId, a.id from ConceptSubsetMemberJpa a "
-                + "where version = :version "
-                + "and terminology = :terminology ");
+                + "where a.version = :version "
+                + "and a.terminology = :terminology ");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     @SuppressWarnings("unchecked")
@@ -1374,10 +1413,12 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     if (idMap.get(fields[5]) != null) {
       // Retrieve concept -- firstToken is referencedComponentId
       final Concept concept = getConcept(idMap.get(fields[5]));
-      ((ConceptSubsetMember) member).setMember(concept);
-    } else if (idMap.get(fields[5]) != null) {
+      if (concept != null)
+        ((ConceptSubsetMember) member).setMember(concept);
+      
       final Atom description = getAtom(idMap.get(fields[5]));
-      ((AtomSubsetMember) member).setMember(description);
+      if (description != null)
+        ((AtomSubsetMember) member).setMember(description);
     } else {
       throw new Exception(
           "Refset member connected to nonexistent object");
@@ -1399,7 +1440,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     manageSubset(member, fields, date);
     
     // Add moduleId attribute
-    final Attribute attribute = new AttributeJpa();
+    /*final Attribute attribute = new AttributeJpa();
     setCommonFields(attribute, date);
     attribute.setName("moduleId");
     attribute.setValue(fields[3].intern());
@@ -1407,8 +1448,19 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     member.addAttribute(attribute);
     if (member.getAttributeByName("moduleId") != null) {
       attribute.setId(member.getAttributeByName("moduleId").getId());
-    }
+    }*/
 
+    Attribute attribute = null;
+    if (member.getAttributeByName("moduleId") != null) {
+      attribute = member.getAttributeByName("moduleId");
+    } else {
+      attribute = new AttributeJpa();          
+      member.addAttribute(attribute);
+    }
+    setCommonFields(attribute, date);
+    attribute.setName("moduleId");
+    attribute.setValue(fields[3].intern());
+    cacheAttributeMetadata(attribute);        
   }
   
   /**

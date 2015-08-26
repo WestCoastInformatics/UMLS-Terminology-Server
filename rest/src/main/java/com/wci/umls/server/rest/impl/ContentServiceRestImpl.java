@@ -451,6 +451,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
       algo.setTerminology(terminology);
       algo.setVersion(version);
+      algo.setIdType(IdType.CONCEPT);
       algo.reset();
       algo.compute();
 
