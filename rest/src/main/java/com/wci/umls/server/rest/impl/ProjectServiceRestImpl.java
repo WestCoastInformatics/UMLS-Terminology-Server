@@ -146,14 +146,14 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @DELETE
-  @Path("/remove/id/{id}")
+  @Path("/remove/{id}")
   @ApiOperation(value = "Remove project", notes = "Removes the project with the specified id")
   public void removeProject(
     @ApiParam(value = "Project id, e.g. 3", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call DELETE (Project): /remove/id/" + id);
+        "RESTful call DELETE (Project): /remove/" + id);
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -175,7 +175,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/scope/id/{id}")
+  @Path("/scope/{id}")
   @ApiOperation(value = "Find project scope for the project id", notes = "Gets all concpets in scope for this project", response = ConceptList.class)
   public ConceptList findConceptsInScope(
     @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("id") Long id,
@@ -183,7 +183,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info("RESTful call (Project): scope/id/" + id);
+    Logger.getLogger(getClass()).info("RESTful call (Project): scope/" + id);
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -213,13 +213,13 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/id/{id}")
+  @Path("/{id}")
   @ApiOperation(value = "Get project for id", notes = "Gets the project for the specified id", response = Project.class)
   public Project getProject(
     @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Project): /id/" + id);
+    Logger.getLogger(getClass()).info("RESTful call (Project): /" + id);
 
     ProjectService projectService = new ProjectServiceJpa();
     try {

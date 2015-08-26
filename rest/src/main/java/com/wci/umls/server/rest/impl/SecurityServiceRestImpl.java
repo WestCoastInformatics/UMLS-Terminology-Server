@@ -212,7 +212,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call DELETE (Security): /user/remove/id/" + id);
+        "RESTful call DELETE (Security): /user/remove/" + id);
 
     SecurityService securityService = new SecurityServiceJpa();
     try {

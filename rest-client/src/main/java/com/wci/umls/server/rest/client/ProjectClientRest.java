@@ -104,7 +104,7 @@ public class ProjectClientRest extends RootClientRest implements
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/remove/id/"
+        client.target(config.getProperty("base.url") + "/project/remove/"
             + id);
 
     if (id == null)
@@ -130,7 +130,7 @@ public class ProjectClientRest extends RootClientRest implements
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/scope/id/"
+        client.target(config.getProperty("base.url") + "/project/scope/"
             + id);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -162,7 +162,7 @@ public class ProjectClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/id/" + id);
+        client.target(config.getProperty("base.url") + "/project/" + id);
     Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
