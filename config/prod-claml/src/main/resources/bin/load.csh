@@ -5,9 +5,9 @@
 # distribution.
 
 # Configure 
-set ICD10_CODE=~/code
-set ICD10_CONFIG=~/config/config.properties
-set ICD10_DATA=~/data
+set ICD10_CODE=~/claml/code
+set ICD10_CONFIG=~/claml/config/config.properties
+set ICD10_DATA=~/claml/data
 set SERVER=false
 echo "------------------------------------------------"
 echo "Starting ...`/bin/date`"

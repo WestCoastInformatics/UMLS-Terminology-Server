@@ -636,7 +636,7 @@ tsApp
         $scope.getCollapseIcon = function(item) {
 
           // if no expandable content detected, return blank glyphicon (see
-          // tsMobile.css)
+          // tsApp.css)
           if (!item.hasContent)
             return 'glyphicon glyphicon-plus glyphicon-none';
 
