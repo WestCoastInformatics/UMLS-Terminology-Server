@@ -19,11 +19,7 @@ import com.wci.umls.server.jpa.UserJpa;
 @XmlRootElement(name = "userList")
 public class UserListJpa extends AbstractResultList<User> implements UserList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = UserJpa.class, name = "user")
   public List<User> getObjects() {

@@ -64,21 +64,13 @@ public abstract class AbstractHasLastModified implements HasLastModified {
     lastModifiedBy = object.getLastModifiedBy();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasId#getId()
-   */
+  /* see superclass */
   @Override
   public Long getId() {
     return this.id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasId#setId(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void setId(Long id) {
     this.id = id;
@@ -105,65 +97,37 @@ public abstract class AbstractHasLastModified implements HasLastModified {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLastModified#getTimestamp()
-   */
+  /* see superclass */
   @Override
   public Date getTimestamp() {
     return timestamp;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasLastModified#setTimestamp(java.util.Date)
-   */
+  /* see superclass */
   @Override
   public void setTimestamp(Date timestamp) {
     this.timestamp = timestamp;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLastModified#getLastModified()
-   */
+  /* see superclass */
   @Override
   public Date getLastModified() {
     return lastModified;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasLastModified#setLastModified(java.util.Date)
-   */
+  /* see superclass */
   @Override
   public void setLastModified(Date lastModified) {
     this.lastModified = lastModified;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLastModified#getLastModifiedBy()
-   */
+  /* see superclass */
   @Override
   public String getLastModifiedBy() {
     return lastModifiedBy;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasLastModified#setLastModifiedBy(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public void setLastModifiedBy(String lastModifiedBy) {
     this.lastModifiedBy = lastModifiedBy;

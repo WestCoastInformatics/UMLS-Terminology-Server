@@ -70,198 +70,91 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
     published = abbreviation.isPublished();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#isPublished()
-   */
-  /**
-   * Indicates whether or not published is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  /* see superclass */
   @Override
   public boolean isPublished() {
     return published;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#setPublished(boolean)
-   */
-  /**
-   * Sets the published.
-   *
-   * @param published the published
-   */
+  /* see superclass */
   @Override
   public void setPublished(boolean published) {
     this.published = published;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#isPublishable()
-   */
-  /**
-   * Indicates whether or not publishable is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  /* see superclass */
   @Override
   public boolean isPublishable() {
     return publishable;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rf2.Component#setPublishable(boolean)
-   */
-  /**
-   * Sets the publishable.
-   *
-   * @param publishable the publishable
-   */
+  /* see superclass */
   @Override
   public void setPublishable(boolean publishable) {
     this.publishable = publishable;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Abbreviation#getBranch()
-   */
+  /* see superclass */
   @Override
   public String getBranch() {
     return branch;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Abbreviation#setBranch(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setBranch(String branch) {
     this.branch = branch;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Abbreviation#getAbbreviation()
-   */
-  /**
-   * Returns the abbreviation.
-   *
-   * @return the abbreviation
-   */
+  /* see superclass */
   @Override
   public String getAbbreviation() {
     return abbreviation;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Abbreviation#getExpandedForm()
-   */
-  /**
-   * Returns the expanded form.
-   *
-   * @return the expanded form
-   */
+  /* see superclass */
   @Override
   public String getExpandedForm() {
     return expandedForm;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Abbreviation#setAbbreviation(java.lang.String
-   * )
-   */
-  /**
-   * Sets the abbreviation.
-   *
-   * @param abbreviation the abbreviation
-   */
+  /* see superclass */
   @Override
   public void setAbbreviation(String abbreviation) {
     this.abbreviation = abbreviation;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Abbreviation#setExpandedForm(java.lang.String
-   * )
-   */
-  /**
-   * Sets the expanded form.
-   *
-   * @param expandedForm the expanded form
-   */
+  /* see superclass */
   @Override
   public void setExpandedForm(String expandedForm) {
     this.expandedForm = expandedForm;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasTerminology#getTerminology()
-   */
+  /* see superclass */
   @Override
   public String getTerminology() {
     return terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasTerminology#setTerminology(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasTerminology#getVersion()
-   */
+  /* see superclass */
   @Override
   public String getVersion() {
     return version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasTerminology#setVersion(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
-  /**
-   * Hash code.
-   *
-   * @return the int
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -278,12 +171,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
     return result;
   }
 
-  /**
-   * Equals.
-   *
-   * @param obj the obj
-   * @return true, if successful
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -320,11 +208,7 @@ public abstract class AbstractAbbreviation extends AbstractHasLastModified
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return getAbbreviation() + " = " + getExpandedForm();

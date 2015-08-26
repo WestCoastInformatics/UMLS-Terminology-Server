@@ -156,7 +156,6 @@ public class ContentClientRest extends RootClientRest implements
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - lucene reindex " + indexedObjects);
-    validateNotEmpty(indexedObjects, "indexedObjects");
 
     Client client = ClientBuilder.newClient();
     WebTarget target =

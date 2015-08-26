@@ -135,21 +135,13 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     this.cycleTolerant = cycleTolerant;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#compute()
-   */
+  /* see superclass */
   @Override
   public void compute() throws Exception {
     computeTransitiveClosure(terminology, version, idType);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#reset()
-   */
+  /* see superclass */
   @Override
   public void reset() throws Exception {
     clearTransitiveClosure(terminology, version);
@@ -204,7 +196,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
         manager
             .createQuery(
                 "select r.from.id, r.to.id from " + tableName
-                    + " r where obsolete = 0 "
+                    + " r where obsolete = 0 and inferred = 1 "
                     + "and terminology = :terminology "
                     + "and version = :version "
                     + "and relationshipType = :relationshipType")
@@ -287,7 +279,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
       addTransitiveRelationship(tr);
     }
     allNodes = new HashSet<>();
-    
+
     // initialize descendant map
     descendantsMap = new HashMap<>();
     beginTransaction();
@@ -308,13 +300,12 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
             "Creating transitive closure relationships");
       }
 
-
       List<Long> ancPath = new ArrayList<>();
       ancPath.add(code);
       final Set<Long> descs = getDescendants(code, parChd, ancPath);
       final Set<Long> children = parChd.get(code);
       for (final Long desc : descs) {
-        TransitiveRelationship<? extends ComponentHasAttributes> tr = null;        
+        TransitiveRelationship<? extends ComponentHasAttributes> tr = null;
         if (idType == IdType.CONCEPT) {
           final ConceptTransitiveRelationship ctr =
               new ConceptTransitiveRelationshipJpa();
@@ -454,35 +445,19 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#addProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
-   */
+  /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#removeProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
-   */
+  /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.jpa.algo.Algorithm#cancel()
-   */
+  /* see superclass */
   @Override
   public void cancel() {
     requestCancel = true;

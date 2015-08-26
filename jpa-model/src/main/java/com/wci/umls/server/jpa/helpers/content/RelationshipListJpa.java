@@ -23,11 +23,7 @@ public class RelationshipListJpa
     AbstractResultList<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>>
     implements RelationshipList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = AbstractRelationship.class, name = "relationship")
   public List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> getObjects() {

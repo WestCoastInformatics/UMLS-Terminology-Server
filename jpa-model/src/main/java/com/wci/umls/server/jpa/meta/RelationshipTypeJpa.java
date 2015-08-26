@@ -48,23 +48,14 @@ public class RelationshipTypeJpa extends AbstractAbbreviation implements
     inverse = rela.getInverse();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RelationshipType#getInverse()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public RelationshipType getInverse() {
     return inverse;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RelationshipType#setInverse(com
-   * .wci.umls.server.model.meta.RelationshipType)
-   */
+  /* see superclass */
   @Override
   public void setInverse(RelationshipType inverse) {
     this.inverse = inverse;
@@ -114,6 +105,7 @@ public class RelationshipTypeJpa extends AbstractAbbreviation implements
     inverse.setId(inverseId);
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "RelationshipTypeJpa [" + super.toString() + "]";

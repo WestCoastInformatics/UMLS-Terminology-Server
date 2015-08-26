@@ -20,11 +20,7 @@ import com.wci.umls.server.model.meta.AttributeName;
 public class AttributeNameListJpa extends AbstractResultList<AttributeName>
     implements AttributeNameList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = AttributeNameJpa.class, name = "name")
   public List<AttributeName> getObjects() {

@@ -20,11 +20,7 @@ import com.wci.umls.server.model.meta.RootTerminology;
 public class RootTerminologyListJpa extends AbstractResultList<RootTerminology>
     implements RootTerminologyList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = RootTerminologyJpa.class, name = "rootTerminology")
   public List<RootTerminology> getObjects() {

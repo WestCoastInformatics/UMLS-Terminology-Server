@@ -20,11 +20,7 @@ import com.wci.umls.server.model.content.Concept;
 public class ConceptListJpa extends AbstractResultList<Concept> implements
     ConceptList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = ConceptJpa.class, name = "concept")
   public List<Concept> getObjects() {

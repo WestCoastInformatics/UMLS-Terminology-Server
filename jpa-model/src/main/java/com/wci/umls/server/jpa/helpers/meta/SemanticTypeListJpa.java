@@ -20,11 +20,7 @@ import com.wci.umls.server.model.meta.SemanticType;
 public class SemanticTypeListJpa extends AbstractResultList<SemanticType>
     implements SemanticTypeList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = SemanticTypeJpa.class, name = "type")
   public List<SemanticType> getObjects() {

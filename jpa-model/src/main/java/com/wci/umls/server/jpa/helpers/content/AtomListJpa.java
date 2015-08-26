@@ -19,11 +19,7 @@ import com.wci.umls.server.model.content.Atom;
 @XmlRootElement(name = "atomList")
 public class AtomListJpa extends AbstractResultList<Atom> implements AtomList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = AtomJpa.class, name = "atom")
   public List<Atom> getObjects() {

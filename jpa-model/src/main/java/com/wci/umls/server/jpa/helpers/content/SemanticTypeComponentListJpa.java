@@ -21,11 +21,8 @@ public class SemanticTypeComponentListJpa extends
     AbstractResultList<SemanticTypeComponent> implements
     SemanticTypeComponentList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+
+  /* see superclass */
   @Override
   @XmlElement(type = SemanticTypeComponentJpa.class, name = "semanticTypeComponent")
   public List<SemanticTypeComponent> getObjects() {

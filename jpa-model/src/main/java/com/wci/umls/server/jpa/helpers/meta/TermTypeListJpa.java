@@ -20,11 +20,7 @@ import com.wci.umls.server.model.meta.TermType;
 public class TermTypeListJpa extends AbstractResultList<TermType> implements
     TermTypeList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = TermTypeJpa.class, name = "type")
   public List<TermType> getObjects() {

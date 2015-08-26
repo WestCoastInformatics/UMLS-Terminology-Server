@@ -131,7 +131,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   /** The module ids. */
   private Set<String> moduleIds = new HashSet<>();
 
-  /** non-core modules map */
+  /** non-core modules map. */
   private Map<String, Set<String>> moduleConceptIdMap = new HashMap<>();
 
   /** The concept id map. */
@@ -217,16 +217,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     this.readers = readers;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#compute()
-   */
-  /**
-   * Compute.
-   *
-   * @throws Exception the exception
-   */
+  /* see superclass */
   @Override
   public void compute() throws Exception {
     try {
@@ -376,11 +367,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#reset()
-   */
+  /* see superclass */
   @Override
   public void reset() throws Exception {
     // do nothing
@@ -399,48 +386,19 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#addProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
-   */
-  /**
-   * Adds the progress listener.
-   *
-   * @param l the l
-   */
+  /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#removeProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
-   */
-  /**
-   * Removes the progress listener.
-   *
-   * @param l the l
-   */
+  /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.jpa.algo.Algorithm#cancel()
-   */
-  /**
-   * Cancel.
-   */
+  /* see superclass */
   @Override
   public void cancel() {
     throw new UnsupportedOperationException("cannot cancel.");
@@ -1406,7 +1364,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     cacheAttributeMetadata(attribute);
     member.addAttribute(attribute);
     addAttribute(attribute, member);
-    
+
   }
 
   /**
@@ -1755,11 +1713,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     return !moduleId.equals(coreModuleId) && !moduleId.equals(metadataModuleId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.jpa.services.RootServiceJpa#close()
-   */
+  /* see superclass */
   @Override
   public void close() throws Exception {
     super.close();

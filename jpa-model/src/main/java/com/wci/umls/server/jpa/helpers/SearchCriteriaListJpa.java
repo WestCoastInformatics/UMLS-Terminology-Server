@@ -19,11 +19,7 @@ import com.wci.umls.server.helpers.SearchCriteriaList;
 public class SearchCriteriaListJpa extends AbstractResultList<SearchCriteria>
     implements SearchCriteriaList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = SearchCriteriaJpa.class, name = "criteria")
   public List<SearchCriteria> getObjects() {

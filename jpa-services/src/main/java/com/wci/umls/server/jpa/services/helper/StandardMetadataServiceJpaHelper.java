@@ -42,13 +42,7 @@ public class StandardMetadataServiceJpaHelper extends
     super();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getRelationshipTypes(java.
-   * lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings({
     "unchecked"
   })
@@ -68,6 +62,7 @@ public class StandardMetadataServiceJpaHelper extends
     return types;
   }
 
+  /* see superclass */
   @SuppressWarnings({
     "unchecked"
   })
@@ -87,6 +82,7 @@ public class StandardMetadataServiceJpaHelper extends
     return types;
   }
 
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public PropertyChainList getPropertyChains(String terminology, String version)
@@ -103,13 +99,7 @@ public class StandardMetadataServiceJpaHelper extends
     return types;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getAdditionalRelationshipTypes
-   * (java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public AdditionalRelationshipTypeList getAdditionalRelationshipTypes(
@@ -129,13 +119,7 @@ public class StandardMetadataServiceJpaHelper extends
     return types;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getAttributeNames(java.lang
-   * .String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public AttributeNameList getAttributeNames(String terminology, String version)
@@ -153,6 +137,7 @@ public class StandardMetadataServiceJpaHelper extends
     return names;
   }
 
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public LabelSetList getLabelSets(String terminology, String version)
@@ -170,13 +155,7 @@ public class StandardMetadataServiceJpaHelper extends
     return labelSets;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getSemanticTypes(java.lang
-   * .String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public SemanticTypeList getSemanticTypes(String terminology, String version)
@@ -194,13 +173,7 @@ public class StandardMetadataServiceJpaHelper extends
     return types;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getTermTypes(java.lang.String,
-   * java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public TermTypeList getTermTypes(String terminology, String version)
@@ -218,13 +191,7 @@ public class StandardMetadataServiceJpaHelper extends
     return types;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getHierarchicalRelationshipTypes
-   * (java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public RelationshipTypeList getHierarchicalRelationshipTypes(
@@ -244,49 +211,25 @@ public class StandardMetadataServiceJpaHelper extends
     return types;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#isHierarchcialRelationship
-   * (com.wci.umls.server.model.content.Relationship)
-   */
+  /* see superclass */
   @Override
   public boolean isHierarchcialRelationship(Relationship<?, ?> relationship) {
     return relationship.getRelationshipType().equals("CHD");
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#isStatedRelationship(com.wci
-   * .umls.server.model.content.Relationship)
-   */
+  /* see superclass */
   @Override
   public boolean isStatedRelationship(Relationship<?, ?> relationship) {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#isInferredRelationship(com
-   * .wci.umls.server.model.content.Relationship)
-   */
+  /* see superclass */
   @Override
   public boolean isInferredRelationship(Relationship<?, ?> relationship) {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getNonGroupingRelationshipTypes
-   * (java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public RelationshipTypeList getNonGroupingRelationshipTypes(
@@ -303,13 +246,7 @@ public class StandardMetadataServiceJpaHelper extends
     return types;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getGeneralMetadataEntries(
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
   public GeneralMetadataEntryList getGeneralMetadataEntries(String terminology,
@@ -326,13 +263,7 @@ public class StandardMetadataServiceJpaHelper extends
     return entries;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.MetadataService#getTermTypePrecedenceList(
-   * java.lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version) throws Exception {
@@ -344,12 +275,13 @@ public class StandardMetadataServiceJpaHelper extends
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     try {
-    return (PrecedenceList) query.getSingleResult();
-    }catch (NoResultException e) {
+      return (PrecedenceList) query.getSingleResult();
+    } catch (NoResultException e) {
       return null;
     }
   }
 
+  /* see superclass */
   @Override
   public void refreshCaches() throws Exception {
     close();

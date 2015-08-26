@@ -34,24 +34,13 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 public class UuidHashIdentifierAssignmentHandler implements
     IdentifierAssignmentHandler {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.Configurable#setProperties(java.util.Properties
-   * )
-   */
+  /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
     // n/a
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.Concept)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(Concept concept) throws Exception {
     // Based on the concept name and the terminology ids
@@ -67,12 +56,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.Descriptor)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(Descriptor descriptor) throws Exception {
     // Based on the descriptor name and the terminology ids
@@ -88,12 +72,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.Code)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(Code code) throws Exception {
     // Based on the code name and the terminology ids
@@ -109,36 +88,21 @@ public class UuidHashIdentifierAssignmentHandler implements
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.StringClass)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(StringClass stringClass) throws Exception {
     return TerminologyUtility.getUuid(stringClass.getName().toString())
         .toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.LexicalClass)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(LexicalClass lexicalClass) throws Exception {
     return TerminologyUtility.getUuid(
         lexicalClass.getNormalizedName().toString()).toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.Atom)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(Atom atom) throws Exception {
     StringBuilder hashKey = new StringBuilder();
@@ -151,13 +115,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.Attribute,
-   * com.wci.umls.server.model.content.ComponentHasAttributes)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(Attribute attribute,
     ComponentHasAttributes component) throws Exception {
@@ -169,13 +127,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.Definition,
-   * com.wci.umls.server.model.content.ComponentHasDefinitions)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(Definition definition,
     ComponentHasDefinitions component) throws Exception {
@@ -187,12 +139,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.Relationship)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
@@ -210,12 +157,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.TransitiveRelationship)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(
     TransitiveRelationship<? extends ComponentHasAttributes> relationship)
@@ -229,12 +171,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.Subset)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(Subset subset) throws Exception {
     StringBuilder hashKey = new StringBuilder();
@@ -244,12 +181,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.SubsetMember)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(
     SubsetMember<? extends ComponentHasAttributes, ? extends Subset> member)
@@ -262,13 +194,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.SemanticTypeComponent,
-   * com.wci.umls.server.model.content.Concept)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(SemanticTypeComponent semanticTypeComponent,
     Concept concept) throws Exception {
@@ -279,12 +205,7 @@ public class UuidHashIdentifierAssignmentHandler implements
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * getTerminologyId(com.wci.umls.server.model.content.TreePosition)
-   */
+  /* see superclass */
   @Override
   public String getTerminologyId(
     TreePosition<? extends ComponentHasAttributesAndName> treepos)
@@ -297,23 +218,13 @@ public class UuidHashIdentifierAssignmentHandler implements
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * allowIdChangeOnUpdate()
-   */
+  /* see superclass */
   @Override
   public boolean allowIdChangeOnUpdate() {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.handlers.IdentifierAssignmentHandler#
-   * allowConceptIdChangeOnUpdate()
-   */
+  /* see superclass */
   @Override
   public boolean allowConceptIdChangeOnUpdate() {
     return true;

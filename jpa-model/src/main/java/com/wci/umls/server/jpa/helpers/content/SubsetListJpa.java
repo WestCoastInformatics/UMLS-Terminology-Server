@@ -20,11 +20,7 @@ import com.wci.umls.server.model.content.Subset;
 public class SubsetListJpa extends AbstractResultList<Subset> implements
     SubsetList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = AbstractSubset.class, name = "subset")
   public List<Subset> getObjects() {

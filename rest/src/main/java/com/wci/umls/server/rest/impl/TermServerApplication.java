@@ -91,7 +91,7 @@ public class TermServerApplication extends Application {
         // Do 4 times per day. Just get users list.
         Logger.getLogger(getClass()).info("  PING");
         MetadataService service = new MetadataServiceJpa();
-        service.getTerminologies();
+        service.getRootTerminologies();
         service.close();
 
       } catch (Exception e) {

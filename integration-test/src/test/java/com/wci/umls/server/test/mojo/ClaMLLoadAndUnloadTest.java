@@ -139,7 +139,7 @@ public class ClaMLLoadAndUnloadTest {
 
     // Verify expected contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(24470,
+    Assert.assertEquals(24719,
         service.getAllConcepts("ICD10", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
@@ -257,14 +257,14 @@ public class ClaMLLoadAndUnloadTest {
     // Verify expected contents
     service = new ContentServiceJpa();
     // Test a non-UMLS terminology too
-    Assert.assertEquals(24470,
+    Assert.assertEquals(103974,
         service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 
     // Verify release info
     historyService = new HistoryServiceJpa();
-    Assert.assertNotNull(historyService.getReleaseInfo("ICD10CM", "latest"));
+    Assert.assertNotNull(historyService.getReleaseInfo("ICD10CM", "2014"));
     historyService.close();
     historyService.closeFactory();
 
@@ -294,8 +294,8 @@ public class ClaMLLoadAndUnloadTest {
     projectService = new ProjectServiceJpa();
     found = false;
     for (Project project : projectService.getProjects().getObjects()) {
-      if (project.getName().equals("Sample project")
-          && project.getDescription().equals("Sample project.")
+      if (project.getName().equals("Sample project2")
+          && project.getDescription().equals("Sample project2.")
           && project.getScopeDescendantsFlag()
           && project.getTerminology().equals("ICD10CM")
           && project.getVersion().equals("latest")) {
@@ -315,8 +315,6 @@ public class ClaMLLoadAndUnloadTest {
     securityService.closeFactory();
 
     // Start ICD10CM editing cycle
-
-    // Add a ICD10CM project
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/release/pom.xml"));
     request.setProfiles(Arrays.asList("StartEditingCycle"));
@@ -365,7 +363,7 @@ public class ClaMLLoadAndUnloadTest {
     // Verify no contents
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
-        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("ICD10", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 

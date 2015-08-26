@@ -81,11 +81,7 @@ public class KeyValuePair implements Comparable<KeyValuePair> {
     return value;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -95,11 +91,7 @@ public class KeyValuePair implements Comparable<KeyValuePair> {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -122,21 +114,13 @@ public class KeyValuePair implements Comparable<KeyValuePair> {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "(" + key + ", " + value + ")";
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public int compareTo(KeyValuePair o) {
     return getKey().compareTo(o.getKey());

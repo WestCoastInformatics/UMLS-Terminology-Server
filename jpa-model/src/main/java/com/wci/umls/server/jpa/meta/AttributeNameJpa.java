@@ -78,165 +78,93 @@ public class AttributeNameJpa extends AbstractAbbreviation implements
     existentialQuantification = atn.isExistentialQuantification();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.AttributeName#getDomainId()
-   */
+  /* see superclass */
   @Override
   public String getDomainId() {
     return domainId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AttributeName#setDomainId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setDomainId(String domainId) {
     this.domainId = domainId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.AttributeName#getEquivalentName()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public AttributeName getEquivalentName() {
     return equivalentName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AttributeName#setEquivalentName(com.wci.
-   * umls.server.model.meta.AttributeName)
-   */
+  /* see superclass */
   @Override
   public void setEquivalentName(AttributeName equivalentName) {
     this.equivalentName = equivalentName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.AttributeName#getRangeId()
-   */
+  /* see superclass */
   @Override
   public String getRangeId() {
     return rangeId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AttributeName#setRangeId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setRangeId(String rangeId) {
     this.rangeId = rangeId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.AttributeName#getSuperName()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public AttributeName getSuperName() {
     return superName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AttributeName#setSuperName(com.wci.umls.
-   * server.model.meta.AttributeName)
-   */
+  /* see superclass */
   @Override
   public void setSuperName(AttributeName superName) {
     this.superName = superName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AttributeName#isExistentialQuantification()
-   */
+  /* see superclass */
   @Override
   public boolean isExistentialQuantification() {
     return existentialQuantification;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AttributeName#setExistentialQuantification
-   * (boolean)
-   */
+  /* see superclass */
   @Override
   public void setExistentialQuantification(boolean existentialQuantification) {
     this.existentialQuantification = existentialQuantification;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AttributeName#isUniversalQuantification()
-   */
+  /* see superclass */
   @Override
   public boolean isUniversalQuantification() {
     return universalQuantification;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AttributeName#setUniversalQuantification
-   * (boolean)
-   */
+  /* see superclass */
   @Override
   public void setUniversalQuantification(boolean universalQuantification) {
     this.universalQuantification = universalQuantification;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.AttributeName#isFunctional()
-   */
+  /* see superclass */
   @Override
   public boolean isFunctional() {
     return functional;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.AttributeName#setFunctional(boolean)
-   */
+  /* see superclass */
   @Override
   public void setFunctional(boolean functional) {
     this.functional = functional;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -249,12 +177,7 @@ public class AttributeNameJpa extends AbstractAbbreviation implements
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.meta.AbstractAbbreviation#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -283,11 +206,7 @@ public class AttributeNameJpa extends AbstractAbbreviation implements
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "AttributeNameJpa [" + super.toString() + "]";

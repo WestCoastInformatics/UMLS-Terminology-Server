@@ -115,229 +115,140 @@ public class ReleaseInfoJpa implements ReleaseInfo {
     version = releaseInfo.getVersion();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#getId()
-   */
+  /* see superclass */
   @Override
   public Long getId() {
     return id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#setId(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void setId(Long id) {
     this.id = id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#getName()
-   */
+  /* see superclass */
   @Override
   public String getName() {
     return name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#setName(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#getDescription()
-   */
+  /* see superclass */
   @Override
   public String getDescription() {
     return description;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#setDescription(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setDescription(String description) {
     this.description = description;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#getReleaseBeginDate()
-   */
+  /* see superclass */
   @Override
   public Date getReleaseBeginDate() {
     return releaseBeginDate;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.helpers.ReleaseInfo#setReleaseBeginDate(java.util.Date)
-   */
+  /* see superclass */
   @Override
   public void setReleaseBeginDate(Date releaseBeginDate) {
     this.releaseBeginDate = releaseBeginDate;
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#getReleaseFinishDate()
-   */
+  /* see superclass */
   @Override
   public Date getReleaseFinishDate() {
     return releaseFinishDate;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.helpers.ReleaseInfo#setReleaseFinishDate(java.util.Date)
-   */
+  /* see superclass */
   @Override
   public void setReleaseFinishDate(Date releaseFinishDate) {
     this.releaseFinishDate = releaseFinishDate;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#isPlanned()
-   */
+  /* see superclass */
   @Override
   public boolean isPlanned() {
     return planned;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#setPlanned(boolean)
-   */
+  /* see superclass */
   @Override
   public void setPlanned(boolean planned) {
     this.planned = planned;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#isPublished()
-   */
+  /* see superclass */
   @Override
   public boolean isPublished() {
     return published;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#setPublished(boolean)
-   */
+  /* see superclass */
   @Override
   public void setPublished(boolean published) {
     this.published = published;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#getTerminology()
-   */
+  /* see superclass */
   @Override
   public String getTerminology() {
     return terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#setTerminology(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#getVersion()
-   */
+  /* see superclass */
   @Override
   public String getVersion() {
     return version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.helpers.ReleaseInfo#setVersion(java.lang.String )
-   */
+  /* see superclass */
   @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.ReleaseInfo#getLastModifiedBy()
-   */
+  /* see superclass */
   @Override
   public String getLastModifiedBy() {
     return lastModifiedBy;
   }
 
+  /* see superclass */
   @Override
   public void setLastModifiedBy(String lastModifiedBy) {
     this.lastModifiedBy = lastModifiedBy;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.ReleaseInfo#getLastModified()
-   */
+  /* see superclass */
   @Override
   public Date getLastModified() {
     return lastModified;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.ReleaseInfo#setLastModified(java.util.Date)
-   */
+  /* see superclass */
   @Override
   public void setLastModified(Date lastModified) {
     this.lastModified = lastModified;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -353,27 +264,20 @@ public class ReleaseInfoJpa implements ReleaseInfo {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ReleaseInfo#getProperties()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = ReleasePropertyJpa.class, name = "property")
   public List<ReleaseProperty> getProperties() {
     return properties;
   }
 
+  /* see superclass */
   @Override
   public void setProperties(List<ReleaseProperty> properties) {
     this.properties = properties;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -410,11 +314,7 @@ public class ReleaseInfoJpa implements ReleaseInfo {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return name + ", " + description + ", " + effectiveTime + ", " + planned

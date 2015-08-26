@@ -41,13 +41,7 @@ public class ValidationClientRest implements ValidationServiceRest {
     this.config = config;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ValidationServiceRest#validateConcept(org.ihtsdo
-   * .otf.ts.rf2.Concept, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validateConcept(ConceptJpa c, String authToken)
     throws Exception {
@@ -76,6 +70,7 @@ public class ValidationClientRest implements ValidationServiceRest {
     return result;
   }
 
+  /* see superclass */
   @Override
   public ValidationResult validateAtom(AtomJpa atom, String authToken)
     throws Exception {
@@ -104,6 +99,7 @@ public class ValidationClientRest implements ValidationServiceRest {
     return result;
   }
 
+  /* see superclass */
   @Override
   public ValidationResult validateDescriptor(DescriptorJpa descriptor,
     String authToken) throws Exception {
@@ -134,6 +130,7 @@ public class ValidationClientRest implements ValidationServiceRest {
     return result;
   }
 
+  /* see superclass */
   @Override
   public ValidationResult validateCode(CodeJpa code, String authToken)
     throws Exception {
@@ -162,6 +159,7 @@ public class ValidationClientRest implements ValidationServiceRest {
     return result;
   }
 
+  /* see superclass */
   @Override
   public ValidationResult validateMerge(String terminology, String version,
     String cui1, String cui2, String authToken) throws Exception {

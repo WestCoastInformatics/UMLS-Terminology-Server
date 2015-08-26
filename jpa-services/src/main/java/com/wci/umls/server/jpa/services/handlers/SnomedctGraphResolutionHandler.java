@@ -58,13 +58,7 @@ public class SnomedctGraphResolutionHandler extends
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.Concept, java.util.Set)
-   */
+  
   @Override
   public void resolve(Concept concept, Set<String> hierarchicalRelTypeIds)
     throws Exception {
@@ -116,13 +110,6 @@ public class SnomedctGraphResolutionHandler extends
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.handlers.GraphResolutionHandler#resolve(com
-   * .wci.umls.server.model.content.Atom)
-   */
   @Override
   public void resolve(Atom atom) throws Exception {
     cacheProperties();

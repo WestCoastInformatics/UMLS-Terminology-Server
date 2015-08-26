@@ -78,7 +78,7 @@ public interface MetadataService extends RootService, Configurable {
    * @return the terminologies
    * @throws Exception if anything goes wrong
    */
-  public RootTerminologyList getTerminologies() throws Exception;
+  public RootTerminologyList getRootTerminologies() throws Exception;
 
   /**
    * Returns the terminology.
@@ -116,6 +116,14 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception if anything goes wrong
    */
   public TerminologyList getTerminologyLatestVersions() throws Exception;
+
+  /**
+   * Returns the terminologies.
+   *
+   * @return the terminologies
+   * @throws Exception the exception
+   */
+  public TerminologyList getTerminologies() throws Exception;
 
   /**
    * Returns the all metadata.

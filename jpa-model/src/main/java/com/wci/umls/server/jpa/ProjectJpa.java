@@ -163,21 +163,13 @@ public class ProjectJpa implements Project {
     branch = project.getBranch();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getId()
-   */
+  /* see superclass */
   @Override
   public Long getId() {
     return this.id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setId(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void setId(Long id) {
     this.id = id;
@@ -201,454 +193,275 @@ public class ProjectJpa implements Project {
     this.id = Long.parseLong(id);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getLastModified()
-   */
+  /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public Date getLastModified() {
     return lastModified;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setLastModified(java.util.Date)
-   */
+  /* see superclass */
   @Override
   public void setLastModified(Date lastModified) {
     this.lastModified = lastModified;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getLastModifiedBy()
-   */
+  /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public String getLastModifiedBy() {
     return lastModifiedBy;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setLastModifiedBy(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setLastModifiedBy(String lastModifiedBy) {
     this.lastModifiedBy = lastModifiedBy;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getLeads()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = UserJpa.class, name = "lead")
   public Set<User> getLeads() {
     return leads;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setLeads(java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void setLeads(Set<User> leads) {
     this.leads = leads;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#addLead(org.ihtsdo.otf.ts.helpers.User)
-   */
+  /* see superclass */
   @Override
   public void addLead(User lead) {
     leads.add(lead);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#removeLead(org.ihtsdo.otf.ts.helpers.User)
-   */
+  /* see superclass */
   @Override
   public void removeLead(User lead) {
     leads.remove(lead);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getAuthors()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = UserJpa.class, name = "author")
   public Set<User> getAuthors() {
     return authors;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setAuthors(java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void setAuthors(Set<User> authors) {
     this.authors = authors;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#addAuthor(org.ihtsdo.otf.ts.helpers.User)
-   */
+  /* see superclass */
   @Override
   public void addAuthor(User author) {
     authors.add(author);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#removeAuthor(org.ihtsdo.otf.ts.helpers.User)
-   */
+  /* see superclass */
   @Override
   public void removeAuthor(User author) {
     authors.remove(author);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getAdministrators()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = UserJpa.class, name = "administrator")
   public Set<User> getAdministrators() {
     return administrators;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setAdministrators(java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void setAdministrators(Set<User> administrators) {
     this.administrators = administrators;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.Project#addAdministrator(org.ihtsdo.otf.ts.helpers.User)
-   */
+  /* see superclass */
   @Override
   public void addAdministrator(User administrator) {
     administrators.add(administrator);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.Project#removeAdministrator(org.ihtsdo.otf.ts.helpers
-   * .User)
-   */
+  /* see superclass */
   @Override
   public void removeAdministrator(User administrator) {
     administrators.remove(administrator);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getTerminology()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminology() {
     return terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setTerminology(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getVersion()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getVersion() {
     return version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setVersion(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getName()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getName() {
     return name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getDescription()
-   */
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getDescription() {
     return description;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setName(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setDescription(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setDescription(String description) {
     this.description = description;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#isPublic()
-   */
+  /* see superclass */
   @Override
   public boolean isPublic() {
     return isPublic;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setPublic(boolean)
-   */
+  /* see superclass */
   @Override
   public void setPublic(boolean isPublic) {
     this.isPublic = isPublic;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getScopeConcepts()
-   */
+  /* see superclass */
   @Override
   public Set<String> getScopeConcepts() {
     return scopeConcepts;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setScopeConcepts(java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void setScopeConcepts(Set<String> scopeConcepts) {
     this.scopeConcepts = scopeConcepts;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#addScopeConcept(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void addScopeConcept(String terminologyId) {
     this.scopeConcepts.add(terminologyId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#removeScopeConcept(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeScopeConcept(String terminologyId) {
     this.scopeConcepts.remove(terminologyId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getScopeDescendantsFlag()
-   */
+  /* see superclass */
   @Override
   public boolean getScopeDescendantsFlag() {
     return scopeDescendantsFlag;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setScopeDescendantsFlag(boolean)
-   */
+  /* see superclass */
   @Override
   public void setScopeDescendantsFlag(boolean flag) {
     scopeDescendantsFlag = flag;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getScopeExcludesConcepts()
-   */
+  /* see superclass */
   @Override
   public Set<String> getScopeExcludesConcepts() {
     return scopeExcludesConcepts;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setScopeExcludesConcepts(java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void setScopeExcludesConcepts(Set<String> scopeExcludesConcepts) {
     this.scopeExcludesConcepts = scopeExcludesConcepts;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#addScopeExcludesConcept(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void addScopeExcludesConcept(String terminologyId) {
     this.scopeExcludesConcepts.add(terminologyId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#removeScopeExcludesConcept(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeScopeExcludesConcept(String terminologyId) {
     this.scopeExcludesConcepts.remove(terminologyId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getScopeExcludesDescendantsFlag()
-   */
+  /* see superclass */
   @Override
   public boolean getScopeExcludesDescendantsFlag() {
     return scopeExcludesDescendantsFlag;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setScopeExcludesDescendantsFlag(boolean)
-   */
+  /* see superclass */
   @Override
   public void setScopeExcludesDescendantsFlag(boolean flag) {
     scopeExcludesDescendantsFlag = flag;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#getActionWorkflowStatusValues()
-   */
+  /* see superclass */
   @Override
   public Set<String> getActionWorkflowStatusValues() {
     return actionWorkflowStatusValues;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.Project#setActionWorkflowStatusValues(java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void setActionWorkflowStatusValues(
     Set<String> actionWorkflowStatusValues) {
     this.actionWorkflowStatusValues = actionWorkflowStatusValues;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return getName() + " " + getId();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.Project#getBranch()
-   */
+  /* see superclass */
   @Override
   public String getBranch() {
     return branch;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.Project#setBranch(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setBranch(String branch) {
     this.branch = branch;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -670,11 +483,7 @@ public class ProjectJpa implements Project {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

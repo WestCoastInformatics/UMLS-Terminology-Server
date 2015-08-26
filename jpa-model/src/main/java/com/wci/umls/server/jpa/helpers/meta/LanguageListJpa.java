@@ -20,11 +20,7 @@ import com.wci.umls.server.model.meta.Language;
 public class LanguageListJpa extends AbstractResultList<Language> implements
     LanguageList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = LanguageJpa.class, name = "type")
   public List<Language> getObjects() {

@@ -12,12 +12,7 @@ import com.wci.umls.server.model.content.Component;
  */
 public class SuppressibleBoost implements BoostStrategy {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.hibernate.search.engine.BoostStrategy#defineBoost(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public float defineBoost(Object value) {
     Component component = (Component) value;

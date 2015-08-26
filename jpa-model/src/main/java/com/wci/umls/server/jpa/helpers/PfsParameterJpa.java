@@ -60,41 +60,21 @@ public class PfsParameterJpa implements PfsParameter {
     inactiveOnly = pfs.getInactiveOnly();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PfsParameter#getMaxResults()
-   */
   @Override
   public int getMaxResults() {
     return maxResults;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PfsParameter#setMaxResults(int)
-   */
   @Override
   public void setMaxResults(int maxResults) {
     this.maxResults = maxResults;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PfsParameter#getStartIndex()
-   */
   @Override
   public int getStartIndex() {
     return startIndex;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PfsParameter#setStartIndex(int)
-   */
   @Override
   public void setStartIndex(int startIndex) {
     this.startIndex = startIndex;
@@ -120,84 +100,41 @@ public class PfsParameterJpa implements PfsParameter {
     this.inactiveOnly = inactiveOnly;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PfsParameter#getQueryRestriction()
-   */
   @Override
   public String getQueryRestriction() {
     return queryRestriction;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.PfsParameter#setQueryRestriction(java.lang.
-   * String)
-   */
   @Override
   public void setQueryRestriction(String queryRestriction) {
     this.queryRestriction = queryRestriction;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PfsParameter#getBranch()
-   */
   @Override
   public String getBranch() {
     return branch;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PfsParameter#setBranch(java.lang.String)
-   */
   @Override
   public void setBranch(String branch) {
     this.branch = branch;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PfsParameter#isAscending()
-   */
   @Override
   public boolean isAscending() {
     return ascending;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PfsParameter#setAscending(boolean)
-   */
   @Override
   public void setAscending(boolean ascending) {
     this.ascending = ascending;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PfsParameter#getSortField()
-   */
   @Override
   public String getSortField() {
     return sortField;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.PfsParameter#setSortField(java.lang.String)
-   */
   @Override
   public void setSortField(String sortField) {
     this.sortField = sortField;
@@ -257,22 +194,12 @@ public class PfsParameterJpa implements PfsParameter {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.helpers.PfsParameter#isIndexInRange(int)
-   */
   @Override
   public boolean isIndexInRange(int i) {
     return getStartIndex() != -1 && getMaxResults() != -1
         && i >= getStartIndex() && i < (getStartIndex() + getMaxResults());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
   @Override
   public String toString() {
     return "PfsParameterJpa [maxResults=" + maxResults + ", startIndex="

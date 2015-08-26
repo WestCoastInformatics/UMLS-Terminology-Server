@@ -51,32 +51,19 @@ public class LabelSetJpa extends AbstractAbbreviation implements LabelSet {
     derived = labelSet.isDerived();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.LabelSet#getDescription()
-   */
+  /* see superclass */
   @Override
   public String getDescription() {
     return description;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.LabelSet#setDescription(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setDescription(String description) {
     this.description = description;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -87,12 +74,7 @@ public class LabelSetJpa extends AbstractAbbreviation implements LabelSet {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.meta.AbstractAbbreviation#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -112,32 +94,20 @@ public class LabelSetJpa extends AbstractAbbreviation implements LabelSet {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "LabelSetJpa [description=" + description + ", derived=" + derived
         + "]";
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.LabelSet#isDerived()
-   */
+  /* see superclass */
   @Override
   public boolean isDerived() {
     return derived;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.LabelSet#setDerived(boolean)
-   */
+  /* see superclass */
   @Override
   public void setDerived(boolean derived) {
     this.derived = derived;

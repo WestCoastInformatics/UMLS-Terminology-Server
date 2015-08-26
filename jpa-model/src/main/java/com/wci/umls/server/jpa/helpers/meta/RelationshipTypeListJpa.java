@@ -20,11 +20,7 @@ import com.wci.umls.server.model.meta.RelationshipType;
 public class RelationshipTypeListJpa extends
     AbstractResultList<RelationshipType> implements RelationshipTypeList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = RelationshipTypeJpa.class, name = "type")
   public List<RelationshipType> getObjects() {

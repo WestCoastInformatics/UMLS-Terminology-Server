@@ -1,0 +1,30 @@
+
+<!-- Login form -->
+
+<div class="row">
+  <!-- padding -->
+  <div class="col-md-1 col-xs-0"></div>
+
+  <div class="col-md-10 col-xs-10">
+    <strong>Enter User and Password</strong><br>
+    <form>
+      <input autofocus class="loginField" id="userField"
+        ng-model="user.userName" type="text" placeholder="Username" /><br>
+      <input class="loginField" id="passwordField" type="password"
+        placeholder="Password" ng-model="user.password" /><br>
+      <button class="loginField" id="userLoginButton" type="submit"
+        ng-click="login(user.userName, user.password)">Login</button>
+      <p>
+        <br />
+        <a href="${deploy.password.reset}">Forgot Password?</a>
+        <br /> <br />
+      </p>
+      <ng-include src="'app/page/general/intro.html'">
+    </form>
+  </div>
+
+  <!-- Padding -->
+  <div class="col-md-1 col-xs-0"></div>
+</div>
+
+<!-- Done login form -->

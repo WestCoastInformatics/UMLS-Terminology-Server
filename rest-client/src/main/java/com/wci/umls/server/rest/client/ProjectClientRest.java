@@ -42,13 +42,7 @@ public class ProjectClientRest extends RootClientRest implements
     this.config = config;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ProjectServiceRest#addProject(org.ihtsdo.otf.ts.
-   * jpa.ProjectJpa, java.lang.String)
-   */
+  
   @Override
   public Project addProject(ProjectJpa project, String authToken)
     throws Exception {
@@ -81,13 +75,6 @@ public class ProjectClientRest extends RootClientRest implements
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ProjectServiceRest#updateProject(org.ihtsdo.otf.
-   * ts.jpa.ProjectJpa, java.lang.String)
-   */
   @Override
   public void updateProject(ProjectJpa project, String authToken)
     throws Exception {
@@ -111,20 +98,13 @@ public class ProjectClientRest extends RootClientRest implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ProjectServiceRest#removeProject(java.lang.String,
-   * java.lang.String)
-   */
   @Override
   public void removeProject(Long id, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Project Client - remove project " + id);
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/remove/id/"
+        client.target(config.getProperty("base.url") + "/project/remove/"
             + id);
 
     if (id == null)
@@ -141,13 +121,7 @@ public class ProjectClientRest extends RootClientRest implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ProjectServiceRest#getConceptsInScope(java.lang.
-   * Long, java.lang.String)
-   */
+ 
   @Override
   public ConceptList findConceptsInScope(Long id, PfsParameterJpa pfs,
     String authToken) throws Exception {
@@ -156,7 +130,7 @@ public class ProjectClientRest extends RootClientRest implements
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/scope/id/"
+        client.target(config.getProperty("base.url") + "/project/scope/"
             + id);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
@@ -181,12 +155,6 @@ public class ProjectClientRest extends RootClientRest implements
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.rest.ProjectServiceRest#getProject(java.lang.Long,
-   * java.lang.String)
-   */
   @Override
   public Project getProject(Long id, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Project Client - get project " + id);
@@ -194,7 +162,7 @@ public class ProjectClientRest extends RootClientRest implements
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/id/" + id);
+        client.target(config.getProperty("base.url") + "/project/" + id);
     Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -213,12 +181,6 @@ public class ProjectClientRest extends RootClientRest implements
     return project;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.rest.ProjectServiceRest#getProjects(java.lang.String)
-   */
   @Override
   public ProjectList getProjects(String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Project Client - get projects");

@@ -80,156 +80,91 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
     nonHuman = sty.isNonHuman();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.SemanticType#getValue()
-   */
+  /* see superclass */
   @Override
   public String getValue() {
     return value;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.SemanticType#setValue(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setValue(String value) {
     this.value = value;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.SemanticType#getDefinition()
-   */
+  /* see superclass */
   @Override
   public String getDefinition() {
     return definition;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.SemanticType#setDefinition(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setDefinition(String definition) {
     this.definition = definition;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.SemanticType#getExample()
-   */
+  /* see superclass */
   @Override
   public String getExample() {
     return example;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.SemanticType#setExample(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setExample(String example) {
     this.example = example;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.SemanticType#getTypeId()
-   */
+  /* see superclass */
   @Override
   public String getTypeId() {
     return typeId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.SemanticType#setTypeId(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTypeId(String typeId) {
     this.typeId = typeId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.SemanticType#isNonHuman()
-   */
+  /* see superclass */
   @Override
   public boolean isNonHuman() {
     return nonHuman;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.SemanticType#setNonHuman(boolean)
-   */
+  /* see superclass */
   @Override
   public void setNonHuman(boolean nonHuman) {
     this.nonHuman = nonHuman;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.SemanticType#getTreeNumber()
-   */
+  /* see superclass */
   @Override
   public String getTreeNumber() {
     return treeNumber;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.SemanticType#setTreeNumber(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTreeNumber(String treeNumber) {
     this.treeNumber = treeNumber;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.SemanticType#getUsageNote()
-   */
+  /* see superclass */
   @Override
   public String getUsageNote() {
     return usageNote;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.SemanticType#setUsageNote(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setUsageNote(String usageNote) {
     this.usageNote = usageNote;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -246,12 +181,7 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.meta.AbstractAbbreviation#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -296,11 +226,7 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "SemanticTypeJpa [value=" + value + ", definition=" + definition

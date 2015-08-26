@@ -1,0 +1,44 @@
+
+<div ui-tree-handle>
+  <!-- Expand/collapse controls -->
+  <a ng-if="tree.child && tree.childCt > 0" data-nodrag
+    ng-click="getChildTrees(tree, this)">
+    <span class="glyphicon" ng-class="getTreeNodeIcon(tree, collapsed)"></span>
+  </a>
+
+  <!--  if a dummy node, only render the terminology and 'top' label -->
+  <span ng-show="tree.id == null">{{terminology.terminology}} Top</span>
+
+  <!-- if not a dummy node, render the full information -->
+  <span ng-show="tree.id">
+    <!-- if this node has no children reported by child count -->
+    <i class="glyphicon glyphicon-leaf" ng-show="tree.childCt == 0"></i>
+    <a
+      ng-click="getComponent(tree.nodeTerminologyId, tree.terminology, tree.version)">
+      <span ng-show="!showExtension || !isDerivedLabelSet(tree)"
+        ng-bind-html="tree.nodeTerminologyId | highlight:searchParams.query"></span>
+      <span ng-show="showExtension && isDerivedLabelSet(tree)"
+        ng-bind-html="tree.nodeTerminologyId | highlightLabelFor:tree.nodeTerminologyId"
+        tooltip-html-unsafe="<div style='text-align:left;'>{{getDerivedLabelSetsValue(tree)}}</div>"></span>
+    </a>
+
+    <span ng-show="!showExtension || !isLabelSet(tree)"
+      ng-bind-html="tree.nodeName | highlight:searchParams.query"></span>
+    <span ng-show="showExtension && isLabelSet(tree)"
+      ng-bind-html="tree.nodeName | highlightLabel:tree.nodeName"
+      tooltip-html-unsafe="<div style='text-align:left;'>{{getLabelSetsValue(tree)}}</div>"></span>
+  </span>
+  </span>
+
+  <ol ui-tree-nodes="" ng-model="tree.child" ng-class="{hidden: collapsed}">
+    <li ng-repeat="tree in tree.child" ui-tree-node
+      ng-include="'app/component/tree/searchResultsTree_renderer.html'"></li>
+
+    <!-- if not all children displayed, display a message -->
+    <li ng-show="hasHiddenSiblings(tree) == true"><i
+        class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <a
+        ng-click="getAndSetChildTrees(tree, tree.child.length)">...
+        {{tree.childCt - tree.child.length}} more</a></li>
+
+  </ol>
+</div>

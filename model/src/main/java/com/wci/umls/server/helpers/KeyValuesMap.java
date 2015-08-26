@@ -69,11 +69,7 @@ public class KeyValuesMap {
     map.get(key).getSet().add(value);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -82,11 +78,7 @@ public class KeyValuesMap {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -104,11 +96,7 @@ public class KeyValuesMap {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return map.toString();
@@ -140,21 +128,13 @@ public class KeyValuesMap {
       return set;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
+    /* see superclass */
     @Override
     public String toString() {
       return set.toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
+    /* see superclass */
     @Override
     public int hashCode() {
       final int prime = 31;
@@ -163,11 +143,7 @@ public class KeyValuesMap {
       return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
+    /* see superclass */
     @Override
     public boolean equals(Object obj) {
       if (this == obj)

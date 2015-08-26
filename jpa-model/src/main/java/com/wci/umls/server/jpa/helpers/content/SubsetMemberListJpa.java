@@ -24,11 +24,8 @@ public class SubsetMemberListJpa
     AbstractResultList<SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>>
     implements SubsetMemberList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+
+  /* see superclass */
   @Override
   @XmlElement(type = AbstractSubsetMember.class, name = "member")
   public List<SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> getObjects() {

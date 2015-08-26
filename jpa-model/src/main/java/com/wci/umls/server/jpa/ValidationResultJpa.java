@@ -44,11 +44,7 @@ public class ValidationResultJpa implements ValidationResult {
     this.comments = new HashSet<>(result.getComments());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.helpers.ValidationResult#isValid()
-   */
+  /* see superclass */
   @Override
   public boolean isValid() {
     return errors.size() == 0;
@@ -63,45 +59,26 @@ public class ValidationResultJpa implements ValidationResult {
     // do nothing
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.helpers.ValidationResult#getErrors()
-   */
+  /* see superclass */
   @XmlElement(type = String.class, name = "error")
   @Override
   public Set<String> getErrors() {
     return errors;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.helpers.ValidationResult#setErrors(java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void setErrors(Set<String> errors) {
     this.errors = errors;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.helpers.ValidationResult#addError(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void addError(String error) {
     this.errors.add(error);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.helpers.ValidationResult#addErrors(java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void addErrors(Set<String> errorSet) {
     if (this.errors != null) {
@@ -111,58 +88,32 @@ public class ValidationResultJpa implements ValidationResult {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.helpers.ValidationResult#removeError(java.lang.String
-   * )
-   */
+  /* see superclass */
   @Override
   public void removeError(String error) {
     this.errors.remove(error);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.helpers.ValidationResult#getWarnings()
-   */
+  /* see superclass */
   @XmlElement(type = String.class, name = "warning")
   @Override
   public Set<String> getWarnings() {
     return warnings;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.helpers.ValidationResult#setWarnings(java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void setWarnings(Set<String> warnings) {
     this.warnings = warnings;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.helpers.ValidationResult#addWarning(java.lang.String
-   * )
-   */
+  /* see superclass */
   @Override
   public void addWarning(String warning) {
     this.warnings.add(warning);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.helpers.ValidationResult#addWarnings(java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void addWarnings(Set<String> warningSet) {
     if (this.warnings != null)
@@ -171,75 +122,43 @@ public class ValidationResultJpa implements ValidationResult {
       this.warnings = new HashSet<>(warningSet);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.mapping.helpers.ValidationResult#removeWarning(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public void removeWarning(String warning) {
     this.warnings.remove(warning);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.ValidationResult#getComments()
-   */
+  /* see superclass */
   @Override
   public Set<String> getComments() {
     return comments;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.ValidationResult#setComments(java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void setComments(Set<String> comments) {
     this.comments = comments;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.ValidationResult#removeComment(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeComment(String comment) {
     comments.remove(comment);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.ValidationResult#addComment(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void addComment(String comment) {
     comments.add(comment);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.ValidationResult#addComment(java.util.Set)
-   */
+  /* see superclass */
   @Override
   public void addComment(Set<String> comments) {
     comments.addAll(comments);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.helpers.ValidationResult#merge(org.ihtsdo.otf.ts.helpers
-   * .ValidationResult)
-   */
+  /* see superclass */
   @Override
   public void merge(ValidationResult validationResult) {
 
@@ -249,22 +168,14 @@ public class ValidationResultJpa implements ValidationResult {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "ERRORS: " + errors + ", WARNINGS: " + warnings + ", COMMENTS: "
         + comments;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -275,11 +186,7 @@ public class ValidationResultJpa implements ValidationResult {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

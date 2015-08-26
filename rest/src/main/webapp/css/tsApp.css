@@ -1,0 +1,99 @@
+/* quick style for horiontal placement with padding */
+body {
+	padding-bottom: 100px;
+}
+
+a {
+	cursor: pointer;
+}
+
+.loginField {
+	margin: 5px;
+}
+
+.introText {
+	max-width: 450px;
+}
+
+.alert {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding: 5px;
+}
+
+.btn-structure {
+	width: 90px;
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
+
+.btn-selected {
+	color: grey;
+}
+
+.swagger-ui-wrap p {
+	line-height: 1.4em;
+	padding: 0 0 10px;
+	color: #333333;
+}
+
+.top-layer {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	top: 0;
+	left: 0;
+	opacity: 0.5;
+	z-index: 10000;
+	cursor: wait;
+	background-color: #FFFFFF;
+}
+
+.ul {
+	word-wrap: break-word;
+}
+
+.icon-list {
+	display: block; list-style : none;
+	padding-left: 0;
+	margin-left: 1em;
+	list-style: none;
+}
+
+.glyphicon-none:before {
+	color: transparent;
+}
+
+.pagination {
+	display: inline; /* override from inline-block to allow multiple items per line */
+	padding-left: 0;
+	padding-right: 10px;
+	padding-bottom: 20px;
+	padding-left: 0px;
+	border-radius: 4px;
+}
+
+.input-filter {
+	display: inline;
+	padding-left: 0;
+	margin-bottom: 20px; /* to match the padding of pagination */
+	margin-left: 0px;
+	border-radius: 4px;
+	font-size: 14px;	/* to match font-size of pagination */
+	line-height: 1.42857143; /* to match line-height of pagination */
+}
+
+.highlighted { background: yellow }
+
+/* Angular UI Tree overrides */
+.angular-ui-tree-handle {
+	font-weight: normal; /* originally 700 */
+	cursor: auto; /* originally move */
+}
+
+.glyphicon-leaf {
+	opacity: 0.5;	
+}
+

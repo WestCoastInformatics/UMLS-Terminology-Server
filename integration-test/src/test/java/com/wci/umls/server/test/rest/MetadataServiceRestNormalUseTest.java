@@ -23,6 +23,7 @@ import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService.MetadataKeys;
@@ -59,37 +60,32 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
   public void testNormalUseRestMetadata001() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
-    KeyValuePairLists keyValuePairLists =
-        metadataService.getAllTerminologiesVersions(authToken);
-    Logger.getLogger(getClass()).debug("  data = " + keyValuePairLists);
+    TerminologyList termList = metadataService.getTerminologies(authToken);
+    Logger.getLogger(getClass()).debug("  data = " + termList);
 
     // flags for whether UMLS, SNOMEDCT_US, and MSH were found
     boolean foundUmls = false;
     boolean foundSnomedct = false;
     boolean foundMsh = false;
 
-    for (KeyValuePairList keyValuePairList : keyValuePairLists
-        .getKeyValuePairLists()) {
-      for (KeyValuePair keyValuePair : keyValuePairList.getKeyValuePairList()) {
-
-        // test versions
-        switch (keyValuePair.getKey()) {
-          case "UMLS":
-            foundUmls = true;
-            assertTrue(keyValuePair.getValue().equals("latest"));
-            break;
-          case "SNOMEDCT_US":
-            foundSnomedct = true;
-            assertTrue(keyValuePair.getValue().equals("2014_09_01"));
-            break;
-          case "MSH":
-            foundMsh = true;
-            assertTrue(keyValuePair.getValue().equals("2015_2014_09_08"));
-            break;
-          default:
-            // ignore other terminologies, only three above are assumed
-            break;
-        }
+    for (Terminology terminology : termList.getObjects()) {
+      // test versions
+      switch (terminology.getTerminology()) {
+        case "UMLS":
+          foundUmls = true;
+          assertTrue(terminology.getVersion().equals("latest"));
+          break;
+        case "SNOMEDCT_US":
+          foundSnomedct = true;
+          assertTrue(terminology.getVersion().equals("2014_09_01"));
+          break;
+        case "MSH":
+          foundMsh = true;
+          assertTrue(terminology.getVersion().equals("2015_2014_09_08"));
+          break;
+        default:
+          // ignore other terminologies, only three above are assumed
+          break;
       }
     }
 
@@ -113,25 +109,25 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     boolean foundMsh = false;
 
     // make the call
-    KeyValuePairList keyValuePairList =
+    TerminologyList termList =
         metadataService.getAllTerminologiesLatestVersions(authToken);
 
     // cycle over each pair in list
-    for (KeyValuePair keyValuePair : keyValuePairList.getKeyValuePairList()) {
+    for (Terminology terminology : termList.getObjects()) {
 
       // test versions
-      switch (keyValuePair.getKey()) {
+      switch (terminology.getTerminology()) {
         case "UMLS":
           foundUmls = true;
-          assertTrue(keyValuePair.getValue().equals("latest"));
+          assertTrue(terminology.getVersion().equals("latest"));
           break;
         case "SNOMEDCT_US":
           foundSnomedct = true;
-          assertTrue(keyValuePair.getValue().equals("2014_09_01"));
+          assertTrue(terminology.getVersion().equals("2014_09_01"));
           break;
         case "MSH":
           foundMsh = true;
-          assertTrue(keyValuePair.getValue().equals("2015_2014_09_08"));
+          assertTrue(terminology.getVersion().equals("2015_2014_09_08"));
           break;
         default:
           // ignore other terminologies, only three above are assumed

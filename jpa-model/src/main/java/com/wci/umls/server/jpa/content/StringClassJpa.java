@@ -57,18 +57,20 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
     labels = stringClass.getLabels();
   }
 
-
+  /* see superclass */
   @Override
   public List<String> getLabels() {
     return labels;
   }
 
+  /* see superclass */
   @Override
   public void setLabels(List<String> labels) {
     this.labels = labels;
 
   }
 
+  /* see superclass */
   @Override
   public void addLabel(String label) {
     if (labels == null) {
@@ -77,11 +79,7 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
     labels.add(label);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLabels#removeLabel(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeLabel(String label) {
     if (labels == null) {

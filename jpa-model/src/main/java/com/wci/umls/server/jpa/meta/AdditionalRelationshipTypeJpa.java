@@ -125,12 +125,7 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
     groupingType = rela.isGroupingType();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#getInverseType()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public AdditionalRelationshipType getInverseType() {
@@ -181,18 +176,13 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
     inverseType.setId(inverseTypeId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#setInverseType
-   * (com .wci.umls.server.model.meta.AdditionalRelationshipType)
-   */
+  /* see superclass */
   @Override
   public void setInverseType(AdditionalRelationshipType inverseType) {
     this.inverseType = inverseType;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -213,6 +203,7 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -257,26 +248,14 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#getEquivalentType
-   * ()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public AdditionalRelationshipType getEquivalentType() {
     return equivalentType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#setEquivalentType
-   * (com.wci.umls.server.model.meta.AdditionalRelationshipType)
-   */
+  /* see superclass */
   @Override
   public void setEquivalentType(AdditionalRelationshipType equivalentType) {
     this.equivalentType = equivalentType;
@@ -326,25 +305,14 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
     equivalentType.setId(equivalentTypeId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#getSuperType()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public AdditionalRelationshipType getSuperType() {
     return superType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#setSuperType(
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType)
-   */
+  /* see superclass */
   @Override
   public void setSuperType(AdditionalRelationshipType superType) {
     this.superType = superType;
@@ -394,302 +362,163 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
     superType.setId(superTypeId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#isAsymmetric()
-   */
+  /* see superclass */
   @Override
   public boolean isAsymmetric() {
     return asymmetric;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#setAsymmetric
-   * (boolean)
-   */
+  /* see superclass */
   @Override
   public void setAsymmetric(boolean asymetric) {
     this.asymmetric = asymetric;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#isEquivalentClasses
-   * ()
-   */
+  /* see superclass */
   @Override
   public boolean isEquivalentClasses() {
     return equivalentClasses;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#setEquivalentClasses
-   * (boolean)
-   */
+  /* see superclass */
   @Override
   public void setEquivalentClasses(boolean equivalentClasses) {
     this.equivalentClasses = equivalentClasses;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.AdditionalRelationshipType#
-   * isExistentialQuantification()
-   */
+  /* see superclass */
   @Override
   public boolean isExistentialQuantification() {
     return existentialQuantification;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.AdditionalRelationshipType#
-   * setExistentialQuantification(boolean)
-   */
+  /* see superclass */
   @Override
   public void setExistentialQuantification(boolean existentialQuantification) {
     this.existentialQuantification = existentialQuantification;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#isFunctional()
-   */
+  /* see superclass */
   @Override
   public boolean isFunctional() {
     return functional;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#setFunctional
-   * (boolean)
-   */
+  /* see superclass */
   @Override
   public void setFunctional(boolean functional) {
     this.functional = functional;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#isInverseFunctional
-   * ()
-   */
+  /* see superclass */
   @Override
   public boolean isInverseFunctional() {
     return inverseFunctional;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#setInverseFunctional
-   * (boolean)
-   */
+  /* see superclass */
   @Override
   public void setInverseFunctional(boolean inverseFunctional) {
     this.inverseFunctional = inverseFunctional;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#isIrreflexive()
-   */
+  /* see superclass */
   @Override
   public boolean isIrreflexive() {
     return irreflexive;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#setIrreflexive
-   * (boolean)
-   */
+  /* see superclass */
   @Override
   public void setIrreflexive(boolean irreflexive) {
     this.irreflexive = irreflexive;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#isReflexive()
-   */
+  /* see superclass */
   @Override
   public boolean isReflexive() {
     return reflexive;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#setReflexive(
-   * boolean)
-   */
+  /* see superclass */
   @Override
   public void setReflexive(boolean reflexive) {
     this.reflexive = reflexive;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#isSymmetric()
-   */
+  /* see superclass */
   @Override
   public boolean isSymmetric() {
     return symmetric;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#setSymmetric(
-   * boolean)
-   */
+  /* see superclass */
   @Override
   public void setSymmetric(boolean symmetric) {
     this.symmetric = symmetric;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#isTransitive()
-   */
+  /* see superclass */
   @Override
   public boolean isTransitive() {
     return transitive;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#setTransitive
-   * (boolean)
-   */
+  /* see superclass */
   @Override
   public void setTransitive(boolean transitive) {
     this.transitive = transitive;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.AdditionalRelationshipType#
-   * isUniversalQuantification()
-   */
+  /* see superclass */
   @Override
   public boolean isUniversalQuantification() {
     return universalQuantification;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.AdditionalRelationshipType#
-   * setUniversalQuantification(boolean)
-   */
+  /* see superclass */
   @Override
   public void setUniversalQuantification(boolean universalQuantification) {
     this.universalQuantification = universalQuantification;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#getDomainId()
-   */
+  /* see superclass */
   @Override
   public String getDomainId() {
     return domainId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#setDomainId(java
-   * .lang.String)
-   */
+  /* see superclass */
   @Override
   public void setDomainId(String domainId) {
     this.domainId = domainId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.AdditionalRelationshipType#getRangeId()
-   */
+  /* see superclass */
   @Override
   public String getRangeId() {
     return rangeId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.AdditionalRelationshipType#setRangeId(java
-   * .lang.String)
-   */
+  /* see superclass */
   @Override
   public void setRangeId(String rangeId) {
     this.rangeId = rangeId;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RelationshipType#isGroupingType()
-   */
+  /* see superclass */
   @Override
   public boolean isGroupingType() {
     return groupingType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.RelationshipType#setGroupingType(boolean)
-   */
+  /* see superclass */
   @Override
   public void setGroupingType(boolean groupingType) {
     this.groupingType = groupingType;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "AdditionalRelationshipTypeJpa [" + super.toString() + "]";

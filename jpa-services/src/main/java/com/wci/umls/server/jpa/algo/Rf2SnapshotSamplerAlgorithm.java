@@ -69,16 +69,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     this.readers = readers;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#compute()
-   */
-  /**
-   * Compute.
-   *
-   * @throws Exception the exception
-   */
+  /* see superclass */
   @Override
   public void compute() throws Exception {
     try {
@@ -616,11 +607,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.mapping.jpa.algo.Algorithm#reset()
-   */
+  /* see superclass */
   @Override
   public void reset() throws Exception {
     // do nothing
@@ -639,53 +626,25 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.ihtsdo.otf.ts.jpa.services.helper.ProgressReporter#addProgressListener
-   * (org.ihtsdo.otf.ts.jpa.services.helper.ProgressListener)
-   */
-  /**
-   * Adds the progress listener.
-   *
-   * @param l the l
-   */
+  /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.helpers.ProgressReporter#removeProgressListener
-   * (com.wci.umls.server.services.helpers.ProgressListener)
-   */
+  /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.jpa.algo.Algorithm#cancel()
-   */
-  /**
-   * Cancel.
-   */
+  /* see superclass */
   @Override
   public void cancel() {
     throw new UnsupportedOperationException("cannot cancel.");
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.ihtsdo.otf.ts.jpa.services.RootServiceJpa#close()
-   */
+  /* see superclass */
   @Override
   public void close() throws Exception {
     super.close();

@@ -187,403 +187,235 @@ public class CitationJpa implements Citation {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getId()
-   */
+  /* see superclass */
   @Override
   public Long getId() {
     return id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#setId(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void setId(Long id) {
     this.id = id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getAddress()
-   */
+  /* see superclass */
   @Override
   public String getAddress() {
     return address;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#setAddress(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setAddress(String address) {
     this.address = address;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getAuthor()
-   */
+  /* see superclass */
   @Override
   public String getAuthor() {
     return author;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#setAuthor(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setAuthor(String author) {
     this.author = author;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getAvailabilityStatement()
-   */
+  /* see superclass */
   @Override
   public String getAvailabilityStatement() {
     return availabilityStatement;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Citation#setAvailabilityStatement(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public void setAvailabilityStatement(String availabilityStatement) {
     this.availabilityStatement = availabilityStatement;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getContentDesignator()
-   */
+  /* see superclass */
   @Override
   public String getContentDesignator() {
     return contentDesignator;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Citation#setContentDesignator(java.lang.
-   * String)
-   */
+  /* see superclass */
   @Override
   public void setContentDesignator(String contentDesignator) {
     this.contentDesignator = contentDesignator;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getDateOfPublication()
-   */
+  /* see superclass */
   @Override
   public String getDateOfPublication() {
     return dateOfPublication;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Citation#setDateOfPublication(java.lang.
-   * String)
-   */
+  /* see superclass */
   @Override
   public void setDateOfPublication(String dateOfPublication) {
     this.dateOfPublication = dateOfPublication;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getDateOfRevision()
-   */
+  /* see superclass */
   @Override
   public String getDateOfRevision() {
     return dateOfRevision;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Citation#setDateOfRevision(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setDateOfRevision(String dateOfRevision) {
     this.dateOfRevision = dateOfRevision;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getEdition()
-   */
+  /* see superclass */
   @Override
   public String getEdition() {
     return edition;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#setEdition(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setEdition(String edition) {
     this.edition = edition;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getEditor()
-   */
+  /* see superclass */
   @Override
   public String getEditor() {
     return editor;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#setEditor(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setEditor(String editor) {
     this.editor = editor;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getExtent()
-   */
+  /* see superclass */
   @Override
   public String getExtent() {
     return extent;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#setExtent(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setExtent(String extent) {
     this.extent = extent;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getLocation()
-   */
+  /* see superclass */
   @Override
   public String getLocation() {
     return location;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#setLocation(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setLocation(String location) {
     this.location = location;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getMediumDesignator()
-   */
+  /* see superclass */
   @Override
   public String getMediumDesignator() {
     return mediumDesignator;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Citation#setMediumDesignator(java.lang.String
-   * )
-   */
+  /* see superclass */
   @Override
   public void setMediumDesignator(String mediumDesignator) {
     this.mediumDesignator = mediumDesignator;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getNotes()
-   */
+  /* see superclass */
   @Override
   public String getNotes() {
     return notes;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#setNotes(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setNotes(String notes) {
     this.notes = notes;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getOrganization()
-   */
+  /* see superclass */
   @Override
   public String getOrganization() {
     return organization;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Citation#setOrganization(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setOrganization(String organization) {
     this.organization = organization;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getPlaceOfPublication()
-   */
+  /* see superclass */
   @Override
   public String getPlaceOfPublication() {
     return placeOfPublication;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.Citation#setPlaceOfPublication(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public void setPlaceOfPublication(String placeOfPublication) {
     this.placeOfPublication = placeOfPublication;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getPublisher()
-   */
+  /* see superclass */
   @Override
   public String getPublisher() {
     return publisher;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#setPublisher(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setPublisher(String publisher) {
     this.publisher = publisher;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getSeries()
-   */
+  /* see superclass */
   @Override
   public String getSeries() {
     return series;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#setSeries(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setSeries(String series) {
     this.series = series;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getTitle()
-   */
+  /* see superclass */
   @Override
   public String getTitle() {
     return title;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#setTitle(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTitle(String title) {
     this.title = title;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#getUnstructuredValue()
-   */
+  /* see superclass */
   @Override
   public String getUnstructuredValue() {
     return unstructuredValue;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Citation#setValue(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setUnstructuredValue(String unstructuredValue) {
     this.unstructuredValue = unstructuredValue;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -627,11 +459,7 @@ public class CitationJpa implements Citation {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

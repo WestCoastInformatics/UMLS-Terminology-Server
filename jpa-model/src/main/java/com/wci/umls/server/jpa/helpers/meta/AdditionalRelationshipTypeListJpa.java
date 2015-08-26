@@ -21,11 +21,7 @@ public class AdditionalRelationshipTypeListJpa extends
     AbstractResultList<AdditionalRelationshipType> implements
     AdditionalRelationshipTypeList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = AdditionalRelationshipTypeJpa.class, name = "type")
   public List<AdditionalRelationshipType> getObjects() {

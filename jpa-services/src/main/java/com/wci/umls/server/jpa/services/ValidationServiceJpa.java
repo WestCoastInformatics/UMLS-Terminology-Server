@@ -17,8 +17,6 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.services.ValidationService;
 import com.wci.umls.server.services.handlers.ValidationCheck;
 
-
-
 /**
  * Implementation of {@link ValidationService} that redirects to
  * terminology-specific implementations.
@@ -28,7 +26,6 @@ public class ValidationServiceJpa extends RootServiceJpa implements
 
   /** The config properties. */
   protected static Properties config = null;
-
 
   /** The validation handlers. */
   protected static Map<String, ValidationCheck> validationHandlersMap = null;
@@ -53,8 +50,6 @@ public class ValidationServiceJpa extends RootServiceJpa implements
     }
   }
 
-
-
   /**
    * Instantiates an empty {@link ValidationServiceJpa}.
    *
@@ -63,7 +58,6 @@ public class ValidationServiceJpa extends RootServiceJpa implements
   public ValidationServiceJpa() throws Exception {
     super();
 
-
     if (validationHandlersMap == null) {
       throw new Exception(
           "Validation handlers did not properly initialize, serious error.");
@@ -71,19 +65,14 @@ public class ValidationServiceJpa extends RootServiceJpa implements
 
   }
 
-
-
+  /* see superclass */
   @Override
   public void refreshCaches() throws Exception {
     // TODO Auto-generated method stub
-    
+
   }
 
-
-
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.ValidationService#validateConcept(com.wci.umls.server.model.content.Concept)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validateConcept(Concept concept) {
     ValidationResult result = new ValidationResultJpa();
@@ -93,11 +82,7 @@ public class ValidationServiceJpa extends RootServiceJpa implements
     return result;
   }
 
-
-
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.ValidationService#validateAtom(com.wci.umls.server.model.content.Atom)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validateAtom(Atom atom) {
     ValidationResult result = new ValidationResultJpa();
@@ -107,11 +92,7 @@ public class ValidationServiceJpa extends RootServiceJpa implements
     return result;
   }
 
-
-
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.ValidationService#validateDescriptor(com.wci.umls.server.model.content.Descriptor)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validateDescriptor(Descriptor descriptor) {
     ValidationResult result = new ValidationResultJpa();
@@ -121,11 +102,7 @@ public class ValidationServiceJpa extends RootServiceJpa implements
     return result;
   }
 
-
-
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.ValidationService#validateCode(com.wci.umls.server.model.content.Code)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validateCode(Code code) {
     ValidationResult result = new ValidationResultJpa();
@@ -135,20 +112,15 @@ public class ValidationServiceJpa extends RootServiceJpa implements
     return result;
   }
 
-
-
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.ValidationService#validateMerge(com.wci.umls.server.model.content.Concept, com.wci.umls.server.model.content.Concept)
-   */
+  /* see superclass */
   @Override
   public ValidationResult validateMerge(Concept concept1, Concept concept2) {
-    ValidationResult result = new ValidationResultJpa(); 
+    ValidationResult result = new ValidationResultJpa();
     for (String key : validationHandlersMap.keySet()) {
-      result.merge(validationHandlersMap.get(key).validateMerge(concept1, concept2));
+      result.merge(validationHandlersMap.get(key).validateMerge(concept1,
+          concept2));
     }
     return result;
   }
-
-
 
 }

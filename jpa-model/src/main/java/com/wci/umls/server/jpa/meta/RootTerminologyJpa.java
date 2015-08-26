@@ -115,244 +115,137 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
     polyhierarchy = rootTerminology.isPolyhierarchy();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#getTerminology()
-   */
+  /* see superclass */
   @Override
   public String getTerminology() {
     return terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.RootTerminology#setTerminology(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#getAcquisitionContact()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = ContactInfoJpa.class, name = "acquisitionContact")
   public ContactInfo getAcquisitionContact() {
     return acquisitionContact;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.RootTerminology#setAcquisitionContact(com
-   * .wci.umls.server.model.meta.ContactInfo)
-   */
+  /* see superclass */
   @Override
   public void setAcquisitionContact(ContactInfo acquisitionContact) {
     this.acquisitionContact = acquisitionContact;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#getContentContact()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = ContactInfoJpa.class, name = "contentContact")
   public ContactInfo getContentContact() {
     return contentContact;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.RootTerminology#setContentContact(com.wci
-   * .umls.server.model.meta.ContactInfo)
-   */
+  /* see superclass */
   @Override
   public void setContentContact(ContactInfo contentContact) {
     this.contentContact = contentContact;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.RootTerminology#setPolyhierarchy(boolean)
-   */
+  /* see superclass */
   @Override
   public void setPolyhierarchy(boolean polyhierarchy) {
     this.polyhierarchy = polyhierarchy;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#getFamily()
-   */
+  /* see superclass */
   @Override
   public String getFamily() {
     return family;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.RootTerminology#setFamily(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setFamily(String family) {
     this.family = family;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#getHierarchicalName()
-   */
+  /* see superclass */
   @Override
   public String getHierarchicalName() {
     return hierarchicalName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.RootTerminology#setHierarchicalName(java
-   * .lang.String)
-   */
+  /* see superclass */
   @Override
   public void setHierarchicalName(String hierarchicalName) {
     this.hierarchicalName = hierarchicalName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLanguage#getLanguage()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = LanguageJpa.class, name = "language")
   public Language getLanguage() {
     return language;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasLanguage#setLanguage(com.wci.umls.server
-   * .model.meta.Language)
-   */
+  /* see superclass */
   @Override
   public void setLanguage(Language language) {
     this.language = language;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#getLicenseContact()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = ContactInfoJpa.class, name = "licenseContact")
   public ContactInfo getLicenseContact() {
     return licenseContact;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.RootTerminology#setLicenseContact(com.wci
-   * .umls.server.model.meta.ContactInfo)
-   */
+  /* see superclass */
   @Override
   public void setLicenseContact(ContactInfo licenseContact) {
     this.licenseContact = licenseContact;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#getPreferredName()
-   */
+  /* see superclass */
   @Override
   public String getPreferredName() {
     return preferredName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.RootTerminology#setPreferredName(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public void setPreferredName(String preferredName) {
     this.preferredName = preferredName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#getRestrictionLevel()
-   */
+  /* see superclass */
   @Override
   public int getRestrictionLevel() {
     return restrictionLevel;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.RootTerminology#setRestrictionLevel(int)
-   */
+  /* see superclass */
   @Override
   public void setRestrictionLevel(int restrictionLevel) {
     this.restrictionLevel = restrictionLevel;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#getShortName()
-   */
+  /* see superclass */
   @Override
   public String getShortName() {
     return shortName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.RootTerminology#setShortName(java.lang.String
-   * )
-   */
+  /* see superclass */
   @Override
   public void setShortName(String shortName) {
     this.shortName = shortName;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#getSynonymousNames()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = String.class, name = "syName")
   public List<String> getSynonymousNames() {
@@ -362,33 +255,19 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
     return synonymousNames;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.RootTerminology#setSynonymousNames(java.
-   * util.List)
-   */
+  /* see superclass */
   @Override
   public void setSynonymousNames(List<String> synonymousNames) {
     this.synonymousNames = synonymousNames;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.RootTerminology#isPolyhierachy()
-   */
+  /* see superclass */
   @Override
   public boolean isPolyhierarchy() {
     return polyhierarchy;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -422,11 +301,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -493,11 +368,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "RootTerminologyJpa [terminology=" + terminology

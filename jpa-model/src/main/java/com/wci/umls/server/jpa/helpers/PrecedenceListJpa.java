@@ -109,136 +109,80 @@ public class PrecedenceListJpa implements PrecedenceList {
     branch = precedenceList.getBranch();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PrecedenceList#getId()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public Long getId() {
     return this.id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PrecedenceList#setId(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void setId(Long id) {
     this.id = id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PrecedenceList#isDefaultList()
-   */
+  /* see superclass */
   @Override
   public boolean isDefaultList() {
     return defaultList;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PrecedenceList#setDefaultList(boolean)
-   */
+  /* see superclass */
   @Override
   public void setDefaultList(boolean defaultList) {
     this.defaultList = defaultList;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PrecedenceList#getName()
-   */
+  /* see superclass */
   @Override
   public String getName() {
     return name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PrecedenceList#setName(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PrecedenceList#getBranch()
-   */
+  /* see superclass */
   @Override
   public String getBranch() {
     return branch;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PrecedenceList#setBranch(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setBranch(String branch) {
     this.branch = branch;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasTerminology#getTerminology()
-   */
+  /* see superclass */
   @Override
   public String getTerminology() {
     return terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasTerminology#setTerminology(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasTerminology#getVersion()
-   */
+  /* see superclass */
   @Override
   public String getVersion() {
     return version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasTerminology#setVersion(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.PrecedenceList#setPrecedence(com.wci.umls.server
-   * .helpers.KeyValuePairList)
-   */
+  /* see superclass */
   @Override
   public void setPrecedence(KeyValuePairList precedence) {
     terminologies = new ArrayList<>();
@@ -252,11 +196,7 @@ public class PrecedenceListJpa implements PrecedenceList {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.PrecedenceList#getPrecedence()
-   */
+  /* see superclass */
   @Override
   public KeyValuePairList getPrecedence() {
     KeyValuePairList precedence = new KeyValuePairList();
@@ -269,90 +209,50 @@ public class PrecedenceListJpa implements PrecedenceList {
     return precedence;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLastModified#getTimestamp()
-   */
+  /* see superclass */
   @Override
   public Date getTimestamp() {
     return timestamp;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasLastModified#setTimestamp(java.util.Date)
-   */
+  /* see superclass */
   @Override
   public void setTimestamp(Date timestamp) {
     this.timestamp = timestamp;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLastModified#getLastModified()
-   */
+  /* see superclass */
   @Override
   public Date getLastModified() {
     return lastModified;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasLastModified#setLastModified(java.util.Date)
-   */
+  /* see superclass */
   @Override
   public void setLastModified(Date lastModified) {
     this.lastModified = lastModified;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.HasLastModified#getLastModifiedBy()
-   */
+  /* see superclass */
   @Override
   public String getLastModifiedBy() {
     return lastModifiedBy;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.HasLastModified#setLastModifiedBy(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public void setLastModifiedBy(String lastModifiedBy) {
     this.lastModifiedBy = lastModifiedBy;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.PrecedenceList#addTerminologyTermType(java.
-   * lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void addTerminologyTermType(String terminology, String termType) {
     terminologies.add(terminology);
     termTypes.add(termType);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.helpers.PrecedenceList#removeTerminologyTermType(java
-   * .lang.String, java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void removeTerminologyTermType(String terminology, String termType) {
     for (int i = 0; i < termTypes.size(); i++) {
@@ -365,11 +265,7 @@ public class PrecedenceListJpa implements PrecedenceList {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "PrecedenceListJpa [id=" + id + ", timestamp=" + timestamp
@@ -380,11 +276,7 @@ public class PrecedenceListJpa implements PrecedenceList {
         + termTypes + "]";
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -400,11 +292,7 @@ public class PrecedenceListJpa implements PrecedenceList {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

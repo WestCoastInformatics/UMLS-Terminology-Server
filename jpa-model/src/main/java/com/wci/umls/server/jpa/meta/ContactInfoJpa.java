@@ -148,321 +148,188 @@ public class ContactInfoJpa implements ContactInfo {
     email = fields[9];
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getId()
-   */
+  /* see superclass */
   @Override
   @XmlTransient
   public Long getId() {
     return this.id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#setId(java.lang.Long)
-   */
+  /* see superclass */
   @Override
   public void setId(Long id) {
     this.id = id;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getAddress1()
-   */
+  /* see superclass */
   @Override
   public String getAddress1() {
     return address1;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.ContactInfo#setAddress1(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setAddress1(String address1) {
     this.address1 = address1;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getAddress2()
-   */
+  /* see superclass */
   @Override
   public String getAddress2() {
     return address2;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.ContactInfo#setAddress2(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setAddress2(String address2) {
     this.address2 = address2;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getCity()
-   */
+  /* see superclass */
   @Override
   public String getCity() {
     return city;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#setCity(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setCity(String city) {
     this.city = city;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getCountry()
-   */
+  /* see superclass */
   @Override
   public String getCountry() {
     return country;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.ContactInfo#setCountry(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setCountry(String country) {
     this.country = country;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getEmail()
-   */
+  /* see superclass */
   @Override
   public String getEmail() {
     return email;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#setEmail(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setEmail(String email) {
     this.email = email;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getFax()
-   */
+  /* see superclass */
   @Override
   public String getFax() {
     return fax;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#setFax(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setFax(String fax) {
     this.fax = fax;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getName()
-   */
+  /* see superclass */
   @Override
   public String getName() {
     return name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#setName(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setName(String name) {
     this.name = name;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getOrganization()
-   */
+  /* see superclass */
   @Override
   public String getOrganization() {
     return organization;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.ContactInfo#setOrganization(java.lang.String
-   * )
-   */
+  /* see superclass */
   @Override
   public void setOrganization(String organization) {
     this.organization = organization;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getStateOrProvince()
-   */
+  /* see superclass */
   @Override
   public String getStateOrProvince() {
     return stateOrProvince;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.ContactInfo#setStateOrProvince(java.lang
-   * .String)
-   */
+  /* see superclass */
   @Override
   public void setStateOrProvince(String stateOrProvince) {
     this.stateOrProvince = stateOrProvince;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getTelephone()
-   */
+  /* see superclass */
   @Override
   public String getTelephone() {
     return telephone;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.ContactInfo#setTelephone(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTelephone(String telephone) {
     this.telephone = telephone;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getTitle()
-   */
+  /* see superclass */
   @Override
   public String getTitle() {
     return title;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#setTitle(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setTitle(String title) {
     this.title = title;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getUrl()
-   */
+  /* see superclass */
   @Override
   public String getUrl() {
     return url;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#setUrl(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setUrl(String url) {
     this.url = url;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getValue()
-   */
+  /* see superclass */
   @Override
   public String getValue() {
     return value;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#setValue(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setValue(String value) {
     this.value = value;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.ContactInfo#getZipCode()
-   */
+  /* see superclass */
   @Override
   public String getZipCode() {
     return zipCode;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.model.meta.ContactInfo#setZipCode(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setZipCode(String zipCode) {
     this.zipCode = zipCode;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -487,11 +354,7 @@ public class ContactInfoJpa implements ContactInfo {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

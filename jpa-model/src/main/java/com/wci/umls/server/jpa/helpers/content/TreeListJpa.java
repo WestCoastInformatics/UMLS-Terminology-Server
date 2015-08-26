@@ -18,11 +18,7 @@ import com.wci.umls.server.helpers.content.TreeList;
 @XmlRootElement(name = "treeList")
 public class TreeListJpa extends AbstractResultList<Tree> implements TreeList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = TreeJpa.class, name = "tree")
   public List<Tree> getObjects() {

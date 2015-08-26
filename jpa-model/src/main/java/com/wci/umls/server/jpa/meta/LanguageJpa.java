@@ -50,51 +50,31 @@ public class LanguageJpa extends AbstractAbbreviation implements Language {
     iso3Code = language.getISO3Code();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Language#getISOCode()
-   */
+  /* see superclass */
   @Override
   public String getISOCode() {
     return isoCode;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Language#setISOCode(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setISOCode(String isoCode) {
     this.isoCode = isoCode;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Language#getISO3Code()
-   */
+  /* see superclass */
   @Override
   public String getISO3Code() {
     return iso3Code;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.model.meta.Language#setISO3Code(java.lang.String)
-   */
+  /* see superclass */
   @Override
   public void setISO3Code(String iso3Code) {
     this.iso3Code = iso3Code;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.meta.AbstractAbbreviation#hashCode()
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -104,12 +84,7 @@ public class LanguageJpa extends AbstractAbbreviation implements Language {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.meta.AbstractAbbreviation#equals(java.lang.Object)
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -132,6 +107,7 @@ public class LanguageJpa extends AbstractAbbreviation implements Language {
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "LanguageJpa [" + super.toString() + "isoCode=" + isoCode

@@ -20,11 +20,7 @@ import com.wci.umls.server.model.meta.Terminology;
 public class TerminologyListJpa extends AbstractResultList<Terminology>
     implements TerminologyList {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.helpers.AbstractResultList#getObjects()
-   */
+  /* see superclass */
   @Override
   @XmlElement(type = TerminologyJpa.class, name = "terminology")
   public List<Terminology> getObjects() {
