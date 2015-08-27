@@ -28,6 +28,16 @@ import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
+import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
+import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
+import com.wci.umls.server.jpa.meta.AttributeNameJpa;
+import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
+import com.wci.umls.server.jpa.meta.LanguageJpa;
+import com.wci.umls.server.jpa.meta.PropertyChainJpa;
+import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
+import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
+import com.wci.umls.server.jpa.meta.TermTypeJpa;
+import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
@@ -42,6 +52,19 @@ import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
+import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.AttributeName;
+import com.wci.umls.server.model.meta.CodeVariantType;
+import com.wci.umls.server.model.meta.GeneralMetadataEntry;
+import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.meta.Language;
+import com.wci.umls.server.model.meta.NameVariantType;
+import com.wci.umls.server.model.meta.PropertyChain;
+import com.wci.umls.server.model.meta.RelationshipType;
+import com.wci.umls.server.model.meta.RootTerminology;
+import com.wci.umls.server.model.meta.TermType;
+import com.wci.umls.server.model.meta.Terminology;
+import com.wci.umls.server.model.meta.UsageType;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
@@ -51,6 +74,12 @@ import com.wci.umls.server.services.helpers.PushBackReader;
  */
 public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     Algorithm {
+
+  /** The isa type rel. */
+  private final static String isaTypeRel = "116680003";
+
+  /** The root concept id. */
+  private final static String rootConceptId = "138875005";
 
   /** The commit count. */
   private final static int commitCt = 5000;
@@ -95,7 +124,15 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
   /** The concept subset map. */
   private Map<String, ConceptSubset> conceptSubsetMap = new HashMap<>();
 
-  // TODO: manage metadata changes (e.g. new attribute names, etc)
+  /** The term types. */
+  private Set<String> termTypes = new HashSet<>();
+
+  /** The additional rel types. */
+  private Set<String> additionalRelTypes = new HashSet<>();
+
+  /** The languages. */
+  private Set<String> languages = new HashSet<>();
+
   /** The attribute names. */
   private Set<String> attributeNames = new HashSet<>();
 
@@ -204,6 +241,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
       //
       // Load language refset members
+      // This also caches all atom subset members
       //
       Logger.getLogger(getClass()).info("    Loading Language Ref Sets...");
       loadLanguageRefsetMembers();
@@ -222,81 +260,106 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
               "      compute concept pn = " + concept);
           updateConcept(concept);
         }
-        if (ct % logCt == 0) {
+        if (ct > 0 && ct % logCt == 0) {
           logAndCommit(ct);
         }
       }
 
       commitClearBegin();
 
-      // // Load relationships - stated and inferred //
+      //
+      // Load relationships - stated and inferred
+      //
       Logger.getLogger(getClass()).info("    Loading Relationships ...");
       loadRelationships();
 
       commitClearBegin();
 
-      // // Load simple refset members //
+      //
+      // Load simple refset members
+      // This also caches all concept subset members
+      //
       Logger.getLogger(getClass()).info("    Loading Simple Ref Sets...");
       loadSimpleRefSetMembers();
 
       commitClearBegin();
 
-      // // Load simple map refset members //
+      //
+      // Load simple map refset members
+      //
       Logger.getLogger(getClass()).info("    Loading Simple Map Ref Sets...");
       loadSimpleMapRefSetMembers();
 
       commitClearBegin();
 
-      // // Load complex map refset members //
+      //
+      // Load complex map refset members
+      //
       Logger.getLogger(getClass()).info("    Loading Complex Map Ref Sets...");
       loadComplexMapRefSetMembers();
 
-      // // Load extended map refset members //
+      //
+      // Load extended map refset members
+      //
       Logger.getLogger(getClass()).info("    Loading Extended Map Ref Sets...");
       loadExtendedMapRefSetMembers();
 
-      // // Load atom type refset members //
+      //
+      // Load atom type refset members
+      //
       Logger.getLogger(getClass()).info("    Loading Atom Type Ref Sets...");
       loadAtomTypeRefSetMembers();
 
-      // // Load refset descriptor refset members //
+      //
+      // Load refset descriptor refset members
+      //
       Logger.getLogger(getClass()).info(
           "    Loading Refset Descriptor Ref Sets...");
       loadRefsetDescriptorRefSetMembers();
 
-      // // Load module dependency refset members //
+      //
+      // Load module dependency refset members
+      //
       Logger.getLogger(getClass()).info(
           "    Loading Module Dependency Ref Sets...");
       loadModuleDependencyRefSetMembers();
 
       commitClearBegin();
 
-      // // Load module dependency refset members //
+      //
+      // Load module dependency refset members
+      //
       Logger.getLogger(getClass()).info(
           "    Loading Attribute Value Ref Sets...");
       loadAttributeValueRefSetMembers();
 
       commitClearBegin();
 
-      // // Load association reference refset members //
+      //
+      // Load association reference refset members
+      //
       Logger.getLogger(getClass()).info(
           "    Loading Association Reference Ref Sets...");
       loadAssociationReferenceRefSetMembers();
 
       commitClearBegin();
 
+      //
       // Load metadata
+      //
       Logger.getLogger(getClass()).info("    Loading Metadata...");
       loadMetadata();
 
+      //
+      // Commit the content changes
+      //
+      Logger.getLogger(getClass()).info("    changed = " + ct);
+      Logger.getLogger(getClass()).info("  Committing");
       commitClearBegin();
 
-      Logger.getLogger(getClass()).info("    changed = " + ct);
-
-      // Commit the content changes
-      Logger.getLogger(getClass()).info("  Committing");
-
-      // // Create ReleaseInfo for this release if it does not already exist
+      //
+      // Create ReleaseInfo for this release if it does not already exist
+      //
       ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
       if (info == null) {
         info = new ReleaseInfoJpa();
@@ -607,7 +670,10 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           atom2.setTimestamp(date);
           atom2.setObsolete(fields[2].equals("0"));
           atom2.setLanguage(fields[5]);
+          languages.add(atom2.getLanguage());
           atom2.setTermType(fields[6]);
+          generalEntryValues.add(atom2.getTermType());
+          termTypes.add(atom2.getTermType());
           atom2.setName(fields[7]);
           atom2.setTerminology(terminology);
           atom2.setVersion(version);
@@ -781,7 +847,11 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           def2.setTimestamp(date);
           def2.setObsolete(fields[2].equals("0"));
           def2.setLanguage(fields[5]);
+          languages.add(def2.getLanguage());
           def2.setTermType(fields[6]);
+          generalEntryValues.add(def2.getTermType());
+          termTypes.add(def2.getTermType());
+
           def2.setName(fields[7]);
           def2.setTerminology(terminology);
           def2.setVersion(version);
@@ -805,6 +875,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           setCommonFields(attribute, date);
           attribute.setName("moduleId");
           attribute.setValue(fields[3].intern());
+          cacheAttributeMetadata(attribute);
 
           Attribute attribute2 = null;
           if (def != null) {
@@ -816,6 +887,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           setCommonFields(attribute2, date);
           attribute2.setName("caseSignificanceId");
           attribute2.setValue(fields[8].intern());
+          cacheAttributeMetadata(attribute2);
 
           // If atom is new, add it
           if (def == null) {
@@ -906,7 +978,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
     // Setup variables
     String line = "";
-    objectCt = 0;
     int objectsAdded = 0;
     int objectsUpdated = 0;
 
@@ -1034,9 +1105,135 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("unused")
   private void loadSimpleRefSetMembers() throws Exception {
-    // n/a
+
+    // Cache concept subset members
+    Query query =
+        manager
+            .createQuery("select a.terminologyId, a.id from ConceptSubsetMemberJpa a "
+                + "where version = :version "
+                + "and terminology = :terminology ");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    @SuppressWarnings("unchecked")
+    List<Object[]> results = query.getResultList();
+    for (Object[] result : results) {
+      idMap.put(result[0].toString(), Long.valueOf(result[1].toString()));
+    }
+
+    Set<Concept> modifiedConcepts = new HashSet<>();
+
+    // Setup variables
+    String line = "";
+    int objectsAdded = 0;
+    int objectsUpdated = 0;
+
+    // Iterate through simple refset reader
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.SIMPLE);
+    while ((line = reader.readLine()) != null) {
+
+      // split line
+      String fields[] = line.split("\t");
+
+      // if not header
+      if (!fields[0].equals("id")) {
+        // Skip if the effective time is before the release version
+        if (fields[1].compareTo(releaseVersion) < 0) {
+          continue;
+        }
+
+        // Stop if the effective time is past the release version
+        if (fields[1].compareTo(releaseVersion) > 0) {
+          reader.push(line);
+          break;
+        }
+
+        // Ensure effective time is set on all appropriate objects
+        ConceptSubsetMember member = null;
+        if (idMap.containsKey(fields[0])) {
+          member =
+              (ConceptSubsetMember) getSubsetMember(idMap.get(fields[0]),
+                  ConceptSubsetMemberJpa.class);
+        }
+
+        // Setup delta simple entry (either new or based on existing
+        // one)
+        ConceptSubsetMember member2 = null;
+        if (member == null) {
+          member2 = new ConceptSubsetMemberJpa();
+        } else {
+          member.getAttributes().size();
+          member.getSubset().getName();
+          member2 = new ConceptSubsetMemberJpa(member, true);
+        }
+
+        // Populate and handle subset aspects of member
+        refsetHelper(member2, fields);
+
+        // no attributes for simple refset member
+
+        final Concept concept = getConcept(member2.getMember().getId());
+
+        // If simple refset entry is new, add it
+        if (member == null) {
+          for (Attribute att : member2.getAttributes()) {
+            Logger.getLogger(getClass()).debug("      add attribute = " + att);
+            addAttribute(att, member2);
+          }
+
+          Logger.getLogger(getClass()).debug(
+              "      add simple refset member = " + member2);
+          member2 = (ConceptSubsetMember) addSubsetMember(member2);
+          idMap.put(member2.getTerminologyId(), member2.getId());
+          concept.addMember(member2);
+          modifiedConcepts.add(concept);
+          objectsAdded++;
+        }
+
+        // If simple refset entry is changed, update it
+        else if (!member2.equals(member)
+            && Rf2EqualityUtility.compareAttributes(member2, member,
+                new String[] {
+                  "moduleId"
+                })) {
+          Logger.getLogger(getClass()).debug("  update simple - " + member2);
+          if (!member.equals(member2)) {
+            Logger.getLogger(getClass()).debug(
+                "      update simple refset member - " + member2);
+            updateSubsetMember(member2);
+            concept.removeMember(member);
+            concept.addMember(member2);
+            modifiedConcepts.add(concept);
+          }
+          updateAttributes(member2, member);
+          objectsUpdated++;
+
+        }
+
+        if ((objectsAdded + objectsUpdated) % logCt == 0) {
+          for (Concept modifiedConcept : modifiedConcepts) {
+            Logger.getLogger(getClass()).debug(
+                "      update concept - " + modifiedConcept);
+            updateConcept(modifiedConcept);
+          }
+          logAndCommit(objectsAdded + objectsUpdated);
+          modifiedConcepts.clear();
+        }
+
+      }
+    }
+
+    for (Concept modifiedConcept : modifiedConcepts) {
+      Logger.getLogger(getClass()).debug(
+          "      update concept - " + modifiedConcept);
+      updateConcept(modifiedConcept);
+    }
+    commitClearBegin();
+    modifiedConcepts.clear();
+
+    Logger.getLogger(getClass()).info("      new = " + objectsAdded);
+    Logger.getLogger(getClass()).info("      updated = " + objectsUpdated);
+
   }
 
   /**
@@ -1212,19 +1409,21 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         rel2.setTerminologyId(fields[0]);
         rel2.setTimestamp(date);
         rel2.setObsolete(fields[2].equals("0")); // active
-        rel2.setGroup(fields[6]); // relationshipGroup
-        rel2.setRelationshipType(fields[7]);
-        // This is SNOMED specific
+        rel2.setSuppressible(rel2.isObsolete());
+        rel2.setGroup(fields[6].intern()); // relationshipGroup
+        rel2.setRelationshipType(fields[7].equals(isaTypeRel) ? "CHD" : "RO"); // typeId
+        rel2.setAdditionalRelationshipType(fields[7]); // typeId
+        generalEntryValues.add(rel2.getAdditionalRelationshipType());
+        additionalRelTypes.add(rel2.getAdditionalRelationshipType());
         rel2.setStated(fields[8].equals("900000000000010007"));
         rel2.setInferred(fields[8].equals("900000000000011006"));
-
         rel2.setTerminology(terminology);
         rel2.setVersion(version);
-        rel2.setFrom(sourceConcept);
-        rel2.setTo(destinationConcept);
-        rel2.setLastModifiedBy(loader);
         rel2.setLastModified(releaseVersionDate);
+        rel2.setLastModifiedBy(loader);
         rel2.setPublished(true);
+        rel2.setPublishable(true);
+        rel2.setAssertedDirection(true);
 
         // Attributes
         Attribute attribute = null;
@@ -1508,6 +1707,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       subset.addAttribute(attribute);
       addAttribute(attribute, member);
       cacheAttributeMetadata(attribute);
+
       addSubset(subset);
       conceptSubsetMap.put(fields[4], subset);
       commitClearBegin();
@@ -1525,7 +1725,257 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    * @throws Exception the exception
    */
   private void loadMetadata() throws Exception {
-    // TODO: basically borrow from snapshot and put here
+
+    // Term types - each description type
+    Map<String, TermType> ttyMap = new HashMap<>();
+    for (TermType tty : getTermTypes(terminology, version).getObjects()) {
+      ttyMap.put(tty.getAbbreviation(), tty);
+    }
+    for (String tty : termTypes) {
+      TermType termType = null;
+      if (ttyMap.containsKey(tty)) {
+        termType = ttyMap.get(tty);
+      } else {
+        termType = new TermTypeJpa();
+      }
+      // Set all fields
+      termType.setTerminology(terminology);
+      termType.setVersion(version);
+      termType.setAbbreviation(tty);
+      termType.setCodeVariantType(CodeVariantType.SY);
+      termType.setExpandedForm(getConcept(idMap.get(tty)).getName());
+      termType.setHierarchicalType(false);
+      termType.setTimestamp(releaseVersionDate);
+      termType.setLastModified(releaseVersionDate);
+      termType.setLastModifiedBy(loader);
+      termType.setNameVariantType(NameVariantType.UNDEFINED);
+      termType.setObsolete(false);
+      termType.setSuppressible(false);
+      termType.setPublishable(true);
+      termType.setPublished(true);
+      termType.setUsageType(UsageType.UNDEFINED);
+      // Add or udpate
+      if (ttyMap.containsKey(tty)) {
+        updateTermType(termType);
+      } else {
+        addTermType(termType);
+      }
+    }
+
+    // Languages - each language value
+    // root language doesn't change
+    Map<String, Language> latMap = new HashMap<>();
+    for (Language lat : getLanguages(terminology, version).getObjects()) {
+      latMap.put(lat.getAbbreviation(), lat);
+    }
+    for (String lat : languages) {
+      Language language = null;
+      if (latMap.containsKey(lat)) {
+        language = latMap.get(lat);
+      } else {
+        language = new LanguageJpa();
+      }
+      language.setTerminology(terminology);
+      language.setVersion(version);
+      language.setTimestamp(releaseVersionDate);
+      language.setLastModified(releaseVersionDate);
+      language.setLastModifiedBy(loader);
+      language.setPublishable(true);
+      language.setPublished(true);
+      language.setExpandedForm(lat);
+      language.setAbbreviation(lat);
+      language.setISO3Code("???");
+      language.setISOCode(lat.substring(0, 2));
+      if (latMap.containsKey(lat)) {
+        updateLanguage(language);
+      } else {
+        addLanguage(language);
+      }
+    }
+
+    // attribute name
+    Map<String, AttributeName> atnMap = new HashMap<>();
+    for (AttributeName atn : getAttributeNames(terminology, version)
+        .getObjects()) {
+      atnMap.put(atn.getAbbreviation(), atn);
+    }
+    for (String atn : attributeNames) {
+      AttributeName name = null;
+      if (atnMap.containsKey(atn)) {
+        name = atnMap.get(atn);
+      } else {
+        name = new AttributeNameJpa();
+      }
+      name.setTerminology(terminology);
+      name.setVersion(version);
+      name.setLastModified(releaseVersionDate);
+      name.setLastModifiedBy(loader);
+      name.setPublishable(true);
+      name.setPublished(true);
+      name.setExpandedForm(atn);
+      name.setAbbreviation(atn);
+      if (atnMap.containsKey(atn)) {
+        updateAttributeName(name);
+      } else {
+        addAttributeName(name);
+      }
+
+    }
+
+    // relationship types - CHD, PAR, and RO
+    // These don't change with delta
+    // no-op
+
+    // additional relationship types (including grouping type, hierarchical
+    // type)
+
+    Map<String, AdditionalRelationshipType> relaMap = new HashMap<>();
+    for (AdditionalRelationshipType rela : getAdditionalRelationshipTypes(
+        terminology, version).getObjects()) {
+      relaMap.put(rela.getAbbreviation(), rela);
+    }
+    AdditionalRelationshipType directSubstance = null;
+    AdditionalRelationshipType hasActiveIngredient = null;
+    Map<AdditionalRelationshipType, AdditionalRelationshipType> inverses =
+        new HashMap<>();
+    for (String rela : additionalRelTypes) {
+      AdditionalRelationshipType type = null;
+      if (relaMap.containsKey(rela)) {
+        type = relaMap.get(rela);
+      } else {
+        type = new AdditionalRelationshipTypeJpa();
+      }
+      type.setTerminology(terminology);
+      type.setVersion(version);
+      type.setLastModified(releaseVersionDate);
+      type.setLastModifiedBy(loader);
+      type.setPublishable(true);
+      type.setPublished(true);
+      type.setExpandedForm(getConcept(idMap.get(rela)).getName());
+      type.setAbbreviation(rela);
+      // $nevergrouped{"123005000"} = "T"; # part-of is never grouped
+      // $nevergrouped{"272741003"} = "T"; # laterality is never grouped
+      // $nevergrouped{"127489000"} = "T"; # has-active-ingredient is never
+      // grouped
+      // $nevergrouped{"411116001"} = "T"; # has-dose-form is never grouped
+      if (rela.equals("123005000") || rela.equals("272741003")
+          || rela.equals("127489000") || rela.equals("411116001")) {
+        type.setGroupingType(false);
+      } else {
+        type.setGroupingType(true);
+      }
+      if (relaMap.containsKey(rela)) {
+        updateAdditionalRelationshipType(type);
+      } else {
+        addAdditionalRelationshipType(type);
+      }
+      if (rela.equals("363701004")) {
+        hasActiveIngredient = type;
+      } else if (rela.equals("127489000")) {
+        directSubstance = type;
+      }
+      AdditionalRelationshipType inverseType = null;
+      if (relaMap.containsKey("inverse_" + rela)) {
+        inverseType = relaMap.get("inverse_" + rela);
+      } else {
+        inverseType = new AdditionalRelationshipTypeJpa(type);
+        inverseType.setId(null);
+      }
+      inverseType.setAbbreviation("inverse_" + type.getAbbreviation());
+      inverseType.setExpandedForm("inverse_" + type.getAbbreviation());
+      inverses.put(type, inverseType);
+      if (relaMap.containsKey("inverse_" + rela)) {
+        updateAdditionalRelationshipType(inverseType);
+      } else {
+        addAdditionalRelationshipType(inverseType);
+      }
+    }
+    // handle inverses
+    for (AdditionalRelationshipType type : inverses.keySet()) {
+      AdditionalRelationshipType inverseType = inverses.get(type);
+      type.setInverseType(inverseType);
+      inverseType.setInverseType(type);
+      updateAdditionalRelationshipType(type);
+      updateAdditionalRelationshipType(inverseType);
+    }
+
+    // property chains (see Owl)
+    // $rightid{"363701004"} = "127489000"; # direct-substance o
+    // has-active-ingredient -> direct-substance
+    PropertyChain chain = new PropertyChainJpa();
+    chain.setTerminology(terminology);
+    chain.setVersion(version);
+    chain.setLastModified(releaseVersionDate);
+    chain.setLastModifiedBy(loader);
+    chain.setPublishable(true);
+    chain.setPublished(true);
+    chain
+        .setAbbreviation("direct-substance o has-active-ingredient -> direct-substance");
+    chain.setExpandedForm(chain.getAbbreviation());
+    List<AdditionalRelationshipType> list = new ArrayList<>();
+    list.add(directSubstance);
+    list.add(hasActiveIngredient);
+    chain.setChain(list);
+    chain.setResult(directSubstance);
+    // do this only when the available rels exist
+    if (chain.getChain().size() > 0 && chain.getResult() != null) {
+      addPropertyChain(chain);
+    }
+
+    // semantic types - n/a
+
+    // Root Terminology
+    // does not change
+
+    // Terminology
+    // does not change
+
+    // Add general metadata entries for all the attribute values
+    // that are concept ids.
+
+    // todo : do this for entry and label
+    Map<String, GeneralMetadataEntry> entryMap = new HashMap<>();
+    for (GeneralMetadataEntry entry : getGeneralMetadataEntries(terminology,
+        version).getObjects()) {
+      entryMap.put(entry.getAbbreviation(), entry);
+    }
+    for (String conceptId : generalEntryValues) {
+      // Skip if there is no concept for this thing
+      if (!idMap.containsKey(conceptId)) {
+        Logger.getLogger(getClass()).info(
+            "  Skipping Genral Metadata Entry = " + conceptId);
+        continue;
+      }
+      String name = getConcept(idMap.get(conceptId)).getName();
+      Logger.getLogger(getClass()).info(
+          "  Genral Metadata Entry = " + conceptId + ", " + name);
+      GeneralMetadataEntry entry = null;
+      if (entryMap.containsKey(entry)) {
+        entry = entryMap.get(entry);
+      } else {
+        entry = new GeneralMetadataEntryJpa();
+      }
+      entry.setTerminology(terminology);
+      entry.setVersion(version);
+      entry.setLastModified(releaseVersionDate);
+      entry.setLastModifiedBy(loader);
+      entry.setPublishable(true);
+      entry.setPublished(true);
+      entry.setAbbreviation(conceptId);
+      entry.setExpandedForm(name);
+      entry.setKey("concept_metadata");
+      entry.setType("concept_name");
+      if (entryMap.containsKey(entry)) {
+        updateGeneralMetadataEntry(entry);
+      } else {
+        addGeneralMetadataEntry(entry);
+      }
+    }
+
+    // General metadata entries for label values do not change
+
+    commitClearBegin();
+
   }
 
   /**

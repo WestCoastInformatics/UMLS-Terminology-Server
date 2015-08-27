@@ -83,10 +83,10 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   /** The commit count. */
   private final static int commitCt = 2000;
 
-  /** The Constant isaTypeRel. */
+  /** The isa type rel. */
   private final static String isaTypeRel = "116680003";
 
-  /** The Constant root. */
+  /** The root concept id. */
   private final static String rootConceptId = "138875005";
 
   /** The Constant coreModuleId. */
@@ -547,7 +547,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
         Attribute attribute3 = new AttributeJpa();
         setCommonFields(attribute3, date);
-        attribute3.setName("characteristicTypeId");
+        attribute3.setName("modifierId");
         attribute3.setValue(fields[9].intern());
         cacheAttributeMetadata(attribute3);
         relationship.addAttribute(attribute3);
@@ -685,56 +685,56 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           break;
         }
 
-        final Atom atom = new AtomJpa();
+        final Atom def = new AtomJpa();
         final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
-        atom.setTerminologyId(fields[0]);
-        atom.setTimestamp(date);
-        atom.setLastModified(date);
-        atom.setLastModifiedBy(loader);
-        atom.setObsolete(fields[2].equals("0"));
-        atom.setSuppressible(atom.isObsolete());
-        atom.setConceptId(fields[4]);
-        atom.setDescriptorId("");
-        atom.setCodeId("");
-        atom.setLexicalClassId("");
-        atom.setStringClassId("");
-        atom.setLanguage(fields[5].intern());
-        languages.add(atom.getLanguage());
-        atom.setTermType(fields[6].intern());
-        generalEntryValues.add(atom.getTermType());
-        termTypes.add(atom.getTermType());
-        atom.setName(fields[7]);
-        atom.setTerminology(terminology);
-        atom.setVersion(version);
-        atom.setPublished(true);
-        atom.setPublishable(true);
-        atom.setWorkflowStatus(published);
+        def.setTerminologyId(fields[0]);
+        def.setTimestamp(date);
+        def.setLastModified(date);
+        def.setLastModifiedBy(loader);
+        def.setObsolete(fields[2].equals("0"));
+        def.setSuppressible(def.isObsolete());
+        def.setConceptId(fields[4]);
+        def.setDescriptorId("");
+        def.setCodeId("");
+        def.setLexicalClassId("");
+        def.setStringClassId("");
+        def.setLanguage(fields[5].intern());
+        languages.add(def.getLanguage());
+        def.setTermType(fields[6].intern());
+        generalEntryValues.add(def.getTermType());
+        termTypes.add(def.getTermType());
+        def.setName(fields[7]);
+        def.setTerminology(terminology);
+        def.setVersion(version);
+        def.setPublished(true);
+        def.setPublishable(true);
+        def.setWorkflowStatus(published);
 
         // Attributes
         final Attribute attribute = new AttributeJpa();
         setCommonFields(attribute, date);
         attribute.setName("moduleId");
         attribute.setValue(fields[3].intern());
-        atom.addAttribute(attribute);
-        addAttribute(attribute, atom);
+        def.addAttribute(attribute);
+        addAttribute(attribute, def);
 
         final Attribute attribute2 = new AttributeJpa();
         setCommonFields(attribute2, date);
         attribute2.setName("caseSignificanceId");
         attribute2.setValue(fields[8].intern());
         cacheAttributeMetadata(attribute2);
-        atom.addAttribute(attribute2);
-        addAttribute(attribute2, atom);
+        def.addAttribute(attribute2);
+        addAttribute(attribute2, def);
 
         // set concept from cache and set initial prev concept
         final Concept concept = getConcept(conceptIdMap.get(fields[4]));
 
         if (concept != null) {
           // this also adds language refset entries
-          addAtom(atom);
-          atomIdMap.put(atom.getTerminologyId(), atom.getId());
+          addAtom(def);
+          atomIdMap.put(def.getTerminologyId(), def.getId());
         } else {
-          throw new Exception("Atom " + atom.getTerminologyId()
+          throw new Exception("Atom " + def.getTerminologyId()
               + " references non-existent concept " + fields[4]);
         }
 
@@ -1411,6 +1411,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       language.setISO3Code("???");
       language.setISOCode(lat.substring(0, 2));
       addLanguage(language);
+      if (rootLanguage == null) {
+        rootLanguage = language;
+      }
     }
 
     // attribute name

@@ -1841,6 +1841,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
    */
   private void loadMetadata() throws Exception {
 
+    // TODO: handle inverses for rela
+    
+    
     // relationship types - CHD, PAR, and RO
     String[] relTypes = new String[] {
         "RO", "CHD", "PAR"
