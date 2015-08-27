@@ -1920,28 +1920,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       updateAdditionalRelationshipType(inverseType);
     }
 
-    // property chains (see Owl)
-    // $rightid{"363701004"} = "127489000"; # direct-substance o
-    // has-active-ingredient -> direct-substance
-    PropertyChain chain = new PropertyChainJpa();
-    chain.setTerminology(terminology);
-    chain.setVersion(version);
-    chain.setLastModified(releaseVersionDate);
-    chain.setLastModifiedBy(loader);
-    chain.setPublishable(true);
-    chain.setPublished(true);
-    chain
-        .setAbbreviation("direct-substance o has-active-ingredient -> direct-substance");
-    chain.setExpandedForm(chain.getAbbreviation());
-    List<AdditionalRelationshipType> list = new ArrayList<>();
-    list.add(directSubstance);
-    list.add(hasActiveIngredient);
-    chain.setChain(list);
-    chain.setResult(directSubstance);
-    // do this only when the available rels exist
-    if (chain.getChain().size() > 0 && chain.getResult() != null) {
-      addPropertyChain(chain);
-    }
+    // No additional property chains are added by delta
 
     // semantic types - n/a
 
