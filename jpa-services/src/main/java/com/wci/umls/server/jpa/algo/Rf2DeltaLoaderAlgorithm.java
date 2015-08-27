@@ -677,13 +677,13 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           }
 
           if ((objectsAdded + objectsUpdated) % logCt == 0) {
-            logAndCommit(objectsAdded + objectsUpdated);
             for (Concept modifiedConcept : modifiedConcepts) {
               Logger.getLogger(getClass()).debug(
                   "      update concept - " + modifiedConcept);
               updateConcept(modifiedConcept);
               pnRecomputeIds.add(modifiedConcept.getId());
             }
+            logAndCommit(objectsAdded + objectsUpdated);
             modifiedConcepts.clear();
           }
 
@@ -698,15 +698,14 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       }
     }
 
-    /*logAndCommit(objectsAdded + objectsUpdated);*/
-
-    commitClearBegin();
+    // Handle modified concepts
     for (Concept modifiedConcept : modifiedConcepts) {
       Logger.getLogger(getClass()).debug(
           "      update concept - " + modifiedConcept);
       updateConcept(modifiedConcept);
       pnRecomputeIds.add(modifiedConcept.getId());
     }
+    commitClearBegin();
     modifiedConcepts.clear();
 
     Logger.getLogger(getClass()).info("      new = " + objectsAdded);
@@ -851,14 +850,13 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           }
 
           if ((objectsAdded + objectsUpdated) % logCt == 0) {
-            /*logAndCommit(objectsAdded + objectsUpdated);*/
-            commitClearBegin();
             for (Concept modifiedConcept : modifiedConcepts) {
               Logger.getLogger(getClass()).debug(
                   "      update concept - " + modifiedConcept);
               updateConcept(modifiedConcept);
               pnRecomputeIds.add(modifiedConcept.getId());
             }
+            logAndCommit(objectsAdded + objectsUpdated);
             modifiedConcepts.clear();
           }
 
@@ -872,9 +870,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         }
       }
     }
-
-    /*logAndCommit(objectsAdded + objectsUpdated);*/
-    commitClearBegin();
     
     for (Concept modifiedConcept : modifiedConcepts) {
       Logger.getLogger(getClass()).debug(
@@ -882,6 +877,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       updateConcept(modifiedConcept);
       pnRecomputeIds.add(modifiedConcept.getId());
     }
+    commitClearBegin();
     modifiedConcepts.clear();
 
     Logger.getLogger(getClass()).info("      new = " + objectsAdded);
@@ -895,12 +891,25 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
   private void loadLanguageRefsetMembers() throws Exception {
 
+    // Cache atom subset members
+    Query query =
+        manager.createQuery("select a.terminologyId, a.id from AtomSubsetMemberJpa a "
+            + "where version = :version " + "and terminology = :terminology ");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    @SuppressWarnings("unchecked")
+    List<Object[]> results = query.getResultList();
+    for (Object[] result : results) {
+      idMap.put(result[0].toString(), Long.valueOf(result[1].toString()));
+    }
+
+    Set<Atom> modifiedAtoms = new HashSet<>();
+
     // Setup variables
     String line = "";
     objectCt = 0;
     int objectsAdded = 0;
     int objectsUpdated = 0;
-    Set<Atom> modifiedAtoms = new HashSet<>();
 
     // Iterate through language refset reader
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.LANGUAGE);
@@ -946,15 +955,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         // Add moduleId attribute
         final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
-        /*final Attribute attribute = new AttributeJpa();
-        setCommonFields(attribute, date);
-        attribute.setName("acceptabilityId");
-        attribute.setValue(fields[6].intern());
-        cacheAttributeMetadata(attribute);
-        member2.addAttribute(attribute);
-        if (member != null) {
-          attribute.setId(member.getAttributeByName("acceptabilityId").getId());
-        }*/
         Attribute attribute = null;
         if (member != null) {
           attribute = member.getAttributeByName("acceptabilityId");
@@ -1007,23 +1007,23 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         }
 
         if ((objectsAdded + objectsUpdated) % logCt == 0) {
-          logAndCommit(objectsAdded + objectsUpdated);
           for (Atom modifiedAtom : modifiedAtoms) {
             Logger.getLogger(getClass()).debug(
                 "      update atom - " + modifiedAtom);
             updateAtom(modifiedAtom);
           }
+          logAndCommit(objectsAdded + objectsUpdated);
           modifiedAtoms.clear();
         }
 
       }
     }
 
-    logAndCommit(objectsAdded + objectsUpdated);
     for (Atom modifiedAtom : modifiedAtoms) {
       Logger.getLogger(getClass()).debug("      update atom - " + modifiedAtom);
       updateAtom(modifiedAtom);
     }
+    commitClearBegin();
     modifiedAtoms.clear();
 
     Logger.getLogger(getClass()).info("      new = " + objectsAdded);
@@ -1438,18 +1438,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     member.setPublishable(true);
 
     manageSubset(member, fields, date);
-    
-    // Add moduleId attribute
-    /*final Attribute attribute = new AttributeJpa();
-    setCommonFields(attribute, date);
-    attribute.setName("moduleId");
-    attribute.setValue(fields[3].intern());
-    cacheAttributeMetadata(attribute);
-    member.addAttribute(attribute);
-    if (member.getAttributeByName("moduleId") != null) {
-      attribute.setId(member.getAttributeByName("moduleId").getId());
-    }*/
-
     Attribute attribute = null;
     if (member.getAttributeByName("moduleId") != null) {
       attribute = member.getAttributeByName("moduleId");
