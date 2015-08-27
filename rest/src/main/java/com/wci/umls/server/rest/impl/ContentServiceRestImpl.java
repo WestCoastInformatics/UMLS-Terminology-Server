@@ -686,7 +686,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Logger.getLogger(getClass()).info("  Releases to process");
       for (String release : releases) {
         Logger.getLogger(getClass()).info("    release = " + release);
-
         ReleaseInfo releaseInfo =
             historyService.getReleaseInfo(terminology, release);
         if (releaseInfo != null) {

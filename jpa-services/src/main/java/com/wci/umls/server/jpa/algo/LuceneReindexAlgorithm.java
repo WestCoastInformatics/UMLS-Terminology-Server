@@ -75,7 +75,7 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
       fullTextEntityManager = Search.getFullTextEntityManager(manager);
     }
     computeLuceneIndexes(indexedObjects);
-    fullTextEntityManager.close();
+    //fullTextEntityManager.close();
   }
 
   /* see superclass */
@@ -85,7 +85,7 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
       fullTextEntityManager = Search.getFullTextEntityManager(manager);
     }
     clearLuceneIndexes();
-    fullTextEntityManager.close();
+    //fullTextEntityManager.close();
   }
 
   /**

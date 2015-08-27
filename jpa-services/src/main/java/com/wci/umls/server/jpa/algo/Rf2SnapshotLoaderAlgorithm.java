@@ -1534,7 +1534,10 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     list.add(hasActiveIngredient);
     chain.setChain(list);
     chain.setResult(directSubstance);
-    addPropertyChain(chain);
+    // do this only when the available rels exist
+    if (chain.getChain().size() > 0 && chain.getResult() != null) {
+      addPropertyChain(chain);
+    }
 
     // semantic types - n/a
 
@@ -1571,6 +1574,12 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     // Add general metadata entries for all the attribute values
     // that are concept ids.
     for (String conceptId : generalEntryValues) {
+      // Skip if there is no concept for this thing
+      if (!conceptIdMap.containsKey(conceptId)) {
+        Logger.getLogger(getClass()).info(
+            "  Skipping Genral Metadata Entry = " + conceptId);
+        continue;
+      }
       String name = getConcept(conceptIdMap.get(conceptId)).getName();
       Logger.getLogger(getClass()).info(
           "  Genral Metadata Entry = " + conceptId + ", " + name);

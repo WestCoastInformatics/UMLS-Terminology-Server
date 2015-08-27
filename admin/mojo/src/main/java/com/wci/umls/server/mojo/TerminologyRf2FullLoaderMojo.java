@@ -9,6 +9,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
@@ -53,6 +54,12 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
   private boolean server = false;
 
   /**
+   * Mode - for recreating db
+   * @parameter
+   */
+  private String mode = null;
+
+  /**
    * Instantiates a {@link TerminologyRf2FullLoaderMojo} from the specified
    * parameters.
    * 
@@ -71,8 +78,19 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
       getLog().info("  Terminology Version: " + version);
       getLog().info("  Input directory    : " + inputDir);
       getLog().info("  Expect server up   : " + server);
+      getLog().info("  Mode               : " + mode);
 
       Properties properties = ConfigUtility.getConfigProperties();
+
+      if (mode != null && mode.equals("create")) {
+        getLog().info("Recreate database");
+        // This will trigger a rebuild of the db
+        properties.setProperty("hibernate.hbm2ddl.auto", mode);
+        // Trigger a JPA event
+        new MetadataServiceJpa().close();
+        properties.remove("hibernate.hbm2ddl.auto");
+
+      }
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
@@ -99,15 +117,28 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
       if (!serverRunning) {
         getLog().info("Running directly");
 
+        // Handle reindexing
+        if (mode != null && mode.equals("create")) {
+          ContentServiceRestImpl contentService = new ContentServiceRestImpl();
+          contentService.luceneReindex(null, authToken);
+        }
+
+        // Reopen content service rest after reindex
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
+        // Load terminology
         contentService.loadTerminologyRf2Full(terminology, version, inputDir,
             authToken);
 
       } else {
         getLog().info("Running against server");
 
-        // invoke the client
+        // handle reindexing
         ContentClientRest client = new ContentClientRest(properties);
+        if (mode != null && mode.equals("create")) {
+          client.luceneReindex(null, authToken);
+        }
+
+        // load terminology
         client
             .loadTerminologyRf2Full(terminology, version, inputDir, authToken);
       }

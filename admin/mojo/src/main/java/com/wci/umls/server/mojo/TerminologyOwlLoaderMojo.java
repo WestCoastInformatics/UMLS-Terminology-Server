@@ -7,6 +7,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.rest.client.ContentClientRest;
@@ -55,16 +56,35 @@ public class TerminologyOwlLoaderMojo extends AbstractMojo {
    */
   private boolean server = false;
 
+  /**
+   * Mode - for recreating db
+   * @parameter
+   */
+  private String mode = null;
+
   /* see superclass */
   @Override
   public void execute() throws MojoFailureException {
-    getLog().info("Starting removing terminology");
-    getLog().info("  terminology = " + terminology);
-    getLog().info("  version = " + version);
-    getLog().info("  inputFile = " + inputFile);
+
     try {
+      getLog().info("Starting removing terminology");
+      getLog().info("  terminology = " + terminology);
+      getLog().info("  version = " + version);
+      getLog().info("  inputFile = " + inputFile);
+      getLog().info("  Expect server up   : " + server);
+      getLog().info("  Mode               : " + mode);
 
       Properties properties = ConfigUtility.getConfigProperties();
+
+      if (mode != null && mode.equals("create")) {
+        getLog().info("Recreate database");
+        // This will trigger a rebuild of the db
+        properties.setProperty("hibernate.hbm2ddl.auto", mode);
+        // Trigger a JPA event
+        new MetadataServiceJpa().close();
+        properties.remove("hibernate.hbm2ddl.auto");
+
+      }
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
@@ -90,6 +110,12 @@ public class TerminologyOwlLoaderMojo extends AbstractMojo {
       if (!serverRunning) {
         getLog().info("Running directly");
 
+        // Handle reindexing
+        if (mode != null && mode.equals("create")) {
+          ContentServiceRestImpl contentService = new ContentServiceRestImpl();
+          contentService.luceneReindex(null, authToken);
+        }
+
         getLog().info("  Remove concepts");
         ContentServiceRest contentService = new ContentServiceRestImpl();
         contentService.loadTerminologyOwl(terminology, version, inputFile,
@@ -100,6 +126,12 @@ public class TerminologyOwlLoaderMojo extends AbstractMojo {
 
         getLog().info("  Remove concepts");
         ContentClientRest contentService = new ContentClientRest(properties);
+
+        // handle reindexing
+        if (mode != null && mode.equals("create")) {
+          contentService.luceneReindex(null, authToken);
+        }
+
         contentService.loadTerminologyOwl(terminology, version, inputFile,
             authToken);
 
