@@ -39,13 +39,13 @@ tsApp
           page : 1,
           query : null
         }
-        
+
         // Search results
         var searchResults = {
-          list: [],
-          tree: []
+          list : [],
+          tree : []
         }
-        
+
         // Accessor function for component
         this.getModel = function() {
           return component;
@@ -55,7 +55,7 @@ tsApp
         this.getPageSizes = function() {
           return pageSizes;
         }
-        
+
         // Accessor for search params
         this.getSearchParams = function() {
           return searchParams;
@@ -501,7 +501,7 @@ tsApp
             startIndex : (page - 1) * pageSizes.trees,
             maxResults : pageSizes.trees,
             sortField : metadata.treeSortField,
-            queryRestriction : null
+            queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
           }
 
           var prefix = this.getPrefixForTerminologyAndVersion(terminology,

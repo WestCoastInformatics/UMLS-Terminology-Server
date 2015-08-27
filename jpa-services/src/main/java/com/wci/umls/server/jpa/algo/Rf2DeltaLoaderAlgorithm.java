@@ -598,7 +598,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
             atom2 = new AtomJpa();
           } else {
             atom.getAttributes().size();
-            atom2 = new AtomJpa(atom, false);
+            atom2 = new AtomJpa(atom, true);
           }
 
           // Set fields
@@ -666,7 +666,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           else if (!Rf2EqualityUtility.equals(atom2, atom)) {
             if (!atom.equals(atom2)) {
               Logger.getLogger(getClass())
-                  .debug("      update atom - " + atom2);
+              .debug("      update atom - " + atom2);
               updateAtom(atom2);
               concept.removeAtom(atom);
               concept.addAtom(atom2);
@@ -775,7 +775,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
             def2 = new AtomJpa();
           } else {
             def.getAttributes().size();
-            def2 = new AtomJpa(def, false);
+            def2 = new AtomJpa(def, true);
           }
 
           // Set fields
@@ -938,7 +938,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         } else {
           member.getAttributes().size();
           member.getSubset().getName();
-          member2 = new AtomSubsetMemberJpa(member, false);
+          member2 = new AtomSubsetMemberJpa(member, true);
         }
 
         // Populate and handle subset aspects of member

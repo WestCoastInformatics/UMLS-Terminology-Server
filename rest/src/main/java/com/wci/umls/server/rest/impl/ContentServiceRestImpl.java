@@ -540,13 +540,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo.setVersion(version);
       algo.reset();
       algo.compute();
-
+      algo.close();
+      
       // compute tree positions
       TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
       algo2.setCycleTolerant(false);
       algo2.setIdType(IdType.CONCEPT);
       algo2.setTerminology(terminology);
       algo2.setVersion(version);
+      algo2.reset();
       algo2.compute();
       algo2.close();
 
@@ -743,13 +745,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo.setVersion(version);
       algo.reset();
       algo.compute();
-
+      algo.close();
+      
       // compute tree positions
       TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
       algo2.setCycleTolerant(false);
       algo2.setIdType(IdType.CONCEPT);
       algo2.setTerminology(terminology);
       algo2.setVersion(version);
+      algo2.reset();
       algo2.compute();
       algo2.close();
 

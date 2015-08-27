@@ -47,7 +47,7 @@ endif
 echo "    Add ICD10 project ...`/bin/date`"
 cd $ICD10_CODE/admin/loader
 mvn install -PProject -Drun.config.claml=$ICD10_CONFIG -Dserver=$SERVER \
-  -Dname="Sample Project" -Ddescription="Sample project." \
+  -Dname="ICD10 Project" -Ddescription="ICD10 project." \
   -Dterminology=ICD10 -Dversion=latest \
   -Dadmin.user=admin >&! mvn.log
 if ($status != 0) then
@@ -80,7 +80,7 @@ endif
 echo "    Add ICD10CM project ...`/bin/date`"
 cd $ICD10_CODE/admin/loader
 mvn install -PProject -Drun.config.claml=$ICD10_CONFIG -Dserver=$SERVER \
-  -Dname="Sample Project" -Ddescription="Sample project." \
+  -Dname="ICD10CM Project" -Ddescription="ICD10CM project." \
   -Dterminology=ICD10CM -Dversion=latest \
   -Dadmin.user=admin >&! mvn.log
 if ($status != 0) then
@@ -114,7 +114,7 @@ endif
 echo "    Add ICD9CM project ...`/bin/date`"
 cd $ICD10_CODE/admin/loader
 mvn install -PProject -Drun.config.claml=$ICD10_CONFIG -Dserver=$SERVER \
-  -Dname="Sample Project" -Ddescription="Sample project." \
+  -Dname="ICD9CM Project" -Ddescription="ICD9CM project." \
   -Dterminology=ICD9CM -Dversion=latest \
   -Dadmin.user=admin >&! mvn.log
 if ($status != 0) then
