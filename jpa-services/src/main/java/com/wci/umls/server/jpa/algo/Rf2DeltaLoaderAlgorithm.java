@@ -521,6 +521,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         concept2.setPublished(true);
         concept2.setPublishable(true);
         concept2.setWorkflowStatus(published);
+        concept2.setUsesRelationshipUnion(true);
 
         // Attributes
         Attribute attribute = null;
@@ -668,25 +669,27 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
           atom2.setTerminologyId(fields[0]);
           atom2.setTimestamp(date);
+          atom2.setLastModifiedBy(loader);
+          atom2.setLastModified(releaseVersionDate);
           atom2.setObsolete(fields[2].equals("0"));
-          atom2.setLanguage(fields[5]);
+          atom2.setSuppressible(atom2.isObsolete());
+          atom2.setConceptId(fields[4]);
+          atom2.setDescriptorId("");
+          atom2.setCodeId("");
+          atom2.setLexicalClassId("");
+          atom2.setStringClassId("");
+          atom2.setLanguage(fields[5].intern());
           languages.add(atom2.getLanguage());
-          atom2.setTermType(fields[6]);
+          atom2.setTermType(fields[6].intern());
           generalEntryValues.add(atom2.getTermType());
           termTypes.add(atom2.getTermType());
           atom2.setName(fields[7]);
           atom2.setTerminology(terminology);
           atom2.setVersion(version);
-          atom2.setLastModifiedBy(loader);
-          atom2.setLastModified(releaseVersionDate);
           atom2.setPublished(true);
+          atom2.setPublishable(true);
           atom2.setWorkflowStatus(published);
-          atom2.setDescriptorId("");
-          atom2.setCodeId("");
-          atom2.setLexicalClassId("");
-          atom2.setStringClassId("");
-          atom2.setConceptId(concept.getTerminologyId());
-
+         
           // Attributes
           Attribute attribute = null;
           if (atom != null) {
@@ -1425,6 +1428,24 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         rel2.setPublishable(true);
         rel2.setAssertedDirection(true);
 
+        // get concepts from cache, they just need to have ids
+        final Concept fromConcept = getConcept(idMap.get(fields[4]));
+        final Concept toConcept = getConcept(idMap.get(fields[5]));
+        if (fromConcept != null && toConcept != null) {
+          rel2.setFrom(fromConcept);
+          rel2.setTo(toConcept);
+        } else {
+          if (fromConcept == null) {
+            throw new Exception("Relationship "
+                + rel2.getTerminologyId()
+                + " -existent source concept " + fields[4]);
+          }
+          if (toConcept == null) {
+            throw new Exception("Relationship"
+                + rel2.getTerminologyId()
+                + " references non-existent destination concept " + fields[5]);
+          }
+        }
         // Attributes
         Attribute attribute = null;
         if (rel != null) {
