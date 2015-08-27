@@ -734,6 +734,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       }
 
+      // Refresh caches for metadata handlers
+      new MetadataServiceJpa().refreshCaches();
+      
       // Compute transitive closure
       Logger.getLogger(getClass()).info(
           "  Compute transitive closure from  " + terminology + "/" + version);
