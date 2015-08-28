@@ -1023,7 +1023,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         // Populate and handle subset aspects of member
         refsetHelper(member2, fields);
 
-        // Add moduleId attribute
+        // Add acceptabilityId attribute
         final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
         Attribute attribute = null;
         if (member != null) {
@@ -1303,7 +1303,131 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
   @SuppressWarnings("unused")
   private void loadAttributeValueRefSetMembers() throws Exception {
-    // n/a
+    Set<Concept> modifiedConcepts = new HashSet<>();
+
+    // Setup variables
+    String line = "";
+    int objectsAdded = 0;
+    int objectsUpdated = 0;
+
+    // Iterate through simple refset reader
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.ATTRIBUTE_VALUE);
+    while ((line = reader.readLine()) != null) {
+
+      // split line
+      String fields[] = line.split("\t");
+
+      // if not header
+      if (!fields[0].equals("id")) {
+        // Skip if the effective time is before the release version
+        if (fields[1].compareTo(releaseVersion) < 0) {
+          continue;
+        }
+
+        // Stop if the effective time is past the release version
+        if (fields[1].compareTo(releaseVersion) > 0) {
+          reader.push(line);
+          break;
+        }
+
+        // Ensure effective time is set on all appropriate objects
+        ConceptSubsetMember member = null;
+        if (idMap.containsKey(fields[0])) {
+          member =
+              (ConceptSubsetMember) getSubsetMember(idMap.get(fields[0]),
+                  ConceptSubsetMemberJpa.class);
+        }
+
+        // Setup delta simple entry (either new or based on existing
+        // one)
+        ConceptSubsetMember member2 = null;
+        if (member == null) {
+          member2 = new ConceptSubsetMemberJpa();
+        } else {
+          member.getAttributes().size();
+          member.getSubset().getName();
+          member2 = new ConceptSubsetMemberJpa(member, true);
+        }
+
+        // Populate and handle subset aspects of member
+        refsetHelper(member2, fields);
+
+        // Add valueId attribute
+        final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
+        Attribute attribute = null;
+        if (member != null) {
+          attribute = member.getAttributeByName("valueId");
+        } else {
+          attribute = new AttributeJpa();
+          member2.addAttribute(attribute);
+        }
+        setCommonFields(attribute, date);
+        attribute.setName("valueId");
+        attribute.setValue(fields[6].intern());
+        cacheAttributeMetadata(attribute);
+
+        final Concept concept = getConcept(member2.getMember().getId());
+
+        // If refset entry is new, add it
+        if (member == null) {
+          for (Attribute att : member2.getAttributes()) {
+            Logger.getLogger(getClass()).debug("      add attribute = " + att);
+            addAttribute(att, member2);
+          }
+
+          Logger.getLogger(getClass()).debug(
+              "      add attribute value refset member = " + member2);
+          member2 = (ConceptSubsetMember) addSubsetMember(member2);
+          idMap.put(member2.getTerminologyId(), member2.getId());
+          concept.addMember(member2);
+          modifiedConcepts.add(concept);
+          objectsAdded++;
+        }
+
+        // If refset entry is changed, update it
+        else if (!member2.equals(member)
+            && Rf2EqualityUtility.compareAttributes(member2, member,
+                new String[] {
+                  "moduleId", "valueId"
+                })) {
+          Logger.getLogger(getClass()).debug("  update simple - " + member2);
+          if (!member.equals(member2)) {
+            Logger.getLogger(getClass()).debug(
+                "      update attribute value refset member - " + member2);
+            updateSubsetMember(member2);
+            concept.removeMember(member);
+            concept.addMember(member2);
+            modifiedConcepts.add(concept);
+          }
+          updateAttributes(member2, member);
+          objectsUpdated++;
+
+        }
+
+        if ((objectsAdded + objectsUpdated) % logCt == 0) {
+          for (Concept modifiedConcept : modifiedConcepts) {
+            Logger.getLogger(getClass()).debug(
+                "      update concept - " + modifiedConcept);
+            updateConcept(modifiedConcept);
+          }
+          logAndCommit(objectsAdded + objectsUpdated);
+          modifiedConcepts.clear();
+        }
+
+      }
+    }
+
+    for (Concept modifiedConcept : modifiedConcepts) {
+      Logger.getLogger(getClass()).debug(
+          "      update concept - " + modifiedConcept);
+      updateConcept(modifiedConcept);
+    }
+    commitClearBegin();
+    modifiedConcepts.clear();
+
+    Logger.getLogger(getClass()).info("      new = " + objectsAdded);
+    Logger.getLogger(getClass()).info("      updated = " + objectsUpdated);
+
   }
 
   /**
@@ -1313,7 +1437,131 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    */
   @SuppressWarnings("unused")
   private void loadAssociationReferenceRefSetMembers() throws Exception {
-    // n/a
+    Set<Concept> modifiedConcepts = new HashSet<>();
+
+    // Setup variables
+    String line = "";
+    int objectsAdded = 0;
+    int objectsUpdated = 0;
+
+    // Iterate through refset reader
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.ASSOCIATION_REFERENCE);
+    while ((line = reader.readLine()) != null) {
+
+      // split line
+      String fields[] = line.split("\t");
+
+      // if not header
+      if (!fields[0].equals("id")) {
+        // Skip if the effective time is before the release version
+        if (fields[1].compareTo(releaseVersion) < 0) {
+          continue;
+        }
+
+        // Stop if the effective time is past the release version
+        if (fields[1].compareTo(releaseVersion) > 0) {
+          reader.push(line);
+          break;
+        }
+
+        // Ensure effective time is set on all appropriate objects
+        ConceptSubsetMember member = null;
+        if (idMap.containsKey(fields[0])) {
+          member =
+              (ConceptSubsetMember) getSubsetMember(idMap.get(fields[0]),
+                  ConceptSubsetMemberJpa.class);
+        }
+
+        // Setup delta simple entry (either new or based on existing
+        // one)
+        ConceptSubsetMember member2 = null;
+        if (member == null) {
+          member2 = new ConceptSubsetMemberJpa();
+        } else {
+          member.getAttributes().size();
+          member.getSubset().getName();
+          member2 = new ConceptSubsetMemberJpa(member, true);
+        }
+
+        // Populate and handle subset aspects of member
+        refsetHelper(member2, fields);
+
+        // Add targetComponentId attribute
+        final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
+        Attribute attribute = null;
+        if (member != null) {
+          attribute = member.getAttributeByName("targetComponentId");
+        } else {
+          attribute = new AttributeJpa();
+          member2.addAttribute(attribute);
+        }
+        setCommonFields(attribute, date);
+        attribute.setName("targetComponentId");
+        attribute.setValue(fields[6].intern());
+        cacheAttributeMetadata(attribute);
+
+        final Concept concept = getConcept(member2.getMember().getId());
+
+        // If refset entry is new, add it
+        if (member == null) {
+          for (Attribute att : member2.getAttributes()) {
+            Logger.getLogger(getClass()).debug("      add attribute = " + att);
+            addAttribute(att, member2);
+          }
+
+          Logger.getLogger(getClass()).debug(
+              "      add association reference refset member = " + member2);
+          member2 = (ConceptSubsetMember) addSubsetMember(member2);
+          idMap.put(member2.getTerminologyId(), member2.getId());
+          concept.addMember(member2);
+          modifiedConcepts.add(concept);
+          objectsAdded++;
+        }
+
+        // If refset entry is changed, update it
+        else if (!member2.equals(member)
+            && Rf2EqualityUtility.compareAttributes(member2, member,
+                new String[] {
+                  "moduleId", "targetComponentId"
+                })) {
+          Logger.getLogger(getClass()).debug("  update association reference - " + member2);
+          if (!member.equals(member2)) {
+            Logger.getLogger(getClass()).debug(
+                "      update association reference refset member - " + member2);
+            updateSubsetMember(member2);
+            concept.removeMember(member);
+            concept.addMember(member2);
+            modifiedConcepts.add(concept);
+          }
+          updateAttributes(member2, member);
+          objectsUpdated++;
+
+        }
+
+        if ((objectsAdded + objectsUpdated) % logCt == 0) {
+          for (Concept modifiedConcept : modifiedConcepts) {
+            Logger.getLogger(getClass()).debug(
+                "      update concept - " + modifiedConcept);
+            updateConcept(modifiedConcept);
+          }
+          logAndCommit(objectsAdded + objectsUpdated);
+          modifiedConcepts.clear();
+        }
+
+      }
+    }
+
+    for (Concept modifiedConcept : modifiedConcepts) {
+      Logger.getLogger(getClass()).debug(
+          "      update concept - " + modifiedConcept);
+      updateConcept(modifiedConcept);
+    }
+    commitClearBegin();
+    modifiedConcepts.clear();
+
+    Logger.getLogger(getClass()).info("      new = " + objectsAdded);
+    Logger.getLogger(getClass()).info("      updated = " + objectsUpdated);
+
   }
 
   /**
