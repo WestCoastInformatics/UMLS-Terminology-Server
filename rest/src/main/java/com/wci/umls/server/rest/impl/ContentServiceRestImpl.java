@@ -718,6 +718,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       // Load deltas
       for (String release : releases) {
+        // Refresh caches for metadata handlers
+        new MetadataServiceJpa().refreshCaches();
+        
         if (release.equals(releases.get(0))) {
           continue;
         }
@@ -733,6 +736,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         algorithm2 = null;
 
       }
+
+      // Refresh caches for metadata handlers
+      new MetadataServiceJpa().refreshCaches();
 
       // Compute transitive closure
       Logger.getLogger(getClass()).info(
@@ -755,6 +761,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo2.reset();
       algo2.compute();
       algo2.close();
+
+      // RE-open content service
+      contentService = new ContentServiceJpa();
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
