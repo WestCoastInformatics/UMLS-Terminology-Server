@@ -224,7 +224,27 @@
       <dependency>
         <groupId>net.sourceforge.owlapi</groupId>
         <artifactId>owlapi-distribution</artifactId>
-        <version>3.5.0</version>
+        <version>4.1.0-RC2</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sourceforge.owlapi</groupId>
+        <artifactId>owlapi-api</artifactId>
+        <version>4.1.0-RC2</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sourceforge.owlapi</groupId>
+        <artifactId>owlapi-apibinding</artifactId>
+        <version>4.1.0-RC2</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sourceforge.owlapi</groupId>
+        <artifactId>owlapi-impl</artifactId>
+        <version>4.1.0-RC2</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>11.0.1</version>
       </dependency>
 
       <!-- LVG -->
