@@ -23,6 +23,7 @@ import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.ProjectListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -64,7 +65,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/add")
-  @ApiOperation(value = "Add new project", notes = "Creates a new project", response = Project.class)
+  @ApiOperation(value = "Add new project", notes = "Creates a new project", response = ProjectJpa.class)
   public Project addProject(
     @ApiParam(value = "Project, e.g. newProject", required = true) ProjectJpa project,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -176,7 +177,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @POST
   @Path("/scope/{id}")
-  @ApiOperation(value = "Find project scope for the project id", notes = "Gets all concpets in scope for this project", response = ConceptList.class)
+  @ApiOperation(value = "Find project scope for the project id", notes = "Gets all concpets in scope for this project", response = ConceptListJpa.class)
   public ConceptList findConceptsInScope(
     @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
@@ -214,7 +215,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/{id}")
-  @ApiOperation(value = "Get project for id", notes = "Gets the project for the specified id", response = Project.class)
+  @ApiOperation(value = "Get project for id", notes = "Gets the project for the specified id", response = ProjectJpa.class)
   public Project getProject(
     @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -243,7 +244,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/projects")
-  @ApiOperation(value = "Get all projects", notes = "Gets all projects", response = ProjectList.class)
+  @ApiOperation(value = "Get all projects", notes = "Gets all projects", response = ProjectListJpa.class)
   public ProjectList getProjects(
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {

@@ -55,6 +55,10 @@ public class AttributeNameJpa extends AbstractAbbreviation implements
   @Column(nullable = false)
   private boolean functional;
 
+  /** The annotation. */
+  @Column(nullable = false)
+  private boolean annotation;
+
   /**
    * Instantiates an empty {@link AttributeNameJpa}.
    */
@@ -74,6 +78,7 @@ public class AttributeNameJpa extends AbstractAbbreviation implements
     equivalentName = atn.getEquivalentName();
     superName = atn.getSuperName();
     functional = atn.isFunctional();
+    annotation = atn.isAnnotation();
     universalQuantification = atn.isUniversalQuantification();
     existentialQuantification = atn.isExistentialQuantification();
   }
@@ -166,12 +171,25 @@ public class AttributeNameJpa extends AbstractAbbreviation implements
 
   /* see superclass */
   @Override
+  public boolean isAnnotation() {
+    return annotation;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAnnotation(boolean annotation) {
+    this.annotation = annotation;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + ((domainId == null) ? 0 : domainId.hashCode());
     result = prime * result + (existentialQuantification ? 1231 : 1237);
     result = prime * result + (functional ? 1231 : 1237);
+    result = prime * result + (annotation ? 1231 : 1237);
     result = prime * result + ((rangeId == null) ? 0 : rangeId.hashCode());
     result = prime * result + (universalQuantification ? 1231 : 1237);
     return result;
@@ -195,6 +213,8 @@ public class AttributeNameJpa extends AbstractAbbreviation implements
     if (existentialQuantification != other.existentialQuantification)
       return false;
     if (functional != other.functional)
+      return false;
+    if (annotation != other.annotation)
       return false;
     if (rangeId == null) {
       if (other.rangeId != null)

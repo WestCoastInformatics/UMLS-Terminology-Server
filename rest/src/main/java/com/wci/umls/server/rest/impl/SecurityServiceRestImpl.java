@@ -21,6 +21,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.UserJpa;
+import com.wci.umls.server.jpa.helpers.UserListJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
 import com.wci.umls.server.services.SecurityService;
@@ -49,7 +50,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Consumes({
     MediaType.TEXT_PLAIN
   })
-  @ApiOperation(value = "Authenticate a user", notes = "Performs authentication on specified username and password and returns a token upon successful authentication. Throws 401 error if not.", response = User.class)
+  @ApiOperation(value = "Authenticate a user", notes = "Performs authentication on specified username and password and returns a token upon successful authentication. Throws 401 error if not.", response = UserJpa.class)
   public User authenticate(
     @ApiParam(value = "Username, e.g. 'guest'", required = true) @PathParam("username") String username,
     @ApiParam(value = "Password, as string post data, e.g. 'guest'", required = true) String password)
@@ -105,7 +106,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/user/{id}")
-  @ApiOperation(value = "Get user by id", notes = "Gets the user for the specified id", response = User.class)
+  @ApiOperation(value = "Get user by id", notes = "Gets the user for the specified id", response = UserJpa.class)
   public User getUser(
     @ApiParam(value = "User internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -129,7 +130,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/user/name/{username}")
-  @ApiOperation(value = "Get user by name", notes = "Gets the user for the specified name", response = User.class)
+  @ApiOperation(value = "Get user by name", notes = "Gets the user for the specified name", response = UserJpa.class)
   public User getUser(
     @ApiParam(value = "Username, e.g. \"guest\"", required = true) @PathParam("username") String username,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -154,7 +155,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/user/users")
-  @ApiOperation(value = "Get all users", notes = "Gets all users", response = UserList.class)
+  @ApiOperation(value = "Get all users", notes = "Gets all users", response = UserListJpa.class)
   public UserList getUsers(
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -177,7 +178,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/user/add")
-  @ApiOperation(value = "Add new user", notes = "Creates a new user", response = User.class)
+  @ApiOperation(value = "Add new user", notes = "Creates a new user", response = UserJpa.class)
   public User addUser(
     @ApiParam(value = "User, e.g. newUser", required = true) UserJpa user,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)

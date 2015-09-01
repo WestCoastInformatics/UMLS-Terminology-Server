@@ -21,6 +21,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ReleaseInfoList;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.algo.StartEditingCycleAlgorithm;
+import com.wci.umls.server.jpa.helpers.ReleaseInfoListJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.HistoryServiceRest;
@@ -60,7 +61,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/releases/{terminology}")
-  @ApiOperation(value = "Get release history", notes = "Gets all release info objects", response = ReleaseInfoList.class)
+  @ApiOperation(value = "Get release history", notes = "Gets all release info objects", response = ReleaseInfoListJpa.class)
   public ReleaseInfoList getReleaseHistory(
     @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -89,7 +90,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/release/{terminology}/current")
-  @ApiOperation(value = "Get current release info", notes = "Gets release info for current release", response = ReleaseInfo.class)
+  @ApiOperation(value = "Get current release info", notes = "Gets release info for current release", response = ReleaseInfoJpa.class)
   public ReleaseInfo getCurrentReleaseInfo(
     @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -118,7 +119,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/release/{terminology}/previous")
-  @ApiOperation(value = "Get previous release info", notes = "Gets release info for previous release", response = ReleaseInfo.class)
+  @ApiOperation(value = "Get previous release info", notes = "Gets release info for previous release", response = ReleaseInfoJpa.class)
   public ReleaseInfo getPreviousReleaseInfo(
     @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -147,7 +148,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/release/{terminology}/planned")
-  @ApiOperation(value = "Get planned release info", notes = "Gets release info for planned release", response = ReleaseInfo.class)
+  @ApiOperation(value = "Get planned release info", notes = "Gets release info for planned release", response = ReleaseInfoJpa.class)
   public ReleaseInfo getPlannedReleaseInfo(
     @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -176,7 +177,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @GET
   @Path("/release/{terminology}/{name}")
-  @ApiOperation(value = "Get release info", notes = "Gets release info for specified release name and terminology", response = ReleaseInfo.class)
+  @ApiOperation(value = "Get release info", notes = "Gets release info for specified release name and terminology", response = ReleaseInfoJpa.class)
   public ReleaseInfo getReleaseInfo(
     @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Release version info, e.g. 'latest'", required = true) @PathParam("name") String name,
@@ -206,7 +207,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   @Override
   @PUT
   @Path("/release/add")
-  @ApiOperation(value = "Add release info", notes = "Adds the specified release info", response = ReleaseInfo.class)
+  @ApiOperation(value = "Add release info", notes = "Adds the specified release info", response = ReleaseInfoJpa.class)
   public ReleaseInfo addReleaseInfo(
     @ApiParam(value = "Release info object, e.g. see output of /release/current", required = true) ReleaseInfoJpa releaseInfo,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
