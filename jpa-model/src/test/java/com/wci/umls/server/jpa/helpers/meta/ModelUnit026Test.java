@@ -93,6 +93,7 @@ public class ModelUnit026Test {
     tester.include("domainId");
     tester.include("rangeId");
     tester.include("functional");
+    tester.include("annotation");
     tester.include("existentialQuantification");
     tester.include("universalQuantification");
 
@@ -147,6 +148,7 @@ public class ModelUnit026Test {
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("functional");
+    tester.include("annotation");
     tester.include("existentialQuantification");
     tester.include("universalQuantification");
 

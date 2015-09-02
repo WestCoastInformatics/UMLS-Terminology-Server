@@ -106,4 +106,17 @@ public interface AttributeName extends Abbreviation {
    */
   public void setRangeId(String rangeId);
 
+  /**
+   * Indicates whether or not this is an annotation.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isAnnotation();
+  
+  /**
+   * Sets the annotation flag.
+   *
+   * @param annotation the annotation
+   */
+  public void setAnnotation(boolean annotation);
 }

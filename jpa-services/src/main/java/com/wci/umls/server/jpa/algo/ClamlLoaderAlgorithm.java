@@ -1841,9 +1841,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
    */
   private void loadMetadata() throws Exception {
 
-    // TODO: handle inverses for rela
-    
-    
     // relationship types - CHD, PAR, and RO
     String[] relTypes = new String[] {
         "RO", "CHD", "PAR"
@@ -1881,6 +1878,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     updateRelationshipType(par);
     updateRelationshipType(ro);
 
+    Map<AdditionalRelationshipType, AdditionalRelationshipType> inverses =
+        new HashMap<>();
     for (String art : additionalRelationshipTypes) {
 
       final AdditionalRelationshipType relType =
@@ -1897,8 +1896,23 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
       addAdditionalRelationshipType(relType);
 
+      AdditionalRelationshipType inverseType =
+          new AdditionalRelationshipTypeJpa(relType);
+      inverseType.setId(null);
+      inverseType.setAbbreviation("inverse_" + relType.getAbbreviation());
+      inverseType.setExpandedForm("inverse_" + relType.getAbbreviation());
+      inverses.put(relType, inverseType);
+      addAdditionalRelationshipType(inverseType);
     }
-
+    // handle inverses
+    for (AdditionalRelationshipType type : inverses.keySet()) {
+      AdditionalRelationshipType inverseType = inverses.get(type);
+      type.setInverseType(inverseType);
+      inverseType.setInverseType(type);
+      updateAdditionalRelationshipType(type);
+      updateAdditionalRelationshipType(inverseType);
+    }
+    
     for (String tty : termTypes) {
 
       final TermType termType = new TermTypeJpa();
