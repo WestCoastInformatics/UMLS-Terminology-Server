@@ -689,7 +689,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           atom2.setPublished(true);
           atom2.setPublishable(true);
           atom2.setWorkflowStatus(published);
-         
+
           // Attributes
           Attribute attribute = null;
           if (atom != null) {
@@ -1436,13 +1436,11 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           rel2.setTo(toConcept);
         } else {
           if (fromConcept == null) {
-            throw new Exception("Relationship "
-                + rel2.getTerminologyId()
+            throw new Exception("Relationship " + rel2.getTerminologyId()
                 + " -existent source concept " + fields[4]);
           }
           if (toConcept == null) {
-            throw new Exception("Relationship"
-                + rel2.getTerminologyId()
+            throw new Exception("Relationship" + rel2.getTerminologyId()
                 + " references non-existent destination concept " + fields[5]);
           }
         }
@@ -1920,8 +1918,32 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       updateAdditionalRelationshipType(inverseType);
     }
 
-    // No additional property chains are added by delta
-
+    // property chains (see Owl)
+    // $rightid{"363701004"} = "127489000"; # direct-substance o
+    // has-active-ingredient -> direct-substance
+    // Add if not already added
+    if (this.getPropertyChains(terminology, version).getCount() != 0) {
+      PropertyChain chain = new PropertyChainJpa();
+      chain.setTerminology(terminology);
+      chain.setVersion(version);
+      chain.setLastModified(releaseVersionDate);
+      chain.setLastModifiedBy(loader);
+      chain.setPublishable(true);
+      chain.setPublished(true);
+      chain
+          .setAbbreviation("direct-substance o has-active-ingredient -> direct-substance");
+      chain.setExpandedForm(chain.getAbbreviation());
+      List<AdditionalRelationshipType> list = new ArrayList<>();
+      list.add(directSubstance);
+      list.add(hasActiveIngredient);
+      chain.setChain(list);
+      chain.setResult(directSubstance);
+      // do this only when the available rels exist
+      if (chain.getChain().size() > 0 && chain.getResult() != null) {
+        addPropertyChain(chain);
+      }
+    }
+    
     // semantic types - n/a
 
     // Root Terminology

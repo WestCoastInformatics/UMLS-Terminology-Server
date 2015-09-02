@@ -1517,8 +1517,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       updateAdditionalRelationshipType(inverseType);
     }
 
-    // TODO: inverses for claml loader
-
     // property chains (see Owl)
     // $rightid{"363701004"} = "127489000"; # direct-substance o
     // has-active-ingredient -> direct-substance
