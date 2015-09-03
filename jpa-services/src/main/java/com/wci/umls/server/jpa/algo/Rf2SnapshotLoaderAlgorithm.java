@@ -919,6 +919,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("valueId");
         attribute.setValue(fields[6].intern());
         attributeNames.add(attribute.getName());
+        cacheAttributeMetadata(attribute);
         member.addAttribute(attribute);
         addAttribute(attribute, member);
 
