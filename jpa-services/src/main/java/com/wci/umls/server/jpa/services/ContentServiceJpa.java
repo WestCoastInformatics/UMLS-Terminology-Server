@@ -2788,6 +2788,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           .append(query == null || query.isEmpty() ? "" : " AND " + query);
 
     }
+    
     Logger.getLogger(getClass()).info(
         "query for " + clazz.getName() + ": " + finalQuery);
 

@@ -1050,7 +1050,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         // If language refset entry is changed, update it
         else if (!member2.equals(member)
-            && Rf2EqualityUtility.compareAttributes(member2, member,
+            || !Rf2EqualityUtility.compareAttributes(member2, member,
                 new String[] {
                     "moduleId", "acceptabilityId"
                 })) {
@@ -1185,7 +1185,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         // If simple refset entry is changed, update it
         else if (!member2.equals(member)
-            && Rf2EqualityUtility.compareAttributes(member2, member,
+            || !Rf2EqualityUtility.compareAttributes(member2, member,
                 new String[] {
                   "moduleId"
                 })) {
@@ -1320,7 +1320,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         // If simple refset entry is changed, update it
         else if (!member2.equals(member)
-            && Rf2EqualityUtility.compareAttributes(member2, member,
+            || !Rf2EqualityUtility.compareAttributes(member2, member,
                 new String[] {
                     "moduleId", "mapTarget"
                 })) {
@@ -1484,7 +1484,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         // If atom type refset entry is changed, update it
         else if (!member2.equals(member)
-            && Rf2EqualityUtility.compareAttributes(member2, member,
+            || !Rf2EqualityUtility.compareAttributes(member2, member,
                 new String[] {
                     "moduleId", "descriptionFormat", "descriptionLength"
                 })) {
@@ -1643,7 +1643,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         // If refset descriptor refset entry is changed, update it
         else if (!member2.equals(member)
-            && Rf2EqualityUtility.compareAttributes(member2, member,
+            || !Rf2EqualityUtility.compareAttributes(member2, member,
                 new String[] {
                     "moduleId", "attributeDescription", "attributeType",
                     "attributeOrder"
@@ -1793,7 +1793,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         // If module dependency refset entry is changed, update it
         else if (!member2.equals(member)
-            && Rf2EqualityUtility.compareAttributes(member2, member,
+            || !Rf2EqualityUtility.compareAttributes(member2, member,
                 new String[] {
                     "moduleId", "sourceEffectiveTime", "targetEffectiveTime"
                 })) {
@@ -1952,7 +1952,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         // If refset entry is changed, update it
         else if (!member2.equals(member)
-            && Rf2EqualityUtility.compareAttributes(member2, member,
+                || !Rf2EqualityUtility.compareAttributes(member2, member,
                 new String[] {
                     "moduleId", "valueId"
                 })) {
@@ -2131,7 +2131,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         // If refset entry is changed, update it
         else if (!member2.equals(member)
-            && Rf2EqualityUtility.compareAttributes(member2, member,
+            || !Rf2EqualityUtility.compareAttributes(member2, member,
                 new String[] {
                     "moduleId", "valueId"
                 })) {
