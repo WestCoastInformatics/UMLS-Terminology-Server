@@ -161,7 +161,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   }
 
   /** The search. */
-  private static Map<String, SearchHandler> searchMap = null;
+  /*private static Map<String, SearchHandler> searchMap = null;
   static {
     searchMap = new HashMap<>();
     try {
@@ -185,7 +185,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       e.printStackTrace();
       searchMap = null;
     }
-  }
+  }*/
   
   /**
    * Instantiates an empty {@link MetadataServiceJpa}.
@@ -206,10 +206,10 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       throw new Exception(
           "Graph resolver did not properly initialize, serious error.");
     }
-    if (searchMap == null) {
+    /*if (searchMap == null) {
       throw new Exception(
           "Search did not properly initialize, serious error.");
-    }
+    }*/
   }
 
   /* see superclass */
@@ -1444,10 +1444,11 @@ public class MetadataServiceJpa extends RootServiceJpa implements
 
   @Override
   public SearchHandler getSearchHandler(String terminology) throws Exception {
-    if (searchMap.containsKey(terminology)) {
+    /*if (searchMap.containsKey(terminology)) {
       return searchMap.get(terminology);
     }
-    return searchMap.get(ConfigUtility.DEFAULT);
+    return searchMap.get(ConfigUtility.DEFAULT);*/
+    return null;
   }
 
 }
