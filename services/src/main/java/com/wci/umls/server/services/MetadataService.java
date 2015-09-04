@@ -31,6 +31,7 @@ import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
+import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Services to retrieve metadata objects.
@@ -637,4 +638,14 @@ public interface MetadataService extends RootService, Configurable {
   public GraphResolutionHandler getGraphResolutionHandler(String terminology)
     throws Exception;
 
+  
+  /**
+   * Gets the search handler.
+   *
+   * @param terminology the terminology
+   * @return the search handler
+   * @throws Exception the exception
+   */
+  public SearchHandler getSearchHandler(String terminology)
+      throws Exception;
 }
