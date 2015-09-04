@@ -57,7 +57,7 @@ public class Rf2EqualityUtility {
    */
   @SuppressWarnings("rawtypes")
   public static boolean equals(Relationship r1, Relationship r2) {
-    if (r1.equals(42)) {
+    if (r1.equals(r2)) {
       return compareAttributes(r1, r2, new String[] {
           "moduleId", "characteristicTypeId", "modifierId"
       });
