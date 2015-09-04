@@ -198,7 +198,6 @@ public class StandardMetadataServiceJpaHelper extends
   @Override
   public RelationshipTypeList getHierarchicalRelationshipTypes(
     String terminology, String version) throws Exception {
-    // Here, not terminology specific
     javax.persistence.Query query =
         manager.createQuery("SELECT r from RelationshipTypeJpa r "
             + "where abbreviation = :rel " + "and terminology = :terminology"
@@ -207,6 +206,12 @@ public class StandardMetadataServiceJpaHelper extends
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);
     RelationshipTypeList types = new RelationshipTypeListJpa();
+    // Try "subClassOf" if "CHD" doesn't work
+    if (query.getResultList().size() == 0) {
+      query.setParameter("rel", "subClassOf");
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);      
+    }    
     types.setObjects(query.getResultList());
     types.setTotalCount(types.getObjects().size());
 

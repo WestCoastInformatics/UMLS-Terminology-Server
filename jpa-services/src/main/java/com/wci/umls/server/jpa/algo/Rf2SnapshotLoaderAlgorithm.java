@@ -919,6 +919,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         attribute.setName("valueId");
         attribute.setValue(fields[6].intern());
         attributeNames.add(attribute.getName());
+        cacheAttributeMetadata(attribute);
         member.addAttribute(attribute);
         addAttribute(attribute, member);
 
@@ -1516,8 +1517,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       updateAdditionalRelationshipType(type);
       updateAdditionalRelationshipType(inverseType);
     }
-
-    // TODO: inverses for claml loader
 
     // property chains (see Owl)
     // $rightid{"363701004"} = "127489000"; # direct-substance o
