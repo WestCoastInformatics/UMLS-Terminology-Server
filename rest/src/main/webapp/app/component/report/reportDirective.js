@@ -6,6 +6,7 @@ tsApp.directive('report', [ function() {
     scope : {
       metadata : '=',
       component : '=',
+      container : '='
     },
     templateUrl : 'app/component/report/report.html'
   };

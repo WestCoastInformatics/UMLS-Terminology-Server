@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -14,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,7 +32,6 @@ import org.semanticweb.owlapi.model.OWLAnnotationPropertyDomainAxiom;
 import org.semanticweb.owlapi.model.OWLAnnotationPropertyRangeAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassAssertionAxiom;
-import org.semanticweb.owlapi.model.OWLClassAxiom;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLDataPropertyDomainAxiom;
@@ -39,23 +41,29 @@ import org.semanticweb.owlapi.model.OWLDisjointUnionAxiom;
 import org.semanticweb.owlapi.model.OWLEquivalentClassesAxiom;
 import org.semanticweb.owlapi.model.OWLInverseObjectPropertiesAxiom;
 import org.semanticweb.owlapi.model.OWLLiteral;
+import org.semanticweb.owlapi.model.OWLObjectIntersectionOf;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLObjectPropertyDomainAxiom;
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLObjectPropertyRangeAxiom;
+import org.semanticweb.owlapi.model.OWLObjectSomeValuesFrom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.OWLRestriction;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubDataPropertyOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubObjectPropertyOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubPropertyChainOfAxiom;
-import org.semanticweb.owlapi.model.parameters.Imports;
+import org.semanticweb.owlapi.profiles.OWL2ELProfile;
+import org.semanticweb.owlapi.profiles.OWLProfileReport;
+import org.semanticweb.owlapi.profiles.OWLProfileViolation;
 import org.semanticweb.owlapi.util.OWLOntologyWalker;
 import org.semanticweb.owlapi.util.OWLOntologyWalkerVisitor;
 
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
@@ -63,6 +71,7 @@ import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
@@ -74,9 +83,15 @@ import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
+import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
+import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.meta.Abbreviation;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.CodeVariantType;
@@ -234,11 +249,9 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
       OWLOntology directOntology = manager.loadOntologyFromOntologyDocument(in);
 
-      // open input file and get effective time and version and language
-      // TODO:
-      // findVersion(inputFile);
-      // findLanguage(inputFile);
-
+      //
+      // Determine version
+      //
       releaseVersion = getVersion(directOntology);
       if (releaseVersion != null) {
         releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
@@ -249,16 +262,37 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // Use import closure
       for (OWLOntology ontology : directOntology.getImportsClosure()) {
+        //
+        // Compliance testing - OWL 2 EL
+        //
+        OWL2ELProfile profile = new OWL2ELProfile();
+        OWLProfileReport report = profile.checkOntology(directOntology);
+        if (!report.isInProfile()) {
 
+          boolean flag = false;
+          for (OWLProfileViolation violation : report.getViolations()) {
+            // Allow violation: Use of undeclared annotation property
+            if (violation.toString().indexOf(
+                "Use of undeclared annotation property") == -1) {
+              flag = true;
+              break;
+            }
+          }
+          if (flag) {
+            throw new Exception("OWL is not in expected profile OWL EL 2 - "
+                + report);
+          }
+        }
+
+        Logger.getLogger(getClass()).info("Processing ontology - " + ontology);
         loadOntology(ontology);
       }
 
-      // Handle metadata
+      // Handle metadata (after all ontology processing is done).
       loadMetadata(directOntology);
 
       //
       // Create ReleaseInfo for this release if it does not already exist
-      // TODO:
       //
       ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
       if (info == null) {
@@ -389,27 +423,22 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     // relationship types - CHD, PAR, and RO
     String[] relTypes = new String[] {
-        "RO", "CHD", "PAR"
+        "other", "subClassOf", "superClassOf"
     };
     RelationshipType chd = null;
     RelationshipType par = null;
     RelationshipType ro = null;
     for (String rel : relTypes) {
       final RelationshipType type = new RelationshipTypeJpa();
-      type.setTerminology(terminology);
-      type.setVersion(version);
-      type.setLastModified(releaseVersionDate);
-      type.setLastModifiedBy(loader);
-      type.setPublishable(true);
-      type.setPublished(true);
+      setCommonFields(type);
       type.setAbbreviation(rel);
-      if (rel.equals("CHD")) {
+      if (rel.equals("subClassOf")) {
         chd = type;
-        type.setExpandedForm("Child of");
-      } else if (rel.equals("PAR")) {
+        type.setExpandedForm("Sub class of");
+      } else if (rel.equals("superClassOf")) {
         par = type;
-        type.setExpandedForm("Parent of");
-      } else if (rel.equals("RO")) {
+        type.setExpandedForm("Super class of");
+      } else if (rel.equals("other")) {
         ro = type;
         type.setExpandedForm("Other");
       } else {
@@ -428,6 +457,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     for (String tty : termTypes) {
 
       final TermType termType = new TermTypeJpa();
+      setCommonFields(termType);
       termType.setAbbreviation(tty);
       termType.setCodeVariantType(CodeVariantType.UNDEFINED);
       termType.setExpandedForm(tty);
@@ -435,18 +465,9 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         termType.setExpandedForm(getConcept(idMap.get(tty)).getName());
       }
       termType.setHierarchicalType(false);
-      termType.setLastModified(releaseVersionDate);
-      termType.setLastModifiedBy(loader);
       termType.setNameVariantType(NameVariantType.UNDEFINED);
-      termType.setObsolete(false);
-      termType.setPublishable(true);
-      termType.setPublished(true);
       termType.setStyle(TermTypeStyle.SEMANTIC);
-      termType.setSuppressible(false);
-      termType.setTerminology(terminology);
-      termType.setTimestamp(releaseVersionDate);
       termType.setUsageType(UsageType.UNDEFINED);
-      termType.setVersion(version);
       addTermType(termType);
     }
 
@@ -552,12 +573,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     int i = 0;
     for (String label : labels) {
       GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
-      entry.setTerminology(terminology);
-      entry.setVersion(version);
-      entry.setLastModified(releaseVersionDate);
-      entry.setLastModifiedBy(loader);
-      entry.setPublishable(true);
-      entry.setPublished(true);
+      setCommonFields(entry);
       entry.setAbbreviation(label);
       entry.setExpandedForm(labelValues[i++]);
       entry.setKey("label_metadata");
@@ -676,6 +692,82 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   }
 
   /**
+   * Returns the relationships.
+   *
+   * @param concept the concept
+   * @param owlClass the owl class
+   * @param ontology the ontology
+   * @return the relationships
+   * @throws Exception the exception
+   */
+  Set<ConceptRelationship> getRelationships(Concept concept, OWLClass owlClass,
+    OWLOntology ontology) throws Exception {
+    Set<ConceptRelationship> rels = new HashSet<>();
+
+    // Handle top-level "equivalent class"
+    if (ontology.getEquivalentClassesAxioms(owlClass).size() > 0) {
+      Logger.getLogger(getClass()).info("  EQUILVALENT class detected");
+
+      OWLEquivalentClassesAxiom axiom =
+          ontology.getEquivalentClassesAxioms(owlClass).iterator().next();
+      for (OWLClassExpression expr : axiom.getClassExpressions()) {
+        logOwlClassExpression(expr, ontology);
+      }
+
+    }
+
+    // Handle top-level SubClassAxioms
+    if (ontology.getSubClassAxiomsForSubClass(owlClass).size() > 0) {
+
+      // Iterate through, add super classes
+      for (OWLSubClassOfAxiom axiom : ontology
+          .getSubClassAxiomsForSubClass(owlClass)) {
+
+        Logger.getLogger(getClass()).info("  subClassOfAxiom = " + axiom);
+
+        // Handle axioms that point to an OWLClass
+        if (axiom.getSuperClass() instanceof OWLClass) {
+
+          // Standard "isa" relationship
+          ConceptRelationship rel = new ConceptRelationshipJpa();
+          setCommonFields(rel);
+          Concept toConcept =
+              getConcept(idMap.get(getTerminologyId(((OWLClass) axiom
+                  .getSuperClass()).getIRI())));
+          // blank terminology id
+          rel.setTerminologyId("");
+          rel.setFrom(concept);
+          rel.setTo(toConcept);
+          rel.setAssertedDirection(true);
+          rel.setGroup(null);
+          rel.setInferred(false);
+          rel.setStated(true);
+          // This is an "isa" rel.
+          rel.setRelationshipType("subClassOf");
+          String subClassOfRel =
+              getConfigurableValue(terminology, "subClassOf");
+          if (subClassOfRel == null) {
+            rel.setAdditionalRelationshipType("");
+          } else if (relaMap.containsKey(subClassOfRel)) {
+            rel.setAdditionalRelationshipType(subClassOfRel);
+          } else {
+            throw new Exception(
+                "configurable subClassOf rel does not exist as an additionalRelationshipType: "
+                    + subClassOfRel);
+          }
+          rels.add(rel);
+
+        }
+
+      }
+
+    }
+
+    // TODO: verify that there are not duplicates.
+    return rels;
+  }
+
+  /**
    * Helper method to extract annotation properties attached to a class.
    *
    * @param owlClass the owl class
@@ -692,12 +784,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         continue;
       }
       final Atom atom = new AtomJpa();
+      setCommonFields(atom);
       atom.setTerminologyId("");
-      atom.setTimestamp(currentDate);
-      atom.setLastModified(currentDate);
-      atom.setLastModifiedBy(loader);
-      atom.setObsolete(false);
-      atom.setSuppressible(false);
       // everything after the #
       atom.setConceptId(getTerminologyId(owlClass.getIRI()));
       atom.setDescriptorId("");
@@ -711,10 +799,6 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       generalEntryValues.add(atom.getTermType());
       termTypes.add(atom.getTermType());
       atom.setName(getValue(annotation));
-      atom.setTerminology(terminology);
-      atom.setVersion(version);
-      atom.setPublished(true);
-      atom.setPublishable(true);
       atom.setWorkflowStatus(published);
       atoms.add(atom);
     }
@@ -740,19 +824,11 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         continue;
       }
       final Attribute attribute = new AttributeJpa();
+      setCommonFields(attribute);
       attribute.setTerminologyId("");
-      attribute.setTimestamp(currentDate);
-      attribute.setLastModified(currentDate);
-      attribute.setLastModifiedBy(loader);
-      attribute.setObsolete(false);
-      attribute.setSuppressible(false);
       attribute.setName(getName(annotation));
       attribute.setValue(getValue(annotation));
       generalEntryValues.add(attribute.getName());
-      attribute.setTerminology(terminology);
-      attribute.setVersion(version);
-      attribute.setPublished(true);
-      attribute.setPublishable(true);
       attributes.add(attribute);
     }
     return attributes;
@@ -769,7 +845,9 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private String getLanguage(OWLAnnotation annotation) throws Exception {
     if (annotation.getValue() instanceof OWLLiteral) {
       return ((OWLLiteral) annotation.getValue()).getLang();
-    } else {
+    }
+    // ASSUMPTION: annotation is an OWLLiteral
+    else {
       throw new Exception("Unexpected annotation that is not OWLLiteral");
     }
   }
@@ -785,7 +863,9 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private String getValue(OWLAnnotation annotation) throws Exception {
     if (annotation.getValue() instanceof OWLLiteral) {
       return ((OWLLiteral) annotation.getValue()).getLiteral();
-    } else {
+    }
+    // ASSUMPTION: annotation is an OWLLiteral
+    else {
       throw new Exception("Unexpected annotation that is not OWLLiteral");
     }
   }
@@ -795,11 +875,11 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    *
    * @param tty the tty
    * @return the string
+   * @throws Exception
    */
-  private boolean isPreferredType(String tty) {
+  private boolean isPreferredType(String tty) throws Exception {
 
-    // TODO: make this configurable
-    if (tty.equals("Description.term.en-us.preferred")) {
+    if (tty.equals(getConfigurableValue(terminology, "preferredType"))) {
       return true;
     }
 
@@ -817,7 +897,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @return the terminology id
    */
   @SuppressWarnings("static-method")
-  private String getTerminologyId(IRI iri) {
+  String getTerminologyId(IRI iri) {
     // TODO: we probably need to save information about the parts of the URL we
     // are stripping
     if (iri.toString().contains("#")) {
@@ -836,8 +916,9 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    *
    * @param annotation the annotation
    * @return <code>true</code> if so, <code>false</code> otherwise
+   * @throws Exception
    */
-  private boolean isAtomAnnotation(OWLAnnotation annotation) {
+  private boolean isAtomAnnotation(OWLAnnotation annotation) throws Exception {
     final String name = getName(annotation);
     if (name.equals(label)) {
       return true;
@@ -847,15 +928,18 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       return true;
     }
 
-    // TODO: make this configurable
-    if (name.equals("Description.term.en-us.preferred")) {
-      return true;
-    }
-    if (name.equals("Description.term.en-us.synonym")) {
-      return true;
-    }
-    if (name.equals("hasExactSynonym")) {
-      return true;
+    String atomAnnotations =
+        getConfigurableValue(terminology, "atomAnnotations");
+    if (atomAnnotations != null) {
+      for (String field : FieldedStringTokenizer.split(atomAnnotations, ",")) {
+        if (name.equals(field)) {
+          return true;
+        }
+      }
+    } else {
+      Logger.getLogger(getClass()).warn(
+          "  NO atom annotations are specifically declared, "
+              + "just using rdfs:label and rdfs:comment");
     }
 
     return false;
@@ -922,21 +1006,40 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     loadDataProperties(ontology);
 
     //
-    // Load concepts and atoms
+    // Load concepts, atoms, and attributes
     //
-    Logger.getLogger(getClass()).info("  Load Concepts and Atoms");
+    Logger.getLogger(getClass()).info("  Load Concepts, atoms, and attributes");
     OWLOntologyWalker walker =
         new OWLOntologyWalker(Collections.singleton(ontology));
-    // Now ask our walker to walk over the ontology
     objectCt = 0;
-
     OWLOntologyWalkerVisitor visitor = new OWLOntologyWalkerVisitor(walker) {
       @Override
-      public void visit(OWLClass owlClass) {
-        Logger.getLogger(getClass()).info("  class = " + owlClass);
-
+      public void visit(final OWLClass owlClass) {
         try {
-          loadOwlClass(owlClass, ontology);
+
+          // If we've already encountered this class, just skip it
+          if (idMap.containsKey(getTerminologyId(owlClass.getIRI()))) {
+            return;
+          }
+
+          // Get the concept object
+          final Concept concept =
+              getConceptForOwlClassExpression(owlClass, ontology, 0);
+
+          // Persist the concept object
+          for (Atom atom : concept.getAtoms()) {
+            Logger.getLogger(getClass()).debug("  add atom = " + atom);
+            addAtom(atom);
+          }
+          for (Attribute attribute : concept.getAttributes()) {
+            Logger.getLogger(getClass())
+                .debug("  add attribute = " + attribute);
+            addAttribute(attribute, concept);
+          }
+          Logger.getLogger(getClass()).debug("  add concept = " + concept);
+          addConcept(concept);
+          idMap.put(concept.getTerminologyId(), concept.getId());
+
           logAndCommit(++objectCt);
 
         } catch (Exception e) {
@@ -949,8 +1052,46 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     commitClearBegin();
 
     //
-    // Relationships/Attributes/Restrictions, etc
+    // Now go back and add relationships (and anonymous concepts)
     //
+    Logger.getLogger(getClass()).info("  Load relationships");
+    walker = new OWLOntologyWalker(Collections.singleton(ontology));
+    objectCt = 0;
+    final Set<String> visited = new HashSet<>();
+    visitor = new OWLOntologyWalkerVisitor(walker) {
+      @Override
+      public void visit(OWLClass owlClass) {
+        try {
+
+          final String terminologyId = getTerminologyId(owlClass.getIRI());
+          if (visited.contains(terminologyId)) {
+            return;
+          }
+          visited.add(terminologyId);
+
+          // ASSUMPTION: concept exists
+          final Concept concept = getConcept(idMap.get(terminologyId));
+
+          for (final ConceptRelationship rel : getRelationships(concept,
+              owlClass, ontology)) {
+
+            // TODO: what about embedded anonymous concepts and such?
+            // assume they are already added.
+            Logger.getLogger(getClass()).debug("  add relationship = " + rel);
+            addRelationship(rel);
+            concept.addRelationship(rel);
+          }
+          updateConcept(concept);
+          logAndCommit(++objectCt);
+
+        } catch (Exception e) {
+          throw new RuntimeException("Unexpected error.", e);
+        }
+
+      }
+    };
+    walker.walkStructure(visitor);
+    commitClearBegin();
 
   }
 
@@ -970,6 +1111,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       final AdditionalRelationshipType rela =
           new AdditionalRelationshipTypeJpa();
+      setCommonFields(rela);
 
       rela.setAbbreviation(getTerminologyId(prop.getIRI()));
       rela.setAsymmetric(ontology.getAsymmetricObjectPropertyAxioms(prop)
@@ -982,10 +1124,14 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         if (axiom.getDomain() instanceof OWLClass) {
           rela.setDomainId(getTerminologyId(((OWLClass) axiom.getDomain())
               .getIRI()));
-        } else {
+        }
+        // ASSUMPTION: object property domain is an OWLClass
+        else {
           throw new Exception("Unexpected domain type, not class");
         }
-      } else if (ontology.getObjectPropertyDomainAxioms(prop).size() > 1) {
+      }
+      // ASSUMPTION: object property has only one domain axiom
+      else if (ontology.getObjectPropertyDomainAxioms(prop).size() > 1) {
         throw new Exception("Unexpectedly more than one domain axiom");
       }
 
@@ -997,10 +1143,14 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         if (axiom.getRange() instanceof OWLClass) {
           rela.setRangeId(getTerminologyId(((OWLClass) axiom.getRange())
               .getIRI()));
-        } else {
+        }
+        // ASSUMPTION: object property rangeis an OWLClass
+        else {
           throw new Exception("Unexpected range type, not class");
         }
-      } else if (ontology.getObjectPropertyRangeAxioms(prop).size() > 1) {
+      }
+      // ASSUMPTION: object property has only one range axiom
+      else if (ontology.getObjectPropertyRangeAxioms(prop).size() > 1) {
         throw new Exception("Unexpectedly more than one range axiom");
       }
 
@@ -1025,25 +1175,23 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           .size() != 0);
       rela.setReflexive(ontology.getReflexiveObjectPropertyAxioms(prop).size() != 0);
 
-      rela.setLastModified(releaseVersionDate);
-      rela.setLastModifiedBy(loader);
-      rela.setPublishable(true);
-      rela.setPublished(true);
-
       Logger.getLogger(getClass()).info(
           "    terminologyId = " + getTerminologyId(prop.getIRI()));
 
-      // Check assumptions
+      // ASSUMPTION: object property has no annotations
       if (prop.getAnnotationPropertiesInSignature().size() > 0) {
         throw new Exception(
             "Unexpected annotation properties on OWLObjectProperty.");
       }
+      // ASSUMPTION: object property has no classes in signature
       if (prop.getClassesInSignature().size() > 0) {
         throw new Exception("Unexpected classes on OWLObjectProperty.");
       }
+      // ASSUMPTION: object property has no data properties
       if (prop.getDataPropertiesInSignature().size() > 0) {
         throw new Exception("Unexpected data properties on OWLObjectProperty.");
       }
+      // ASSUMPTION: object property has no nested class expressions
       if (prop.getNestedClassExpressions().size() > 0) {
         throw new Exception(
             "Unexpected nested class expressions on OWLObjectProperty.");
@@ -1056,7 +1204,9 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         OWLObjectProperty iprop = axiom.getSecondProperty().getNamedProperty();
         inverses.put(rela.getAbbreviation(), getTerminologyId(iprop.getIRI()));
 
-      } else if (ontology.getInverseObjectPropertyAxioms(prop).size() > 1) {
+      }
+      // ASSUMPTION: object property has at most one inverse
+      else if (ontology.getInverseObjectPropertyAxioms(prop).size() > 1) {
         throw new Exception(
             "Unexpected more than one inverse object property axiom");
       }
@@ -1070,14 +1220,14 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             axiom.getSuperProperty().getNamedProperty();
         parChd
             .put(getTerminologyId(superProp.getIRI()), rela.getAbbreviation());
-      } else if (ontology.getObjectSubPropertyAxiomsForSubProperty(prop).size() > 1) {
+      }
+      // ASSUMPTION: object property has at most one super property
+      else if (ontology.getObjectSubPropertyAxiomsForSubProperty(prop).size() > 1) {
         throw new Exception("Unexpected more than one super property");
       }
 
       // Add rela
       Logger.getLogger(getClass()).debug("  add rela - " + rela);
-      rela.setTerminology(terminology);
-      rela.setVersion(version);
       addAdditionalRelationshipType(rela);
       relaMap.put(rela.getAbbreviation(), rela);
     }
@@ -1102,7 +1252,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       chd.setSuperType(par);
       updateAdditionalRelationshipType(chd);
     }
-    
+
     // Add property chains
     // Only way I could find to access property chains
     for (OWLSubPropertyChainOfAxiom prop : ontology.getAxioms(
@@ -1120,6 +1270,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
       PropertyChain chain = new PropertyChainJpa();
+      setCommonFields(chain);
       StringBuilder abbreviation = new StringBuilder();
       for (String link : links) {
         abbreviation.append(link).append(" o ");
@@ -1128,14 +1279,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           + superProp);
       chain.setChain(types);
       chain.setExpandedForm(chain.getAbbreviation());
-      chain.setTimestamp(releaseVersionDate);
-      chain.setLastModified(releaseVersionDate);
-      chain.setLastModifiedBy(loader);
-      chain.setPublishable(true);
-      chain.setPublished(true);
       chain.setResult(relaMap.get(superProp));
-      chain.setTerminology(terminology);
-      chain.setVersion(version);
 
       Logger.getLogger(getClass()).debug("  add property chain - " + chain);
       addPropertyChain(chain);
@@ -1154,25 +1298,21 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     for (OWLAnnotationProperty prop : ontology
         .getAnnotationPropertiesInSignature()) {
+
       logAnnotationProperty(prop, ontology);
 
       final AttributeName atn = new AttributeNameJpa();
+      setCommonFields(atn);
       atn.setAbbreviation(getTerminologyId(prop.getIRI()));
       atn.setAnnotation(true);
       atn.setExistentialQuantification(true);
       atn.setUniversalQuantification(false);
       atn.setExpandedForm(prop.getIRI().toString());
-      atn.setLastModified(releaseVersionDate);
-      atn.setLastModifiedBy(loader);
-      atn.setPublishable(true);
-      atn.setPublished(true);
       Logger.getLogger(getClass()).info(
           "    terminologyId = " + getTerminologyId(prop.getIRI()));
 
       // Add rela
       Logger.getLogger(getClass()).debug("  add atn - " + atn);
-      atn.setTerminology(terminology);
-      atn.setVersion(version);
       addAttributeName(atn);
       atnMap.put(atn.getAbbreviation(), atn);
     }
@@ -1195,7 +1335,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       logDataProperty(prop, ontology);
 
       final AttributeName atn = new AttributeNameJpa();
-
+      setCommonFields(atn);
       atn.setAbbreviation(getTerminologyId(prop.getIRI()));
 
       // domain
@@ -1206,10 +1346,14 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         if (axiom.getDomain() instanceof OWLClass) {
           atn.setDomainId(getTerminologyId(((OWLClass) axiom.getDomain())
               .getIRI()));
-        } else {
+        }
+        // ASSUMPTION: data property domain is not an OWLClass
+        else {
           throw new Exception("Unexpected domain type, not class");
         }
-      } else if (ontology.getDataPropertyDomainAxioms(prop).size() > 1) {
+      }
+      // ASSUMPTION: data property has at most one domains
+      else if (ontology.getDataPropertyDomainAxioms(prop).size() > 1) {
         throw new Exception("Unexpectedly more than one domain axiom");
       }
 
@@ -1218,14 +1362,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       atn.setExistentialQuantification(true);
       atn.setUniversalQuantification(false);
-
       atn.setExpandedForm(prop.getIRI().toString());
-
       atn.setFunctional(ontology.getFunctionalDataPropertyAxioms(prop).size() != 0);
-      atn.setLastModified(releaseVersionDate);
-      atn.setLastModifiedBy(loader);
-      atn.setPublishable(true);
-      atn.setPublished(true);
 
       Logger.getLogger(getClass()).info(
           "    terminologyId = " + getTerminologyId(prop.getIRI()));
@@ -1238,14 +1376,14 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         OWLDataProperty superProp =
             axiom.getSuperProperty().asOWLDataProperty();
         parChd.put(getTerminologyId(superProp.getIRI()), atn.getAbbreviation());
-      } else if (ontology.getDataSubPropertyAxiomsForSubProperty(prop).size() > 1) {
+      }
+      // ASSUMPTION: data property has at most one super property
+      else if (ontology.getDataSubPropertyAxiomsForSubProperty(prop).size() > 1) {
         throw new Exception("Unexpected more than one super property");
       }
 
       // Add rela
       Logger.getLogger(getClass()).debug("  add atns - " + atn);
-      atn.setTerminology(terminology);
-      atn.setVersion(version);
       addAttributeName(atn);
       atnMap.put(atn.getAbbreviation(), atn);
     }
@@ -1633,76 +1771,134 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /**
    * Load owl class.
    *
-   * @param owlClass the owl class
+   * @param expr the owl class
    * @param ontology the ontology
+   * @param level the level
    * @return the concept
    * @throws Exception the exception
    */
-  Concept loadOwlClass(OWLClass owlClass, OWLOntology ontology)
-    throws Exception {
-    logOwlClass(owlClass, ontology);
+  Concept getConceptForOwlClassExpression(OWLClassExpression expr,
+    OWLOntology ontology, int level) throws Exception {
 
-    final Concept concept = new ConceptJpa();
-    concept.setTimestamp(currentDate);
-    concept.setObsolete(false);
-    concept.setSuppressible(false);
-    concept.setFullyDefined(false);
-    concept.setName(initPrefName);
-    concept.setLastModified(currentDate);
-    concept.setLastModifiedBy(loader);
-    concept.setPublished(true);
-    concept.setPublishable(true);
-    concept.setTerminologyId(getTerminologyId(owlClass.getIRI()));
-    concept.setTerminology(terminology);
-    concept.setVersion(version);
+    // Log it
+    if (expr instanceof OWLClass) {
+      logOwlClass((OWLClass) expr, ontology);
+    } else {
+      logOwlClassExpression(expr, ontology);
+    }
+
+    // Handle direct OWLClass
+    if (expr instanceof OWLClass) {
+      return getConceptForOwlClass((OWLClass) expr, ontology, level);
+    }
+
+    // Handle ObjectIntersectionOf
+    else if (expr instanceof OWLObjectIntersectionOf) {
+      return getConceptForIntersection((OWLObjectIntersectionOf) expr,
+          ontology, level);
+    }
+
+    // Handle Restriction
+    else if (expr instanceof OWLRestriction) {
+      return getConceptForRestriction((OWLRestriction) expr, ontology, level);
+    }
+
+    // Handle ObjectSomeValuesFrom
+    else if (expr instanceof OWLObjectSomeValuesFrom) {
+      return getConceptForSomeValuesFrom((OWLObjectSomeValuesFrom) expr,
+          ontology, level);
+
+    }
+
+    else {
+      throw new Exception("Unexpected class expression type - "
+          + expr.getClassExpressionType());
+    }
+
+  }
+
+  /**
+   * Returns the concept for owl class.
+   *
+   * @param owlClass the owl class
+   * @param ontology the ontology
+   * @param level the level
+   * @return the concept for owl class
+   * @throws Exception the exception
+   */
+  Concept getConceptForOwlClass(OWLClass owlClass, OWLOntology ontology,
+    int level) throws Exception {
+    Logger.getLogger(getClass()).info(
+        "  handling OWLClass " + owlClass.getIRI());
+    // If class already exists, simply return it.
+    if (idMap.containsKey(getTerminologyId(owlClass.getIRI()))) {
+      return getConcept(idMap.get(getTerminologyId(owlClass.getIRI())));
+    }
+
+    Concept concept = new ConceptJpa();
+
+    // Standard settings
+    setCommonFields(concept);
     concept.setWorkflowStatus(published);
 
     // Currently only OWL EL 2 is supported - no union
     concept.setUsesRelationshipUnion(false);
     concept.setUsesRelationshipIntersection(true);
 
-    // first determine if this is an "equivalent class" situation
+    // Set fully defined
     if (ontology.getEquivalentClassesAxioms(owlClass).size() > 0) {
 
-      //
-
+      // ASSUMPTION: only one equivalent class statement
+      if (ontology.getEquivalentClassesAxioms(owlClass).size() > 1) {
+        throw new Exception(
+            "Unexpected more than one equivalent class axiom for " + owlClass);
+      }
       concept.setFullyDefined(true);
-      concept.setAnonymous(false);
-
     } else {
-
-      // Create concept
-      concept.setAnonymous(owlClass.isAnonymous());
-
-      // Lookup and create atoms (from annotations)
-      final Set<Atom> atoms = getAtoms(owlClass, ontology);
-      boolean flag = true;
-      for (Atom atom : atoms) {
-        Logger.getLogger(getClass()).info("  add atom = " + atom);
-        addAtom(atom);
-        // Use first RDFS label as the preferred name
-        if (flag && isPreferredType(atom.getTermType())) {
-          concept.setName(atom.getName());
-          flag = false;
-        }
-        concept.addAtom(atom);
-      }
-
-      // Lookup and create attributes (from annotations)
-      final Set<Attribute> attributes = getAttributes(owlClass, ontology);
-      for (Attribute attribute : attributes) {
-        Logger.getLogger(getClass()).info("  add attribute = " + attribute);
-        addAttribute(attribute, concept);
-        concept.addAttribute(attribute);
-      }
-
-      // TODO: relationships (may call back to this method)
-
+      concept.setFullyDefined(false);
     }
 
-    Logger.getLogger(getClass()).info("  add concept  = " + concept);
-    addConcept(concept);
-    idMap.put(concept.getTerminologyId(), concept.getId());
+    // Set anonymous flag and identifier
+    if (owlClass.isAnonymous()) {
+      concept.setAnonymous(true);
+      String uuid = TerminologyUtility.getUuid(owlClass.toString()).toString();
+      // Check for an already existing, matching anonymous class
+      if (idMap.containsKey(uuid)) {
+        concept = getConcept(idMap.get(uuid));
+      } else {
+        concept.setTerminologyId(uuid);
+      }
+      Logger.getLogger(getClass()).info(
+          "  anonymous class = " + uuid + ", " + concept);
+
+    } else {
+      concept.setAnonymous(owlClass.isAnonymous());
+      concept.setFullyDefined(false);
+      concept.setTerminologyId(getTerminologyId(owlClass.getIRI()));
+    }
+
+    //
+    // Lookup and create atoms (from annotations)
+    //
+    final Set<Atom> atoms = getAtoms(owlClass, ontology);
+    boolean flag = true;
+    for (Atom atom : atoms) {
+      // Use first RDFS label as the preferred name
+      if (flag && isPreferredType(atom.getTermType())) {
+        concept.setName(atom.getName());
+        flag = false;
+      }
+      concept.addAtom(atom);
+    }
+
+    //
+    // Lookup and create attributes (from annotations)
+    //
+    final Set<Attribute> attributes = getAttributes(owlClass, ontology);
+    for (Attribute attribute : attributes) {
+      concept.addAttribute(attribute);
+
+    }
     return concept;
   }
 
@@ -1828,17 +2024,341 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         Logger.getLogger(getClass()).debug(
             "          lang = "
                 + ((OWLLiteral) annotation.getValue()).getLang());
-      } else {
-        throw new Exception("Unexpected annotation that is not OWLLiteral");
       }
     }
 
+    // Logger.getLogger(getClass()).debug(
+    // "    all axioms = " + ontology.getAxioms(owlClass, Imports.EXCLUDED));
+    // for (OWLClassAxiom axiom : ontology.getAxioms(owlClass,
+    // Imports.EXCLUDED)) {
+    // Logger.getLogger(getClass()).debug("      axiom = " + axiom);
+    // }
+
+  }
+
+  void logOwlClassExpression(OWLClassExpression expr, OWLOntology ontology)
+    throws Exception {
+    Logger.getLogger(getClass()).info("  class expression = " + expr);
+
+    Logger.getLogger(getClass())
+        .debug("    signature = " + expr.getSignature());
+
     Logger.getLogger(getClass()).debug(
-        "    all axioms = " + ontology.getAxioms(owlClass, Imports.EXCLUDED));
-    for (OWLClassAxiom axiom : ontology.getAxioms(owlClass, Imports.EXCLUDED)) {
+        "    class expression type = " + expr.getClassExpressionType());
+    Logger.getLogger(getClass()).debug("    anonymous = " + expr.isAnonymous());
+    Logger.getLogger(getClass()).debug(
+        "    class expression type = " + expr.getClassExpressionType());
+
+    // Things connected to the class
+    Logger.getLogger(getClass()).debug(
+        "    annotation properties in signature = "
+            + expr.getAnnotationPropertiesInSignature().size());
+    for (OWLAnnotationProperty prop : expr.getAnnotationPropertiesInSignature()) {
+      Logger.getLogger(getClass()).debug("      prop = " + prop);
+    }
+
+    Logger.getLogger(getClass()).debug(
+        "    data type properties in signature = "
+            + expr.getDataPropertiesInSignature().size());
+    for (OWLDataProperty prop : expr.getDataPropertiesInSignature()) {
+      Logger.getLogger(getClass()).debug("      prop = " + prop);
+    }
+
+    Logger.getLogger(getClass()).debug(
+        "    object properties in signature = "
+            + expr.getObjectPropertiesInSignature());
+    for (OWLObjectProperty prop : expr.getObjectPropertiesInSignature()) {
+      Logger.getLogger(getClass()).debug("      prop = " + prop);
+    }
+
+    Logger.getLogger(getClass()).debug(
+        "    nested class expressions = "
+            + expr.getNestedClassExpressions().size());
+    for (OWLClassExpression expr2 : expr.getNestedClassExpressions()) {
+      Logger.getLogger(getClass()).debug("      class expr = " + expr2);
+    }
+
+    // things connected to ontology
+
+    Logger.getLogger(getClass()).debug(
+        "    class assertion axioms = "
+            + ontology.getClassAssertionAxioms(expr).size());
+    for (OWLClassAssertionAxiom axiom : ontology.getClassAssertionAxioms(expr)) {
       Logger.getLogger(getClass()).debug("      axiom = " + axiom);
     }
 
+  }
+
+  /**
+   * Returns the concept for intersection.
+   *
+   * @param expr the expr
+   * @param ontology the ontology
+   * @param level the level
+   * @return the concept for intersection
+   * @throws Exception
+   */
+  Concept getConceptForIntersection(OWLObjectIntersectionOf expr,
+    OWLOntology ontology, int level) throws Exception {
+    String uuid = TerminologyUtility.getUuid(expr.toString()).toString();
+
+    Logger.getLogger(getClass()).info(
+        "  handling OWLObjectIntersectionOf " + uuid);
+
+    if (idMap.containsKey(uuid)) {
+      return getConcept(idMap.get(uuid));
+    }
+
+    Concept concept = new ConceptJpa();
+    setCommonFields(concept);
+    concept.setAnonymous(true);
+    concept.setTerminologyId(uuid);
+
+    // Handle nested class expressions
+    if (expr.getNestedClassExpressions().size() > 1) {
+
+      // Iterate through expressions and either add a parent relationship
+      // or add relationships from the concept itself. no new anonymous
+      // concepts are created here.
+      for (OWLClassExpression expr2 : expr.getNestedClassExpressions()) {
+        final Concept concept2 =
+            getConceptForOwlClassExpression(expr2, ontology, level + 1);
+        // If it's a restriction, borrow its relationships
+        if (expr2 instanceof OWLRestriction) {
+          for (ConceptRelationship rel : concept2.getRelationships()) {
+            // rewire the "from" concept to this one and add the rel
+            rel.setFrom(concept);
+            concept.addRelationship(rel);
+          }
+        }
+        // otherwise, simply add this concept as a parent
+        else {
+          ConceptRelationship rel = new ConceptRelationshipJpa();
+          setCommonFields(rel);
+          rel.setRelationshipType("subClassOf");
+          rel.setFrom(concept);
+          rel.setTo(concept2);
+          rel.setAssertedDirection(true);
+          rel.setInferred(false);
+          rel.setStated(true);
+          concept.addRelationship(rel);
+        }
+      }
+
+      return concept;
+
+    }
+
+    // ASSUMPTION: intersection has at least two sub-expressions
+    else {
+      throw new Exception(
+          "Unexpected number of intersection nested class expressions - "
+              + expr);
+    }
+
+  }
+
+  /**
+   * Returns the concept for restriction.
+   *
+   * @param expr the expr
+   * @param ontology the ontology
+   * @param level the level
+   * @return the concept for restriction
+   * @throws Exception the exception
+   */
+  Concept getConceptForRestriction(OWLRestriction expr, OWLOntology ontology,
+    int level) throws Exception {
+    String uuid = TerminologyUtility.getUuid(expr.toString()).toString();
+
+    Logger.getLogger(getClass()).info("  handling OWLRestriction " + uuid);
+
+    if (idMap.containsKey(uuid)) {
+      return getConcept(idMap.get(uuid));
+    }
+
+    Concept concept = new ConceptJpa();
+    setCommonFields(concept);
+    concept.setAnonymous(true);
+    concept.setTerminologyId(uuid);
+
+    // Handle nested class expressions
+    if (expr.getNestedClassExpressions().size() > 1) {
+
+      // A restriction is expected to have an "on property"
+      // and a "some values from". Any other combination is disallowed
+      // The "some values from" may be anonymous, in which case it needs to be
+      // added at this point
+
+      // for now, only an object property is supported
+      if (!(expr.getProperty() instanceof OWLObjectProperty)) {
+        throw new Exception(
+            "Unexpected OWLRestriction property type, not OWLObjectProperty - "
+                + expr.getProperty());
+      }
+
+      // also, only one nested class expression is supported
+      if (expr.getNestedClassExpressions().size() != 1) {
+        throw new Exception(
+            "Unexpected OWLRestriction nested expression countnot 1 - "
+                + expr.getNestedClassExpressions());
+      }
+
+      OWLObjectProperty property = (OWLObjectProperty) expr.getProperty();
+      OWLClassExpression expr2 =
+          expr.getNestedClassExpressions().iterator().next();
+      Concept concept2 =
+          getConceptForOwlClassExpression(expr2, ontology, level + 1);
+      ConceptRelationship rel = new ConceptRelationshipJpa();
+      setCommonFields(rel);
+      rel.setRelationshipType("other");
+      rel.setAdditionalRelationshipType(getTerminologyId(property.getIRI()));
+      rel.setFrom(concept);
+      rel.setTo(concept2);
+      rel.setAssertedDirection(true);
+      rel.setInferred(false);
+      rel.setStated(true);
+      concept.addRelationship(rel);
+
+      return concept;
+
+    }
+
+    // ASSUMPTION: intersection has at least two sub-expressions
+    else {
+      throw new Exception(
+          "Unexpected number of intersection nested class expressions - "
+              + expr);
+    }
+
+  }
+
+  /**
+   * Adds the anonymous concept.
+   *
+   * @param concept the concept
+   * @throws Exception the exception
+   */
+  private void addAnonymousConcept(Concept concept) throws Exception {
+    if (concept.isAnonymous() && !idMap.containsKey(concept.getTerminologyId())) {
+      addConcept(concept);
+      idMap.put(concept.getTerminologyId(), concept.getId());
+
+      // ASSUMPTION - the concept has no atoms or attributes
+      if (concept.getAtoms().size() > 0 || concept.getAttributes().size() > 0) {
+        throw new Exception(
+            "Unexpected anonymous concept with atoms or attributes");
+      }
+
+      for (ConceptRelationship rel : concept.getRelationships()) {
+        addRelationship(rel);
+      }
+    }
+  }
+
+  /**
+   * Returns the concept for some values from.
+   *
+   * @param expr the expr
+   * @param ontology the ontology
+   * @param level the level
+   * @return the concept for some values from
+   * @throws Exception the exception
+   */
+  Concept getConceptForSomeValuesFrom(OWLObjectSomeValuesFrom expr,
+    OWLOntology ontology, int level) throws Exception {
+    String uuid = TerminologyUtility.getUuid(expr.toString()).toString();
+
+    Logger.getLogger(getClass()).info(
+        "  handling OWLObjectSomeValuesFrom " + uuid);
+
+    if (idMap.containsKey(uuid)) {
+      return getConcept(idMap.get(uuid));
+    }
+
+    // Here we are expecting nested expressions to be either
+    // an OWLClass or an intersectionOf.
+    if (expr.getNestedClassExpressions().size() != 1) {
+      throw new Exception(
+          "Unexpected number of nested class expressions in ObjectSomeValuesFrom - "
+              + expr.getNestedClassExpressions());
+    }
+
+    OWLClassExpression expr2 =
+        expr.getNestedClassExpressions().iterator().next();
+
+    // If a class, simply return the class
+    if (expr2 instanceof OWLClass) {
+      return getConceptForOwlClassExpression(expr2, ontology, level + 1);
+    }
+
+    // If it is an intersection, we have a legit anonymous class
+    // add and return it.
+    if (expr2 instanceof OWLObjectIntersectionOf) {
+      Concept concept =
+          getConceptForOwlClassExpression(expr2, ontology, level + 1);
+      addAnonymousConcept(concept);
+      return concept;
+    }
+
+    // Otherwise throw an exception
+    else {
+      throw new Exception(
+          "Unexpected nested class expression type for ObjectSomeValuesFrom "
+              + expr.getNestedClassExpressions());
+    }
+
+  }
+
+  /**
+   * Sets the common fields.
+   *
+   * @param component the common fields
+   */
+  private void setCommonFields(Component component) {
+    component.setTerminology(terminology);
+    component.setVersion(version);
+    component.setTimestamp(releaseVersionDate);
+    component.setLastModified(releaseVersionDate);
+    component.setLastModifiedBy(loader);
+    component.setPublishable(true);
+    component.setPublished(true);
+    component.setObsolete(false);
+    component.setSuppressible(false);
+  }
+
+  /**
+   * Sets the common fields.
+   *
+   * @param abbreviation the common fields
+   */
+  private void setCommonFields(Abbreviation abbreviation) {
+    abbreviation.setTerminology(terminology);
+    abbreviation.setVersion(version);
+    abbreviation.setTimestamp(releaseVersionDate);
+    abbreviation.setLastModified(releaseVersionDate);
+    abbreviation.setLastModifiedBy(loader);
+    abbreviation.setPublishable(true);
+    abbreviation.setPublished(true);
+
+  }
+
+  /**
+   * Returns the configurable value.
+   *
+   * @param terminology the terminology
+   * @param key the key
+   * @return the configurable value
+   * @throws Exception
+   */
+  private String getConfigurableValue(String terminology, String key)
+    throws Exception {
+    Properties p = ConfigUtility.getConfigProperties();
+    String fullKey = getClass().getName() + "." + terminology + "." + key;
+    if (p.containsKey(fullKey)) {
+      return p.getProperty(fullKey);
+    }
+    return null;
   }
 
 }

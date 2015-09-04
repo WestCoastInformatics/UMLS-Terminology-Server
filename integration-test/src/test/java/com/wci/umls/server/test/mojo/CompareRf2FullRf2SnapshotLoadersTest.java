@@ -192,6 +192,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     for (String prop : fullStats.keySet()) {
       Assert.assertEquals(fullStats.get(prop), snapStats.get(prop));
     }
+    Assert.assertEquals(fullStats, snapStats);
 
     // Finish by clearing the DB again
     request = new DefaultInvocationRequest();
