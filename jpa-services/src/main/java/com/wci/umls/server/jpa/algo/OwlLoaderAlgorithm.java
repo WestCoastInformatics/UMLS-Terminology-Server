@@ -332,24 +332,31 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         //
         // Compliance testing - OWL 2 EL
         //
-        OWL2ELProfile profile = new OWL2ELProfile();
-        OWLProfileReport report = profile.checkOntology(directOntology);
-        if (!report.isInProfile()) {
-
-          boolean flag = false;
-          for (OWLProfileViolation violation : report.getViolations()) {
-            // Allow violation: Use of undeclared annotation property
-            if (violation.toString().indexOf(
-                "Use of undeclared annotation property") == -1) {
-              flag = true;
-              break;
-            }
-          }
-          if (flag) {
-            throw new Exception("OWL is not in expected profile OWL EL 2 - "
-                + report);
-          }
-        }
+        // TODO: have an EL2Profile loader and a 2DL profile loader
+//        OWL2ELProfile profile = new OWL2ELProfile();
+//        OWLProfileReport report = profile.checkOntology(directOntology);
+//        if (!report.isInProfile()) {
+//
+//          boolean flag = false;
+//          for (OWLProfileViolation violation : report.getViolations()) {
+//            // Allow violation: Use of undeclared annotation property
+//            if (violation.toString().indexOf(
+//                "Use of undeclared annotation property") == -1) {
+//              flag = true;
+//              break;
+//            }
+//            if (violation.toString().indexOf(
+//                "Cannot pun between properties") == -1) {
+//              flag = true;
+//              break;
+//            }
+//            
+//          }
+//          if (flag) {
+//            throw new Exception("OWL is not in expected profile OWL EL 2 - "
+//                + report);
+//          }
+//        }
 
         Logger.getLogger(getClass()).info("Processing ontology - " + ontology);
         loadOntology(ontology);
