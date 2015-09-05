@@ -18,6 +18,7 @@ import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DefinitionList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.GeneralConceptAxiomList;
 import com.wci.umls.server.helpers.content.LexicalClassList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.StringClassList;
@@ -36,6 +37,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.GeneralConceptAxiom;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -149,7 +151,7 @@ public interface ContentService extends MetadataService {
    * @param query the query
    * @param pfs the pfs
    * @return the subset members
-   * @throws Exception
+   * @throws Exception the exception
    */
   public SubsetMemberList findAtomSubsetMembers(String subsetId,
     String terminology, String version, String branch, String query,
@@ -201,12 +203,12 @@ public interface ContentService extends MetadataService {
    * @param conceptId the concept id
    * @param terminology the terminology
    * @param version the version
-   * @param query the query
    * @param branch the branch
+   * @param query the query
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for concept
-   * @throws Exception
+   * @throws Exception the exception
    */
   public RelationshipList findRelationshipsForConcept(String conceptId,
     String terminology, String version, String branch, String query,
@@ -237,29 +239,29 @@ public interface ContentService extends MetadataService {
    * @param descriptorId the descriptor id
    * @param terminology the terminology
    * @param version the version
-   * @param query the query
    * @param branch the branch
+   * @param query the query
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for descriptor
-   * @throws Exception
+   * @throws Exception the exception
    */
   public RelationshipList findRelationshipsForDescriptor(String descriptorId,
     String terminology, String version, String branch, String query,
     boolean inverseFlag, PfsParameter pfs) throws Exception;
 
   /**
-   * Returns the relationships for code and query
+   * Returns the relationships for code and query.
    *
    * @param codeId the code id
    * @param terminology the terminology
    * @param version the version
-   * @param query the query
    * @param branch the branch
+   * @param query the query
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationships for code
-   * @throws Exception
+   * @throws Exception the exception
    */
   public RelationshipList findRelationshipsForCode(String codeId,
     String terminology, String version, String branch, String query,
@@ -1087,7 +1089,7 @@ public interface ContentService extends MetadataService {
    * @param version the version
    * @param branch the branch
    * @return the all subsets
-   * @throws Exception
+   * @throws Exception the exception
    */
   public SubsetList getAllSubsets(String terminology, String version,
     String branch) throws Exception;
@@ -1524,4 +1526,42 @@ public interface ContentService extends MetadataService {
     String terminologyId, String terminology, String version, String branch,
     PfsParameter pfs) throws Exception;
 
+  /**
+   * Adds the general concept axiom.
+   *
+   * @param axiom the axiom
+   * @return the subset
+   * @throws Exception the exception
+   */
+  public GeneralConceptAxiom addGeneralConceptAxiom(GeneralConceptAxiom axiom)
+    throws Exception;
+
+  /**
+   * Update general concept axiom.
+   *
+   * @param axiom the axiom
+   * @throws Exception the exception
+   */
+  public void updateGeneralConceptAxiom(GeneralConceptAxiom axiom)
+    throws Exception;
+
+  /**
+   * Removes the general concept axiom.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeGeneralConceptAxiom(Long id) throws Exception;
+
+  /**
+   * Returns the general concept axioms.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the general concept axioms
+   * @throws Exception the exception
+   */
+  public GeneralConceptAxiomList getGeneralConceptAxioms(String terminology,
+    String version, String branch) throws Exception;
 }

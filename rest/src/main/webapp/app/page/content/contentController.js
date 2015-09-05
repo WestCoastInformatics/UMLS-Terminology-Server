@@ -18,7 +18,7 @@ tsApp
         utilService, tabService, securityService, metadataService,
         contentService) {
         console.debug('configure ContentCtrl');
-        
+
         // Handle resetting tabs on "back" button
         if (tabService.selectedTab.label != 'Content') {
           tabService.setSelectedTabByLabel('Content');
@@ -346,32 +346,26 @@ tsApp
         // Get a component and set the local component data model
         // e.g. this is called when a user clicks on a search result
         $scope.getComponent = function(terminologyId, terminology, version) {
-          contentService
-            .getComponent(terminologyId, terminology, version)
-            .then(
-              function() {
-                $scope.setActiveRow($scope.component.object.terminologyId);
-                $scope.getTree(0);
-                $scope
-                  .setComponentLocalHistory($scope.component.historyIndex);
-                applyPaging();
-              });
+          contentService.getComponent(terminologyId, terminology, version)
+            .then(function() {
+              $scope.setActiveRow($scope.component.object.terminologyId);
+              $scope.getTree(0);
+              $scope.setComponentLocalHistory($scope.component.historyIndex);
+              applyPaging();
+            });
         }
 
         // Get a component and set the local component data model
         // e.g. this is called when a user clicks on a link in a report
         $scope.getComponentFromType = function(terminologyId, terminology,
           version, type) {
-          contentService
-            .getComponentFromType(terminologyId, terminology, version, type)
-            .then(
-              function() {
-                $scope.setActiveRow($scope.component.object.terminologyId);
-                $scope
-                  .setComponentLocalHistory($scope.component.historyIndex);
-                $scope.getTree(0);
-                applyPaging();
-              });
+          contentService.getComponentFromType(terminologyId, terminology,
+            version, type).then(function() {
+            $scope.setActiveRow($scope.component.object.terminologyId);
+            $scope.setComponentLocalHistory($scope.component.historyIndex);
+            $scope.getTree(0);
+            applyPaging();
+          });
         }
 
         // Find components for a programmatic query
@@ -542,16 +536,19 @@ tsApp
 
           // trigger on suppressible (model data)
           if (!$scope.showSuppressible && item.suppressible) {
+            console.debug("FALSE1");
             return false;
           }
 
           // trigger on obsolete (model data)
           if (!$scope.showObsolete && item.obsolete) {
+            console.debug("FALSE2");
             return false;
           }
 
           // trigger on applied showAtomElement flag
           if (!$scope.showAtomElement && item.atomElement) {
+            console.debug("FALSE3");
             return false;
           }
 
@@ -559,14 +556,21 @@ tsApp
           if ($scope.metadata.terminology.descriptionLogicTerminology
             && item.hasOwnProperty('stated') && $scope.showInferred
             && item.stated) {
+            console.debug("FALSE4",
+              $scope.metadata.terminology.descriptionLogicTerminology, item
+                .hasOwnProperty('stated'), $scope.showInferred, item.stated);
             return false;
           }
           if ($scope.metadata.terminology.descriptionLogicTerminology
             && item.hasOwnProperty('inferred') && !$scope.showInferred
             && item.inferred) {
+            console.debug("FALSE5",
+              $scope.metadata.terminology.descriptionLogicTerminology, item
+                .hasOwnProperty('inferred'), !$scope.showInferred,
+              item.inferred);
             return false;
           }
-
+          console.debug("TRUE");
           return true;
         }
 

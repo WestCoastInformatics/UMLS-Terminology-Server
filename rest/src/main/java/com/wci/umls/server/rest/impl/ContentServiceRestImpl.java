@@ -914,6 +914,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo.setVersion(version);
       algo.setInputFile(inputFile);
       algo.compute();
+      
+      MetadataService service = new MetadataServiceJpa();
+      service.refreshCaches();
 
       // Let service begin its own transaction
       Logger.getLogger(getClass()).info("Start computing transtive closure");
