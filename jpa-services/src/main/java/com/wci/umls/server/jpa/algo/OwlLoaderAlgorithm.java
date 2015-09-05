@@ -810,7 +810,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     // Handle top-level "equivalent class"
     if (ontology.getEquivalentClassesAxioms(owlClass).size() > 0) {
-      Logger.getLogger(getClass()).info("  EQUIVALENT class detected");
+      Logger.getLogger(getClass()).debug("  EQUIVALENT class detected");
 
       OWLEquivalentClassesAxiom axiom =
           ontology.getEquivalentClassesAxioms(owlClass).iterator().next();
@@ -861,7 +861,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       for (OWLSubClassOfAxiom axiom : ontology
           .getSubClassAxiomsForSubClass(owlClass)) {
 
-        Logger.getLogger(getClass()).info("  subClassOfAxiom = " + axiom);
+        Logger.getLogger(getClass()).debug("  subClassOfAxiom = " + axiom);
 
         // Handle axioms that point to an OWLClass
         if (axiom.getSuperClass() instanceof OWLClass) {
@@ -1046,7 +1046,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
     // ASSUMPTION: annotation is an OWLLiteral
     else {
-      throw new Exception("Unexpected annotation that is not OWLLiteral");
+      //throw new Exception("Unexpected annotation that is not OWLLiteral - " + annotation);
+      return "";
     }
   }
 
@@ -1064,7 +1065,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
     // ASSUMPTION: annotation is an OWLLiteral
     else {
-      throw new Exception("Unexpected annotation that is not OWLLiteral");
+      // throw new Exception("Unexpected annotation that is not OWLLiteral - " + annotation);
+      return annotation.getValue().toString();
     }
   }
 
@@ -1238,7 +1240,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           Logger.getLogger(getClass()).debug("  add concept = " + concept);
           addConcept(concept);
           idMap.put(concept.getTerminologyId(), concept.getId());
-
+// TODO: make this configurable
           if (rootClassChecker.isRootClass(owlClass)) {
             ConceptRelationship rel =
                 getSubClassOfRelationship(concept, topConcept);
@@ -2135,7 +2137,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else {
         concept.setTerminologyId(uuid);
       }
-      Logger.getLogger(getClass()).info(
+      Logger.getLogger(getClass()).debug(
           "  anonymous class = " + uuid + ", " + concept);
 
     } else {
@@ -2181,7 +2183,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     throws Exception {
     final String indent = getIndentForLevel(level);
     Logger.getLogger(getClass()).info(indent + "class = " + owlClass);
-    Logger.getLogger(getClass()).info(indent + "  IRI = " + owlClass.getIRI());
+    Logger.getLogger(getClass()).debug(indent + "  IRI = " + owlClass.getIRI());
 
     Logger.getLogger(getClass()).debug(
         indent + "  signature = " + owlClass.getSignature());
