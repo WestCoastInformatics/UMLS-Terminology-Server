@@ -55,9 +55,6 @@ import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubDataPropertyOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubObjectPropertyOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubPropertyChainOfAxiom;
-import org.semanticweb.owlapi.profiles.OWL2ELProfile;
-import org.semanticweb.owlapi.profiles.OWLProfileReport;
-import org.semanticweb.owlapi.profiles.OWLProfileViolation;
 import org.semanticweb.owlapi.util.OWLOntologyWalker;
 import org.semanticweb.owlapi.util.OWLOntologyWalkerVisitor;
 import org.semanticweb.owlapi.util.SimpleRootClassChecker;
@@ -219,6 +216,9 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** The current date. */
   final Date currentDate = new Date();
 
+  /** The el2 profile. */
+  final String el2Profile = "http://www.w3.org/TR/owl2-profiles/#OWL_2_EL";
+
   /**
    * Instantiates an empty {@link OwlLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -264,6 +264,11 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   }
 
   /* see superclass */
+  /**
+   * Compute.
+   *
+   * @throws Exception the exception
+   */
   @Override
   public void compute() throws Exception {
     Logger.getLogger(getClass()).info("Starting loading Owl terminology");
@@ -300,30 +305,32 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         releaseVersionDate = currentDate;
       }
 
-      // Adddd the root concept
+      // Add the root concept
       topConcept = new ConceptJpa();
-      setCommonFields(topConcept);
-      topConcept.setTerminologyId("Thing");
-      topConcept.setAnonymous(false);
-      topConcept.setFullyDefined(false);
-      topConcept.setUsesRelationshipIntersection(true);
-      topConcept.setName(getRootTerminologyPreferredName(directOntology));
-      topConcept.setWorkflowStatus(published);
-      Atom atom = new AtomJpa();
-      setCommonFields(atom);
-      atom.setName(getRootTerminologyPreferredName(directOntology));
-      atom.setDescriptorId("");
-      atom.setCodeId("");
-      atom.setLexicalClassId("");
-      atom.setStringClassId("");
-      atom.setConceptId("Thing");
-      atom.setTerminologyId("");
-      atom.setLanguage("");
-      atom.setTermType(label);
-      atom.setWorkflowStatus(published);
-      addAtom(atom);
-      topConcept.addAtom(atom);
-      addConcept(topConcept);
+      if ("true".equals(getConfigurableValue(terminology, "top"))) {
+        setCommonFields(topConcept);
+        topConcept.setTerminologyId("Thing");
+        topConcept.setAnonymous(false);
+        topConcept.setFullyDefined(false);
+        topConcept.setUsesRelationshipIntersection(true);
+        topConcept.setName(getRootTerminologyPreferredName(directOntology));
+        topConcept.setWorkflowStatus(published);
+        Atom atom = new AtomJpa();
+        setCommonFields(atom);
+        atom.setName(getRootTerminologyPreferredName(directOntology));
+        atom.setDescriptorId("");
+        atom.setCodeId("");
+        atom.setLexicalClassId("");
+        atom.setStringClassId("");
+        atom.setConceptId("Thing");
+        atom.setTerminologyId("");
+        atom.setLanguage("");
+        atom.setTermType(label);
+        atom.setWorkflowStatus(published);
+        addAtom(atom);
+        topConcept.addAtom(atom);
+        addConcept(topConcept);
+      }
       rootClassChecker =
           new SimpleRootClassChecker(directOntology.getImportsClosure());
 
@@ -333,30 +340,30 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         // Compliance testing - OWL 2 EL
         //
         // TODO: have an EL2Profile loader and a 2DL profile loader
-//        OWL2ELProfile profile = new OWL2ELProfile();
-//        OWLProfileReport report = profile.checkOntology(directOntology);
-//        if (!report.isInProfile()) {
-//
-//          boolean flag = false;
-//          for (OWLProfileViolation violation : report.getViolations()) {
-//            // Allow violation: Use of undeclared annotation property
-//            if (violation.toString().indexOf(
-//                "Use of undeclared annotation property") == -1) {
-//              flag = true;
-//              break;
-//            }
-//            if (violation.toString().indexOf(
-//                "Cannot pun between properties") == -1) {
-//              flag = true;
-//              break;
-//            }
-//            
-//          }
-//          if (flag) {
-//            throw new Exception("OWL is not in expected profile OWL EL 2 - "
-//                + report);
-//          }
-//        }
+        // OWL2ELProfile profile = new OWL2ELProfile();
+        // OWLProfileReport report = profile.checkOntology(directOntology);
+        // if (!report.isInProfile()) {
+        //
+        // boolean flag = false;
+        // for (OWLProfileViolation violation : report.getViolations()) {
+        // // Allow violation: Use of undeclared annotation property
+        // if (violation.toString().indexOf(
+        // "Use of undeclared annotation property") == -1) {
+        // flag = true;
+        // break;
+        // }
+        // if (violation.toString().indexOf(
+        // "Cannot pun between properties") == -1) {
+        // flag = true;
+        // break;
+        // }
+        //
+        // }
+        // if (flag) {
+        // throw new Exception("OWL is not in expected profile OWL EL 2 - "
+        // + report);
+        // }
+        // }
 
         Logger.getLogger(getClass()).info("Processing ontology - " + ontology);
         loadOntology(ontology);
@@ -407,6 +414,11 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   }
 
   /* see superclass */
+  /**
+   * Reset.
+   *
+   * @throws Exception the exception
+   */
   @Override
   public void reset() throws Exception {
     // do nothing
@@ -426,18 +438,31 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   }
 
   /* see superclass */
+  /**
+   * Adds the progress listener.
+   *
+   * @param l the l
+   */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
   /* see superclass */
+  /**
+   * Removes the progress listener.
+   *
+   * @param l the l
+   */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
   /* see superclass */
+  /**
+   * Cancel.
+   */
   @Override
   public void cancel() {
     // n/a
@@ -644,6 +669,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     term.setAssertsRelDirection(true);
     term.setCurrent(true);
     term.setDescriptionLogicTerminology(true);
+    term.setDescriptionLogicProfile(el2Profile);
     term.setOrganizingClassType(IdType.CONCEPT);
     term.setPreferredName(getTerminologyPreferredName(ontology));
     term.setRootTerminology(root);
@@ -1046,7 +1072,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
     // ASSUMPTION: annotation is an OWLLiteral
     else {
-      //throw new Exception("Unexpected annotation that is not OWLLiteral - " + annotation);
+      // throw new Exception("Unexpected annotation that is not OWLLiteral - " +
+      // annotation);
       return "";
     }
   }
@@ -1065,7 +1092,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
     // ASSUMPTION: annotation is an OWLLiteral
     else {
-      // throw new Exception("Unexpected annotation that is not OWLLiteral - " + annotation);
+      // throw new Exception("Unexpected annotation that is not OWLLiteral - " +
+      // annotation);
       return annotation.getValue().toString();
     }
   }
@@ -1075,7 +1103,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    *
    * @param tty the tty
    * @return the string
-   * @throws Exception
+   * @throws Exception the exception
    */
   private boolean isPreferredType(String tty) throws Exception {
 
@@ -1121,7 +1149,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    *
    * @param annotation the annotation
    * @return <code>true</code> if so, <code>false</code> otherwise
-   * @throws Exception
+   * @throws Exception the exception
    */
   private boolean isAtomAnnotation(OWLAnnotation annotation) throws Exception {
     final String name = getName(annotation);
@@ -1223,6 +1251,11 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             return;
           }
 
+          // Skip if the owl class
+          if (isObsolete(owlClass, ontology)) {
+            return;
+          }
+
           // Get the concept object
           final Concept concept =
               getConceptForOwlClassExpression(owlClass, ontology, 0);
@@ -1240,14 +1273,17 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           Logger.getLogger(getClass()).debug("  add concept = " + concept);
           addConcept(concept);
           idMap.put(concept.getTerminologyId(), concept.getId());
-// TODO: make this configurable
-          if (rootClassChecker.isRootClass(owlClass)) {
-            ConceptRelationship rel =
-                getSubClassOfRelationship(concept, topConcept);
-            Logger.getLogger(getClass())
-                .info("  add top relationship = " + rel);
-            addRelationship(rel);
-            concept.addRelationship(rel);
+
+          // Check whether to add a link to "top concept"
+          if ("true".equals(getConfigurableValue(terminology, "top"))) {
+            if (rootClassChecker.isRootClass(owlClass)) {
+              ConceptRelationship rel =
+                  getSubClassOfRelationship(concept, topConcept);
+              Logger.getLogger(getClass()).info(
+                  "  add top relationship = " + rel);
+              addRelationship(rel);
+              concept.addRelationship(rel);
+            }
           }
 
           logAndCommit(++objectCt);
@@ -1279,6 +1315,11 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           }
           visited.add(terminologyId);
 
+          // Skip if the owl class
+          if (isObsolete(owlClass, ontology)) {
+            return;
+          }
+
           // ASSUMPTION: concept exists
           final Concept concept = getConcept(idMap.get(terminologyId));
 
@@ -1303,6 +1344,39 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     walker.walkStructure(visitor);
     commitClearBegin();
 
+  }
+
+  /**
+   * Indicates whether or not obsolete is the case.
+   *
+   * @param owlClass the owl class
+   * @param ontology the ontology
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   * @throws Exception the exception
+   */
+  boolean isObsolete(OWLClass owlClass, OWLOntology ontology) throws Exception {
+    String obsoletePattern =
+        getConfigurableValue(terminology, "obsoletePattern");
+    String obsoleteAnnotation =
+        getConfigurableValue(terminology, "obsoleteAnnotation");
+    if (obsoletePattern == null || obsoleteAnnotation == null) {
+      return false;
+    }
+
+    for (OWLAnnotationAssertionAxiom axiom : ontology
+        .getAnnotationAssertionAxioms(owlClass.getIRI())) {
+      OWLAnnotation annotation = axiom.getAnnotation();
+      if (!isAtomAnnotation(annotation)) {
+        continue;
+      }
+      // Look for a label matching the pattern
+      if (getName(annotation).equals(label)
+          && getValue(annotation).matches(obsoletePattern)) {
+        Logger.getLogger(getClass()).info("    OBSOLETE FOUND");
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -2116,7 +2190,6 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     // Set fully defined
     if (ontology.getEquivalentClassesAxioms(owlClass).size() > 0) {
-
       // ASSUMPTION: only one equivalent class statement
       if (ontology.getEquivalentClassesAxioms(owlClass).size() > 1) {
         throw new Exception(
@@ -2385,7 +2458,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @param ontology the ontology
    * @param level the level
    * @return the concept for intersection
-   * @throws Exception
+   * @throws Exception the exception
    */
   Concept getConceptForIntersectionOf(OWLObjectIntersectionOf expr,
     OWLOntology ontology, int level) throws Exception {
@@ -2578,10 +2651,9 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @param terminology the terminology
    * @param key the key
    * @return the configurable value
-   * @throws Exception
+   * @throws Exception the exception
    */
-  private String getConfigurableValue(String terminology, String key)
-    throws Exception {
+  String getConfigurableValue(String terminology, String key) throws Exception {
     Properties p = ConfigUtility.getConfigProperties();
     String fullKey = getClass().getName() + "." + terminology + "." + key;
     if (p.containsKey(fullKey)) {

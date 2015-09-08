@@ -9,6 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -64,6 +65,7 @@ public class GeneralConceptAxiomJpa extends AbstractComponent implements
 
   /* see superclass */
   @Override
+  @XmlElement(type = ConceptJpa.class)
   public Concept getLeftHandSide() {
     return leftHandSide;
   }
@@ -77,6 +79,7 @@ public class GeneralConceptAxiomJpa extends AbstractComponent implements
 
   /* see superclass */
   @Override
+  @XmlElement(type = ConceptJpa.class)
   public Concept getRightHandSide() {
     return rightHandSide;
   }
