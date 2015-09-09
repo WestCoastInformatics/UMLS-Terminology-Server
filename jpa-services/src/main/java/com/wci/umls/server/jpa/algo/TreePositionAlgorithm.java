@@ -20,7 +20,6 @@ import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTreePosition;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
@@ -31,7 +30,6 @@ import com.wci.umls.server.model.content.DescriptorTreePosition;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
@@ -145,18 +143,6 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     Logger.getLogger(getClass()).info(
         "  Get hierarchical rel for " + terminology + ", " + version);
     fireProgressEvent(0, "Starting...");
-    MetadataService service = new MetadataServiceJpa();
-    if (service.getHierarchicalRelationshipTypes(terminology, version)
-        .getObjects().size() == 0) {
-      fireProgressEvent(100, "NO hierarchical rels, exiting...");
-      Logger.getLogger(getClass()).info("  NO hierarchical rels, exiting...");
-      return;
-    }
-    String chdRel =
-        service.getHierarchicalRelationshipTypes(terminology, version)
-            .getObjects().iterator().next().getAbbreviation();
-    service.close();
-    Logger.getLogger(getClass()).info("    hierarchical rel = " + chdRel);
 
     // Get all relationships
     fireProgressEvent(1, "Initialize relationships");
@@ -178,10 +164,9 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
                     + tableName
                     + " r where "
                     + "version = :version and terminology = :terminology "
-                    + "and relationshipType = :relationshipType and inferred = 1 and obsolete = 0 "
+                    + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
                     + "and r.from in (select o from " + tableName2
                     + " o where obsolete = 0)")
-            .setParameter("relationshipType", chdRel)
             .setParameter("terminology", terminology)
             .setParameter("version", version).getResultList();
 

@@ -51,6 +51,10 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
   @Column(nullable = false)
   private boolean stated;
 
+  /** The hierarchical. */
+  @Column(nullable = false)
+  private boolean hierarchical;
+
   /** The asserted direction flag. */
   @Column(nullable = false)
   private boolean assertedDirection;
@@ -61,7 +65,6 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
   public AbstractRelationship() {
     // do nothing
   }
-
 
   /**
    * Instantiates a {@link AbstractRelationship} from the specified parameters.
@@ -76,83 +79,102 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
     group = relationship.getGroup();
     inferred = relationship.isInferred();
     stated = relationship.isStated();
+    hierarchical = relationship.isHierarchical();
     assertedDirection = relationship.isAssertedDirection();
   }
 
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getRelationshipType() {
     return relationshipType;
   }
 
-
+  /* see superclass */
   @Override
   public void setRelationshipType(String relationshipType) {
     this.relationshipType = relationshipType;
   }
+
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getAdditionalRelationshipType() {
     return additionalRelationshipType;
   }
 
+  /* see superclass */
   @Override
   public void setAdditionalRelationshipType(String additionalRelationshipType) {
     this.additionalRelationshipType = additionalRelationshipType;
   }
 
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getGroup() {
     return group;
   }
 
- 
+  /* see superclass */
   @Override
   public void setGroup(String group) {
     this.group = group;
   }
 
-
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isInferred() {
     return inferred;
   }
 
- 
+  /* see superclass */
   @Override
   public void setInferred(boolean inferred) {
     this.inferred = inferred;
   }
 
-  
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isStated() {
     return stated;
   }
 
-  
+  /* see superclass */
   @Override
   public void setStated(boolean stated) {
     this.stated = stated;
   }
 
- 
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public boolean isHierarchical() {
+    return hierarchical;
+  }
+
+  /* see superclass */
+  @Override
+  public void setHierarchical(boolean hierarchical) {
+    this.hierarchical = hierarchical;
+  }
+
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public boolean isAssertedDirection() {
     return assertedDirection;
   }
 
- 
+  /* see superclass */
   @Override
   public void setAssertedDirection(boolean assertedDirection) {
     this.assertedDirection = assertedDirection;
   }
 
-  
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -163,16 +185,17 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
             + ((additionalRelationshipType == null) ? 0
                 : additionalRelationshipType.hashCode());
     result = prime * result + ((group == null) ? 0 : group.hashCode());
-    result = prime * result + (inferred ? 1231 : 1237);
-    result = prime * result + (assertedDirection ? 1231 : 1237);
+    result = prime * result + (inferred ? 7 : 9);
+    result = prime * result + (assertedDirection ? 11 : 37);
     result =
         prime * result
             + ((relationshipType == null) ? 0 : relationshipType.hashCode());
     result = prime * result + (stated ? 1231 : 1237);
+    result = prime * result + (hierarchical ? 1231 : 1237);
     return result;
   }
 
- 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -204,10 +227,12 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
       return false;
     if (stated != other.stated)
       return false;
+    if (hierarchical != other.hierarchical)
+      return false;
     return true;
   }
 
- 
+  /* see superclass */
   @Override
   public String toString() {
     return getClass().getSimpleName() + " [from = " + getFrom() + ", to = "
@@ -215,7 +240,6 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
         + relationshipType + ", additionalRelationshipType="
         + additionalRelationshipType + ", group=" + group + ", inferred="
         + inferred + ", stated=" + stated + ", assertedDirection="
-        + assertedDirection + "]";
+        + assertedDirection + ", hierarchcial=" + hierarchical + "]";
   }
-
 }

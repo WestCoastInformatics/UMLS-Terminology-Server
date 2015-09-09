@@ -5,7 +5,6 @@ package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.Set;
 
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
@@ -58,10 +57,8 @@ public class SnomedctGraphResolutionHandler extends
     }
   }
 
-  
   @Override
-  public void resolve(Concept concept, Set<String> hierarchicalRelTypeIds)
-    throws Exception {
+  public void resolve(Concept concept) throws Exception {
     cacheProperties();
 
     if (concept != null) {

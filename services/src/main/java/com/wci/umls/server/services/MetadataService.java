@@ -53,8 +53,6 @@ public interface MetadataService extends RootService, Configurable {
     Semantic_Types,
     /** The Term_ types. */
     Term_Types,
-    /** The Hierarchical_ relationship_ types. */
-    Hierarchical_Relationship_Types,
     /** The Languages. */
     Languages,
     /** The General_ metadata_ entries. */
@@ -228,30 +226,6 @@ public interface MetadataService extends RootService, Configurable {
    */
   public LanguageList getLanguages(String terminology, String version)
     throws Exception;
-
-  /**
-   * Returns the hierarchical relationship types. The idea is that these
-   * relationship types define "parent" and "child" relationships. When looking
-   * through a concept's relationships, anything with one of these types means
-   * the destinationId is a "parent". When looking through a concept's inverse
-   * relationships, anything with one of these types means the sourceId is a
-   * "child".
-   * 
-   * @param terminology the terminology
-   * @param version the version
-   * @return the relationship types
-   * @throws Exception if anything goes wrong
-   */
-  public RelationshipTypeList getHierarchicalRelationshipTypes(
-    String terminology, String version) throws Exception;
-
-  /**
-   * Indicates whether or not hierarchcial relationship is the case.
-   *
-   * @param relationship the r
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isHierarchcialRelationship(Relationship<?, ?> relationship);
 
   /**
    * Indicates whether or not stated relationship is the case.

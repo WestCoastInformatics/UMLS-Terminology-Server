@@ -77,7 +77,6 @@ import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
-import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
@@ -1024,10 +1023,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               Branch.ROOT);
 
       if (concept != null) {
-        contentService.getGraphResolutionHandler(terminology).resolve(
-            concept,
-            TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
-                concept.getVersion()));
+        contentService.getGraphResolutionHandler(terminology).resolve(concept);
         concept.setAtoms(contentService.getComputePreferredNameHandler(
             concept.getTerminology()).sortByPreference(concept.getAtoms()));
       }
@@ -1215,9 +1211,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       if (descriptor != null) {
         contentService.getGraphResolutionHandler(terminology).resolve(
-            descriptor,
-            TerminologyUtility.getHierarchicalIsaRels(
-                descriptor.getTerminology(), descriptor.getVersion()));
+            descriptor);
         descriptor.setAtoms(contentService.getComputePreferredNameHandler(
             descriptor.getTerminology())
             .sortByPreference(descriptor.getAtoms()));
@@ -1369,10 +1363,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               Branch.ROOT);
 
       if (code != null) {
-        contentService.getGraphResolutionHandler(terminology).resolve(
-            code,
-            TerminologyUtility.getHierarchicalIsaRels(code.getTerminology(),
-                code.getVersion()));
+        contentService.getGraphResolutionHandler(terminology).resolve(code);
         code.setAtoms(contentService.getComputePreferredNameHandler(
             code.getTerminology()).sortByPreference(code.getAtoms()));
 
@@ -1570,10 +1561,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               version, parentsOnly, Branch.ROOT, pfs);
 
       for (Concept concept : list.getObjects()) {
-        contentService.getGraphResolutionHandler(terminology).resolve(
-            concept,
-            TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
-                concept.getVersion()));
+        contentService.getGraphResolutionHandler(terminology).resolve(concept);
       }
 
       return list;
@@ -1615,10 +1603,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               version, childrenOnly, Branch.ROOT, pfs);
 
       for (Concept concept : list.getObjects()) {
-        contentService.getGraphResolutionHandler(terminology).resolve(
-            concept,
-            TerminologyUtility.getHierarchicalIsaRels(concept.getTerminology(),
-                concept.getVersion()));
+        contentService.getGraphResolutionHandler(terminology).resolve(concept);
       }
 
       return list;
@@ -1661,9 +1646,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       for (Descriptor descriptor : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(
-            descriptor,
-            TerminologyUtility.getHierarchicalIsaRels(
-                descriptor.getTerminology(), descriptor.getVersion()));
+            descriptor);
       }
 
       return list;
@@ -1705,9 +1688,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
 
       for (Descriptor descriptor : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(
-            descriptor,
-            TerminologyUtility.getHierarchicalIsaRels(
-                descriptor.getTerminology(), descriptor.getVersion()));
+            descriptor);
       }
 
       return list;
@@ -1747,10 +1728,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               parentsOnly, Branch.ROOT, pfs);
 
       for (Code code : list.getObjects()) {
-        contentService.getGraphResolutionHandler(terminology).resolve(
-            code,
-            TerminologyUtility.getHierarchicalIsaRels(code.getTerminology(),
-                code.getVersion()));
+        contentService.getGraphResolutionHandler(terminology).resolve(code);
       }
 
       return list;
@@ -1791,10 +1769,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               version, childrenOnly, Branch.ROOT, pfs);
 
       for (Code code : list.getObjects()) {
-        contentService.getGraphResolutionHandler(terminology).resolve(
-            code,
-            TerminologyUtility.getHierarchicalIsaRels(code.getTerminology(),
-                code.getVersion()));
+        contentService.getGraphResolutionHandler(terminology).resolve(code);
       }
 
       return list;
@@ -1924,20 +1899,39 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       }
 
       // For any relationships to anonymous concepts, we need to push that up to
-      // the current level and set relationship groups.
+      // the current level and set relationship groups and inferred/stated
       RelationshipList result = new RelationshipListJpa();
       int group = 0;
       for (Relationship rel : list.getObjects()) {
         ConceptRelationship rel2 = (ConceptRelationship) rel;
         if (rel2.getTo().isAnonymous()) {
-          // Turn into a relationship group.
-          group++;
+
+          // count how many relationships there are 
+          int ct = 0;
           for (ConceptRelationship innerRel : rel2.getTo().getRelationships()) {
-            ConceptRelationship innerRel2 =
-                new ConceptRelationshipJpa(innerRel, true);
-            innerRel2.setFrom(rel2.getFrom());
-            innerRel2.setGroup(String.valueOf(group));
-            result.getObjects().add(innerRel2);
+            // this is only for grouped role relationships
+            if (!innerRel.isHierarchical()) {
+              ct++;
+            }
+          }
+          // if >1, then group them
+          if (ct > 1) {
+            group++;
+          }
+          for (ConceptRelationship innerRel : rel2.getTo().getRelationships()) {
+            // this is only for grouped role relationships
+            if (!innerRel.isHierarchical()) {
+              ConceptRelationship innerRel2 =
+                  new ConceptRelationshipJpa(innerRel, true);
+              innerRel2.setFrom(rel2.getFrom());
+              innerRel2.setStated(rel2.isStated());
+              innerRel2.setInferred(rel2.isInferred());
+              // If >1 rels in anonymous concept, group them
+              if (ct > 1) {
+                innerRel2.setGroup(String.valueOf(group));
+              }
+              result.getObjects().add(innerRel2);
+            }
           }
 
         } else {

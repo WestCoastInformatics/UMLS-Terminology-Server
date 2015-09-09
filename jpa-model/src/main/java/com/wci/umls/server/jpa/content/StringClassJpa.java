@@ -54,7 +54,9 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
    */
   public StringClassJpa(StringClass stringClass, boolean deepCopy) {
     super(stringClass, deepCopy);
-    labels = stringClass.getLabels();
+    if (stringClass.getLabels() != null) {
+      labels = new ArrayList<>(stringClass.getLabels());
+    }
   }
 
   /* see superclass */

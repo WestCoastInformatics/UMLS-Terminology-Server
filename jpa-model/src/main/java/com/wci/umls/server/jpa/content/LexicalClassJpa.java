@@ -65,7 +65,9 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
   public LexicalClassJpa(LexicalClass lexicalClass, boolean deepCopy) {
     super(lexicalClass, deepCopy);
     normalizedName = lexicalClass.getNormalizedName();
-    labels = lexicalClass.getLabels();
+    if (lexicalClass.getLabels() != null) {
+      labels = new ArrayList<>(lexicalClass.getLabels());
+    }
   }
 
   /**
@@ -93,13 +95,11 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
     this.normalizedName = normalizedName;
   }
 
-
   /* see superclass */
   @Override
   public List<String> getLabels() {
     return labels;
   }
-
 
   /* see superclass */
   @Override
@@ -127,7 +127,6 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
 
   }
 
-
   /* see superclass */
   @Override
   public int hashCode() {
@@ -139,7 +138,6 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
     return result;
   }
 
- 
   /* see superclass */
   @Override
   public boolean equals(Object obj) {

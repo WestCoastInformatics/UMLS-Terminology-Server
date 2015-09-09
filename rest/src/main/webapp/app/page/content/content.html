@@ -204,7 +204,7 @@
             ng-show="metadata.terminology.descriptionLogicTerminology && component.object.anonymous"
             class="label label-info" tooltip="Anonymous">A</span>
           <span style="padding-bottom: 2px;"
-            ng-show="metadata.terminology.descriptionLogicTerminology && !component.object.fullyDefined && !component.object.anonymous" 
+            ng-show="metadata.terminology.descriptionLogicTerminology && !component.object.fullyDefined && !component.object.anonymous"
             class="label label-info" tooltip="Primitive">P</span>
           <span style="padding-bottom: 2px;"
             ng-show="metadata.terminology.descriptionLogicTerminology && component.object.fullyDefined"
@@ -560,7 +560,8 @@
         <!-- end Subsets -->
 
         <!-- Relationships -->
-        <div ng-show="pagedRelationships.totalCount > 0 || relPaging.filter || !showInferred">
+        <div
+          ng-show="pagedRelationships.totalCount > 0 || relPaging.filter || !showInferred">
           <h4>
             {{metadata.relationshipsLabel}}
             ({{pagedRelationships.totalCount}})&nbsp;&nbsp;

@@ -571,6 +571,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
         rel.setTerminologyId(fields[0]);
         rel.setObsolete(!fields[2].equals("1"));
         rel.setRelationshipType(fields[7]); // typeId
+        rel.setHierarchical(rel.getRelationshipType().equals("116680003"));
         rel.setInferred(fields[8].equals("900000000000011006"));
         rel.setStated(fields[8].equals("900000000000010007"));
         // get concepts from cache, they just need to have ids

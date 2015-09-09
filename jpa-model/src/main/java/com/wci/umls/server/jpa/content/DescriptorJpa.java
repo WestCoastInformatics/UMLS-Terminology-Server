@@ -64,7 +64,9 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
    */
   public DescriptorJpa(Descriptor descriptor, boolean deepCopy) {
     super(descriptor, deepCopy);
-    labels = descriptor.getLabels();
+    if (descriptor.getLabels() != null) {
+      labels = new ArrayList<>(descriptor.getLabels());
+    }
 
     if (deepCopy) {
       for (Definition definition : descriptor.getDefinitions()) {

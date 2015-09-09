@@ -4,7 +4,6 @@
 package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -22,10 +21,8 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
  */
 public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
 
- 
   @Override
-  public void resolve(Concept concept, Set<String> hierarchicalRelTypeIds)
-    throws Exception {
+  public void resolve(Concept concept) throws Exception {
     if (concept != null) {
       boolean nullId = concept.getId() == null;
       concept.setMembers(new ArrayList<ConceptSubsetMember>());

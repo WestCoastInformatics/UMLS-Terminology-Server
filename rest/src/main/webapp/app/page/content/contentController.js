@@ -536,19 +536,16 @@ tsApp
 
           // trigger on suppressible (model data)
           if (!$scope.showSuppressible && item.suppressible) {
-            console.debug("FALSE1");
             return false;
           }
 
           // trigger on obsolete (model data)
           if (!$scope.showObsolete && item.obsolete) {
-            console.debug("FALSE2");
             return false;
           }
 
           // trigger on applied showAtomElement flag
           if (!$scope.showAtomElement && item.atomElement) {
-            console.debug("FALSE3");
             return false;
           }
 
@@ -556,21 +553,13 @@ tsApp
           if ($scope.metadata.terminology.descriptionLogicTerminology
             && item.hasOwnProperty('stated') && $scope.showInferred
             && item.stated) {
-            console.debug("FALSE4",
-              $scope.metadata.terminology.descriptionLogicTerminology, item
-                .hasOwnProperty('stated'), $scope.showInferred, item.stated);
             return false;
           }
           if ($scope.metadata.terminology.descriptionLogicTerminology
             && item.hasOwnProperty('inferred') && !$scope.showInferred
             && item.inferred) {
-            console.debug("FALSE5",
-              $scope.metadata.terminology.descriptionLogicTerminology, item
-                .hasOwnProperty('inferred'), !$scope.showInferred,
-              item.inferred);
             return false;
           }
-          console.debug("TRUE");
           return true;
         }
 
@@ -615,7 +604,8 @@ tsApp
           } else {
             $scope.showInferred = !$scope.showInferred;
           }
-          applyPaging();
+          // apply paging just to rels
+          $scope.getPagedRelationships();
         }
 
         // Function to toggle showing of extension info

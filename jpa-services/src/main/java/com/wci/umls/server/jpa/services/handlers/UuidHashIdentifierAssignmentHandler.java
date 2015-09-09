@@ -48,8 +48,8 @@ public class UuidHashIdentifierAssignmentHandler implements
     StringBuilder hashKey = new StringBuilder().append(concept.getName());
     for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : concept
         .getRelationships()) {
-      if (TerminologyUtility.isHierarchicalIsaRelationship(rel)
-          && !rel.isObsolete() && !rel.isSuppressible() && rel.isStated()) {
+      if (rel.isHierarchical() && !rel.isObsolete() && !rel.isSuppressible()
+          && rel.isStated()) {
         hashKey.append(rel.getTerminologyId());
       }
     }
@@ -64,8 +64,8 @@ public class UuidHashIdentifierAssignmentHandler implements
     StringBuilder hashKey = new StringBuilder().append(descriptor.getName());
     for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : descriptor
         .getRelationships()) {
-      if (TerminologyUtility.isHierarchicalIsaRelationship(rel)
-          && !rel.isObsolete() && !rel.isSuppressible() && rel.isStated()) {
+      if (rel.isHierarchical() && !rel.isObsolete() && !rel.isSuppressible()
+          && rel.isStated()) {
         hashKey.append(rel.getTerminologyId());
       }
     }
@@ -80,8 +80,8 @@ public class UuidHashIdentifierAssignmentHandler implements
     StringBuilder hashKey = new StringBuilder().append(code.getName());
     for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : code
         .getRelationships()) {
-      if (TerminologyUtility.isHierarchicalIsaRelationship(rel)
-          && !rel.isObsolete() && !rel.isSuppressible() && rel.isStated()) {
+      if (rel.isHierarchical() && !rel.isObsolete() && !rel.isSuppressible()
+          && rel.isStated()) {
         hashKey.append(rel.getTerminologyId());
       }
     }

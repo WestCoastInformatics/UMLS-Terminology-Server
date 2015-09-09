@@ -28,7 +28,6 @@ import com.wci.umls.server.jpa.helpers.meta.AttributeNameListJpa;
 import com.wci.umls.server.jpa.helpers.meta.LanguageListJpa;
 import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.services.MetadataService;
 
@@ -193,7 +192,8 @@ public class UmlsMetadataServiceJpaHelper extends
   @Override
   public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version) throws Exception {
-    // Assume there is only one default precedence list (because this is from a UMLS loader)
+    // Assume there is only one default precedence list (because this is from a
+    // UMLS loader)
     javax.persistence.Query query =
         manager.createQuery("SELECT p from PrecedenceListJpa p"
             + " where defaultList = 1 ");
@@ -215,34 +215,6 @@ public class UmlsMetadataServiceJpaHelper extends
     list.setPrecedence(kvpl);
     // return the shorter list
     return list;
-  }
-
-  /* see superclass */
-  @Override
-  public RelationshipTypeList getHierarchicalRelationshipTypes(
-    String terminology, String version) throws Exception {
-    // cache and check for the CHD rel
-    if (chdRel == null) {
-      RelationshipTypeList list = getRelationshipTypes(terminology, version);
-      for (RelationshipType rel : list.getObjects()) {
-        if (rel.getAbbreviation().equals("CHD")) {
-          chdRel = rel;
-          break;
-        }
-      }
-    }
-    RelationshipTypeList types = new RelationshipTypeListJpa();
-    Logger.getLogger(getClass()).info("  childRel = " + chdRel);
-    if (chdRel != null) {
-      types.getObjects().add(chdRel);
-    }
-    return types;
-  }
-
-  /* see superclass */
-  @Override
-  public boolean isHierarchcialRelationship(Relationship<?, ?> relationship) {
-    return relationship.getRelationshipType().equals("CHD");
   }
 
   /* see superclass */

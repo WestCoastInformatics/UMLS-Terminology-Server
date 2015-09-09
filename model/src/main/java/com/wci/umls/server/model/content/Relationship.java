@@ -129,4 +129,18 @@ public interface Relationship<S extends ComponentHasAttributes, T extends Compon
    */
   public void setStated(boolean stated);
 
+  /**
+   * Indicates whether the relationship is hierarchical.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isHierarchical();
+
+  /**
+   * Sets the hierarchical flag.
+   *
+   * @param hierarchical the hierarchical flag
+   */
+  public void setHierarchical(boolean hierarchical);
+
 }

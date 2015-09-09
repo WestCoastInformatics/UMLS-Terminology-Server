@@ -5,9 +5,6 @@ package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.fail;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -23,7 +20,6 @@ import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultGraphResolutionHandler;
-import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
@@ -98,27 +94,21 @@ public class Handler002Test {
 
     // TEST: exception
     try {
-      Set<String> chdRel = new HashSet<>();
-      chdRel.add("CHD");
-      handlerService.resolve((Concept) null, chdRel);
+      handlerService.resolve((Concept) null);
       fail("Calling resolve((Concept)null) should have thrown an exception.");
     } catch (Exception e) {
       // do nothing
     }
 
     try {
-      Set<String> chdRel = new HashSet<>();
-      chdRel.add("CHD");
-      handlerService.resolve((Descriptor) null, chdRel);
+      handlerService.resolve((Descriptor) null);
       fail("Calling resolve((Descriptor)null) should have thrown an exception.");
     } catch (Exception e) {
       // do nothing
     }
 
     try {
-      Set<String> chdRel = new HashSet<>();
-      chdRel.add("CHD");
-      handlerService.resolve((Code) null, chdRel);
+      handlerService.resolve((Code) null);
       fail("Calling resolve((Code)null) should have thrown an exception.");
     } catch (Exception e) {
       // do nothing
@@ -203,13 +193,6 @@ public class Handler002Test {
   public void testHandlerEdgeCases002() throws Exception {
     // Call computePreferredName(new ConceptJpa())
     // TEST: no exceptions
-    handlerService.resolve(new ConceptJpa(),
-        TerminologyUtility.getHierarchicalIsaRels("UMLS", "latest"));
-    handlerService.resolve(new DescriptorJpa(),
-        TerminologyUtility.getHierarchicalIsaRels("UMLS", "latest"));
-    handlerService.resolve(new CodeJpa(),
-        TerminologyUtility.getHierarchicalIsaRels("UMLS", "latest"));
-
     handlerService.resolve(new SemanticTypeComponentJpa());
     handlerService.resolve(new ConceptRelationshipJpa());
     handlerService.resolve(new DescriptorRelationshipJpa());

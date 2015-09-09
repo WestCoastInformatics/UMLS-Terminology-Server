@@ -1036,6 +1036,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
               relationship.setRelationshipType(type.toLowerCase().equals("isa")
                   ? "CHD" : "RO");
               relationship.setAdditionalRelationshipType(type);
+              relationship.setHierarchical(relationship.getRelationshipType()
+                  .equals("CHD"));
               additionalRelationshipTypes.add(type);
               relationship.setGroup(null);
               relationship.setAssertedDirection(true);
@@ -1434,6 +1436,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       relationship.setVersion(version);
       relationship.setRelationshipType("CHD");
       relationship.setAdditionalRelationshipType("isa");
+      relationship.setHierarchical(true);
       additionalRelationshipTypes.add("isa");
       relationship.setGroup(null);
       relationship.setAssertedDirection(true);
@@ -1912,7 +1915,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       updateAdditionalRelationshipType(type);
       updateAdditionalRelationshipType(inverseType);
     }
-    
+
     for (String tty : termTypes) {
 
       final TermType termType = new TermTypeJpa();

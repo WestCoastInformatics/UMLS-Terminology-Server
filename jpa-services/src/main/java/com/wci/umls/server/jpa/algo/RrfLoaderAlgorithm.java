@@ -1644,6 +1644,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     relationship.setPublishable(true);
 
     relationship.setRelationshipType(fields[3]);
+    relationship.setHierarchical(fields[3].equals("CHD"));
     relationship.setAdditionalRelationshipType(fields[7]);
 
     if (!singleMode) {

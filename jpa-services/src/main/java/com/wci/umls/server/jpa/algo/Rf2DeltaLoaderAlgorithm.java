@@ -1952,7 +1952,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         // If refset entry is changed, update it
         else if (!member2.equals(member)
-                || !Rf2EqualityUtility.compareAttributes(member2, member,
+            || !Rf2EqualityUtility.compareAttributes(member2, member,
                 new String[] {
                     "moduleId", "valueId"
                 })) {
@@ -1976,7 +1976,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         }
 
-        // Periodic commit 
+        // Periodic commit
         if ((objectsAdded + objectsUpdated) % logCt == 0) {
           for (Concept modifiedConcept : modifiedConcepts) {
             Logger.getLogger(getClass()).debug(
@@ -2155,7 +2155,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
         }
 
-        // Periodic commit 
+        // Periodic commit
         if ((objectsAdded + objectsUpdated) % logCt == 0) {
           for (Concept modifiedConcept : modifiedConcepts) {
             Logger.getLogger(getClass()).debug(
@@ -2289,7 +2289,9 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         rel2.setObsolete(fields[2].equals("0")); // active
         rel2.setSuppressible(rel2.isObsolete());
         rel2.setGroup(fields[6].intern()); // relationshipGroup
-        rel2.setRelationshipType(fields[7].equals(isaTypeRel) ? "CHD" : "RO"); // typeId
+        rel2.setRelationshipType(fields[7].equals(isaTypeRel) ? "subClassOf" : "other"); // typeId
+        rel2.setHierarchical(rel2.getRelationshipType().equals(
+            "subClassOf"));
         rel2.setAdditionalRelationshipType(fields[7]); // typeId
         generalEntryValues.add(rel2.getAdditionalRelationshipType());
         additionalRelTypes.add(rel2.getAdditionalRelationshipType());

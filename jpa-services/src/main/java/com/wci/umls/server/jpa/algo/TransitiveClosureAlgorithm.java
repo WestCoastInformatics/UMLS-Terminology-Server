@@ -22,7 +22,6 @@ import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTransitiveRelationship;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
@@ -33,7 +32,6 @@ import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
@@ -170,20 +168,6 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     Logger.getLogger(getClass()).info(
         "  Initialize relationships ... " + new Date());
 
-    // Get hierarchcial rels
-    MetadataService service = new MetadataServiceJpa();
-    if (service.getHierarchicalRelationshipTypes(terminology, version)
-        .getObjects().size() == 0) {
-      fireProgressEvent(100, "NO hierarchical rels, exiting...");
-      Logger.getLogger(getClass()).info("  NO hierarchical rels, exiting...");
-      return;
-    }
-    String chdRel =
-        service.getHierarchicalRelationshipTypes(terminology, version)
-            .getObjects().iterator().next().getAbbreviation();
-    service.close();
-    Logger.getLogger(getClass()).info("    hierarchical rel = " + chdRel);
-
     fireProgressEvent(1, "Initialize relationships");
     String tableName = "ConceptRelationshipJpa";
     if (idType == IdType.DESCRIPTOR) {
@@ -199,10 +183,9 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
                     + " r where obsolete = 0 and inferred = 1 "
                     + "and terminology = :terminology "
                     + "and version = :version "
-                    + "and relationshipType = :relationshipType")
+                    + "and hierarchical = 1")
             .setParameter("terminology", terminology)
-            .setParameter("version", version)
-            .setParameter("relationshipType", chdRel);
+            .setParameter("version", version);
 
     @SuppressWarnings("unchecked")
     List<Object[]> rels = query.getResultList();

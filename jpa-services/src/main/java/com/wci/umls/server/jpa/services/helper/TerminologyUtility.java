@@ -8,23 +8,17 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
-import com.wci.umls.server.model.content.Relationship;
-import com.wci.umls.server.model.meta.RelationshipType;
-import com.wci.umls.server.services.MetadataService;
 
 /**
  * Loads and serves configuration.
@@ -33,67 +27,6 @@ public class TerminologyUtility {
 
   /** The isa rels map. */
   public static Map<String, Set<String>> isaRelsMap = new HashMap<>();
-
-  /**
-   * Returns the hierarchical isa rels.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @return the hierarchical isa rels
-   * @throws Exception the exception
-   */
-  public static Set<String> getHierarchicalIsaRels(String terminology,
-    String version) throws Exception {
-    if (terminology == null) {
-      throw new Exception(
-          "Unexpected null terminology passed to getHierarchicalIsaRels.");
-    }
-    if (version == null) {
-      throw new Exception(
-          "Unexpected null version passed to getHierarchicalIsaRels.");
-    }
-    cacheIsaRels(terminology, version);
-    return isaRelsMap.get(terminology + version);
-  }
-
-  /**
-   * Indicates whether or not the relationship is a hierarchical isa rel.
-   *
-   * @param relationship the relationship
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   * @throws Exception the exception
-   */
-  public static boolean isHierarchicalIsaRelationship(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
-    throws Exception {
-    Set<String> isaRels =
-        cacheIsaRels(relationship.getTerminology(), relationship.getVersion());
-    return relationship != null
-        && isaRels.contains(relationship.getRelationshipType());
-  }
-
-  /**
-   * Cache isa rels.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @return the sets the
-   * @throws Exception the exception
-   */
-  private static Set<String> cacheIsaRels(String terminology, String version)
-    throws Exception {
-    if (!isaRelsMap.containsKey(terminology + version)) {
-      MetadataService metadataService = new MetadataServiceJpa();
-      Set<String> relTypes = new HashSet<>();
-      for (RelationshipType type : metadataService
-          .getHierarchicalRelationshipTypes(terminology, version).getObjects()) {
-        relTypes.add(type.getAbbreviation());
-      }
-      isaRelsMap.put(terminology + version, relTypes);
-      metadataService.close();
-    }
-    return isaRelsMap.get(terminology + version);
-  }
 
   /**
    * Returns the active parent concepts.
@@ -109,10 +42,8 @@ public class TerminologyUtility {
           "Unexpected null concept passed to getActiveParentConcepts.");
     }
     final List<Concept> results = new ArrayList<>();
-    final Set<String> isaRels =
-        cacheIsaRels(concept.getTerminology(), concept.getVersion());
     for (ConceptRelationship rel : concept.getRelationships()) {
-      if (isaRels.contains(rel.getRelationshipType()) && !rel.isObsolete()) {
+      if (rel.isHierarchical() && !rel.isObsolete()) {
         results.add(rel.getTo());
       }
     }
@@ -133,10 +64,8 @@ public class TerminologyUtility {
           "Unexpected null descriptor passed to getActiveParentDescriptors.");
     }
     final List<Descriptor> results = new ArrayList<>();
-    final Set<String> isaRels =
-        cacheIsaRels(descriptor.getTerminology(), descriptor.getVersion());
     for (DescriptorRelationship rel : descriptor.getRelationships()) {
-      if (isaRels.contains(rel.getRelationshipType()) && !rel.isObsolete()) {
+      if (rel.isHierarchical() && !rel.isObsolete()) {
         results.add(rel.getTo());
       }
     }
@@ -156,10 +85,8 @@ public class TerminologyUtility {
           "Unexpected null code passed to getActiveParentCodes.");
     }
     final List<Code> results = new ArrayList<>();
-    final Set<String> isaRels =
-        cacheIsaRels(code.getTerminology(), code.getVersion());
     for (CodeRelationship rel : code.getRelationships()) {
-      if (isaRels.contains(rel.getRelationshipType()) && !rel.isObsolete()) {
+      if (rel.isHierarchical() && !rel.isObsolete()) {
         results.add(rel.getTo());
       }
     }

@@ -121,15 +121,12 @@
       <groupId>net.sourceforge.owlapi</groupId>
       <artifactId>owlapi-impl</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
 
     <!-- Classifier -->
     <dependency>
-      <groupId>au.csiro</groupId>
-      <artifactId>snorocket-owlapi</artifactId>
+      <groupId>com.hermit-reasoner</groupId>
+      <artifactId>org.semanticweb.hermit</artifactId>
+      <!-- <groupId>au.csiro</groupId> <artifactId>snorocket-owlapi</artifactId> -->
     </dependency>
 
   </dependencies>

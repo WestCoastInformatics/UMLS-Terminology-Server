@@ -123,6 +123,7 @@ public class ModelUnit008Test {
     tester.include("inferred");
     tester.include("relationshipType");
     tester.include("stated");
+    tester.include("hierarchical");
     tester.include("to");
     tester.include("from");
 
@@ -265,6 +266,7 @@ public class ModelUnit008Test {
     tester.include("relationshipType");
     tester.include("inferred");
     tester.include("stated");
+    tester.include("hierarchical");
     tester.include("from");
     tester.include("to");
     assertTrue(tester.testNotNullFields());

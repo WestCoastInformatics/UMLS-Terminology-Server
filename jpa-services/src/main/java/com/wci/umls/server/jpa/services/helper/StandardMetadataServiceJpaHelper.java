@@ -5,7 +5,6 @@ package com.wci.umls.server.jpa.services.helper;
 
 import javax.persistence.NoResultException;
 
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
@@ -27,7 +26,6 @@ import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.services.MetadataService;
-import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Default implementation of {@link MetadataService}.
@@ -194,37 +192,6 @@ public class StandardMetadataServiceJpaHelper extends
   }
 
   /* see superclass */
-  @SuppressWarnings("unchecked")
-  @Override
-  public RelationshipTypeList getHierarchicalRelationshipTypes(
-    String terminology, String version) throws Exception {
-    javax.persistence.Query query =
-        manager.createQuery("SELECT r from RelationshipTypeJpa r "
-            + "where abbreviation = :rel " + "and terminology = :terminology"
-            + " and version = :version");
-    query.setParameter("rel", "CHD");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
-    RelationshipTypeList types = new RelationshipTypeListJpa();
-    // Try "subClassOf" if "CHD" doesn't work
-    if (query.getResultList().size() == 0) {
-      query.setParameter("rel", "subClassOf");
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);      
-    }    
-    types.setObjects(query.getResultList());
-    types.setTotalCount(types.getObjects().size());
-
-    return types;
-  }
-
-  /* see superclass */
-  @Override
-  public boolean isHierarchcialRelationship(Relationship<?, ?> relationship) {
-    return relationship.getRelationshipType().equals("CHD");
-  }
-
-  /* see superclass */
   @Override
   public boolean isStatedRelationship(Relationship<?, ?> relationship) {
     return true;
@@ -294,6 +261,5 @@ public class StandardMetadataServiceJpaHelper extends
     close();
     manager = factory.createEntityManager();
   }
-
 
 }

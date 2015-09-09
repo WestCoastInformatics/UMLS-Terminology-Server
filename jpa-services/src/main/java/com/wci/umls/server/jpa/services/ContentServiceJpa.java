@@ -3779,6 +3779,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         relationship.setTerminology(result[2].toString());
         relationship.setVersion(result[3].toString());
         relationship.setRelationshipType(result[4].toString());
+        relationship.setHierarchical(result[4].toString().equals("CHD")
+            || result[4].toString().equals("subClassOf"));
         relationship.setAdditionalRelationshipType(result[5].toString());
         relationship.setObsolete(result[7].toString().equals("1"));
         relationship.setSuppressible(result[8].toString().equals("1"));

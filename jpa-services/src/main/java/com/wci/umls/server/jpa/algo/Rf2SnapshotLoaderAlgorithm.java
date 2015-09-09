@@ -514,9 +514,11 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         relationship.setObsolete(fields[2].equals("0")); // active
         relationship.setSuppressible(relationship.isObsolete());
         relationship.setGroup(fields[6].intern()); // relationshipGroup
-        relationship.setRelationshipType(fields[7].equals(isaTypeRel) ? "CHD"
-            : "RO"); // typeId
+        relationship.setRelationshipType(fields[7].equals(isaTypeRel)
+            ? "subClassOf" : "other"); // typeId
         relationship.setAdditionalRelationshipType(fields[7]); // typeId
+        relationship.setHierarchical(relationship.getRelationshipType().equals(
+            "subClassOf"));
         generalEntryValues.add(relationship.getAdditionalRelationshipType());
         additionalRelTypes.add(relationship.getAdditionalRelationshipType());
         relationship.setStated(fields[8].equals("900000000000010007"));
@@ -1433,7 +1435,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
     // relationship types - CHD, PAR, and RO
     String[] relTypes = new String[] {
-        "RO", "CHD", "PAR"
+        "other", "subClassOf", "superClassOf"
     };
     RelationshipType chd = null;
     RelationshipType par = null;
@@ -1447,13 +1449,13 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       type.setPublishable(true);
       type.setPublished(true);
       type.setAbbreviation(rel);
-      if (rel.equals("CHD")) {
+      if (rel.equals("subClassOf")) {
         chd = type;
-        type.setExpandedForm("Child of");
-      } else if (rel.equals("PAR")) {
+        type.setExpandedForm("Sub class of");
+      } else if (rel.equals("superClassOf")) {
         par = type;
-        type.setExpandedForm("Parent of");
-      } else if (rel.equals("RO")) {
+        type.setExpandedForm("Super class of");
+      } else if (rel.equals("other")) {
         ro = type;
         type.setExpandedForm("Other");
       } else {
