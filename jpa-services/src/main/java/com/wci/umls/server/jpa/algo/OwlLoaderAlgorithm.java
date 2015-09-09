@@ -1005,7 +1005,10 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             .getRelationships()) {
           typesChd.add(rel.getAdditionalRelationshipType());
         }
-        if (typesPar.equals(typesChd)) {
+        System.out.println("typesPar = " + typesPar);
+        System.out.println("typesChd = " + typesChd);
+        if (typesPar.equals(typesChd) || typesChd.containsAll(typesPar)) {
+          System.out.println("  FOUND" );
           found = true;
           break;
         }
@@ -1026,6 +1029,10 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           Logger.getLogger(getClass()).info(
               "  CHECK2 " + chd.getTerminologyId());
         }
+      } else {
+        Logger.getLogger(getClass()).info(
+            "  CHECK3 " + chd.getTerminologyId());
+        
       }
     }
 
