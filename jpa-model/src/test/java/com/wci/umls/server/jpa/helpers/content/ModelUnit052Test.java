@@ -90,6 +90,8 @@ public class ModelUnit052Test {
     tester.include("version");
     tester.include("leftHandSide");
     tester.include("rightHandSide");
+    tester.include("equivalent");
+    tester.include("subClass");
 
     tester.proxy(Concept.class, 1, c1);
     tester.proxy(Concept.class, 2, c2);
@@ -159,6 +161,8 @@ public class ModelUnit052Test {
     tester.include("version");
     tester.include("leftHandSide");
     tester.include("rightHandSide");
+    tester.include("equivalent");
+    tester.include("subClass");
     assertTrue(tester.testNotNullFields());
   }
 

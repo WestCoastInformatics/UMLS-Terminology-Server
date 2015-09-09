@@ -716,4 +716,18 @@ public class ConfigUtility {
         .matches("^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$");
   }
 
+  /**
+   * Returns the indent for level.
+   *
+   * @param level the level
+   * @return the indent for level
+   */
+  public static String getIndentForLevel(int level) {
+
+    StringBuilder sb = new StringBuilder().append("  ");
+    for (int i = 0; i < level; i++) {
+      sb.append("  ");
+    }
+    return sb.toString();
+  }
 }

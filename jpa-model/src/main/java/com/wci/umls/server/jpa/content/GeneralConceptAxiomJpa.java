@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.content;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -34,15 +35,20 @@ public class GeneralConceptAxiomJpa extends AbstractComponent implements
   /** The lhs concept. */
   @ManyToOne(targetEntity = ConceptJpa.class, fetch = FetchType.EAGER, optional = false)
   @JoinColumn(nullable = false)
-  private Concept leftHandSide; // index the hibernate id only, rest service/jpa
-                                // will
-
-  // find concept
+  private Concept leftHandSide;
 
   /** the rhs concept. */
   @ManyToOne(targetEntity = ConceptJpa.class, fetch = FetchType.EAGER, optional = false)
   @JoinColumn(nullable = false)
-  private Concept rightHandSide; // index all methods
+  private Concept rightHandSide;
+
+  /** The equivalent. */
+  @Column(nullable = false)
+  private boolean equivalent;
+
+  /** The sub class. */
+  @Column(nullable = false)
+  private boolean subClass;
 
   /**
    * Instantiates an empty {@link GeneralConceptAxiomJpa}.
@@ -92,14 +98,40 @@ public class GeneralConceptAxiomJpa extends AbstractComponent implements
 
   /* see superclass */
   @Override
+  public boolean isEquivalent() {
+    return equivalent;
+  }
+
+  /* see superclass */
+  @Override
+  public void setEquivalent(boolean equivalent) {
+    this.equivalent = equivalent;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean isSubClass() {
+    return subClass;
+  }
+
+  /* see superclass */
+  @Override
+  public void setSubClass(boolean subClass) {
+    this.subClass = subClass;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + (equivalent ? 1231 : 1237);
     result =
         prime * result + ((leftHandSide == null) ? 0 : leftHandSide.hashCode());
     result =
         prime * result
             + ((rightHandSide == null) ? 0 : rightHandSide.hashCode());
+    result = prime * result + (subClass ? 1231 : 1237);
     return result;
   }
 
@@ -113,6 +145,8 @@ public class GeneralConceptAxiomJpa extends AbstractComponent implements
     if (getClass() != obj.getClass())
       return false;
     GeneralConceptAxiomJpa other = (GeneralConceptAxiomJpa) obj;
+    if (equivalent != other.equivalent)
+      return false;
     if (leftHandSide == null) {
       if (other.leftHandSide != null)
         return false;
@@ -123,6 +157,8 @@ public class GeneralConceptAxiomJpa extends AbstractComponent implements
         return false;
     } else if (!rightHandSide.equals(other.rightHandSide))
       return false;
+    if (subClass != other.subClass)
+      return false;
     return true;
   }
 
@@ -130,7 +166,8 @@ public class GeneralConceptAxiomJpa extends AbstractComponent implements
   @Override
   public String toString() {
     return "GeneralConceptAxiomJpa [leftHandSide=" + leftHandSide
-        + ", rightHandSide=" + rightHandSide + "]";
+        + ", rightHandSide=" + rightHandSide + ", equivalent=" + equivalent
+        + ", subClass=" + subClass + "]";
   }
 
 }

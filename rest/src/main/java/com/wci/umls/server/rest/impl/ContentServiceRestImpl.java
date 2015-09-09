@@ -57,6 +57,7 @@ import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
@@ -82,6 +83,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
@@ -553,7 +555,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo.reset();
       algo.compute();
       algo.close();
-      
+
       // compute tree positions
       TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
       algo2.setCycleTolerant(false);
@@ -629,7 +631,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     try {
       authenticate(securityService, authToken, "load full",
           UserRole.ADMINISTRATOR);
-
 
       // Check the input directory
       File inputDirFile = new File(inputDir);
@@ -732,7 +733,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       for (String release : releases) {
         // Refresh caches for metadata handlers
         new MetadataServiceJpa().refreshCaches();
-        
+
         if (release.equals(releases.get(0))) {
           continue;
         }
@@ -763,7 +764,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo.reset();
       algo.compute();
       algo.close();
-      
+
       // compute tree positions
       TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
       algo2.setCycleTolerant(false);
@@ -802,7 +803,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Logger.getLogger(getClass()).info(
           "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
       Logger.getLogger(getClass()).info("done ...");
-      
+
     } catch (Exception e) {
       handleException(e,
           "trying to load terminology snapshot from RF2 directory");
@@ -812,6 +813,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     }
 
   }
+
   /* see superclass */
   @Override
   @PUT
@@ -914,7 +916,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo.setVersion(version);
       algo.setInputFile(inputFile);
       algo.compute();
-      
+
       MetadataService service = new MetadataServiceJpa();
       service.refreshCaches();
 
@@ -1885,6 +1887,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
+  @SuppressWarnings({
+      "rawtypes", "unchecked"
+  })
   @Override
   @POST
   @Path("/cui/{terminology}/{version}/{terminologyId}/relationships")
@@ -1918,7 +1923,30 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
 
-      return list;
+      // For any relationships to anonymous concepts, we need to push that up to
+      // the current level and set relationship groups.
+      RelationshipList result = new RelationshipListJpa();
+      int group = 0;
+      for (Relationship rel : list.getObjects()) {
+        ConceptRelationship rel2 = (ConceptRelationship) rel;
+        if (rel2.getTo().isAnonymous()) {
+          // Turn into a relationship group.
+          group++;
+          for (ConceptRelationship innerRel : rel2.getTo().getRelationships()) {
+            ConceptRelationship innerRel2 =
+                new ConceptRelationshipJpa(innerRel, true);
+            innerRel2.setFrom(rel2.getFrom());
+            innerRel2.setGroup(String.valueOf(group));
+            result.getObjects().add(innerRel2);
+          }
+
+        } else {
+          result.getObjects().add(rel);
+        }
+      }
+      result.setTotalCount(list.getTotalCount());
+
+      return result;
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve relationships for a concept");

@@ -227,7 +227,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     beginTransaction();
 
     objectCt = 0;
-    fireProgressEvent(10, "Find roots");
+    fireProgressEvent(10, "Compute tree positions for roots");
     int i = 0;
     for (Long rootId : rootIds) {
       i++;
