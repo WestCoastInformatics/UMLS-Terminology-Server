@@ -10,7 +10,7 @@
     <relativePath>../../parent</relativePath>
   </parent>
 
-  <artifactId>term-server-config-prod-owl</artifactId>
+  <artifactId>term-server-config-prod</artifactId>
   <packaging>pom</packaging>
   <name>Terminology server configuration project for the demo prod environment.</name>
   <description>Template configuration files for the demo prod environment.</description>
