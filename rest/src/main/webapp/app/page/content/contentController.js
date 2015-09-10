@@ -410,19 +410,10 @@ tsApp
                 $scope.searchResults.list.totalCount = data.totalCount;
 
                 if (loadFirst && $scope.searchResults.list.length > 0) {
-                  contentService
+                  $scope
                     .getComponent($scope.searchResults.list[0].terminologyId,
                       $scope.metadata.terminology.terminology,
-                      $scope.metadata.terminology.version)
-                    .then(
-                      function(data) {
-                        $scope
-                          .setActiveRow($scope.component.object.terminologyId);
-                        $scope
-                          .setComponentLocalHistory($scope.component.historyIndex);
-                        $scope.getTree(0);
-                        applyPaging();
-                      });
+                      $scope.metadata.terminology.version);
                 }
               });
         }
@@ -1035,6 +1026,7 @@ tsApp
           contentService.getComponentFromHistory(index).then(function(data) {
             // manage local history
             $scope.setComponentLocalHistory(index);
+            $scope.getTree(0);
             applyPaging();
           });
         }

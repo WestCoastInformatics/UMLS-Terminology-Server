@@ -3014,11 +3014,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Query term2 = new TermQuery(new Term("version", version));
     Query term3 = new TermQuery(new Term("atoms.suppressible", "false"));
     Query term4 = new TermQuery(new Term("suppressible", "false"));
+    Query term5 = new TermQuery(new Term("anonymous", "false"));
     BooleanQuery booleanQuery = new BooleanQuery();
     booleanQuery.add(term1, BooleanClause.Occur.MUST);
     booleanQuery.add(term2, BooleanClause.Occur.MUST);
     booleanQuery.add(term3, BooleanClause.Occur.MUST);
     booleanQuery.add(term4, BooleanClause.Occur.MUST);
+    booleanQuery.add(term5, BooleanClause.Occur.MUST);
     booleanQuery.add(query, BooleanClause.Occur.MUST);
 
     FullTextQuery fullTextQuery =
