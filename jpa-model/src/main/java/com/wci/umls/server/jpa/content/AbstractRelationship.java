@@ -174,7 +174,6 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
     this.assertedDirection = assertedDirection;
   }
 
-  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -184,18 +183,18 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
             * result
             + ((additionalRelationshipType == null) ? 0
                 : additionalRelationshipType.hashCode());
+    result = prime * result + (assertedDirection ? 1231 : 1237);
     result = prime * result + ((group == null) ? 0 : group.hashCode());
-    result = prime * result + (inferred ? 7 : 9);
-    result = prime * result + (assertedDirection ? 11 : 37);
+    result = prime * result + (hierarchical ? 1231 : 1237);
+    result = prime * result + (inferred ? 1231 : 1237);
     result =
         prime * result
             + ((relationshipType == null) ? 0 : relationshipType.hashCode());
-    result = prime * result + (stated ? 1231 : 1237);
-    result = prime * result + (hierarchical ? 1231 : 1237);
+    result = prime * result + (stated ? 1237 : 1231);
     return result;
   }
 
-  /* see superclass */
+  @SuppressWarnings("rawtypes")
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -204,21 +203,23 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
       return false;
     if (getClass() != obj.getClass())
       return false;
-    AbstractRelationship<?, ?> other = (AbstractRelationship<?, ?>) obj;
+    AbstractRelationship other = (AbstractRelationship) obj;
     if (additionalRelationshipType == null) {
       if (other.additionalRelationshipType != null)
         return false;
     } else if (!additionalRelationshipType
         .equals(other.additionalRelationshipType))
       return false;
+    if (assertedDirection != other.assertedDirection)
+      return false;
     if (group == null) {
       if (other.group != null)
         return false;
     } else if (!group.equals(other.group))
       return false;
-    if (inferred != other.inferred)
+    if (hierarchical != other.hierarchical)
       return false;
-    if (assertedDirection != other.assertedDirection)
+    if (inferred != other.inferred)
       return false;
     if (relationshipType == null) {
       if (other.relationshipType != null)
@@ -226,8 +227,6 @@ public abstract class AbstractRelationship<S extends ComponentHasAttributes, T e
     } else if (!relationshipType.equals(other.relationshipType))
       return false;
     if (stated != other.stated)
-      return false;
-    if (hierarchical != other.hierarchical)
       return false;
     return true;
   }

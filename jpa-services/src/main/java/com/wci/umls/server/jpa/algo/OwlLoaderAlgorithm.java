@@ -629,11 +629,13 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private void loadInferred(OWLOntology ontology) throws Exception {
     Logger.getLogger(getClass()).info("Load inferred axioms");
 
-    //OWLReasonerFactory reasonerFactory = new SnorocketReasonerFactory();
-    //OWLReasoner reasoner = reasonerFactory.createNonBufferingReasoner(ontology);
+    // OWLReasonerFactory reasonerFactory = new SnorocketReasonerFactory();
+    // OWLReasoner reasoner =
+    // reasonerFactory.createNonBufferingReasoner(ontology);
 
-    OWLReasoner reasoner=new Reasoner.ReasonerFactory().createReasoner(ontology);
-    
+    OWLReasoner reasoner =
+        new Reasoner.ReasonerFactory().createReasoner(ontology);
+
     // Not 100% sure why this is important, vs having no arguments
     reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY);
 
@@ -691,10 +693,10 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           if (chdClass.isBottomEntity()) {
             break;
           }
-          Concept par =
-              getConcept(idMap.get(getTerminologyId(owlClass.getIRI())));
           Concept chd =
               getConcept(idMap.get(getTerminologyId(chdClass.getIRI())));
+          Concept par =
+              getConcept(idMap.get(getTerminologyId(owlClass.getIRI())));
           ConceptRelationship rel = getSubClassOfRelationship(chd, par);
           rel.setInferred(true);
           rel.setStated(false);
@@ -823,8 +825,9 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    *
    * @param par the par
    * @param chd the chd
+   * @param reasoner the reasoner
    * @return the relationships to infer
-   * @throws Exception
+   * @throws Exception the exception
    */
   private Set<ConceptRelationship> getRelationshipsToInfer(Concept par,
     Concept chd, OWLReasoner reasoner) throws Exception {
@@ -879,7 +882,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       inferredRel.setId(null);
       inferredRel.setInferred(true);
       inferredRel.setStated(false);
-      if (!chdRels.contains(inferredRel)) {
+      if (!inferredRels.contains(inferredRel) && !chdRels.contains(inferredRel)) {
         inferredRels.add(inferredRel);
       }
     }
@@ -901,7 +904,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       inferredRel.setId(null);
       inferredRel.setInferred(true);
       inferredRel.setStated(false);
-      if (!chdRels.contains(inferredRel)) {
+      if (!inferredRels.contains(inferredRel) && !chdRels.contains(inferredRel)) {
         inferredRels.add(inferredRel);
       }
     }
@@ -919,10 +922,11 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       ConceptRelationship inferredRel =
           new ConceptRelationshipJpa(chdRel, true);
+      inferredRel.setFrom(chd);
       inferredRel.setId(null);
       inferredRel.setInferred(true);
       inferredRel.setStated(false);
-      if (!chdRels.contains(inferredRel)) {
+      if (!inferredRels.contains(inferredRel) && !chdRels.contains(inferredRel)) {
         inferredRels.add(inferredRel);
       }
     }
@@ -945,12 +949,16 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // Infer the child rel
       ConceptRelationship inferredRel =
           new ConceptRelationshipJpa(chdRel, true);
+      inferredRel.setFrom(chd);
       inferredRel.setId(null);
       inferredRel.setInferred(true);
       inferredRel.setStated(false);
-      if (!chdRels.contains(inferredRel)) {
+      if (!inferredRels.contains(inferredRel) && !chdRels.contains(inferredRel)) {
         inferredRels.add(inferredRel);
-        Logger.getLogger(getClass()).info("  CHECK " + chd.getTerminologyId());
+        Logger.getLogger(getClass()).info(
+            "  CHECK " + chd.getTerminologyId() + ", " + inferredRel.hashCode()
+                + ", " + inferredRels.size());
+        Logger.getLogger(getClass()).info(" rel = " + inferredRel);
       }
     }
 
@@ -994,7 +1002,6 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         // TODO: in order to do this, we need to save the Owl class expressions
         // that go with anonymous concepts
 
-        
         Set<String> typesPar = new HashSet<>();
         for (ConceptRelationship rel : getConcept(parRel.getTo().getId())
             .getRelationships()) {
@@ -1008,7 +1015,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         System.out.println("typesPar = " + typesPar);
         System.out.println("typesChd = " + typesChd);
         if (typesPar.equals(typesChd) || typesChd.containsAll(typesPar)) {
-          System.out.println("  FOUND" );
+          System.out.println("  FOUND");
           found = true;
           break;
         }
@@ -1021,18 +1028,22 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         // Infer the parent rel
         ConceptRelationship inferredRel =
             new ConceptRelationshipJpa(parRel, true);
+        inferredRel.setFrom(chd);
         inferredRel.setId(null);
         inferredRel.setInferred(true);
         inferredRel.setStated(false);
-        if (!chdRels.contains(inferredRel)) {
+        if (!inferredRels.contains(inferredRel)
+            && !chdRels.contains(inferredRel)) {
           inferredRels.add(inferredRel);
           Logger.getLogger(getClass()).info(
-              "  CHECK2 " + chd.getTerminologyId());
+              "  CHECK2 " + chd.getTerminologyId() + ", "
+                  + inferredRel.hashCode() + ", " + inferredRels.size());
+          Logger.getLogger(getClass()).info(" rel = " + inferredRel);
+
         }
       } else {
-        Logger.getLogger(getClass()).info(
-            "  CHECK3 " + chd.getTerminologyId());
-        
+        Logger.getLogger(getClass()).info("  CHECK3 " + chd.getTerminologyId());
+
       }
     }
 
@@ -1230,6 +1241,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
                   1);
           // Wire relationships to this concept and save
           for (ConceptRelationship rel : concept2.getRelationships()) {
+
             rel.setFrom(concept);
             rels.add(rel);
           }
@@ -1246,7 +1258,6 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             rel.setFrom(concept);
             rels.add(rel);
           }
-
         }
 
         // Otherwise error
@@ -2391,7 +2402,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   }
 
   /**
-   * Returns the concept for intersection.
+   * Returns the concept for an ObjectIntersectionOf. This is just used to
+   * borrow relationships and never actually creates an anonymous concept.
    *
    * @param expr the expr
    * @param ontology the ontology
@@ -2425,9 +2437,12 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         // If it's a restriction, borrow its relationships
         if (expr2 instanceof OWLObjectSomeValuesFrom) {
           for (ConceptRelationship rel : concept2.getRelationships()) {
-            // rewire the "from" concept to this one and add the rel
-            rel.setFrom(concept);
-            concept.addRelationship(rel);
+            // In case this is from a reused inserted anonymous concept, copy it
+            // first
+            ConceptRelationship rel2 = new ConceptRelationshipJpa(rel, true);
+            rel2.setId(null);
+            rel2.setFrom(concept);
+            concept.addRelationship(rel2);
           }
         }
         // otherwise, simply add this concept as a parent
@@ -2493,9 +2508,12 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             "Unexpected anonymous concept with atoms or attributes ");
       }
 
-      for (ConceptRelationship rel : concept.getRelationships()) {
-        Logger.getLogger(getClass()).debug("  add relationship - " + rel);
+      List<ConceptRelationship> relsToAdd = concept.getRelationships();
+      concept.setRelationships(new ArrayList<ConceptRelationship>());
+      for (ConceptRelationship rel : relsToAdd) {
         addRelationship(rel);
+        concept.addRelationship(rel);
+        Logger.getLogger(getClass()).debug("  add relationship - " + rel);
       }
     }
   }
