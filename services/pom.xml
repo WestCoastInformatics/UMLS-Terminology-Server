@@ -18,7 +18,10 @@
   <!-- Declare Project Dependency Versions -->
   <dependencies>
 
-
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+    </dependency>
 
 
     <!-- Required for Jersey and JSON -->

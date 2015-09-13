@@ -65,7 +65,6 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
-import com.wci.umls.server.services.handlers.SearchHandler;
 import com.wci.umls.server.services.handlers.WorkflowListener;
 
 /**
@@ -160,33 +159,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     }
   }
 
-  /** The search. */
-  /*private static Map<String, SearchHandler> searchMap = null;
-  static {
-    searchMap = new HashMap<>();
-    try {
-      if (config == null)
-        config = ConfigUtility.getConfigProperties();
-      String key = "graph.resolution.handler";
-      for (String handlerName : config.getProperty(key).split(",")) {
-        if (handlerName.isEmpty())
-          continue;
-        // Add handlers to map
-        SearchHandler handlerService =
-            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
-                handlerName, SearchHandler.class);
-        searchMap.put(handlerName, handlerService);
-      }
-      if (!searchMap.containsKey(ConfigUtility.DEFAULT)) {
-        throw new Exception("graph.resolution.handler." + ConfigUtility.DEFAULT
-            + " expected and does not exist.");
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      searchMap = null;
-    }
-  }*/
-  
   /**
    * Instantiates an empty {@link MetadataServiceJpa}.
    *
@@ -206,10 +178,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       throw new Exception(
           "Graph resolver did not properly initialize, serious error.");
     }
-    /*if (searchMap == null) {
-      throw new Exception(
-          "Search did not properly initialize, serious error.");
-    }*/
+
   }
 
   /* see superclass */
@@ -1442,13 +1411,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     return graphResolverMap.get(ConfigUtility.DEFAULT);
   }
 
-  @Override
-  public SearchHandler getSearchHandler(String terminology) throws Exception {
-    /*if (searchMap.containsKey(terminology)) {
-      return searchMap.get(terminology);
-    }
-    return searchMap.get(ConfigUtility.DEFAULT);*/
-    return null;
-  }
+
 
 }

@@ -4,7 +4,7 @@
 package com.wci.umls.server.services.handlers;
 
 import java.util.List;
-
+import javax.persistence.EntityManager;
 import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.model.content.AtomClass;
@@ -18,6 +18,7 @@ public interface SearchHandler extends Configurable {
 
   public <T extends AtomClass> List<T> getLuceneQueryResults(
       String terminology, String version, String branch, String query,
-      Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt)
+      Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, 
+      int[] totalCt, EntityManager manager)
       throws Exception;
 }

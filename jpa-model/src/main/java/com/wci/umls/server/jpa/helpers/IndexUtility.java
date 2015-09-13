@@ -35,7 +35,7 @@ public class IndexUtility {
 
     // Avoid ngram and sort fields (these have special uses)
     Set<String> exclusions = new HashSet<>();
-    exclusions.add("Sort");
+    //exclusions.add("Sort");
     exclusions.add("nGram");
     exclusions.add("NGram");
 

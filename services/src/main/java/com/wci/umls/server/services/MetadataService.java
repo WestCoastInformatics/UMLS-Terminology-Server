@@ -639,13 +639,5 @@ public interface MetadataService extends RootService, Configurable {
     throws Exception;
 
   
-  /**
-   * Gets the search handler.
-   *
-   * @param terminology the terminology
-   * @return the search handler
-   * @throws Exception the exception
-   */
-  public SearchHandler getSearchHandler(String terminology)
-      throws Exception;
+
 }

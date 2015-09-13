@@ -6,7 +6,6 @@ package com.wci.umls.server.jpa.services.helper;
 import java.util.Map;
 import java.util.Properties;
 
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.RootTerminologyList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
@@ -24,7 +23,6 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
-import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Default implementation of {@link MetadataService}.
@@ -388,11 +386,4 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
     return null;
   }
 
-  /* see superclass */
-  @Override
-  public SearchHandler getSearchHandler(String terminology)
-    throws Exception {
-    // n/a
-    return null;
-  }
 }

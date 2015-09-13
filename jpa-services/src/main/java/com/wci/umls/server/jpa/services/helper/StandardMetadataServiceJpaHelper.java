@@ -5,7 +5,6 @@ package com.wci.umls.server.jpa.services.helper;
 
 import javax.persistence.NoResultException;
 
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
@@ -27,7 +26,6 @@ import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TermTypeListJpa;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.services.MetadataService;
-import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Default implementation of {@link MetadataService}.

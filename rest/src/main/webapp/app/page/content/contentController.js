@@ -400,11 +400,11 @@ tsApp
           $scope.queryForList = true;
 
           // ensure query string has minimum length
-          if ($scope.searchParams.query == null
+          /*if ($scope.searchParams.query == null
             || $scope.searchParams.query.length < 3) {
             alert("You must use at least one character to search");
             return;
-          }
+          }*/
 
           contentService
             .findComponentsAsList($scope.searchParams.query,

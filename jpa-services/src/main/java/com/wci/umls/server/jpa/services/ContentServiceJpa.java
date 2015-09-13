@@ -125,6 +125,7 @@ import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 import com.wci.umls.server.services.handlers.NormalizedStringHandler;
+import com.wci.umls.server.services.handlers.SearchHandler;
 import com.wci.umls.server.services.handlers.WorkflowListener;
 
 /**
@@ -222,6 +223,34 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       normalizedStringHandler = null;
     }
   }
+  
+  /** The search. */
+  private static Map<String, SearchHandler> searchMap = null;
+  static {
+    searchMap = new HashMap<>();
+    try {
+      if (config == null)
+        config = ConfigUtility.getConfigProperties();
+      String key = "search.handler";
+      for (String handlerName : config.getProperty(key).split(",")) {
+        if (handlerName.isEmpty())
+          continue;
+        // Add handlers to map
+        SearchHandler handlerService =
+            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
+                handlerName, SearchHandler.class);
+        searchMap.put(handlerName, handlerService);
+      }
+      if (!searchMap.containsKey(ConfigUtility.DEFAULT)) {
+        throw new Exception("search.handler." + ConfigUtility.DEFAULT
+            + " expected and does not exist.");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      searchMap = null;
+    }
+  }
+  
 
   /** The string field names map. */
   private static Map<Class<?>, Set<String>> stringFieldNames = new HashMap<>();
@@ -283,6 +312,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     if (normalizedStringHandler == null) {
       throw new Exception(
           "Normalized string handler did not properly initialize, serious error.");
+    }
+    
+    if (searchMap == null) {
+      throw new Exception(
+        "Search did not properly initialize, serious error.");
     }
   }
 
@@ -2470,19 +2504,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         DescriptorJpa.class);
   }
 
-  /**
-   * Computes whether the given query string and PFS parameter will lead to an
-   * actual lucene query.
-   *
-   * @param query the query
-   * @param pfs the pfs
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  @SuppressWarnings("static-method")
-  private boolean isLuceneQueryInfo(String query, PfsParameter pfs) {
-    return pfs.getQueryRestriction() != null || pfs.getActiveOnly()
-        || pfs.getInactiveOnly() || (query != null && !query.isEmpty());
-  }
+
 
   /**
    * Find for query helper.
@@ -2512,9 +2534,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     boolean queryFlag = false;
     if (isLuceneQueryInfo(query, pfsc)) {
       queryFlag = true;
+      SearchHandler searchHandler = getSearchHandler(terminology);
       queryClasses =
-          getLuceneQueryResults(terminology, version, branch, query,
-              fieldNamesKey, clazz, pfsc, totalCt);
+          searchHandler.getLuceneQueryResults(terminology, version, branch, query,
+              fieldNamesKey, clazz, pfsc, totalCt, manager);
       Logger.getLogger(getClass()).debug(
           "    lucene result count = " + queryClasses.size());
     }
@@ -2826,152 +2849,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return classes;
   }
 
-  /**
-   * Returns the search criteria results.
-   *
-   * @param <T> the
-   * @param terminology the terminology
-   * @param version the version
-   * @param criteria the criteria
-   * @param clazz the clazz
-   * @return the search criteria results
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private <T extends AtomClass> List<T> getSearchCriteriaResults(
-    String terminology, String version, SearchCriteria criteria, Class<T> clazz)
-    throws Exception {
-    StringBuilder builder = new StringBuilder();
-    builder.append("SELECT a FROM " + clazz.getName() + " a "
-        + "WHERE terminology = :terminology " + "AND version = :version ");
 
-    String terminologyId = null;
-
-    // findDefinedOnly (applies to Concept only)
-    if (criteria.getDefinedOnly()) {
-      if (ConceptJpa.class.isAssignableFrom(clazz)) {
-        builder.append("AND a.fullyDefined = 1 ");
-      }
-    }
-
-    // findPrimitiveOnly (applies to Concept only)
-    if (criteria.getPrimitiveOnly()) {
-      if (ConceptJpa.class.isAssignableFrom(clazz)) {
-        builder.append("AND a.fullyDefined = 0 ");
-      }
-    }
-
-    // Find "to" end of a relationship
-    // with a "from" id and optionally a "type"
-    // and optionally find descendants of those things
-    String relType = null;
-    if (criteria.getRelationshipFromId() != null) {
-      StringBuilder relBuilder = new StringBuilder();
-      terminologyId = criteria.getRelationshipFromId();
-
-      if (criteria.getRelationshipDescendantsFlag()) {
-        relBuilder.append("SELECT DISTINCT b.to FROM "
-            + clazz.getName().replace("Jpa", "RelationshipJpa")
-            + " b, "
-            + clazz.getName().replace("Jpa",
-                "TransitiveRelationshipJpa" + " c, ") + clazz.getName() + " d "
-            + "WHERE b.from = c.subType " + "AND c.superType = d "
-            + "AND b.obsolete = 0 " + "AND d.terminology = :terminology "
-            + "AND d.version = :version "
-            + "AND d.terminologyId = :terminologyId");
-      } else {
-        relBuilder.append("SELECT b.to FROM "
-            + clazz.getName().replace("Jpa", "RelationshipJpa") + " b, "
-            + clazz.getName() + " c " + "WHERE b.from = c "
-            + "AND b.obsolete = 0 " + "AND c.terminology = :terminology "
-            + "AND c.version = :version "
-            + "AND c.terminologyId = :terminologyId");
-      }
-
-      if (criteria.getRelationshipType() != null) {
-        relType = criteria.getRelationshipType();
-        relBuilder.append(" AND additionalRelationshipType = :type");
-      }
-
-      builder.append("AND a IN (").append(relBuilder.toString()).append(")");
-    }
-
-    // Find "from" end of a relationship
-    // with a "to" id and optionally a "type"
-    // and optionally find descendants of those things
-    if (criteria.getRelationshipToId() != null) {
-      StringBuilder relBuilder = new StringBuilder();
-      terminologyId = criteria.getRelationshipToId();
-
-      if (criteria.getRelationshipDescendantsFlag()) {
-        relBuilder.append("SELECT DISTINCT b.from FROM "
-            + clazz.getName().replace("Jpa", "RelationshipJpa")
-            + " b, "
-            + clazz.getName().replace("Jpa",
-                "TransitiveRelationshipJpa" + " c, ") + clazz.getName() + " d "
-            + "WHERE b.to = c.subType " + "AND c.superType = d "
-            + "AND b.obsolete = 0 " + "AND d.terminology = :terminology "
-            + "AND d.version = :version "
-            + "AND d.terminologyId = :terminologyId");
-      } else {
-        relBuilder.append("SELECT b.from FROM "
-            + clazz.getName().replace("Jpa", "RelationshipJpa") + " b, "
-            + clazz.getName() + " c " + "WHERE b.to = c "
-            + "AND b.obsolete = 0 " + "AND c.terminology = :terminology "
-            + "AND c.version = :version "
-            + "AND c.terminologyId = :terminologyId");
-      }
-
-      if (criteria.getRelationshipType() != null) {
-        relType = criteria.getRelationshipType();
-        relBuilder.append(" AND additionalRelationshipType = :type");
-      }
-
-      builder.append("AND a IN (").append(relBuilder.toString()).append(")");
-    }
-
-    // wrapper around query to findDescendants of results and self (unless
-    // specified)
-    if (criteria.getFindDescendants()) {
-      StringBuilder descBuilder = new StringBuilder();
-      descBuilder
-          .append(
-              "SELECT t.subType FROM "
-                  + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
-                  + " t " + " WHERE t.superType IN (")
-          .append(builder.toString()).append(")");
-
-      if (!criteria.getFindSelf()) {
-        // Not self.
-        descBuilder.append(" AND t.superType != t.subType ");
-      }
-
-      builder = descBuilder;
-    }
-
-    // findByRelationshipTypeId on its own
-    if (criteria.getRelationshipType() != null && relType == null) {
-      throw new Exception(
-          "Unexpected use of relationship type criteria without "
-              + "specifying a from or to relationship id");
-    }
-
-    // Run the final query
-    Logger.getLogger(getClass()).debug("  query = " + builder);
-    javax.persistence.Query query = manager.createQuery(builder.toString());
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
-    if (terminologyId != null) {
-      query.setParameter("terminologyId", terminologyId);
-    }
-    if (relType != null) {
-      query.setParameter("type", relType);
-    }
-    List<T> classes = query.getResultList();
-
-    return classes;
-
-  }
 
   /**
    * Autocomplete helper.
@@ -4497,5 +4375,175 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     return list;
+  }
+  
+  /**
+   * Returns the search criteria results.
+   *
+   * @param <T> the
+   * @param terminology the terminology
+   * @param version the version
+   * @param criteria the criteria
+   * @param clazz the clazz
+   * @return the search criteria results
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  private <T extends AtomClass> List<T> getSearchCriteriaResults(
+    String terminology, String version, SearchCriteria criteria, Class<T> clazz)
+    throws Exception {
+    StringBuilder builder = new StringBuilder();
+    builder.append("SELECT a FROM " + clazz.getName() + " a "
+        + "WHERE terminology = :terminology " + "AND version = :version ");
+
+    String terminologyId = null;
+
+    // findDefinedOnly (applies to Concept only)
+    if (criteria.getDefinedOnly()) {
+      if (ConceptJpa.class.isAssignableFrom(clazz)) {
+        builder.append("AND a.fullyDefined = 1 ");
+      }
+    }
+
+    // findPrimitiveOnly (applies to Concept only)
+    if (criteria.getPrimitiveOnly()) {
+      if (ConceptJpa.class.isAssignableFrom(clazz)) {
+        builder.append("AND a.fullyDefined = 0 ");
+      }
+    }
+
+    // Find "to" end of a relationship
+    // with a "from" id and optionally a "type"
+    // and optionally find descendants of those things
+    String relType = null;
+    if (criteria.getRelationshipFromId() != null) {
+      StringBuilder relBuilder = new StringBuilder();
+      terminologyId = criteria.getRelationshipFromId();
+
+      if (criteria.getRelationshipDescendantsFlag()) {
+        relBuilder.append("SELECT DISTINCT b.to FROM "
+            + clazz.getName().replace("Jpa", "RelationshipJpa")
+            + " b, "
+            + clazz.getName().replace("Jpa",
+                "TransitiveRelationshipJpa" + " c, ") + clazz.getName() + " d "
+            + "WHERE b.from = c.subType " + "AND c.superType = d "
+            + "AND b.obsolete = 0 " + "AND d.terminology = :terminology "
+            + "AND d.version = :version "
+            + "AND d.terminologyId = :terminologyId");
+      } else {
+        relBuilder.append("SELECT b.to FROM "
+            + clazz.getName().replace("Jpa", "RelationshipJpa") + " b, "
+            + clazz.getName() + " c " + "WHERE b.from = c "
+            + "AND b.obsolete = 0 " + "AND c.terminology = :terminology "
+            + "AND c.version = :version "
+            + "AND c.terminologyId = :terminologyId");
+      }
+
+      if (criteria.getRelationshipType() != null) {
+        relType = criteria.getRelationshipType();
+        relBuilder.append(" AND additionalRelationshipType = :type");
+      }
+
+      builder.append("AND a IN (").append(relBuilder.toString()).append(")");
+    }
+
+    // Find "from" end of a relationship
+    // with a "to" id and optionally a "type"
+    // and optionally find descendants of those things
+    if (criteria.getRelationshipToId() != null) {
+      StringBuilder relBuilder = new StringBuilder();
+      terminologyId = criteria.getRelationshipToId();
+
+      if (criteria.getRelationshipDescendantsFlag()) {
+        relBuilder.append("SELECT DISTINCT b.from FROM "
+            + clazz.getName().replace("Jpa", "RelationshipJpa")
+            + " b, "
+            + clazz.getName().replace("Jpa",
+                "TransitiveRelationshipJpa" + " c, ") + clazz.getName() + " d "
+            + "WHERE b.to = c.subType " + "AND c.superType = d "
+            + "AND b.obsolete = 0 " + "AND d.terminology = :terminology "
+            + "AND d.version = :version "
+            + "AND d.terminologyId = :terminologyId");
+      } else {
+        relBuilder.append("SELECT b.from FROM "
+            + clazz.getName().replace("Jpa", "RelationshipJpa") + " b, "
+            + clazz.getName() + " c " + "WHERE b.to = c "
+            + "AND b.obsolete = 0 " + "AND c.terminology = :terminology "
+            + "AND c.version = :version "
+            + "AND c.terminologyId = :terminologyId");
+      }
+
+      if (criteria.getRelationshipType() != null) {
+        relType = criteria.getRelationshipType();
+        relBuilder.append(" AND additionalRelationshipType = :type");
+      }
+
+      builder.append("AND a IN (").append(relBuilder.toString()).append(")");
+    }
+
+    // wrapper around query to findDescendants of results and self (unless
+    // specified)
+    if (criteria.getFindDescendants()) {
+      StringBuilder descBuilder = new StringBuilder();
+      descBuilder
+          .append(
+              "SELECT t.subType FROM "
+                  + clazz.getName().replace("Jpa", "TransitiveRelationshipJpa")
+                  + " t " + " WHERE t.superType IN (")
+          .append(builder.toString()).append(")");
+
+      if (!criteria.getFindSelf()) {
+        // Not self.
+        descBuilder.append(" AND t.superType != t.subType ");
+      }
+
+      builder = descBuilder;
+    }
+
+    // findByRelationshipTypeId on its own
+    if (criteria.getRelationshipType() != null && relType == null) {
+      throw new Exception(
+          "Unexpected use of relationship type criteria without "
+              + "specifying a from or to relationship id");
+    }
+
+    // Run the final query
+    Logger.getLogger(getClass()).debug("  query = " + builder);
+    javax.persistence.Query query = manager.createQuery(builder.toString());
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    if (terminologyId != null) {
+      query.setParameter("terminologyId", terminologyId);
+    }
+    if (relType != null) {
+      query.setParameter("type", relType);
+    }
+    List<T> classes = query.getResultList();
+
+    return classes;
+
+  }
+  
+  /**
+   * Computes whether the given query string and PFS parameter will lead to an
+   * actual lucene query.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  @SuppressWarnings("static-method")
+  private boolean isLuceneQueryInfo(String query, PfsParameter pfs) {
+    return pfs.getQueryRestriction() != null || pfs.getActiveOnly()
+        || pfs.getInactiveOnly() || (query != null && !query.isEmpty());
+  }
+  
+  /* see superclass */
+  @Override
+  public SearchHandler getSearchHandler(String terminology) throws Exception {
+    if (searchMap.containsKey(terminology)) {
+      return searchMap.get(terminology);
+    }
+    return searchMap.get(ConfigUtility.DEFAULT);
   }
 }
