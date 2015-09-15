@@ -90,6 +90,7 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.TermTypeStyle;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
@@ -101,12 +102,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
-
-  /** The logging object ct threshold. */
-  private final static int logCt = 2000;
-
-  /** The commit count. */
-  private final static int commitCt = 2000;
 
   /** The terminology. */
   private String terminology;
@@ -474,7 +469,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         sty.setPublishable(true);
         Logger.getLogger(getClass()).debug("    add semantic type - " + sty);
         addSemanticType(sty);
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
       }
     }
   }
@@ -690,7 +685,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         addGeneralMetadataEntry(entry);
       }
 
-      logAndCommit(++objectCt);
+      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     }
 
     // Add TTYs when done
@@ -995,7 +990,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         }
         modifiedAtoms.clear();
       }
-      logAndCommit(objectCt);
+      logAndCommit(objectCt, RootService.logCt, RootService.commitCt);
 
     }
     // make sure any remaining modified atoms are updated
@@ -1188,7 +1183,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
       // log and commit
-      logAndCommit(objectCt);
+      logAndCommit(objectCt, RootService.logCt, RootService.commitCt);
 
       //
       // NOTE: there are no subset attributes in RRF
@@ -1277,12 +1272,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // this allows better tracking of changes to subset members (e.g. new
       // attributes)
       if (!fields[3].equals(prevMetaUi)) {
-        ++objectCt;
         // Ready to commit, clear the subset member cache
         if (objectCt % commitCt == 0) {
           addedSubsetMembers.clear();
         }
-        logAndCommit(objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
       }
 
       // Skip everything except SUBSET_MEMBER
@@ -1467,7 +1461,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         member.setVersion(concept.getVersion());
         member.setSubset(subset);
         addSubsetMember(member);
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
       }
     }
     commitClearBegin();
@@ -1615,7 +1609,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         continue;
       }
 
-      logAndCommit(++objectCt);
+      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     }
 
     // update terminologies after setting the rel directionality flag
@@ -1731,7 +1725,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         }
         modifiedConcepts.clear();
       }
-      logAndCommit(objectCt);
+      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     }
     // Make sure any remaining modified concepts are updated
     for (final Concept c : modifiedConcepts) {
@@ -1893,7 +1887,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // Add atoms and commit periodically
       addAtom(atom);
-      logAndCommit(++objectCt);
+      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
       atomIdMap.put(fields[7], atom.getId());
       atomTerminologyMap.put(fields[7], atom.getTerminology());
       atomConceptIdMap.put(fields[7], atom.getConceptId());
@@ -1909,7 +1903,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             addConcept(cui);
             conceptIdMap.put(cui.getTerminology() + cui.getTerminologyId(),
                 cui.getId());
-            logAndCommit(++objectCt);
+            logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
           }
           cui = new ConceptJpa();
           cui.setTimestamp(releaseVersionDate);
@@ -1951,7 +1945,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       addConcept(cui);
       conceptIdMap.put(cui.getTerminology() + cui.getTerminologyId(),
           cui.getId());
-      logAndCommit(++objectCt);
+      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     }
 
     // Set the terminology organizing class types
@@ -1988,7 +1982,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           addConcept(cui);
           conceptIdMap.put(cui.getTerminology() + cui.getTerminologyId(),
               cui.getId());
-          logAndCommit(++objectCt);
+          logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
         }
         cui = new ConceptJpa();
         cui.setTimestamp(releaseVersionDate);
@@ -2037,7 +2031,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           addDescriptor(dui);
           descriptorIdMap.put(dui.getTerminology() + dui.getTerminologyId(),
               dui.getId());
-          logAndCommit(++objectCt);
+          logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
         }
         dui = new DescriptorJpa();
         dui.setTimestamp(releaseVersionDate);
@@ -2096,7 +2090,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           addCode(code);
           codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
               code.getId());
-          logAndCommit(++objectCt);
+          logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
         }
         code = new CodeJpa();
         code.setTimestamp(releaseVersionDate);
@@ -2145,7 +2139,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // // compute preferred name
     // lui.setName(getComputedPreferredName(atoms));
     // addLexicalClass(lui);
-    // logAndCommit(++objectCt);
+    //         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     // }
     // // just used to hold atoms, enver saved.
     // atoms = new LexicalClassJpa();
@@ -2167,7 +2161,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // if (lui != null) {
     // lui.setName(getComputedPreferredName(atoms));
     // commitClearBegin();
-    // logAndCommit(++objectCt);
+    //         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     // }
     //
     // // NOTE: currently atoms are not loaded for string classes
@@ -2191,7 +2185,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // sui.setWorkflowStatus(published);
     // sui.setName(suiFields[1].toString());
     // addStringClass(sui);
-    // logAndCommit(++objectCt);
+    //         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     // }
 
     // commit
@@ -2323,34 +2317,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   public void close() throws Exception {
     super.close();
     readers = null;
-  }
-
-  /**
-   * Commit clear begin transaction.
-   *
-   * @throws Exception the exception
-   */
-  private void commitClearBegin() throws Exception {
-    commit();
-    clear();
-    beginTransaction();
-  }
-
-  /**
-   * Log and commit.
-   *
-   * @param objectCt the object ct
-   * @throws Exception the exception
-   */
-  private void logAndCommit(int objectCt) throws Exception {
-
-    // log at regular intervals
-    if (objectCt % logCt == 0) {
-      Logger.getLogger(getClass()).info("    count = " + objectCt);
-    }
-    if (objectCt % commitCt == 0) {
-      commitClearBegin();
-    }
   }
 
   /**

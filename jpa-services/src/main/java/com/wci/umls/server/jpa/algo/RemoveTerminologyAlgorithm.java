@@ -42,6 +42,7 @@ import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
@@ -70,11 +71,6 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
   /** The cycle tolerant. */
   private boolean cycleTolerant;
 
-  /** The Constant commitCt. */
-  private final static int commitCt = 2000;
-
-  /** The Constant logCt. */
-  private final static int logCt = 2000;
 
   /**
    * Instantiates an empty {@link RemoveTerminologyAlgorithm}.
@@ -342,7 +338,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     int ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeSubsetMember(id, ConceptSubsetMemberJpa.class);
-      logAndCommit(++ct, "remove subset members");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -356,7 +352,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeSubset(id, ConceptSubsetJpa.class);
-      logAndCommit(++ct, "remove concept subsets");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -370,7 +366,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeSubsetMember(id, AtomSubsetMemberJpa.class);
-      logAndCommit(++ct, "remove atom subset members");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -384,7 +380,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeSubset(id, AtomSubsetJpa.class);
-      logAndCommit(++ct, "remove atom subsets");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -398,7 +394,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeRelationship(id, ConceptRelationshipJpa.class);
-      logAndCommit(++ct, "remove concept relationships");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -415,7 +411,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
       Concept c = getConcept(id);
       c.setDefinitions(new ArrayList<Definition>());
       updateConcept(c);
-      logAndCommit(++ct, "remove definitions from concepts");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -429,7 +425,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeTransitiveRelationship(id, ConceptTransitiveRelationshipJpa.class);
-      logAndCommit(++ct, "remove concept transitive relationships");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -443,7 +439,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeTreePosition(id, ConceptTreePositionJpa.class);
-      logAndCommit(+ct, "remove concept tree positions");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -457,7 +453,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeConcept(id);
-      logAndCommit(++ct, "remove concepts");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -485,7 +481,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
       }
       concept.setAtoms(keepAtoms);
       updateConcept(concept);
-      logAndCommit(++ct, "remove atoms from remaining concepts");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -501,7 +497,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
       Atom a = getAtom(id);
       a.setDefinitions(new ArrayList<Definition>());
       updateAtom(a);
-      logAndCommit(++ct, "remove definitions from atoms");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -515,7 +511,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeRelationship(id, AtomRelationshipJpa.class);
-      logAndCommit(++ct, "remove atom relationships");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -529,7 +525,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeRelationship(id, DescriptorRelationshipJpa.class);
-      logAndCommit(++ct, "remove descriptor relationships");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -544,7 +540,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     for (Long id : (List<Long>) query.getResultList()) {
       removeTransitiveRelationship(id,
           DescriptorTransitiveRelationshipJpa.class);
-      logAndCommit(++ct, "remove descriptor transitive relationships");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -558,7 +554,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeTreePosition(id, DescriptorTreePositionJpa.class);
-      logAndCommit(++ct, "remove descriptor tree positions");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -572,7 +568,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeDescriptor(id);
-      logAndCommit(++ct, "remove descriptors");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -586,7 +582,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeRelationship(id, CodeRelationshipJpa.class);
-      logAndCommit(++ct, "remove code relationships");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -600,7 +596,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeTransitiveRelationship(id, CodeTransitiveRelationshipJpa.class);
-      logAndCommit(++ct, "remove code transitive relationships");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -614,7 +610,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeTreePosition(id, CodeTreePositionJpa.class);
-      logAndCommit(+ct, "remove tree positions");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -628,7 +624,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeCode(id);
-      logAndCommit(++ct, "remove codes");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -642,7 +638,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeAtom(id);
-      logAndCommit(++ct, "remove atoms");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -656,7 +652,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeSemanticTypeComponent(id);
-      logAndCommit(++ct, "remove semantic type components");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -670,7 +666,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeDefinition(id);
-      logAndCommit(++ct, "remove definitions");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -684,7 +680,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     ct = 0;
     for (Long id : (List<Long>) query.getResultList()) {
       removeAttribute(id);
-      logAndCommit(++ct, "remove attributes");
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
 
@@ -729,33 +725,5 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     requestCancel = true;
   }
 
-  /**
-   * Commit clear begin transaction.
-   *
-   * @throws Exception the exception
-   */
-  private void commitClearBegin() throws Exception {
-    commit();
-    clear();
-    beginTransaction();
-  }
-
-  /**
-   * Log and commit.
-   *
-   * @param objectCt the object ct
-   * @param message the message
-   * @throws Exception the exception
-   */
-  private void logAndCommit(int objectCt, String message) throws Exception {
-    // log at regular intervals
-    if (objectCt % logCt == 0) {
-      Logger.getLogger(getClass()).info(
-          "    count = " + objectCt + " " + message);
-    }
-    if (objectCt % commitCt == 0) {
-      commitClearBegin();
-    }
-  }
 
 }

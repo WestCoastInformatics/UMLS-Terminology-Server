@@ -432,4 +432,35 @@ public class ConceptRelationshipJpa extends
     return true;
   }
 
+  @Override
+  public String toString() {
+    return "ConceptRelationshipJpa [from=" + from + ", to=" + to
+        + ", alternateTerminologyIds=" + alternateTerminologyIds
+        + ", getFrom()=" + getFrom() + ", getFromId()=" + getFromId()
+        + ", getFromTerminology()=" + getFromTerminology()
+        + ", getFromVersion()=" + getFromVersion()
+        + ", getFromTerminologyId()=" + getFromTerminologyId()
+        + ", getFromName()=" + getFromName() + ", getTo()=" + getTo()
+        + ", getToId()=" + getToId() + ", getToTerminologyId()="
+        + getToTerminologyId() + ", getToTerminology()=" + getToTerminology()
+        + ", getToVersion()=" + getToVersion() + ", getToName()=" + getToName()
+        + ", getAlternateTerminologyIds()=" + getAlternateTerminologyIds()
+        + ", hashCode()=" + hashCode() + ", getRelationshipType()="
+        + getRelationshipType() + ", getAdditionalRelationshipType()="
+        + getAdditionalRelationshipType() + ", getGroup()=" + getGroup()
+        + ", isInferred()=" + isInferred() + ", isStated()=" + isStated()
+        + ", isHierarchical()=" + isHierarchical() + ", isAssertedDirection()="
+        + isAssertedDirection() + ", toString()=" + super.toString()
+        + ", getAttributes()=" + getAttributes() + ", getId()=" + getId()
+        + ", getObjectId()=" + getObjectId() + ", getTimestamp()="
+        + getTimestamp() + ", getLastModified()=" + getLastModified()
+        + ", getLastModifiedBy()=" + getLastModifiedBy()
+        + ", isSuppressible()=" + isSuppressible() + ", isObsolete()="
+        + isObsolete() + ", isPublished()=" + isPublished()
+        + ", isPublishable()=" + isPublishable() + ", getBranch()="
+        + getBranch() + ", getVersion()=" + getVersion()
+        + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
+        + getTerminologyId() + ", getClass()=" + getClass() + "]";
+  }
+
 }

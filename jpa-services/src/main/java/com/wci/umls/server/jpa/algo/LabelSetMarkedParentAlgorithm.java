@@ -22,6 +22,7 @@ import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.meta.LabelSet;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
@@ -40,12 +41,6 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
 
   /** The concept to generate label set data from. */
   private ConceptSubset subset;
-
-  /** commit count. */
-  private final static int commitCt = 2000;
-
-  /** log count. */
-  private final static int logCt = 2000;
 
   /**
    * Instantiates an empty {@link LabelSetMarkedParentAlgorithm}.
@@ -158,7 +153,7 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
       final Concept concept = getConcept(id);
       concept.addLabel(ancestorLabelSet.getAbbreviation());
       updateConcept(concept);
-      logAndCommit(++objectCt);
+      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     }
 
     commitClearBegin();
@@ -170,7 +165,7 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
       final Concept concept = getConcept(id);
       concept.addLabel(labelSet.getAbbreviation());
       updateConcept(concept);
-      logAndCommit(++objectCt);
+      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     }
 
     commitClearBegin();
@@ -247,31 +242,5 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
     this.subset = subset;
   }
 
-  /**
-   * Commit clear begin transaction.
-   *
-   * @throws Exception the exception
-   */
-  private void commitClearBegin() throws Exception {
-    commit();
-    clear();
-    beginTransaction();
-  }
-
-  /**
-   * Log and commit.
-   * 
-   * @param objectCt the object ct
-   * @throws Exception the exception
-   */
-  private void logAndCommit(int objectCt) throws Exception {
-    // log at regular intervals
-    if (objectCt % logCt == 0) {
-      Logger.getLogger(getClass()).info("    count = " + objectCt);
-    }
-    if (objectCt % commitCt == 0) {
-      commitClearBegin();
-    }
-  }
 
 }

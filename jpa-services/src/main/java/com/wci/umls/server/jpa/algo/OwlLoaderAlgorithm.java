@@ -17,7 +17,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
-import org.semanticweb.HermiT.Reasoner;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.IRI;
@@ -42,15 +41,13 @@ import org.semanticweb.owlapi.model.OWLObjectPropertyDomainAxiom;
 import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLObjectPropertyRangeAxiom;
 import org.semanticweb.owlapi.model.OWLObjectSomeValuesFrom;
+import org.semanticweb.owlapi.model.OWLObjectUnionOf;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLSubClassOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubDataPropertyOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubObjectPropertyOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubPropertyChainOfAxiom;
-import org.semanticweb.owlapi.reasoner.InferenceType;
-import org.semanticweb.owlapi.reasoner.Node;
-import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.util.SimpleRootClassChecker;
 
 import com.wci.umls.server.ReleaseInfo;
@@ -153,7 +150,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private Map<String, Set<String>> disjointMap = new HashMap<>();
 
   /** The anonymous expr map. */
-  private Map<String, OWLClassExpression> anonymousExprMap = new HashMap<>();
+  private Map<String, OWLClassExpression> exprMap = new HashMap<>();
 
   /** The term types. */
   private Set<String> termTypes = new HashSet<>();
@@ -379,22 +376,13 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   }
 
   /* see superclass */
-  /**
-   * Adds the progress listener.
-   *
-   * @param l the l
-   */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
   /* see superclass */
-  /**
-   * Removes the progress listener.
-   *
-   * @param l the l
-   */
+
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
@@ -419,11 +407,13 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("Load metadata");
     // relationship types - CHD, PAR, and RO
     String[] relTypes = new String[] {
-        "other", "subClassOf", "superClassOf"
+        "other", "subClassOf", "superClassOf", "unionOf", "hasUnion"
     };
     RelationshipType chd = null;
     RelationshipType par = null;
     RelationshipType ro = null;
+    RelationshipType unionOf = null;
+    RelationshipType hasUnion = null;
     for (String rel : relTypes) {
       final RelationshipType type = new RelationshipTypeJpa();
       setCommonFields(type);
@@ -434,6 +424,12 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (rel.equals("superClassOf")) {
         par = type;
         type.setExpandedForm("Super class of");
+      } else if (rel.equals("unionOf")) {
+        unionOf = type;
+        type.setExpandedForm("Union of");
+      } else if (rel.equals("hasUnion")) {
+        hasUnion = type;
+        type.setExpandedForm("Has union");
       } else if (rel.equals("other")) {
         ro = type;
         type.setExpandedForm("Other");
@@ -445,6 +441,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     chd.setInverse(par);
     par.setInverse(chd);
     ro.setInverse(ro);
+    unionOf.setInverse(hasUnion);
+    hasUnion.setInverse(unionOf);
     updateRelationshipType(chd);
     updateRelationshipType(par);
     updateRelationshipType(ro);
@@ -629,85 +627,38 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private void loadInferred(OWLOntology ontology) throws Exception {
     Logger.getLogger(getClass()).info("Load inferred axioms");
 
-    // OWLReasonerFactory reasonerFactory = new SnorocketReasonerFactory();
-    // OWLReasoner reasoner =
-    // reasonerFactory.createNonBufferingReasoner(ontology);
+    // Create a classifier for checking things
+    OwlApiClassifier classifier = new OwlApiClassifier(ontology);
+    classifier.setIdMap(idMap);
+    classifier.setExprMap(exprMap);
+    // perform classification (or precompute inferences)
+    classifier.preClassify(terminology, version, null);
+    classifier.compute();
 
-    OWLReasoner reasoner =
-        new Reasoner.ReasonerFactory().createReasoner(ontology);
-
-    // Not 100% sure why this is important, vs having no arguments
-    reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY);
-
-    //
-    if (!reasoner.isConsistent()) {
+    // verify consistent
+    if (!classifier.isConsistent()) {
       throw new Exception("Unexpected inconsistent ontology");
     }
 
-    // Check unsatisfiable classes
-    Node<OWLClass> bottomNode = reasoner.getUnsatisfiableClasses();
-    // This node contains owl:Nothing and all the classes that are
-    // equivalent to owl:Nothing - i.e. the unsatisfiable classes. We just
-    // want to print out the unsatisfiable classes excluding owl:Nothing,
-    // and we can used a convenience method on the node to get these
-    Set<OWLClass> unsatisfiable = bottomNode.getEntitiesMinusBottom();
-    Logger.getLogger(getClass()).error(
-        "  UNSATISFIABLE CLASSES - equal to owl:Nothing");
-    if (!unsatisfiable.isEmpty()) {
-      for (OWLClass cls : unsatisfiable) {
-        Logger.getLogger(getClass()).error("    class = " + cls);
-      }
+    // Unsatisfiable classes
+    if (classifier.getUnsatisfiableConcepts().size() > 0) {
       throw new Exception("Unexpected unsatisfiable classes.");
     }
 
-    // Check for unexpected equivalent classes among "named" classes
-    // Add all sub/super-class relationships and add them as inferred
-    boolean flag = false;
-    for (OWLClass owlClass : ontology.getClassesInSignature()) {
-      // get sub-classes
-      for (Node<OWLClass> chdClass : reasoner.getSubClasses(owlClass, true)) {
-        if (chdClass.getSize() > 1) {
-          Logger.getLogger(getClass()).error(
-              "  EQUIVALENT detected " + chdClass);
-          flag = true;
-        }
+    if (classifier.getEquivalentClasses().size() > 0) {
+      // throw new Exception("Unexpected equivalent classes.");
+      for (Set<Concept> concepts : classifier.getEquivalentClasses()) {
+        Logger.getLogger(getClass())
+            .error("  EQUIVALENCE detected " + concepts);
       }
-    }
-    if (flag) {
-      // TODO: reactivate this, or make failure configurable.
-      // throw new
-      // Exception("Unexpected equivalencies detected, see log above.");
     }
 
     // Add all sub/super-class relationships and add them as inferred
     // Also add any restrictions at this point
     Logger.getLogger(getClass())
         .info("  Add inferred subClassOf relationships");
-    objectCt = 0;
-    for (OWLClass owlClass : ontology.getClassesInSignature()) {
-      // get sub-classes
-      for (Node<OWLClass> chdNode : reasoner.getSubClasses(owlClass, true)) {
-        // generally there should only be one here
-        for (OWLClass chdClass : chdNode.getEntities()) {
-          // Break if bottom node encountered
-          if (chdClass.isBottomEntity()) {
-            break;
-          }
-          Concept chd =
-              getConcept(idMap.get(getTerminologyId(chdClass.getIRI())));
-          Concept par =
-              getConcept(idMap.get(getTerminologyId(owlClass.getIRI())));
-          ConceptRelationship rel = getSubClassOfRelationship(chd, par);
-          rel.setInferred(true);
-          rel.setStated(false);
-          Logger.getLogger(getClass()).debug("  add relationship - " + rel);
-          addRelationship(rel);
-          chd.addRelationship(rel);
-          logAndCommit(++objectCt);
-        }
-      }
-
-    }
+    classifier.addInferredHierarchicalRelationships(this);
+    commitClearBegin();
 
     // For each class, follow superclass path and gather all non "subClassOf"
     // relationships. Verify there are no duplicates on
@@ -715,345 +666,9 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // add inferred rels to the same concepts.
     Logger.getLogger(getClass()).info(
         "  Add inferred restriction relationships");
+    classifier.addInferredRelationships(this);
+    commitClearBegin();
 
-    // Start at the top node and work down
-    // if defined, just infer directly those relationships
-    // if primitive, infer the non-subClassOf relationships of the parent
-
-    objectCt = 0;
-    if (reasoner.getTopClassNode().getEntities().size() != 1) {
-      throw new Exception("Unexpected equivalent classes at top node");
-    }
-    OWLClass topClass =
-        reasoner.getTopClassNode().getEntities().iterator().next();
-    // infer non isa relationships at parent level to sub-class level
-    inferRelationships(topClass, reasoner, ontology, 0);
-
-  }
-
-  /**
-   * Returns the all superclass relationships.
-   *
-   * @param owlClass the owl class
-   * @param reasoner the reasoner
-   * @param ontology the ontology
-   * @param ct the ct
-   * @return the all superclass relationships
-   * @throws Exception the exception
-   */
-  private int inferRelationships(OWLClass owlClass, OWLReasoner reasoner,
-    OWLOntology ontology, int ct) throws Exception {
-    int localCt = 0;
-
-    // Get the child concept
-    Concept parConcept = getConceptForOwlClass(owlClass, ontology, 1);
-    Logger.getLogger(getClass()).debug(
-        "  Infer relationships - " + parConcept.getTerminologyId());
-
-    // Get direct sub classes
-    Logger.getLogger(getClass()).debug(
-        "    subclass count = "
-            + reasoner.getSubClasses(owlClass, true).getNodes().size());
-    for (Node<OWLClass> node : reasoner.getSubClasses(owlClass, true)) {
-
-      // for each one, borrow from the parent class
-      for (OWLClass chdClass : node.getEntities()) {
-
-        // Skip bottom node
-        if (chdClass.isBottomEntity()) {
-          continue;
-        }
-
-        // Get the child concept
-        Concept chdConcept = getConceptForOwlClass(chdClass, ontology, 1);
-
-        // If fully defined, copy all stated non subClassOf rels as inferred
-        if (chdConcept.isFullyDefined()) {
-          Logger.getLogger(getClass()).debug("    fully defined");
-          Set<ConceptRelationship> relsToAdd = new HashSet<>();
-          for (ConceptRelationship rel : chdConcept.getRelationships()) {
-            if (rel.isStated() && !rel.isHierarchical()) {
-              ConceptRelationship rel2 = new ConceptRelationshipJpa(rel, true);
-              rel2.setInferred(true);
-              rel2.setStated(false);
-              rel2.setId(null);
-              if (!chdConcept.getRelationships().contains(rel2)) {
-                Logger.getLogger(getClass()).debug(
-                    "  add relationship - " + rel2);
-                addRelationship(rel2);
-                relsToAdd.add(rel2);
-                logAndCommit(++localCt + ct);
-              }
-            }
-          }
-          for (ConceptRelationship rel : relsToAdd) {
-            chdConcept.addRelationship(rel);
-          }
-        }
-
-        // otherwise, determine the correct set of relationships from
-        // the par/chd concept and infer them to the child
-        else {
-          Logger.getLogger(getClass()).debug("    primitive");
-          Set<ConceptRelationship> relsToInfer =
-              getRelationshipsToInfer(parConcept, chdConcept, reasoner);
-
-          for (ConceptRelationship rel : relsToInfer) {
-            ConceptRelationship rel2 = new ConceptRelationshipJpa(rel, true);
-            rel2.setFrom(chdConcept);
-            rel2.setInferred(true);
-            rel2.setStated(false);
-            rel2.setId(null);
-            Logger.getLogger(getClass()).debug("  add relationship - " + rel2);
-            addRelationship(rel2);
-            chdConcept.addRelationship(rel2);
-            logAndCommit(++localCt + ct);
-          }
-        }
-
-        // Handle children as parents
-        localCt += inferRelationships(chdClass, reasoner, ontology, localCt);
-      }
-
-    }
-
-    return localCt;
-  }
-
-  /**
-   * Returns the relationships to infer.
-   *
-   * @param par the par
-   * @param chd the chd
-   * @param reasoner the reasoner
-   * @return the relationships to infer
-   * @throws Exception the exception
-   */
-  private Set<ConceptRelationship> getRelationshipsToInfer(Concept par,
-    Concept chd, OWLReasoner reasoner) throws Exception {
-
-    Set<ConceptRelationship> inferredRels = new HashSet<>();
-
-    // inferred parent types
-    Set<String> parTypes = new HashSet<>();
-    for (ConceptRelationship parRel : par.getRelationships()) {
-      if (parRel.isInferred() && !parRel.isHierarchical()) {
-        parTypes.add(parRel.getAdditionalRelationshipType());
-      }
-    }
-    Set<String> anonParTypes = new HashSet<>();
-    for (ConceptRelationship parRel : par.getRelationships()) {
-      if (parRel.isInferred() && !parRel.isHierarchical()
-          && parRel.getTo().isAnonymous()) {
-        anonParTypes.add(parRel.getAdditionalRelationshipType());
-      }
-    }
-
-    // stated child types
-    Set<String> chdTypes = new HashSet<>();
-    for (ConceptRelationship chdRel : chd.getRelationships()) {
-      if (chdRel.isStated() && !chdRel.isHierarchical()) {
-        chdTypes.add(chdRel.getAdditionalRelationshipType());
-      }
-    }
-    Set<String> anonChdTypes = new HashSet<>();
-    for (ConceptRelationship chdRel : chd.getRelationships()) {
-      if (chdRel.isStated() && !chdRel.isHierarchical()
-          && chdRel.getTo().isAnonymous()) {
-        anonChdTypes.add(chdRel.getAdditionalRelationshipType());
-      }
-    }
-
-    Set<ConceptRelationship> chdRels = new HashSet<>(chd.getRelationships());
-
-    //
-    // Where chd has a stated relationship to a concept
-    // and par does not have corresponding inferred rel with the same type,
-    // infer those
-    //
-    for (ConceptRelationship chdRel : chd.getRelationships()) {
-      // skip if stated, anonymous, or parTypes contains the type
-      if (!chdRel.isStated() || chdRel.isHierarchical()
-          || parTypes.contains(chdRel.getAdditionalRelationshipType())) {
-        continue;
-      }
-      ConceptRelationship inferredRel =
-          new ConceptRelationshipJpa(chdRel, true);
-      inferredRel.setId(null);
-      inferredRel.setInferred(true);
-      inferredRel.setStated(false);
-      if (!inferredRels.contains(inferredRel) && !chdRels.contains(inferredRel)) {
-        inferredRels.add(inferredRel);
-      }
-    }
-
-    //
-    // Where par has an inferred relationship to a concept
-    // and chd does not have corresponding stated rel with the same type,
-    // infer those
-    //
-    for (ConceptRelationship parRel : par.getRelationships()) {
-      // skip if stated, anonymous, or parTypes contains the type
-      if (!parRel.isInferred() || parRel.isHierarchical()
-          || chdTypes.contains(parRel.getAdditionalRelationshipType())) {
-        continue;
-      }
-      ConceptRelationship inferredRel =
-          new ConceptRelationshipJpa(parRel, true);
-      inferredRel.setFrom(chd);
-      inferredRel.setId(null);
-      inferredRel.setInferred(true);
-      inferredRel.setStated(false);
-      if (!inferredRels.contains(inferredRel) && !chdRels.contains(inferredRel)) {
-        inferredRels.add(inferredRel);
-      }
-    }
-
-    //
-    // Where par has an inferred relationship to a non-anonymous concept
-    // and chd has a stated one matching on the type, infer the child rel
-    //
-    for (ConceptRelationship chdRel : chd.getRelationships()) {
-      // skip if stated, anonymous, or parTypes contains the type
-      if (!chdRel.isStated() || chdRel.getTo().isAnonymous()
-          || chdRel.isHierarchical()
-          || !anonParTypes.contains(chdRel.getAdditionalRelationshipType())) {
-        continue;
-      }
-      ConceptRelationship inferredRel =
-          new ConceptRelationshipJpa(chdRel, true);
-      inferredRel.setFrom(chd);
-      inferredRel.setId(null);
-      inferredRel.setInferred(true);
-      inferredRel.setStated(false);
-      if (!inferredRels.contains(inferredRel) && !chdRels.contains(inferredRel)) {
-        inferredRels.add(inferredRel);
-      }
-    }
-
-    //
-    // Where par has an inferred relationship to an anonymous concept
-    // and chd has a stated one matching on the type, infer both
-    // unless the anonymous concept has only a single rel, then use child one
-    // only
-    //
-    for (ConceptRelationship chdRel : chd.getRelationships()) {
-      // skip if stated, anonymous, hierarchical, or anonParTypes contains the
-      // type
-      if (!chdRel.isStated() || !chdRel.getTo().isAnonymous()
-          || chdRel.isHierarchical()
-          || !anonParTypes.contains(chdRel.getAdditionalRelationshipType())) {
-        continue;
-      }
-
-      // Infer the child rel
-      ConceptRelationship inferredRel =
-          new ConceptRelationshipJpa(chdRel, true);
-      inferredRel.setFrom(chd);
-      inferredRel.setId(null);
-      inferredRel.setInferred(true);
-      inferredRel.setStated(false);
-      if (!inferredRels.contains(inferredRel) && !chdRels.contains(inferredRel)) {
-        inferredRels.add(inferredRel);
-        Logger.getLogger(getClass()).info(
-            "  CHECK " + chd.getTerminologyId() + ", " + inferredRel.hashCode()
-                + ", " + inferredRels.size());
-        Logger.getLogger(getClass()).info(" rel = " + inferredRel);
-      }
-    }
-
-    // Identify anonymous parent concepts not covered by chd ones.
-    for (ConceptRelationship parRel : par.getRelationships()) {
-      // skip if stated, anonymous, hierarchical, or type does not match
-      if (!parRel.isInferred() || !parRel.getTo().isAnonymous()
-          || parRel.isHierarchical()
-          || !anonChdTypes.contains(parRel.getAdditionalRelationshipType())) {
-        continue;
-      }
-
-      boolean found = false;
-      for (ConceptRelationship chdRel : chd.getRelationships()) {
-        // skip if stated, anonymous, hierarchical, or anonParTypes contains the
-        // type
-        if (!chdRel.isStated()
-            || !chdRel.getTo().isAnonymous()
-            || chdRel.isHierarchical()
-            || !chdRel.getAdditionalRelationshipType().equals(
-                parRel.getAdditionalRelationshipType())) {
-          continue;
-        }
-
-        // Move on if the concept names (which represent the expressions) are
-        // equal
-        if (chdRel.getTo().getName().equals(parRel.getTo().getName())) {
-          found = true;
-          break;
-        }
-
-        // If the child anonymous concept is a subset of the parent one mark the
-        // found flag.
-        // As a proxy for this, compare the type sets and assume if they
-        // match, the child is more specific.
-        // TODO: ideally use reasoner to actually compare the expressions
-        // NOTE: snorocket does NOT support this.
-        // e.g. if
-        // (reasoner.getSubClasses(parExpr).containsAll(reasoner.getSubClasses(chdExpr))
-        // then mark the found flag
-        // TODO: in order to do this, we need to save the Owl class expressions
-        // that go with anonymous concepts
-
-        Set<String> typesPar = new HashSet<>();
-        for (ConceptRelationship rel : getConcept(parRel.getTo().getId())
-            .getRelationships()) {
-          typesPar.add(rel.getAdditionalRelationshipType());
-        }
-        Set<String> typesChd = new HashSet<>();
-        for (ConceptRelationship rel : getConcept(chdRel.getTo().getId())
-            .getRelationships()) {
-          typesChd.add(rel.getAdditionalRelationshipType());
-        }
-        System.out.println("typesPar = " + typesPar);
-        System.out.println("typesChd = " + typesChd);
-        if (typesPar.equals(typesChd) || typesChd.containsAll(typesPar)) {
-          System.out.println("  FOUND");
-          found = true;
-          break;
-        }
-
-      }
-
-      // If there is not a matching relationship to an anonymous child concept
-      // that is subsumed by (or equal to) this one, then infer it.
-      if (!found) {
-        // Infer the parent rel
-        ConceptRelationship inferredRel =
-            new ConceptRelationshipJpa(parRel, true);
-        inferredRel.setFrom(chd);
-        inferredRel.setId(null);
-        inferredRel.setInferred(true);
-        inferredRel.setStated(false);
-        if (!inferredRels.contains(inferredRel)
-            && !chdRels.contains(inferredRel)) {
-          inferredRels.add(inferredRel);
-          Logger.getLogger(getClass()).info(
-              "  CHECK2 " + chd.getTerminologyId() + ", "
-                  + inferredRel.hashCode() + ", " + inferredRels.size());
-          Logger.getLogger(getClass()).info(" rel = " + inferredRel);
-
-        }
-      } else {
-        Logger.getLogger(getClass()).info("  CHECK3 " + chd.getTerminologyId());
-
-      }
-    }
-
-    //
-    // TODO: handle GCI
-    // - we can find all of the descendants of the LHS and create
-    // corresponding relationships to the RHS
-    //
-
-    return inferredRels;
   }
 
   /**
@@ -1248,6 +863,20 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
         }
 
+        // Handle intersections
+        else if (axiom.getSuperClass() instanceof OWLObjectUnionOf) {
+          Concept concept2 =
+              getConceptForOwlClassExpression(axiom.getSuperClass(), ontology,
+                  1);
+          // Wire relationships to this concept and save
+          for (ConceptRelationship rel : concept2.getRelationships()) {
+
+            rel.setFrom(concept);
+            rels.add(rel);
+          }
+
+        }
+
         // Handle someValuesFrom
         else if (axiom.getSuperClass() instanceof OWLObjectSomeValuesFrom) {
           Concept concept2 =
@@ -1282,7 +911,12 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             && rel.getRelationshipType().equals(rel2.getRelationshipType())) {
           Logger.getLogger(getClass()).info("  rel = " + rel);
           Logger.getLogger(getClass()).info("  rel2 = " + rel2);
-          throw new Exception("Unexpected duplicate rels");
+          Logger.getLogger(getClass()).info("  rel hashcode = " + rel.hashCode());
+          Logger.getLogger(getClass()).info("  rel2 hashcode = " + rel2.hashCode());
+          Logger.getLogger(getClass()).info("  eq = " + rel.equals(rel2));
+          Logger.getLogger(getClass()).info("  rel identity = " + System.identityHashCode(rel));
+          Logger.getLogger(getClass()).info("  rel2 identity = " + System.identityHashCode(rel2));
+          throw new Exception("Unexpected duplicate rels"); 
         }
       }
     }
@@ -1304,13 +938,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     ConceptRelationship rel = new ConceptRelationshipJpa();
     setCommonFields(rel);
     // blank terminology id
-    rel.setTerminologyId("");
     rel.setFrom(fromConcept);
     rel.setTo(toConcept);
-    rel.setAssertedDirection(true);
-    rel.setGroup(null);
-    rel.setInferred(loadInferred);
-    rel.setStated(!loadInferred);
     // This is an "isa" rel.
     rel.setRelationshipType("subClassOf");
     rel.setHierarchical(true);
@@ -1369,7 +998,6 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       final Atom atom = new AtomJpa();
       setCommonFields(atom);
-      atom.setTerminologyId("");
       // everything after the #
       atom.setConceptId(getTerminologyId(owlClass.getIRI()));
       atom.setDescriptorId("");
@@ -1408,7 +1036,6 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       final Definition def = new DefinitionJpa();
       setCommonFields(def);
-      def.setTerminologyId("");
       // this is based on xml-lang attribute on the annotation
       def.setValue(getValue(annotation));
       defs.add(def);
@@ -1436,7 +1063,6 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       final Attribute attribute = new AttributeJpa();
       setCommonFields(attribute);
-      attribute.setTerminologyId("");
       attribute.setName(atnMap.get(getName(annotation)).getAbbreviation());
       attribute.setValue(getValue(annotation));
       generalEntryValues.add(attribute.getName());
@@ -1482,33 +1108,6 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // throw new Exception("Unexpected annotation that is not OWLLiteral - " +
       // annotation);
       return annotation.getValue().toString();
-    }
-  }
-
-  /**
-   * Commit clear begin transaction.
-   *
-   * @throws Exception the exception
-   */
-  private void commitClearBegin() throws Exception {
-    commit();
-    clear();
-    beginTransaction();
-  }
-
-  /**
-   * Log and commit.
-   * 
-   * @param objectCt the object ct
-   * @throws Exception the exception
-   */
-  private void logAndCommit(int objectCt) throws Exception {
-    // log at regular intervals
-    if (objectCt % logCt == 0) {
-      Logger.getLogger(getClass()).info("    count = " + objectCt);
-    }
-    if (objectCt % commitCt == 0) {
-      commitClearBegin();
     }
   }
 
@@ -1577,12 +1176,12 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // If we've already encountered this class, just skip it
       if (idMap.containsKey(getTerminologyId(owlClass.getIRI()))) {
-        return;
+        continue;
       }
 
       // Skip if the owl class
       if (isObsolete(owlClass, ontology)) {
-        return;
+        continue;
       }
 
       // Get the concept object
@@ -1604,6 +1203,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       Logger.getLogger(getClass()).debug("  add concept = " + concept);
       addConcept(concept);
+      exprMap.put(concept.getTerminologyId(), owlClass);
       idMap.put(concept.getTerminologyId(), concept.getId());
 
       // Check whether to add a link to "top concept"
@@ -1617,7 +1217,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         }
       }
 
-      logAndCommit(++objectCt);
+      logAndCommit(++objectCt, logCt, commitCt);
 
     }
     commitClearBegin();
@@ -1626,6 +1226,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // Iterate through classes again and connect relationships
     //
     Logger.getLogger(getClass()).info("  Load relationships");
+    objectCt = 0;
     Set<String> visited = new HashSet<>();
     for (OWLClass owlClass : ontology.getClassesInSignature()) {
 
@@ -1656,7 +1257,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // Update the concept a
       Logger.getLogger(getClass()).debug("  update concept = " + concept);
       updateConcept(concept);
-      logAndCommit(++objectCt);
+      logAndCommit(++objectCt, logCt, commitCt);
 
     }
 
@@ -1708,7 +1309,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Loading object properties");
     Map<String, String> inverses = new HashMap<>();
     Map<String, String> equiv = new HashMap<>();
-    Map<String, String> parChd = new HashMap<>();
+    // Assume at most one "super" property
+    Map<String, String> chdPar = new HashMap<>();
     // Add object properties
     for (OWLObjectProperty prop : ontology.getObjectPropertiesInSignature()) {
       OwlUtility.logObjectProperty(prop, ontology);
@@ -1845,8 +1447,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
                 .next();
         OWLObjectProperty superProp =
             axiom.getSuperProperty().getNamedProperty();
-        parChd
-            .put(getTerminologyId(superProp.getIRI()), rela.getAbbreviation());
+        chdPar
+            .put(rela.getAbbreviation(), getTerminologyId(superProp.getIRI()));
       }
       // ASSUMPTION: object property has at most one super property
       else if (ontology.getObjectSubPropertyAxiomsForSubProperty(prop).size() > 1) {
@@ -1874,9 +1476,9 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     commitClearBegin();
 
     // Iterate through parChd properties, set and update
-    for (String key : parChd.keySet()) {
-      AdditionalRelationshipType par = relaMap.get(key);
-      AdditionalRelationshipType chd = relaMap.get(parChd.get(key));
+    for (String key : chdPar.keySet()) {
+      AdditionalRelationshipType par = relaMap.get(chdPar.get(key));
+      AdditionalRelationshipType chd = relaMap.get(key);
       chd.setSuperType(par);
       updateAdditionalRelationshipType(chd);
     }
@@ -2083,7 +1685,6 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       if (axiom instanceof OWLDisjointClassesAxiom) {
         // Create disjointness
-        // TODO:
         Logger.getLogger(getClass()).info("  DISJOINT CLASSES AXIOM: " + axiom);
         throw new Exception("Not handled yet, needs impl");
 
@@ -2111,15 +1712,13 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           concept1 = getConcept(idMap.get(concept1.getTerminologyId()));
         } else {
           addAnonymousConcept(concept1);
-          anonymousExprMap.put(concept1.getTerminologyId(),
-              axiom2.getSuperClass());
+          exprMap.put(concept1.getTerminologyId(), axiom2.getSuperClass());
         }
         if (idMap.containsKey(concept2.getTerminologyId())) {
           concept2 = getConcept(idMap.get(concept2.getTerminologyId()));
         } else {
           addAnonymousConcept(concept2);
-          anonymousExprMap.put(concept2.getTerminologyId(),
-              axiom2.getSubClass());
+          exprMap.put(concept2.getTerminologyId(), axiom2.getSubClass());
         }
         GeneralConceptAxiom gca = new GeneralConceptAxiomJpa();
         setCommonFields(gca);
@@ -2129,6 +1728,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         gca.setRightHandSide(concept2);
         Logger.getLogger(getClass()).info("  add general class axiom - " + gca);
         addGeneralConceptAxiom(gca);
+        throw new Exception(
+            "General class axioms - need to implement inference based on these.");
 
       } else if (axiom instanceof OWLEquivalentClassesAxiom) {
         Logger.getLogger(getClass()).info(
@@ -2153,13 +1754,13 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
               concept1 = getConcept(idMap.get(concept1.getTerminologyId()));
             } else {
               addAnonymousConcept(concept1);
-              anonymousExprMap.put(concept1.getTerminologyId(), expr);
+              exprMap.put(concept1.getTerminologyId(), expr);
             }
             if (idMap.containsKey(concept2.getTerminologyId())) {
               concept2 = getConcept(idMap.get(concept2.getTerminologyId()));
             } else {
               addAnonymousConcept(concept2);
-              anonymousExprMap.put(concept2.getTerminologyId(), expr2);
+              exprMap.put(concept2.getTerminologyId(), expr2);
             }
             GeneralConceptAxiom gca = new GeneralConceptAxiomJpa();
             setCommonFields(gca);
@@ -2170,6 +1771,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             Logger.getLogger(getClass()).info(
                 "  add general class axiom - " + gca);
             addGeneralConceptAxiom(gca);
+            throw new Exception(
+                "General class axioms - need to implement inference based on these.");
           }
         }
 
@@ -2255,6 +1858,11 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           ontology, level);
     }
 
+    // Handle ObjectUnionOf
+    else if (expr instanceof OWLObjectUnionOf) {
+      return getConceptForUnionOf((OWLObjectUnionOf) expr, ontology, level);
+    }
+
     // Handle ObjectSomeValuesFrom
     else if (expr instanceof OWLObjectSomeValuesFrom) {
       return getConceptForSomeValuesFrom((OWLObjectSomeValuesFrom) expr,
@@ -2292,7 +1900,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     setCommonFields(concept);
     concept.setWorkflowStatus(published);
 
-    // Currently only OWL EL 2 is supported - no union
+    // owl classes always use conjunction
     concept.setUsesRelationshipUnion(false);
     concept.setUsesRelationshipIntersection(true);
 
@@ -2424,6 +2032,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     concept.setAnonymous(true);
     concept.setTerminologyId(uuid);
     concept.setName(expr.toString());
+    concept.setUsesRelationshipIntersection(true);
+    concept.setUsesRelationshipUnion(false);
 
     // Handle nested class expressions
     if (expr.getOperands().size() > 1) {
@@ -2445,6 +2055,23 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             concept.addRelationship(rel2);
           }
         }
+        // next, handle unionOf
+        else if (expr2 instanceof OWLObjectUnionOf) {
+          // Here, the concept will have a series of "other" relationships
+          // to the members of the collection. We need to add it
+          if (concept2.isAnonymous()
+              && !idMap.containsKey(concept2.getTerminologyId())) {
+            addAnonymousConcept(concept2);
+            exprMap.put(concept2.getTerminologyId(), expr);
+          }
+          ConceptRelationship rel =
+              getSubClassOfRelationship(concept, concept2);
+          rel.setRelationshipType("unionOf");
+          rel.setAdditionalRelationshipType("");
+          concept.addRelationship(rel);
+
+        }
+
         // otherwise, simply add this concept as a parent
         else if (expr2 instanceof OWLClass) {
           ConceptRelationship rel =
@@ -2466,6 +2093,75 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       throw new Exception(
           "Unexpected number of intersection nested class expressions - "
               + expr);
+    }
+
+  }
+
+  /**
+   * Returns the concept for an ObjectUnionOf. This is just used to borrow
+   * relationships and never actually creates an anonymous concept.
+   *
+   * @param expr the expr
+   * @param ontology the ontology
+   * @param level the level
+   * @return the concept for union
+   * @throws Exception the exception
+   */
+  private Concept getConceptForUnionOf(OWLObjectUnionOf expr,
+    OWLOntology ontology, int level) throws Exception {
+    String uuid = TerminologyUtility.getUuid(expr.toString()).toString();
+
+    if (idMap.containsKey(uuid)) {
+      return getConcept(idMap.get(uuid));
+    }
+
+    Concept concept = new ConceptJpa();
+    setCommonFields(concept);
+    concept.setAnonymous(true);
+    concept.setTerminologyId(uuid);
+    concept.setName(expr.toString());
+    concept.setUsesRelationshipIntersection(false);
+    concept.setUsesRelationshipUnion(true);
+
+    // Handle nested class expressions
+    if (expr.getOperands().size() > 1) {
+
+      // Iterate through expressions and either add a parent relationship
+      // or add relationships from the concept itself. No new anonymous
+      // concepts are directly created here.
+      for (OWLClassExpression expr2 : expr.getOperands()) {
+        final Concept concept2 =
+            getConceptForOwlClassExpression(expr2, ontology, level + 1);
+        // If it's a restriction, borrow its relationships
+        if (expr2 instanceof OWLObjectIntersectionOf) {
+          // make an anonymous concept out of this and a relationship to it.
+          // Add if anonymous and doesn't exist yet
+          if (concept2.isAnonymous()
+              && !idMap.containsKey(concept2.getTerminologyId())) {
+            addAnonymousConcept(concept2);
+            exprMap.put(concept2.getTerminologyId(), expr);
+          }
+          ConceptRelationship rel =
+              getSubClassOfRelationship(concept, concept2);
+          rel.setRelationshipType("other");
+          rel.setAdditionalRelationshipType("");
+          concept.addRelationship(rel);
+        }
+
+        // otherwise, unknown type
+        else {
+          throw new Exception("Unexpected operand expression type - " + expr2);
+        }
+      }
+
+      return concept;
+
+    }
+
+    // ASSUMPTION: union has at least two sub-expressions
+    else {
+      throw new Exception(
+          "Unexpected number of union nested class expressions - " + expr);
     }
 
   }
@@ -2540,6 +2236,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     concept.setAnonymous(true);
     concept.setTerminologyId(uuid);
     concept.setName(expr.toString());
+    concept.setUsesRelationshipIntersection(true);
+    concept.setUsesRelationshipUnion(false);
 
     // This is a restriction on a property with existential quantification.
     // It is a relationship to either a class or an anonymous class
@@ -2551,22 +2249,18 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     if (concept2.isAnonymous()
         && !idMap.containsKey(concept2.getTerminologyId())) {
       addAnonymousConcept(concept2);
-      anonymousExprMap.put(concept2.getTerminologyId(), expr);
+      exprMap.put(concept2.getTerminologyId(), expr);
     }
 
     // Get the property and create a relationship
     OWLObjectProperty property = (OWLObjectProperty) expr.getProperty();
     ConceptRelationship rel = new ConceptRelationshipJpa();
     setCommonFields(rel);
-    rel.setTerminologyId("");
     rel.setRelationshipType("other");
     rel.setAdditionalRelationshipType(relaMap.get(
         getTerminologyId(property.getIRI())).getAbbreviation());
     rel.setFrom(concept);
     rel.setTo(concept2);
-    rel.setAssertedDirection(true);
-    rel.setInferred(loadInferred);
-    rel.setStated(!loadInferred);
     concept.addRelationship(rel);
 
     return concept;
@@ -2686,6 +2380,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @param component the common fields
    */
   private void setCommonFields(Component component) {
+    component.setTerminologyId("");
     component.setTerminology(terminology);
     component.setVersion(version);
     component.setTimestamp(releaseVersionDate);
@@ -2695,6 +2390,16 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     component.setPublished(true);
     component.setObsolete(false);
     component.setSuppressible(false);
+
+    if (component instanceof ConceptRelationship) {
+      ((ConceptRelationship)component).setAssertedDirection(true);
+      ((ConceptRelationship)component).setGroup(null);
+      ((ConceptRelationship)component).setHierarchical(false);
+      ((ConceptRelationship)component).setInferred(loadInferred);
+      ((ConceptRelationship)component).setStated(!loadInferred);
+      // So the field is {} instead of null to match when copied
+      ((ConceptRelationship)component).getAlternateTerminologyIds();
+    }
   }
 
   /**

@@ -58,6 +58,7 @@ import com.wci.umls.server.model.meta.NameVariantType;
 import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
@@ -70,12 +71,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
   /** The isa type rel. */
   private final static String isaTypeRel = "116680003";
-
-  /** The commit count. */
-  private final static int commitCt = 5000;
-
-  /** The log count. */
-  private final static int logCt = 2000;
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -251,7 +246,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           updateConcept(concept);
         }
         if (ct > 0 && ct % logCt == 0) {
-          logAndCommit(ct);
+          logAndCommit(ct, RootService.logCt, RootService.commitCt);
         }
       }
 
@@ -572,7 +567,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       commitClearBegin();
     }
 
-    logAndCommit(objectsAdded + objectsUpdated);
+    logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+        RootService.commitCt);
 
     Logger.getLogger(getClass()).info("      new = " + objectsAdded);
     Logger.getLogger(getClass()).info("      updated = " + objectsUpdated);
@@ -740,7 +736,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
               updateConcept(modifiedConcept);
               pnRecomputeIds.add(modifiedConcept.getId());
             }
-            logAndCommit(objectsAdded + objectsUpdated);
+            logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+                RootService.commitCt);
             modifiedConcepts.clear();
           }
 
@@ -918,7 +915,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
               updateConcept(modifiedConcept);
               pnRecomputeIds.add(modifiedConcept.getId());
             }
-            logAndCommit(objectsAdded + objectsUpdated);
+            logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+                RootService.commitCt);
             modifiedConcepts.clear();
           }
 
@@ -1074,7 +1072,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
                 "      update atom - " + modifiedAtom);
             updateAtom(modifiedAtom);
           }
-          logAndCommit(objectsAdded + objectsUpdated);
+          logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+              RootService.commitCt);
           modifiedAtoms.clear();
         }
 
@@ -1209,7 +1208,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
                 "      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
-          logAndCommit(objectsAdded + objectsUpdated);
+          logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+              RootService.commitCt);
           modifiedConcepts.clear();
         }
 
@@ -1344,7 +1344,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
                 "      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
-          logAndCommit(objectsAdded + objectsUpdated);
+          logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+              RootService.commitCt);
           modifiedConcepts.clear();
         }
 
@@ -1509,7 +1510,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
                 "      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
-          logAndCommit(objectsAdded + objectsUpdated);
+          logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+              RootService.commitCt);
           modifiedConcepts.clear();
         }
 
@@ -1669,7 +1671,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
                 "      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
-          logAndCommit(objectsAdded + objectsUpdated);
+          logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+              RootService.commitCt);
           modifiedConcepts.clear();
         }
 
@@ -1818,7 +1821,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
                 "      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
-          logAndCommit(objectsAdded + objectsUpdated);
+          logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+              RootService.commitCt);
           modifiedConcepts.clear();
         }
 
@@ -1988,7 +1992,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
                 "      update atom - " + modifiedAtom);
             updateAtom(modifiedAtom);
           }
-          logAndCommit(objectsAdded + objectsUpdated);
+          logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+              RootService.commitCt);
           modifiedAtoms.clear();
           modifiedConcepts.clear();
         }
@@ -2167,7 +2172,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
                 "      update atom - " + modifiedAtom);
             updateAtom(modifiedAtom);
           }
-          logAndCommit(objectsAdded + objectsUpdated);
+          logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+              RootService.commitCt);
           modifiedAtoms.clear();
           modifiedConcepts.clear();
         }
@@ -2289,9 +2295,9 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         rel2.setObsolete(fields[2].equals("0")); // active
         rel2.setSuppressible(rel2.isObsolete());
         rel2.setGroup(fields[6].intern()); // relationshipGroup
-        rel2.setRelationshipType(fields[7].equals(isaTypeRel) ? "subClassOf" : "other"); // typeId
-        rel2.setHierarchical(rel2.getRelationshipType().equals(
-            "subClassOf"));
+        rel2.setRelationshipType(fields[7].equals(isaTypeRel) ? "subClassOf"
+            : "other"); // typeId
+        rel2.setHierarchical(rel2.getRelationshipType().equals("subClassOf"));
         rel2.setAdditionalRelationshipType(fields[7]); // typeId
         generalEntryValues.add(rel2.getAdditionalRelationshipType());
         additionalRelTypes.add(rel2.getAdditionalRelationshipType());
@@ -2385,7 +2391,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         }
 
         if ((objectsAdded + objectsUpdated) % logCt == 0) {
-          logAndCommit(objectsAdded + objectsUpdated);
+          logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+              RootService.commitCt);
           for (Concept modifiedConcept : modifiedConcepts) {
             Logger.getLogger(getClass()).debug(
                 "      update concept - " + modifiedConcept);
@@ -2397,7 +2404,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
       }
     }
 
-    logAndCommit(objectsAdded + objectsUpdated);
+    logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+        RootService.commitCt);
     for (Concept modifiedConcept : modifiedConcepts) {
       Logger.getLogger(getClass()).debug(
           "      update concept - " + modifiedConcept);
@@ -2916,33 +2924,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     super.close();
     readers = null;
     idMap = null;
-  }
-
-  /**
-   * Commit clear begin transaction.
-   *
-   * @throws Exception the exception
-   */
-  private void commitClearBegin() throws Exception {
-    commit();
-    clear();
-    beginTransaction();
-  }
-
-  /**
-   * Log and commit.
-   *
-   * @param objectCt the object ct
-   * @throws Exception the exception
-   */
-  private void logAndCommit(int objectCt) throws Exception {
-    // log at regular intervals
-    if (objectCt % logCt == 0) {
-      Logger.getLogger(getClass()).info("    count = " + objectCt);
-    }
-    if (objectCt % commitCt == 0) {
-      commitClearBegin();
-    }
   }
 
 }

@@ -3,9 +3,6 @@
  */
 package com.wci.umls.server.jpa.services.helper;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLAnnotationPropertyDomainAxiom;
@@ -29,8 +26,6 @@ import org.semanticweb.owlapi.profiles.OWL2DLProfile;
 import org.semanticweb.owlapi.profiles.OWL2ELProfile;
 import org.semanticweb.owlapi.profiles.OWLProfileReport;
 import org.semanticweb.owlapi.profiles.OWLProfileViolation;
-import org.semanticweb.owlapi.reasoner.Node;
-import org.semanticweb.owlapi.reasoner.OWLReasoner;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 
@@ -195,7 +190,7 @@ public class OwlUtility {
   public static void logOwlClassExpression(OWLClassExpression expr,
     OWLOntology ontology, int level) throws Exception {
     final String indent = ConfigUtility.getIndentForLevel(level);
-    Logger.getLogger(OwlUtility.class).info(
+    Logger.getLogger(OwlUtility.class).debug(
         indent + "class expression = " + expr);
 
     Logger.getLogger(OwlUtility.class).debug(
@@ -277,7 +272,7 @@ public class OwlUtility {
   public static void logOwlClass(OWLClass owlClass, OWLOntology ontology,
     int level) throws Exception {
     final String indent = ConfigUtility.getIndentForLevel(level);
-    Logger.getLogger(OwlUtility.class).info(indent + "class = " + owlClass);
+    Logger.getLogger(OwlUtility.class).debug(indent + "class = " + owlClass);
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  IRI = " + owlClass.getIRI());
 
@@ -409,7 +404,7 @@ public class OwlUtility {
    */
   public static void logAnnotationProperty(OWLAnnotationProperty prop,
     OWLOntology ontology) {
-    Logger.getLogger(OwlUtility.class).debug("  annotation property = " + prop);
+    Logger.getLogger(OwlUtility.class).info("  annotation property = " + prop);
     Logger.getLogger(OwlUtility.class).debug("    IRI = " + prop.getIRI());
     Logger.getLogger(OwlUtility.class).debug(
         "    signature = " + prop.getSignature());
@@ -501,7 +496,7 @@ public class OwlUtility {
    */
   public static void logObjectProperty(OWLObjectProperty prop,
     OWLOntology ontology) {
-    Logger.getLogger(OwlUtility.class).debug("  object property = " + prop);
+    Logger.getLogger(OwlUtility.class).info("  object property = " + prop);
     Logger.getLogger(OwlUtility.class).debug("    IRI = " + prop.getIRI());
     Logger.getLogger(OwlUtility.class).debug(
         "    inverse property = " + prop.getInverseProperty());
@@ -598,7 +593,7 @@ public class OwlUtility {
    * @param ontology the ontology
    */
   public static void logDataProperty(OWLDataProperty prop, OWLOntology ontology) {
-    Logger.getLogger(OwlUtility.class).debug("  data property = " + prop);
+    Logger.getLogger(OwlUtility.class).info("  data property = " + prop);
     Logger.getLogger(OwlUtility.class).debug("    IRI = " + prop.getIRI());
     Logger.getLogger(OwlUtility.class).debug(
         "    signature = " + prop.getSignature());
@@ -675,7 +670,7 @@ public class OwlUtility {
    */
   public static void logPropertyChain(OWLSubPropertyChainOfAxiom prop,
     OWLOntology ontology) {
-    Logger.getLogger(OwlUtility.class).info("  property chain= " + prop);
+    Logger.getLogger(OwlUtility.class).info("    property chain = " + prop);
     Logger.getLogger(OwlUtility.class).debug(
         "    chain = " + prop.getPropertyChain());
     Logger.getLogger(OwlUtility.class).debug(

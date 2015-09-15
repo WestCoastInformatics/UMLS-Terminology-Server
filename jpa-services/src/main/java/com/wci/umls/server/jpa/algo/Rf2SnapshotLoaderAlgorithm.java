@@ -64,6 +64,7 @@ import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
@@ -77,11 +78,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
 
-  /** The logging object ct threshold. */
-  private final static int logCt = 2000;
-
-  /** The commit count. */
-  private final static int commitCt = 2000;
 
   /** The isa type rel. */
   private final static String isaTypeRel = "116680003";
@@ -474,7 +470,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           moduleConceptIdMap.get(fields[3]).add(concept.getTerminologyId());
         }
 
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
       }
     }
     commitClearBegin();
@@ -578,7 +574,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           }
         }
 
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
     }
@@ -661,7 +657,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
               + " references non-existent concept " + fields[4]);
         }
 
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
       }
     }
     commitClearBegin();
@@ -740,7 +736,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
               + " references non-existent concept " + fields[4]);
         }
 
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
       }
     }
     commitClearBegin();
@@ -800,7 +796,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
             updateSubset(subset);
           }
 
-          logAndCommit(++objectCt);
+          logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
         }
         concept = getConcept(conceptIdMap.get(atom.getConceptId()));
       }
@@ -869,7 +865,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           prefAtoms.add(member.getMember().getTerminologyId());
         }
 
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
     }
@@ -928,7 +924,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         // Add member
         addSubsetMember(member);
 
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
     }
@@ -986,7 +982,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         // Add member
         addSubsetMember(member);
 
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
     }
@@ -1023,7 +1019,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         // Add member
         addSubsetMember(member);
 
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
     }
@@ -1069,7 +1065,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         // Add member
         addSubsetMember(member);
 
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
     }
@@ -1153,7 +1149,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         // Add member
         addSubsetMember(member);
 
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
     }
@@ -1207,7 +1203,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
         addSubsetMember(member);
 
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
     }
@@ -1261,7 +1257,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
         addSubsetMember(member);
 
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
     }
@@ -1678,7 +1674,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         member.setVersion(version);
         member.setSubset(subset);
         addSubsetMember(member);
-        logAndCommit(++objectCt);
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
       }
     }
     Logger.getLogger(getClass()).info("    count = " + objectCt);
@@ -1733,30 +1729,4 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     readers = null;
   }
 
-  /**
-   * Commit clear begin transaction.
-   *
-   * @throws Exception the exception
-   */
-  private void commitClearBegin() throws Exception {
-    commit();
-    clear();
-    beginTransaction();
-  }
-
-  /**
-   * Log and commit.
-   * 
-   * @param objectCt the object ct
-   * @throws Exception the exception
-   */
-  private void logAndCommit(int objectCt) throws Exception {
-    // log at regular intervals
-    if (objectCt % logCt == 0) {
-      Logger.getLogger(getClass()).info("    count = " + objectCt);
-    }
-    if (objectCt % commitCt == 0) {
-      commitClearBegin();
-    }
-  }
 }

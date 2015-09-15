@@ -8,25 +8,32 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.log4j.Logger;
+
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
+import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.services.MetadataService;
 
 /**
  * Loads and serves configuration.
  */
 public class TerminologyUtility {
 
-  /** The isa rels map. */
-  public static Map<String, Set<String>> isaRelsMap = new HashMap<>();
+  /** The additional type hierarchy. */
+  public static Map<String, Set<String>> additionalTypeHierarchy =
+      new HashMap<>();
 
   /**
    * Returns the active parent concepts.
@@ -70,6 +77,41 @@ public class TerminologyUtility {
       }
     }
     return results;
+  }
+
+  /**
+   * Returns the descendant types.
+   *
+   * @param typeValue the type value
+   * @param terminology the terminology
+   * @param version the version
+   * @return the descendant types
+   * @throws Exception the exception
+   */
+  public static Set<String> getDescendantTypes(String typeValue,
+    String terminology, String version) throws Exception {
+    if (additionalTypeHierarchy.isEmpty()) {
+      MetadataService service = new MetadataServiceJpa();
+      for (AdditionalRelationshipType type : service
+          .getAdditionalRelationshipTypes(terminology, version).getObjects()) {
+        additionalTypeHierarchy.put(
+            terminology + version + type.getAbbreviation(),
+            new HashSet<String>());
+      }
+      for (AdditionalRelationshipType type : service
+          .getAdditionalRelationshipTypes(terminology, version).getObjects()) {
+        while (type.getSuperType() != null) {
+          additionalTypeHierarchy.get(
+              terminology + version + type.getSuperType().getAbbreviation())
+              .add(type.getAbbreviation());
+          type = type.getSuperType();
+        }
+      }
+      service.close();
+      Logger.getLogger(TerminologyUtility.class).info(
+          "  Additional descendant type map - " + additionalTypeHierarchy);
+    }
+    return additionalTypeHierarchy.get(terminology + version + typeValue);
   }
 
   /**
