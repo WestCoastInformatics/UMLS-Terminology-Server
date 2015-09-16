@@ -77,7 +77,7 @@ public class DescriptorRelationshipJpa extends
     super(relationship, deepCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
-    alternateTerminologyIds = relationship.getAlternateTerminologyIds();
+    alternateTerminologyIds = new HashMap<>(relationship.getAlternateTerminologyIds());
   }
 
   /* see superclass */

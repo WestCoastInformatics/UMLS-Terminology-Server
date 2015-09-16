@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>term-server-admin-db</artifactId>
-  <name>umls Terminology server admin db creator and updater tool.</name>
+  <name>Terminology server admin db creator and updater tool</name>
   <description>Used to create the umls DB schema and update it when new code is deployed.</description>
   <packaging>pom</packaging>
 

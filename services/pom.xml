@@ -11,8 +11,8 @@
   </parent>
 
   <artifactId>term-server-services</artifactId>
-  <name>UMLS terminology server API.</name>
-  <description>Services for UMLS data objects.</description>
+  <name>Terminology server API</name>
+  <description>Services for domain model.</description>
 
 
   <!-- Declare Project Dependency Versions -->

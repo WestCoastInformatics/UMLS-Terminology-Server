@@ -133,8 +133,8 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   public AtomJpa(Atom atom, boolean deepCopy) {
     super(atom, deepCopy);
     codeId = atom.getCodeId();
-    conceptTerminologyIds = atom.getConceptTerminologyIds();
-    alternateTerminologyIds = atom.getAlternateTerminologyIds();
+    conceptTerminologyIds = new HashMap<>(atom.getConceptTerminologyIds());
+    alternateTerminologyIds = new HashMap<>(atom.getAlternateTerminologyIds());
     descriptorId = atom.getDescriptorId();
     conceptId = atom.getDescriptorId();
     language = atom.getLanguage();

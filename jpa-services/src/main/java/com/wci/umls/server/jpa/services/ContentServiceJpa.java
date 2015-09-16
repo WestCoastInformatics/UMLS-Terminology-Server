@@ -52,6 +52,7 @@ import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DefinitionList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.GeneralConceptAxiomList;
 import com.wci.umls.server.helpers.content.LexicalClassList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.StringClassList;
@@ -80,6 +81,7 @@ import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
+import com.wci.umls.server.jpa.content.GeneralConceptAxiomJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
@@ -93,6 +95,7 @@ import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
 import com.wci.umls.server.jpa.helpers.content.DefinitionListJpa;
 import com.wci.umls.server.jpa.helpers.content.DescriptorListJpa;
+import com.wci.umls.server.jpa.helpers.content.GeneralConceptAxiomListJpa;
 import com.wci.umls.server.jpa.helpers.content.LexicalClassListJpa;
 import com.wci.umls.server.jpa.helpers.content.RelationshipListJpa;
 import com.wci.umls.server.jpa.helpers.content.StringClassListJpa;
@@ -113,6 +116,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.GeneralConceptAxiom;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -2811,7 +2815,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           .append(query == null || query.isEmpty() ? "" : " AND " + query);
 
     }
-    
+
     Logger.getLogger(getClass()).info(
         "query for " + clazz.getName() + ": " + finalQuery);
 
@@ -2888,11 +2892,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     Query term2 = new TermQuery(new Term("version", version));
     Query term3 = new TermQuery(new Term("atoms.suppressible", "false"));
     Query term4 = new TermQuery(new Term("suppressible", "false"));
+    Query term5 = new TermQuery(new Term("anonymous", "false"));
     BooleanQuery booleanQuery = new BooleanQuery();
     booleanQuery.add(term1, BooleanClause.Occur.MUST);
     booleanQuery.add(term2, BooleanClause.Occur.MUST);
     booleanQuery.add(term3, BooleanClause.Occur.MUST);
     booleanQuery.add(term4, BooleanClause.Occur.MUST);
+    booleanQuery.add(term5, BooleanClause.Occur.MUST);
     booleanQuery.add(query, BooleanClause.Occur.MUST);
 
     FullTextQuery fullTextQuery =
@@ -3653,6 +3659,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         relationship.setTerminology(result[2].toString());
         relationship.setVersion(result[3].toString());
         relationship.setRelationshipType(result[4].toString());
+        relationship.setHierarchical(result[4].toString().equals("CHD")
+            || result[4].toString().equals("subClassOf"));
         relationship.setAdditionalRelationshipType(result[5].toString());
         relationship.setObsolete(result[7].toString().equals("1"));
         relationship.setSuppressible(result[8].toString().equals("1"));
@@ -4375,6 +4383,83 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     return list;
+  }
+
+  @Override
+  public GeneralConceptAxiom addGeneralConceptAxiom(GeneralConceptAxiom axiom)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - add axiom " + axiom);
+    // No need to worry about assigning ids.
+
+    GeneralConceptAxiom newAxiom = addComponent(axiom);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.conceptChanged(newAxiom.getLeftHandSide(),
+            WorkflowListener.Action.ADD);
+        listener.conceptChanged(newAxiom.getRightHandSide(),
+            WorkflowListener.Action.ADD);
+      }
+    }
+    return newAxiom;
+  }
+
+  @Override
+  public void updateGeneralConceptAxiom(GeneralConceptAxiom axiom)
+    throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - update axiom " + axiom);
+    // update component
+    this.updateComponent(axiom);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.conceptChanged(axiom.getLeftHandSide(),
+            WorkflowListener.Action.ADD);
+        listener.conceptChanged(axiom.getRightHandSide(),
+            WorkflowListener.Action.ADD);
+      }
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public void removeGeneralConceptAxiom(Long id) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - remove axiom " + id);
+
+    removeComponent(id, GeneralConceptAxiomJpa.class);
+
+  }
+
+  @Override
+  public GeneralConceptAxiomList getGeneralConceptAxioms(String terminology,
+    String version, String branch) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get general concept axioms " + terminology + "/"
+            + version);
+    javax.persistence.Query query =
+        manager.createQuery("select a from GeneralConceptAxiomJpa a where "
+            + "version = :version and terminology = :terminology");
+    // Try to retrieve the single expected result If zero or more than one
+    // result are returned, log error and set result to null
+    try {
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      @SuppressWarnings("unchecked")
+      List<GeneralConceptAxiom> m = query.getResultList();
+      GeneralConceptAxiomListJpa generalConceptAxiomList =
+          new GeneralConceptAxiomListJpa();
+      generalConceptAxiomList.setObjects(m);
+      generalConceptAxiomList.setTotalCount(m.size());
+
+      return generalConceptAxiomList;
+
+    } catch (NoResultException e) {
+      return null;
+    }
   }
   
   /**

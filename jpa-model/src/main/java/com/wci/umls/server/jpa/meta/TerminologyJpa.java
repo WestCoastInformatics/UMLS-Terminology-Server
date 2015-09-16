@@ -100,6 +100,10 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   @Column(nullable = false)
   private boolean descriptionLogicTerminology = false;
 
+  /** The description logic profile. */
+  @Column(nullable = true)
+  private String descriptionLogicProfile = null;
+
   /**
    * Instantiates an empty {@link TerminologyJpa}.
    */
@@ -126,6 +130,8 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     assertsRelDirection = terminology.isAssertsRelDirection();
     current = terminology.isCurrent();
     metathesaurus = terminology.isMetathesaurus();
+    descriptionLogicTerminology = terminology.isDescriptionLogicTerminology();
+    descriptionLogicProfile = terminology.getDescriptionLogicProfile();
   }
 
   /* see superclass */
@@ -333,6 +339,18 @@ public class TerminologyJpa extends AbstractHasLastModified implements
 
   /* see superclass */
   @Override
+  public String getDescriptionLogicProfile() {
+    return descriptionLogicProfile;
+  }
+
+  /* see superclass */
+  @Override
+  public void setDescriptionLogicProfile(String profile) {
+    descriptionLogicProfile = profile;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -341,6 +359,11 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     result = prime * result + (current ? 1231 : 1237);
     result = prime * result + (metathesaurus ? 1231 : 1237);
     result = prime * result + (descriptionLogicTerminology ? 1231 : 1237);
+    result =
+        prime
+            * result
+            + ((descriptionLogicProfile == null) ? 0 : descriptionLogicProfile
+                .hashCode());
     result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
     result =
         prime
@@ -382,6 +405,11 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     if (metathesaurus != other.metathesaurus)
       return false;
     if (descriptionLogicTerminology != other.descriptionLogicTerminology)
+      return false;
+    if (descriptionLogicProfile == null) {
+      if (other.descriptionLogicProfile != null)
+        return false;
+    } else if (!descriptionLogicProfile.equals(other.descriptionLogicProfile))
       return false;
     if (endDate == null) {
       if (other.endDate != null)
@@ -431,7 +459,8 @@ public class TerminologyJpa extends AbstractHasLastModified implements
         + ", version=" + version + ", assertsRelDirection="
         + assertsRelDirection + ", current=" + current + ", metathesaurus="
         + metathesaurus + ", descriptionLogicTerminology="
-        + descriptionLogicTerminology + "]";
+        + descriptionLogicTerminology + ", descriptionLogicProfile="
+        + descriptionLogicProfile + "]";
   }
 
 }

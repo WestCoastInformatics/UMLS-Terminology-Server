@@ -14,7 +14,7 @@
 	<!-- if not the component viewed, render with hyperlink -->
 	<span ng-show="tree.nodeTerminologyId != component.object.terminologyId"><a
 		ng-click="getComponent(tree.nodeTerminologyId, component.object.terminology, component.object.version)">
-			{{tree.nodeTerminologyId}}</a>: {{tree.nodeName}} {{tree.terminology}} {{tree.version}} x</span>
+			{{tree.nodeTerminologyId}}</a>: {{tree.nodeName}}</span>
 
 	<!-- if the component displayed, render in bold without hyperlink -->
 	<span ng-show="tree.nodeTerminologyId === component.object.terminologyId">

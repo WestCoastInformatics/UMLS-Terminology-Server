@@ -249,14 +249,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
       abbrMapList.put(MetadataKeys.Term_Types.toString(), termTypeMap);
     }
 
-    Map<String, String> hierRelTypeMap =
-        getAbbreviationMap(getHierarchicalRelationshipTypes(terminology,
-            version).getObjects());
-    if (hierRelTypeMap != null) {
-      abbrMapList.put(MetadataKeys.Hierarchical_Relationship_Types.toString(),
-          hierRelTypeMap);
-    }
-
     Map<String, String> latMap =
         getAbbreviationMap(getLanguages(terminology, version).getObjects());
     if (latMap != null) {
@@ -582,41 +574,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     } else {
       // return an empty map
       return new TermTypeListJpa();
-    }
-  }
-
-  /* see superclass */
-  @Override
-  public RelationshipTypeList getHierarchicalRelationshipTypes(
-    String terminology, String version) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Metadata service - get hierarchical relationship types " + terminology
-            + ", " + version);
-    if (helperMap.containsKey(terminology)) {
-      return helperMap.get(terminology).getHierarchicalRelationshipTypes(
-          terminology, version);
-    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
-      return helperMap.get(ConfigUtility.DEFAULT)
-          .getHierarchicalRelationshipTypes(terminology, version);
-    } else {
-      // return an empty map
-      return new RelationshipTypeListJpa();
-    }
-  }
-
-  /* see superclass */
-  @Override
-  public boolean isHierarchcialRelationship(Relationship<?, ?> relationship) {
-    if (helperMap.containsKey(relationship.getTerminology())) {
-      Logger.getLogger(getClass()).info(
-          "Metadata service - is hierarchical relationship " + relationship);
-      return helperMap.get(relationship.getTerminology())
-          .isHierarchcialRelationship(relationship);
-    } else if (helperMap.containsKey(ConfigUtility.DEFAULT)) {
-      return helperMap.get(ConfigUtility.DEFAULT).isHierarchcialRelationship(
-          relationship);
-    } else {
-      return false;
     }
   }
 

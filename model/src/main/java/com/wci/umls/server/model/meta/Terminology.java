@@ -194,6 +194,20 @@ public interface Terminology extends HasLastModified {
   public void setDescriptionLogicTerminology(boolean flag);
 
   /**
+   * Returns the description logic profile.
+   *
+   * @return the description logic profile
+   */
+  public String getDescriptionLogicProfile();
+
+  /**
+   * Sets the description logic profile.
+   *
+   * @param profile the description logic profile
+   */
+  public void setDescriptionLogicProfile(String profile);
+
+  /**
    * Indicates whether or not metathesaurus is the case.
    *
    * @return <code>true</code> if so, <code>false</code> otherwise

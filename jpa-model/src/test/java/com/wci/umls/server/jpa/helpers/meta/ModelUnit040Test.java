@@ -152,6 +152,7 @@ public class ModelUnit040Test {
     tester.include("terminology");
     tester.include("version");
     tester.include("descriptionLogicTerminology");
+    tester.include("descriptionLogicProfile");
 
     tester.proxy(RootTerminology.class, 1, rootTerminologyProxy);
     tester.proxy(RootTerminology.class, 2, rootTerminologyProxy2);

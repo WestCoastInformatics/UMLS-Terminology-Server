@@ -66,7 +66,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     super(relationship, deepCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
-    alternateTerminologyIds = relationship.getAlternateTerminologyIds();
+    alternateTerminologyIds = new HashMap<>(relationship.getAlternateTerminologyIds());
   }
 
   /* see superclass */

@@ -192,37 +192,6 @@ public class StandardMetadataServiceJpaHelper extends
   }
 
   /* see superclass */
-  @SuppressWarnings("unchecked")
-  @Override
-  public RelationshipTypeList getHierarchicalRelationshipTypes(
-    String terminology, String version) throws Exception {
-    javax.persistence.Query query =
-        manager.createQuery("SELECT r from RelationshipTypeJpa r "
-            + "where abbreviation = :rel " + "and terminology = :terminology"
-            + " and version = :version");
-    query.setParameter("rel", "CHD");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
-    RelationshipTypeList types = new RelationshipTypeListJpa();
-    // Try "subClassOf" if "CHD" doesn't work
-    if (query.getResultList().size() == 0) {
-      query.setParameter("rel", "subClassOf");
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);      
-    }    
-    types.setObjects(query.getResultList());
-    types.setTotalCount(types.getObjects().size());
-
-    return types;
-  }
-
-  /* see superclass */
-  @Override
-  public boolean isHierarchcialRelationship(Relationship<?, ?> relationship) {
-    return relationship.getRelationshipType().equals("CHD");
-  }
-
-  /* see superclass */
   @Override
   public boolean isStatedRelationship(Relationship<?, ?> relationship) {
     return true;
@@ -292,6 +261,5 @@ public class StandardMetadataServiceJpaHelper extends
     close();
     manager = factory.createEntityManager();
   }
-
 
 }

@@ -73,6 +73,7 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.TermTypeStyle;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
@@ -84,12 +85,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
-
-  /** The logging object ct threshold. */
-  private final static int logCt = 2000;
-
-  /** The commit count. */
-  private final static int commitCt = 2000;
 
   /** The terminology. */
   String terminology;
@@ -1036,6 +1031,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
               relationship.setRelationshipType(type.toLowerCase().equals("isa")
                   ? "CHD" : "RO");
               relationship.setAdditionalRelationshipType(type);
+              relationship.setHierarchical(relationship.getRelationshipType()
+                  .equals("CHD"));
               additionalRelationshipTypes.add(type);
               relationship.setGroup(null);
               relationship.setAssertedDirection(true);
@@ -1075,7 +1072,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
             addAtom(atom);
           }
           addConcept(concept);
-          logAndCommit(objectCt++);
+          logAndCommit(objectCt++, RootService.logCt, RootService.commitCt);
         }
         commitClearBegin();
 
@@ -1085,7 +1082,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
             continue;
           }
           addRelationship(rel);
-          logAndCommit(objectCt++);
+          logAndCommit(objectCt++, RootService.logCt, RootService.commitCt);
         }
         commitClearBegin();
 
@@ -1103,7 +1100,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
                     + rel.getFrom().getTerminologyId() + ", "
                     + rel.getTo().getTerminologyId());
           }
-          logAndCommit(objectCt++);
+          logAndCommit(objectCt++, RootService.logCt, RootService.commitCt);
         }
         commitClearBegin();
 
@@ -1434,6 +1431,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       relationship.setVersion(version);
       relationship.setRelationshipType("CHD");
       relationship.setAdditionalRelationshipType("isa");
+      relationship.setHierarchical(true);
       additionalRelationshipTypes.add("isa");
       relationship.setGroup(null);
       relationship.setAssertedDirection(true);
@@ -1912,7 +1910,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
       updateAdditionalRelationshipType(type);
       updateAdditionalRelationshipType(inverseType);
     }
-    
+
     for (String tty : termTypes) {
 
       final TermType termType = new TermTypeJpa();
@@ -2076,30 +2074,4 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     }
   }
 
-  /**
-   * Commit clear begin transaction.
-   *
-   * @throws Exception the exception
-   */
-  void commitClearBegin() throws Exception {
-    commit();
-    clear();
-    beginTransaction();
-  }
-
-  /**
-   * Log and commit.
-   * 
-   * @param objectCt the object ct
-   * @throws Exception the exception
-   */
-  void logAndCommit(int objectCt) throws Exception {
-    // log at regular intervals
-    if (objectCt % logCt == 0) {
-      Logger.getLogger(getClass()).info("    count = " + objectCt);
-    }
-    if (objectCt % commitCt == 0) {
-      commitClearBegin();
-    }
-  }
 }

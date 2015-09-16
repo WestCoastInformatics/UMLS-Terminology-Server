@@ -11,8 +11,8 @@
   </parent>
 
   <artifactId>term-server-model</artifactId>
-  <name>UMLS terminology server domain model.</name>
-  <description>Conceptual model for UMLS data objects.</description>
+  <name>Terminology server domain model</name>
+  <description>Conceptual domain model.</description>
 
   <dependencies>
 

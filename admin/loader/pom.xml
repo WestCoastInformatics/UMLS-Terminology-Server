@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>term-server-admin-loader</artifactId>
-  <name>UMLS terminology server admin loader tool.</name>
+  <name>Terminology server admin loader tool</name>
   <description>Used for loading terminologies and creating other useful data structures.</description>
   <packaging>pom</packaging>
 

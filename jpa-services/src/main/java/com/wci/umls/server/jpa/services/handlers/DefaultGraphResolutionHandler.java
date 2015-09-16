@@ -5,7 +5,6 @@ package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.Set;
 
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -47,8 +46,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
   /* see superclass */
   @Override
-  public void resolve(Concept concept, Set<String> hierarchicalRelTypeIds)
-    throws Exception {
+  public void resolve(Concept concept) throws Exception {
     if (concept != null) {
       boolean nullId = concept.getId() == null;
       concept.setMembers(new ArrayList<ConceptSubsetMember>());
@@ -192,8 +190,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
   /* see superclass */
   @Override
-  public void resolve(Descriptor descriptor, Set<String> isaRelTypeIds)
-    throws Exception {
+  public void resolve(Descriptor descriptor) throws Exception {
     if (descriptor != null) {
       boolean nullId = descriptor.getId() == null;
 
@@ -225,7 +222,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
   /* see superclass */
   @Override
-  public void resolve(Code code, Set<String> isaRelTypeIds) throws Exception {
+  public void resolve(Code code) throws Exception {
     if (code != null) {
       boolean nullId = code.getId() == null;
 

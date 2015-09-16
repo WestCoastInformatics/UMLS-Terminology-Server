@@ -367,15 +367,6 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedNames.put(MetadataKeys.Term_Types, new HashSet<String>());
     expectedNames.get(MetadataKeys.Term_Types).add("Designated preferred name");
 
-    // Hierarchical relationship types
-    expectedSizes.put(MetadataKeys.Hierarchical_Relationship_Types, 1);
-    expectedSizes2.put(MetadataKeys.Hierarchical_Relationship_Types, 1);
-    expectedIds.put(MetadataKeys.Hierarchical_Relationship_Types, "CHD");
-    expectedNames.put(MetadataKeys.Hierarchical_Relationship_Types,
-        new HashSet<String>());
-    expectedNames.get(MetadataKeys.Hierarchical_Relationship_Types).add(
-        "has child relationship in a Metathesaurus source vocabulary");
-
     // Languages
     expectedSizes.put(MetadataKeys.Languages, 21);
     expectedSizes2.put(MetadataKeys.Languages, 21);
@@ -448,15 +439,6 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedNames.put(MetadataKeys.Term_Types, new HashSet<String>());
     expectedNames.get(MetadataKeys.Term_Types).add("Designated preferred name");
 
-    // Hierarchical relationship types
-    expectedSizes.put(MetadataKeys.Hierarchical_Relationship_Types, 1);
-    expectedSizes2.put(MetadataKeys.Hierarchical_Relationship_Types, 1);
-    expectedIds.put(MetadataKeys.Hierarchical_Relationship_Types, "CHD");
-    expectedNames.put(MetadataKeys.Hierarchical_Relationship_Types,
-        new HashSet<String>());
-    expectedNames.get(MetadataKeys.Hierarchical_Relationship_Types).add(
-        "has child relationship in a Metathesaurus source vocabulary");
-
     // Languages
     expectedSizes.put(MetadataKeys.Languages, 1);
     expectedSizes2.put(MetadataKeys.Languages, 1);
@@ -528,15 +510,6 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedNames.put(MetadataKeys.Term_Types, new HashSet<String>());
     expectedNames.get(MetadataKeys.Term_Types).add("Main heading");
 
-    // Hierarchical relationship types
-    expectedSizes.put(MetadataKeys.Hierarchical_Relationship_Types, 1);
-    expectedSizes2.put(MetadataKeys.Hierarchical_Relationship_Types, 1);
-    expectedIds.put(MetadataKeys.Hierarchical_Relationship_Types, "CHD");
-    expectedNames.put(MetadataKeys.Hierarchical_Relationship_Types,
-        new HashSet<String>());
-    expectedNames.get(MetadataKeys.Hierarchical_Relationship_Types).add(
-        "has child relationship in a Metathesaurus source vocabulary");
-
     // Languages
     expectedSizes.put(MetadataKeys.Languages, 1);
     expectedSizes2.put(MetadataKeys.Languages, 1);
@@ -571,57 +544,13 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     // the count of categories successfully passing test
     int categorySuccessCt = 0;
 
-    KeyValuePairList relTypes = null;
-    // retrieve relationship types and additional relationship types for ease of
-    // access
-    for (KeyValuePairList keyValuePairList : keyValuePairLists
-        .getKeyValuePairLists()) {
-      if (MetadataKeys.valueOf(keyValuePairList.getName()).equals(
-          MetadataKeys.Relationship_Types)) {
-        relTypes = keyValuePairList;
-      }
-    }
-
     // cycle over all retrieved metadata
     for (KeyValuePairList keyValuePairList : keyValuePairLists
         .getKeyValuePairLists()) {
 
-      // initialize the test variables
-      Set<KeyValuePair> pairsNotMatched = new HashSet<>();
-
       Logger.getLogger(getClass()).info(
           "Checking " + keyValuePairList.getKeyValuePairList().size() + " "
               + keyValuePairList.getName());
-
-      // for each type of metadata category, specify:
-      // (1) the expected number of concepts returned
-      // (2) the id and all possible names of a single concept expected to be in
-      // the list
-      switch (MetadataKeys.valueOf(keyValuePairList.getName())) {
-        case Hierarchical_Relationship_Types:
-          // if all values not in the relationship type list,
-          // decrement success counter
-          for (KeyValuePair pair : keyValuePairList.getKeyValuePairList()) {
-            if (relTypes == null || !relTypes.contains(pair)) {
-              pairsNotMatched.add(pair);
-            }
-          }
-
-          if (pairsNotMatched.size() > 0) {
-            Logger
-                .getLogger(getClass())
-                .error(
-                    "The following hierarchical relationship types are not found in the set of relationship types:");
-            for (KeyValuePair pair : pairsNotMatched) {
-              Logger.getLogger(getClass()).error(
-                  "  " + pair.getKey() + ", " + pair.getValue());
-            }
-          }
-          break;
-        default:
-          break;
-
-      }
 
       int expectedSize =
           expectedSizes.get(MetadataKeys.valueOf(keyValuePairList.getName()));

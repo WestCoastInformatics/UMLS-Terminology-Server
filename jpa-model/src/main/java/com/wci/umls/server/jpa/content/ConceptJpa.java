@@ -102,7 +102,9 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     fullyDefined = concept.isFullyDefined();
     usesRelationshipIntersection = concept.getUsesRelationshipIntersection();
     usesRelationshipUnion = concept.getUsesRelationshipUnion();
-    labels = concept.getLabels();
+    if (concept.getLabels() != null) {
+      labels = new ArrayList<>(concept.getLabels());
+    }
 
     if (deepCopy) {
       for (Definition definition : concept.getDefinitions()) {

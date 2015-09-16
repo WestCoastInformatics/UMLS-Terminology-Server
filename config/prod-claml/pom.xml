@@ -12,7 +12,7 @@
 
   <artifactId>term-server-config-prod-claml</artifactId>
   <packaging>pom</packaging>
-  <name>Terminology server configuration project for the demo prod environment for a ClaML terminology load.</name>
+  <name>Terminology server configuration project for the demo prod environment for a ClaML terminology load</name>
   <description>Template configuration files for the demo prod environment for a ClaML terminology load.</description>
 
   <!-- Package as .zip -->

@@ -11,8 +11,8 @@
   </parent>
 
   <artifactId>term-server-admin-release</artifactId>
-  <name>Terminology server admin release processing tool.</name>
-  <description>Used for generating RF2 release file data</description>
+  <name>Terminology server admin release processing tool</name>
+  <description>Used for generating RF2 release file data.</description>
   <packaging>pom</packaging>
 
   <!-- Properties -->

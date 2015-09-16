@@ -3,8 +3,6 @@
  */
 package com.wci.umls.server.services.handlers;
 
-import java.util.Set;
-
 import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -35,11 +33,9 @@ public interface GraphResolutionHandler extends Configurable {
    * Resolve concepts.
    *
    * @param concept the concept
-   * @param hierarchicalTypeIds the isa rel type ids
    * @throws Exception the exception
    */
-  public void resolve(Concept concept, Set<String> hierarchicalTypeIds)
-    throws Exception;
+  public void resolve(Concept concept) throws Exception;
 
   /**
    * Resolve a concept to simply the concept element and none of the graph,
@@ -70,20 +66,18 @@ public interface GraphResolutionHandler extends Configurable {
    * Resolve.
    *
    * @param descriptor the descriptor
-   * @param isaRelTypeIds the isa rel type ids
    * @throws Exception the exception
    */
-  public void resolve(Descriptor descriptor, Set<String> isaRelTypeIds)
+  public void resolve(Descriptor descriptor)
     throws Exception;
 
   /**
    * Resolve.
    *
    * @param descriptor the descriptor
-   * @param isaRelTypeIds the isa rel type ids
    * @throws Exception the exception
    */
-  public void resolve(Code descriptor, Set<String> isaRelTypeIds)
+  public void resolve(Code descriptor)
     throws Exception;
 
   /**
