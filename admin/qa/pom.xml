@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>term-server-admin-qa</artifactId>
-  <name>UMLS terminology server admin QA tool.</name>
+  <name>Terminology server admin QA tool</name>
   <description>Used for performing system wide QA checks</description>
   <packaging>pom</packaging>
 

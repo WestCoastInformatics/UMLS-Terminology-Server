@@ -12,8 +12,8 @@
 
   <artifactId>term-server-config</artifactId>
   <packaging>pom</packaging>
-  <name>UMLS terminology server configuration project.</name>
-  <description>Sample data and template configuration files for UMLS terminology server.</description>
+  <name>Terminology server configuration project</name>
+  <description>Sample data and template configuration files.</description>
 
   <!-- Assemble and attach resources -->
   <build>
@@ -48,6 +48,7 @@
     <module>prod</module>
     <module>prod-snomedct</module>
     <module>prod-claml</module>
+    <module>prod-owl</module>
   </modules>
 
 </project>

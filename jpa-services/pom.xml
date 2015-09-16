@@ -11,8 +11,8 @@
   </parent>
 
   <artifactId>term-server-jpa-services</artifactId>
-  <name>Terminology server JPA service implementations. </name>
-  <description>JPA implementations of terminology services.</description>
+  <name>Terminology server JPA service implementations</name>
+  <description>JPA implementation of services.</description>
 
   <!-- Declare Project Dependency Versions -->
   <dependencies>

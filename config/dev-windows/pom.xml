@@ -12,7 +12,7 @@
 
   <artifactId>term-server-config-dev-windows</artifactId>
   <packaging>pom</packaging>
-  <name>Terminology server configuration project for a windows dev environment.</name>
+  <name>Terminology server configuration project for a windows dev environment</name>
   <description>Template configuration files for windows dev environment.</description>
 
   <!-- Package as .zip -->

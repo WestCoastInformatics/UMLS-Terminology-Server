@@ -190,7 +190,7 @@ public class OwlUtility {
   public static void logOwlClassExpression(OWLClassExpression expr,
     OWLOntology ontology, int level) throws Exception {
     final String indent = ConfigUtility.getIndentForLevel(level);
-    Logger.getLogger(OwlUtility.class).debug(
+    Logger.getLogger(OwlUtility.class).info(
         indent + "class expression = " + expr);
 
     Logger.getLogger(OwlUtility.class).debug(
@@ -272,7 +272,7 @@ public class OwlUtility {
   public static void logOwlClass(OWLClass owlClass, OWLOntology ontology,
     int level) throws Exception {
     final String indent = ConfigUtility.getIndentForLevel(level);
-    Logger.getLogger(OwlUtility.class).debug(indent + "class = " + owlClass);
+    Logger.getLogger(OwlUtility.class).info(indent + "class = " + owlClass);
     Logger.getLogger(OwlUtility.class).debug(
         indent + "  IRI = " + owlClass.getIRI());
 

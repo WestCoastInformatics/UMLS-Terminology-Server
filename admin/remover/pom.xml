@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>term-server-admin-remover</artifactId>
-  <name>UMLS terminology server admin remover tool.</name>
+  <name>Terminology server admin remover tool</name>
   <description>Used to remove loaded terminologies from the database.</description>
   <packaging>pom</packaging>
 

@@ -1211,7 +1211,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         if (rootClassChecker.isRootClass(owlClass)) {
           ConceptRelationship rel =
               getSubClassOfRelationship(concept, topConcept);
-          Logger.getLogger(getClass()).info("  add top relationship = " + rel);
+          Logger.getLogger(getClass()).debug("  add top relationship = " + rel);
           addRelationship(rel);
           concept.addRelationship(rel);
         }
@@ -1229,16 +1229,15 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     objectCt = 0;
     Set<String> visited = new HashSet<>();
     for (OWLClass owlClass : ontology.getClassesInSignature()) {
-
       final String terminologyId = getTerminologyId(owlClass.getIRI());
       if (visited.contains(terminologyId)) {
-        return;
+        continue;
       }
       visited.add(terminologyId);
 
       // Skip if the owl class
       if (isObsolete(owlClass, ontology)) {
-        return;
+        continue;
       }
 
       final Concept concept = getConcept(idMap.get(terminologyId));
@@ -1246,7 +1245,6 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (concept == null) {
         throw new Exception("Unexpected missing concept for " + terminologyId);
       }
-
       for (final ConceptRelationship rel : getRelationships(concept, owlClass,
           ontology)) {
         // ASSUMPTION: embedded anonymous concepts have been added
@@ -1254,6 +1252,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         addRelationship(rel);
         concept.addRelationship(rel);
       }
+
       // Update the concept a
       Logger.getLogger(getClass()).debug("  update concept = " + concept);
       updateConcept(concept);

@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>term-server-custom</artifactId>
-  <name>UMLS terminology server customizations.</name>
+  <name>Terminology server customizations</name>
   <description>Custom project extensions.</description>
 
   <dependencies>

@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>term-server-admin-mojo</artifactId>
-  <name>UMLS terminology server admin mojos.</name>
+  <name>Terminology server admin mojos</name>
   <description>Implementations for the admin tool configurations.</description>
   <packaging>maven-plugin</packaging>
 

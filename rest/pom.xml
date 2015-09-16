@@ -13,8 +13,8 @@
 
   <artifactId>term-server-rest</artifactId>
   <packaging>war</packaging>
-  <name>UMLS terminology server REST implementation</name>
-  <description>UMLS terminology server REST implementation.</description>
+  <name>Terminology server REST service implementation.</name>
+  <description>REST service implementation.</description>
 
   <properties>
     <!-- Specify the config artifact parameters -->

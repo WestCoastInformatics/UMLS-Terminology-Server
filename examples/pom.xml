@@ -11,8 +11,8 @@
   </parent>
 
   <artifactId>term-server-examples</artifactId>
-  <name>UMLS terminology server examples module.</name>
-  <description>Provides useful examples for common activities</description>
+  <name>Terminology server examples module</name>
+  <description>Provides useful examples for common activities.</description>
 
   <!-- Avoid running examples by default, use -DskipTests=false -->
   <properties>

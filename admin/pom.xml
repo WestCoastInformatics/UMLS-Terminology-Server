@@ -12,7 +12,7 @@
 
   <artifactId>term-server-admin</artifactId>
   <packaging>pom</packaging>
-  <name>UMLS terminology server admin tools project.</name>
+  <name>Terminology server admin tools project</name>
   <description>Maven-based administration tools.</description>
 
   <!-- Sub-modules -->

@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>term-server-rest-client</artifactId>
-  <name>Terminology server client.</name>
+  <name>Terminology server client</name>
   <description>Performs calls against a terminology server REST service.</description>
 
   <!-- Declare Project Dependency Versions -->

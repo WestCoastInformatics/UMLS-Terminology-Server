@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>term-server-integration-test</artifactId>
-  <name>UMLS terminology server integration test module.</name>
+  <name>Terminology server integration test module</name>
   <description>Performs integration tests given a test configuration and a running service.</description>
 
   <!-- Avoid running integration tests by default -->
