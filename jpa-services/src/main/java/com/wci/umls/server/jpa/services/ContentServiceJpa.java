@@ -3771,7 +3771,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     // add the query, if not null and not empty
     finalQuery.append(query == null || query.isEmpty() ? "" : " AND " + query);
-
+    System.out.println("query = " + finalQuery);
     FullTextQuery fullTextQuery =
         IndexUtility.applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class,
             finalQuery.toString(), pfs, manager);
@@ -3891,8 +3891,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Iterate over ancestor path
     for (String pathPart : fullAncPath.split("~")) {
       Long partId = Long.parseLong(pathPart);
-      Logger.getLogger(getClass()).debug("  nodeId = " + partId);
-      Logger.getLogger(getClass()).debug("  ancestorPath = " + partAncPath);
 
       StringBuilder finalQuery = new StringBuilder();
       finalQuery.append("nodeId:" + partId + " AND ");
@@ -3902,7 +3900,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       } else {
         finalQuery.append("ancestorPath:\"" + partAncPath + "\"");
       }
-      Logger.getLogger(getClass()).debug("  query = " + finalQuery.toString());
       // Prepare the manager and lucene query
       Query luceneQuery = queryParser.parse(finalQuery.toString());
       FullTextQuery fullTextQuery =

@@ -48,7 +48,6 @@ import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
-import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Generically represents a service for accessing content.
