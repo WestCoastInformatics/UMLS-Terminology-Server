@@ -10,15 +10,29 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.model.content.AtomClass;
 
 /**
- * Generically represents an algorithm for lucene based searches.  Searches for literal 
- * matches first, followed by lucene matches, use of spell check dictionary, use of
- * acronym list and finally use of wildcards.
+ * Generically represents an algorithm searching for {@link AtomClass} entities.
  */
 public interface SearchHandler extends Configurable {
 
-  public <T extends AtomClass> List<T> getLuceneQueryResults(
-      String terminology, String version, String branch, String query,
-      Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, 
-      int[] totalCt, EntityManager manager)
-      throws Exception;
+  /**
+   * Returns the query results.
+   *
+   * @param <T> the
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param fieldNamesKey the field names key
+   * @param clazz the class to search on
+   * @param pfs the pfs
+   * @param totalCt a container for the total number of results (for making a List class)
+   * @param manager the entity manager
+   * @return the query results
+   * @throws Exception the exception
+   */
+  public <T extends AtomClass> List<T> getQueryResults(String terminology,
+    String version, String branch, String query, Class<?> fieldNamesKey,
+    Class<T> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
+    throws Exception;
+
 }

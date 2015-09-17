@@ -1565,13 +1565,5 @@ public interface ContentService extends MetadataService {
    */
   public GeneralConceptAxiomList getGeneralConceptAxioms(String terminology,
     String version, String branch) throws Exception;
-  /**
-   * Gets the search handler.
-   *
-   * @param terminology the terminology
-   * @return the search handler
-   * @throws Exception the exception
-   */
-  public SearchHandler getSearchHandler(String terminology)
-      throws Exception;
+
 }

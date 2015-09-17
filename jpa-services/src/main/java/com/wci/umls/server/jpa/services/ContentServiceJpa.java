@@ -21,17 +21,12 @@ import javax.persistence.metamodel.EntityType;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.hibernate.search.SearchFactory;
-import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
@@ -39,7 +34,6 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PfscParameter;
 import com.wci.umls.server.helpers.SearchCriteria;
@@ -85,7 +79,6 @@ import com.wci.umls.server.jpa.content.GeneralConceptAxiomJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
-import com.wci.umls.server.jpa.helpers.IndexUtility;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
@@ -104,6 +97,7 @@ import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.meta.AbstractAbbreviation;
+import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Attribute;
@@ -147,10 +141,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /** The query timeout. */
   static int queryTimeout = 1000;
-
-  /** The sort field analyzed map. */
-  public static Map<String, Map<String, Boolean>> sortFieldAnalyzedMap =
-      new HashMap<>();
 
   static {
 
@@ -227,11 +217,11 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       normalizedStringHandler = null;
     }
   }
-  
+
   /** The search. */
-  private static Map<String, SearchHandler> searchMap = null;
+  private static Map<String, SearchHandler> searchHandlerMap = null;
   static {
-    searchMap = new HashMap<>();
+    searchHandlerMap = new HashMap<>();
     try {
       if (config == null)
         config = ConfigUtility.getConfigProperties();
@@ -243,45 +233,15 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         SearchHandler handlerService =
             ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
                 handlerName, SearchHandler.class);
-        searchMap.put(handlerName, handlerService);
+        searchHandlerMap.put(handlerName, handlerService);
       }
-      if (!searchMap.containsKey(ConfigUtility.DEFAULT)) {
+      if (!searchHandlerMap.containsKey(ConfigUtility.DEFAULT)) {
         throw new Exception("search.handler." + ConfigUtility.DEFAULT
             + " expected and does not exist.");
       }
     } catch (Exception e) {
       e.printStackTrace();
-      searchMap = null;
-    }
-  }
-  
-
-  /** The string field names map. */
-  private static Map<Class<?>, Set<String>> stringFieldNames = new HashMap<>();
-
-  /** The field names map. */
-  private static Map<Class<?>, Set<String>> allFieldNames = new HashMap<>();
-
-  static {
-
-    try {
-
-      Class<?>[] classes =
-          new Class<?>[] {
-              ConceptJpa.class, DescriptorJpa.class, CodeJpa.class,
-              ConceptRelationshipJpa.class, ConceptSubsetMemberJpa.class,
-              ConceptTreePositionJpa.class
-          };
-
-      for (Class<?> clazz : classes) {
-        stringFieldNames.put(clazz,
-            IndexUtility.getIndexedStringFieldNames(clazz, true));
-        allFieldNames.put(clazz,
-            IndexUtility.getIndexedStringFieldNames(clazz, false));
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      stringFieldNames = null;
+      searchHandlerMap = null;
     }
   }
 
@@ -308,19 +268,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           "Preferred name handler did not properly initialize, serious error.");
     }
 
-    if (stringFieldNames == null) {
-      throw new Exception(
-          "Concept indexed field names did not properly initialize, serious error.");
-    }
-
     if (normalizedStringHandler == null) {
       throw new Exception(
           "Normalized string handler did not properly initialize, serious error.");
     }
-    
-    if (searchMap == null) {
-      throw new Exception(
-        "Search did not properly initialize, serious error.");
+
+    if (searchHandlerMap == null) {
+      throw new Exception("Search did not properly initialize, serious error.");
     }
   }
 
@@ -553,8 +507,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         + " AND subsetTerminologyId:" + subsetId);
 
     FullTextQuery fullTextQuery =
-        applyPfsToLuceneQuery(AtomSubsetMemberJpa.class,
-            ConceptSubsetMemberJpa.class, finalQuery.toString(), pfs);
+        IndexUtility.applyPfsToLuceneQuery(AtomSubsetMemberJpa.class,
+            ConceptSubsetMemberJpa.class, finalQuery.toString(), pfs, manager);
 
     SubsetMemberList list = new SubsetMemberListJpa();
     list.setTotalCount(fullTextQuery.getResultSize());
@@ -583,8 +537,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         + " AND subsetTerminologyId:" + subsetId);
 
     FullTextQuery fullTextQuery =
-        applyPfsToLuceneQuery(ConceptSubsetMemberJpa.class,
-            ConceptSubsetMemberJpa.class, finalQuery.toString(), pfs);
+        IndexUtility.applyPfsToLuceneQuery(ConceptSubsetMemberJpa.class,
+            ConceptSubsetMemberJpa.class, finalQuery.toString(), pfs, manager);
 
     SubsetMemberList list = new SubsetMemberListJpa();
     list.setTotalCount(fullTextQuery.getResultSize());
@@ -2508,8 +2462,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         DescriptorJpa.class);
   }
 
-
-
   /**
    * Find for query helper.
    *
@@ -2540,8 +2492,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       queryFlag = true;
       SearchHandler searchHandler = getSearchHandler(terminology);
       queryClasses =
-          searchHandler.getLuceneQueryResults(terminology, version, branch, query,
-              fieldNamesKey, clazz, pfsc, totalCt, manager);
+          searchHandler.getQueryResults(terminology, version, branch,
+              query, fieldNamesKey, clazz, pfsc, totalCt, manager);
       Logger.getLogger(getClass()).debug(
           "    lucene result count = " + queryClasses.size());
     }
@@ -2820,7 +2772,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "query for " + clazz.getName() + ": " + finalQuery);
 
     FullTextQuery fullTextQuery =
-        applyPfsToLuceneQuery(clazz, fieldNamesKey, finalQuery.toString(), pfs);
+        IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, finalQuery.toString(), pfs, manager);
 
     // Apply paging and sorting parameters - if no search criteria
     if (pfs instanceof PfscParameter
@@ -2852,8 +2804,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     return classes;
   }
-
-
 
   /**
    * Autocomplete helper.
@@ -2916,59 +2866,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         list.addObject(result.getName());
     }
     return list;
-  }
-
-  /**
-   * Returns the name analyzed pairs from annotation.
-   *
-   * @param clazz the clazz
-   * @param sortField the sort field
-   * @return the name analyzed pairs from annotation
-   * @throws NoSuchMethodException the no such method exception
-   * @throws SecurityException the security exception
-   */
-  public static Map<String, Boolean> getNameAnalyzedPairsFromAnnotation(
-    Class<?> clazz, String sortField) throws NoSuchMethodException,
-    SecurityException {
-    final String key = clazz.getName() + "." + sortField;
-    if (sortFieldAnalyzedMap.containsKey(key)) {
-      return sortFieldAnalyzedMap.get(key);
-    }
-
-    // initialize the name->analyzed pair map
-    Map<String, Boolean> nameAnalyzedPairs = new HashMap<>();
-
-    Method m =
-        clazz.getMethod("get" + sortField.substring(0, 1).toUpperCase()
-            + sortField.substring(1), new Class<?>[] {});
-
-    Set<org.hibernate.search.annotations.Field> annotationFields =
-        new HashSet<>();
-
-    // check for Field annotation
-    if (m.isAnnotationPresent(org.hibernate.search.annotations.Field.class)) {
-      annotationFields.add(m
-          .getAnnotation(org.hibernate.search.annotations.Field.class));
-    }
-
-    // check for Fields annotation
-    if (m.isAnnotationPresent(org.hibernate.search.annotations.Fields.class)) {
-      // add all specified fields
-      for (org.hibernate.search.annotations.Field f : m.getAnnotation(
-          org.hibernate.search.annotations.Fields.class).value()) {
-        annotationFields.add(f);
-      }
-    }
-
-    // cycle over discovered fields and put name and analyze == YES into map
-    for (org.hibernate.search.annotations.Field f : annotationFields) {
-      nameAnalyzedPairs.put(f.name(), f.analyze().equals(Analyze.YES) ? true
-          : false);
-    }
-
-    sortFieldAnalyzedMap.put(key, nameAnalyzedPairs);
-
-    return nameAnalyzedPairs;
   }
 
   /* see superclass */
@@ -3787,8 +3684,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
 
     FullTextQuery fullTextQuery =
-        applyPfsToLuceneQuery(clazz, ConceptRelationshipJpa.class,
-            finalQuery.toString(), pfs);
+        IndexUtility.applyPfsToLuceneQuery(clazz, ConceptRelationshipJpa.class,
+            finalQuery.toString(), pfs, manager);
 
     // Get result size
     results.setTotalCount(fullTextQuery.getResultSize());
@@ -3876,8 +3773,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     finalQuery.append(query == null || query.isEmpty() ? "" : " AND " + query);
 
     FullTextQuery fullTextQuery =
-        applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class,
-            finalQuery.toString(), pfs);
+        IndexUtility.applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class,
+            finalQuery.toString(), pfs, manager);
 
     // Apply paging and sorting parameters - if no search criteria
     TreePositionList list = new TreePositionListJpa();
@@ -3984,8 +3881,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         Search.getFullTextEntityManager(manager);
     SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
     QueryParser queryParser =
-        new MultiFieldQueryParser(stringFieldNames.get(
-            ConceptTreePositionJpa.class).toArray(new String[] {}),
+        new MultiFieldQueryParser(IndexUtility.getIndexedFieldNames(
+            ConceptTreePositionJpa.class, true).toArray(new String[] {}),
             searchFactory.getAnalyzer(clazz));
     String fullAncPath =
         treePosition.getAncestorPath()
@@ -4063,131 +3960,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return tree;
   }
 
-  /**
-   * Apply pfs to lucene query2.
-   *
-   * @param clazz the clazz
-   * @param fieldNamesKey the field names key
-   * @param query the query
-   * @param pfs the pfs
-   * @return the full text query
-   * @throws Exception the exception
-   */
-  protected FullTextQuery applyPfsToLuceneQuery(Class<?> clazz,
-    Class<?> fieldNamesKey, String query, PfsParameter pfs) throws Exception {
-
-    FullTextQuery fullTextQuery = null;
-
-    // Build up the query
-    StringBuilder pfsQuery = new StringBuilder();
-    pfsQuery.append(query);
-    if (pfs != null) {
-      if (pfs.getActiveOnly()) {
-        pfsQuery.append(" AND obsolete:false");
-      }
-      if (pfs.getInactiveOnly()) {
-        pfsQuery.append(" AND obsolete:true");
-      }
-      if (pfs.getQueryRestriction() != null
-          && !pfs.getQueryRestriction().isEmpty()) {
-        pfsQuery.append(" AND " + pfs.getQueryRestriction());
-      }
-    }
-
-    // Set up the "full text query"
-    FullTextEntityManager fullTextEntityManager =
-        Search.getFullTextEntityManager(manager);
-    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
-
-    Query luceneQuery;
-    QueryParser queryParser = null;
-    try {
-      queryParser =
-          new MultiFieldQueryParser(stringFieldNames.get(fieldNamesKey)
-              .toArray(new String[] {}), searchFactory.getAnalyzer(clazz));
-      luceneQuery = queryParser.parse(pfsQuery.toString());
-
-    } catch (ParseException e) {
-
-      try {
-        // Code for escaping the query
-        luceneQuery =
-            queryParser.parse(QueryParserBase.escape(pfsQuery.toString()));
-
-      } catch (ParseException e2) {
-
-        Logger.getLogger(getClass()).info("  query = " + pfsQuery.toString());
-        throw new LocalException(
-            "The specified search terms cannot be parsed.  Please check syntax and try again.");
-      }
-
-      // If we get here, the query is fine.
-    }
-
-    // Validate query terms
-    luceneQuery =
-        luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
-            .getIndexReaderAccessor().open(clazz));
-    Set<Term> terms = new HashSet<>();
-    luceneQuery.extractTerms(terms);
-    for (Term t : terms) {
-      if (t.field() != null && !t.field().isEmpty()
-          && !allFieldNames.get(fieldNamesKey).contains(t.field())) {
-        throw new Exception("Query references invalid field name " + t.field()
-            + ", " + allFieldNames.get(fieldNamesKey));
-      }
-    }
-
-    fullTextQuery =
-        fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
-
-    if (pfs != null) {
-      // if start index and max results are set, set paging
-      if (pfs.getStartIndex() >= 0 && pfs.getMaxResults() >= 0) {
-        fullTextQuery.setFirstResult(pfs.getStartIndex());
-        fullTextQuery.setMaxResults(pfs.getMaxResults());
-      }
-
-      // if sort field is specified, set sort key
-      if (pfs.getSortField() != null && !pfs.getSortField().isEmpty()) {
-        Map<String, Boolean> nameToAnalyzedMap =
-            getNameAnalyzedPairsFromAnnotation(clazz, pfs.getSortField());
-        String sortField = null;
-
-        if (nameToAnalyzedMap.size() == 0) {
-          throw new Exception(clazz.getName()
-              + " does not have declared, annotated method for field "
-              + pfs.getSortField());
-        }
-
-        // first check the default name (rendered as ""), if not analyzed, use
-        // this as sort
-        if (nameToAnalyzedMap.get("") != null
-            && nameToAnalyzedMap.get("").equals(false)) {
-          sortField = pfs.getSortField();
-        }
-
-        // otherwise check explicit [name]Sort index
-        else if (nameToAnalyzedMap.get(pfs.getSortField() + "Sort") != null
-            && nameToAnalyzedMap.get(pfs.getSortField() + "Sort").equals(false)) {
-          sortField = pfs.getSortField() + "Sort";
-        }
-
-        // if none, throw exception
-        if (sortField == null) {
-          throw new Exception(
-              "Could not retrieve a non-analyzed Field annotation for get method for variable name "
-                  + pfs.getSortField());
-        }
-
-        Sort sort =
-            new Sort(new SortField(sortField, SortField.Type.STRING,
-                !pfs.isAscending()));
-        fullTextQuery.setSort(sort);
-      }
-    }
-    return fullTextQuery;
-  }
+ 
 
   /**
    * Apply pfs to query.
@@ -4347,7 +4120,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String query = "ancestorPath:\"" + fullAncPath + "\"";
 
     FullTextQuery fullTextQuery =
-        applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class, query, pfs);
+        IndexUtility.applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class, query, pfs, manager);
 
     TreePositionList list = new TreePositionListJpa();
     list.setTotalCount(fullTextQuery.getResultSize());
@@ -4461,7 +4234,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       return null;
     }
   }
-  
+
   /**
    * Returns the search criteria results.
    *
@@ -4608,7 +4381,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return classes;
 
   }
-  
+
   /**
    * Computes whether the given query string and PFS parameter will lead to an
    * actual lucene query.
@@ -4622,13 +4395,19 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return pfs.getQueryRestriction() != null || pfs.getActiveOnly()
         || pfs.getInactiveOnly() || (query != null && !query.isEmpty());
   }
-  
-  /* see superclass */
-  @Override
-  public SearchHandler getSearchHandler(String terminology) throws Exception {
-    if (searchMap.containsKey(terminology)) {
-      return searchMap.get(terminology);
+
+  /**
+   * Returns the search handler.
+   *
+   * @param terminology the terminology
+   * @return the search handler
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private SearchHandler getSearchHandler(String terminology) throws Exception {
+    if (searchHandlerMap.containsKey(terminology)) {
+      return searchHandlerMap.get(terminology);
     }
-    return searchMap.get(ConfigUtility.DEFAULT);
+    return searchHandlerMap.get(ConfigUtility.DEFAULT);
   }
 }

@@ -36,8 +36,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 
 /**
- * JPA enabled implementation of {@link Project}. TODO: convert all sets to
- * lists.
+ * JPA enabled implementation of {@link Project}. 
  */
 @Entity
 @Table(name = "projects", uniqueConstraints = @UniqueConstraint(columnNames = {
