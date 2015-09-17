@@ -501,7 +501,7 @@ tsApp
             startIndex : (page - 1) * pageSizes.trees,
             maxResults : pageSizes.trees,
             sortField : metadata.treeSortField,
-            queryRestriction : "anonymous:false AND (suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
+            queryRestriction : null
           }
 
           var prefix = this.getPrefixForTerminologyAndVersion(terminology,

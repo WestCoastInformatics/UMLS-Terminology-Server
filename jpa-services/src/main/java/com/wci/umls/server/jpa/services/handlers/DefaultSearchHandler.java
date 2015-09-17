@@ -105,20 +105,39 @@ public class DefaultSearchHandler implements SearchHandler {
 
     // Build a combined query with an OR between query typed and exact match
     String combinedQuery =
-        "(" + (query.isEmpty() ? "" : query + " OR ") + "atoms.nameSort:"
-            + escapedQuery + ")";
+        (query.isEmpty() ? "" : query + " OR ") + "atoms.nameSort:"
+            + escapedQuery + "^20.0";
 
     // create an exact expansion entry. i.e. if the search term exactly
     // matches something in the acronyms file, then use additional "OR" clauses
     if (acronymExpansionMap.containsKey(query)) {
-      combinedQuery =
-          "(" + (query.isEmpty() ? "" : query + " OR ") + "atoms.nameSort:"
-              + escapedQuery;
       for (String expansion : acronymExpansionMap.get(query)) {
-        combinedQuery += " OR atoms.nameSort:\"" + expansion + "\"";
+        combinedQuery += " OR atoms.nameSort:\"" + expansion + "\"" + "^20.0";
       }
-      combinedQuery += ")";
+    }
 
+    // Check for spelling mistakes
+    boolean flag = false;
+    StringBuilder correctedQuery = new StringBuilder();
+    for (String token : FieldedStringTokenizer.split(query,
+        " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^")) {
+      if (correctedQuery.length() != 0) {
+        correctedQuery.append(" ");
+      }
+      if (token.length() == 0) {
+        continue;
+      }
+      if (spellChecker.exist(token.toLowerCase())) {
+        correctedQuery.append(token);
+      } else {
+        String[] suggestions =
+            spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
+        flag = suggestions.length > 0;
+        correctedQuery.append(FieldedStringTokenizer.join(suggestions, " "));
+      }
+    }
+    if (flag) {
+      combinedQuery += " OR atoms.nameSort:\"" + correctedQuery + "\"" + "^10.0";
     }
 
     // Build query for pfs conditions
@@ -142,12 +161,13 @@ public class DefaultSearchHandler implements SearchHandler {
     }
 
     // Apply pfs restrictions to query
+    String finalQuery = "(" + combinedQuery + ")" + pfsQuery;
     FullTextQuery fullTextQuery = null;
     try {
-      System.out.println("query = " + combinedQuery + pfsQuery);
+      System.out.println("query = " + finalQuery);
       fullTextQuery =
           IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-              combinedQuery + pfsQuery, pfs, manager);
+              finalQuery, pfs, manager);
     } catch (ParseException e) {
       // If there's a parse exception, try the literal query
       System.out.println("  query = " + escapedQuery + pfsQuery);
@@ -220,9 +240,9 @@ public class DefaultSearchHandler implements SearchHandler {
         if (spellChecker.exist(token.toLowerCase())) {
           newQuery.append(token);
         } else {
-          found = true;
           String[] suggestions =
               spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
+          found = suggestions.length > 0;
           newQuery.append(FieldedStringTokenizer.join(suggestions, " "));
         }
       }
