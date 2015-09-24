@@ -231,7 +231,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa implements
     for (AdditionalRelationshipType rela : (List<AdditionalRelationshipType>) query
         .getResultList()) {
       Logger.getLogger(getClass()).info("  set inverse to null = " + rela);
-      rela.setInverseType(null);
+      rela.setInverse(null);
       updateAdditionalRelationshipType(rela);
     }
     commitClearBegin();

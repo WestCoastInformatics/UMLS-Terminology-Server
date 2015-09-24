@@ -58,8 +58,8 @@ public class ModelUnit025Test {
     rela2.setId(2L);
     rela2.setAbbreviation("2");
     rela2.setExpandedForm("2");
-    rela.setInverseType(rela2);
-    rela2.setInverseType(rela);
+    rela.setInverse(rela2);
+    rela2.setInverse(rela);
     rela.setEquivalentType(rela);
     rela2.setEquivalentType(rela2);
     rela.setSuperType(rela);
@@ -75,8 +75,8 @@ public class ModelUnit025Test {
   public void testModelGetSet025() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet025");
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("inverseTypeAbbreviation");
-    tester.exclude("inverseTypeId");
+    tester.exclude("inverseAbbreviation");
+    tester.exclude("inverseId");
     tester.exclude("equivalentTypeAbbreviation");
     tester.exclude("equivalentTypeId");
     tester.exclude("superTypeAbbreviation");
@@ -192,13 +192,13 @@ public class ModelUnit025Test {
   public void testModelXmlTransient025() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient025");
     String xml = ConfigUtility.getStringForGraph(rela);
-    assertTrue(xml.contains("<inverseTypeId>"));
-    assertTrue(xml.contains("<inverseTypeAbbreviation>"));
+    assertTrue(xml.contains("<inverseId>"));
+    assertTrue(xml.contains("<inverseAbbreviation>"));
     assertTrue(xml.contains("<equivalentTypeId>"));
     assertTrue(xml.contains("<equivalentTypeAbbreviation>"));
     assertTrue(xml.contains("<superTypeId>"));
     assertTrue(xml.contains("<superTypeAbbreviation>"));
-    Assert.assertFalse(xml.contains("<inverseType>"));
+    Assert.assertFalse(xml.contains("<inverse>"));
     Assert.assertFalse(xml.contains("<equivalentType>"));
     Assert.assertFalse(xml.contains("<superType>"));
 

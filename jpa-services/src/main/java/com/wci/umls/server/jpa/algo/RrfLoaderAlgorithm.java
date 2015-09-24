@@ -572,8 +572,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             && inverseRelaMap.containsKey(fields[3])) {
           AdditionalRelationshipType rela1 = relaMap.get(fields[1]);
           AdditionalRelationshipType rela2 = relaMap.get(fields[3]);
-          rela1.setInverseType(rela2);
-          rela2.setInverseType(rela1);
+          rela1.setInverse(rela2);
+          rela2.setInverse(rela1);
           addAdditionalRelationshipType(rela1);
           addAdditionalRelationshipType(rela2);
         }

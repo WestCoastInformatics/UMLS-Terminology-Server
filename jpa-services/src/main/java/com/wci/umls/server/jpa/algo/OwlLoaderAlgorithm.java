@@ -1467,8 +1467,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     for (String key : inverses.keySet()) {
       AdditionalRelationshipType type1 = relaMap.get(key);
       AdditionalRelationshipType type2 = relaMap.get(inverses.get(key));
-      type1.setInverseType(type2);
-      type2.setInverseType(type1);
+      type1.setInverse(type2);
+      type2.setInverse(type1);
       updateAdditionalRelationshipType(type1);
       updateAdditionalRelationshipType(type2);
     }

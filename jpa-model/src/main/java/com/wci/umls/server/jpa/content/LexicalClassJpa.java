@@ -6,7 +6,6 @@ package com.wci.umls.server.jpa.content;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -44,8 +43,6 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
 
   /** The label sets. */
   @ElementCollection(fetch = FetchType.EAGER)
-  // consider this: @Fetch(sFetchMode.JOIN)
-  @CollectionTable(name = "lexical_class_labels")
   @Column(nullable = true)
   List<String> labels;
 

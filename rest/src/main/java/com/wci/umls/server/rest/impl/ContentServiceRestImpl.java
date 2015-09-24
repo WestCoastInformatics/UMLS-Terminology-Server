@@ -136,7 +136,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Comma-separated list of objects to reindex, e.g. ConceptJpa (optional)", required = false) String indexedObjects,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("test");
     Logger.getLogger(getClass()).info(
         "RESTful POST call (Content): /reindex "
             + (indexedObjects == null ? "with no objects specified"

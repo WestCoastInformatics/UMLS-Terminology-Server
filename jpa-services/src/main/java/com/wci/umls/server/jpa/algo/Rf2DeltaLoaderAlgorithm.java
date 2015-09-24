@@ -2797,8 +2797,8 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     // handle inverses
     for (AdditionalRelationshipType type : inverses.keySet()) {
       AdditionalRelationshipType inverseType = inverses.get(type);
-      type.setInverseType(inverseType);
-      inverseType.setInverseType(type);
+      type.setInverse(inverseType);
+      inverseType.setInverse(type);
       updateAdditionalRelationshipType(type);
       updateAdditionalRelationshipType(inverseType);
     }

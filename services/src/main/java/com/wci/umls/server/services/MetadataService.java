@@ -10,8 +10,8 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
-import com.wci.umls.server.helpers.meta.LanguageList;
 import com.wci.umls.server.helpers.meta.LabelSetList;
+import com.wci.umls.server.helpers.meta.LanguageList;
 import com.wci.umls.server.helpers.meta.PropertyChainList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.helpers.meta.RootTerminologyList;
@@ -22,8 +22,8 @@ import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
-import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.LabelSet;
+import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -31,7 +31,6 @@ import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.handlers.GraphResolutionHandler;
-import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Services to retrieve metadata objects.

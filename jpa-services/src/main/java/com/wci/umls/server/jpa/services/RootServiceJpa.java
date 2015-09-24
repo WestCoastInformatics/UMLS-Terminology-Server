@@ -13,6 +13,7 @@ import javax.persistence.Persistence;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.services.RootService;
 
 /**
@@ -187,5 +188,47 @@ public abstract class RootServiceJpa implements RootService {
     if (objectCt % commitCt == 0) {
       commitClearBegin();
     }
+  }
+
+  /**
+   * Apply pfs to query.
+   *
+   * @param queryStr the query str
+   * @param pfs the pfs
+   * @return the javax.persistence. query
+   */
+  protected javax.persistence.Query applyPfsToJqlQuery(String queryStr,
+    PfsParameter pfs) {
+    StringBuilder localQueryStr = new StringBuilder();
+    localQueryStr.append(queryStr);
+
+    // Query restriction assumes a driving table called "a"
+    if (pfs != null) {
+      if (pfs.getQueryRestriction() != null) {
+        localQueryStr.append(" AND ").append(pfs.getQueryRestriction());
+      }
+
+      if (pfs.getActiveOnly()) {
+        localQueryStr.append("  AND a.obsolete = 0 ");
+      }
+      if (pfs.getInactiveOnly()) {
+        localQueryStr.append("  AND a.obsolete = 1 ");
+      }
+
+      // add an order by clause to end of the query, assume driving table
+      // called
+      // "a"
+      if (pfs.getSortField() != null) {
+        localQueryStr.append(" order by a.").append(pfs.getSortField());
+      }
+    }
+
+    javax.persistence.Query query =
+        manager.createQuery(localQueryStr.toString());
+    if (pfs != null && pfs.getStartIndex() > -1 && pfs.getMaxResults() > -1) {
+      query.setFirstResult(pfs.getStartIndex());
+      query.setMaxResults(pfs.getMaxResults());
+    }
+    return query;
   }
 }

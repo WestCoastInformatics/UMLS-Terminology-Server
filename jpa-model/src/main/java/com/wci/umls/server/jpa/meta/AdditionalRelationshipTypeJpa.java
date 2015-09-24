@@ -30,7 +30,7 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
 
   /** The inverse type. */
   @OneToOne(targetEntity = AdditionalRelationshipTypeJpa.class, optional = true)
-  private AdditionalRelationshipType inverseType;
+  private AdditionalRelationshipType inverse;
 
   /** The equivalent type. */
   @OneToOne(targetEntity = AdditionalRelationshipTypeJpa.class, optional = true)
@@ -107,7 +107,7 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
    */
   public AdditionalRelationshipTypeJpa(AdditionalRelationshipType rela) {
     super(rela);
-    inverseType = rela.getInverseType();
+    inverse = rela.getInverse();
     equivalentType = rela.getEquivalentType();
     superType = rela.getSuperType();
     asymmetric = rela.isAsymmetric();
@@ -128,8 +128,8 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
   /* see superclass */
   @Override
   @XmlTransient
-  public AdditionalRelationshipType getInverseType() {
-    return inverseType;
+  public AdditionalRelationshipType getInverse() {
+    return inverse;
   }
 
   /**
@@ -138,8 +138,8 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
    * @return the inverse type abbreviation
    */
   @XmlElement
-  public String getInverseTypeAbbreviation() {
-    return inverseType == null ? null : inverseType.getAbbreviation();
+  public String getInverseAbbreviation() {
+    return inverse == null ? null : inverse.getAbbreviation();
   }
 
   /**
@@ -148,38 +148,38 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
    * @return the inverse type id
    */
   @XmlElement
-  public Long getInverseTypeId() {
-    return inverseType == null ? null : inverseType.getId();
+  public Long getInverseId() {
+    return inverse == null ? null : inverse.getId();
   }
 
   /**
    * Sets the inverse type abbreviation. For JAXB.
    *
-   * @param inverseTypeAbbreviation the inverse type abbreviation
+   * @param inverseAbbreviation the inverse type abbreviation
    */
-  public void setInverseTypeAbbreviation(String inverseTypeAbbreviation) {
-    if (inverseType == null) {
-      inverseType = new AdditionalRelationshipTypeJpa();
+  public void setInverseAbbreviation(String inverseAbbreviation) {
+    if (inverse == null) {
+      inverse = new AdditionalRelationshipTypeJpa();
     }
-    inverseType.setAbbreviation(inverseTypeAbbreviation);
+    inverse.setAbbreviation(inverseAbbreviation);
   }
 
   /**
    * Sets the inverse type id. For JAXB.
    *
-   * @param inverseTypeId the inverse type id
+   * @param inverseId the inverse type id
    */
-  public void setInverseTypeId(Long inverseTypeId) {
-    if (inverseType == null) {
-      inverseType = new AdditionalRelationshipTypeJpa();
+  public void setInverseId(Long inverseId) {
+    if (inverse == null) {
+      inverse = new AdditionalRelationshipTypeJpa();
     }
-    inverseType.setId(inverseTypeId);
+    inverse.setId(inverseId);
   }
 
   /* see superclass */
   @Override
-  public void setInverseType(AdditionalRelationshipType inverseType) {
-    this.inverseType = inverseType;
+  public void setInverse(AdditionalRelationshipType inverse) {
+    this.inverse = inverse;
   }
 
   /* see superclass */

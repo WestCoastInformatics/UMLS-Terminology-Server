@@ -26,6 +26,7 @@
           <plugin>
             <groupId>com.wci.umls.server</groupId>
             <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
             <executions>
               <execution>
                 <id>qa-database</id>
@@ -36,18 +37,457 @@
                 <configuration>
                   <!-- Queries should select >1 fields to avoid issues -->
                   <queries>
+
+                    <!-- Metadata Queries -->
+
                     <property>
-                      <name>Validate concept default preferred names</name>
+                      <name>Referential integrity AdditionalRelationshipType -
+                        domainId</name>
                       <value>
-                        SELECT terminologyId, name
+                        SELECT domainId, terminology, version
                         FROM
-                        concepts a
+                        additional_relationship_types a
+                        WHERE NOT EXISTS
+                        (SELECT *
+                        FROM concepts b
+                        WHERE a.terminology = b.terminology
+                        AND
+                        a.version = b.version
+                        AND a.domainId = b.terminologyId);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity AdditionalRelationshipType -
+                        rangeId</name>
+                      <value>
+                        SELECT rangeId, terminology, version
+                        FROM
+                        additional_relationship_types a
+                        WHERE NOT EXISTS
+                        (SELECT *
+                        FROM concepts b
+                        WHERE a.terminology = b.terminology
+                        AND
+                        a.version = b.version
+                        AND a.rangeId = b.terminologyId);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity AttributeName - domainId</name>
+                      <value>
+                        SELECT domainId, terminology, version
+                        FROM
+                        attribute_names a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM concepts
+                        b
+                        WHERE a.terminology = b.terminology
+                        AND a.version =
+                        b.version
+                        AND a.domainId = b.terminologyId);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity AttributeName - rangeId</name>
+                      <value>
+                        SELECT rangeId, terminology, version
+                        FROM
+                        attribute_names a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM concepts
+                        b
+                        WHERE a.terminology = b.terminology
+                        AND a.version =
+                        b.version
+                        AND a.rangeId = b.terminologyId);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity RootTerminology -
+                        preferredName</name>
+                      <value>
+                        SELECT preferredName, terminology
+                        FROM
+                        root_terminologies a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM atoms
+                        b
+                        WHERE a.terminology = b.terminology
+                        AND a.preferredName
+                        = b.name);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity RootTerminology -
+                        hierarchicalName</name>
+                      <value>
+                        SELECT hierarchicalName, terminology
+                        FROM
+                        root_terminologies a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM atoms
+                        b
+                        WHERE a.terminology = b.terminology
+                        AND
+                        a.hierarchicalName = b.name);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity RootTerminology -
+                        synonymousNames</name>
+                      <value>
+                        SELECT b.synonymousNames, terminology
+                        FROM
+                        root_terminologies a, RootTerminologyJpa_synonymousNames
+                        b
+                        WHERE a.id = b.RootTerminologyJpa_id
+                        AND NOT EXISTS
+                        (SELECT * FROM atoms c
+                        WHERE a.terminology =
+                        c.terminology
+                        AND b.synonymousNames = c.name);
+                      </value>
+                    </property>
+
+
+                    <property>
+                      <name>Referential integrity Terminology - preferredName</name>
+                      <value>
+                        SELECT preferredName, terminology, version
+                        FROM
+                        terminologies a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM atoms b
+                        WHERE a.terminology = b.terminology
+                        AND a.version =
+                        b.version
+                        AND a.preferredName = b.name);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Terminology - synonymousNames</name>
+                      <value>
+                        SELECT synonymousNames, terminology, version
+                        FROM
+                        terminologies a, TerminologyJpa_synonymousNames b
                         WHERE
-                         NOT EXISTS
+                        a.id = b.TerminologyJpa_id
+                        AND NOT EXISTS
                         (SELECT * FROM
-                        atoms b
-                        WHERE a.conceptId = b.terminologyId
-                        AND a.terminology = b.terminology
+                        atoms c
+                        WHERE a.terminology = c.terminology
+                        AND a.version
+                        = c.version
+                        AND b.synonymousNames = c.name);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity AdditionalRelationshipType -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM
+                        additional_relationship_types a
+                        WHERE NOT EXISTS
+                        (SELECT *
+                        FROM terminologies b
+                        WHERE a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity AttributeName -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM attribute_names a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+
+                    <property>
+                      <name>Referential integrity GeneralMetadataEntry -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM
+                        general_metadata_entries a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM
+                        terminologies b
+                        WHERE a.terminology = b.terminology
+                        AND
+                        a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity LabelSet - terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM label_sets a
+                        WHERE
+                        NOT
+                        EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology
+                        = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Language - terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM languages a
+                        WHERE
+                        NOT
+                        EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology
+                        = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity PropertyChain -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM property_chains a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity RelationshipType -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM relationship_types
+                        a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity SemanticType -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM semantic_types a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity TermType - terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM term_types a
+                        WHERE
+                        NOT
+                        EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology
+                        = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <!-- Content Queries -->
+
+                    <property>
+                      <name>Referential integrity Atom - codeId</name>
+                      <value>
+                        SELECT codeId, terminology, version
+                        FROM atoms a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM codes b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.codeId = b.terminologyId);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Atom - conceptId</name>
+                      <value>
+                        SELECT conceptId, terminology, version
+                        FROM atoms a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM concepts b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.conceptId = b.terminologyId);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Atom - descriptorId</name>
+                      <value>
+                        SELECT descriptorId, terminology, version
+                        FROM atoms
+                        a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM descriptors b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.descriptorId = b.terminologyId);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Atom - lexicalClassId</name>
+                      <value>
+                        SELECT lexicalClassId, terminology, version
+                        FROM
+                        atoms a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM lexical_classes b
+                        WHERE a.terminology = b.terminology
+                        AND a.version =
+                        b.version
+                        AND a.lexicalClassId = b.terminologyId);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Atom - stringClassId</name>
+                      <value>
+                        SELECT stringClassId, terminology, version
+                        FROM
+                        atoms a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM string_classes b
+                        WHERE a.terminology = b.terminology
+                        AND a.version =
+                        b.version
+                        AND a.stringClassId = b.terminologyId);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Atom - language</name>
+                      <value>
+                        SELECT language, terminology, version
+                        FROM atoms a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM languages b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.language = b.abbreviation)
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Atom - termType</name>
+                      <value>
+                        SELECT termType, terminology, version
+                        FROM atoms a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM term_types b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.termType = b.abbreviation)
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Atom - alternateConceptId</name>
+                      <value>
+                        SELECT b.conceptTerminologyIds, terminology,
+                        version
+                        FROM atoms a, AtomJpa_conceptTerminologyIds b
+                        WHERE a.id = b.AtomJpa_id
+                        AND NOT EXISTS
+                        (SELECT * FROM
+                        concepts c
+                        WHERE b.conceptTerminologyIds_KEY =
+                        c.terminology
+                        AND b.conceptTerminologyIds =
+                        c.terminologyId);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Attribute - name</name>
+                      <value>
+                        SELECT name, terminology, version
+                        FROM attributes a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM attribute_names b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.name = b.abbreviation)
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity SemanticTypeComponent -
+                        semanticType</name>
+                      <value>
+                        SELECT semanticType, terminology, version
+                        FROM
+                        semantic_type_components a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM
+                        semantic_types b
+                        WHERE a.terminology = b.terminology
+                        AND
+                        a.version = b.version
+                        AND a.semanticType =
+                        b.abbreviation)
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Code - name</name>
+                      <value>
+                        SELECT name, terminology, version
+                        FROM codes a
+                        WHERE
+                        NOT EXISTS
+                        (SELECT * FROM atoms b
+                        WHERE a.terminology =
+                        b.terminology
                         AND a.version = b.version
                         AND a.name =
                         b.name);
@@ -55,256 +495,735 @@
                     </property>
 
                     <property>
-                      <name>Duplicate relationships from
-                        source/destination/group/type</name>
+                      <name>Referential integrity Code - labels</name>
                       <value>
-                        NEED TO REWRITE for each "type"
+                        SELECT labels, terminology, version
+                        FROM codes a,
+                        CodeJpa_labels b
+                        WHERE a.id = b.CodeJpa_id
+                        AND NOT EXISTS
+                        (SELECT * FROM label_sets c
+                        WHERE a.terminology =
+                        c.terminology
+                        AND a.version = c.version
+                        AND b.labels =
+                        c.abbreviation);
                       </value>
                     </property>
 
-                    <!-- validate content-metadata -->
                     <property>
-                      <name>Atom referential integrity - codeId</name>
+                      <name>Referential integrity Concept - name</name>
                       <value>
-                        SELECT codeId FROM atoms
-                        WHERE codeId not in (select
-                        terminologyId from codes);
-                      </value>
-                    </property>
-                    <property>
-                      <name>Atom referential integrity - descriptorId</name>
-                      <value>
-                        SELECT descriptorId FROM atoms
-                        WHERE descriptorId
-                        not in (select terminologyId from descriptors);
-                      </value>
-                    </property>
-                    <property>
-                      <name>Atom referential integrity - conceptId</name>
-                      <value>
-                        SELECT conceptId FROM atoms
-                        WHERE conceptId not in
-                        (select terminologyId from concepts);
-                      </value>
-                    </property>
-                    <property>
-                      <name>Atom referential integrity - lexicalClassId</name>
-                      <value>
-                        SELECT lexicalClassId FROM atoms
+                        SELECT name, terminology, version
+                        FROM concepts a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM atoms b
                         WHERE
-                        lexicalClassId not in
-                        (select terminologyId from
-                        lexical_classes);
-                      </value>
-                    </property>
-                    <property>
-                      <name>Atom referential integrity - stringClassId</name>
-                      <value>
-                        SELECT stringClassId FROM atoms
-                        WHERE stringClassId
-                        not in
-                        (select terminologyId from string_classes);
-                      </value>
-                    </property>
-                    <property>
-                      <name>Atom referential integrity - language</name>
-                      <value>
-                        SELECT language FROM atoms
-                        WHERE language not in
-                        (select abbreviation from languages);
-                      </value>
-                    </property>
-                    <property>
-                      <name>Atom referential integrity - termType</name>
-                      <value>
-                        SELECT termType FROM atoms
-                        WHERE termType not in
-                        (select abbreviation from term_types);
+                        a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.name = b.name);
                       </value>
                     </property>
 
                     <property>
-                      <name>Atom relationship referential integrity -
-                        additionalRelationshipType</name>
+                      <name>Referential integrity Concept - labels</name>
                       <value>
-                        SELECT additionalRelationshipType FROM
-                        atom_relationships
-                        WHERE additionalRelationshipType not
-                        in
-                        (select abbreviation from
-                        additional_relationship_types);
-                      </value>
-                    </property>
-                    <property>
-                      <name>Atom relationship referential integrity -
-                        relationshipType</name>
-                      <value>
-                        SELECT relationshipType FROM atom_relationships
-                        WHERE relationshipType not in
-                        (select abbreviation from
-                        relationship_types);
+                        SELECT labels, terminology, version
+                        FROM concepts a,
+                        ConceptJpa_labels b
+                        WHERE a.id = b.ConceptJpa_id
+                        AND NOT
+                        EXISTS
+                        (SELECT * FROM label_sets c
+                        WHERE a.terminology =
+                        c.terminology
+                        AND a.version = c.version
+                        AND b.labels =
+                        c.abbreviation);
                       </value>
                     </property>
 
                     <property>
-                      <name>Concept relationship referential integrity -
-                        additionalRelationshipType</name>
+                      <name>Referential integrity Descriptor - name</name>
                       <value>
-                        SELECT additionalRelationshipType FROM
-                        concept_relationships
-                        WHERE additionalRelationshipType
-                        not
-                        in
-                        (select abbreviation from
-                        additional_relationship_types);
-                      </value>
-                    </property>
-                    <property>
-                      <name>Concept relationship referential integrity -
-                        relationshipType</name>
-                      <value>
-                        SELECT relationshipType FROM concept_relationships
-                        WHERE relationshipType not in
-                        (select abbreviation from
-                        relationship_types);
-                      </value>
-                    </property>
-
-                    <property>
-                      <name>Descriptor relationship referential integrity -
-                        additionalRelationshipType</name>
-                      <value>
-                        SELECT additionalRelationshipType FROM
-                        descriptor_relationships
-                        WHERE additionalRelationshipType
-                        not
-                        in
-                        (select abbreviation from
-                        additional_relationship_types);
-                      </value>
-                    </property>
-                    <property>
-                      <name>Descriptor relationship referential integrity -
-                        relationshipType</name>
-                      <value>
-                        SELECT relationshipType FROM
-                        descriptor_relationships
-                        WHERE relationshipType not in
-                        (select abbreviation from relationship_types);
-                      </value>
-                    </property>
-
-                    <property>
-                      <name>Attribute referential integrity - attributeName</name>
-                      <value>
-                        SELECT name FROM attributes WHERE name not in
-                        (select abbreviation from attribute_names);
-                      </value>
-                    </property>
-
-                    <property>
-                      <name>Semantic type referential integrity - semanticType</name>
-                      <value>
-                        SELECT semanticType FROM semantic_type_components
-                        WHERE semanticType not in
-                        (select value from
-                        semantic_types);
-                      </value>
-                    </property>
-
-                    <property>
-                      <name>Semantic type referential integrity -
-                        relationshipType</name>
-                      <value>
-                        SELECT semanticType FROM semantic_type_components
-                        WHERE semanticType not in
-                        (select value from
-                        semantic_types);
-                      </value>
-                    </property>
-
-                    <property>
-                      <name>Concept referential integrity - name</name>
-                      <value>
-                        SELECT name FROM concepts a
+                        SELECT name, terminology, version
+                        FROM descriptors a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM atoms b
                         WHERE
-                        NOT EXISTS
-                        (SELECT *
-                        FROM atoms b, atom_concept_map c
-                        WHERE b.id = c.atom_id
-                        AND c.conceptTerminologyIdMap =
-                        a.terminologyId);
+                        a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.name = b.name);
                       </value>
                     </property>
 
                     <property>
-                      <name>Code referential integrity - name</name>
+                      <name>Referential integrity Descriptor - labels</name>
                       <value>
-                        SELECT name FROM codes a
+                        SELECT labels, terminology, version
+                        FROM descriptors
+                        a,
+                        DescriptorJpa_labels b
+                        WHERE a.id = b.DescriptorJpa_id
+                        AND NOT EXISTS
+                        (SELECT * FROM label_sets c
+                        WHERE
+                        a.terminology = c.terminology
+                        AND a.version = c.version
+                        AND b.labels = c.abbreviation);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity LexicalClass - name</name>
+                      <value>
+                        SELECT name, terminology, version
+                        FROM
+                        lexical_classes a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM atoms b
+                        WHERE a.terminology = b.terminology
+                        AND a.version =
+                        b.version
+                        AND a.name = b.name);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity LexicalClass - labels</name>
+                      <value>
+                        SELECT labels, terminology, version
+                        FROM
+                        lexical_classes a, LexicalClassJpa_labels b
+                        WHERE a.id =
+                        b.LexicalClassJpa_id
+                        AND NOT EXISTS
+                        (SELECT * FROM
+                        label_sets c
+                        WHERE a.terminology = c.terminology
+                        AND
+                        a.version = c.version
+                        AND b.labels = c.abbreviation);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity StringClass - name</name>
+                      <value>
+                        SELECT name, terminology, version
+                        FROM
+                        string_classes a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM atoms b
+                        WHERE a.terminology = b.terminology
+                        AND a.version =
+                        b.version
+                        AND a.name = b.name);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity StringClass - labels</name>
+                      <value>
+                        SELECT labels, terminology, version
+                        FROM
+                        string_classes a, StringClassJpa_labels b
+                        WHERE a.id =
+                        b.StringClassJpa_id
+                        AND NOT EXISTS
+                        (SELECT * FROM
+                        label_sets c
+                        WHERE a.terminology = c.terminology
+                        AND
+                        a.version = c.version
+                        AND b.labels = c.abbreviation);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Atom - terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM atoms a
                         WHERE NOT
                         EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE a.terminology
+                        = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity AtomRelationship -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM atom_relationships
+                        a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity AtomSubset -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM atom_subsets a
+                        WHERE
+                        NOT EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity AtomSubsetMember -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM atom_subset_members
+                        a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Attribute -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM attributes a
+                        WHERE
+                        NOT
+                        EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Code - terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM codes a
+                        WHERE NOT
+                        EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE a.terminology
+                        = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity CodeRelationship -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM code_relationships
+                        a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity CodeTransitiveRelationship -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM
+                        code_transitive_rels a
+                        WHERE NOT EXISTS
                         (SELECT *
-                        FROM atoms b
-                        WHERE b.codeId =
-                        a.terminologyId);
-                      </value>
-                    </property>
-                    <property>
-                      <name>Descriptor referential integrity -
-                        name</name>
-                      <value>
-                        SELECT name FROM descriptors a
-                        WHERE NOT EXISTS
-                        (SELECT * FROM atoms b
-                        WHERE
-                        b.descriptorId =
-                        a.terminologyId);
-                      </value>
-                    </property>
-                    <property>
-                      <name>Lexical class referential integrity -
-                        name</name>
-                      <value>
-                        SELECT name FROM lexical_classes a
-                        WHERE NOT EXISTS
-                        (SELECT * FROM atoms b
-                        WHERE
-                        b.lexicalClassId =
-                        a.terminologyId);
-                      </value>
-                    </property>
-                    <property>
-                      <name>String class referential integrity -
-                        name</name>
-                      <value>
-                        SELECT name FROM string_classes a
-                        WHERE NOT EXISTS
-                        (SELECT * FROM atoms b
-                        WHERE
-                        b.stringClassId =
-                        a.terminologyId);
+                        FROM
+                        terminologies b
+                        WHERE a.terminology = b.terminology
+                        AND
+                        a.version = b.version);
                       </value>
                     </property>
 
                     <property>
-                      <name>Missing string class</name>
+                      <name>Referential integrity CodeTreePosition -
+                        terminology,version</name>
                       <value>
-                        SELECT id, name FROM atoms a
-                        WHERE not exists
-                        (SELECT * FROM string_classes b
-                        WHERE a.stringClassId =
-                        b.terminologyId);
+                        SELECT terminology, version
+                        FROM code_tree_positions
+                        a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+
+                    <property>
+                      <name>Referential integrity Concept - terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM concepts a
+                        WHERE NOT
+                        EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE a.terminology
+                        = b.terminology
+                        AND a.version = b.version);
                       </value>
                     </property>
 
                     <property>
-                      <name>Missing lexical class</name>
+                      <name>Referential integrity ConceptRelationship -
+                        terminology,version</name>
                       <value>
-                        SELECT id, name FROM atoms a
-                        WHERE not exists
-                        (SELECT * FROM lexical_classes b
-                        WHERE a.lexicalClassId =
-                        b.terminologyId);
+                        SELECT terminology, version
+                        FROM
+                        concept_relationships a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM
+                        terminologies b
+                        WHERE a.terminology = b.terminology
+                        AND
+                        a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity ConceptTransitiveRelationship
+                        - terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM
+                        concept_transitive_rels a
+                        WHERE NOT EXISTS
+                        (SELECT
+                        * FROM
+                        terminologies b
+                        WHERE a.terminology =
+                        b.terminology
+                        AND
+                        a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity ConceptTreePosition -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM
+                        concept_tree_positions a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM
+                        terminologies b
+                        WHERE a.terminology = b.terminology
+                        AND
+                        a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity ConceptSubset -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM concept_subsets a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity ConceptSubsetMember -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM
+                        concept_subset_members a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM
+                        terminologies b
+                        WHERE a.terminology = b.terminology
+                        AND
+                        a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Definition -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM definitions a
+                        WHERE
+                        NOT
+                        EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity Descriptor -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM descriptors a
+                        WHERE
+                        NOT EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity DescriptorRelationship -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM
+                        descriptor_relationships a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM
+                        terminologies b
+                        WHERE a.terminology = b.terminology
+                        AND
+                        a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity
+                        DescriptorTransitiveRelationship - terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM
+                        descriptor_transitive_rels a
+                        WHERE NOT EXISTS
+                        (SELECT *
+                        FROM terminologies b
+                        WHERE a.terminology =
+                        b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity DescriptorTreePosition -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM
+                        descriptor_tree_positions a
+                        WHERE NOT EXISTS
+                        (SELECT *
+                        FROM
+                        terminologies b
+                        WHERE a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity GeneralConceptAxiom -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM
+                        general_concept_axioms a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM
+                        terminologies b
+                        WHERE a.terminology = b.terminology
+                        AND
+                        a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity LexicalClass -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM lexical_classes a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity SemanticTypeComponent -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM
+                        semantic_type_components a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM
+                        terminologies b
+                        WHERE a.terminology = b.terminology
+                        AND
+                        a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity StringClass -
+                        terminology,version</name>
+                      <value>
+                        SELECT terminology, version
+                        FROM string_classes a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM terminologies b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity CodeRelationship -
+                        relationshipType</name>
+                      <value>
+                        SELECT relationshipType, terminology, version
+                        FROM
+                        code_relationships a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM
+                        relationship_types b
+                        WHERE a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.relationshipType =
+                        b.abbreviation);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity CodeRelationship -
+                        additionalRelationshipType</name>
+                      <value>
+                        SELECT additionalRelationshipType, terminology,
+                        version
+                        FROM code_relationships a
+                        WHERE NOT EXISTS
+                        (SELECT
+                        *
+                        FROM additional_relationship_types b
+                        WHERE a.terminology
+                        = b.terminology
+                        AND a.version = b.version
+                        AND
+                        a.additionalRelationshipType = b.abbreviation);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity CodeTreePosition -
+                        additionalRelationshipType</name>
+                      <value>
+                        SELECT additionalRelationshipType, terminology,
+                        version
+                        FROM code_tree_positions a
+                        WHERE NOT EXISTS
+                        (SELECT
+                        *
+                        FROM additional_relationship_types b
+                        WHERE
+                        a.terminology
+                        = b.terminology
+                        AND a.version = b.version
+                        AND
+                        a.additionalRelationshipType = b.abbreviation);
+                      </value>
+                    </property>
+
+
+                    <property>
+                      <name>Referential integrity ConceptRelationship -
+                        relationshipType</name>
+                      <value>
+                        SELECT relationshipType, terminology, version
+                        FROM
+                        concept_relationships a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM
+                        relationship_types b
+                        WHERE a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.relationshipType =
+                        b.abbreviation);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity ConceptRelationship -
+                        additionalRelationshipType</name>
+                      <value>
+                        SELECT additionalRelationshipType, terminology,
+                        version
+                        FROM concept_relationships a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM additional_relationship_types b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.additionalRelationshipType = b.abbreviation);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity ConceptTreePosition -
+                        additionalRelationshipType</name>
+                      <value>
+                        SELECT additionalRelationshipType, terminology,
+                        version
+                        FROM concept_tree_positions a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM additional_relationship_types b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.additionalRelationshipType = b.abbreviation);
+                      </value>
+                    </property>
+
+
+                    <property>
+                      <name>Referential integrity DescriptorRelationship -
+                        relationshipType</name>
+                      <value>
+                        SELECT relationshipType, terminology, version
+                        FROM
+                        descriptor_relationships a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM
+                        relationship_types b
+                        WHERE a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.relationshipType =
+                        b.abbreviation);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity DescriptorRelationship -
+                        additionalRelationshipType</name>
+                      <value>
+                        SELECT additionalRelationshipType, terminology,
+                        version
+                        FROM descriptor_relationships a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM additional_relationship_types b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.additionalRelationshipType = b.abbreviation);
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Referential integrity DescriptorTreePosition -
+                        additionalRelationshipType</name>
+                      <value>
+                        SELECT additionalRelationshipType, terminology,
+                        version
+                        FROM descriptor_tree_positions a
+                        WHERE NOT EXISTS
+                        (SELECT * FROM additional_relationship_types b
+                        WHERE
+                        a.terminology = b.terminology
+                        AND a.version = b.version
+                        AND a.additionalRelationshipType = b.abbreviation);
+                      </value>
+                    </property>
+
+                    <!-- Semantic QA -->
+
+                    <property>
+                      <name>Duplicate AtomRelationship</name>
+                      <value>
+                        SELECT from_id, relationshipType,
+                        additionalRelationshipType, to_id, relGroup
+                        FROM
+                        atom_relationships a
+                        GROUP BY from_id, relationshipType,
+                        additionalRelationshipType, to_id,
+                        relGroup
+                        HAVING
+                        count(*)>1;
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Duplicate CodeRelationship</name>
+                      <value>
+                        SELECT from_id, relationshipType,
+                        additionalRelationshipType, to_id, relGroup
+                        FROM
+                        code_relationships a
+                        GROUP BY from_id, relationshipType,
+                        additionalRelationshipType, to_id,
+                        relGroup
+                        HAVING
+                        count(*)>1;
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Duplicate ConceptRelationship</name>
+                      <value>
+                        SELECT from_id, relationshipType,
+                        additionalRelationshipType, to_id, relGroup
+                        FROM
+                        concept_relationships
+                        GROUP BY from_id, relationshipType,
+                        additionalRelationshipType, to_id,
+                        relGroup
+                        HAVING
+                        count(*)>1;
+                      </value>
+                    </property>
+
+                    <property>
+                      <name>Duplicate DescriptorRelationship</name>
+                      <value>
+                        SELECT from_id, relationshipType,
+                        additionalRelationshipType, to_id, relGroup
+                        FROM
+                        descriptor_relationships
+                        GROUP BY from_id,
+                        relationshipType, additionalRelationshipType, to_id,
+                        relGroup
+                        HAVING count(*)>1;
                       </value>
                     </property>
 
@@ -312,18 +1231,22 @@
                       <name>Relationship type without inverse</name>
                       <value>
                         SELECT abbreviation, expandedForm from
-                        relationship_types
-                        WHERE inverse IS NULL;
+                        relationship_types a
+                        WHERE inverse_id IS NULL;
                       </value>
                     </property>
+
                     <property>
                       <name>Additional relationship type without inverse</name>
                       <value>
                         SELECT abbreviation, expandedForm from
-                        additional_relationship_types
-                        WHERE inverse IS NULL;
+                        additional_relationship_types a
+                        WHERE inverse_id IS NULL;
                       </value>
                     </property>
+
+                    <!-- Branching QA - TBD -->
+
 
                     <!-- Validate projects -->
                     <!-- Validate release info -->

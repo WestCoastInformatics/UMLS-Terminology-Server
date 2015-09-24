@@ -2492,8 +2492,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       queryFlag = true;
       SearchHandler searchHandler = getSearchHandler(terminology);
       queryClasses =
-          searchHandler.getQueryResults(terminology, version, branch,
-              query, fieldNamesKey, clazz, pfsc, totalCt, manager);
+          searchHandler.getQueryResults(terminology, version, branch, query,
+              fieldNamesKey, clazz, pfsc, totalCt, manager);
       Logger.getLogger(getClass()).debug(
           "    lucene result count = " + queryClasses.size());
     }
@@ -2772,7 +2772,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
         "query for " + clazz.getName() + ": " + finalQuery);
 
     FullTextQuery fullTextQuery =
-        IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, finalQuery.toString(), pfs, manager);
+        IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+            finalQuery.toString(), pfs, manager);
 
     // Apply paging and sorting parameters - if no search criteria
     if (pfs instanceof PfscParameter
@@ -3957,50 +3958,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     return tree;
   }
 
- 
-
-  /**
-   * Apply pfs to query.
-   *
-   * @param queryStr the query str
-   * @param pfs the pfs
-   * @return the javax.persistence. query
-   */
-  protected javax.persistence.Query applyPfsToJqlQuery(String queryStr,
-    PfsParameter pfs) {
-    StringBuilder localQueryStr = new StringBuilder();
-    localQueryStr.append(queryStr);
-
-    // Query restriction assumes a driving table called "a"
-    if (pfs != null) {
-      if (pfs.getQueryRestriction() != null) {
-        localQueryStr.append(" AND ").append(pfs.getQueryRestriction());
-      }
-
-      if (pfs.getActiveOnly()) {
-        localQueryStr.append("  AND a.obsolete = 0 ");
-      }
-      if (pfs.getInactiveOnly()) {
-        localQueryStr.append("  AND a.obsolete = 1 ");
-      }
-
-      // add an order by clause to end of the query, assume driving table
-      // called
-      // "a"
-      if (pfs.getSortField() != null) {
-        localQueryStr.append(" order by a.").append(pfs.getSortField());
-      }
-    }
-
-    javax.persistence.Query query =
-        manager.createQuery(localQueryStr.toString());
-    if (pfs != null && pfs.getStartIndex() > -1 && pfs.getMaxResults() > -1) {
-      query.setFirstResult(pfs.getStartIndex());
-      query.setMaxResults(pfs.getMaxResults());
-    }
-    return query;
-  }
-
   /* see superclass */
   @Override
   public TreePositionList findConceptTreePositionsForQuery(String terminology,
@@ -4117,7 +4074,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String query = "ancestorPath:\"" + fullAncPath + "\"";
 
     FullTextQuery fullTextQuery =
-        IndexUtility.applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class, query, pfs, manager);
+        IndexUtility.applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class,
+            query, pfs, manager);
 
     TreePositionList list = new TreePositionListJpa();
     list.setTotalCount(fullTextQuery.getResultSize());

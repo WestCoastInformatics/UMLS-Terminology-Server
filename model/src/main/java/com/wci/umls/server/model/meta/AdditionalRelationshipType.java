@@ -14,14 +14,14 @@ public interface AdditionalRelationshipType extends Abbreviation {
    * 
    * @return the inverse type
    */
-  public AdditionalRelationshipType getInverseType();
+  public AdditionalRelationshipType getInverse();
 
   /**
    * Sets the inverse type.
    * 
    * @param inverse the inverse type
    */
-  public void setInverseType(AdditionalRelationshipType inverse);
+  public void setInverse(AdditionalRelationshipType inverse);
 
   /**
    * Indicates whether or not universal quantification is the case.
