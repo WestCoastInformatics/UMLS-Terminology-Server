@@ -49,6 +49,7 @@
     <module>prod-snomedct</module>
     <module>prod-claml</module>
     <module>prod-owl</module>
+    <module>prod-vet</module>
   </modules>
 
 </project>
