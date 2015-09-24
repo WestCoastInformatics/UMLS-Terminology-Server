@@ -1725,7 +1725,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         }
         modifiedConcepts.clear();
       }
-      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+      logAndCommit(objectCt, RootService.logCt, RootService.commitCt);
     }
     // Make sure any remaining modified concepts are updated
     for (final Concept c : modifiedConcepts) {

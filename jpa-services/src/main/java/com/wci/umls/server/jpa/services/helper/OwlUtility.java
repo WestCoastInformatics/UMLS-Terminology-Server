@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.services.helper;
 
 import org.apache.log4j.Logger;
+import org.semanticweb.owlapi.model.OWLAnnotationAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLAnnotationPropertyDomainAxiom;
 import org.semanticweb.owlapi.model.OWLAnnotationPropertyRangeAxiom;
@@ -563,10 +564,10 @@ public class OwlUtility {
     Logger.getLogger(OwlUtility.class).debug(
         "    annotation assertion axioms = "
             + ontology.getAnnotationAssertionAxioms(prop.getIRI()));
-    // for (OWLAnnotationAssertionAxiom axiom : ontology
-    // .getAnnotationAssertionAxioms(prop.getIRI())) {
-    // Logger.getLogger(OwlUtility.class).debug("      axiom = " + axiom);
-    // }
+    for (OWLAnnotationAssertionAxiom axiom : ontology
+        .getAnnotationAssertionAxioms(prop.getIRI())) {
+      Logger.getLogger(OwlUtility.class).debug("      axiom = " + axiom);
+    }
 
     Logger.getLogger(OwlUtility.class).debug(
         "    sub properties for sub property = "
