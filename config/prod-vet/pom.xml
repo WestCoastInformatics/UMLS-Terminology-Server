@@ -7,15 +7,15 @@
     <groupId>com.wci.umls.server</groupId>
     <artifactId>term-server-parent</artifactId>
     <version>1.1.0-SNAPSHOT</version>
-    <relativePath>../parent</relativePath>
+    <relativePath>../../parent</relativePath>
   </parent>
 
-  <artifactId>term-server-config</artifactId>
+  <artifactId>term-server-config-prod-vet</artifactId>
   <packaging>pom</packaging>
-  <name>Terminology server configuration project</name>
-  <description>Sample data and template configuration files.</description>
+  <name>Terminology server configuration project for the demo prod environment for the SNOMEDCT vete extension load</name>
+  <description>Template configuration files for the demo prod environment for the SNOMEDCT vete extension load.</description>
 
-  <!-- Assemble and attach resources -->
+  <!-- Package as .zip -->
   <build>
     <plugins>
       <!-- Assemble resources into term-server-config*.zip -->
@@ -40,16 +40,5 @@
       </plugin>
     </plugins>
   </build>
-
-  <!-- Config-specific modules -->
-  <!-- Create your own version of one of these projects for custom config -->
-  <modules>
-    <module>dev-windows</module>
-    <module>prod</module>
-    <module>prod-snomedct</module>
-    <module>prod-claml</module>
-    <module>prod-owl</module>
-    <module>prod-vet</module>
-  </modules>
-
+  
 </project>
