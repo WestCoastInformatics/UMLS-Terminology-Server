@@ -1034,7 +1034,8 @@
                         SELECT additionalRelationshipType, terminology,
                         version
                         FROM code_relationships a
-                        WHERE NOT EXISTS
+                        WHERE additionalRelationshipType != '' 
+                          AND NOT EXISTS
                         (SELECT
                         *
                         FROM additional_relationship_types b
@@ -1053,7 +1054,8 @@
                         SELECT additionalRelationshipType, terminology,
                         version
                         FROM code_tree_positions a
-                        WHERE NOT EXISTS
+                        WHERE additionalRelationshipType != '' 
+                          AND NOT EXISTS
                         (SELECT
                         *
                         FROM additional_relationship_types b
@@ -1091,7 +1093,8 @@
                         SELECT additionalRelationshipType, terminology,
                         version
                         FROM concept_relationships a
-                        WHERE NOT EXISTS
+                        WHERE additionalRelationshipType != '' 
+                          AND NOT EXISTS
                         (SELECT * FROM additional_relationship_types b
                         WHERE
                         a.terminology = b.terminology
@@ -1107,7 +1110,8 @@
                         SELECT additionalRelationshipType, terminology,
                         version
                         FROM concept_tree_positions a
-                        WHERE NOT EXISTS
+                        WHERE additionalRelationshipType != '' 
+                          AND NOT EXISTS
                         (SELECT * FROM additional_relationship_types b
                         WHERE
                         a.terminology = b.terminology
@@ -1124,7 +1128,8 @@
                         SELECT relationshipType, terminology, version
                         FROM
                         descriptor_relationships a
-                        WHERE NOT EXISTS
+                        WHERE additionalRelationshipType != '' 
+                          AND NOT EXISTS
                         (SELECT * FROM
                         relationship_types b
                         WHERE a.terminology = b.terminology
@@ -1141,7 +1146,8 @@
                         SELECT additionalRelationshipType, terminology,
                         version
                         FROM descriptor_relationships a
-                        WHERE NOT EXISTS
+                        WHERE additionalRelationshipType != '' 
+                          AND NOT EXISTS
                         (SELECT * FROM additional_relationship_types b
                         WHERE
                         a.terminology = b.terminology
@@ -1157,7 +1163,8 @@
                         SELECT additionalRelationshipType, terminology,
                         version
                         FROM descriptor_tree_positions a
-                        WHERE NOT EXISTS
+                        WHERE additionalRelationshipType != '' 
+                          AND NOT EXISTS
                         (SELECT * FROM additional_relationship_types b
                         WHERE
                         a.terminology = b.terminology
