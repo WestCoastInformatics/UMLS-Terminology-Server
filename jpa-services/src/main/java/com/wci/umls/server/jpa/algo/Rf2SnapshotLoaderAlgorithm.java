@@ -78,7 +78,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
 
-
   /** The isa type rel. */
   private final static String isaTypeRel = "116680003";
 
@@ -92,7 +91,13 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   private final static String metadataModuleId = "900000000000012004";
 
   /** The dpn ref set id. */
-  private String dpnRefSetId = "900000000000509007";
+  private Set<String> dpnRefSetIds = new HashSet<>();
+  {
+    // US English Language
+    dpnRefSetIds.add("900000000000509007");
+    // VET extension
+    dpnRefSetIds.add("332501000009101");
+  }
 
   /** The dpn acceptability id. */
   private String dpnAcceptabilityId = "900000000000548007";
@@ -763,6 +768,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     String prevCui = null;
     String prefName = null;
+    String altPrefName = null;
     Concept concept = null;
     while (results.next()) {
       final Atom atom = (Atom) results.get()[0];
@@ -773,8 +779,14 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         if (concept != null) {
           // compute preferred name
           if (prefName == null) {
-            throw new Exception("Unable to determine preferred name for "
-                + concept.getTerminologyId());
+            prefName = altPrefName;
+            Logger.getLogger(getClass()).error(
+                "Unable to determine preferred name for "
+                    + concept.getTerminologyId());
+            if (altPrefName == null) {
+              throw new Exception("Unable to determine preferred name (or alt pref name) for "
+                  + concept.getTerminologyId());
+            }
           }
           concept.setName(prefName);
           prefName = null;
@@ -808,6 +820,16 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           && prefAtoms.contains(atom.getTerminologyId())) {
         prefName = atom.getName();
       }
+      // Pick an alternative preferred name in case a true pref can't be found
+      // this at least lets us choose something to move on.
+      if (prefName == null && altPrefName == null) {
+        if (!atom.isObsolete() && atom.getTermType().equals(dpnTypeId)) {
+          altPrefName = atom.getName();
+        }
+      }
+      // If pref name is null, pick the first non-obsolete atom with the correct
+      // term type
+      // this guarantees that SOMETHING is picked
       prevCui = atom.getConceptId();
     }
     if (concept != null) {
@@ -861,7 +883,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
         // Save preferred atom id info
         if (!member.isObsolete() && dpnAcceptabilityId.equals(fields[6])
-            && dpnRefSetId.equals(fields[4])) {
+            && dpnRefSetIds.contains(fields[4])) {
           prefAtoms.add(member.getMember().getTerminologyId());
         }
 
@@ -886,7 +908,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     // Iterate through attribute value entries
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.ATTRIBUTE_VALUE);
     while ((line = reader.readLine()) != null) {
-
       line = line.replace("\r", "");
       final String fields[] = line.split("\t");
 
@@ -1429,7 +1450,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       addAttributeName(name);
     }
 
-    // relationship types - CHD, PAR, and RO
+    // relationship types - subClassOf, superClassOf
     String[] relTypes = new String[] {
         "other", "subClassOf", "superClassOf"
     };
