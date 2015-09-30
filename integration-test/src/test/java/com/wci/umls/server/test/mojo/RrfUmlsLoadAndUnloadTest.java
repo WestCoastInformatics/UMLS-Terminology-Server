@@ -92,7 +92,7 @@ public class RrfUmlsLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Createdb"));
     request.setGoals(Arrays.asList("clean", "install"));
     Properties p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
     request.setProperties(p);
     DefaultInvoker invoker = new DefaultInvoker();
@@ -107,7 +107,7 @@ public class RrfUmlsLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Reindex"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
     request.setProperties(p);
     invoker = new DefaultInvoker();
@@ -123,8 +123,7 @@ public class RrfUmlsLoadAndUnloadTest {
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("UMLS", "latest",
-                Branch.ROOT));
+            + service.getComponentStats("UMLS", "latest", Branch.ROOT));
     service.close();
     service.closeFactory();
 
@@ -134,7 +133,7 @@ public class RrfUmlsLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("RRF-umls"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
     p.setProperty("terminology", "UMLS");
     p.setProperty("version", "latest");
@@ -154,8 +153,7 @@ public class RrfUmlsLoadAndUnloadTest {
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("UMLS", "latest",
-                Branch.ROOT));
+            + service.getComponentStats("UMLS", "latest", Branch.ROOT));
 
     // Test a non-UMLS terminology too
     Assert.assertEquals(3903,
@@ -184,7 +182,7 @@ public class RrfUmlsLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Project"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
     p.setProperty("name", "Sample project");
     p.setProperty("description", "Sample project.");
@@ -232,7 +230,7 @@ public class RrfUmlsLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("StartEditingCycle"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
     p.setProperty("release.version", "2015AA");
     p.setProperty("terminology", "UMLS");
@@ -261,7 +259,7 @@ public class RrfUmlsLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Terminology"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
     p.setProperty("terminology", "SNOMEDCT_US");
     p.setProperty("version", "2014_09_01");
@@ -292,7 +290,7 @@ public class RrfUmlsLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Terminology"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
     p.setProperty("terminology", "MSH");
     p.setProperty("version", "2015_2014_09_08");
@@ -315,8 +313,7 @@ public class RrfUmlsLoadAndUnloadTest {
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("MSH", "2015_2014_09_08",
-                Branch.ROOT));
+            + service.getComponentStats("MSH", "2015_2014_09_08", Branch.ROOT));
     service.close();
     service.closeFactory();
 
@@ -326,7 +323,7 @@ public class RrfUmlsLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Terminology"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
     p.setProperty("terminology", "SRC");
     p.setProperty("version", "latest");
@@ -343,8 +340,7 @@ public class RrfUmlsLoadAndUnloadTest {
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("SRC", "latest",
-                Branch.ROOT));
+            + service.getComponentStats("SRC", "latest", Branch.ROOT));
     service.close();
     service.closeFactory();
 
@@ -354,7 +350,7 @@ public class RrfUmlsLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Terminology"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
     p.setProperty("terminology", "MTH");
     p.setProperty("version", "latest");
@@ -371,18 +367,31 @@ public class RrfUmlsLoadAndUnloadTest {
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("MTH", "latest",
-                Branch.ROOT));
+            + service.getComponentStats("MTH", "latest", Branch.ROOT));
     service.close();
     service.closeFactory();
 
+    // QA Terminology
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/qa/pom.xml"));
+    request.setProfiles(Arrays.asList("Database"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
+    request.setProperties(p);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+    
     // Remove UMLS terminology
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/remover/pom.xml"));
     request.setProfiles(Arrays.asList("Terminology"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
     p.setProperty("terminology", "UMLS");
     p.setProperty("version", "latest");
@@ -399,8 +408,7 @@ public class RrfUmlsLoadAndUnloadTest {
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("UMLS", "latest",
-                Branch.ROOT));
+            + service.getComponentStats("UMLS", "latest", Branch.ROOT));
     service.close();
     service.closeFactory();
 
@@ -410,7 +418,7 @@ public class RrfUmlsLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Createdb"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.rrf"));
     p.setProperty("server", server);
     request.setProperties(p);
     invoker = new DefaultInvoker();
