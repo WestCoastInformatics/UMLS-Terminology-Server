@@ -6,7 +6,7 @@
 
 # Configure 
 set UMLS_CODE=~/code
-set UMLS_CONFIG=~/config/config.properties
+set UMLS_CONFIG=~/config/config-load.properties
 set UMLS_DATA=~/data
 set SERVER=false
 echo "------------------------------------------------"

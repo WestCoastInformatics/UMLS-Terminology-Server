@@ -6,7 +6,7 @@
 
 # Configure 
 set SNOMEDCT_CODE=~/vet/code
-set SNOMEDCT_CONFIG=~/vet/config/config.properties
+set SNOMEDCT_CONFIG=~/vet/config/config-load.properties
 set SNOMEDCT_DATA=~/vet/data
 set SERVER=false
 echo "------------------------------------------------"
