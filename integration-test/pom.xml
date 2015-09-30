@@ -121,6 +121,7 @@
             <configuration>
               <includes>
                 <include>**/com/wci/umls/server/test/mojo/Compare*Test.java</include>
+                <include>**/com/wci/umls/server/test/mojo/Rrf*Test.java</include>
               </includes>
               <excludes>
                 <exclude>**/com/wci/umls/server/test/mojo/ResetDevDatabase.java
