@@ -94,7 +94,8 @@ tsApp
           return deferred.promise;
         }
 
-        // Helper function to get the proper html prefix based on class type
+        // Helper function to get the proper html prefix based on class
+                // type
         this.getPrefixForType = function(classType) {
           switch (classType) {
           case 'CONCEPT':
@@ -171,7 +172,8 @@ tsApp
             this.getPrefixForType('CODE'));
         }
 
-        // Helper function for loading a component and setting the component
+        // Helper function for loading a component and setting the
+                // component
         // data fields
         this.getComponentHelper = function(terminologyId, terminology, version,
           prefix) {
@@ -179,8 +181,10 @@ tsApp
             version, prefix);
           var deferred = $q.defer();
 
-          // Here the prefix is passed in because of terminologies like MSH
-          // that may have legitimate types that are not the organizing class
+          // Here the prefix is passed in because of terminologies
+                    // like MSH
+          // that may have legitimate types that are not the
+                    // organizing class
           // type
 
           // Set component type and prefix
@@ -224,12 +228,14 @@ tsApp
                     // set the atom element flag
                     definition.atomElement = true;
 
-                    // add the atom information for tooltip display
+                    // add the atom information for tooltip
+                                        // display
                     definition.atomElementStr = data.atom[i].name + " ["
                       + data.atom[i].terminology + "/" + data.atom[i].termType
                       + "]";
 
-                    // add the definition to the top level component
+                    // add the definition to the top level
+                                        // component
                     data.definition.push(definition);
                   }
                 }
@@ -293,7 +299,8 @@ tsApp
         this.getComponentFromHistory = function(index) {
           var deferred = $q.defer();
 
-          // set the index and get the component from history information
+          // set the index and get the component from history
+                    // information
           component.historyIndex = index;
           this.getComponentFromType(
             component.history[component.historyIndex].terminologyId,
@@ -530,7 +537,8 @@ tsApp
           return deferred.promise;
         }
 
-        // Handle paging of relationships (requires content service call).
+        // Handle paging of relationships (requires content service
+                // call).
         this.findRelationships = function(terminologyId, terminology, version,
           page, filters) {
           console.debug("findRelationships", terminologyId, terminology,

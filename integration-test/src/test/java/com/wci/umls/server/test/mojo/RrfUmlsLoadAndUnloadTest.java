@@ -21,7 +21,6 @@ import org.junit.Test;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
@@ -49,10 +48,7 @@ public class RrfUmlsLoadAndUnloadTest {
    */
   @BeforeClass
   public static void setupClass() throws Exception {
-    config = ConfigUtility.getConfigProperties();
-    if (ConfigUtility.isServerActive()) {
-      server = "false";
-    }
+    // n/a
   }
 
   /**
@@ -384,7 +380,7 @@ public class RrfUmlsLoadAndUnloadTest {
     if (result.getExitCode() != 0) {
       throw result.getExecutionException();
     }
-    
+
     // Remove UMLS terminology
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/remover/pom.xml"));

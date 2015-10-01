@@ -21,7 +21,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.services.ContentService;
 
@@ -43,10 +42,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
    */
   @BeforeClass
   public static void setupClass() throws Exception {
-    config = ConfigUtility.getConfigProperties();
-    if (ConfigUtility.isServerActive()) {
-      server = "true";
-    }
+    // n/a
   }
 
   /**

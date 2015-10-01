@@ -149,7 +149,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     // use guest user for null auth token
     if (authToken == null)
       throw new LocalException(
-          "Attempt to access a service without an authorization token, the user is likely not logged in.");
+          "Attempt to access a service without an AuthToken, the user is likely not logged in.");
 
     // Replace double quotes in auth token.
     String parsedToken = authToken.replace("\"", "");
@@ -184,14 +184,14 @@ public class SecurityServiceJpa extends RootServiceJpa implements
 
     if (authToken == null) {
       throw new LocalException(
-          "Attempt to access a service without an authorization token, the user is likely not logged in.");
+          "Attempt to access a service without an AuthToken, the user is likely not logged in.");
     }
     String parsedToken = authToken.replace("\"", "");
     String username = getUsernameForToken(parsedToken);
     // check for null username
     if (username == null) {
       throw new LocalException(
-          "Unable to find user for the authoriztaion token");
+          "Unable to find user for the AuthToken");
     }
     User user = getUser(username.toLowerCase());
     if (user == null) {
@@ -209,7 +209,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     throws Exception {
     if (authToken == null) {
       throw new LocalException(
-          "Attempt to access a service without an authorization token, the user is likely not logged in.");
+          "Attempt to access a service without an AuthToken, the user is likely not logged in.");
     }
     if (projectId == null) {
       throw new Exception("Unexpected null project id");

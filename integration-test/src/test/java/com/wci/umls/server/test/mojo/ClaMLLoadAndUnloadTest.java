@@ -20,7 +20,6 @@ import org.junit.Test;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
@@ -48,10 +47,7 @@ public class ClaMLLoadAndUnloadTest {
    */
   @BeforeClass
   public static void setupClass() throws Exception {
-    config = ConfigUtility.getConfigProperties();
-    if (ConfigUtility.isServerActive()) {
-      server = "false";
-    }
+    // n/a
   }
 
   /**

@@ -119,7 +119,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
 
     ValidationService validationService = new ValidationServiceJpa();
     try {
-      authenticate(securityService, authToken, "validate descriptor",
+      authorize(securityService, authToken, "validate descriptor",
           UserRole.VIEWER);
 
       return validationService.validateDescriptor(descriptor);
@@ -146,7 +146,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
 
     ValidationService validationService = new ValidationServiceJpa();
     try {
-      authenticate(securityService, authToken, "validate atom", UserRole.VIEWER);
+      authorize(securityService, authToken, "validate atom", UserRole.VIEWER);
 
       return validationService.validateAtom(atom);
     } catch (Exception e) {
@@ -172,7 +172,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
 
     ValidationService validationService = new ValidationServiceJpa();
     try {
-      authenticate(securityService, authToken, "validate code", UserRole.VIEWER);
+      authorize(securityService, authToken, "validate code", UserRole.VIEWER);
 
       return validationService.validateCode(code);
     } catch (Exception e) {
@@ -198,7 +198,7 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
 
     ValidationService validationService = new ValidationServiceJpa();
     try {
-      authenticate(securityService, authToken, "validate concept",
+      authorize(securityService, authToken, "validate concept",
           UserRole.VIEWER);
 
       return validationService.validateConcept(concept);

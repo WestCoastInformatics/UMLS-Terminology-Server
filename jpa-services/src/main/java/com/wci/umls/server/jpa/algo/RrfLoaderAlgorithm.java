@@ -1443,7 +1443,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // Create members
       int objectCt = 0;
-      Logger.getLogger(getClass()).info("  Add subset memebers");
+      Logger.getLogger(getClass()).info("  Add subset members");
       for (Long id : moduleConceptIdMap.get(key)) {
         final Concept memberConcept = getConcept(id);
 

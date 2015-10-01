@@ -1677,7 +1677,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
       // Create members
       int objectCt = 0;
-      Logger.getLogger(getClass()).info("  Add subset memebers");
+      Logger.getLogger(getClass()).info("  Add subset members");
       for (String conceptId : moduleConceptIdMap.get(moduleId)) {
         final Concept memberConcept = getConcept(conceptIdMap.get(conceptId));
 

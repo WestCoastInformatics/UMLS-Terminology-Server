@@ -20,7 +20,7 @@ tsApp
           termTypes : null,
           generalEntries : null,
           labelSets : null,
-          generalEntries: null,
+          generalEntries : null,
           atomsLabel : "Atoms",
           hierarchiesLabel : "Hierarchies",
           attributesLabel : "Attributes",
@@ -66,7 +66,8 @@ tsApp
                   return;
 
                 for (var i = 0; i < metadata.entries.length; i++) {
-                  // extract relationship types for convenience
+                  // extract relationship types for
+                                    // convenience
                   if (metadata.entries[i].name === 'Relationship_Types') {
                     metadata.relationshipTypes = metadata.entries[i].keyValuePair;
                   }
@@ -148,7 +149,8 @@ tsApp
 
         // Returns the terminology object for the terminology name
         this.getTerminology = function(terminology, version) {
-          // check for full terminology object by comparing to selected
+          // check for full terminology object by comparing to
+                    // selected
           // terminology
           if (terminology != metadata.terminology.terminology) {
 
@@ -311,8 +313,8 @@ tsApp
             }
           }
           return retval;
-        }        
-        
+        }
+
       }
 
     ]);

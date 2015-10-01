@@ -21,7 +21,6 @@ import org.junit.Test;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
@@ -47,10 +46,7 @@ public class RrfSingleLoadAndUnloadTest {
    */
   @BeforeClass
   public static void setupClass() throws Exception {
-    config = ConfigUtility.getConfigProperties();
-    if (ConfigUtility.isServerActive()) {
-      server = "false";
-    }
+    // n/a
   }
 
   /**
@@ -136,15 +132,15 @@ public class RrfSingleLoadAndUnloadTest {
 
     // Verify expected contents
     service = new ContentServiceJpa();
-    Assert.assertEquals(3903,
-        service.getAllConcepts("SNOMEDCT_US", "latest", Branch.ROOT)
-            .getCount());
+    Assert
+        .assertEquals(3903,
+            service.getAllConcepts("SNOMEDCT_US", "latest", Branch.ROOT)
+                .getCount());
 
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("SNOMEDCT_US", "latest",
-                Branch.ROOT));
+            + service.getComponentStats("SNOMEDCT_US", "latest", Branch.ROOT));
     service.close();
     service.closeFactory();
 
@@ -264,8 +260,7 @@ public class RrfSingleLoadAndUnloadTest {
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("SNOMEDCT_US", "latest",
-                Branch.ROOT));
+            + service.getComponentStats("SNOMEDCT_US", "latest", Branch.ROOT));
     service.close();
     service.closeFactory();
 
