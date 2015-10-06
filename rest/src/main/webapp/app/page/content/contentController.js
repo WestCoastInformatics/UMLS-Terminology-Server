@@ -37,13 +37,23 @@ tsApp
         // Search parameters
         $scope.searchParams = contentService.getSearchParams();
         $scope.searchResults = contentService.getSearchResults();
-
+        $scope.searchOrBrowse = null;
+        
         // set on terminology change
         $scope.autocompleteUrl = null;
 
         // Track search results and what type we are querying for
-        $scope.queryForList = true // whether to query for list, default
-        $scope.queryForTree = false; // whether to query for tree
+        $scope.queryForList = true // whether
+                                                                      // to
+                                                                      // query
+                                                                      // for
+                                                                      // list,
+                                                                      // default
+        $scope.queryForTree = false; // whether
+                                                                          // to
+                                                                          // query
+                                                                          // for
+                                                                          // tree
 
         // Variables for iterating through trees in report
         $scope.treeCount = null;
@@ -103,7 +113,8 @@ tsApp
         // Supporting trees
         // 
 
-        // Function to get a single (paged) hierarchical tree for the displayed
+        // Function to get a single (paged) hierarchical tree for the
+                // displayed
         $scope.getTree = function(startIndex) {
           // Call content service to retrieve the tree
           contentService.getTree($scope.component.object.terminologyId,
@@ -119,14 +130,16 @@ tsApp
             else
               $scope.treeViewed = 0;
 
-            // if parent tree cannot be read, clear the component tree
+            // if parent tree cannot be read, clear the component
+                        // tree
             // (indicates no hierarchy present)
             if ($scope.componentTree.length == 0) {
               $scope.componentTree = null;
               return;
             }
 
-            // get the ancestor path of the bottom element (the component)
+            // get the ancestor path of the bottom element (the
+                        // component)
             // ASSUMES: unilinear path (e.g. A~B~C~D, no siblings)
             var parentTree = $scope.componentTree[0];
             while (parentTree.child.length > 0) {
@@ -136,7 +149,8 @@ tsApp
               parentTree = parentTree.child[0];
             }
 
-            // replace the parent tree of the lowest level with first page of
+            // replace the parent tree of the lowest level with
+                        // first page of
             // siblings computed
             $scope.getAndSetChildTrees(parentTree, 0);
 
@@ -170,10 +184,13 @@ tsApp
           'Loaded' : 3
         };
 
-        // Helper function to determine what icon to show for a tree node Case
+        // Helper function to determine what icon to show for a tree
+                // node Case
         // 1: Has children, none loaded -> use right chevron Case 2: Has
-        // children, incompletely loaded (below pagesize) -> expandable (plus)
-        // Case 3: Has children, completely loaded (or above pagesize) -> not
+        // children, incompletely loaded (below pagesize) -> expandable
+                // (plus)
+        // Case 3: Has children, completely loaded (or above pagesize)
+                // -> not
         // expandable (right/down))
         $scope.getTreeNodeExpansionState = function(tree) {
 
@@ -186,13 +203,15 @@ tsApp
             return TreeNodeExpansionState.Unloaded;
           }
 
-          // case 2: some children loaded, not by user, expandable from node
+          // case 2: some children loaded, not by user, expandable
+                    // from node
           else if (tree.child.length < tree.childCt
             && tree.child.length < $scope.pageSizes.sibling) {
             return TreeNodeExpansionState.ExpandableFromNode;
           }
 
-          // case 3: some children loaded by user, expandable from list
+          // case 3: some children loaded by user, expandable from
+                    // list
           else if (tree.child.length < tree.childCt
             && tree.child.length >= $scope.pageSizes.sibling) {
             return TreeNodeExpansionState.ExpandableFromList;
@@ -237,7 +256,8 @@ tsApp
         // user-expanded list
         $scope.hasHiddenSiblings = function(tree) {
 
-          // TODO Identify strange bug causing non-tree objects to be passed in
+          // TODO Identify strange bug causing non-tree objects to be
+                    // passed in
           if (!tree || !tree.child)
             return;
 
@@ -249,7 +269,8 @@ tsApp
           }
         }
 
-        // Helper function to determine whether to toggle children and/or
+        // Helper function to determine whether to toggle children
+                // and/or
         // retrieve children if necessary
         $scope.getChildTrees = function(tree, treeHandleScope) {
 
@@ -262,7 +283,10 @@ tsApp
             return;
 
           default:
-            $scope.getAndSetChildTrees(tree, 0); // type prefix auto set
+            $scope.getAndSetChildTrees(tree, 0); // type
+                                                                                                  // prefix
+                                                                                                  // auto
+                                                                                                  // set
 
           }
         }
@@ -282,7 +306,8 @@ tsApp
             .getChildTrees(tree, startIndex)
             .then(
               function(data) {
-                // construct ancestor path (for sake of completeness, not filled
+                // construct ancestor path (for sake of
+                                // completeness, not filled
                 // in on server-side)
                 var ancestorPath = tree.ancestorPath + '~'
                   + tree.nodeTerminologyId;
@@ -290,7 +315,8 @@ tsApp
                 // cycle over children, and construct tree nodes
                 for (var i = 0; i < data.tree.length; i++) {
 
-                  // check that child is not already present (don't override
+                  // check that child is not already present
+                                    // (don't override
                   // present data)
                   var childPresent = false;
                   for (var j = 0; j < tree.child.length; j++) {
@@ -306,7 +332,8 @@ tsApp
                   }
                 }
 
-                tree.childrenRetrieved = true; // currently unused
+                tree.childrenRetrieved = true; // currently
+                                                                                              // unused
 
               });
 
@@ -316,11 +343,12 @@ tsApp
         // Search functions
         // 
 
-        // Clear the search box and perform any additional operations required
+        // Clear the search box and perform any additional operations
+                // required
         $scope.clearQuery = function() {
           $scope.searchParams.query = null;
-          $scope.searchResults.list = [];
-          $scope.searchResults.tree = [];
+          //$scope.searchResults.list = [];
+          //$scope.searchResults.tree = [];
         }
 
         // Perform a search for the tree view
@@ -378,6 +406,7 @@ tsApp
         // Find concepts based on current search
         // - loadFirst indicates whether to auto-load result[0]
         $scope.findComponents = function(loadFirst) {
+          $scope.searchOrBrowse = "SEARCH";
           if ($scope.queryForList)
             $scope.findComponentsAsList(loadFirst);
           if ($scope.queryForTree)
@@ -394,26 +423,25 @@ tsApp
           $scope.queryForList = true;
 
           // ensure query string has minimum length
-          /*if ($scope.searchParams.query == null
-            || $scope.searchParams.query.length < 3) {
-            alert("You must use at least one character to search");
-            return;
-          }*/
+          /*
+                     * if ($scope.searchParams.query == null ||
+                     * $scope.searchParams.query.length < 3) { alert("You must
+                     * use at least one character to search"); return; }
+                     */
 
-          contentService
-            .findComponentsAsList($scope.searchParams.query,
-              $scope.metadata.terminology.terminology,
-              $scope.metadata.terminology.version, $scope.searchParams.page)
+          contentService.findComponentsAsList($scope.searchParams.query,
+            $scope.metadata.terminology.terminology,
+            $scope.metadata.terminology.version, $scope.searchParams.page)
             .then(
               function(data) {
                 $scope.searchResults.list = data.searchResult;
                 $scope.searchResults.list.totalCount = data.totalCount;
 
                 if (loadFirst && $scope.searchResults.list.length > 0) {
-                  $scope
-                    .getComponent($scope.searchResults.list[0].terminologyId,
-                      $scope.metadata.terminology.terminology,
-                      $scope.metadata.terminology.version);
+                  $scope.getComponent(
+                    $scope.searchResults.list[0].terminologyId,
+                    $scope.metadata.terminology.terminology,
+                    $scope.metadata.terminology.version);
                 }
               });
         }
@@ -436,11 +464,17 @@ tsApp
             $scope.metadata.terminology.version, $scope.searchParams.page)
             .then(function(data) {
 
-              // for ease and consistency of use of the ui tree directive
-              // force the single tree into a ui-tree structure with count
+              // for ease and consistency of use of the ui tree
+                            // directive
+              // force the single tree into a ui-tree structure
+                            // with count
               // variables
               $scope.searchResults.tree = [];
-              $scope.searchResults.tree.push(data); // treeList array of size 1
+              $scope.searchResults.tree.push(data); // treeList
+                                                                                                        // array
+                                                                                                        // of
+                                                                                                        // size
+                                                                                                        // 1
               $scope.searchResults.tree.totalCount = data.totalCount;
               $scope.searchResults.tree.count = data.count;
 
@@ -452,6 +486,8 @@ tsApp
 
         // Load hierarchy into tree view
         $scope.browseHierarchy = function() {
+          console.debug('browsehierarhcy');
+          $scope.searchOrBrowse = "BROWSE";
           $scope.queryForTree = true;
           $scope.queryForList = false
           $scope.browsingHierarchy = true;
@@ -461,15 +497,22 @@ tsApp
           contentService.getTreeRoots($scope.metadata.terminology.terminology,
             $scope.metadata.terminology.version, $scope.searchParams.page)
             .then(function(data) {
-              // for ease and consistency of use of the ui tree directive
-              // force the single tree into a ui-tree data structure with count
+              // for ease and consistency of use of the ui tree
+                            // directive
+              // force the single tree into a ui-tree data
+                            // structure with count
               // variables
               $scope.searchResults.tree = [];
-              $scope.searchResults.tree.push(data); // treeList array of size 1
+              $scope.searchResults.tree.push(data); // treeList
+                                                                                                        // array
+                                                                                                        // of
+                                                                                                        // size
+                                                                                                        // 1
               $scope.searchResults.tree.totalCount = data.totalCount;
               $scope.searchResults.tree.count = data.count;
 
-              // TODO: if there is no hierarchy, display a message indicating
+              // TODO: if there is no hierarchy, display a message
+                            // indicating
             });
         }
 
@@ -484,7 +527,8 @@ tsApp
         $scope.showInferred = true;
         $scope.showExtension = false;
 
-        // Helper function to determine if an item has boolean fields set to
+        // Helper function to determine if an item has boolean fields
+                // set to
         // true in its child arrays
         $scope.hasBooleanFieldTrue = function(item, fieldToCheck) {
 
@@ -521,7 +565,8 @@ tsApp
           return false;
         }
 
-        // Helper function to determine whether an item should be shown based on
+        // Helper function to determine whether an item should be shown
+                // based on
         // obsolete/suppressible
         $scope.showItem = function(item) {
 
@@ -620,7 +665,8 @@ tsApp
         // Returns the css class for an item's collapsible control
         $scope.getCollapseIcon = function(item) {
 
-          // if no expandable content detected, return blank glyphicon (see
+          // if no expandable content detected, return blank glyphicon
+                    // (see
           // tsApp.css)
           if (!item.hasContent)
             return 'glyphicon glyphicon-plus glyphicon-none';
@@ -679,7 +725,8 @@ tsApp
 
         // apply paging to all elements
         function applyPaging() {
-          // call each get function without paging (use current paging info)
+          // call each get function without paging (use current paging
+                    // info)
           $scope.getPagedAtoms();
           $scope.getPagedRelationships();
           $scope.getPagedDefinitions();
@@ -689,7 +736,8 @@ tsApp
 
         }
 
-        // Handle paging of relationships (requires content service call).
+        // Handle paging of relationships (requires content service
+                // call).
         $scope.getPagedRelationships = function() {
 
           var filters = {
@@ -706,7 +754,8 @@ tsApp
             $scope.component.object.version, $scope.relPaging.page, filters)
             .then(function(data) {
 
-              // if description logic terminology, sort relationships also by
+              // if description logic terminology, sort
+                            // relationships also by
               // group
               if ($scope.metadata.terminology.descriptionLogicTerminology) {
                 data.relationship.sort(function(a, b) {
@@ -773,7 +822,8 @@ tsApp
             $scope.styPaging.filter, 'semanticType', false);
         }
 
-        // Helper to get a paged array with show/hide flags (ENABLED) and
+        // Helper to get a paged array with show/hide flags (ENABLED)
+                // and
         // filtered by
         // / query string (NOT ENABLED)
         $scope.getPagedArray = function(array, page, applyFlags, filterStr,
@@ -793,7 +843,8 @@ tsApp
 
           // apply sort if specified
           if (sortField) {
-            // if ascending specified, use that value, otherwise use false
+            // if ascending specified, use that value, otherwise use
+                        // false
             newArray.sort($scope.sort_by(sortField, ascending ? ascending
               : false))
           }
@@ -830,7 +881,8 @@ tsApp
             return x[field]
           };
 
-          // convert reverse to integer (1 = ascending, -1 = descending)
+          // convert reverse to integer (1 = ascending, -1 =
+                    // descending)
           reverse = !reverse ? 1 : -1;
 
           return function(a, b) {
@@ -878,7 +930,8 @@ tsApp
 
           for ( var prop in object) {
             var value = object[prop];
-            // check property for string, note this will cover child elements
+            // check property for string, note this will cover child
+                        // elements
             // TODO May want to make this more restrictive?
             if (value
               && value.toString().toLowerCase().indexOf(filter.toLowerCase()) != -1) {
@@ -966,7 +1019,8 @@ tsApp
         $scope.getLabelSetsValue = metadataService.getLabelSetsValue;
         $scope.countLabels = metadataService.countLabels;
 
-        // Load all terminologies upon controller load (unless already loaded)
+        // Load all terminologies upon controller load (unless already
+                // loaded)
         if (!$scope.metadata.terminologies) {
           metadataService
             .initTerminologies()
@@ -1012,7 +1066,9 @@ tsApp
 
         // Local history variables for the display.
         $scope.localHistory = null;
-        $scope.localHistoryPageSize = $scope.pageSizes.general; // NOTE: must be
+        $scope.localHistoryPageSize = $scope.pageSizes.general; // NOTE:
+                                                                                                                                // must
+                                                                                                                                // be
         // even number!
         $scope.localHistoryPreviousCt = 0;
         $scope.localHistoryNextCt = 0;
@@ -1040,11 +1096,14 @@ tsApp
             + component.type + ": " + component.name;
         }
 
-        // Function to set the local history for drop down list based on an
-        // index For cases where history > page size, returns array [index -
+        // Function to set the local history for drop down list based on
+                // an
+        // index For cases where history > page size, returns array
+                // [index -
         // pageSize / 2 + 1 : index + pageSize]
         $scope.setComponentLocalHistory = function(index) {
-          // if not a full page of history, simply set to component history and
+          // if not a full page of history, simply set to component
+                    // history and
           // stop
           if ($scope.component.history.length <= $scope.localHistoryPageSize) {
             $scope.localHistory = $scope.component.history;
@@ -1057,7 +1116,8 @@ tsApp
           var lowerBound = Math
             .max(upperBound - $scope.localHistoryPageSize, 0);
 
-          // resize upper bound to ensure full page (for cases near beginning of
+          // resize upper bound to ensure full page (for cases near
+                    // beginning of
           // history)
           upperBound = lowerBound + $scope.localHistoryPageSize;
 

@@ -45,20 +45,14 @@
 
       <!-- search results field is 3 columns -->
       <div class="col-md-4 col-xs-12">
-
         <div ng-show="queryForList">
-          <div class="alert alert-success"
-            ng-show="searchResults.list.totalCount > 0">
-            {{searchResults.list.totalCount}} Results
+          <div class="alert alert-success">
+            <span ng-show="searchOrBrowse!='SEARCH' && searchResults.list.length == 0">Search</span>
+            <span ng-show="searchParams.query && searchResults.list.totalCount == 0">No</span>
+            <span ng-show="searchResults.list.totalCount > 0">{{searchResults.list.totalCount}}</span>
+             Results
             <a
-              ng-show="!metadata.terminology.metathesaurus && searchParams.query"
-              class="pull-right glyphicon glyphicon-tree-conifer"
-              ng-click="setTreeView()" tooltip="Switch to tree view"></a>
-          </div>
-          <div class="alert alert-danger"
-            ng-show="searchParams.query && searchResults.list && searchResults.list.totalCount == 0">
-            Search returned no results.
-            <a ng-show="!terminology.metathesaurus && searchParams.query"
+              ng-show="!metadata.terminology.metathesaurus"
               class="pull-right glyphicon glyphicon-tree-conifer"
               ng-click="setTreeView()" tooltip="Switch to tree view"></a>
           </div>
@@ -91,10 +85,11 @@
 
         <!-- Tree view -->
         <div ng-show="queryForTree">
-          <div class="alert alert-success"
-            ng-show="searchResults.tree.totalCount > 0">
-
-            {{searchResults.tree.totalCount}} Results
+          <div class="alert alert-success">
+            <span ng-show="searchOrBrowse == 'BROWSE'">Hierarchy</span>
+            <span ng-show="searchOrBrowse == null && searchResults.tree.length == 0">Search Results</span>
+            <span ng-show="searchParams.query && searchResults.tree.totalCount == 0">No Results</span>
+            <span ng-show="searchResults.tree.totalCount > 0">{{searchResults.tree.totalCount}} Results</span>
             <span class="pull-right">
 
               <a class="glyphicon glyphicon-star"
@@ -107,20 +102,10 @@
                 ng-click="toggleExtension()"> </a>
               &nbsp;
               <a class="pull-right glyphicon glyphicon-th-list"
-                ng-show="searchParams.query" ng-click="setListView()"
-                tooltip="Switch to list view"> </a>
+                ng-click="setListView()" tooltip="Switch to list view"> </a>
             </span>
           </div>
-          <div class="alert alert-danger"
-            ng-show="searchParams.query && searchResults.tree && searchResults.tree.totalCount == 0">
-            Search returned no results.
-            <span class="pull-right">
-              <a class="pull-right glyphicon glyphicon-th-list"
-                ng-click="setListView()" ng-show="searchParams.query"
-                tooltip="Switch to list view"> </a>
-            </span>
-          </div>
-
+         
           <pagination style="display:block;" items-per-page="pageSizes.trees"
             max-size="5" boundary-links="true" class="pagination-sm"
             previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"

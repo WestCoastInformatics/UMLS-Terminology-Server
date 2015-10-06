@@ -11,6 +11,7 @@ import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.Invoker;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -60,51 +61,22 @@ public class ResetDevDatabase {
   @Test
   public void test() throws Exception {
 
-    // Createdb
+    // Load RF2 full
     InvocationRequest request = new DefaultInvocationRequest();
-    request.setPomFile(new File("../admin/db/pom.xml"));
-    request.setProfiles(Arrays.asList("Createdb"));
+    request.setPomFile(new File("../admin/loader/pom.xml"));
+    request.setProfiles(Arrays.asList("RRF-umls"));
     request.setGoals(Arrays.asList("clean", "install"));
     Properties p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
-    request.setProperties(p);
-    DefaultInvoker invoker = new DefaultInvoker();
-    InvocationResult result = invoker.execute(request);
-    if (result.getExitCode() != 0) {
-      throw result.getExecutionException();
-    }
-
-    // Reindex
-    request = new DefaultInvocationRequest();
-    request.setPomFile(new File("../admin/lucene/pom.xml"));
-    request.setProfiles(Arrays.asList("Reindex"));
-    request.setGoals(Arrays.asList("clean", "install"));
-    p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
-    p.setProperty("server", server);
-    request.setProperties(p);
-    invoker = new DefaultInvoker();
-    result = invoker.execute(request);
-    if (result.getExitCode() != 0) {
-      throw result.getExecutionException();
-    }
-
-    // Load RF2 full
-    request = new DefaultInvocationRequest();
-    request.setPomFile(new File("../admin/loader/pom.xml"));
-    request.setProfiles(Arrays.asList("RRF-umls"));
-    request.setGoals(Arrays.asList("clean", "install"));
-    p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
-    p.setProperty("server", server);
+    p.setProperty("mode", "create");
     p.setProperty("terminology", "UMLS");
     p.setProperty("version", "latest");
     p.setProperty("input.dir",
         "../../config/src/main/resources/data/SCTMSH_2014AB");
     request.setProperties(p);
-    invoker = new DefaultInvoker();
-    result = invoker.execute(request);
+    Invoker invoker = new DefaultInvoker();
+    InvocationResult result = invoker.execute(request);
     if (result.getExitCode() != 0) {
       throw result.getExecutionException();
     }

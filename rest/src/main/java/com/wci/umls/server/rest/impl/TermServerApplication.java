@@ -95,6 +95,7 @@ public class TermServerApplication extends Application {
         service.close();
 
       } catch (Exception e) {
+        timer.cancel();
         e.printStackTrace();
         Logger.getLogger(getClass()).error("Error running the process to xxx.");
       }

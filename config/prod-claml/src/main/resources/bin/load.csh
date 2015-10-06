@@ -6,7 +6,7 @@
 
 # Configure 
 set ICD10_CODE=~/claml/code
-set ICD10_CONFIG=~/claml/config/config.properties
+set ICD10_CONFIG=~/claml/config/config-load.properties
 set ICD10_DATA=~/claml/data
 set SERVER=false
 echo "------------------------------------------------"
