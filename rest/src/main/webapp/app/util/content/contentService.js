@@ -28,7 +28,7 @@ tsApp
         var pageSizes = {
           general : 10,
           rels : 10,
-          roots : 25,
+          roots : 125,
           trees : 5,
           search : 10,
           sibling : 10
