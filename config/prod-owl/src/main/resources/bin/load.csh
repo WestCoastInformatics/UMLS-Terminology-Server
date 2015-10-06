@@ -19,7 +19,7 @@ echo "SERVER = $SERVER"
 
 echo "    Load snomed.owl ...`/bin/date`"
 cd $UMLS_CODE/admin/loader
-mvn install -POwl-umls -Drun.config.umls=$UMLS_CONFIG -Dmode=create -Dserver=$SERVER -Dterminology=SNOMED CT -Dversion=latest -Dinput.file=$UMLS_DATA/snomed.owl >&! mvn.log
+mvn install -POwl-umls -Drun.config.umls=$UMLS_CONFIG -Dmode=create -Dserver=$SERVER -Dterminology=SNOMEDCT -Dversion=latest -Dinput.file=$UMLS_DATA/snomed.owl >&! mvn.log
 if ($status != 0) then
     echo "ERROR loading snomed.owl"
     cat mvn.log
@@ -28,7 +28,7 @@ endif
 
 echo "    Load go.owl ...`/bin/date`"
 cd $UMLS_CODE/admin/loader
-mvn install -POwl -Drun.config.umls=$UMLS_CONFIG -Dserver=$SERVER -Dterminology=SNOMED CT -Dversion=latest -Dinput.file=$UMLS_DATA/go.owl >&! mvn.log
+mvn install -POwl -Drun.config.umls=$UMLS_CONFIG -Dserver=$SERVER -Dterminology=GO -Dversion=latest -Dinput.file=$UMLS_DATA/go.owl >&! mvn.log
 if ($status != 0) then
     echo "ERROR loading go.owl"
     cat mvn.log
@@ -37,7 +37,7 @@ endif
 
 echo "    Load Thesaurus.owl ...`/bin/date`"
 cd $UMLS_CODE/admin/loader
-mvn install -POwl -Drun.config.umls=$UMLS_CONFIG -Dserver=$SERVER -Dterminology=SNOMED CT -Dversion=latest -Dinput.file=$UMLS_DATA/Thesaurus.owl >&! mvn.log
+mvn install -POwl -Drun.config.umls=$UMLS_CONFIG -Dserver=$SERVER -Dterminology=NCI -Dversion=latest -Dinput.file=$UMLS_DATA/Thesaurus.owl >&! mvn.log
 if ($status != 0) then
     echo "ERROR loading Thesaurus.owl"
     cat mvn.log
