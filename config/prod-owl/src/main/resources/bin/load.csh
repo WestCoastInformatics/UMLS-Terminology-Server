@@ -19,7 +19,7 @@ echo "SERVER = $SERVER"
 
 echo "    Load snomed.owl ...`/bin/date`"
 cd $UMLS_CODE/admin/loader
-mvn install -POwl-umls -Drun.config.umls=$UMLS_CONFIG -Dmode=create -Dserver=$SERVER -Dterminology=SNOMEDCT -Dversion=latest -Dinput.file=$UMLS_DATA/snomed.owl >&! mvn.log
+mvn install -POwl -Drun.config.umls=$UMLS_CONFIG -Dmode=create -Dserver=$SERVER -Dterminology=SNOMEDCT -Dversion=latest -Dinput.file=$UMLS_DATA/snomed.owl >&! mvn.log
 if ($status != 0) then
     echo "ERROR loading snomed.owl"
     cat mvn.log
