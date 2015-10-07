@@ -5,14 +5,16 @@
 # finish removes the file from here
 
 maintFile=maintain.html
-stageDir=/home/ec2-tomcat/config
+maintFile2=maintain.$2.html
+stageDir=/home/ec2-tomcat/$2/config
 maintDir=/opt/maint
 
 echo "Action = $1 "
+echo "Type = $2 "
 if [ $1 = "start" ];
-then /bin/cp -f $stageDir/$maintFile $maintDir
+then /bin/cp -f $stageDir/$maintFile $maintDir/$maintFile2
 fi
 
 if [ $1 = "stop" ];
-then rm -f $maintDir/$maintFile
+then rm -f $maintDir/$maintFile2
 fi
