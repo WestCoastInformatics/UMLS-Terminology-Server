@@ -140,7 +140,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     // Verify release info
     HistoryService historyService = new HistoryServiceJpa();
     Assert
-        .assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US", "latest"));
+        .assertNotNull(historyService.getReleaseInfo("SNOMEDCT", "20140731"));
     historyService.close();
     historyService.closeFactory();
 
@@ -243,7 +243,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.rf2"));
     p.setProperty("server", server);
-    p.setProperty("terminology", "SNOMEDCT_US");
+    p.setProperty("terminology", "SNOMEDCT");
     p.setProperty("version", "latest");
     request.setProperties(p);
     invoker = new DefaultInvoker();
@@ -256,7 +256,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     service = new ContentServiceJpa();
     Assert
         .assertEquals(0,
-            service.getAllConcepts("SNOMEDCT_US", "latest", Branch.ROOT)
+            service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT)
                 .getCount());
     service.close();
     service.closeFactory();

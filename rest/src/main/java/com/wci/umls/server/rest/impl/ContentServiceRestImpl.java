@@ -838,7 +838,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     TransitiveClosureAlgorithm algo2 = new TransitiveClosureAlgorithm();
     TreePositionAlgorithm algo3 = new TreePositionAlgorithm();
     try {
-      authorize(securityService, authToken, "loading owl",
+      authorize(securityService, authToken, "loading claml",
           UserRole.ADMINISTRATOR);
 
       // Load snapshot
