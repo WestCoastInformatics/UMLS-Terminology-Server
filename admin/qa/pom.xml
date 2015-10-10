@@ -490,7 +490,8 @@
                         b.terminology
                         AND a.version = b.version
                         AND a.name =
-                        b.name);
+                        b.name
+                        AND a.terminologyId = b.codeId);
                       </value>
                     </property>
 
@@ -521,7 +522,8 @@
                         WHERE
                         a.terminology = b.terminology
                         AND a.version = b.version
-                        AND a.name = b.name);
+                        AND a.name = b.name
+                        AND a.terminologyId = b.conceptId);
                       </value>
                     </property>
 
@@ -553,7 +555,8 @@
                         WHERE
                         a.terminology = b.terminology
                         AND a.version = b.version
-                        AND a.name = b.name);
+                        AND a.name = b.name
+                        AND a.terminologyId = b.descriptorId);
                       </value>
                     </property>
 
@@ -585,7 +588,8 @@
                         WHERE a.terminology = b.terminology
                         AND a.version =
                         b.version
-                        AND a.name = b.name);
+                        AND a.name = b.name
+                        AND a.terminologyId = b.lexicalClassId);
                       </value>
                     </property>
 
@@ -618,7 +622,8 @@
                         WHERE a.terminology = b.terminology
                         AND a.version =
                         b.version
-                        AND a.name = b.name);
+                        AND a.name = b.name
+                        AND a.terminologyId = b.stringClassId);
                       </value>
                     </property>
 
