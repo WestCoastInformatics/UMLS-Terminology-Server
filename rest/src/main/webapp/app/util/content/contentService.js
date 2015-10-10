@@ -452,7 +452,7 @@ tsApp
 
         // Finds components as a list
         this.findComponentsAsList = function(queryStr, terminology, version,
-          page) {
+          page, hierarchy) {
           console.debug("findComponentsAsList", queryStr, terminology, version,
             page);
           // Setup deferred
@@ -496,7 +496,7 @@ tsApp
 
         // Finds components as a tree
         this.findComponentsAsTree = function(queryStr, terminology, version,
-          page) {
+          page, hierarchy) {
           console.debug("findComponentsAsTree", queryStr, terminology, version,
             page);
 
