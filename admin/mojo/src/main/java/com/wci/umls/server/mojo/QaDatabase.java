@@ -121,7 +121,7 @@ public class QaDatabase extends AbstractMojo {
               "true".equals(config.get("mail.smtp.auth")));
         }
 
-        throw new Exception("Failure to pass QA checks.");
+        throw new Exception("Failure to pass QA checks. " + errors);
       } else {
         getLog().info("  NO errors");
       }
