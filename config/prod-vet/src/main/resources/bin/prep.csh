@@ -60,49 +60,10 @@ end
 perl -ne '@_ = split/\t/; print unless $_[4] eq "900000000000489007" && $_[5] =~ /\d*1[12]\d$/' Refset/Content/*Attribute*txt >! /tmp/x.$$
 /bin/mv -f /tmp/x.$$ Refset/Content/*Attribute*txt
 
-# convert these relationships to "inferred" from "stated"
-# isa rels with the following concept ids:
-sort -u -o /tmp/x.$$ << EOF
-318301000009103
-27431000009105
-318191000009109
-281721000009106
-35181000009108
-40601000009100
-344431000009103
-338591000009108
-328311000009109
-27971000009100
-329911000009103
-329921000009106
-313081000009101
-35191000009105
-34631000009100
-35861000009107
-28341000009108
-282861000009100
-309411000009103
-309051000009105
-319121000009101
-309341000009105
-311511000009102
-321021000009109
-45641000009106
-343821000009104
-45921000009108
-338841000009103
-309331000009104
-277791000009109
-EOF
-
-# load these into a map.
-# if it's an "isa" rel (116680003) in the stated rels file
-# and sourceConcept id field is in the map, change to inferred
-# looks like they are all in the "Relationships" file
-# id      effectiveTime   active  moduleId        sourceId        destinationId   relationshipGroup       typeId  characteristicTypeId    modifierId
-perl -ne 'BEGIN {open(IN,"/tmp/x.'$$'"); while(<IN>) { chop; $map{$_}=1;} close(IN); } \
+# convert all relationships to "inferred" from "stated"
+perl -ne ' \
   @_ = split /\t/; \
-  if ($map{$_[4]} && $_[7] eq "116680003" && $_[8] eq "900000000000010007") { \
+  if ($_[8] eq "900000000000010007") { \
     $_[8] = "900000000000011006"; } print join "\t", @_;' Terminology/*_Rel*txt >! /tmp/y.$$
 /bin/mv -f /tmp/y.$$ Terminology/*_Rel*txt
     

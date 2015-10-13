@@ -2108,7 +2108,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         setCommonFields(attribute, date);
         attribute.setName("targetComponentId");
         attribute.setValue(fields[6].intern());
-        cacheAttributeMetadata(attribute);
 
         final Concept concept = getConcept(member2.getMember().getId());
         final Atom atom = getAtom(member2.getMember().getId());
