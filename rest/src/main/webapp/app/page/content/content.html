@@ -184,7 +184,7 @@
             ng-show="metadata.terminology.metathesaurus && component.object.suppressible"
             tooltip="Suppressible">S</span>
           <span class="label label-default" ng-show="component.object.obsolete"
-            tooltip="Obsolete">O</span>
+            tooltip="{{metadata.obsoleteLabel}}">{{metadata.ObsoleteIndicator}}</span>
           <span style="padding-bottom: 2px;"
             ng-show="metadata.terminology.descriptionLogicTerminology && component.object.anonymous"
             class="label label-info" tooltip="Anonymous">A</span>
@@ -205,8 +205,8 @@
           <span ng-show="!showSuppressible">Show Suppressible</span>
         </button>
         <button ng-click="toggleObsolete()" class="btn btn-xs btn-primary">
-          <span ng-show="showObsolete">Hide Obsolete</span>
-          <span ng-show="!showObsolete">Show Obsolete</span>
+          <span ng-show="showObsolete">Hide {{metadata.obsoleteLabel}}</span>
+          <span ng-show="!showObsolete">Show {{metadata.obsoleteLabel}}</span>
         </button>
 
 
@@ -263,7 +263,7 @@
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
                 tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="Obsolete">O</span> {{item.semanticType}}</li>
+                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span> {{item.semanticType}}</li>
           </ul>
 
         </div>
@@ -301,7 +301,7 @@
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
                 tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="Obsolete">O</span> {{item.value}}</li>
+                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span> {{item.value}}</li>
           </ul>
         </div>
         <!-- end Definitions -->
@@ -341,7 +341,7 @@
                     ng-show="metadata.terminology.metathesaurus && item.suppressible"
                     tooltip="Suppressible">S</span>
                   <span class="label label-default" ng-show="item.obsolete"
-                    tooltip="Obsolete">O</span>
+                    tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
                   <!-- Format:  termType name [ terminology ] codeId componentId descriptorId conceptTerminologyIds
                                                 NOTE: codeId, componentId, descriptorId automatically shown if of differing terminology, 
                                                 see each type below for additional rules -->
@@ -494,7 +494,7 @@
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
                 tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="Obsolete">O</span> <span class="label label-info"
+                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span> <span class="label label-info"
                 tooltip="{{getAttributeNameName(item.name)}}">{{item.name}}</span>
               = {{item.value}}
           </ul>
@@ -529,7 +529,7 @@
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
                 tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="Obsolete">O</span> {{item.subsetName}}
+                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span> {{item.subsetName}}
               <div ng-show="item.attribute.length > 0">
                 <ul>
                   <li
@@ -588,7 +588,7 @@
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
                 tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="Obsolete">O</span> <span class="label label-info"
+                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span> <span class="label label-info"
                 tooltip="{{getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
 
               {{item.additionalRelationshipType}} <!-- Mobile friendly switch -->

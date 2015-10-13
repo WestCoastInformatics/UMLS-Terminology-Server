@@ -1619,10 +1619,11 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     }
 
     String[] labels = new String[] {
-        "Atoms_Label", "Subsets_Label", "Attributes_Label"
+        "Atoms_Label", "Subsets_Label", "Attributes_Label", "Obsolete_Label",
+        "Obsolete_Indicator"
     };
     String[] labelValues = new String[] {
-        "Descriptions", "Refsets", "Properties"
+        "Descriptions", "Refsets", "Properties", "Retired", "Retired"
     };
     int i = 0;
     for (String label : labels) {

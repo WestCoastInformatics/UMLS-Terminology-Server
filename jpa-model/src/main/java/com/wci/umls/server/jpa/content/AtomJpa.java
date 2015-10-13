@@ -40,9 +40,21 @@ import com.wci.umls.server.model.content.Definition;
 @Entity
 // @UniqueConstraint here is being used to create an index, not to enforce
 // uniqueness
-@Table(name = "atoms", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "version", "id"
-}))
+@Table(name = "atoms", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {
+        "terminologyId", "terminology", "version", "id"
+    }), @UniqueConstraint(columnNames = {
+        "conceptId", "terminology", "version", "id"
+    }), @UniqueConstraint(columnNames = {
+        "codeId", "terminology", "version", "id"
+    }), @UniqueConstraint(columnNames = {
+        "descriptionId", "terminology", "version", "id"
+    }), @UniqueConstraint(columnNames = {
+        "lexicalClassId", "terminology", "version", "id"
+    }), @UniqueConstraint(columnNames = {
+        "stringClassId", "terminology", "version", "id"
+    })
+})
 @Audited
 @XmlRootElement(name = "atom")
 public class AtomJpa extends AbstractComponentHasAttributes implements Atom {

@@ -521,8 +521,8 @@ tsApp
         // 
 
         // variables for showing/hiding elements based on boolean fields
-        $scope.showSuppressible = true;
-        $scope.showObsolete = true;
+        $scope.showSuppressible = false;
+        $scope.showObsolete = false;
         $scope.showAtomElement = true;
         $scope.showInferred = true;
         $scope.showExtension = false;

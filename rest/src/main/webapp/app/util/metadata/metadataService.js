@@ -29,6 +29,8 @@ tsApp
           relationshipsLabel : "Relationships",
           atomRelationshipsLabel : "Relationships",
           extensionsLabel : "Extensions",
+          obsoleteLabel : "Obsolete",
+          obsoleteIndicator : "O",
           treeSortField : "nodeName",
           terminologies : null
         };
@@ -107,6 +109,12 @@ tsApp
                       }
                       if (metadata.generalEntries[j].key === "Extensions_Label") {
                         metadata.extensionsLabel = metadata.generalEntries[j].value;
+                      }
+                      if (metadata.generalEntries[j].key === "Obsolete_Label") {
+                        metadata.obsoleteLabel = metadata.generalEntries[j].value;
+                      }
+                      if (metadata.generalEntries[j].key === "Obsolete_Indicator") {
+                        metadata.obsoleteLabel = metadata.generalEntries[j].value;
                       }
                       if (metadata.generalEntries[j].key === "Tree_Sort_Field") {
                         metadata.treeSortField = metadata.generalEntries[j].value;

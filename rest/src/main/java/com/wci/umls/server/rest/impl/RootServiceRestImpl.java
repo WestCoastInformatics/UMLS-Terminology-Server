@@ -45,7 +45,7 @@ public class RootServiceRestImpl {
     // had quotes around them when returned to client and angular
     // could not parse them as json.
     String message = e.getMessage();
-    if (!message.startsWith("\"")) {
+    if (message != null && !message.startsWith("\"")) {
       message = "\"" + message + "\"";
     }
     // throw the local exception as a web application exception
