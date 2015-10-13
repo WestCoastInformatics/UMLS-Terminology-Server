@@ -91,7 +91,7 @@ public class ModelUnit040Test {
     object = new TerminologyJpa();
     ProxyTester tester = new ProxyTester(new RootTerminologyJpa());
     rootTerminologyProxy = (RootTerminologyJpa) tester.createObject(1);
-    rootTerminologyProxy = (RootTerminologyJpa) tester.createObject(2);
+    rootTerminologyProxy2 = (RootTerminologyJpa) tester.createObject(2);
     tester = new ProxyTester(new ContactInfoJpa());
     contactInfoProxy = (ContactInfoJpa) tester.createObject(1);
     contactInfoProxy2 = (ContactInfoJpa) tester.createObject(2);

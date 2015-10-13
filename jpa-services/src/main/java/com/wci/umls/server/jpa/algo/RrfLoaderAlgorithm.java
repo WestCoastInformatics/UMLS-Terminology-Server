@@ -183,6 +183,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private Map<String, ConceptSubset> idTerminologyConceptSubsetMap =
       new HashMap<>();
 
+  /** The semantic tags. */
+  private Map<String, Set<String>> semanticTags = new HashMap<>();
+
   /** The Constant coreModuleId. */
   private final static String coreModuleId = "900000000000207008";
 
@@ -346,6 +349,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // Make subsets and label sets
       loadExtensionLabelSets();
 
+      // UI labels
+      loadUiLabels();
+
       // Commit
       commitClearBegin();
 
@@ -469,6 +475,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         sty.setPublishable(true);
         Logger.getLogger(getClass()).debug("    add semantic type - " + sty);
         addSemanticType(sty);
+
         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
       }
     }
@@ -694,6 +701,74 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       loadedTermTypes.put(tty.getAbbreviation(), tty);
     }
 
+    commitClearBegin();
+  }
+
+  /**
+   * Load ui labels.
+   *
+   * @throws Exception the exception
+   */
+  private void loadUiLabels() throws Exception {
+    // UI labels
+    StringBuilder stys = new StringBuilder();
+    for (SemanticType type : getSemanticTypes(terminology, version)
+        .getObjects()) {
+      stys.append(stys.length() > 0 ? "," : "");
+      stys.append(type.getExpandedForm());
+    }
+    String[] labels = new String[] {
+        "Semantic_Category_Type", "Semantic_Categories"
+    };
+    String[] labelValues = new String[] {
+        "SemanticType", stys.toString()
+    };
+    int i = 0;
+    for (String label : labels) {
+      GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
+      entry.setTerminology(terminology);
+      entry.setVersion(version);
+      entry.setLastModified(releaseVersionDate);
+      entry.setLastModifiedBy(loader);
+      entry.setPublishable(true);
+      entry.setPublished(true);
+      entry.setAbbreviation(label);
+      entry.setExpandedForm(labelValues[i++]);
+      entry.setKey("label_metadata");
+      entry.setType("label_values");
+      addGeneralMetadataEntry(entry);
+    }
+
+    // semantic tags
+    for (String tagTerminology : semanticTags.keySet()) {
+      StringBuilder st = new StringBuilder();
+      for (String tag : semanticTags.get(tagTerminology)) {
+        st.append(st.length() > 0 ? "," : "");
+        st.append(tag);
+      }
+      labels = new String[] {
+          "Semantic_Category_Type", "Semantic_Categories"
+      };
+      labelValues = new String[] {
+          "SemanticTag", st.toString()
+      };
+      i = 0;
+      for (String label : labels) {
+        GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
+        entry.setTerminology(tagTerminology);
+        entry.setVersion(loadedTerminologies.get(tagTerminology).getVersion());
+        entry.setLastModified(releaseVersionDate);
+        entry.setLastModifiedBy(loader);
+        entry.setPublishable(true);
+        entry.setPublished(true);
+        entry.setAbbreviation(label);
+        entry.setExpandedForm(labelValues[i++]);
+        entry.setKey("label_metadata");
+        entry.setType("label_values");
+        addGeneralMetadataEntry(entry);
+      }
+    }
+    commitClearBegin();
   }
 
   /**
@@ -1824,6 +1899,18 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setLexicalClassId(fields[3]);
       atom.setCodeId(fields[13]);
 
+      // Check for semantic tag only on active atoms
+      System.out.println("name = " +fields[14]);
+      if (!atom.isObsolete() && fields[14].matches(".* \\([^\\)]+\\)$")) {
+        System.out.println("  MATCHES");
+        if (semanticTags.get(atom.getTerminology()) == null) {
+          semanticTags.put(atom.getTerminology(), new HashSet<String>());
+        }
+        semanticTags.get(atom.getTerminology()).add(
+            fields[14].substring(fields[14].lastIndexOf('(') + 1,
+                fields[14].lastIndexOf(')')));
+      }
+
       // Handle root terminology short name, hierarchical name, and sy names
       if (fields[11].equals("SRC") && fields[12].equals("SSN")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
@@ -2139,7 +2226,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // // compute preferred name
     // lui.setName(getComputedPreferredName(atoms));
     // addLexicalClass(lui);
-    //         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+    // logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     // }
     // // just used to hold atoms, enver saved.
     // atoms = new LexicalClassJpa();
@@ -2161,7 +2248,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // if (lui != null) {
     // lui.setName(getComputedPreferredName(atoms));
     // commitClearBegin();
-    //         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+    // logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     // }
     //
     // // NOTE: currently atoms are not loaded for string classes
@@ -2185,7 +2272,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // sui.setWorkflowStatus(published);
     // sui.setName(suiFields[1].toString());
     // addStringClass(sui);
-    //         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+    // logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     // }
 
     // commit

@@ -528,7 +528,7 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   public LabelSetList getLabelSets(String terminology, String version)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "Metadata service - get attribute names " + terminology + ", "
+        "Metadata service - get label sets " + terminology + ", "
             + version);
     if (helperMap.containsKey(terminology)) {
       return helperMap.get(terminology).getLabelSets(terminology, version);

@@ -13,6 +13,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -25,6 +26,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
     "terminologyId", "terminology", "version", "id"
 }))
 @Audited
+@Indexed
 @XmlRootElement(name = "semanticTypeComponent")
 public class SemanticTypeComponentJpa extends AbstractComponent implements
     SemanticTypeComponent {

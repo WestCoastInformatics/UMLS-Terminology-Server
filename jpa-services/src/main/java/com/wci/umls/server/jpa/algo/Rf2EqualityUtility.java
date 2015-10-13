@@ -94,7 +94,7 @@ public class Rf2EqualityUtility {
         flag = false;
         break;
       }
-      if (!a1.getValue().equals(a2.getValue())) {
+      if (a1 != null && !a1.getValue().equals(a2. getValue())) {
         flag = false;
         break;
       }

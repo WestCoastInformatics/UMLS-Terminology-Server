@@ -104,40 +104,51 @@ public class DefaultSearchHandler implements SearchHandler {
     escapedQuery = "\"" + QueryParserBase.escape(escapedQuery) + "\"";
 
     // Build a combined query with an OR between query typed and exact match
-    String combinedQuery =
-        (query.isEmpty() ? "" : query + " OR ") + "atoms.nameSort:"
-            + escapedQuery + "^20.0";
+    String combinedQuery = null;
+    // For a fielded query search, simply perform the search as written
+    // no need for modifications
+    if (query.contains(":")) {
+      combinedQuery = query;
+    } else {
+      combinedQuery =
+          (query.isEmpty() ? "" : query + " OR ") + "atoms.nameSort:"
+              + escapedQuery + "^20.0";
 
-    // create an exact expansion entry. i.e. if the search term exactly
-    // matches something in the acronyms file, then use additional "OR" clauses
-    if (acronymExpansionMap.containsKey(query)) {
-      for (String expansion : acronymExpansionMap.get(query)) {
-        combinedQuery += " OR atoms.nameSort:\"" + expansion + "\"" + "^20.0";
+      // create an exact expansion entry. i.e. if the search term exactly
+      // matches something in the acronyms file, then use additional "OR"
+      // clauses
+      if (acronymExpansionMap.containsKey(query)) {
+        for (String expansion : acronymExpansionMap.get(query)) {
+          combinedQuery += " OR atoms.nameSort:\"" + expansion + "\"" + "^20.0";
+        }
       }
     }
 
-    // Check for spelling mistakes
-    boolean flag = false;
-    StringBuilder correctedQuery = new StringBuilder();
-    for (String token : FieldedStringTokenizer.split(query,
-        " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^")) {
-      if (correctedQuery.length() != 0) {
-        correctedQuery.append(" ");
+    // Check for spelling mistakes (if not a fielded search)
+    if (!query.contains(":")) {
+      boolean flag = false;
+      StringBuilder correctedQuery = new StringBuilder();
+      for (String token : FieldedStringTokenizer.split(query,
+          " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^")) {
+        if (correctedQuery.length() != 0) {
+          correctedQuery.append(" ");
+        }
+        if (token.length() == 0) {
+          continue;
+        }
+        if (spellChecker.exist(token.toLowerCase())) {
+          correctedQuery.append(token);
+        } else {
+          String[] suggestions =
+              spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
+          flag = suggestions.length > 0;
+          correctedQuery.append(FieldedStringTokenizer.join(suggestions, " "));
+        }
       }
-      if (token.length() == 0) {
-        continue;
+      if (flag) {
+        combinedQuery +=
+            " OR atoms.nameSort:\"" + correctedQuery + "\"" + "^10.0";
       }
-      if (spellChecker.exist(token.toLowerCase())) {
-        correctedQuery.append(token);
-      } else {
-        String[] suggestions =
-            spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
-        flag = suggestions.length > 0;
-        correctedQuery.append(FieldedStringTokenizer.join(suggestions, " "));
-      }
-    }
-    if (flag) {
-      combinedQuery += " OR atoms.nameSort:\"" + correctedQuery + "\"" + "^10.0";
     }
 
     // Build query for pfs conditions
@@ -166,8 +177,8 @@ public class DefaultSearchHandler implements SearchHandler {
     try {
       System.out.println("query = " + finalQuery);
       fullTextQuery =
-          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-              finalQuery, pfs, manager);
+          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, finalQuery,
+              pfs, manager);
     } catch (ParseException e) {
       // If there's a parse exception, try the literal query
       System.out.println("  query = " + escapedQuery + pfsQuery);
@@ -239,7 +250,7 @@ public class DefaultSearchHandler implements SearchHandler {
         }
         if (spellChecker.exist(token.toLowerCase())) {
           newQuery.append(token);
-        } else {
+        } else if (!token.isEmpty()) {
           String[] suggestions =
               spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
           found = suggestions.length > 0;
@@ -272,7 +283,9 @@ public class DefaultSearchHandler implements SearchHandler {
         if (newQuery.length() != 0) {
           newQuery.append(" ");
         }
-        newQuery.append(token).append("*");
+        if (token.length() > 0) {
+          newQuery.append(token).append("*");
+        }
       }
       newQuery.append(")");
       // Try the query again

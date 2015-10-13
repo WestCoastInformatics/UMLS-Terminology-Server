@@ -53,7 +53,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   private List<ConceptRelationship> relationships = null;
 
   /** The semantic type components. */
-  @IndexedEmbedded
+  @IndexedEmbedded(targetElement = SemanticTypeComponentJpa.class)
   @OneToMany(targetEntity = SemanticTypeComponentJpa.class)
   private List<SemanticTypeComponent> semanticTypes = null;
 

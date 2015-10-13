@@ -95,7 +95,7 @@ tsApp
         }
 
         // Helper function to get the proper html prefix based on class
-                // type
+        // type
         this.getPrefixForType = function(classType) {
           switch (classType) {
           case 'CONCEPT':
@@ -173,7 +173,7 @@ tsApp
         }
 
         // Helper function for loading a component and setting the
-                // component
+        // component
         // data fields
         this.getComponentHelper = function(terminologyId, terminology, version,
           prefix) {
@@ -182,9 +182,9 @@ tsApp
           var deferred = $q.defer();
 
           // Here the prefix is passed in because of terminologies
-                    // like MSH
+          // like MSH
           // that may have legitimate types that are not the
-                    // organizing class
+          // organizing class
           // type
 
           // Set component type and prefix
@@ -229,13 +229,13 @@ tsApp
                     definition.atomElement = true;
 
                     // add the atom information for tooltip
-                                        // display
+                    // display
                     definition.atomElementStr = data.atom[i].name + " ["
                       + data.atom[i].terminology + "/" + data.atom[i].termType
                       + "]";
 
                     // add the definition to the top level
-                                        // component
+                    // component
                     data.definition.push(definition);
                   }
                 }
@@ -300,7 +300,7 @@ tsApp
           var deferred = $q.defer();
 
           // set the index and get the component from history
-                    // information
+          // information
           component.historyIndex = index;
           this.getComponentFromType(
             component.history[component.historyIndex].terminologyId,
@@ -452,7 +452,7 @@ tsApp
 
         // Finds components as a list
         this.findComponentsAsList = function(queryStr, terminology, version,
-          page, hierarchy) {
+          page, semanticCategory) {
           console.debug("findComponentsAsList", queryStr, terminology, version,
             page);
           // Setup deferred
@@ -464,6 +464,14 @@ tsApp
             maxResults : pageSizes.general,
             sortField : null,
             queryRestriction : "anonymous:false AND (suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
+          }
+
+          if (metadata.semanticCategoryType == "SemanticType") {
+            pfs.queryRestriction += " AND semanticTypes.semanticType:\""
+              + semanticCategory + "\"";
+          } else if (metadata.semanticCategoryType == "SemanticTag") {
+            pfs.queryRestriction += " AND atoms.semanticTag:\""
+              + semanticCategory + "\"";
           }
 
           // Get prefix
@@ -496,7 +504,7 @@ tsApp
 
         // Finds components as a tree
         this.findComponentsAsTree = function(queryStr, terminology, version,
-          page, hierarchy) {
+          page, semanticCategory) {
           console.debug("findComponentsAsTree", queryStr, terminology, version,
             page);
 
@@ -509,6 +517,14 @@ tsApp
             maxResults : pageSizes.trees,
             sortField : metadata.treeSortField,
             queryRestriction : null
+          }
+
+          if (metadata.semanticCategoryType == "SemanticType") {
+            pfs.queryRestriction += " AND semanticTypes.semanticType:\""
+              + semanticCategory + "\"";
+          } else if (metadata.semanticCategoryType == "SemanticTag") {
+            pfs.queryRestriction += " AND atoms.semanticTag:\""
+              + semanticCategory + "\"";
           }
 
           var prefix = this.getPrefixForTerminologyAndVersion(terminology,
@@ -538,7 +554,7 @@ tsApp
         }
 
         // Handle paging of relationships (requires content service
-                // call).
+        // call).
         this.findRelationships = function(terminologyId, terminology, version,
           page, filters) {
           console.debug("findRelationships", terminologyId, terminology,
@@ -557,7 +573,6 @@ tsApp
 
           // Show only inferred rels for now
           // construct query restriction if needed
-          // TODO Change these to use pfs object parameters
           var qr = '';
           if (filters.showSuppressible == false) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'suppressible:false';

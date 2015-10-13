@@ -68,8 +68,7 @@ public class ValidationServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public void refreshCaches() throws Exception {
-    // TODO Auto-generated method stub
-
+    // n/a
   }
 
   /* see superclass */

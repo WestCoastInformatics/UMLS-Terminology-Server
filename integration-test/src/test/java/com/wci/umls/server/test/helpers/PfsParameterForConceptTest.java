@@ -79,6 +79,7 @@ public class PfsParameterForConceptTest {
             return u1.compareTo(u2);
           }
         };
+        break;
       case "Long":
         comparator = new Comparator<Long>() {
           @Override

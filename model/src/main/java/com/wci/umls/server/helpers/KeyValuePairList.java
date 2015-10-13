@@ -101,7 +101,7 @@ public class KeyValuePairList {
    * @return true, if successful
    */
   public boolean contains(KeyValuePairList pairList) {
-    return this.getKeyValuePairList().contains(pairList.getKeyValuePairList());
+    return this.getKeyValuePairList().containsAll(pairList.getKeyValuePairList());
   }
 
   /* see superclass */

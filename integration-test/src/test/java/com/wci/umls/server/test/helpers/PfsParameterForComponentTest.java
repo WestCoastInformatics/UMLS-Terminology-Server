@@ -110,6 +110,7 @@ public class PfsParameterForComponentTest {
             return u1.compareTo(u2);
           }
         };
+        break;
       case "Long":
         comparator = new Comparator<Long>() {
           @Override

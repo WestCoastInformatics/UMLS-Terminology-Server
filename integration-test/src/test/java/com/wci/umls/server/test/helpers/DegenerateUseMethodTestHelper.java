@@ -6,6 +6,7 @@ package com.wci.umls.server.test.helpers;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -181,8 +182,9 @@ public class DegenerateUseMethodTestHelper {
 
     // construct the base valid parameter list
     List<Object> validParameterList = new ArrayList<>();
-    for (int i = 0; i < validParameters.length; i++)
-      validParameterList.add(validParameters[i]);
+    if (validParameters != null) {
+      validParameterList.addAll(Arrays.asList(validParameters));
+    }
 
     // construct the base invalid parameter list
     List<Object> invalidParameterList = new ArrayList<>();
@@ -214,7 +216,7 @@ public class DegenerateUseMethodTestHelper {
     }
 
     // cycle over parameters
-    for (int i = 0; i < validParameters.length; i++) {
+    for (int i = 0; i < validParameterList.size(); i++) {
 
       // if expected failures array null, or this value null, expect an
       // Exception
@@ -338,7 +340,7 @@ public class DegenerateUseMethodTestHelper {
             if (parameter == null || parameter.getClass().equals(String.class)) {
 
               // check assumption: empty string
-              if (((String) parameter).isEmpty() == false) {
+              if (parameter == null || ((String) parameter).isEmpty() == false) {
                 throw new Exception(
                     "Empty string test used non-empty string as parameter");
               }

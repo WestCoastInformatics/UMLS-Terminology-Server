@@ -253,7 +253,7 @@ public class ProxyTester {
     if (type == String.class)
       return "" + initializer;
     if (type == Date.class)
-      return new Date(initializer);
+      return new Date(10L + initializer);
     if (type == Boolean.class || type == boolean.class)
       return new Boolean((initializer & 1) == 0);
     if (type == Integer.class || type == int.class)

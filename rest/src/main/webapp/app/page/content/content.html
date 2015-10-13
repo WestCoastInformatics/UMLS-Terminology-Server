@@ -29,6 +29,14 @@
                 typeahead-on-select="searchParams.page = 1 && findComponents(true)"
                 typeahead-editable="true" typeahead-min-length="3">
 
+              <!-- semantic categories for SemanticType -->
+              <select ng-show="metadata.semanticCategoryType"
+                ng-model="semanticCategory"
+                ng-options="category in metadata.semanticCategories">
+                <option ng-show="metadata.semanticCategortyType == 'SemanticType'" value="">---All Semantic Types---</option>
+                <option ng-show="metadata.semanticCategortyType == 'SemanticTag'" value="">---All Semantic Tags---</option>
+              </select>
+
               <button class="btn btn-sm btn-primary" type="submit"
                 ng-click="searchParams.page = 1 && findComponents(true)">Search</button>
               <button class="btn btn-sm btn-warning"
@@ -47,12 +55,13 @@
       <div class="col-md-4 col-xs-12">
         <div ng-show="queryForList">
           <div class="alert alert-success">
-            <span ng-show="searchOrBrowse!='SEARCH' && searchResults.list.length == 0">Search</span>
-            <span ng-show="searchParams.query && searchResults.list.totalCount == 0">No</span>
+            <span
+              ng-show="searchOrBrowse!='SEARCH' && searchResults.list.length == 0">Search</span>
+            <span
+              ng-show="searchParams.query && searchResults.list.totalCount == 0">No</span>
             <span ng-show="searchResults.list.totalCount > 0">{{searchResults.list.totalCount}}</span>
-             Results
-            <a
-              ng-show="!metadata.terminology.metathesaurus"
+            Results
+            <a ng-show="!metadata.terminology.metathesaurus"
               class="pull-right glyphicon glyphicon-tree-conifer"
               ng-click="setTreeView()" tooltip="Switch to tree view"></a>
           </div>
@@ -87,9 +96,14 @@
         <div ng-show="queryForTree">
           <div class="alert alert-success">
             <span ng-show="searchOrBrowse == 'BROWSE'">Hierarchy</span>
-            <span ng-show="searchOrBrowse == null && searchResults.tree.length == 0">Search Results</span>
-            <span ng-show="searchParams.query && searchResults.tree.totalCount == 0">No Results</span>
-            <span ng-show="searchResults.tree.totalCount > 0">{{searchResults.tree.totalCount}} Results</span>
+            <span
+              ng-show="searchOrBrowse == null && searchResults.tree.length == 0">Search
+              Results</span>
+            <span
+              ng-show="searchParams.query && searchResults.tree.totalCount == 0">No
+              Results</span>
+            <span ng-show="searchResults.tree.totalCount > 0">{{searchResults.tree.totalCount}}
+              Results</span>
             <span class="pull-right">
 
               <a class="glyphicon glyphicon-star"
@@ -105,7 +119,7 @@
                 ng-click="setListView()" tooltip="Switch to list view"> </a>
             </span>
           </div>
-         
+
           <pagination style="display:block;" items-per-page="pageSizes.trees"
             max-size="5" boundary-links="true" class="pagination-sm"
             previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
@@ -263,7 +277,8 @@
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
                 tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span> {{item.semanticType}}</li>
+                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+              {{item.semanticType}}</li>
           </ul>
 
         </div>
@@ -301,7 +316,8 @@
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
                 tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span> {{item.value}}</li>
+                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+              {{item.value}}</li>
           </ul>
         </div>
         <!-- end Definitions -->
@@ -494,7 +510,8 @@
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
                 tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span> <span class="label label-info"
+                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+              <span class="label label-info"
                 tooltip="{{getAttributeNameName(item.name)}}">{{item.name}}</span>
               = {{item.value}}
           </ul>
@@ -529,7 +546,8 @@
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
                 tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span> {{item.subsetName}}
+                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+              {{item.subsetName}}
               <div ng-show="item.attribute.length > 0">
                 <ul>
                   <li
@@ -588,7 +606,8 @@
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
                 tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span> <span class="label label-info"
+                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+              <span class="label label-info"
                 tooltip="{{getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
 
               {{item.additionalRelationshipType}} <!-- Mobile friendly switch -->

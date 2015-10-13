@@ -247,6 +247,8 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
         ctr.setSuperType(superType);
         ctr.setSubType(ctr.getSuperType());
         tr = ctr;
+      } else {
+        throw new Exception("Unexpected id type " + idType);
       }
 
       tr.setObsolete(false);
@@ -261,7 +263,8 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
       tr.setDepth(0);
       addTransitiveRelationship(tr);
     }
-    allNodes = new HashSet<>();
+    // to free up memory
+    allNodes = null;
 
     // initialize descendant map
     descendantsMap = new HashMap<>();

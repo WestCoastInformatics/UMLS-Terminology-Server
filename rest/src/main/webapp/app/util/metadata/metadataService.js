@@ -32,7 +32,9 @@ tsApp
           obsoleteLabel : "Obsolete",
           obsoleteIndicator : "O",
           treeSortField : "nodeName",
-          terminologies : null
+          terminologies : null,
+          semanticCategories : [],
+          semanticCategoryType : null
         };
 
         // Obtain the data model
@@ -69,7 +71,7 @@ tsApp
 
                 for (var i = 0; i < metadata.entries.length; i++) {
                   // extract relationship types for
-                                    // convenience
+                  // convenience
                   if (metadata.entries[i].name === 'Relationship_Types') {
                     metadata.relationshipTypes = metadata.entries[i].keyValuePair;
                   }
@@ -119,6 +121,13 @@ tsApp
                       if (metadata.generalEntries[j].key === "Tree_Sort_Field") {
                         metadata.treeSortField = metadata.generalEntries[j].value;
                       }
+                      if (metadata.generalEntries[j].key === "Semantic_Categories") {
+                        metadata.semanticCategories = metadata.generalEntries[j].value
+                          .split(",").sort();
+                      }
+                      if (metadata.generalEntries[j].key === "Semantic_Category_Type") {
+                        metadata.semanticCategoryType = metadata.generalEntries[j].value;
+                      }
                     }
                   }
                 }
@@ -158,7 +167,7 @@ tsApp
         // Returns the terminology object for the terminology name
         this.getTerminology = function(terminology, version) {
           // check for full terminology object by comparing to
-                    // selected
+          // selected
           // terminology
           if (terminology != metadata.terminology.terminology) {
 

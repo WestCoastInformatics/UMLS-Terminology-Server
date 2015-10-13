@@ -161,6 +161,9 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** The concept attribute values. */
   private Set<String> generalEntryValues = new HashSet<>();
 
+  /** The semantic tags. */
+  private Set<String> semanticTags = new HashSet<>();
+
   /** The root class checker. */
   private SimpleRootClassChecker rootClassChecker = null;
 
@@ -569,6 +572,30 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       addGeneralMetadataEntry(entry);
     }
 
+    StringBuilder st = new StringBuilder();
+    for (String tag : semanticTags) {
+      st.append(st.length() > 0 ? "," : "");
+      st.append(tag);
+    }
+    // If there are semantic tags, do this
+    if (st.length() > 0) {
+      labels = new String[] {
+          "Semantic_Category_Type", "Semantic_Categories"
+      };
+      labelValues = new String[] {
+          "SemanticTag", st.toString()
+      };
+      i = 0;
+      for (String label : labels) {
+        GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
+        setCommonFields(entry);
+        entry.setAbbreviation(label);
+        entry.setExpandedForm(labelValues[i++]);
+        entry.setKey("label_metadata");
+        entry.setType("label_values");
+        addGeneralMetadataEntry(entry);
+      }
+    }
     // Commit
     commitClearBegin();
   }
@@ -911,12 +938,16 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             && rel.getRelationshipType().equals(rel2.getRelationshipType())) {
           Logger.getLogger(getClass()).info("  rel = " + rel);
           Logger.getLogger(getClass()).info("  rel2 = " + rel2);
-          Logger.getLogger(getClass()).info("  rel hashcode = " + rel.hashCode());
-          Logger.getLogger(getClass()).info("  rel2 hashcode = " + rel2.hashCode());
+          Logger.getLogger(getClass()).info(
+              "  rel hashcode = " + rel.hashCode());
+          Logger.getLogger(getClass()).info(
+              "  rel2 hashcode = " + rel2.hashCode());
           Logger.getLogger(getClass()).info("  eq = " + rel.equals(rel2));
-          Logger.getLogger(getClass()).info("  rel identity = " + System.identityHashCode(rel));
-          Logger.getLogger(getClass()).info("  rel2 identity = " + System.identityHashCode(rel2));
-          throw new Exception("Unexpected duplicate rels"); 
+          Logger.getLogger(getClass()).info(
+              "  rel identity = " + System.identityHashCode(rel));
+          Logger.getLogger(getClass()).info(
+              "  rel2 identity = " + System.identityHashCode(rel2));
+          throw new Exception("Unexpected duplicate rels");
         }
       }
     }
@@ -1013,6 +1044,12 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setName(getValue(annotation));
       atom.setWorkflowStatus(published);
       atoms.add(atom);
+      // Check for semantic tag
+      if (atom.getName().matches(".* \\([^\\)]+\\)$")) {
+        semanticTags.add(atom.getName().substring(
+            atom.getName().lastIndexOf('(') + 1,
+            atom.getName().lastIndexOf(')')));
+      }
     }
     return atoms;
   }
@@ -2391,13 +2428,13 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     component.setSuppressible(false);
 
     if (component instanceof ConceptRelationship) {
-      ((ConceptRelationship)component).setAssertedDirection(true);
-      ((ConceptRelationship)component).setGroup(null);
-      ((ConceptRelationship)component).setHierarchical(false);
-      ((ConceptRelationship)component).setInferred(loadInferred);
-      ((ConceptRelationship)component).setStated(!loadInferred);
+      ((ConceptRelationship) component).setAssertedDirection(true);
+      ((ConceptRelationship) component).setGroup(null);
+      ((ConceptRelationship) component).setHierarchical(false);
+      ((ConceptRelationship) component).setInferred(loadInferred);
+      ((ConceptRelationship) component).setStated(!loadInferred);
       // So the field is {} instead of null to match when copied
-      ((ConceptRelationship)component).getAlternateTerminologyIds();
+      ((ConceptRelationship) component).getAlternateTerminologyIds();
     }
   }
 

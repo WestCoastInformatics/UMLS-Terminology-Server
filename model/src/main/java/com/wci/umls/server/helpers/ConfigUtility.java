@@ -143,7 +143,7 @@ public class ConfigUtility {
    * @throws Exception the exception
    */
   public static Properties getConfigProperties() throws Exception {
-    if (config == null) {
+    if (isNull(config)) {
       // Need to determine the label (default "umls")
       String label = "umls";
       Properties labelProp = new Properties();
@@ -729,5 +729,16 @@ public class ConfigUtility {
       sb.append("  ");
     }
     return sb.toString();
+  }
+
+  /**
+   * This method is intended to bypass some incorrect static code analysis from
+   * the FindBugs Eclipse plugin.
+   *
+   * @param o the o
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public static boolean isNull(Object o) {
+    return o == null;
   }
 }
