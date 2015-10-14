@@ -43,9 +43,9 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = DescriptorRelationshipJpa.class)
   private List<DescriptorRelationship> relationships = new ArrayList<>(1);
 
-  /** The concept terminology id map. */
+  /** The labels. */
   @ElementCollection(fetch = FetchType.EAGER)
-  // consider this: @Fetch(sFetchMode.JOIN)
+  // consider this: @Fetch(FetchMode.JOIN)
   @Column(nullable = true)
   List<String> labels;
 
@@ -75,6 +75,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
       for (DescriptorRelationship relationship : descriptor.getRelationships()) {
         addRelationship(new DescriptorRelationshipJpa(relationship, deepCopy));
       }
+
     }
   }
 

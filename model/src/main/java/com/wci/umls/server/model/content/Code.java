@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.model.content;
 
+
 /**
  * Represents a fuzzy conceptual meaning that may be a {@link Concept} or may be
  * a {@link Descriptor} but the exact nature of the classification is not
@@ -15,6 +16,6 @@ package com.wci.umls.server.model.content;
 public interface Code extends AtomClass,
     ComponentHasRelationships<CodeRelationship> {
 
-  // Nothing extra
+  // n/a
 
 }

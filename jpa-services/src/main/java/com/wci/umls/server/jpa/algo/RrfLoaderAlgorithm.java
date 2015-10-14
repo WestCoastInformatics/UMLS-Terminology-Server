@@ -183,9 +183,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private Map<String, ConceptSubset> idTerminologyConceptSubsetMap =
       new HashMap<>();
 
-  /** The semantic tags. */
-  private Map<String, Set<String>> semanticTags = new HashMap<>();
-
   /** The Constant coreModuleId. */
   private final static String coreModuleId = "900000000000207008";
 
@@ -195,15 +192,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** non-core modules map. */
   private Map<String, Set<Long>> moduleConceptIdMap = new HashMap<>();
 
-  /** The Constant categoryTtys. */
-  private static final Set<String> categoryTtys = new HashSet<>();
-
   /** The lat code map. */
   private static Map<String, String> latCodeMap = new HashMap<>();
 
   static {
-    // category ttys (for SNOMED its FN)
-    categoryTtys.add("FN");
 
     // from http://www.nationsonline.org/oneworld/country_code_list.htm
     latCodeMap.put("BAQ", "eu");
@@ -354,9 +346,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // Make subsets and label sets
       loadExtensionLabelSets();
-
-      // UI labels
-      loadUiLabels();
 
       // Commit
       commitClearBegin();
@@ -707,77 +696,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       loadedTermTypes.put(tty.getAbbreviation(), tty);
     }
 
-    commitClearBegin();
-  }
-
-  /**
-   * Load ui labels.
-   *
-   * @throws Exception the exception
-   */
-  private void loadUiLabels() throws Exception {
-    // UI labels
-    StringBuilder stys = new StringBuilder();
-    for (SemanticType type : getSemanticTypes(terminology, version)
-        .getObjects()) {
-      stys.append(stys.length() > 0 ? ";" : "");
-      stys.append(type.getExpandedForm());
-    }
-    String[] labels = new String[] {
-        "Semantic_Category_Type", "Semantic_Categories"
-    };
-    String[] labelValues = new String[] {
-        "SemanticType", stys.toString()
-    };
-    int i = 0;
-    for (String label : labels) {
-      GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
-      entry.setTerminology(terminology);
-      entry.setVersion(version);
-      entry.setLastModified(releaseVersionDate);
-      entry.setLastModifiedBy(loader);
-      entry.setPublishable(true);
-      entry.setPublished(true);
-      entry.setAbbreviation(label);
-      entry.setExpandedForm(labelValues[i++]);
-      entry.setKey("label_metadata");
-      entry.setType("label_values");
-      addGeneralMetadataEntry(entry);
-    }
-
-    // semantic tags
-    for (String tagTerminology : semanticTags.keySet()) {
-      StringBuilder st = new StringBuilder();
-      // skip if there are < 15 categories - probably false positive
-      if (semanticTags.get(tagTerminology).size() < 15) {
-        continue;
-      }
-      for (String tag : semanticTags.get(tagTerminology)) {
-        st.append(st.length() > 0 ? ";" : "");
-        st.append(tag);
-      }
-      labels = new String[] {
-          "Semantic_Category_Type", "Semantic_Categories"
-      };
-      labelValues = new String[] {
-          "SemanticTag", st.toString()
-      };
-      i = 0;
-      for (String label : labels) {
-        GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
-        entry.setTerminology(tagTerminology);
-        entry.setVersion(loadedTerminologies.get(tagTerminology).getVersion());
-        entry.setLastModified(releaseVersionDate);
-        entry.setLastModifiedBy(loader);
-        entry.setPublishable(true);
-        entry.setPublished(true);
-        entry.setAbbreviation(label);
-        entry.setExpandedForm(labelValues[i++]);
-        entry.setKey("label_metadata");
-        entry.setType("label_values");
-        addGeneralMetadataEntry(entry);
-      }
-    }
     commitClearBegin();
   }
 
@@ -1908,17 +1826,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setStringClassId(fields[5]);
       atom.setLexicalClassId(fields[3]);
       atom.setCodeId(fields[13]);
-
-      // Check for semantic tag only on active atoms
-      if (categoryTtys.contains(atom.getTermType()) && !atom.isObsolete()
-          && fields[14].matches(".* \\([a-z ]+\\)$")) {
-        if (semanticTags.get(atom.getTerminology()) == null) {
-          semanticTags.put(atom.getTerminology(), new HashSet<String>());
-        }
-        final String semanticTag =
-            fields[14].replaceAll(".* \\(([a-z ]+)\\)$", "$1");
-        semanticTags.get(atom.getTerminology()).add(semanticTag);
-      }
 
       // Handle root terminology short name, hierarchical name, and sy names
       if (fields[11].equals("SRC") && fields[12].equals("SSN")) {

@@ -80,16 +80,6 @@ import com.wci.umls.server.model.content.AtomClass;
             @Parameter(name = "replacement", value = " "),
             @Parameter(name = "replace", value = "all")
         })
-    }),
-    @AnalyzerDef(name = "semanticTagAnalyzer",
-    // Treat whole string as single token
-    tokenizer = @TokenizerDef(factory = KeywordTokenizerFactory.class), filters = {
-      // Use pattern to extract the semantic tag.
-      @TokenFilterDef(factory = PatternReplaceFilterFactory.class, params = {
-          @Parameter(name = "pattern", value = ".* \\(([^\\)]+)\\)$"),
-          @Parameter(name = "replacement", value = "$1"),
-          @Parameter(name = "replace", value = "all")
-      })
     })
 })
 @Audited

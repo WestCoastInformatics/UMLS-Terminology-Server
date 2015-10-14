@@ -139,22 +139,6 @@ public class OwlLoadAndUnloadTest {
     Assert.assertEquals(11715,
         service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).getCount());
 
-    // Verify semantic category stuff
-    GeneralMetadataEntryList list =
-        service.getGeneralMetadataEntries("SNOMEDCT_US", "latest");
-    boolean[] flags = new boolean[2];
-    for (GeneralMetadataEntry entry : list.getObjects()) {
-      if (entry.getAbbreviation().equals("Semantic_Category_Type")) {
-        flags[0] = true;
-      }
-      if (entry.getAbbreviation().equals("Semantic_Categories")
-          && entry.getExpandedForm().contains("disorder")) {
-        flags[1] = true;
-      }
-    }
-    assertTrue("SNOMEDCT_US semantic categories are wrong", flags[0]
-        && flags[1]);
-
     service.close();
     service.closeFactory();
 

@@ -15,10 +15,13 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
+import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTreePosition;
@@ -27,8 +30,10 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorTreePosition;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
@@ -57,6 +62,9 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
 
   /** The cycle tolerant. */
   private boolean cycleTolerant;
+
+  /** The compute semantic types. */
+  private boolean computeSemanticTypes;
 
   /** The Constant commitCt. */
   private final static int commitCt = 2000;
@@ -160,9 +168,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     List<Object[]> relationships =
         manager
             .createQuery(
-                "select r.from.id, r.to.id from "
-                    + tableName
-                    + " r where "
+                "select r.from.id, r.to.id from " + tableName + " r where "
                     + "version = :version and terminology = :terminology "
                     + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
                     + "and r.from in (select o from " + tableName2
@@ -221,7 +227,13 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
       fireProgressEvent((int) (10 + (i * 90.0 / rootIds.size())),
           "Compute tree positions for root " + rootId);
       ValidationResult result = new ValidationResultJpa();
-      computeTreePositions(rootId, "", parChd, result, new Date());
+      Map<Long, Set<Long>> semanticTypeMap = null;
+      if (computeSemanticTypes) {
+        semanticTypeMap = new HashMap<>();
+      }
+      Date startDate = new Date();
+      computeTreePositions(rootId, "", parChd, result, startDate,
+          semanticTypeMap, rootIds.size() > 1);
       if (!result.isValid()) {
         Logger.getLogger(getClass()).error("  validation result = " + result);
         throw new Exception("Validation failed");
@@ -230,6 +242,71 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
       commit();
       clear();
       beginTransaction();
+
+      // Handle "semantic types"
+      if (computeSemanticTypes) {
+        objectCt = 0;
+        Logger.getLogger(getClass()).info(
+            "Compute semantic types based on tree");
+        final Map<Long, String> idValueMap = new HashMap<>();
+        for (Long conceptId : semanticTypeMap.keySet()) {
+          final Set<String> semanticTypes = new HashSet<>();
+          Concept concept = getConcept(conceptId);
+          for (Long styId : semanticTypeMap.get(conceptId)) {
+            if (idValueMap.containsKey(styId)) {
+              semanticTypes.add(idValueMap.get(styId));
+            } else {
+              Concept styConcept = getConcept(styId);
+              idValueMap.put(styConcept.getId(), styConcept.getName());
+              semanticTypes.add(styConcept.getName());
+            }
+          }
+          for (String semanticType : semanticTypes) {
+            SemanticTypeComponent sty = new SemanticTypeComponentJpa();
+            sty.setTerminologyId("");
+            sty.setLastModifiedBy("admin");
+            sty.setObsolete(false);
+            sty.setPublishable(false);
+            sty.setPublished(false);
+            sty.setSemanticType(semanticType);
+            sty.setTerminology(terminology);
+            sty.setVersion(version);
+            sty.setTimestamp(startDate);
+            sty.setLastModified(startDate);
+            addSemanticTypeComponent(sty, concept);
+            concept.addSemanticType(sty);
+          }
+          updateConcept(concept);
+          logAndCommit(++objectCt, commitCt, commitCt);
+        }
+
+        // Get all semantic type values from idValueMap
+        // Add metadata and general metadata entries
+        StringBuilder sb = new StringBuilder();
+        for (String semanticType : idValueMap.values()) {
+          sb.append((sb.length() == 0 ? "" : ",")).append(semanticType);
+          final SemanticType sty = new SemanticTypeJpa();
+          sty.setAbbreviation(semanticType);
+          sty.setDefinition(semanticType);
+          sty.setExample("");
+          sty.setExpandedForm(semanticType);
+          sty.setNonHuman(false);
+          sty.setTerminology(terminology);
+          sty.setVersion(version);
+          sty.setTreeNumber("");
+          sty.setTypeId("");
+          sty.setUsageNote("");
+          sty.setValue(semanticType);
+          sty.setTimestamp(startDate);
+          sty.setLastModified(startDate);
+          sty.setLastModifiedBy("admin");
+          sty.setPublished(false);
+          sty.setPublishable(false);
+          Logger.getLogger(getClass()).debug("    add semantic type - " + sty);
+          addSemanticType(sty);
+        }
+
+      }
     }
     fireProgressEvent(100, "Finished.");
   }
@@ -242,12 +319,15 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
    * @param parChd the par chd
    * @param validationResult the validation result
    * @param startDate the start date
+   * @param semanticTypeMap the semantic type map
+   * @param multipleRoots the multiple roots
    * @return the sets the
    * @throws Exception the exception
    */
   public Set<Long> computeTreePositions(Long id, String ancestorPath,
     Map<Long, Set<Long>> parChd, ValidationResult validationResult,
-    Date startDate) throws Exception {
+    Date startDate, Map<Long, Set<Long>> semanticTypeMap, boolean multipleRoots)
+    throws Exception {
 
     Logger.getLogger(getClass()).debug(
         "    compute for " + id + ", " + ancestorPath);
@@ -306,7 +386,18 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     tp.setTerminologyId("");
 
     // persist the tree position
-    this.addTreePosition(tp);
+    addTreePosition(tp);
+
+    // If semantic tags are to be computed, determine the "type id" and the node
+    // id, only do this for CONCEPT
+    if (computeSemanticTypes && idType == IdType.CONCEPT && !ancestorPath.isEmpty()) {
+      String[] tokens = FieldedStringTokenizer.split(ancestorPath, "~");
+      if (!semanticTypeMap.containsKey(tp.getNode().getId())) {
+        semanticTypeMap.put(tp.getNode().getId(), new HashSet<Long>());
+      }
+      Set<Long> types = semanticTypeMap.get(tp.getNode().getId());
+      types.add(Long.valueOf(tokens[(multipleRoots ? 0 : 1)]));
+    }
 
     // construct the ancestor path terminating at this concept
     final String conceptPath =
@@ -326,7 +417,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
         // add the results to the local descendant set
         final Set<Long> desc =
             computeTreePositions(childConceptId, conceptPath, parChd,
-                validationResult, startDate);
+                validationResult, startDate, semanticTypeMap, multipleRoots);
         descConceptIds.addAll(desc);
       }
     }
@@ -416,6 +507,24 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
   @Override
   public void cancel() {
     requestCancel = true;
+  }
+
+  /**
+   * Indicates whether or not semantic type flag is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isComputeSemanticTypes() {
+    return computeSemanticTypes;
+  }
+
+  /**
+   * Sets the semantic type flag.
+   *
+   * @param computeSemanticTypes the compute semantic type
+   */
+  public void setComputeSemanticType(boolean computeSemanticTypes) {
+    this.computeSemanticTypes = computeSemanticTypes;
   }
 
 }

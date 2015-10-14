@@ -67,6 +67,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
       for (CodeRelationship relationship : code.getRelationships()) {
         addRelationship(new CodeRelationshipJpa(relationship, deepCopy));
       }
+
     }
   }
 
@@ -121,17 +122,20 @@ public class CodeJpa extends AbstractAtomClass implements Code {
     relationships.remove(relationship);
   }
 
+  /* see superclass */
   @Override
   public List<String> getLabels() {
     return labels;
   }
 
+  /* see superclass */
   @Override
   public void setLabels(List<String> labels) {
     this.labels = labels;
 
   }
 
+  /* see superclass */
   @Override
   public void addLabel(String label) {
     if (labels == null) {
@@ -140,6 +144,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
     labels.add(label);
   }
 
+  /* see superclass */
   @Override
   public void removeLabel(String label) {
     if (labels == null) {

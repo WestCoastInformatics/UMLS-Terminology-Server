@@ -47,10 +47,12 @@
                         SELECT domainId, terminology, version
                         FROM
                         additional_relationship_types a
-                        WHERE NOT EXISTS
+                        WHERE domainId IS NOT
+                        NULL and NOT EXISTS
                         (SELECT *
                         FROM concepts b
-                        WHERE a.terminology = b.terminology
+                        WHERE
+                        a.terminology = b.terminology
                         AND
                         a.version = b.version
                         AND a.domainId = b.terminologyId);
@@ -64,10 +66,12 @@
                         SELECT rangeId, terminology, version
                         FROM
                         additional_relationship_types a
-                        WHERE NOT EXISTS
+                        WHERE rangeId IS NOT NULL
+                        AND NOT EXISTS
                         (SELECT *
                         FROM concepts b
-                        WHERE a.terminology = b.terminology
+                        WHERE
+                        a.terminology = b.terminology
                         AND
                         a.version = b.version
                         AND a.rangeId = b.terminologyId);
@@ -80,13 +84,16 @@
                         SELECT domainId, terminology, version
                         FROM
                         attribute_names a
-                        WHERE NOT EXISTS
+                        WHERE domainId IS NOT NULL AND NOT
+                        EXISTS
                         (SELECT * FROM concepts
                         b
-                        WHERE a.terminology = b.terminology
+                        WHERE a.terminology =
+                        b.terminology
                         AND a.version =
                         b.version
-                        AND a.domainId = b.terminologyId);
+                        AND a.domainId =
+                        b.terminologyId);
                       </value>
                     </property>
 
@@ -96,32 +103,24 @@
                         SELECT rangeId, terminology, version
                         FROM
                         attribute_names a
-                        WHERE NOT EXISTS
+                        WHERE rangeId IS NOT NULL AND NOT
+                        EXISTS
                         (SELECT * FROM concepts
                         b
-                        WHERE a.terminology = b.terminology
+                        WHERE a.terminology =
+                        b.terminology
                         AND a.version =
                         b.version
-                        AND a.rangeId = b.terminologyId);
+                        AND a.rangeId =
+                        b.terminologyId);
                       </value>
                     </property>
 
-                    <property>
-                      <name>Referential integrity RootTerminology -
-                        preferredName</name>
-                      <value>
-                        SELECT preferredName, terminology
-                        FROM
-                        root_terminologies a
-                        WHERE NOT EXISTS
-                        (SELECT * FROM atoms
-                        b
-                        WHERE a.terminology = b.terminology
-                        AND a.preferredName
-                        = b.name);
-                      </value>
-                    </property>
-
+                    <!-- TODO: figure out how to make this work for OWL <property> 
+                      <name>Referential integrity RootTerminology - preferredName</name> <value> SELECT 
+                      preferredName, terminology FROM root_terminologies a WHERE NOT EXISTS (SELECT * FROM 
+                      atoms b WHERE a.terminology = b.terminology AND a.preferredName = b.name); </value> 
+                      </property> -->
                     <property>
                       <name>Referential integrity RootTerminology -
                         hierarchicalName</name>
@@ -556,7 +555,8 @@
                         a.terminology = b.terminology
                         AND a.version = b.version
                         AND a.name = b.name
-                        AND a.terminologyId = b.descriptorId);
+                        AND a.terminologyId =
+                        b.descriptorId);
                       </value>
                     </property>
 
@@ -589,7 +589,8 @@
                         AND a.version =
                         b.version
                         AND a.name = b.name
-                        AND a.terminologyId = b.lexicalClassId);
+                        AND a.terminologyId =
+                        b.lexicalClassId);
                       </value>
                     </property>
 
@@ -623,7 +624,8 @@
                         AND a.version =
                         b.version
                         AND a.name = b.name
-                        AND a.terminologyId = b.stringClassId);
+                        AND a.terminologyId =
+                        b.stringClassId);
                       </value>
                     </property>
 
@@ -1039,12 +1041,14 @@
                         SELECT additionalRelationshipType, terminology,
                         version
                         FROM code_relationships a
-                        WHERE additionalRelationshipType != '' 
-                          AND NOT EXISTS
+                        WHERE
+                        additionalRelationshipType != ''
+                        AND NOT EXISTS
                         (SELECT
                         *
                         FROM additional_relationship_types b
-                        WHERE a.terminology
+                        WHERE
+                        a.terminology
                         = b.terminology
                         AND a.version = b.version
                         AND
@@ -1059,8 +1063,9 @@
                         SELECT additionalRelationshipType, terminology,
                         version
                         FROM code_tree_positions a
-                        WHERE additionalRelationshipType != '' 
-                          AND NOT EXISTS
+                        WHERE
+                        additionalRelationshipType != ''
+                        AND NOT EXISTS
                         (SELECT
                         *
                         FROM additional_relationship_types b
@@ -1098,8 +1103,9 @@
                         SELECT additionalRelationshipType, terminology,
                         version
                         FROM concept_relationships a
-                        WHERE additionalRelationshipType != '' 
-                          AND NOT EXISTS
+                        WHERE
+                        additionalRelationshipType != ''
+                        AND NOT EXISTS
                         (SELECT * FROM additional_relationship_types b
                         WHERE
                         a.terminology = b.terminology
@@ -1115,8 +1121,9 @@
                         SELECT additionalRelationshipType, terminology,
                         version
                         FROM concept_tree_positions a
-                        WHERE additionalRelationshipType != '' 
-                          AND NOT EXISTS
+                        WHERE
+                        additionalRelationshipType != ''
+                        AND NOT EXISTS
                         (SELECT * FROM additional_relationship_types b
                         WHERE
                         a.terminology = b.terminology
@@ -1133,13 +1140,16 @@
                         SELECT relationshipType, terminology, version
                         FROM
                         descriptor_relationships a
-                        WHERE additionalRelationshipType != '' 
-                          AND NOT EXISTS
+                        WHERE
+                        additionalRelationshipType != ''
+                        AND NOT EXISTS
                         (SELECT * FROM
                         relationship_types b
-                        WHERE a.terminology = b.terminology
+                        WHERE a.terminology =
+                        b.terminology
                         AND a.version = b.version
-                        AND a.relationshipType =
+                        AND
+                        a.relationshipType =
                         b.abbreviation);
                       </value>
                     </property>
@@ -1151,8 +1161,9 @@
                         SELECT additionalRelationshipType, terminology,
                         version
                         FROM descriptor_relationships a
-                        WHERE additionalRelationshipType != '' 
-                          AND NOT EXISTS
+                        WHERE
+                        additionalRelationshipType != ''
+                        AND NOT EXISTS
                         (SELECT * FROM additional_relationship_types b
                         WHERE
                         a.terminology = b.terminology
@@ -1168,8 +1179,9 @@
                         SELECT additionalRelationshipType, terminology,
                         version
                         FROM descriptor_tree_positions a
-                        WHERE additionalRelationshipType != '' 
-                          AND NOT EXISTS
+                        WHERE
+                        additionalRelationshipType != ''
+                        AND NOT EXISTS
                         (SELECT * FROM additional_relationship_types b
                         WHERE
                         a.terminology = b.terminology
@@ -1214,12 +1226,14 @@
                       <name>Duplicate ConceptRelationship</name>
                       <value>
                         SELECT from_id, relationshipType,
-                        additionalRelationshipType, to_id, relGroup
+                        additionalRelationshipType, to_id, relGroup, stated,
+                        inferred
                         FROM
                         concept_relationships
-                        GROUP BY from_id, relationshipType,
+                        GROUP BY from_id,
+                        relationshipType,
                         additionalRelationshipType, to_id,
-                        relGroup
+                        relGroup, stated,inferred
                         HAVING
                         count(*)>1;
                       </value>

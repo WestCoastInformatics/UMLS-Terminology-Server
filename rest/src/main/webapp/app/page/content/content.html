@@ -28,24 +28,20 @@
                 typeahead-on-select="searchParams.page = 1 && findComponents(true)"
                 typeahead-editable="true" typeahead-min-length="3">
               <!-- Mobile friendly line-break -->
-              <br ng-show="metadata.semanticCategoryType"
-                class="visible-xs-inline" /> <select
-                style="margin-bottom: 5px; width: 175px;"
-                tooltip="Semantic Category"
-                ng-show="metadata.semanticCategoryType"
-                ng-model="semanticCategory"
-                ng-options="item for item in metadata.semanticCategories">
+              <br ng-show="metadata.semanticTypes" class="visible-xs-inline" />
+              <select style="margin-bottom: 5px; width: 175px;"
+                tooltip="Semantic Type" ng-show="metadata.semanticTypes"
+                ng-model="semanticType"
+                ng-options="item for item in metadata.semanticTypes">
 
-                <option
-                  ng-show="metadata.semanticCategortyType == 'SemanticType'"
-                  value="">--- All ---</option>
+                <option value="">--- All ---</option>
               </select>
               <!-- Mobile friendly line-break -->
               <br class="visible-xs-inline" />
               <button class="btn btn-sm btn-primary" type="submit"
                 ng-click="searchParams.page = 1 && findComponents(true)">Search</button>
               <button class="btn btn-sm btn-warning"
-                ng-show="searchParams.query || semanticCategory"
+                ng-show="searchParams.query || semanticType"
                 ng-click="clearQuery()" tooltip="Click to clear search">Clear</button>
             </form>
         </tr>

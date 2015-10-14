@@ -145,8 +145,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     long startTimeOrig = System.nanoTime();
     LuceneReindexAlgorithm algo = new LuceneReindexAlgorithm();
     try {
-      authorize(securityService, authToken, "reindex",
-          UserRole.ADMINISTRATOR);
+      authorize(securityService, authToken, "reindex", UserRole.ADMINISTRATOR);
       algo.setIndexedObjects(indexedObjects);
       algo.compute();
       algo.close();
@@ -245,6 +244,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo.setVersion(version);
       algo.setIdType(service.getTerminology(terminology, version)
           .getOrganizingClassType());
+      algo.setCycleTolerant(true);
+      // compute "semantic types" for concept hierarchies
+      if (algo.getIdType() == IdType.CONCEPT) {
+        algo.setComputeSemanticType(true);
+      }
+
       algo.reset();
       algo.compute();
 
@@ -287,8 +292,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     ContentService contentService = new ContentServiceJpa();
 
     try {
-      authorize(securityService, authToken, "load RRF",
-          UserRole.ADMINISTRATOR);
+      authorize(securityService, authToken, "load RRF", UserRole.ADMINISTRATOR);
 
       // Check the input directory
       File inputDirFile = new File(inputDir);
@@ -352,6 +356,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
           algo.setIdType(t.getOrganizingClassType());
           // some terminologies may have cycles, allow these for now.
           algo.setCycleTolerant(true);
+          // compute "semantic types" for concept hierarchies
+          if (t.getOrganizingClassType() == IdType.CONCEPT) {
+            algo.setComputeSemanticType(true);
+          }
           algo.compute();
           algo.close();
         }
@@ -558,6 +566,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
       algo2.setCycleTolerant(false);
       algo2.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      algo2.setCycleTolerant(true);
+      algo2.setComputeSemanticType(true);
       algo2.setTerminology(terminology);
       algo2.setVersion(version);
       algo2.reset();
@@ -627,8 +638,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     ContentService contentService = new ContentServiceJpa();
 
     try {
-      authorize(securityService, authToken, "load full",
-          UserRole.ADMINISTRATOR);
+      authorize(securityService, authToken, "load full", UserRole.ADMINISTRATOR);
 
       // Check the input directory
       File inputDirFile = new File(inputDir);
@@ -766,6 +776,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // compute tree positions
       TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
       algo2.setCycleTolerant(false);
+      algo2.setComputeSemanticType(true);
       algo2.setIdType(IdType.CONCEPT);
       algo2.setTerminology(terminology);
       algo2.setVersion(version);
@@ -860,6 +871,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // compute tree positions
       algo3.setCycleTolerant(false);
       algo3.setIdType(IdType.CONCEPT);
+      algo3.setComputeSemanticType(true);
       algo3.setTerminology(terminology);
       algo3.setVersion(version);
       algo3.compute();
@@ -930,6 +942,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // compute tree positions
       algo3.setCycleTolerant(false);
       algo3.setIdType(IdType.CONCEPT);
+      algo3.setComputeSemanticType(true);
       algo3.setTerminology(terminology);
       algo3.setVersion(version);
       algo3.compute();
@@ -1905,7 +1918,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
         ConceptRelationship rel2 = (ConceptRelationship) rel;
         if (rel2.getTo().isAnonymous()) {
 
-          // count how many relationships there are 
+          // count how many relationships there are
           int ct = 0;
           for (ConceptRelationship innerRel : rel2.getTo().getRelationships()) {
             // this is only for grouped role relationships
@@ -2249,8 +2262,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId + "/trees");
     ContentService contentService = new ContentServiceJpa();
     try {
-      authorize(securityService, authToken,
-          "retrieve trees for the concept ", UserRole.VIEWER);
+      authorize(securityService, authToken, "retrieve trees for the concept ",
+          UserRole.VIEWER);
 
       TreePositionList list =
           contentService.findTreePositionsForConcept(terminologyId,

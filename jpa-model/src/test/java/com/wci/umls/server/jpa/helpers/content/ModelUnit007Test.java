@@ -233,7 +233,6 @@ public class ModelUnit007Test {
     tester.include("nGramName");
     tester.include("conceptTerminologyIds");
     tester.include("alternateTerminologyIds");
-    tester.include("semanticTag");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields

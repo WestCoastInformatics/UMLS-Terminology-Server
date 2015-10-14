@@ -71,6 +71,7 @@ import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.CitationJpa;
 import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
+import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.PropertyChainJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
@@ -94,6 +95,7 @@ import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.CodeVariantType;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.meta.Language;
 import com.wci.umls.server.model.meta.NameVariantType;
 import com.wci.umls.server.model.meta.PropertyChain;
 import com.wci.umls.server.model.meta.RelationshipType;
@@ -160,9 +162,6 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /** The concept attribute values. */
   private Set<String> generalEntryValues = new HashSet<>();
-
-  /** The semantic tags. */
-  private Set<String> semanticTags = new HashSet<>();
 
   /** The root class checker. */
   private SimpleRootClassChecker rootClassChecker = null;
@@ -572,30 +571,22 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       addGeneralMetadataEntry(entry);
     }
 
-    StringBuilder st = new StringBuilder();
-    for (String tag : semanticTags) {
-      st.append(st.length() > 0 ? ";s" : "");
-      st.append(tag);
-    }
-    // If there are semantic tags, do this
-    if (st.length() > 0) {
-      labels = new String[] {
-          "Semantic_Category_Type", "Semantic_Categories"
-      };
-      labelValues = new String[] {
-          "SemanticTag", st.toString()
-      };
-      i = 0;
-      for (String label : labels) {
-        GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
-        setCommonFields(entry);
-        entry.setAbbreviation(label);
-        entry.setExpandedForm(labelValues[i++]);
-        entry.setKey("label_metadata");
-        entry.setType("label_values");
-        addGeneralMetadataEntry(entry);
-      }
-    }
+    // Add "en" language
+    final Language lat = new LanguageJpa();
+    lat.setAbbreviation("en");
+    lat.setExpandedForm("English");
+    lat.setTimestamp(releaseVersionDate);
+    lat.setLastModified(releaseVersionDate);
+    lat.setLastModifiedBy(loader);
+    lat.setTerminology(terminology);
+    lat.setVersion(version);
+    lat.setPublished(true);
+    lat.setPublishable(true);
+    lat.setISO3Code("ENG");
+    lat.setISOCode("en");
+    Logger.getLogger(getClass()).debug("    add language - " + lat);
+    addLanguage(lat);
+
     // Commit
     commitClearBegin();
   }
@@ -1044,11 +1035,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setName(getValue(annotation));
       atom.setWorkflowStatus(published);
       atoms.add(atom);
-      // Check for semantic tag
-      if (atom.getName().matches(".* \\([^\\)]+\\)$")) {
-        semanticTags
-            .add(atom.getName().replaceAll(".* \\(([a-z ]+)\\)$", "$1"));
-      }
+
     }
     return atoms;
   }
@@ -2218,7 +2205,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setDescriptorId("");
       atom.setLexicalClassId("");
       atom.setStringClassId("");
-      atom.setLanguage("");
+      atom.setLanguage("en");
       atom.setPublishable(false);
       atom.setPublished(false);
       atom.setName(concept.getName());

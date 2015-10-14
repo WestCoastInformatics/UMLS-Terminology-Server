@@ -105,9 +105,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   /** The dpn type id. */
   private String dpnTypeId = "900000000000013009";
 
-  /** The fn type id. */
-  private String fnTypeId = "900000000000003001";
-
   /** The preferred atoms set. */
   private Set<String> prefAtoms = new HashSet<>();
 
@@ -161,9 +158,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
   /** The concept attribute values. */
   private Set<String> generalEntryValues = new HashSet<>();
-
-  /** The semantic tags. */
-  private Set<String> semanticTags = new HashSet<>();
 
   /** counter for objects created, reset in each load section. */
   int objectCt; //
@@ -639,12 +633,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         atom.setPublished(true);
         atom.setPublishable(true);
         atom.setWorkflowStatus(published);
-
-        // Check for semantic tag
-        if (!atom.isObsolete() && atom.getTermType().equals(fnTypeId)
-            && fields[7].matches(".* \\([^\\)]+\\)$")) {
-          semanticTags.add(fields[7].replaceAll(".* \\(([a-z ]+)\\)$", "$1"));
-        }
 
         // Attributes
         final Attribute attribute = new AttributeJpa();
@@ -1631,22 +1619,14 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       addGeneralMetadataEntry(entry);
     }
 
-    StringBuilder st = new StringBuilder();
-    for (String tag : semanticTags) {
-      st.append(st.length() > 0 ? ";" : "");
-      st.append(tag);
-    }
     String[] labels =
         new String[] {
             "Atoms_Label", "Subsets_Label", "Attributes_Label",
-            "Obsolete_Label", "Obsolete_Indicator", "Semantic_Category_Type",
-            "Semantic_Categories"
+            "Obsolete_Label", "Obsolete_Indicator"
         };
-    String[] labelValues =
-        new String[] {
-            "Descriptions", "Refsets", "Properties", "Retired", "Retired",
-            "SemanticTag", st.toString()
-        };
+    String[] labelValues = new String[] {
+        "Descriptions", "Refsets", "Properties", "Retired", "Retired"
+    };
     int i = 0;
     for (String label : labels) {
       GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();

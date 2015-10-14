@@ -32,8 +32,7 @@ tsApp
           obsoleteIndicator : "O",
           treeSortField : "nodeName",
           terminologies : null,
-          semanticCategories : [],
-          semanticCategoryType : ""
+          semanticTypes : null
         };
 
         // Initialize metadata
@@ -54,8 +53,7 @@ tsApp
           metadata.obsoleteLabel = "Obsolete";
           metadata.obsoleteIndicator = "O";
           metadata.treeSortField = "nodeName";
-          metadata.semanticCategories = [];
-          metadata.semanticCategoryType = "";
+          metadata.semanticTypes = null;
         }
 
         // Obtain the data model
@@ -101,6 +99,9 @@ tsApp
                   if (metadata.entries[i].name === 'Term_Types') {
                     metadata.termTypes = metadata.entries[i].keyValuePair;
                   }
+                  if (metadata.entries[i].name === 'Semantic_Types') {
+                    metadata.semanticTypes = metadata.entries[i].keyValuePair;
+                  }
                   if (metadata.entries[i].name === 'Label_Sets') {
                     metadata.labelSets = metadata.entries[i].keyValuePair;
                   }
@@ -140,13 +141,6 @@ tsApp
                       }
                       if (metadata.generalEntries[j].key === "Tree_Sort_Field") {
                         metadata.treeSortField = metadata.generalEntries[j].value;
-                      }
-                      if (metadata.generalEntries[j].key === "Semantic_Categories") {
-                        metadata.semanticCategories = metadata.generalEntries[j].value
-                          .split(";").sort();
-                      }
-                      if (metadata.generalEntries[j].key === "Semantic_Category_Type") {
-                        metadata.semanticCategoryType = metadata.generalEntries[j].value;
                       }
                     }
                   }

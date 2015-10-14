@@ -452,7 +452,7 @@ tsApp
 
         // Finds components as a list
         this.findComponentsAsList = function(queryStr, terminology, version,
-          page, semanticCategory) {
+          page, semanticType) {
           console.debug("findComponentsAsList", queryStr, terminology, version,
             page);
           // Setup deferred
@@ -465,15 +465,9 @@ tsApp
             sortField : null,
             queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
           }
-          
 
-          if (semanticCategory
-            && metadata.semanticCategoryType == "SemanticType") {
+          if (semanticType) {
             pfs.queryRestriction += " AND semanticTypes.semanticType:\""
-              + semanticCategory + "\"";
-          } else if (semanticCategory
-            && metadata.semanticCategoryType == "SemanticTag") {
-            pfs.queryRestriction += " AND atoms.semanticTag:\""
               + semanticCategory + "\"";
           }
 
@@ -485,7 +479,7 @@ tsApp
           if (prefix == "cui") {
             pfs.queryRestriction += " AND anonymous:false";
           }
-          
+
           // Make POST call
           gpService.increment();
           $http.post(
@@ -512,7 +506,7 @@ tsApp
 
         // Finds components as a tree
         this.findComponentsAsTree = function(queryStr, terminology, version,
-          page, semanticCategory) {
+          page, semanticType) {
           console.debug("findComponentsAsTree", queryStr, terminology, version,
             page);
 
@@ -527,16 +521,11 @@ tsApp
             queryRestriction : null
           }
 
-          if (semanticCategory
-            && metadata.semanticCategoryType == "SemanticType") {
+          if (semanticType) {
             pfs.queryRestriction += " AND semanticTypes.semanticType:\""
               + semanticCategory + "\"";
-          } else if (semanticCategory
-            && metadata.semanticCategoryType == "SemanticTag") {
-            pfs.queryRestriction += " AND atoms.semanticTag:\""
-              + semanticCategory + "\"";
           }
-          
+
           var prefix = this.getPrefixForTerminologyAndVersion(terminology,
             version);
 

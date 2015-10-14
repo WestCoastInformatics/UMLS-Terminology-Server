@@ -33,7 +33,7 @@ tsApp
         $scope.user = securityService.getUser();
         $scope.component = contentService.getModel();
         $scope.pageSizes = contentService.getPageSizes();
-        $scope.semanticCategory = null;
+        $scope.semanticType = null;
 
         // Search parameters
         $scope.searchParams = contentService.getSearchParams();
@@ -348,7 +348,7 @@ tsApp
         // required
         $scope.clearQuery = function() {
           $scope.searchParams.query = null;
-          $scope.semanticCategory = null;
+          $scope.semanticType = null;
           // $scope.searchResults.list = [];
           // $scope.searchResults.tree = [];
         }
@@ -434,7 +434,7 @@ tsApp
           contentService.findComponentsAsList($scope.searchParams.query,
             $scope.metadata.terminology.terminology,
             $scope.metadata.terminology.version, $scope.searchParams.page,
-            $scope.semanticCategory).then(
+            $scope.semanticType).then(
             function(data) {
               $scope.searchResults.list = data.searchResult;
               $scope.searchResults.list.totalCount = data.totalCount;
@@ -463,7 +463,7 @@ tsApp
           contentService.findComponentsAsTree($scope.searchParams.query,
             $scope.metadata.terminology.terminology,
             $scope.metadata.terminology.version, $scope.searchParams.page,
-            $scope.semanticCategory).then(function(data) {
+            $scope.semanticType).then(function(data) {
 
             // for ease and consistency of use of the ui tree
             // directive

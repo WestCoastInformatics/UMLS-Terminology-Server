@@ -124,7 +124,7 @@ public class RrfUmlsLoadAndUnloadTest {
     Logger.getLogger(getClass()).info(
         "  component stats = "
             + service.getComponentStats("UMLS", "latest", Branch.ROOT));
-   
+
     service.close();
     service.closeFactory();
 
@@ -165,33 +165,6 @@ public class RrfUmlsLoadAndUnloadTest {
         "  component stats = "
             + service.getComponentStats("SNOMEDCT_US", "2014_09_01",
                 Branch.ROOT));
-
-    // Verify semantic category stuff
-    GeneralMetadataEntryList list = service.getGeneralMetadataEntries("UMLS", "latest");
-    boolean [] flags =  new boolean[2];
-    for (GeneralMetadataEntry entry : list.getObjects()) {
-      if (entry.getAbbreviation().equals("Semantic_Category_Type")) {
-        flags[0] = true;
-      }
-      if (entry.getAbbreviation().equals("Semantic_Categories") &&
-          entry.getExpandedForm().contains("Lipid")) {
-        flags[1] = true;
-      }
-    }
-    assertTrue("UMLS semantic categories are wrong",flags[0] && flags[1]);
-
-    list = service.getGeneralMetadataEntries("SNOMEDCT_US", "2014_09_01");
-    flags =  new boolean[2];
-    for (GeneralMetadataEntry entry : list.getObjects()) {
-      if (entry.getAbbreviation().equals("Semantic_Category_Type")) {
-        flags[0] = true;
-      }
-      if (entry.getAbbreviation().equals("Semantic_Categories") &&
-          entry.getExpandedForm().contains("disorder")) {
-        flags[1] = true;
-      }
-    }
-    assertTrue("SNOMEDCT_US semantic categories are wrong",flags[0] && flags[1]);
 
     service.close();
     service.closeFactory();

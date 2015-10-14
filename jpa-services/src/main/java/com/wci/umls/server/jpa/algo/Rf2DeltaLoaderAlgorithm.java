@@ -87,9 +87,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
   /** The release version date. */
   private Date releaseVersionDate;
 
-  /** The fn type id. */
-  private String fnTypeId = "900000000000003001";
-
   /** The readers. */
   private Rf2Readers readers;
 
@@ -126,9 +123,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
 
   /** The concept attribute values. */
   private Set<String> generalEntryValues = new HashSet<>();
-
-  /** The semantic tags. */
-  private Set<String> semanticTags = new HashSet<>();
 
   /** The loader. */
   final String loader = "loader";
@@ -681,12 +675,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           atom2.setPublished(true);
           atom2.setPublishable(true);
           atom2.setWorkflowStatus(published);
-
-          // Check for semantic tag
-          if (!atom2.isObsolete() && atom2.getTermType().equals(fnTypeId)
-              && fields[7].matches(".* \\([^\\)]+\\)$")) {
-            semanticTags.add(fields[7].replaceAll(".* \\(([a-z ]+)\\)$", "$1"));
-          }
 
           // Attributes
           Attribute attribute = null;
@@ -2852,14 +2840,10 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     // that are concept ids.
 
     // todo : do this for entry and label
-    GeneralMetadataEntry semanticTagEntry = null;
     Map<String, GeneralMetadataEntry> entryMap = new HashMap<>();
     for (GeneralMetadataEntry entry : getGeneralMetadataEntries(terminology,
         version).getObjects()) {
       entryMap.put(entry.getAbbreviation(), entry);
-      if (entry.getAbbreviation().equals("Semantic_Categories")) {
-        semanticTagEntry = entry;
-      }
     }
     for (String conceptId : generalEntryValues) {
       // Skip if there is no concept for this thing
@@ -2895,23 +2879,6 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     }
 
     // General metadata entries for label values do not change
-
-    // General metadata entries for semantic tags may change
-    if (semanticTagEntry == null) {
-      throw new Exception("Unexpected missing semantic tag metadata entry.");
-    }
-    for (String tag : semanticTagEntry.getExpandedForm().split(",")) {
-      // add previously existing ones
-      semanticTags.add(tag);
-    }
-    StringBuilder st = new StringBuilder();
-    for (String tag : semanticTags) {
-      st.append(st.length() > 0 ? ";" : "");
-      st.append(tag);
-    }
-    semanticTagEntry.setExpandedForm(st.toString());
-    updateGeneralMetadataEntry(semanticTagEntry);
-
     commitClearBegin();
 
   }
