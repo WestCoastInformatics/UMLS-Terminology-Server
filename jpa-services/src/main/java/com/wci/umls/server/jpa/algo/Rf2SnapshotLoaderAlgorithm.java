@@ -105,6 +105,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   /** The dpn type id. */
   private String dpnTypeId = "900000000000013009";
 
+  /** The fn type id. */
+  private String fnTypeId = "900000000000003001";
+
   /** The preferred atoms set. */
   private Set<String> prefAtoms = new HashSet<>();
 
@@ -638,9 +641,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         atom.setWorkflowStatus(published);
 
         // Check for semantic tag
-        if (fields[7].matches(".* \\([^\\)]+\\)$")) {
-          semanticTags.add(fields[7].substring(fields[7].lastIndexOf('(') + 1,
-              fields[7].lastIndexOf(')')));
+        if (!atom.isObsolete() && atom.getTermType().equals(fnTypeId)
+            && fields[7].matches(".* \\([^\\)]+\\)$")) {
+          semanticTags.add(fields[7].replaceAll(".* \\(([a-z ]+)\\)$", "$1"));
         }
 
         // Attributes
@@ -1630,7 +1633,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
     StringBuilder st = new StringBuilder();
     for (String tag : semanticTags) {
-      st.append(st.length() > 0 ? "," : "");
+      st.append(st.length() > 0 ? ";" : "");
       st.append(tag);
     }
     String[] labels =

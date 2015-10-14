@@ -13,37 +13,41 @@
             ng-change="setTerminology(metadata.terminology)"
             ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
 
-            <button ng-disabled="metadata.terminology.metathesaurus"
+            <button ng-show="!metadata.terminology.metathesaurus"
               class="btn btn-sm btn-primary" ng-click="browseHierarchy()"
               tooltip="Click to browse top level hierarchy">Browse</button></td>
         </tr>
         <tr>
           <td>Query</td>
-          <td><form width="100%">
-
-              <input type="text" ng-model="searchParams.query"
-                placeholder="Enter search terms"
+          <td><form>
+              <input style="margin-bottom: 5px; width: 175px" type="text"
+                ng-model="searchParams.query" placeholder="Enter search terms"
                 typeahead="suggestion for suggestion in autocomplete($viewValue)"
                 typeahead-loading="loadingSuggestions"
                 typeahead-focus-first="false"
                 typeahead-on-select="searchParams.page = 1 && findComponents(true)"
                 typeahead-editable="true" typeahead-min-length="3">
-
-              <!-- semantic categories for SemanticType -->
-              <select ng-show="metadata.semanticCategoryType"
+              <!-- Mobile friendly line-break -->
+              <br ng-show="metadata.semanticCategoryType"
+                class="visible-xs-inline" /> <select
+                style="margin-bottom: 5px; width: 175px;"
+                tooltip="Semantic Category"
+                ng-show="metadata.semanticCategoryType"
                 ng-model="semanticCategory"
-                ng-options="category in metadata.semanticCategories">
-                <option ng-show="metadata.semanticCategortyType == 'SemanticType'" value="">---All Semantic Types---</option>
-                <option ng-show="metadata.semanticCategortyType == 'SemanticTag'" value="">---All Semantic Tags---</option>
-              </select>
+                ng-options="item for item in metadata.semanticCategories">
 
+                <option
+                  ng-show="metadata.semanticCategortyType == 'SemanticType'"
+                  value="">--- All ---</option>
+              </select>
+              <!-- Mobile friendly line-break -->
+              <br class="visible-xs-inline" />
               <button class="btn btn-sm btn-primary" type="submit"
                 ng-click="searchParams.page = 1 && findComponents(true)">Search</button>
               <button class="btn btn-sm btn-warning"
-                ng-show="searchParams.query" ng-click="clearQuery()"
-                tooltip="Click to clear search">Clear</button>
-
-            </form></td>
+                ng-show="searchParams.query || semanticCategory"
+                ng-click="clearQuery()" tooltip="Click to clear search">Clear</button>
+            </form>
         </tr>
       </table>
     </div>

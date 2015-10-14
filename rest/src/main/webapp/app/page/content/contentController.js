@@ -348,6 +348,7 @@ tsApp
         // required
         $scope.clearQuery = function() {
           $scope.searchParams.query = null;
+          $scope.semanticCategory = null;
           // $scope.searchResults.list = [];
           // $scope.searchResults.tree = [];
         }

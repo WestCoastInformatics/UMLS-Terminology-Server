@@ -20,7 +20,6 @@ tsApp
           termTypes : null,
           generalEntries : null,
           labelSets : null,
-          generalEntries : null,
           atomsLabel : "Atoms",
           hierarchiesLabel : "Hierarchies",
           attributesLabel : "Attributes",
@@ -34,8 +33,30 @@ tsApp
           treeSortField : "nodeName",
           terminologies : null,
           semanticCategories : [],
-          semanticCategoryType : null
+          semanticCategoryType : ""
         };
+
+        // Initialize metadata
+        function initMetadata() {
+          metadata.relationshipTypes = null;
+          metadata.attributeNames = null;
+          metadata.termTypes = null;
+          metadata.generalEntries = null;
+          metadata.labelSets = null;
+          metadata.atomsLabel = "Atoms";
+          metadata.hierarchiesLabel = "Hierarchies";
+          metadata.attributesLabel = "Attributes";
+          metadata.definitionsLabel = "Definitions";
+          metadata.subsetsLabel = "Subsets";
+          metadata.relationshipsLabel = "Relationships";
+          metadata.atomRelationshipsLabel = "Relationships";
+          metadata.extensionsLabel = "Extensions";
+          metadata.obsoleteLabel = "Obsolete";
+          metadata.obsoleteIndicator = "O";
+          metadata.treeSortField = "nodeName";
+          metadata.semanticCategories = [];
+          metadata.semanticCategoryType = "";
+        }
 
         // Obtain the data model
         this.getModel = function() {
@@ -60,14 +81,13 @@ tsApp
               function(response) {
                 metadata.terminology = terminology;
                 metadata.entries = response.data.keyValuePairList;
-                metadata.relationshipTypes = null;
-                metadata.attributeNames = null;
-                metadata.termTypes = null;
-                metadata.generalEntries = null;
-                metadata.labelSets = null;
+                initMetadata();
 
-                if (metadata.terminology == null)
+                if (metadata.terminology == null) {
+                  gpService.decrement();
+                  deferred.resolve(response.data);
                   return;
+                }
 
                 for (var i = 0; i < metadata.entries.length; i++) {
                   // extract relationship types for
@@ -123,7 +143,7 @@ tsApp
                       }
                       if (metadata.generalEntries[j].key === "Semantic_Categories") {
                         metadata.semanticCategories = metadata.generalEntries[j].value
-                          .split(",").sort();
+                          .split(";").sort();
                       }
                       if (metadata.generalEntries[j].key === "Semantic_Category_Type") {
                         metadata.semanticCategoryType = metadata.generalEntries[j].value;

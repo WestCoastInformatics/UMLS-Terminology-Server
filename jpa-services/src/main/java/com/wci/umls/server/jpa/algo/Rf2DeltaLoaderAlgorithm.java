@@ -87,6 +87,9 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
   /** The release version date. */
   private Date releaseVersionDate;
 
+  /** The fn type id. */
+  private String fnTypeId = "900000000000003001";
+
   /** The readers. */
   private Rf2Readers readers;
 
@@ -680,11 +683,11 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
           atom2.setWorkflowStatus(published);
 
           // Check for semantic tag
-          if (fields[7].matches(" \\([^\\)]+\\)$")) {
-            semanticTags.add(fields[7].substring(fields[7].lastIndexOf('(') + 1,
-                fields[7].lastIndexOf(')')));
+          if (!atom2.isObsolete() && atom2.getTermType().equals(fnTypeId)
+              && fields[7].matches(".* \\([^\\)]+\\)$")) {
+            semanticTags.add(fields[7].replaceAll(".* \\(([a-z ]+)\\)$", "$1"));
           }
-          
+
           // Attributes
           Attribute attribute = null;
           if (atom != null) {
@@ -2903,12 +2906,12 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     }
     StringBuilder st = new StringBuilder();
     for (String tag : semanticTags) {
-      st.append(st.length() > 0 ? "," : "");
+      st.append(st.length() > 0 ? ";" : "");
       st.append(tag);
     }
     semanticTagEntry.setExpandedForm(st.toString());
     updateGeneralMetadataEntry(semanticTagEntry);
-    
+
     commitClearBegin();
 
   }

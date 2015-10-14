@@ -195,10 +195,16 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** non-core modules map. */
   private Map<String, Set<Long>> moduleConceptIdMap = new HashMap<>();
 
+  /** The Constant categoryTtys. */
+  private static final Set<String> categoryTtys = new HashSet<>();
+
   /** The lat code map. */
   private static Map<String, String> latCodeMap = new HashMap<>();
 
   static {
+    // category ttys (for SNOMED its FN)
+    categoryTtys.add("FN");
+
     // from http://www.nationsonline.org/oneworld/country_code_list.htm
     latCodeMap.put("BAQ", "eu");
     latCodeMap.put("CZE", "cz");
@@ -714,7 +720,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     StringBuilder stys = new StringBuilder();
     for (SemanticType type : getSemanticTypes(terminology, version)
         .getObjects()) {
-      stys.append(stys.length() > 0 ? "," : "");
+      stys.append(stys.length() > 0 ? ";" : "");
       stys.append(type.getExpandedForm());
     }
     String[] labels = new String[] {
@@ -742,8 +748,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // semantic tags
     for (String tagTerminology : semanticTags.keySet()) {
       StringBuilder st = new StringBuilder();
+      // skip if there are < 15 categories - probably false positive
+      if (semanticTags.get(tagTerminology).size() < 15) {
+        continue;
+      }
       for (String tag : semanticTags.get(tagTerminology)) {
-        st.append(st.length() > 0 ? "," : "");
+        st.append(st.length() > 0 ? ";" : "");
         st.append(tag);
       }
       labels = new String[] {
@@ -1900,15 +1910,14 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setCodeId(fields[13]);
 
       // Check for semantic tag only on active atoms
-      System.out.println("name = " +fields[14]);
-      if (!atom.isObsolete() && fields[14].matches(".* \\([^\\)]+\\)$")) {
-        System.out.println("  MATCHES");
+      if (categoryTtys.contains(atom.getTermType()) && !atom.isObsolete()
+          && fields[14].matches(".* \\([a-z ]+\\)$")) {
         if (semanticTags.get(atom.getTerminology()) == null) {
           semanticTags.put(atom.getTerminology(), new HashSet<String>());
         }
-        semanticTags.get(atom.getTerminology()).add(
-            fields[14].substring(fields[14].lastIndexOf('(') + 1,
-                fields[14].lastIndexOf(')')));
+        final String semanticTag =
+            fields[14].replaceAll(".* \\(([a-z ]+)\\)$", "$1");
+        semanticTags.get(atom.getTerminology()).add(semanticTag);
       }
 
       // Handle root terminology short name, hierarchical name, and sy names

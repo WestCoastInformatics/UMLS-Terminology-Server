@@ -574,7 +574,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     StringBuilder st = new StringBuilder();
     for (String tag : semanticTags) {
-      st.append(st.length() > 0 ? "," : "");
+      st.append(st.length() > 0 ? ";s" : "");
       st.append(tag);
     }
     // If there are semantic tags, do this
@@ -1046,9 +1046,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atoms.add(atom);
       // Check for semantic tag
       if (atom.getName().matches(".* \\([^\\)]+\\)$")) {
-        semanticTags.add(atom.getName().substring(
-            atom.getName().lastIndexOf('(') + 1,
-            atom.getName().lastIndexOf(')')));
+        semanticTags
+            .add(atom.getName().replaceAll(".* \\(([a-z ]+)\\)$", "$1"));
       }
     }
     return atoms;

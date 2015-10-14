@@ -463,13 +463,16 @@ tsApp
             startIndex : (page - 1) * pageSizes.general,
             maxResults : pageSizes.general,
             sortField : null,
-            queryRestriction : "anonymous:false AND (suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
+            queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
           }
+          
 
-          if (metadata.semanticCategoryType == "SemanticType") {
+          if (semanticCategory
+            && metadata.semanticCategoryType == "SemanticType") {
             pfs.queryRestriction += " AND semanticTypes.semanticType:\""
               + semanticCategory + "\"";
-          } else if (metadata.semanticCategoryType == "SemanticTag") {
+          } else if (semanticCategory
+            && metadata.semanticCategoryType == "SemanticTag") {
             pfs.queryRestriction += " AND atoms.semanticTag:\""
               + semanticCategory + "\"";
           }
@@ -478,6 +481,11 @@ tsApp
           var prefix = this.getPrefixForTerminologyAndVersion(terminology,
             version);
 
+          // Add anonymous condition for concepts
+          if (prefix == "cui") {
+            pfs.queryRestriction += " AND anonymous:false";
+          }
+          
           // Make POST call
           gpService.increment();
           $http.post(
@@ -519,14 +527,16 @@ tsApp
             queryRestriction : null
           }
 
-          if (metadata.semanticCategoryType == "SemanticType") {
+          if (semanticCategory
+            && metadata.semanticCategoryType == "SemanticType") {
             pfs.queryRestriction += " AND semanticTypes.semanticType:\""
               + semanticCategory + "\"";
-          } else if (metadata.semanticCategoryType == "SemanticTag") {
+          } else if (semanticCategory
+            && metadata.semanticCategoryType == "SemanticTag") {
             pfs.queryRestriction += " AND atoms.semanticTag:\""
               + semanticCategory + "\"";
           }
-
+          
           var prefix = this.getPrefixForTerminologyAndVersion(terminology,
             version);
 
