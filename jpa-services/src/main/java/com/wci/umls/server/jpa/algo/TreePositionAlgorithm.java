@@ -288,7 +288,8 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     // Get all semantic type values from idValueMap
     // Add metadata and general metadata entries
     StringBuilder sb = new StringBuilder();
-    for (String semanticType : idValueMap.values()) {
+    for (String semanticType : new HashSet<>(idValueMap.values())) {
+
       sb.append((sb.length() == 0 ? "" : ",")).append(semanticType);
       final SemanticType sty = new SemanticTypeJpa();
       sty.setAbbreviation(semanticType);
