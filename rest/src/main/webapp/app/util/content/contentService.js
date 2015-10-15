@@ -468,7 +468,7 @@ tsApp
 
           if (semanticType) {
             pfs.queryRestriction += " AND semanticTypes.semanticType:\""
-              + semanticCategory + "\"";
+              + semanticType + "\"";
           }
 
           // Get prefix
@@ -523,7 +523,7 @@ tsApp
 
           if (semanticType) {
             pfs.queryRestriction += " AND semanticTypes.semanticType:\""
-              + semanticCategory + "\"";
+              + semanticType + "\"";
           }
 
           var prefix = this.getPrefixForTerminologyAndVersion(terminology,

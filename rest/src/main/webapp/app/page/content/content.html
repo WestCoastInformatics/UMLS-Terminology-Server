@@ -32,7 +32,7 @@
               <select style="margin-bottom: 5px; width: 175px;"
                 tooltip="Semantic Type" ng-show="metadata.semanticTypes"
                 ng-model="semanticType"
-                ng-options="item for item in metadata.semanticTypes">
+                ng-options="item.value for item in metadata.semanticTypes | orderBy:'value'">
 
                 <option value="">--- All ---</option>
               </select>
