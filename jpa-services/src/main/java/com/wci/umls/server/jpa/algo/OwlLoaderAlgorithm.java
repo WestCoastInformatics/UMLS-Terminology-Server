@@ -1472,6 +1472,23 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
     commitClearBegin();
 
+    // Iterate through additional rel types and create fake inverses
+    // for those without inverses
+    for (AdditionalRelationshipType type : relaMap.values()) {
+      if (type.getInverse() == null) {
+        AdditionalRelationshipType inv =
+            new AdditionalRelationshipTypeJpa(type);
+        inv.setId(null);
+        inv.setAbbreviation("Inverse " + type.getAbbreviation());
+        inv.setAbbreviation("Inverse " + type.getExpandedForm());
+        inv.setInverse(type);
+        addAdditionalRelationshipType(inv);
+        type.setInverse(inv);
+        updateAdditionalRelationshipType(type);
+      }
+    }
+    commitClearBegin();
+
     // Iterate through parChd properties, set and update
     for (String key : chdPar.keySet()) {
       AdditionalRelationshipType par = relaMap.get(chdPar.get(key));
