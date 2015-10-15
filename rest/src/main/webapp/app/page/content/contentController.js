@@ -434,9 +434,8 @@ tsApp
           contentService.findComponentsAsList($scope.searchParams.query,
             $scope.metadata.terminology.terminology,
             $scope.metadata.terminology.version, $scope.searchParams.page,
-            $scope.semanticType.value).then(
-            function(data) {
-              $scope.searchResults.list = data.searchResult;
+            $scope.semanticType ? $scope.semanticType.value : null).then(
+            function(data) {              $scope.searchResults.list = data.searchResult;
               $scope.searchResults.list.totalCount = data.totalCount;
 
               if (loadFirst && $scope.searchResults.list.length > 0) {
@@ -463,7 +462,7 @@ tsApp
           contentService.findComponentsAsTree($scope.searchParams.query,
             $scope.metadata.terminology.terminology,
             $scope.metadata.terminology.version, $scope.searchParams.page,
-            $scope.semanticType.value).then(function(data) {
+            $scope.semanticType ? $scope.semanticType.value : null).then(function(data) {
 
             // for ease and consistency of use of the ui tree
             // directive
