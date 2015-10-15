@@ -16,6 +16,7 @@ import javax.persistence.OneToMany;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -381,6 +382,7 @@ public class IndexUtility {
         new MultiFieldQueryParser(IndexUtility.getIndexedFieldNames(
             fieldNamesKey, true).toArray(new String[] {}),
             searchFactory.getAnalyzer(clazz));
+    Logger.getLogger(IndexUtility.class).debug("  query = " + pfsQuery);
     luceneQuery = queryParser.parse(pfsQuery.toString());
 
     // Validate query terms

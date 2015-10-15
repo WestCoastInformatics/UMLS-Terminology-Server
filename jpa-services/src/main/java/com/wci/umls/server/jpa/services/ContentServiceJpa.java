@@ -3772,7 +3772,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     // add the query, if not null and not empty
     finalQuery.append(query == null || query.isEmpty() ? "" : " AND " + query);
-    System.out.println("query = " + finalQuery);
     FullTextQuery fullTextQuery =
         IndexUtility.applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class,
             finalQuery.toString(), pfs, manager);

@@ -1622,11 +1622,13 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     String[] labels =
         new String[] {
             "Atoms_Label", "Subsets_Label", "Attributes_Label",
-            "Obsolete_Label", "Obsolete_Indicator"
+            "Semantic_Types_Label", "Obsolete_Label", "Obsolete_Indicator",
         };
-    String[] labelValues = new String[] {
-        "Descriptions", "Refsets", "Properties", "Retired", "Retired"
-    };
+    String[] labelValues =
+        new String[] {
+            "Descriptions", "Refsets", "Properties", "Semantic Tags",
+            "Retired", "Retired"
+        };
     int i = 0;
     for (String label : labels) {
       GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();

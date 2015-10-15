@@ -250,25 +250,19 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
         Logger.getLogger(getClass()).info(
             "Compute semantic types based on tree");
         for (Long conceptId : semanticTypeMap.keySet()) {
-          final Set<String> semanticTypes = new HashSet<>();
           Concept concept = getConcept(conceptId);
           for (Long styId : semanticTypeMap.get(conceptId)) {
-            if (idValueMap.containsKey(styId)) {
-              semanticTypes.add(idValueMap.get(styId));
-            } else {
+            if (!idValueMap.containsKey(styId)) {
               Concept styConcept = getConcept(styId);
               idValueMap.put(styConcept.getId(), styConcept.getName());
-              semanticTypes.add(styConcept.getName());
             }
-          }
-          for (String semanticType : semanticTypes) {
-            SemanticTypeComponent sty = new SemanticTypeComponentJpa();
+            final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
             sty.setTerminologyId("");
             sty.setLastModifiedBy("admin");
             sty.setObsolete(false);
             sty.setPublishable(false);
             sty.setPublished(false);
-            sty.setSemanticType(semanticType);
+            sty.setSemanticType(idValueMap.get(styId));
             sty.setTerminology(terminology);
             sty.setVersion(version);
             sty.setTimestamp(startDate);
@@ -288,10 +282,23 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     // Get all semantic type values from idValueMap
     // Add metadata and general metadata entries
     StringBuilder sb = new StringBuilder();
-    for (String semanticType : idValueMap.values()) {
+    // For single root, add the extra layer
+    String root = "";
+    if (rootIds.size() == 1) {
+      root = rootIds.iterator().next().toString() + "~";
+    }
+    // needed for dev UMLS because SNOMED has "multiple roots" that contain dup
+    // strings
+    Set<String> seen = new HashSet<>();
+    for (Map.Entry<Long, String> entry : idValueMap.entrySet()) {
+      final String semanticType = entry.getValue();
       sb.append((sb.length() == 0 ? "" : ",")).append(semanticType);
+      if (seen.contains(semanticType)) {
+        continue;
+      }
+      seen.add(semanticType);
       final SemanticType sty = new SemanticTypeJpa();
-      sty.setAbbreviation(semanticType);
+      sty.setAbbreviation(root + entry.getKey().toString());
       sty.setDefinition(semanticType);
       sty.setExample("");
       sty.setExpandedForm(semanticType);
@@ -395,13 +402,16 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     // If semantic tags are to be computed, determine the "type id" and the node
     // id, only do this for CONCEPT
     if (computeSemanticTypes && idType == IdType.CONCEPT
-        && ancestorPath.contains("~")) {
+        && !ancestorPath.isEmpty()) {
       String[] tokens = FieldedStringTokenizer.split(ancestorPath, "~");
-      if (!semanticTypeMap.containsKey(tp.getNode().getId())) {
-        semanticTypeMap.put(tp.getNode().getId(), new HashSet<Long>());
+      // if single root, only process where ancestorPath has a ~
+      if (multipleRoots || tokens.length > 1) {
+        if (!semanticTypeMap.containsKey(tp.getNode().getId())) {
+          semanticTypeMap.put(tp.getNode().getId(), new HashSet<Long>());
+        }
+        Set<Long> types = semanticTypeMap.get(tp.getNode().getId());
+        types.add(Long.valueOf(tokens[(multipleRoots ? 0 : 1)]));
       }
-      Set<Long> types = semanticTypeMap.get(tp.getNode().getId());
-      types.add(Long.valueOf(tokens[(multipleRoots ? 0 : 1)]));
     }
 
     // construct the ancestor path terminating at this concept

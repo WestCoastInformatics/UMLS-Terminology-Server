@@ -97,6 +97,8 @@ tsApp
         // Sets the terminololgy
         $scope.setTerminology = function(terminology) {
           metadataService.setTerminology(terminology);
+          // clear the STY
+          $scope.semanticType = null;
         }
 
         // Autocomplete function
@@ -431,11 +433,16 @@ tsApp
                      * use at least one character to search"); return; }
                      */
 
+          var semanticType = null;
+          if ($scope.semanticType) {
+            semanticType = $scope.semanticType.value;
+          }
           contentService.findComponentsAsList($scope.searchParams.query,
             $scope.metadata.terminology.terminology,
             $scope.metadata.terminology.version, $scope.searchParams.page,
-            $scope.semanticType ? $scope.semanticType.value : null).then(
-            function(data) {              $scope.searchResults.list = data.searchResult;
+            semanticType).then(
+            function(data) {
+              $scope.searchResults.list = data.searchResult;
               $scope.searchResults.list.totalCount = data.totalCount;
 
               if (loadFirst && $scope.searchResults.list.length > 0) {
@@ -458,11 +465,14 @@ tsApp
             alert("You must use at least one character to search");
             return;
           }
-
+          var semanticType = null;
+          if ($scope.semanticType) {
+            semanticType = $scope.semanticType.key;
+          }
           contentService.findComponentsAsTree($scope.searchParams.query,
             $scope.metadata.terminology.terminology,
             $scope.metadata.terminology.version, $scope.searchParams.page,
-            $scope.semanticType ? $scope.semanticType.value : null).then(function(data) {
+            semanticType).then(function(data) {
 
             // for ease and consistency of use of the ui tree
             // directive
@@ -486,7 +496,6 @@ tsApp
 
         // Load hierarchy into tree view
         $scope.browseHierarchy = function() {
-          console.debug('browsehierarhcy');
           $scope.searchOrBrowse = "BROWSE";
           $scope.queryForTree = true;
           $scope.queryForList = false

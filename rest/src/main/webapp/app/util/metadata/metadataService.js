@@ -26,6 +26,7 @@ tsApp
           definitionsLabel : "Definitions",
           subsetsLabel : "Subsets",
           relationshipsLabel : "Relationships",
+          semanticTypesLabel : "Semantic Types",
           atomRelationshipsLabel : "Relationships",
           extensionsLabel : "Extensions",
           obsoleteLabel : "Obsolete",
@@ -48,6 +49,7 @@ tsApp
           metadata.definitionsLabel = "Definitions";
           metadata.subsetsLabel = "Subsets";
           metadata.relationshipsLabel = "Relationships";
+          metadata.semanticTypesLabel = "Semantic Types";
           metadata.atomRelationshipsLabel = "Relationships";
           metadata.extensionsLabel = "Extensions";
           metadata.obsoleteLabel = "Obsolete";
@@ -126,6 +128,9 @@ tsApp
                       }
                       if (metadata.generalEntries[j].key === "Relationships_Label") {
                         metadata.relationshipsLabel = metadata.generalEntries[j].value;
+                      }
+                      if (metadata.generalEntries[j].key === "Semantic_Type_Label") {
+                        metadata.semanticTypeLabel = metadata.generalEntries[j].value;
                       }
                       if (metadata.generalEntries[j].key === "Atom_Relationships_Label") {
                         metadata.atomRelationshipsLabel = metadata.generalEntries[j].value;

@@ -454,7 +454,7 @@ tsApp
         this.findComponentsAsList = function(queryStr, terminology, version,
           page, semanticType) {
           console.debug("findComponentsAsList", queryStr, terminology, version,
-            page);
+            page, semanticType);
           // Setup deferred
           var deferred = $q.defer();
 
@@ -508,7 +508,7 @@ tsApp
         this.findComponentsAsTree = function(queryStr, terminology, version,
           page, semanticType) {
           console.debug("findComponentsAsTree", queryStr, terminology, version,
-            page);
+            page, semanticType);
 
           // Setup deferred
           var deferred = $q.defer();
@@ -522,8 +522,8 @@ tsApp
           }
 
           if (semanticType) {
-            pfs.queryRestriction += " AND semanticTypes.semanticType:\""
-              + semanticType + "\"";
+            pfs.queryRestriction = "ancestorPath:"
+              + semanticType + "*";
           }
 
           var prefix = this.getPrefixForTerminologyAndVersion(terminology,
