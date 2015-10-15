@@ -116,41 +116,37 @@
                       </value>
                     </property>
 
-                    <!-- TODO: figure out how to make this work for OWL <property> 
-                      <name>Referential integrity RootTerminology - preferredName</name> <value> SELECT 
-                      preferredName, terminology FROM root_terminologies a WHERE NOT EXISTS (SELECT * FROM 
-                      atoms b WHERE a.terminology = b.terminology AND a.preferredName = b.name); </value> 
-                      </property> -->
-                    <property>
-                      <name>Referential integrity RootTerminology -
-                        hierarchicalName</name>
-                      <value>
-                        SELECT hierarchicalName, terminology
-                        FROM
-                        root_terminologies a
-                        WHERE NOT EXISTS
-                        (SELECT * FROM atoms
-                        b
-                        WHERE a.terminology = b.terminology
-                        AND
-                        a.hierarchicalName = b.name);
-                      </value>
-                    </property>
 
                     <property>
                       <name>Referential integrity RootTerminology -
-                        synonymousNames</name>
-                      <value>
-                        SELECT b.synonymousNames, terminology
+                        preferredName</name>
+                      <value> SELECT
+                        preferredName, terminology FROM root_terminologies a WHERE NOT EXISTS (SELECT *
                         FROM
-                        root_terminologies a, RootTerminologyJpa_synonymousNames
-                        b
-                        WHERE a.id = b.RootTerminologyJpa_id
-                        AND NOT EXISTS
-                        (SELECT * FROM atoms c
-                        WHERE a.terminology =
-                        c.terminology
-                        AND b.synonymousNames = c.name);
+                        atoms b WHERE a.terminology = b.terminology AND a.preferredName =
+                        b.name);
+                      </value>
+                    </property>
+                    <property>
+                      <name>Referential integrity RootTerminology -
+                        hierarchicalName</name>
+                      <value> SELECT hierarchicalName, terminology FROM
+                        root_terminologies a WHERE NOT
+                        EXISTS (SELECT * FROM atoms b WHERE a.terminology = b.terminology AND
+                        a.hierarchicalName
+                        = b.name);
+                      </value>
+                    </property>
+                    <property>
+                      <name>Referential integrity RootTerminology
+                        - synonymousNames</name>
+                      <value> SELECT b.synonymousNames, terminology FROM
+                        root_terminologies
+                        a, RootTerminologyJpa_synonymousNames b WHERE a.id =
+                        b.RootTerminologyJpa_id AND
+                        NOT EXISTS (SELECT * FROM atoms c WHERE a.terminology = c.terminology
+                        AND b.synonymousNames
+                        = c.name);
                       </value>
                     </property>
 
@@ -332,12 +328,15 @@
                       <value>
                         SELECT codeId, terminology, version
                         FROM atoms a
-                        WHERE NOT EXISTS
+                        WHERE codeId != ''
+                        AND NOT EXISTS
                         (SELECT * FROM codes b
                         WHERE
                         a.terminology = b.terminology
-                        AND a.version = b.version
-                        AND a.codeId = b.terminologyId);
+                        AND a.version =
+                        b.version
+                        AND a.codeId =
+                        b.terminologyId);
                       </value>
                     </property>
 
@@ -346,12 +345,17 @@
                       <value>
                         SELECT conceptId, terminology, version
                         FROM atoms a
-                        WHERE NOT EXISTS
-                        (SELECT * FROM concepts b
+                        WHERE conceptId != ''
+                        AND NOT EXISTS
+                        (SELECT * FROM
+                        concepts b
                         WHERE
-                        a.terminology = b.terminology
-                        AND a.version = b.version
-                        AND a.conceptId = b.terminologyId);
+                        a.terminology =
+                        b.terminology
+                        AND a.version
+                        = b.version
+                        AND a.conceptId =
+                        b.terminologyId);
                       </value>
                     </property>
 
@@ -361,12 +365,18 @@
                         SELECT descriptorId, terminology, version
                         FROM atoms
                         a
-                        WHERE NOT EXISTS
-                        (SELECT * FROM descriptors b
+                        WHERE descriptorId != ''
+                        AND NOT EXISTS
+                        (SELECT * FROM
+                        descriptors b
                         WHERE
-                        a.terminology = b.terminology
-                        AND a.version = b.version
-                        AND a.descriptorId = b.terminologyId);
+                        a.terminology =
+                        b.terminology
+                        AND
+                        a.version = b.version
+                        AND a.descriptorId
+                        =
+                        b.terminologyId);
                       </value>
                     </property>
 
@@ -376,12 +386,20 @@
                         SELECT lexicalClassId, terminology, version
                         FROM
                         atoms a
-                        WHERE NOT EXISTS
-                        (SELECT * FROM lexical_classes b
-                        WHERE a.terminology = b.terminology
-                        AND a.version =
+                        WHERE lexicalClassId IS NOT NULL
+                        AND
+                        lexicalClassId != ''
+                        AND NOT EXISTS
+                        (SELECT * FROM
+                        lexical_classes b
+                        WHERE a.terminology =
+                        b.terminology
+                        AND
+                        a.version =
                         b.version
-                        AND a.lexicalClassId = b.terminologyId);
+                        AND
+                        a.lexicalClassId =
+                        b.terminologyId);
                       </value>
                     </property>
 
@@ -391,12 +409,19 @@
                         SELECT stringClassId, terminology, version
                         FROM
                         atoms a
-                        WHERE NOT EXISTS
+                        WHERE stringClassId IS NOT NULL
+                        AND stringClassId
+                        != ''
+                        AND NOT EXISTS
                         (SELECT * FROM string_classes b
-                        WHERE a.terminology = b.terminology
+                        WHERE
+                        a.terminology =
+                        b.terminology
                         AND a.version =
                         b.version
-                        AND a.stringClassId = b.terminologyId);
+                        AND
+                        a.stringClassId
+                        = b.terminologyId);
                       </value>
                     </property>
 
@@ -1049,7 +1074,8 @@
                         FROM additional_relationship_types b
                         WHERE
                         a.terminology
-                        = b.terminology
+                        =
+                        b.terminology
                         AND a.version = b.version
                         AND
                         a.additionalRelationshipType = b.abbreviation);
@@ -1071,7 +1097,8 @@
                         FROM additional_relationship_types b
                         WHERE
                         a.terminology
-                        = b.terminology
+                        =
+                        b.terminology
                         AND a.version = b.version
                         AND
                         a.additionalRelationshipType = b.abbreviation);
@@ -1106,11 +1133,14 @@
                         WHERE
                         additionalRelationshipType != ''
                         AND NOT EXISTS
-                        (SELECT * FROM additional_relationship_types b
+                        (SELECT *
+                        FROM additional_relationship_types b
                         WHERE
-                        a.terminology = b.terminology
+                        a.terminology =
+                        b.terminology
                         AND a.version = b.version
-                        AND a.additionalRelationshipType = b.abbreviation);
+                        AND
+                        a.additionalRelationshipType = b.abbreviation);
                       </value>
                     </property>
 
@@ -1124,11 +1154,14 @@
                         WHERE
                         additionalRelationshipType != ''
                         AND NOT EXISTS
-                        (SELECT * FROM additional_relationship_types b
+                        (SELECT *
+                        FROM additional_relationship_types b
                         WHERE
-                        a.terminology = b.terminology
+                        a.terminology =
+                        b.terminology
                         AND a.version = b.version
-                        AND a.additionalRelationshipType = b.abbreviation);
+                        AND
+                        a.additionalRelationshipType = b.abbreviation);
                       </value>
                     </property>
 
@@ -1143,7 +1176,8 @@
                         WHERE
                         additionalRelationshipType != ''
                         AND NOT EXISTS
-                        (SELECT * FROM
+                        (SELECT *
+                        FROM
                         relationship_types b
                         WHERE a.terminology =
                         b.terminology
@@ -1164,11 +1198,14 @@
                         WHERE
                         additionalRelationshipType != ''
                         AND NOT EXISTS
-                        (SELECT * FROM additional_relationship_types b
+                        (SELECT *
+                        FROM additional_relationship_types b
                         WHERE
-                        a.terminology = b.terminology
+                        a.terminology =
+                        b.terminology
                         AND a.version = b.version
-                        AND a.additionalRelationshipType = b.abbreviation);
+                        AND
+                        a.additionalRelationshipType = b.abbreviation);
                       </value>
                     </property>
 
@@ -1182,11 +1219,14 @@
                         WHERE
                         additionalRelationshipType != ''
                         AND NOT EXISTS
-                        (SELECT * FROM additional_relationship_types b
+                        (SELECT *
+                        FROM additional_relationship_types b
                         WHERE
-                        a.terminology = b.terminology
+                        a.terminology =
+                        b.terminology
                         AND a.version = b.version
-                        AND a.additionalRelationshipType = b.abbreviation);
+                        AND
+                        a.additionalRelationshipType = b.abbreviation);
                       </value>
                     </property>
 

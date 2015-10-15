@@ -220,6 +220,8 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     objectCt = 0;
     fireProgressEvent(10, "Compute tree positions for roots");
     int i = 0;
+    final Map<Long, String> idValueMap = new HashMap<>();
+    Date startDate = new Date();
     for (Long rootId : rootIds) {
       i++;
       Logger.getLogger(getClass()).debug(
@@ -231,7 +233,6 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
       if (computeSemanticTypes) {
         semanticTypeMap = new HashMap<>();
       }
-      Date startDate = new Date();
       computeTreePositions(rootId, "", parChd, result, startDate,
           semanticTypeMap, rootIds.size() > 1);
       if (!result.isValid()) {
@@ -248,7 +249,6 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
         objectCt = 0;
         Logger.getLogger(getClass()).info(
             "Compute semantic types based on tree");
-        final Map<Long, String> idValueMap = new HashMap<>();
         for (Long conceptId : semanticTypeMap.keySet()) {
           final Set<String> semanticTypes = new HashSet<>();
           Concept concept = getConcept(conceptId);
@@ -280,34 +280,38 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
           logAndCommit(++objectCt, commitCt, commitCt);
         }
 
-        // Get all semantic type values from idValueMap
-        // Add metadata and general metadata entries
-        StringBuilder sb = new StringBuilder();
-        for (String semanticType : idValueMap.values()) {
-          sb.append((sb.length() == 0 ? "" : ",")).append(semanticType);
-          final SemanticType sty = new SemanticTypeJpa();
-          sty.setAbbreviation(semanticType);
-          sty.setDefinition(semanticType);
-          sty.setExample("");
-          sty.setExpandedForm(semanticType);
-          sty.setNonHuman(false);
-          sty.setTerminology(terminology);
-          sty.setVersion(version);
-          sty.setTreeNumber("");
-          sty.setTypeId("");
-          sty.setUsageNote("");
-          sty.setValue(semanticType);
-          sty.setTimestamp(startDate);
-          sty.setLastModified(startDate);
-          sty.setLastModifiedBy("admin");
-          sty.setPublished(false);
-          sty.setPublishable(false);
-          Logger.getLogger(getClass()).debug("    add semantic type - " + sty);
-          addSemanticType(sty);
-        }
-
       }
     }
+
+    commitClearBegin();
+
+    // Get all semantic type values from idValueMap
+    // Add metadata and general metadata entries
+    StringBuilder sb = new StringBuilder();
+    for (String semanticType : idValueMap.values()) {
+      sb.append((sb.length() == 0 ? "" : ",")).append(semanticType);
+      final SemanticType sty = new SemanticTypeJpa();
+      sty.setAbbreviation(semanticType);
+      sty.setDefinition(semanticType);
+      sty.setExample("");
+      sty.setExpandedForm(semanticType);
+      sty.setNonHuman(false);
+      sty.setTerminology(terminology);
+      sty.setVersion(version);
+      sty.setTreeNumber("");
+      sty.setTypeId("");
+      sty.setUsageNote("");
+      sty.setValue(semanticType);
+      sty.setTimestamp(startDate);
+      sty.setLastModified(startDate);
+      sty.setLastModifiedBy("admin");
+      sty.setPublished(false);
+      sty.setPublishable(false);
+      Logger.getLogger(getClass()).debug("    add semantic type - " + sty);
+      addSemanticType(sty);
+    }
+
+    commitClearBegin();
     fireProgressEvent(100, "Finished.");
   }
 
@@ -390,7 +394,8 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
 
     // If semantic tags are to be computed, determine the "type id" and the node
     // id, only do this for CONCEPT
-    if (computeSemanticTypes && idType == IdType.CONCEPT && !ancestorPath.isEmpty()) {
+    if (computeSemanticTypes && idType == IdType.CONCEPT
+        && ancestorPath.contains("~")) {
       String[] tokens = FieldedStringTokenizer.split(ancestorPath, "~");
       if (!semanticTypeMap.containsKey(tp.getNode().getId())) {
         semanticTypeMap.put(tp.getNode().getId(), new HashSet<Long>());

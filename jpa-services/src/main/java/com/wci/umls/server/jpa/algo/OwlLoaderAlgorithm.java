@@ -517,14 +517,14 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // Root Terminology
     RootTerminology root = new RootTerminologyJpa();
     root.setFamily(terminology);
-    root.setHierarchicalName(getRootTerminologyPreferredName(ontology));
+    root.setHierarchicalName(topConcept.getName());
     // Unable to determine overall "language" from OWL (unless maybe in headers)
     root.setLanguage(null);
     root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
     root.setLastModifiedBy(loader);
     root.setPolyhierarchy(true);
-    root.setPreferredName(getRootTerminologyPreferredName(ontology));
+    root.setPreferredName(topConcept.getName());
     root.setRestrictionLevel(-1);
     root.setTerminology(terminology);
     addRootTerminology(root);
@@ -545,7 +545,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       term.setDescriptionLogicProfile(dl2Profile);
     }
     term.setOrganizingClassType(IdType.CONCEPT);
-    term.setPreferredName(getTerminologyPreferredName(ontology));
+    term.setPreferredName(topConcept.getName());
     term.setRootTerminology(root);
     // package comment as a citation
     String comment = getComment(ontology);
@@ -607,32 +607,6 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
     }
     // otherwise, just use the terminology name
-    return terminology;
-  }
-
-  /**
-   * Returns the terminology preferred name.
-   *
-   * @param ontology the ontology
-   * @return the terminology preferred name
-   * @throws Exception the exception
-   */
-  private String getTerminologyPreferredName(OWLOntology ontology)
-    throws Exception {
-
-    // If >1 owl:versionInfo, use the first one
-    for (OWLAnnotation annotation : ontology.getAnnotations()) {
-      if (annotation.getProperty().toString().equals("owl:versionInfo")) {
-        return getValue(annotation);
-      }
-    }
-    // otherwise try rdfs:label
-    for (OWLAnnotation annotation : ontology.getAnnotations()) {
-      if (annotation.getProperty().isLabel()) {
-        return getValue(annotation);
-      }
-    }
-
     return terminology;
   }
 
@@ -1230,16 +1204,17 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       idMap.put(concept.getTerminologyId(), concept.getId());
 
       // Check whether to add a link to "top concept"
-      if ("true".equals(getConfigurableValue(terminology, "top"))) {
-        if (rootClassChecker.isRootClass(owlClass)) {
+      if (rootClassChecker.isRootClass(owlClass)) {
+        if ("true".equals(getConfigurableValue(terminology, "top"))) {
           ConceptRelationship rel =
               getSubClassOfRelationship(concept, topConcept);
           Logger.getLogger(getClass()).debug("  add top relationship = " + rel);
           addRelationship(rel);
           concept.addRelationship(rel);
+        } else {
+          topConcept = getConceptForOwlClass(owlClass, ontology, 0);
         }
       }
-
       logAndCommit(++objectCt, logCt, commitCt);
 
     }
