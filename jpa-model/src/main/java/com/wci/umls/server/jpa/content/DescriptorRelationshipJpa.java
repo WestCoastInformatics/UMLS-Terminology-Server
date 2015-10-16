@@ -19,8 +19,10 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
@@ -77,7 +79,8 @@ public class DescriptorRelationshipJpa extends
     super(relationship, deepCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
-    alternateTerminologyIds = new HashMap<>(relationship.getAlternateTerminologyIds());
+    alternateTerminologyIds =
+        new HashMap<>(relationship.getAlternateTerminologyIds());
   }
 
   /* see superclass */
@@ -185,7 +188,10 @@ public class DescriptorRelationshipJpa extends
    *
    * @return the from term
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Fields({
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(name = "fromNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  })
   public String getFromName() {
     return from == null ? null : from.getName();
   }

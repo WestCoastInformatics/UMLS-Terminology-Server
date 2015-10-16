@@ -511,8 +511,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     int[] totalCt = new int[1];
     SubsetMemberList list = new SubsetMemberListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, query, ConceptSubsetMemberJpa.class, AtomSubsetMemberJpa.class,
-        pfs, totalCt, manager));
+        branch, query, "memberNameSort", ConceptSubsetMemberJpa.class,
+        AtomSubsetMemberJpa.class, pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
     return list;
   }
@@ -542,7 +542,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     int[] totalCt = new int[1];
     SubsetMemberList list = new SubsetMemberListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, query, ConceptSubsetMemberJpa.class,
+        branch, query, "memberNameSort", ConceptSubsetMemberJpa.class,
         ConceptSubsetMemberJpa.class, pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
 
@@ -2495,7 +2495,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       SearchHandler searchHandler = getSearchHandler(terminology);
       queryClasses =
           searchHandler.getQueryResults(terminology, version, branch, query,
-              fieldNamesKey, clazz, pfsc, totalCt, manager);
+              "atoms.nameSort", fieldNamesKey, clazz, pfsc, totalCt, manager);
       Logger.getLogger(getClass()).debug(
           "    lucene result count = " + queryClasses.size());
     }
@@ -2622,7 +2622,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       SearchHandler searchHandler = getSearchHandler("");
       luceneQueryClasses =
           searchHandler.getQueryResults("", "", branch, luceneQuery,
-              fieldNamesKey, clazz, pfs, totalCt, manager);
+              "atomsName.sort", fieldNamesKey, clazz, pfs, totalCt, manager);
       luceneQueryFlag = true;
     }
 
@@ -3622,8 +3622,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     SearchHandler searchHandler = getSearchHandler(terminology);
     int[] totalCt = new int[1];
     results.setObjects((List) searchHandler.getQueryResults(terminology,
-        version, branch, query, ConceptRelationshipJpa.class, clazz, pfs,
-        totalCt, manager));
+        version, branch, query, "fromNameSort", ConceptRelationshipJpa.class,
+        clazz, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
     for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : results
@@ -3707,8 +3707,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     int[] totalCt = new int[1];
     TreePositionList list = new TreePositionListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, query, ConceptTreePositionJpa.class, clazz, pfs, totalCt,
-        manager));
+        branch, query, "nodeNameSort", ConceptTreePositionJpa.class, clazz,
+        pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
 
     // If the list has <30 entries and all are roman numerals

@@ -25,6 +25,7 @@ public interface SearchHandler extends Configurable {
    * @param version the version
    * @param branch the branch
    * @param query the query
+   * @param literalField the literal field
    * @param fieldNamesKey the field names key
    * @param clazz the class to search on
    * @param pfs the pfs
@@ -36,7 +37,7 @@ public interface SearchHandler extends Configurable {
    */
   public <T extends HasLastModified> List<T> getQueryResults(
     String terminology, String version, String branch, String query,
-    Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt,
-    EntityManager manager) throws Exception;
+    String literalField, Class<?> fieldNamesKey, Class<T> clazz,
+    PfsParameter pfs, int[] totalCt, EntityManager manager) throws Exception;
 
 }

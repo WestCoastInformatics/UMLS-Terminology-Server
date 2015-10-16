@@ -19,8 +19,10 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
@@ -77,9 +79,10 @@ public class ConceptRelationshipJpa extends
     super(relationship, deepCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
-    alternateTerminologyIds = new HashMap<>(relationship.getAlternateTerminologyIds());
+    alternateTerminologyIds =
+        new HashMap<>(relationship.getAlternateTerminologyIds());
   }
-  
+
   /* see superclass */
   @Override
   @XmlTransient
@@ -185,7 +188,10 @@ public class ConceptRelationshipJpa extends
    *
    * @return the from term
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Fields({
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(name = "fromNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  })
   public String getFromName() {
     return from == null ? null : from.getName();
   }
@@ -208,7 +214,6 @@ public class ConceptRelationshipJpa extends
   public Concept getTo() {
     return to;
   }
-
 
   /* see superclass */
   @Override
@@ -325,7 +330,6 @@ public class ConceptRelationshipJpa extends
     to.setName(term);
   }
 
-
   /* see superclass */
   @Override
   @FieldBridge(impl = MapValueToCsvBridge.class)
@@ -337,14 +341,12 @@ public class ConceptRelationshipJpa extends
     return alternateTerminologyIds;
   }
 
- 
   /* see superclass */
   @Override
   public void setAlternateTerminologyIds(
     Map<String, String> alternateTerminologyIds) {
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
-
 
   /* see superclass */
   @Override

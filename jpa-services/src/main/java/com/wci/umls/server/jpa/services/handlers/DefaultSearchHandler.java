@@ -91,10 +91,10 @@ public class DefaultSearchHandler implements SearchHandler {
 
   /* see superclass */
   @Override
-  public <T extends HasLastModified> List<T> getQueryResults(String terminology,
-    String version, String branch, String query, Class<?> fieldNamesKey,
-    Class<T> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
-    throws Exception {
+  public <T extends HasLastModified> List<T> getQueryResults(
+    String terminology, String version, String branch, String query,
+    String literalField, Class<?> fieldNamesKey, Class<T> clazz,
+    PfsParameter pfs, int[] totalCt, EntityManager manager) throws Exception {
 
     // Build an escaped form of the query with wrapped quotes removed
     String escapedQuery = query;
@@ -107,20 +107,21 @@ public class DefaultSearchHandler implements SearchHandler {
     // Build a combined query with an OR between query typed and exact match
     String combinedQuery = null;
     // For a fielded query search, simply perform the search as written
-    // no need for modifications
-    if (query.contains(":")) {
+    // no need for modifications. Also if no literal search field is supplied
+    if (query.contains(":") || literalField == null) {
       combinedQuery = query;
     } else {
       combinedQuery =
-          (query.isEmpty() ? "" : query + " OR ") + "atoms.nameSort:"
-              + escapedQuery + "^20.0";
+          (query.isEmpty() ? "" : query + " OR ") + literalField + escapedQuery
+              + "^20.0";
 
       // create an exact expansion entry. i.e. if the search term exactly
       // matches something in the acronyms file, then use additional "OR"
       // clauses
       if (acronymExpansionMap.containsKey(query)) {
         for (String expansion : acronymExpansionMap.get(query)) {
-          combinedQuery += " OR atoms.nameSort:\"" + expansion + "\"" + "^20.0";
+          combinedQuery +=
+              " OR " + literalField + ":\"" + expansion + "\"" + "^20.0";
         }
       }
     }
@@ -154,7 +155,7 @@ public class DefaultSearchHandler implements SearchHandler {
       }
       if (flag) {
         combinedQuery +=
-            " OR atoms.nameSort:\"" + correctedQuery + "\"" + "^10.0";
+            " OR " + literalField + ":\"" + correctedQuery + "\"" + "^10.0";
       }
     }
 
