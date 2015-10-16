@@ -3,70 +3,13 @@
  */
 package com.wci.umls.server.model.content;
 
-import java.util.Date;
-
+import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasTerminologyId;
 
 /**
  * Represents a terminology component.
  */
-public interface Component extends HasTerminologyId {
-
-  /**
-   * Returns the id.
-   * 
-   * @return the id
-   */
-  public Long getId();
-
-  /**
-   * Sets the id.
-   * 
-   * @param id the id
-   */
-  public void setId(Long id);
-
-  /**
-   * Returns the timestamp.
-   *
-   * @return the timestamp
-   */
-  public Date getTimestamp();
-
-  /**
-   * Sets the timestamp.
-   *
-   * @param timestamp the timestamp
-   */
-  public void setTimestamp(Date timestamp);
-
-  /**
-   * Returns the last modified.
-   * 
-   * @return the last modified
-   */
-  public Date getLastModified();
-
-  /**
-   * Sets the last modified.
-   * 
-   * @param lastModified the last modified
-   */
-  public void setLastModified(Date lastModified);
-
-  /**
-   * Returns the last modified by.
-   * 
-   * @return the last modified by
-   */
-  public String getLastModifiedBy();
-
-  /**
-   * Sets the last modified by.
-   * 
-   * @param lastModifiedBy the last modified by
-   */
-  public void setLastModifiedBy(String lastModifiedBy);
+public interface Component extends HasTerminologyId, HasLastModified {
 
   /**
    * Indicates whether or not the component is obsolete.

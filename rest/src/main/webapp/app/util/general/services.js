@@ -83,10 +83,10 @@ tsApp.service('utilService', [
       cleanQuery = queryStr.replace(new RegExp('[/\\\\]', 'g'), ' ');
       // Remove brackets if not using a fielded query
       if (queryStr.indexOf(':') == -1) {
-        cleanQuery = queryStr.replace(new RegExp('[^a-zA-Z0-9:\\.\\-\'\\*]',
+        cleanQuery = queryStr.replace(new RegExp('[^a-zA-Z0-9:\\.\\-\'\\*"]',
           'g'), ' ');
       }
-      // console.debug(queryStr, " => ", cleanQuery);
+      console.debug(queryStr, " => ", cleanQuery);
       return cleanQuery;
     }
   } ]);

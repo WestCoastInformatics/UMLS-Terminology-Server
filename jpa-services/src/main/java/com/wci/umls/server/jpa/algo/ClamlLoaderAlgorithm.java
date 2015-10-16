@@ -172,7 +172,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa implements
     InputStream inputStream = null;
     Reader reader = null;
     try {
-
+      setAssignIdentifiersFlag(false);
+      setLastModifiedFlag(false);
       setTransactionPerOperation(false);
       beginTransaction();
 

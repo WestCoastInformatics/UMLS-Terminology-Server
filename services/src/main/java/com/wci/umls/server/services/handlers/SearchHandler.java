@@ -4,8 +4,11 @@
 package com.wci.umls.server.services.handlers;
 
 import java.util.List;
+
 import javax.persistence.EntityManager;
+
 import com.wci.umls.server.helpers.Configurable;
+import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.model.content.AtomClass;
 
@@ -25,14 +28,15 @@ public interface SearchHandler extends Configurable {
    * @param fieldNamesKey the field names key
    * @param clazz the class to search on
    * @param pfs the pfs
-   * @param totalCt a container for the total number of results (for making a List class)
+   * @param totalCt a container for the total number of results (for making a
+   *          List class)
    * @param manager the entity manager
    * @return the query results
    * @throws Exception the exception
    */
-  public <T extends AtomClass> List<T> getQueryResults(String terminology,
-    String version, String branch, String query, Class<?> fieldNamesKey,
-    Class<T> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
-    throws Exception;
+  public <T extends HasLastModified> List<T> getQueryResults(
+    String terminology, String version, String branch, String query,
+    Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt,
+    EntityManager manager) throws Exception;
 
 }

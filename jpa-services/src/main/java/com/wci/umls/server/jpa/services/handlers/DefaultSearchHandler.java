@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -29,10 +30,10 @@ import org.apache.lucene.util.Version;
 import org.hibernate.search.jpa.FullTextQuery;
 
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PfscParameter;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
-import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
@@ -90,7 +91,7 @@ public class DefaultSearchHandler implements SearchHandler {
 
   /* see superclass */
   @Override
-  public <T extends AtomClass> List<T> getQueryResults(String terminology,
+  public <T extends HasLastModified> List<T> getQueryResults(String terminology,
     String version, String branch, String query, Class<?> fieldNamesKey,
     Class<T> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
     throws Exception {
@@ -99,7 +100,7 @@ public class DefaultSearchHandler implements SearchHandler {
     String escapedQuery = query;
     if (query.startsWith("\"") && query.endsWith("\"")) {
       escapedQuery = escapedQuery.substring(1);
-      escapedQuery = escapedQuery.substring(0, query.length() - 1);
+      escapedQuery = escapedQuery.substring(0, query.length() - 2);
     }
     escapedQuery = "\"" + QueryParserBase.escape(escapedQuery) + "\"";
 
@@ -130,19 +131,25 @@ public class DefaultSearchHandler implements SearchHandler {
       StringBuilder correctedQuery = new StringBuilder();
       for (String token : FieldedStringTokenizer.split(query,
           " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^")) {
-        if (correctedQuery.length() != 0) {
-          correctedQuery.append(" ");
-        }
         if (token.length() == 0) {
           continue;
         }
         if (spellChecker.exist(token.toLowerCase())) {
+          if (correctedQuery.length() != 0) {
+            correctedQuery.append(" ");
+          }
           correctedQuery.append(token);
         } else {
           String[] suggestions =
               spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
-          flag = suggestions.length > 0;
-          correctedQuery.append(FieldedStringTokenizer.join(suggestions, " "));
+          if (suggestions.length > 0) {
+            flag = true;
+            if (correctedQuery.length() != 0) {
+              correctedQuery.append(" ");
+            }
+            correctedQuery
+                .append(FieldedStringTokenizer.join(suggestions, " "));
+          }
         }
       }
       if (flag) {
@@ -175,13 +182,13 @@ public class DefaultSearchHandler implements SearchHandler {
     String finalQuery = "(" + combinedQuery + ")" + pfsQuery;
     FullTextQuery fullTextQuery = null;
     try {
-      System.out.println("query = " + finalQuery);
+      Logger.getLogger(getClass()).debug("query = " + finalQuery);
       fullTextQuery =
           IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, finalQuery,
               pfs, manager);
     } catch (ParseException e) {
       // If there's a parse exception, try the literal query
-      System.out.println("  query = " + escapedQuery + pfsQuery);
+      Logger.getLogger(getClass()).debug("query = " + finalQuery);
       fullTextQuery =
           IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, escapedQuery
               + pfsQuery, pfs, manager);

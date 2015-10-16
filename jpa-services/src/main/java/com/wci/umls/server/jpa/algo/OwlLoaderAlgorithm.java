@@ -254,6 +254,8 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     try {
 
+      setAssignIdentifiersFlag(false);
+      setLastModifiedFlag(false);
       setTransactionPerOperation(false);
       beginTransaction();
 

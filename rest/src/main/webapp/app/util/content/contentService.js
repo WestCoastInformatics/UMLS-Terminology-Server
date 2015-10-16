@@ -523,7 +523,7 @@ tsApp
 
           if (semanticType) {
             pfs.queryRestriction = "ancestorPath:"
-              + semanticType + "*";
+              + semanticType.replace("~","\\~") + "*";
           }
 
           var prefix = this.getPrefixForTerminologyAndVersion(terminology,

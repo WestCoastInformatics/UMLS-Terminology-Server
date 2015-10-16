@@ -290,7 +290,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     // Track system level information
     long startTimeOrig = System.nanoTime();
     ContentService contentService = new ContentServiceJpa();
-
     try {
       authorize(securityService, authToken, "load RRF", UserRole.ADMINISTRATOR);
 

@@ -133,7 +133,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     ContentService {
 
   /** The assign identifiers flag. */
-  protected boolean assignIdentifiersFlag = false;
+  protected boolean assignIdentifiersFlag = true;
 
   /** The id assignment handler . */
   static Map<String, IdentifierAssignmentHandler> idHandlerMap =
@@ -488,7 +488,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   }
 
   /* see superclass */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({
+      "rawtypes", "unchecked"
+  })
   @Override
   public SubsetMemberList findAtomSubsetMembers(String subsetId,
     String terminology, String version, String branch, String query,
@@ -505,20 +507,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     }
     finalQuery.append("terminology:" + terminology + " AND version:" + version
         + " AND subsetTerminologyId:" + subsetId);
-
-    FullTextQuery fullTextQuery =
-        IndexUtility.applyPfsToLuceneQuery(AtomSubsetMemberJpa.class,
-            ConceptSubsetMemberJpa.class, finalQuery.toString(), pfs, manager);
-
+    SearchHandler searchHandler = getSearchHandler(terminology);
+    int[] totalCt = new int[1];
     SubsetMemberList list = new SubsetMemberListJpa();
-    list.setTotalCount(fullTextQuery.getResultSize());
-    list.setObjects(fullTextQuery.getResultList());
-
+    list.setObjects((List) searchHandler.getQueryResults(terminology, version,
+        branch, query, ConceptSubsetMemberJpa.class, AtomSubsetMemberJpa.class,
+        pfs, totalCt, manager));
+    list.setTotalCount(totalCt[0]);
     return list;
   }
 
   /* see superclass */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({
+      "unchecked", "rawtypes"
+  })
   @Override
   public SubsetMemberList findConceptSubsetMembers(String subsetId,
     String terminology, String version, String branch, String query,
@@ -536,13 +538,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     finalQuery.append("terminology:" + terminology + " AND version:" + version
         + " AND subsetTerminologyId:" + subsetId);
 
-    FullTextQuery fullTextQuery =
-        IndexUtility.applyPfsToLuceneQuery(ConceptSubsetMemberJpa.class,
-            ConceptSubsetMemberJpa.class, finalQuery.toString(), pfs, manager);
-
+    SearchHandler searchHandler = getSearchHandler(terminology);
+    int[] totalCt = new int[1];
     SubsetMemberList list = new SubsetMemberListJpa();
-    list.setTotalCount(fullTextQuery.getResultSize());
-    list.setObjects(fullTextQuery.getResultList());
+    list.setObjects((List) searchHandler.getQueryResults(terminology, version,
+        branch, query, ConceptSubsetMemberJpa.class,
+        ConceptSubsetMemberJpa.class, pfs, totalCt, manager));
+    list.setTotalCount(totalCt[0]);
 
     return list;
   }
@@ -2617,9 +2619,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     List<T> luceneQueryClasses = new ArrayList<>();
     boolean luceneQueryFlag = false;
     if (luceneQuery != null && !luceneQuery.equals("")) {
+      SearchHandler searchHandler = getSearchHandler("");
       luceneQueryClasses =
-          getLuceneQueryResults("", "", branch, luceneQuery, fieldNamesKey,
-              clazz, pfs, totalCt);
+          searchHandler.getQueryResults("", "", branch, luceneQuery,
+              fieldNamesKey, clazz, pfs, totalCt, manager);
       luceneQueryFlag = true;
     }
 
@@ -2734,76 +2737,6 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     results.setTotalCount(totalCt[0]);
     return results;
 
-  }
-
-  /**
-   * Returns the query results.
-   *
-   * @param <T> the
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param fieldNamesKey the field names key
-   * @param clazz the clazz
-   * @param pfs the pfs
-   * @param totalCt the total ct
-   * @return the query results
-   * @throws Exception the exception
-   */
-  private <T extends AtomClass> List<T> getLuceneQueryResults(
-    String terminology, String version, String branch, String query,
-    Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt)
-    throws Exception {
-
-    // Prepare the query string
-    StringBuilder finalQuery = new StringBuilder();
-
-    if (terminology != null && !terminology.equals("") && version != null
-        && !version.equals("")) {
-      finalQuery.append("terminology:" + terminology + " AND version:"
-          + version);
-      finalQuery
-          .append(query == null || query.isEmpty() ? "" : " AND " + query);
-
-    }
-
-    Logger.getLogger(getClass()).info(
-        "query for " + clazz.getName() + ": " + finalQuery);
-
-    FullTextQuery fullTextQuery =
-        IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-            finalQuery.toString(), pfs, manager);
-
-    // Apply paging and sorting parameters - if no search criteria
-    if (pfs instanceof PfscParameter
-        && ((PfscParameter) pfs).getSearchCriteria().isEmpty()) {
-      // Get result size if we know it.
-      totalCt[0] = fullTextQuery.getResultSize();
-    } else {
-      // If with search criteria, save paging
-      fullTextQuery.setFirstResult(0);
-      fullTextQuery.setMaxResults(Integer.MAX_VALUE);
-      totalCt[0] = fullTextQuery.getResultSize();
-    }
-
-    // execute the query
-    @SuppressWarnings("unchecked")
-    List<T> classes = fullTextQuery.getResultList();
-
-    // Use this code to see the actual score values
-    // fullTextQuery.setProjection(FullTextQuery.SCORE, FullTextQuery.ID);
-    // List<T> classes = new ArrayList<>();
-    // List<Object[]> obj = fullTextQuery.getResultList();
-    // for (Object[] objArray : obj) {
-    // Object score = objArray[0];
-    // long id = (Long)objArray[1];
-    // T t = getComponent( id, clazz);
-    // classes.add(t);
-    // Logger.getLogger(getClass()).info(t.getName() + " = " + score);
-    // }
-
-    return classes;
   }
 
   /**
@@ -3659,11 +3592,13 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    * @return the relationship list
    * @throws Exception the exception
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({
+      "unchecked", "rawtypes"
+  })
   private RelationshipList findRelationshipsForComponentHelper(
     String terminologyId, String terminology, String version, String branch,
-    String query, boolean inverseFlag, PfsParameter pfs, Class<?> clazz)
-    throws Exception {
+    String query, boolean inverseFlag, PfsParameter pfs,
+    Class<? extends Relationship> clazz) throws Exception {
 
     RelationshipList results = new RelationshipListJpa();
 
@@ -3684,17 +3619,12 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           + version);
     }
 
-    FullTextQuery fullTextQuery =
-        IndexUtility.applyPfsToLuceneQuery(clazz, ConceptRelationshipJpa.class,
-            finalQuery.toString(), pfs, manager);
-
-    // Get result size
-    results.setTotalCount(fullTextQuery.getResultSize());
-
-    // execute the query
-    List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationships =
-        fullTextQuery.getResultList();
-    results.setObjects(relationships);
+    SearchHandler searchHandler = getSearchHandler(terminology);
+    int[] totalCt = new int[1];
+    results.setObjects((List) searchHandler.getQueryResults(terminology,
+        version, branch, query, ConceptRelationshipJpa.class, clazz, pfs,
+        totalCt, manager));
+    results.setTotalCount(totalCt[0]);
 
     for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : results
         .getObjects()) {
@@ -3759,7 +3689,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   })
   private TreePositionList findTreePositionsHelper(String terminologyId,
     String terminology, String version, String branch, String query,
-    PfsParameter pfs, Class<?> clazz) throws Exception {
+    PfsParameter pfs, Class<? extends TreePosition> clazz) throws Exception {
 
     // Prepare the query string
     StringBuilder finalQuery = new StringBuilder();
@@ -3772,17 +3702,18 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     // add the query, if not null and not empty
     finalQuery.append(query == null || query.isEmpty() ? "" : " AND " + query);
-    FullTextQuery fullTextQuery =
-        IndexUtility.applyPfsToLuceneQuery(clazz, ConceptTreePositionJpa.class,
-            finalQuery.toString(), pfs, manager);
 
-    // Apply paging and sorting parameters - if no search criteria
+    SearchHandler searchHandler = getSearchHandler(terminology);
+    int[] totalCt = new int[1];
     TreePositionList list = new TreePositionListJpa();
-    list.setTotalCount(fullTextQuery.getResultSize());
-    list.setObjects(fullTextQuery.getResultList());
+    list.setObjects((List) searchHandler.getQueryResults(terminology, version,
+        branch, query, ConceptTreePositionJpa.class, clazz, pfs, totalCt,
+        manager));
+    list.setTotalCount(totalCt[0]);
 
     // If the list has <30 entries and all are roman numerals
     // and the sortField is "nodeTerminologyId" then use a roman numeral sort
+    // This is a hack for roman numeral sorted top-level hierarchies
     if (list.getCount() < 30 && pfs != null && pfs.getSortField() != null
         && pfs.getSortField().equals("nodeTerminologyId")) {
       boolean nonRomanFound = false;
@@ -4050,7 +3981,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
   })
   private TreePositionList getTreePositionChildrenHelper(String terminologyId,
     String terminology, String version, String branch, PfsParameter pfs,
-    Class<?> clazz) throws Exception {
+    Class<? extends TreePosition> clazz) throws Exception {
 
     PfsParameter childPfs = new PfsParameterJpa();
     childPfs.setStartIndex(0);
