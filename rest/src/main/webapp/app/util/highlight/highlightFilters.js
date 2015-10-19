@@ -1,5 +1,6 @@
 tsApp.filter('highlight', function($sce) {
   return function(text, phrase) {
+    // console.debug("higlight", text, phrase);
     if (text && phrase)
       text = text.replace(new RegExp('(' + phrase.replace(/"/g,'') + ')', 'gi'),
         '<span class="highlighted">$1</span>')
@@ -9,6 +10,7 @@ tsApp.filter('highlight', function($sce) {
 
 tsApp.filter('highlightLabelFor', function($sce) {
   return function(text, phrase) {
+    // console.debug("higlightLabelFor", text, phrase);
     if (text && phrase)
       text = text.replace(new RegExp('(' + phrase.replace(/"/g,'') + ')', 'gi'),
         '<span style="background-color:#e0ffe0;">$1</span>')
@@ -18,6 +20,7 @@ tsApp.filter('highlightLabelFor', function($sce) {
 
 tsApp.filter('highlightLabel', function($sce) {
   return function(text, phrase) {
+    // console.debug("higlightLabel", text, phrase);
     if (text && phrase)
       text = text.replace(new RegExp('(' + phrase.replace(/"/g,'') + ')', 'gi'),
         '<span style="background-color:#e0e0ff;">$1</span>')

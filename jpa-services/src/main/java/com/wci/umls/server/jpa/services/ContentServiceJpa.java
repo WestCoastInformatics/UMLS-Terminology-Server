@@ -511,7 +511,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     int[] totalCt = new int[1];
     SubsetMemberList list = new SubsetMemberListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, query, "memberNameSort", ConceptSubsetMemberJpa.class,
+        branch, finalQuery.toString(), "memberNameSort", ConceptSubsetMemberJpa.class,
         AtomSubsetMemberJpa.class, pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
     return list;
@@ -542,7 +542,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     int[] totalCt = new int[1];
     SubsetMemberList list = new SubsetMemberListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, query, "memberNameSort", ConceptSubsetMemberJpa.class,
+        branch, finalQuery.toString(), "memberNameSort", ConceptSubsetMemberJpa.class,
         ConceptSubsetMemberJpa.class, pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
 
@@ -3609,7 +3609,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       finalQuery.append(" AND ");
     }
 
-    // add id/terminology/version constraints baesd on inverse flag
+    // add id/terminology/version constraints based on inverse flag
     if (inverseFlag == true) {
       finalQuery.append("toTerminologyId:" + terminologyId
           + " AND toTerminology:" + terminology + " AND toVersion:" + version);
@@ -3622,7 +3622,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     SearchHandler searchHandler = getSearchHandler(terminology);
     int[] totalCt = new int[1];
     results.setObjects((List) searchHandler.getQueryResults(terminology,
-        version, branch, query, "fromNameSort", ConceptRelationshipJpa.class,
+        version, branch, finalQuery.toString(), "fromNameSort", ConceptRelationshipJpa.class,
         clazz, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
@@ -3707,8 +3707,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     int[] totalCt = new int[1];
     TreePositionList list = new TreePositionListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, query, "nodeNameSort", ConceptTreePositionJpa.class, clazz,
-        pfs, totalCt, manager));
+        branch, finalQuery.toString(), "nodeNameSort",
+        ConceptTreePositionJpa.class, clazz, pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
 
     // If the list has <30 entries and all are roman numerals

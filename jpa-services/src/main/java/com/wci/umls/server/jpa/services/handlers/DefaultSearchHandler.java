@@ -108,11 +108,11 @@ public class DefaultSearchHandler implements SearchHandler {
     String combinedQuery = null;
     // For a fielded query search, simply perform the search as written
     // no need for modifications. Also if no literal search field is supplied
-    if (query.contains(":") || literalField == null) {
+    if (query.isEmpty() || query.contains(":") || literalField == null) {
       combinedQuery = query;
     } else {
       combinedQuery =
-          (query.isEmpty() ? "" : query + " OR ") + literalField + escapedQuery
+          (query.isEmpty() ? "" : query + " OR ") + literalField + ":" + escapedQuery
               + "^20.0";
 
       // create an exact expansion entry. i.e. if the search term exactly
@@ -127,7 +127,7 @@ public class DefaultSearchHandler implements SearchHandler {
     }
 
     // Check for spelling mistakes (if not a fielded search)
-    if (!query.contains(":")) {
+    if (!query.contains(":") && !query.isEmpty()) {
       boolean flag = false;
       StringBuilder correctedQuery = new StringBuilder();
       for (String token : FieldedStringTokenizer.split(query,
@@ -179,16 +179,24 @@ public class DefaultSearchHandler implements SearchHandler {
       }
     }
 
+    StringBuilder finalQuery = new StringBuilder();
+    if (query.isEmpty()) {
+      // Just use PFS and skip the leading "AND"
+      finalQuery.append(pfsQuery.substring(5));
+    } else {
     // Apply pfs restrictions to query
-    String finalQuery = "(" + combinedQuery + ")" + pfsQuery;
+      finalQuery.append("(").append(combinedQuery).append(")").append(pfsQuery);
+    }
     FullTextQuery fullTextQuery = null;
     try {
+      System.out.println("  query = " + finalQuery);
       Logger.getLogger(getClass()).debug("query = " + finalQuery);
       fullTextQuery =
-          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, finalQuery,
+          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, finalQuery.toString(),
               pfs, manager);
     } catch (ParseException e) {
       // If there's a parse exception, try the literal query
+      System.out.println("  query = " + finalQuery);
       Logger.getLogger(getClass()).debug("query = " + finalQuery);
       fullTextQuery =
           IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, escapedQuery
@@ -216,7 +224,6 @@ public class DefaultSearchHandler implements SearchHandler {
           FieldedStringTokenizer.split(query,
               " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
       StringBuilder newQuery = new StringBuilder();
-      newQuery.append("(");
       boolean found = false;
       for (String token : tokens) {
         if (newQuery.length() != 0) {
@@ -231,7 +238,6 @@ public class DefaultSearchHandler implements SearchHandler {
           newQuery.append(token);
         }
       }
-      newQuery.append(")");
       // Try the query again (if at least one expansion was found)
       if (found) {
         System.out.println("  query = " + newQuery.toString() + pfsQuery);
@@ -286,7 +292,6 @@ public class DefaultSearchHandler implements SearchHandler {
           FieldedStringTokenizer.split(query,
               " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
       StringBuilder newQuery = new StringBuilder();
-      newQuery.append("(");
       for (String token : tokens) {
         if (newQuery.length() != 0) {
           newQuery.append(" ");
@@ -295,7 +300,6 @@ public class DefaultSearchHandler implements SearchHandler {
           newQuery.append(token).append("*");
         }
       }
-      newQuery.append(")");
       // Try the query again
       System.out.println("  query = " + newQuery.toString() + pfsQuery);
       fullTextQuery =

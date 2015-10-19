@@ -382,8 +382,12 @@ public class IndexUtility {
         new MultiFieldQueryParser(IndexUtility.getIndexedFieldNames(
             fieldNamesKey, true).toArray(new String[] {}),
             searchFactory.getAnalyzer(clazz));
-    Logger.getLogger(IndexUtility.class).debug("  query = " + pfsQuery);
-    luceneQuery = queryParser.parse(pfsQuery.toString());
+    String finalQuery = pfsQuery.toString();
+    if (pfsQuery.toString().startsWith(" AND ")) {
+      finalQuery = finalQuery.substring(5);
+    }
+    Logger.getLogger(IndexUtility.class).debug("  query = " + finalQuery);
+    luceneQuery = queryParser.parse(finalQuery);
 
     // Validate query terms
     luceneQuery =
