@@ -502,17 +502,19 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
-    if (!finalQuery.toString().isEmpty()) {
-      finalQuery.append(" AND ");
+    if (subsetId != null && !subsetId.isEmpty()) {
+      if (finalQuery.length() > 0) {
+        finalQuery.append(" AND ");
+      }
+      finalQuery.append("subsetTerminologyId:" + subsetId);
     }
-    finalQuery.append("terminology:" + terminology + " AND version:" + version
-        + " AND subsetTerminologyId:" + subsetId);
     SearchHandler searchHandler = getSearchHandler(terminology);
     int[] totalCt = new int[1];
     SubsetMemberList list = new SubsetMemberListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, finalQuery.toString(), "memberNameSort", ConceptSubsetMemberJpa.class,
-        AtomSubsetMemberJpa.class, pfs, totalCt, manager));
+        branch, finalQuery.toString(), "memberNameSort",
+        ConceptSubsetMemberJpa.class, AtomSubsetMemberJpa.class, pfs, totalCt,
+        manager));
     list.setTotalCount(totalCt[0]);
     return list;
   }
@@ -532,18 +534,20 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     StringBuilder finalQuery = new StringBuilder();
     finalQuery.append(query == null ? "" : query);
-    if (!finalQuery.toString().isEmpty()) {
-      finalQuery.append(" AND ");
+    if (subsetId != null && !subsetId.isEmpty()) {
+      if (finalQuery.length() > 0) {
+        finalQuery.append(" AND ");
+      }
+      finalQuery.append("subsetTerminologyId:" + subsetId);
     }
-    finalQuery.append("terminology:" + terminology + " AND version:" + version
-        + " AND subsetTerminologyId:" + subsetId);
 
     SearchHandler searchHandler = getSearchHandler(terminology);
     int[] totalCt = new int[1];
     SubsetMemberList list = new SubsetMemberListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, finalQuery.toString(), "memberNameSort", ConceptSubsetMemberJpa.class,
-        ConceptSubsetMemberJpa.class, pfs, totalCt, manager));
+        branch, finalQuery.toString(), "memberNameSort",
+        ConceptSubsetMemberJpa.class, ConceptSubsetMemberJpa.class, pfs,
+        totalCt, manager));
     list.setTotalCount(totalCt[0]);
 
     return list;
@@ -3600,6 +3604,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     String query, boolean inverseFlag, PfsParameter pfs,
     Class<? extends Relationship> clazz) throws Exception {
 
+    if (terminologyId == null || terminologyId.isEmpty()) {
+      throw new Exception("Terminology id is required");
+    }
+
     RelationshipList results = new RelationshipListJpa();
 
     // Prepare the query string
@@ -3621,8 +3629,9 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
     SearchHandler searchHandler = getSearchHandler(terminology);
     int[] totalCt = new int[1];
-    results.setObjects((List) searchHandler.getQueryResults(terminology,
-        version, branch, finalQuery.toString(), "fromNameSort", ConceptRelationshipJpa.class,
+    // pass empty terminology/version because it's handled above
+    results.setObjects((List) searchHandler.getQueryResults("", "", branch,
+        finalQuery.toString(), "fromNameSort", ConceptRelationshipJpa.class,
         clazz, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
@@ -3694,14 +3703,14 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
     // Prepare the query string
     StringBuilder finalQuery = new StringBuilder();
 
-    // all queries are sensitive to terminology, version, and id (if provided)
-    finalQuery.append("terminology:" + terminology + " AND version:" + version);
-    if (terminologyId != null) {
-      finalQuery.append(" AND nodeTerminologyId:" + terminologyId);
-    }
-
     // add the query, if not null and not empty
-    finalQuery.append(query == null || query.isEmpty() ? "" : " AND " + query);
+    finalQuery.append(query == null || query.isEmpty() ? "" : query);
+    if (terminologyId != null) {
+      if (finalQuery.length() > 0) {
+        finalQuery.append(" AND ");
+      }
+      finalQuery.append("nodeTerminologyId:" + terminologyId);
+    }
 
     SearchHandler searchHandler = getSearchHandler(terminology);
     int[] totalCt = new int[1];

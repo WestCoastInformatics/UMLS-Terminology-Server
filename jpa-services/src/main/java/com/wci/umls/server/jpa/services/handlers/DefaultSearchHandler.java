@@ -97,6 +97,7 @@ public class DefaultSearchHandler implements SearchHandler {
     PfsParameter pfs, int[] totalCt, EntityManager manager) throws Exception {
 
     // Build an escaped form of the query with wrapped quotes removed
+    // This will be used for literal/exact searching
     String escapedQuery = query;
     if (query.startsWith("\"") && query.endsWith("\"")) {
       escapedQuery = escapedQuery.substring(1);
@@ -112,9 +113,8 @@ public class DefaultSearchHandler implements SearchHandler {
       combinedQuery = query;
     } else {
       combinedQuery =
-          (query.isEmpty() ? "" : query + " OR ") + literalField + ":" + escapedQuery
-              + "^20.0";
-
+          (query.isEmpty() ? "" : query + " OR ") + literalField + ":"
+              + escapedQuery + "^20.0";
       // create an exact expansion entry. i.e. if the search term exactly
       // matches something in the acronyms file, then use additional "OR"
       // clauses
@@ -159,53 +159,49 @@ public class DefaultSearchHandler implements SearchHandler {
       }
     }
 
-    // Build query for pfs conditions
-    StringBuilder pfsQuery = new StringBuilder();
+    // Add terminology conditions
+    StringBuilder terminologyClause = new StringBuilder();
     if (terminology != null && !terminology.equals("") && version != null
         && !version.equals("")) {
-      pfsQuery.append(" AND terminology:" + terminology + " AND version:"
-          + version);
-    }
-    if (pfs != null) {
-      if (pfs.getActiveOnly()) {
-        pfsQuery.append(" AND obsolete:false");
-      }
-      if (pfs.getInactiveOnly()) {
-        pfsQuery.append(" AND obsolete:true");
-      }
-      if (pfs.getQueryRestriction() != null
-          && !pfs.getQueryRestriction().isEmpty()) {
-        pfsQuery.append(" AND " + pfs.getQueryRestriction());
-      }
+      terminologyClause.append(" AND terminology:" + terminology
+          + " AND version:" + version);
     }
 
+    // Assemble query
     StringBuilder finalQuery = new StringBuilder();
     if (query.isEmpty()) {
       // Just use PFS and skip the leading "AND"
-      finalQuery.append(pfsQuery.substring(5));
+      finalQuery.append(terminologyClause.substring(5));
+    } else if (combinedQuery.contains(" OR ")) {
+      // Use parens
+      finalQuery.append("(").append(combinedQuery).append(")")
+          .append(terminologyClause);
     } else {
-    // Apply pfs restrictions to query
-      finalQuery.append("(").append(combinedQuery).append(")").append(pfsQuery);
+      // Don't use parens
+      finalQuery.append(combinedQuery).append(terminologyClause);
+
     }
     FullTextQuery fullTextQuery = null;
     try {
-      System.out.println("  query = " + finalQuery);
+      System.out.println("  query1 = " + finalQuery);
       Logger.getLogger(getClass()).debug("query = " + finalQuery);
       fullTextQuery =
-          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, finalQuery.toString(),
-              pfs, manager);
+          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+              finalQuery.toString(), pfs, manager);
     } catch (ParseException e) {
       // If there's a parse exception, try the literal query
-      System.out.println("  query = " + finalQuery);
+      System.out.println("  query2 = " + finalQuery);
       Logger.getLogger(getClass()).debug("query = " + finalQuery);
       fullTextQuery =
           IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, escapedQuery
-              + pfsQuery, pfs, manager);
+              + terminologyClause, pfs, manager);
     }
 
-    // Apply paging and sorting parameters - if no search criteria
+    // Apply paging and sorting parameters for the PFSC case
     // This is needed for the combined search with "search criteria"
-    if (pfs instanceof PfscParameter
+    if (!(pfs instanceof PfscParameter)) {
+      totalCt[0] = fullTextQuery.getResultSize();
+    } else if (pfs instanceof PfscParameter
         && ((PfscParameter) pfs).getSearchCriteria().isEmpty()) {
       // Get result size if we know it.
       totalCt[0] = fullTextQuery.getResultSize();
@@ -216,97 +212,106 @@ public class DefaultSearchHandler implements SearchHandler {
       totalCt[0] = fullTextQuery.getResultSize();
     }
 
-    // If at this point there are zero results,
-    // Run the query through acronym expansion
-    if (totalCt[0] == 0) {
-      // use wordInd tokenization
-      String[] tokens =
-          FieldedStringTokenizer.split(query,
-              " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
-      StringBuilder newQuery = new StringBuilder();
-      boolean found = false;
-      for (String token : tokens) {
-        if (newQuery.length() != 0) {
-          newQuery.append(" ");
+    // Only look to other algorithms if this is NOT a fielded query
+    // and the query exists
+    if (query != null && !query.isEmpty() && !query.contains(":")) {
+
+      // If at this point there are zero results,
+      // Run the query through acronym expansion
+      if (totalCt[0] == 0) {
+        // use wordInd tokenization
+        String[] tokens =
+            FieldedStringTokenizer.split(query,
+                " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+        StringBuilder newQuery = new StringBuilder();
+        boolean found = false;
+        for (String token : tokens) {
+          if (newQuery.length() != 0) {
+            newQuery.append(" ");
+          }
+          // replace with acronym or keep the same
+          if (acronymExpansionMap.containsKey(token.toUpperCase())) {
+            found = true;
+            newQuery.append(FieldedStringTokenizer.join(new ArrayList<>(
+                acronymExpansionMap.get(token)), " "));
+          } else {
+            newQuery.append(token);
+          }
         }
-        // replace with acronym or keep the same
-        if (acronymExpansionMap.containsKey(token.toUpperCase())) {
-          found = true;
-          newQuery.append(FieldedStringTokenizer.join(new ArrayList<>(
-              acronymExpansionMap.get(token)), " "));
-        } else {
-          newQuery.append(token);
+        // Try the query again (if at least one expansion was found)
+        if (found) {
+          System.out.println("  query3 = " + newQuery.toString()
+              + terminologyClause);
+          fullTextQuery =
+              IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+                  newQuery.toString() + terminologyClause, pfs, manager);
+          totalCt[0] = fullTextQuery.getResultSize();
         }
       }
-      // Try the query again (if at least one expansion was found)
-      if (found) {
-        System.out.println("  query = " + newQuery.toString() + pfsQuery);
+
+      // If at this point there are zero results,
+      // Run the query through spelling correction
+      if (totalCt[0] == 0) {
+        // use wordInd tokenization
+        String[] tokens =
+            FieldedStringTokenizer.split(query,
+                " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+        StringBuilder newQuery = new StringBuilder();
+        newQuery.append("(");
+        boolean found = false;
+        for (String token : tokens) {
+          if (newQuery.length() != 0) {
+            newQuery.append(" ");
+          }
+          if (spellChecker.exist(token.toLowerCase())) {
+            newQuery.append(token);
+          } else if (!token.isEmpty()) {
+            String[] suggestions =
+                spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
+            found = suggestions.length > 0;
+            newQuery.append(FieldedStringTokenizer.join(suggestions, " "));
+          }
+        }
+        newQuery.append(")");
+
+        // Try the query again (if replacement found)
+        if (found) {
+          System.out.println("  query4 = " + newQuery.toString()
+              + terminologyClause);
+          fullTextQuery =
+              IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+                  newQuery.toString() + terminologyClause, pfs, manager);
+          totalCt[0] = fullTextQuery.getResultSize();
+        }
+      }
+
+      // TODO: if still zero, do wildcard search at the end of each term of the
+      // original query
+      // e.g. a* b* c*
+      if (totalCt[0] == 0) {
+        // use wordInd tokenization
+        String[] tokens =
+            FieldedStringTokenizer.split(query,
+                " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+        StringBuilder newQuery = new StringBuilder();
+        for (String token : tokens) {
+          if (newQuery.length() != 0) {
+            newQuery.append(" ");
+          }
+          if (token.length() > 0) {
+            newQuery.append(token).append("*");
+          }
+        }
+        // Try the query again
+        System.out.println("  query5 = " + newQuery.toString()
+            + terminologyClause);
         fullTextQuery =
             IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-                newQuery.toString() + pfsQuery, pfs, manager);
+                newQuery.toString() + terminologyClause, pfs, manager);
         totalCt[0] = fullTextQuery.getResultSize();
-      }
-    }
 
-    // If at this point there are zero results,
-    // Run the query through spelling correction
-    if (totalCt[0] == 0) {
-      // use wordInd tokenization
-      String[] tokens =
-          FieldedStringTokenizer.split(query,
-              " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
-      StringBuilder newQuery = new StringBuilder();
-      newQuery.append("(");
-      boolean found = false;
-      for (String token : tokens) {
-        if (newQuery.length() != 0) {
-          newQuery.append(" ");
-        }
-        if (spellChecker.exist(token.toLowerCase())) {
-          newQuery.append(token);
-        } else if (!token.isEmpty()) {
-          String[] suggestions =
-              spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
-          found = suggestions.length > 0;
-          newQuery.append(FieldedStringTokenizer.join(suggestions, " "));
-        }
       }
-      newQuery.append(")");
-
-      // Try the query again (if replacement found)
-      if (found) {
-        System.out.println("  query = " + newQuery.toString() + pfsQuery);
-        fullTextQuery =
-            IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-                newQuery.toString() + pfsQuery, pfs, manager);
-        totalCt[0] = fullTextQuery.getResultSize();
-      }
-    }
-
-    // TODO: if still zero, do wildcard search at the end of each term of the
-    // original query
-    // e.g. a* b* c*
-    if (totalCt[0] == 0) {
-      // use wordInd tokenization
-      String[] tokens =
-          FieldedStringTokenizer.split(query,
-              " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
-      StringBuilder newQuery = new StringBuilder();
-      for (String token : tokens) {
-        if (newQuery.length() != 0) {
-          newQuery.append(" ");
-        }
-        if (token.length() > 0) {
-          newQuery.append(token).append("*");
-        }
-      }
-      // Try the query again
-      System.out.println("  query = " + newQuery.toString() + pfsQuery);
-      fullTextQuery =
-          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-              newQuery.toString() + pfsQuery, pfs, manager);
-      totalCt[0] = fullTextQuery.getResultSize();
-
+    
     }
 
     // execute the query
