@@ -899,7 +899,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
 
     KeyValuePairList kvpl = new KeyValuePairList();
-    kvpl.setKeyValuePairList(lkvp);
+    kvpl.setKeyValuePairs(lkvp);
     list.setPrecedence(kvpl);
     list.setTimestamp(releaseVersionDate);
     list.setLastModified(releaseVersionDate);

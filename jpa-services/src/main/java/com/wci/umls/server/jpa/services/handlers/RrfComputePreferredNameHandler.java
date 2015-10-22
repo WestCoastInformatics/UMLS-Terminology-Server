@@ -158,7 +158,7 @@ public class RrfComputePreferredNameHandler implements
     MetadataService service = new MetadataServiceJpa();
     list = service.getDefaultPrecedenceList(umlsTerminology, umlsVersion);
     service.close();
-    List<KeyValuePair> list2 = list.getPrecedence().getKeyValuePairList();
+    List<KeyValuePair> list2 = list.getPrecedence().getKeyValuePairs();
     int ct = 1;
     for (int i = list2.size() - 1; i >= 0; i--) {
       String padded = "0000" + ct++;

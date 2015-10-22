@@ -506,7 +506,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
 
     final KeyValuePairList kvpl = new KeyValuePairList();
-    kvpl.setKeyValuePairList(lkvp);
+    kvpl.setKeyValuePairs(lkvp);
     list.setPrecedence(kvpl);
     list.setTimestamp(releaseVersionDate);
     list.setLastModified(releaseVersionDate);

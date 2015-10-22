@@ -141,7 +141,7 @@ public class MultiRrfComputePreferredNameHandler implements
     service.close();
     List<KeyValuePair> list2 =
         listMap.get(terminology + version).getPrecedence()
-            .getKeyValuePairList();
+            .getKeyValuePairs();
     int ct = 1;
     Map<String, String> localTtyRankMap = new HashMap<>();
     for (int i = list2.size() - 1; i >= 0; i--) {

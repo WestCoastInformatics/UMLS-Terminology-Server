@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class KeyValuePairList {
 
   /** The entries. */
-  private List<KeyValuePair> keyValuePairList = new ArrayList<>();
+  private List<KeyValuePair> keyValuePairs = new ArrayList<>();
 
   /** The name. */
   private String name = "";
@@ -35,7 +35,7 @@ public class KeyValuePairList {
    */
   public KeyValuePairList(KeyValuePairList list) {
     name = list.getName();
-    keyValuePairList = list.getKeyValuePairList();
+    keyValuePairs = list.getKeyValuePairs();
   }
 
   /**
@@ -43,18 +43,18 @@ public class KeyValuePairList {
    * 
    * @return the key value pair list
    */
-  @XmlElement(name = "keyValuePair")
-  public List<KeyValuePair> getKeyValuePairList() {
-    return keyValuePairList;
+  @XmlElement
+  public List<KeyValuePair> getKeyValuePairs() {
+    return keyValuePairs;
   }
 
   /**
    * Sets the key value pair list.
    * 
-   * @param keyValuePairList the key value pair list
+   * @param keyValuePairs the key value pair list
    */
-  public void setKeyValuePairList(List<KeyValuePair> keyValuePairList) {
-    this.keyValuePairList = keyValuePairList;
+  public void setKeyValuePairs(List<KeyValuePair> keyValuePairs) {
+    this.keyValuePairs = keyValuePairs;
   }
 
   /**
@@ -63,7 +63,7 @@ public class KeyValuePairList {
    * @param keyValuePair the key value pair
    */
   public void addKeyValuePair(KeyValuePair keyValuePair) {
-    keyValuePairList.add(keyValuePair);
+    keyValuePairs.add(keyValuePair);
   }
 
   /**
@@ -91,7 +91,7 @@ public class KeyValuePairList {
    * @return true, if successful
    */
   public boolean contains(KeyValuePair pair) {
-    return this.getKeyValuePairList().contains(pair);
+    return this.getKeyValuePairs().contains(pair);
   }
 
   /**
@@ -101,7 +101,7 @@ public class KeyValuePairList {
    * @return true, if successful
    */
   public boolean contains(KeyValuePairList pairList) {
-    return this.getKeyValuePairList().containsAll(pairList.getKeyValuePairList());
+    return this.getKeyValuePairs().containsAll(pairList.getKeyValuePairs());
   }
 
   /* see superclass */
@@ -111,7 +111,7 @@ public class KeyValuePairList {
     int result = 1;
     result =
         prime * result
-            + ((keyValuePairList == null) ? 0 : keyValuePairList.hashCode());
+            + ((keyValuePairs == null) ? 0 : keyValuePairs.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     return result;
   }
@@ -126,10 +126,10 @@ public class KeyValuePairList {
     if (getClass() != obj.getClass())
       return false;
     KeyValuePairList other = (KeyValuePairList) obj;
-    if (keyValuePairList == null) {
-      if (other.keyValuePairList != null)
+    if (keyValuePairs == null) {
+      if (other.keyValuePairs != null)
         return false;
-    } else if (!keyValuePairList.equals(other.keyValuePairList))
+    } else if (!keyValuePairs.equals(other.keyValuePairs))
       return false;
     if (name == null) {
       if (other.name != null)
@@ -142,7 +142,7 @@ public class KeyValuePairList {
   /* see superclass */
   @Override
   public String toString() {
-    return "KeyValuePairList [keyValuePairList=" + keyValuePairList + ", name="
+    return "KeyValuePairList [keyValuePairList=" + keyValuePairs + ", name="
         + name + "]";
   }
 

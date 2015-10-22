@@ -86,8 +86,8 @@ public class HelperUnit004Test {
     List<KeyValuePair> kvpList = new ArrayList<>();
     kvpList.add(pair1);
     kvpList.add(pair2);
-    list1.setKeyValuePairList(kvpList);
-    assertTrue(list1.getKeyValuePairList().equals(kvpList));
+    list1.setKeyValuePairs(kvpList);
+    assertTrue(list1.getKeyValuePairs().equals(kvpList));
 
     CopyConstructorTester tester3 = new CopyConstructorTester(list2);
     assertTrue(tester3.testCopyConstructor(KeyValuePairList.class));
@@ -126,11 +126,11 @@ public class HelperUnit004Test {
   public void testHelperEdgeCases004() throws Exception {
     KeyValuePairList list1 = new KeyValuePairList();
     list1.setName(null);
-    list1.setKeyValuePairList(null);
+    list1.setKeyValuePairs(null);
 
     KeyValuePairList list2 = new KeyValuePairList();
     list2.setName(null);
-    list2.setKeyValuePairList(null);
+    list2.setKeyValuePairs(null);
 
     assertTrue(list1.equals(list2));
     assertTrue(list1.hashCode() == list2.hashCode());

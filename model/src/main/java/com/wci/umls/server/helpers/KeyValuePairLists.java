@@ -90,7 +90,7 @@ public class KeyValuePairLists {
    */
   public void sort() {
     for (KeyValuePairList list : getKeyValuePairLists()) {
-      Collections.sort(list.getKeyValuePairList());
+      Collections.sort(list.getKeyValuePairs());
     }
     Collections.sort(getKeyValuePairLists(),
         new Comparator<KeyValuePairList>() {

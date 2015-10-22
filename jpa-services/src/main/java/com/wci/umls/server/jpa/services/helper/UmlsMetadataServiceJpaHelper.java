@@ -206,7 +206,7 @@ public class UmlsMetadataServiceJpaHelper extends
     // Restrict default list to just those ttys matching this terminology
     KeyValuePairList defaultKvpl = list.getPrecedence();
     KeyValuePairList kvpl = new KeyValuePairList();
-    for (KeyValuePair pair : defaultKvpl.getKeyValuePairList()) {
+    for (KeyValuePair pair : defaultKvpl.getKeyValuePairs()) {
       if (pair.getKey().equals(terminology)) {
         kvpl.addKeyValuePair(pair);
       }

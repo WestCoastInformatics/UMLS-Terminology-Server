@@ -267,13 +267,13 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertEquals("loader", precedence.getLastModifiedBy());
     assertEquals("UMLS", precedence.getTerminology());
     assertEquals("latest", precedence.getVersion());
-    assertEquals("MTH", precedence.getPrecedence().getKeyValuePairList().get(0)
+    assertEquals("MTH", precedence.getPrecedence().getKeyValuePairs().get(0)
         .getKey());
-    assertEquals("PN", precedence.getPrecedence().getKeyValuePairList().get(0)
+    assertEquals("PN", precedence.getPrecedence().getKeyValuePairs().get(0)
         .getValue());
-    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairList().get(1)
+    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairs().get(1)
         .getKey());
-    assertEquals("MH", precedence.getPrecedence().getKeyValuePairList().get(1)
+    assertEquals("MH", precedence.getPrecedence().getKeyValuePairs().get(1)
         .getValue());
     assertEquals("DEFAULT", precedence.getName());
 
@@ -283,13 +283,13 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     // assertEquals("loader", precedence.getLastModifiedBy());
     assertEquals("UMLS", precedence.getTerminology());
     assertEquals("latest", precedence.getVersion());
-    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairList().get(0)
+    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairs().get(0)
         .getKey());
-    assertEquals("MH", precedence.getPrecedence().getKeyValuePairList().get(0)
+    assertEquals("MH", precedence.getPrecedence().getKeyValuePairs().get(0)
         .getValue());
-    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairList().get(1)
+    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairs().get(1)
         .getKey());
-    assertEquals("TQ", precedence.getPrecedence().getKeyValuePairList().get(1)
+    assertEquals("TQ", precedence.getPrecedence().getKeyValuePairs().get(1)
         .getValue());
 
     assertEquals("DEFAULT", precedence.getName());
@@ -549,7 +549,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
         .getKeyValuePairLists()) {
 
       Logger.getLogger(getClass()).info(
-          "Checking " + keyValuePairList.getKeyValuePairList().size() + " "
+          "Checking " + keyValuePairList.getKeyValuePairs().size() + " "
               + keyValuePairList.getName());
 
       int expectedSize =
@@ -561,7 +561,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
       Set<String> expectedNames =
           expectedNameSets
               .get(MetadataKeys.valueOf(keyValuePairList.getName()));
-      List<KeyValuePair> pairs = keyValuePairList.getKeyValuePairList();
+      List<KeyValuePair> pairs = keyValuePairList.getKeyValuePairs();
 
       KeyValuePair testCase = null;
 

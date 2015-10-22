@@ -190,7 +190,7 @@ public class PrecedenceListJpa implements PrecedenceList {
     if (precedence == null) {
       return;
     }
-    for (KeyValuePair pair : precedence.getKeyValuePairList()) {
+    for (KeyValuePair pair : precedence.getKeyValuePairs()) {
       terminologies.add(pair.getKey());
       termTypes.add(pair.getValue());
     }
