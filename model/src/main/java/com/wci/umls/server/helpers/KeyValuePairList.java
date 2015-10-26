@@ -43,7 +43,7 @@ public class KeyValuePairList {
    * 
    * @return the key value pair list
    */
-  @XmlElement
+  @XmlElement(name="keyValuePair")
   public List<KeyValuePair> getKeyValuePairs() {
     return keyValuePairs;
   }
