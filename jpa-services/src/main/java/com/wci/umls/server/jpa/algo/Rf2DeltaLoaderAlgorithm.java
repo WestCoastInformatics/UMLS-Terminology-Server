@@ -2294,9 +2294,9 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         rel2.setObsolete(fields[2].equals("0")); // active
         rel2.setSuppressible(rel2.isObsolete());
         rel2.setGroup(fields[6].intern()); // relationshipGroup
-        rel2.setRelationshipType(fields[7].equals(isaTypeRel) ? "subClassOf"
+        rel2.setRelationshipType(fields[7].equals(isaTypeRel) ? "Is a"
             : "other"); // typeId
-        rel2.setHierarchical(rel2.getRelationshipType().equals("subClassOf"));
+        rel2.setHierarchical(rel2.getRelationshipType().equals("Is a"));
         rel2.setAdditionalRelationshipType(fields[7]); // typeId
         generalEntryValues.add(rel2.getAdditionalRelationshipType());
         additionalRelTypes.add(rel2.getAdditionalRelationshipType());
