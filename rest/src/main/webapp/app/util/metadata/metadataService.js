@@ -335,6 +335,7 @@ tsApp
           return retval;
         }
 
+        // Returns the label count
         this.countLabels = function(component) {
           var retval = 0;
           if (typeof component == "undefined" || !component) {
@@ -350,6 +351,10 @@ tsApp
           }
           return retval;
         }
+
+        // decrement the glasspane counter
+        // It is incremented by the tab controller
+        gpService.decrement();
 
       }
 

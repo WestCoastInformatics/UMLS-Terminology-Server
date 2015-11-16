@@ -54,4 +54,5 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location',
     $scope.logout = function() {
       securityService.logout();
     }
+    
   } ]);

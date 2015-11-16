@@ -1144,6 +1144,10 @@ tsApp
         if ($scope.component.object) {
           applyPaging();
         }
+
+        // decrement the glasspane counter
+        // It is incremented by the tab controller
+        gpService.decrement();
       }
 
     ]);
