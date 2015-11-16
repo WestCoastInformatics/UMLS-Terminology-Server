@@ -515,11 +515,11 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         relationship.setObsolete(fields[2].equals("0")); // active
         relationship.setSuppressible(relationship.isObsolete());
         relationship.setGroup(fields[6].intern()); // relationshipGroup
-        relationship.setRelationshipType(fields[7].equals(isaTypeRel)
-            ? "subClassOf" : "other"); // typeId
+        relationship.setRelationshipType(fields[7].equals(isaTypeRel) ? "Is a"
+            : "other"); // typeId
         relationship.setAdditionalRelationshipType(fields[7]); // typeId
         relationship.setHierarchical(relationship.getRelationshipType().equals(
-            "subClassOf"));
+            "Is a"));
         generalEntryValues.add(relationship.getAdditionalRelationshipType());
         additionalRelTypes.add(relationship.getAdditionalRelationshipType());
         relationship.setStated(fields[8].equals("900000000000010007"));
@@ -1453,7 +1453,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
     // relationship types - subClassOf, superClassOf
     String[] relTypes = new String[] {
-        "other", "subClassOf", "superClassOf"
+        "other", "Inverse is a", "Is a"
     };
     RelationshipType chd = null;
     RelationshipType par = null;
@@ -1467,12 +1467,12 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       type.setPublishable(true);
       type.setPublished(true);
       type.setAbbreviation(rel);
-      if (rel.equals("subClassOf")) {
+      if (rel.equals("Is a")) {
         chd = type;
-        type.setExpandedForm("Sub class of");
-      } else if (rel.equals("superClassOf")) {
+        type.setExpandedForm("Is a (has parent)");
+      } else if (rel.equals("Inverse is a")) {
         par = type;
-        type.setExpandedForm("Super class of");
+        type.setExpandedForm("Inverse is a (has child)");
       } else if (rel.equals("other")) {
         ro = type;
         type.setExpandedForm("Other");

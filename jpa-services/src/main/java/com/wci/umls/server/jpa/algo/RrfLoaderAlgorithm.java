@@ -219,6 +219,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     latCodeMap.put("SCR", "sc");
     latCodeMap.put("SPA", "es");
     latCodeMap.put("SWE", "sv");
+    latCodeMap.put("CHI", "zh");
+    latCodeMap.put("TUR", "tr");
+    latCodeMap.put("EST", "et");
+    latCodeMap.put("GRE", "el");
   }
 
   /**
