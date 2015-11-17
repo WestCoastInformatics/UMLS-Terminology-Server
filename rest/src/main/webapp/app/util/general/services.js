@@ -211,9 +211,6 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService',
     // Sets the selected tab
     this.setSelectedTab = function(tab) {
       this.selectedTab = tab;
-      // Increment counter - decrement at the end of each controller
-      console.debug("increment counter");
-      gpService.increment();
     }
 
     // sets the selected tab by label

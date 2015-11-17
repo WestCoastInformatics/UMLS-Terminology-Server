@@ -352,10 +352,6 @@ tsApp
           return retval;
         }
 
-        // decrement the glasspane counter
-        // It is incremented by the tab controller
-        gpService.decrement();
-
       }
 
     ]);

@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
@@ -400,7 +401,7 @@ public class IndexUtility {
           && !t.field().isEmpty()
           && !IndexUtility.getIndexedFieldNames(fieldNamesKey, false).contains(
               t.field())) {
-        throw new Exception("Query references invalid field name " + t.field()
+        throw new ParseException("Query references invalid field name " + t.field()
             + ", " + IndexUtility.getIndexedFieldNames(fieldNamesKey, false));
       }
     }

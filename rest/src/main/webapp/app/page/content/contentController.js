@@ -1145,9 +1145,6 @@ tsApp
           applyPaging();
         }
 
-        // decrement the glasspane counter
-        // It is incremented by the tab controller
-        gpService.decrement();
       }
 
     ]);
