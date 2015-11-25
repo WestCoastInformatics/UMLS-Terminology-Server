@@ -314,7 +314,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
       sty.setLastModifiedBy("admin");
       sty.setPublished(false);
       sty.setPublishable(false);
-      Logger.getLogger(getClass()).debug("    add semantic type - " + sty);
+      Logger.getLogger(getClass()).info("    add semantic type - " + sty);
       addSemanticType(sty);
     }
 

@@ -249,9 +249,9 @@ public class IndexUtility {
     // otherwise, assume method name of form getannotationFieldName
     // where the desired value is annotationFieldName
     if (m.getName().startsWith("get")) {
-      return StringUtils.uncapitalize(m.getName().replace("get", ""));
+      return StringUtils.uncapitalize(m.getName().substring(3));
     } else if (m.getName().startsWith("is")) {
-      return StringUtils.uncapitalize(m.getName().replace("is", ""));
+      return StringUtils.uncapitalize(m.getName().substring(2));
     } else
       return m.getName();
 

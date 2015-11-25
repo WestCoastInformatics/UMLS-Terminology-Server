@@ -3,8 +3,6 @@
  */
 package com.wci.umls.server.test.mojo;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
@@ -23,12 +21,10 @@ import org.junit.Test;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
-import com.wci.umls.server.model.meta.GeneralMetadataEntry;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.HistoryService;
 import com.wci.umls.server.services.ProjectService;
