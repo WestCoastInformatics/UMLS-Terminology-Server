@@ -498,7 +498,7 @@
                         AND
                         a.version = b.version
                         AND a.semanticType =
-                        b.abbreviation)
+                        b.expandedForm)
                       </value>
                     </property>
 
