@@ -115,10 +115,15 @@ public class QaDatabase extends AbstractMojo {
         if (config.getProperty("mail.enabled") != null
             && config.getProperty("mail.enabled").equals("true")
             && config.getProperty("mail.smtp.to") != null) {
-          ConfigUtility.sendEmail("[Terminology Server] Database QA Results",
-              config.getProperty("mail.smtp.user"),
-              config.getProperty("mail.smtp.to"), msg.toString(), config,
-              "true".equals(config.get("mail.smtp.auth")));
+          try {
+            ConfigUtility.sendEmail("[Terminology Server] Database QA Results",
+                config.getProperty("mail.smtp.user"),
+                config.getProperty("mail.smtp.to"), msg.toString(), config,
+                "true".equals(config.get("mail.smtp.auth")));
+          } catch (Exception e) {
+            // do nothing - this just means email couldn't be sent
+          }
+
         }
 
         throw new Exception("Failure to pass QA checks. " + errors);
