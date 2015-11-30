@@ -68,6 +68,7 @@ public class ModelUnit023Test {
     tester.include("terminologyId");
     tester.include("version");
     tester.include("value");
+    tester.include("obsolete");
 
     assertTrue(tester.testIdentitiyFieldEquals());
     assertTrue(tester.testNonIdentitiyFieldEquals());
