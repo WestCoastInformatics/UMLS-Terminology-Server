@@ -30,6 +30,7 @@ import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -655,7 +656,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       BufferedReader reader = new BufferedReader(new FileReader(conceptsFile));
       String line;
       while ((line = reader.readLine()) != null) {
-        final String fields[] = line.split("\t");
+        final String fields[] = FieldedStringTokenizer.split(line,"\t");
         if (!fields[1].equals("effectiveTime")) {
           try {
             ConfigUtility.DATE_FORMAT.parse(fields[1]);
@@ -671,7 +672,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               "der2_iissscRefset_ComplexMap");
       reader = new BufferedReader(new FileReader(complexMapFile));
       while ((line = reader.readLine()) != null) {
-        final String fields[] = line.split("\t");
+        final String fields[] = FieldedStringTokenizer.split(line,"\t");
         if (!fields[1].equals("effectiveTime")) {
           try {
             ConfigUtility.DATE_FORMAT.parse(fields[1]);
@@ -686,7 +687,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
               "der2_iisssccRefset_ExtendedMap");
       reader = new BufferedReader(new FileReader(extendedMapFile));
       while ((line = reader.readLine()) != null) {
-        final String fields[] = line.split("\t");
+        final String fields[] = FieldedStringTokenizer.split(line,"\t");
         if (!fields[1].equals("effectiveTime")) {
           try {
             ConfigUtility.DATE_FORMAT.parse(fields[1]);

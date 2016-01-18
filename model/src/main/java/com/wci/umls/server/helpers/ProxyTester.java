@@ -261,9 +261,9 @@ public class ProxyTester {
     if (type == Long.class || type == long.class)
       return new Long(initializer);
     if (type == Double.class || type == double.class)
-      return new Double(initializer);
+      return new Double((initializer * 1.0) / 100);
     if (type == Float.class || type == float.class)
-      return new Float(initializer);
+      return new Float((initializer * 1.0) / 100);
     if (type == Character.class || type == char.class)
       return new Character((char) ('a' + initializer));
     if (type == BigDecimal.class)

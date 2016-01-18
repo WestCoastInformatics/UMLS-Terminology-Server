@@ -1544,14 +1544,26 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (fields[2].equals("CUI") && fields[6].equals("CUI")) {
         final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
 
-        final Concept fromConcept =
-            getConcept(conceptIdMap.get(terminology + fields[4]));
-        conceptRel.setFrom(fromConcept);
+        if (fields[4].isEmpty() || fields[0].isEmpty()) {
+          final Concept fromConcept =
+              getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[5])
+                  + atomConceptIdMap.get(fields[5])));
+          conceptRel.setFrom(fromConcept);
 
-        final Concept toConcept =
-            getConcept(conceptIdMap.get(terminology + fields[0]));
-        conceptRel.setTo(toConcept);
+          final Concept toConcept =
+              getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[1])
+                  + atomConceptIdMap.get(fields[1])));
+          conceptRel.setTo(toConcept);
 
+        } else {
+          final Concept fromConcept =
+              getConcept(conceptIdMap.get(terminology + fields[4]));
+          conceptRel.setFrom(fromConcept);
+
+          final Concept toConcept =
+              getConcept(conceptIdMap.get(terminology + fields[0]));
+          conceptRel.setTo(toConcept);
+        }
         setRelationshipFields(fields, conceptRel);
         conceptRel.setTerminology(terminology);
         conceptRel.setVersion(version);

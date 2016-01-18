@@ -13,6 +13,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
@@ -196,7 +197,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.CONCEPT);
     while ((line = reader.readLine()) != null) {
 
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
 
       if (!fields[0].equals("id")) { // header
 
@@ -224,7 +225,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.DESCRIPTION);
     while ((line = reader.readLine()) != null) {
 
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
 
       if (!fields[0].equals("id")) {
 
@@ -253,7 +254,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       // Split line
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
       // Skip header
       if (!fields[0].equals("id")) {
 
@@ -290,7 +291,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
 
       if (!fields[0].equals("id")) { // header
 
@@ -333,7 +334,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
 
       if (!fields[0].equals("id")) { // header
 
@@ -373,7 +374,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
 
       if (!fields[0].equals("id")) { // header
 
@@ -403,7 +404,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
 
       if (!fields[0].equals("id")) { // header
 
@@ -432,7 +433,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
 
       if (!fields[0].equals("id")) {
 
@@ -450,7 +451,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
 
       if (!fields[0].equals("id")) {
 
@@ -477,7 +478,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     String line;
     while ((line = reader.readLine()) != null) {
 
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
 
       if (!fields[0].equals("id")) {
 
@@ -504,7 +505,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
         readers.getReader(Rf2Readers.Keys.MODULE_DEPENDENCY);
     while ((line = reader.readLine()) != null) {
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
       if (!fields[0].equals("id")) {
 
         if (concepts.contains(fields[3]) || concepts.contains(fields[5])) {
@@ -517,7 +518,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     reader = readers.getReader(Rf2Readers.Keys.DESCRIPTION_TYPE);
     while ((line = reader.readLine()) != null) {
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
       if (!fields[0].equals("id")) {
 
         if (concepts.contains(fields[5])) {
@@ -532,7 +533,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
       if (!fields[0].equals("id")) {
 
         if (concepts.contains(fields[5])) {
@@ -558,7 +559,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       // Split line
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
       // Skip header and keep only active entries
       if (!fields[0].equals("id") && fields[2].equals("1")) {
 

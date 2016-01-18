@@ -3,6 +3,10 @@
  */
 package com.wci.umls.server.services;
 
+import java.util.List;
+
+import com.wci.umls.server.helpers.PfsParameter;
+
 /**
  * Generically represents a service.
  */
@@ -105,4 +109,16 @@ public interface RootService {
   public void logAndCommit(int objectCt, int logCt, int commitCt)
     throws Exception;
 
+  /**
+   * Apply pfs to list.
+   *
+   * @param <T> the
+   * @param list the list
+   * @param clazz the clazz
+   * @param pfs the pfs
+   * @return the list
+   * @throws Exception the exception
+   */
+  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz,
+    PfsParameter pfs) throws Exception;
 }

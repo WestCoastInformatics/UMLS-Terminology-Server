@@ -3,6 +3,12 @@
  */
 package com.wci.umls.server.jpa.services;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import javax.persistence.EntityManager;
@@ -230,5 +236,103 @@ public abstract class RootServiceJpa implements RootService {
       query.setMaxResults(pfs.getMaxResults());
     }
     return query;
+  }
+
+  /**
+   * Apply pfs to List.
+   *
+   * @param <T> the
+   * @param list the list
+   * @param clazz the clazz
+   * @param pfs the pfs
+   * @return the javax.persistence. query
+   * @throws Exception the exception
+   */
+  @Override
+  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz,
+    PfsParameter pfs) throws Exception {
+
+    // Skip empty pfs
+    if (pfs == null) {
+      return list;
+    }
+
+    // NOTE: does not handle active/inactive logic
+
+    List<T> result = list;
+
+    // Handle sorting
+
+    // apply paging, and sorting if appropriate
+    if (pfs != null
+        && (pfs.getSortField() != null && !pfs.getSortField().isEmpty())) {
+
+      // check that specified sort field exists on Concept and is
+      // a string
+      final Method sortMethod =
+          clazz.getMethod("get" + ConfigUtility.capitalize(pfs.getSortField()),
+              new Class<?>[] {});
+
+      if (!sortMethod.getReturnType().equals(String.class)
+          && !sortMethod.getReturnType().equals(Date.class)) {
+        throw new Exception("Referenced sort field is not of type String");
+      }
+
+      // allow the method to be accessed
+      sortMethod.setAccessible(true);
+
+      // sort the list
+      Collections.sort(result, new Comparator<T>() {
+        @Override
+        public int compare(T t1, T t2) {
+          // if an exception is returned, simply pass equality
+          try {
+            final String s1 = (String) sortMethod.invoke(t1, new Object[] {});
+            final String s2 = (String) sortMethod.invoke(t2, new Object[] {});
+            return s1.compareTo(s2);
+          } catch (Exception e) {
+            return 0;
+          }
+        }
+      });
+    }
+
+    // Handle filtering based on toString()
+    if (pfs != null
+        && (pfs.getQueryRestriction() != null && !pfs.getQueryRestriction()
+            .isEmpty())) {
+
+      List<T> filteredResult = new ArrayList<T>();
+      for (T t : result) {
+        if (t.toString().toLowerCase()
+            .indexOf(pfs.getQueryRestriction().toLowerCase()) != -1) {
+          filteredResult.add(t);
+        }
+      }
+
+      if (filteredResult.size() != result.size()) {
+        result = filteredResult;
+      }
+    }
+
+    // get the start and end indexes based on paging parameters
+    int startIndex = 0;
+    int toIndex = result.size();
+    if (pfs != null && pfs.getStartIndex() != -1) {
+      startIndex = pfs.getStartIndex();
+      toIndex = Math.min(result.size(), startIndex + pfs.getMaxResults());
+      if (startIndex > toIndex) {
+        startIndex = 0;
+      }
+      result = result.subList(startIndex, toIndex);
+    }
+
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public void refreshCaches() throws Exception {
+    // n/a
   }
 }

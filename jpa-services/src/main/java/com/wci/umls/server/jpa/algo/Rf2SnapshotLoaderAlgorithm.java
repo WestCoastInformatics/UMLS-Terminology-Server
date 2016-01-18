@@ -20,6 +20,7 @@ import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
@@ -418,7 +419,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.CONCEPT);
     while ((line = reader.readLine()) != null) {
 
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line,"\t");
       final Concept concept = new ConceptJpa();
 
       if (!fields[0].equals(id)) { // header
@@ -496,7 +497,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       // Split line
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line,"\t");
       // Skip header
       if (!fields[0].equals(id)) {
 
@@ -600,7 +601,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.DESCRIPTION);
     while ((line = reader.readLine()) != null) {
 
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line,"\t");
       if (!fields[0].equals(id)) {
 
         // Stop if the effective time is past the release version
@@ -679,7 +680,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.DEFINITION);
     while ((line = reader.readLine()) != null) {
 
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line,"\t");
       if (!fields[0].equals(id)) {
 
         // Stop if the effective time is past the release version
@@ -858,7 +859,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     String line;
     while ((line = reader.readLine()) != null) {
 
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       if (!fields[0].equals(id)) { // header
 
@@ -910,7 +911,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.ATTRIBUTE_VALUE);
     while ((line = reader.readLine()) != null) {
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       if (!fields[0].equals(id)) { // header
 
@@ -969,7 +970,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       if (!fields[0].equals(id)) { // header
 
@@ -1025,7 +1026,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       if (!fields[0].equals(id)) { // header
 
@@ -1061,7 +1062,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       if (!fields[0].equals(id)) { // header
 
@@ -1129,7 +1130,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       if (!fields[0].equals(id)) { // header
 
@@ -1192,7 +1193,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       if (!fields[0].equals(id)) { // header
 
@@ -1246,7 +1247,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");
-      final String fields[] = line.split("\t");
+      final String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       if (!fields[0].equals(id)) { // header
 
