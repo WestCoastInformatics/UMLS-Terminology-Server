@@ -106,19 +106,19 @@ public class ConceptTransitiveRelationshipJpaUnitTest {
 
     tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
     tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
-    assertTrue(tester.testIdentitiyFieldEquals());
+    assertTrue(tester.testIdentityFieldEquals());
     tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
     tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
-    assertTrue(tester.testNonIdentitiyFieldEquals());
+    assertTrue(tester.testNonIdentityFieldEquals());
     tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
     tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
     assertTrue(tester.testIdentityFieldNotEquals());
     tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
     tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
-    assertTrue(tester.testIdentitiyFieldHashcode());
+    assertTrue(tester.testIdentityFieldHashcode());
     tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
     tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
-    assertTrue(tester.testNonIdentitiyFieldHashcode());
+    assertTrue(tester.testNonIdentityFieldHashcode());
     tester.proxy(Concept.class, 1, new ConceptJpa(concept1, false));
     tester.proxy(Concept.class, 2, new ConceptJpa(concept2, false));
     assertTrue(tester.testIdentityFieldDifferentHashcode());

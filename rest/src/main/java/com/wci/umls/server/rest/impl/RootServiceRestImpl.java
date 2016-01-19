@@ -77,7 +77,7 @@ public class RootServiceRestImpl {
    * @param authRole the auth role
    * @throws Exception the exception
    */
-  public static void authorize(SecurityService securityService,
+  public static void authorizeApp(SecurityService securityService,
     String authToken, String perform, UserRole authRole) throws Exception {
     // authorize call
     UserRole role = securityService.getApplicationRoleForToken(authToken);

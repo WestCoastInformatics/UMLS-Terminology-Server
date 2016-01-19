@@ -86,11 +86,11 @@ public class ValidationResultJpaUnitTest {
     tester.proxy(Set.class, 1, s1);
     tester.proxy(Set.class, 2, s2);
 
-    assertTrue(tester.testIdentitiyFieldEquals());
-    assertTrue(tester.testNonIdentitiyFieldEquals());
+    assertTrue(tester.testIdentityFieldEquals());
+    assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
-    assertTrue(tester.testIdentitiyFieldHashcode());
-    assertTrue(tester.testNonIdentitiyFieldHashcode());
+    assertTrue(tester.testIdentityFieldHashcode());
+    assertTrue(tester.testNonIdentityFieldHashcode());
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 

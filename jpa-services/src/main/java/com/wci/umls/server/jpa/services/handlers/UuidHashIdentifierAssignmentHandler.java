@@ -31,8 +31,8 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  * 
  * If a component already has an SCTID, it keeps it.
  */
-public class UuidHashIdentifierAssignmentHandler implements
-    IdentifierAssignmentHandler {
+public class UuidHashIdentifierAssignmentHandler
+    implements IdentifierAssignmentHandler {
 
   /* see superclass */
   @Override
@@ -98,8 +98,8 @@ public class UuidHashIdentifierAssignmentHandler implements
   /* see superclass */
   @Override
   public String getTerminologyId(LexicalClass lexicalClass) throws Exception {
-    return TerminologyUtility.getUuid(
-        lexicalClass.getNormalizedName().toString()).toString();
+    return TerminologyUtility
+        .getUuid(lexicalClass.getNormalizedName().toString()).toString();
   }
 
   /* see superclass */
@@ -143,7 +143,7 @@ public class UuidHashIdentifierAssignmentHandler implements
   @Override
   public String getTerminologyId(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
-    throws Exception {
+      throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, relType, additionalRelType, group,
     // component.terminologyId
@@ -161,7 +161,7 @@ public class UuidHashIdentifierAssignmentHandler implements
   @Override
   public String getTerminologyId(
     TransitiveRelationship<? extends ComponentHasAttributes> relationship)
-    throws Exception {
+      throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, superType, subType
     hashKey.append(relationship.getTerminology())
@@ -185,7 +185,7 @@ public class UuidHashIdentifierAssignmentHandler implements
   @Override
   public String getTerminologyId(
     SubsetMember<? extends ComponentHasAttributes, ? extends Subset> member)
-    throws Exception {
+      throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, member, subset
     hashKey.append(member.getTerminology()).append(member.getTerminologyId())
@@ -200,8 +200,8 @@ public class UuidHashIdentifierAssignmentHandler implements
     Concept concept) throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // value, concept
-    hashKey.append(semanticTypeComponent.getSemanticType()).append(
-        concept.getTerminologyId());
+    hashKey.append(semanticTypeComponent.getSemanticType())
+        .append(concept.getTerminologyId());
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
@@ -209,7 +209,7 @@ public class UuidHashIdentifierAssignmentHandler implements
   @Override
   public String getTerminologyId(
     TreePosition<? extends ComponentHasAttributesAndName> treepos)
-    throws Exception {
+      throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, superType, subType
     hashKey.append(treepos.getTerminology()).append(treepos.getTerminologyId())
@@ -228,5 +228,11 @@ public class UuidHashIdentifierAssignmentHandler implements
   @Override
   public boolean allowConceptIdChangeOnUpdate() {
     return true;
+  }
+
+  /* see superclass */
+  @Override
+  public String getName() {
+    return "UUID hash identifier assignment handler";
   }
 }

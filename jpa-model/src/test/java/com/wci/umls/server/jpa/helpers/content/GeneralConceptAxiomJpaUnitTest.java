@@ -95,19 +95,19 @@ public class GeneralConceptAxiomJpaUnitTest {
 
     tester.proxy(Concept.class, 1, c1);
     tester.proxy(Concept.class, 2, c2);
-    assertTrue(tester.testIdentitiyFieldEquals());
+    assertTrue(tester.testIdentityFieldEquals());
     tester.proxy(Concept.class, 1, c1);
     tester.proxy(Concept.class, 2, c2);
-    assertTrue(tester.testNonIdentitiyFieldEquals());
+    assertTrue(tester.testNonIdentityFieldEquals());
     tester.proxy(Concept.class, 1, c1);
     tester.proxy(Concept.class, 2, c2);
     assertTrue(tester.testIdentityFieldNotEquals());
     tester.proxy(Concept.class, 1, c1);
     tester.proxy(Concept.class, 2, c2);
-    assertTrue(tester.testIdentitiyFieldHashcode());
+    assertTrue(tester.testIdentityFieldHashcode());
     tester.proxy(Concept.class, 1, c1);
     tester.proxy(Concept.class, 2, c2);
-    assertTrue(tester.testNonIdentitiyFieldHashcode());
+    assertTrue(tester.testNonIdentityFieldHashcode());
     tester.proxy(Concept.class, 1, c1);
     tester.proxy(Concept.class, 2, c2);
     assertTrue(tester.testIdentityFieldDifferentHashcode());

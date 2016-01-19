@@ -78,11 +78,11 @@ public class LabelSetJpaUnitTest {
     tester.include("description");
     tester.include("derived");
 
-    assertTrue(tester.testIdentitiyFieldEquals());
-    assertTrue(tester.testNonIdentitiyFieldEquals());
+    assertTrue(tester.testIdentityFieldEquals());
+    assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
-    assertTrue(tester.testIdentitiyFieldHashcode());
-    assertTrue(tester.testNonIdentitiyFieldHashcode());
+    assertTrue(tester.testIdentityFieldHashcode());
+    assertTrue(tester.testNonIdentityFieldHashcode());
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 

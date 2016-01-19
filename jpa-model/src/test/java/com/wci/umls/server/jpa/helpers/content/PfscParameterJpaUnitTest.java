@@ -104,11 +104,11 @@ public class PfscParameterJpaUnitTest {
     tester.proxy(List.class, 1, list1);
     tester.proxy(List.class, 2, list2);
 
-    assertTrue(tester.testIdentitiyFieldEquals());
-    assertTrue(tester.testNonIdentitiyFieldEquals());
+    assertTrue(tester.testIdentityFieldEquals());
+    assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
-    assertTrue(tester.testIdentitiyFieldHashcode());
-    assertTrue(tester.testNonIdentitiyFieldHashcode());
+    assertTrue(tester.testIdentityFieldHashcode());
+    assertTrue(tester.testNonIdentityFieldHashcode());
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 

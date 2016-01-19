@@ -143,5 +143,11 @@ public class DefaultIdentifierAssignmentHandler implements
   public boolean allowConceptIdChangeOnUpdate() {
     return false;
   }
+  
+  /* see superclass */
+  @Override
+  public String getName() {
+    return "Default id assignment algorithm";
+  }
 
 }

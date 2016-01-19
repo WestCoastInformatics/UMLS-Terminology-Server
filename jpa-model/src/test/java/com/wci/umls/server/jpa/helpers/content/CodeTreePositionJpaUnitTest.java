@@ -107,19 +107,19 @@ public class CodeTreePositionJpaUnitTest {
 
     tester.proxy(Code.class, 1, new CodeJpa(code1, false));
     tester.proxy(Code.class, 2, new CodeJpa(code2, false));
-    assertTrue(tester.testIdentitiyFieldEquals());
+    assertTrue(tester.testIdentityFieldEquals());
     tester.proxy(Code.class, 1, new CodeJpa(code1, false));
     tester.proxy(Code.class, 2, new CodeJpa(code2, false));
-    assertTrue(tester.testNonIdentitiyFieldEquals());
+    assertTrue(tester.testNonIdentityFieldEquals());
     tester.proxy(Code.class, 1, new CodeJpa(code1, false));
     tester.proxy(Code.class, 2, new CodeJpa(code2, false));
     assertTrue(tester.testIdentityFieldNotEquals());
     tester.proxy(Code.class, 1, new CodeJpa(code1, false));
     tester.proxy(Code.class, 2, new CodeJpa(code2, false));
-    assertTrue(tester.testIdentitiyFieldHashcode());
+    assertTrue(tester.testIdentityFieldHashcode());
     tester.proxy(Code.class, 1, new CodeJpa(code1, false));
     tester.proxy(Code.class, 2, new CodeJpa(code2, false));
-    assertTrue(tester.testNonIdentitiyFieldHashcode());
+    assertTrue(tester.testNonIdentityFieldHashcode());
     tester.proxy(Code.class, 1, new CodeJpa(code1, false));
     tester.proxy(Code.class, 2, new CodeJpa(code2, false));
     assertTrue(tester.testIdentityFieldDifferentHashcode());

@@ -107,11 +107,11 @@ public class AtomJpaUnitTest {
 
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
-    assertTrue(tester.testIdentitiyFieldEquals());
-    assertTrue(tester.testNonIdentitiyFieldEquals());
+    assertTrue(tester.testIdentityFieldEquals());
+    assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
-    assertTrue(tester.testIdentitiyFieldHashcode());
-    assertTrue(tester.testNonIdentitiyFieldHashcode());
+    assertTrue(tester.testIdentityFieldHashcode());
+    assertTrue(tester.testNonIdentityFieldHashcode());
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 

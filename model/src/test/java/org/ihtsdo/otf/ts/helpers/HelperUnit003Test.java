@@ -57,11 +57,11 @@ public class HelperUnit003Test {
     EqualsHashcodeTester tester2 = new EqualsHashcodeTester(object);
     tester2.include("key");
     tester2.include("value");
-    assertTrue(tester2.testIdentitiyFieldEquals());
-    assertTrue(tester2.testNonIdentitiyFieldEquals());
+    assertTrue(tester2.testIdentityFieldEquals());
+    assertTrue(tester2.testNonIdentityFieldEquals());
     assertTrue(tester2.testIdentityFieldNotEquals());
-    assertTrue(tester2.testIdentitiyFieldHashcode());
-    assertTrue(tester2.testNonIdentitiyFieldHashcode());
+    assertTrue(tester2.testIdentityFieldHashcode());
+    assertTrue(tester2.testNonIdentityFieldHashcode());
     assertTrue(tester2.testIdentityFieldDifferentHashcode());
 
     CopyConstructorTester tester3 = new CopyConstructorTester(object);

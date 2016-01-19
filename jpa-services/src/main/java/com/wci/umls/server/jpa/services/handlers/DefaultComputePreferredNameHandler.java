@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -14,8 +14,8 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 /**
  * Default implementation of {@link ComputePreferredNameHandler}.
  */
-public class DefaultComputePreferredNameHandler implements
-    ComputePreferredNameHandler {
+public class DefaultComputePreferredNameHandler
+    implements ComputePreferredNameHandler {
 
   /* see superclass */
   @Override
@@ -38,6 +38,11 @@ public class DefaultComputePreferredNameHandler implements
   public List<Atom> sortByPreference(Collection<Atom> atoms) throws Exception {
     // n/a
     return new ArrayList<>(atoms);
+  }
+
+  @Override
+  public String getName() {
+    return "Default preferred name handler";
   }
 
 }

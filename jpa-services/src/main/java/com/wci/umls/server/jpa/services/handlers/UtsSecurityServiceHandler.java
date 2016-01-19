@@ -115,4 +115,10 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
     this.properties = properties;
   }
 
+  /* see superclass */
+  @Override
+  public String getName() {
+    return "UTS security service handler";
+  }
+
 }

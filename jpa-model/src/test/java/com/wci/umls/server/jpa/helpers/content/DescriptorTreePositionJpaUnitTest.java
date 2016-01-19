@@ -108,19 +108,19 @@ public class DescriptorTreePositionJpaUnitTest {
 
     tester.proxy(Descriptor.class, 1, new DescriptorJpa(descriptor1, false));
     tester.proxy(Descriptor.class, 2, new DescriptorJpa(descriptor2, false));
-    assertTrue(tester.testIdentitiyFieldEquals());
+    assertTrue(tester.testIdentityFieldEquals());
     tester.proxy(Descriptor.class, 1, new DescriptorJpa(descriptor1, false));
     tester.proxy(Descriptor.class, 2, new DescriptorJpa(descriptor2, false));
-    assertTrue(tester.testNonIdentitiyFieldEquals());
+    assertTrue(tester.testNonIdentityFieldEquals());
     tester.proxy(Descriptor.class, 1, new DescriptorJpa(descriptor1, false));
     tester.proxy(Descriptor.class, 2, new DescriptorJpa(descriptor2, false));
     assertTrue(tester.testIdentityFieldNotEquals());
     tester.proxy(Descriptor.class, 1, new DescriptorJpa(descriptor1, false));
     tester.proxy(Descriptor.class, 2, new DescriptorJpa(descriptor2, false));
-    assertTrue(tester.testIdentitiyFieldHashcode());
+    assertTrue(tester.testIdentityFieldHashcode());
     tester.proxy(Descriptor.class, 1, new DescriptorJpa(descriptor1, false));
     tester.proxy(Descriptor.class, 2, new DescriptorJpa(descriptor2, false));
-    assertTrue(tester.testNonIdentitiyFieldHashcode());
+    assertTrue(tester.testNonIdentityFieldHashcode());
     tester.proxy(Descriptor.class, 1, new DescriptorJpa(descriptor1, false));
     tester.proxy(Descriptor.class, 2, new DescriptorJpa(descriptor2, false));
     assertTrue(tester.testIdentityFieldDifferentHashcode());

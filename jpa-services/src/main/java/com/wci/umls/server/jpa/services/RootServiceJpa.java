@@ -26,6 +26,7 @@ import org.hibernate.search.jpa.FullTextQuery;
 
 import com.wci.umls.server.User;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.services.RootService;
@@ -35,7 +36,6 @@ import com.wci.umls.server.services.RootService;
  * field names.
  */
 public abstract class RootServiceJpa implements RootService {
-
 
   /** The last modified flag. */
   protected boolean lastModifiedFlag = true;
@@ -433,4 +433,240 @@ public abstract class RootServiceJpa implements RootService {
 
   }
 
+  /**
+   * Adds the has last modified.
+   *
+   * @param <T> the
+   * @param hasLastModified the has last modified
+   * @return the t
+   * @throws Exception the exception
+   */
+  protected <T extends HasLastModified> T addHasLastModified(T hasLastModified)
+    throws Exception {
+    // Set last modified date
+    if (lastModifiedFlag) {
+      hasLastModified.setLastModified(new Date());
+    }
+    return addObject(hasLastModified);
+
+  }
+
+  /**
+   * Adds the object.
+   *
+   * @param <T> the
+   * @param object the object
+   * @return the t
+   * @throws Exception the exception
+   */
+  protected <T extends Object> T addObject(T object) throws Exception {
+    try {
+      // add
+      if (getTransactionPerOperation()) {
+        tx = manager.getTransaction();
+        tx.begin();
+        manager.persist(object);
+        tx.commit();
+      } else {
+        manager.persist(object);
+      }
+      return object;
+    } catch (Exception e) {
+      if (tx.isActive()) {
+        tx.rollback();
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * Update has last modified.
+   *
+   * @param <T> the
+   * @param hasLastModified the has last modified
+   * @throws Exception the exception
+   */
+  protected <T extends HasLastModified> void updateHasLastModified(
+    T hasLastModified) throws Exception {
+    // Set modification date
+    if (lastModifiedFlag) {
+      hasLastModified.setLastModified(new Date());
+    }
+    updateObject(hasLastModified);
+
+  }
+
+  /**
+   * Update object.
+   *
+   * @param <T> the
+   * @param object the object
+   * @throws Exception the exception
+   */
+  protected <T extends Object> void updateObject(T object) throws Exception {
+    try {
+      // update
+      if (getTransactionPerOperation()) {
+        tx = manager.getTransaction();
+        tx.begin();
+        manager.merge(object);
+        tx.commit();
+      } else {
+        manager.merge(object);
+      }
+    } catch (Exception e) {
+      if (tx.isActive()) {
+        tx.rollback();
+      }
+      throw e;
+    }
+
+  }
+
+  /**
+   * Removes the has last modified.
+   *
+   * @param <T> the
+   * @param id the id
+   * @param clazz the clazz
+   * @return the t
+   * @throws Exception the exception
+   */
+  protected <T extends HasLastModified> T removeHasLastModified(Long id,
+    Class<T> clazz) throws Exception {
+    try {
+      // Get transaction and object
+      tx = manager.getTransaction();
+      T hasLastModified = manager.find(clazz, id);
+
+      // Set modification date
+      if (lastModifiedFlag) {
+        hasLastModified.setLastModified(new Date());
+      }
+
+      // Remove
+      if (getTransactionPerOperation()) {
+        // remove refset member
+        tx.begin();
+        if (manager.contains(hasLastModified)) {
+          manager.remove(hasLastModified);
+        } else {
+          manager.remove(manager.merge(hasLastModified));
+        }
+        tx.commit();
+      } else {
+        if (manager.contains(hasLastModified)) {
+          manager.remove(hasLastModified);
+        } else {
+          manager.remove(manager.merge(hasLastModified));
+        }
+      }
+      return hasLastModified;
+    } catch (Exception e) {
+      if (tx.isActive()) {
+        tx.rollback();
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * Removes the object.
+   *
+   * @param <T> the
+   * @param object the object
+   * @param clazz the clazz
+   * @return the t
+   * @throws Exception the exception
+   */
+  protected <T extends Object> T removeObject(T object, Class<T> clazz)
+    throws Exception {
+    try {
+      // Get transaction and object
+      tx = manager.getTransaction();
+      // Remove
+      if (getTransactionPerOperation()) {
+        // remove refset member
+        tx.begin();
+        if (manager.contains(object)) {
+          manager.remove(object);
+        } else {
+          manager.remove(manager.merge(object));
+        }
+        tx.commit();
+      } else {
+        if (manager.contains(object)) {
+          manager.remove(object);
+        } else {
+          manager.remove(manager.merge(object));
+        }
+      }
+      return object;
+    } catch (Exception e) {
+      if (tx.isActive()) {
+        tx.rollback();
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * Returns the checks for object.
+   *
+   * @param <T> the
+   * @param id the id
+   * @param clazz the clazz
+   * @return the checks for object
+   * @throws Exception the exception
+   */
+  protected <T extends Object> T getObject(Long id, Class<T> clazz)
+    throws Exception {
+    // Get transaction and object
+    tx = manager.getTransaction();
+    T component = manager.find(clazz, id);
+    return component;
+  }
+
+  /**
+   * Returns the checks for last modified.
+   *
+   * @param <T> the
+   * @param id the id
+   * @param clazz the clazz
+   * @return the checks for last modified
+   * @throws Exception the exception
+   */
+  protected <T extends HasLastModified> T getHasLastModified(Long id,
+    Class<T> clazz) throws Exception {
+    // Get transaction and object
+    tx = manager.getTransaction();
+    T component = manager.find(clazz, id);
+    return component;
+  }
+
+  /**
+   * Returns the checks for last modifieds.
+   *
+   * @param <T> the
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param clazz the clazz
+   * @return the checks for last modifieds
+   */
+  @SuppressWarnings("unchecked")
+  protected <T extends HasLastModified> T getHasLastModified(
+    String terminologyId, String terminology, String version, Class<T> clazz) {
+    try {
+      javax.persistence.Query query = manager.createQuery("select a from "
+          + clazz.getName()
+          + " a where terminologyId = :terminologyId and version = :version and terminology = :terminology");
+      query.setParameter("terminologyId", terminologyId);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      return (T) query.getSingleResult();
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
 }

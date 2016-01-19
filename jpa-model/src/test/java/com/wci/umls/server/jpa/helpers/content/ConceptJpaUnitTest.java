@@ -83,11 +83,11 @@ public class ConceptJpaUnitTest {
     tester.include("usesRelationshipIntersection");
     tester.include("usesRelationshipUnion");
 
-    assertTrue(tester.testIdentitiyFieldEquals());
-    assertTrue(tester.testNonIdentitiyFieldEquals());
+    assertTrue(tester.testIdentityFieldEquals());
+    assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
-    assertTrue(tester.testIdentitiyFieldHashcode());
-    assertTrue(tester.testNonIdentitiyFieldHashcode());
+    assertTrue(tester.testIdentityFieldHashcode());
+    assertTrue(tester.testNonIdentityFieldHashcode());
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 

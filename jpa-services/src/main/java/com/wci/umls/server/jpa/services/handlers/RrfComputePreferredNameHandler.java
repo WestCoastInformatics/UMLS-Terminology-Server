@@ -170,4 +170,10 @@ public class RrfComputePreferredNameHandler implements
         "  default precedence list = " + ttyRankMap);
   }
 
+  /* see superclass */
+  @Override
+  public String getName() {
+    return "RF2 compute preferred name handler";
+  }
+
 }

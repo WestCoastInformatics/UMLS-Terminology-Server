@@ -24,8 +24,8 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 /**
  * Default implementation of {@link ComputePreferredNameHandler}.
  */
-public class MultiRrfComputePreferredNameHandler implements
-    ComputePreferredNameHandler {
+public class MultiRrfComputePreferredNameHandler
+    implements ComputePreferredNameHandler {
 
   /** The list. */
   private Map<String, PrecedenceList> listMap = new HashMap<>();
@@ -110,19 +110,16 @@ public class MultiRrfComputePreferredNameHandler implements
     }
     String rank = null;
     if (atom.getStringClassId() != null && !atom.getStringClassId().isEmpty()) {
-      rank =
-          (atom.isObsolete() ? 0 : 1)
-              + (atom.isSuppressible() ? 0 : 1)
-              + ttyRankMap.get(atom.getTerminology() + atom.getVersion()).get(
-                  atom.getTerminology() + "/" + atom.getTermType())
-              + (10000000000L - Long.parseLong(atom.getStringClassId()
-                  .substring(1))) + (100000000000L - atom.getId());
+      rank = (atom.isObsolete() ? 0 : 1) + (atom.isSuppressible() ? 0 : 1)
+          + ttyRankMap.get(atom.getTerminology() + atom.getVersion())
+              .get(atom.getTerminology() + "/" + atom.getTermType())
+          + (10000000000L
+              - Long.parseLong(atom.getStringClassId().substring(1)))
+          + (100000000000L - atom.getId());
     } else {
-      rank =
-          (atom.isObsolete() ? 0 : 1)
-              + (atom.isSuppressible() ? 0 : 1)
-              + ttyRankMap.get(atom.getTerminology() + atom.getVersion()).get(
-                  atom.getTerminology() + "/" + atom.getTermType());
+      rank = (atom.isObsolete() ? 0 : 1) + (atom.isSuppressible() ? 0 : 1)
+          + ttyRankMap.get(atom.getTerminology() + atom.getVersion())
+              .get(atom.getTerminology() + "/" + atom.getTermType());
     }
     return rank;
   }
@@ -140,8 +137,7 @@ public class MultiRrfComputePreferredNameHandler implements
         service.getDefaultPrecedenceList(terminology, version));
     service.close();
     List<KeyValuePair> list2 =
-        listMap.get(terminology + version).getPrecedence()
-            .getKeyValuePairs();
+        listMap.get(terminology + version).getPrecedence().getKeyValuePairs();
     int ct = 1;
     Map<String, String> localTtyRankMap = new HashMap<>();
     for (int i = list2.size() - 1; i >= 0; i--) {
@@ -152,8 +148,13 @@ public class MultiRrfComputePreferredNameHandler implements
     }
 
     ttyRankMap.put(terminology + version, localTtyRankMap);
-    Logger.getLogger(getClass()).info(
-        "  default precedence list = " + ttyRankMap);
+    Logger.getLogger(getClass())
+        .info("  default precedence list = " + ttyRankMap);
   }
 
+  /* see superclass */
+  @Override
+  public String getName() {
+    return "Multi-RRF compute preferred name handler";
+  }
 }

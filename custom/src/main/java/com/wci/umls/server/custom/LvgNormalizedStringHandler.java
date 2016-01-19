@@ -3,12 +3,12 @@
  */
 package com.wci.umls.server.custom;
 
-import gov.nih.nlm.nls.lvg.Api.LuiNormApi;
-
 import java.util.Hashtable;
 import java.util.Properties;
 
 import com.wci.umls.server.services.handlers.NormalizedStringHandler;
+
+import gov.nih.nlm.nls.lvg.Api.LuiNormApi;
 
 /**
  * Implementation of string normalization based on NLM's LVG. Requires a local
@@ -34,8 +34,8 @@ public class LvgNormalizedStringHandler implements NormalizedStringHandler {
     }
     LVG_DIR = p.getProperty("lvg.dir");
     Hashtable<String, String> properties = new Hashtable<String, String>();
-    properties
-        .put(gov.nih.nlm.nls.lvg.Lib.Configuration.LVG_DIR, LVG_DIR + "/");
+    properties.put(gov.nih.nlm.nls.lvg.Lib.Configuration.LVG_DIR,
+        LVG_DIR + "/");
     // Use default config
     api = new LuiNormApi(LVG_DIR + "/data/config/lvg.properties", properties);
   }
@@ -44,6 +44,12 @@ public class LvgNormalizedStringHandler implements NormalizedStringHandler {
   @Override
   public String getNormalizedString(String string) throws Exception {
     return api.Mutate(string);
+  }
+
+  /* see superclass */
+  @Override
+  public String getName() {
+    return "LVG normalized string handler";
   }
 
 }
