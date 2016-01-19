@@ -127,5 +127,6 @@ public interface RootService {
    *
    * @param lastModifiedFlag the last modified flag
    */
-  public void setLastModifiedFlag(boolean lastModifiedFlag)
+  public void setLastModifiedFlag(boolean lastModifiedFlag);
+
 }

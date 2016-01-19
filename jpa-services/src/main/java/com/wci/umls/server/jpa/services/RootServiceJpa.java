@@ -8,18 +8,26 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 
 import org.apache.log4j.Logger;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
+import org.hibernate.search.jpa.FullTextQuery;
 
+import com.wci.umls.server.User;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.services.RootService;
 
 /**
@@ -29,7 +37,10 @@ import com.wci.umls.server.services.RootService;
 public abstract class RootServiceJpa implements RootService {
 
   /** The last modified flag. */
-  protected boolean lastModifiedFlag = false;
+  protected boolean lastModifiedFlag = true;
+
+  /** The user map. */
+  protected static Map<String, User> userMap = new HashMap<>();
 
   /** The factory. */
   protected static EntityManagerFactory factory = null;
@@ -180,24 +191,19 @@ public abstract class RootServiceJpa implements RootService {
 
   /* see superclass */
   @Override
-  public void commitClearBegin() throws Exception {
-    commit();
-    clear();
-    beginTransaction();
+  public void refreshCaches() throws Exception {
+    // n/a
   }
 
-  /* see superclass */
-  @Override
-  public void logAndCommit(int objectCt, int logCt, int commitCt)
-    throws Exception {
-    // log at regular intervals
-    if (objectCt % logCt == 0) {
-      Logger.getLogger(getClass()).info("    count = " + objectCt);
+  /**
+   * Returns the entity manager.
+   *
+   * @return the entity manager
+   * @throws Exception the exception
+   */
+  public EntityManager getEntityManager() throws Exception {
+    return manager;
     }
-    if (objectCt % commitCt == 0) {
-      commitClearBegin();
-    }
-  }
 
   /**
    * Apply pfs to query.
@@ -205,23 +211,24 @@ public abstract class RootServiceJpa implements RootService {
    * @param queryStr the query str
    * @param pfs the pfs
    * @return the javax.persistence. query
+   * @throws Exception the exception
    */
-  protected javax.persistence.Query applyPfsToJqlQuery(String queryStr,
-    PfsParameter pfs) {
+  public javax.persistence.Query applyPfsToJqlQuery(String queryStr,
+    PfsParameter pfs) throws Exception {
     StringBuilder localQueryStr = new StringBuilder();
     localQueryStr.append(queryStr);
 
     // Query restriction assumes a driving table called "a"
     if (pfs != null) {
-      if (pfs.getQueryRestriction() != null) {
-        localQueryStr.append(" AND ").append(pfs.getQueryRestriction());
+      if (pfs.getQueryRestriction() == null) {
+        throw new Exception("Query restriction not supported for JQL queries");
       }
 
       if (pfs.getActiveOnly()) {
-        localQueryStr.append("  AND a.obsolete = 0 ");
+        localQueryStr.append("  AND a.active = 1 ");
       }
       if (pfs.getInactiveOnly()) {
-        localQueryStr.append("  AND a.obsolete = 1 ");
+        localQueryStr.append("  AND a.active = 0 ");
       }
 
       // add an order by clause to end of the query, assume driving table
@@ -305,10 +312,14 @@ public abstract class RootServiceJpa implements RootService {
         && (pfs.getQueryRestriction() != null && !pfs.getQueryRestriction()
             .isEmpty())) {
 
-      List<T> filteredResult = new ArrayList<T>();
+      // Strip last char off if it is a *
+      String match = pfs.getQueryRestriction();
+      if (match.lastIndexOf('*') == match.length() - 1) {
+        match = match.substring(0, match.length() - 1);
+      }
+      final List<T> filteredResult = new ArrayList<T>();
       for (T t : result) {
-        if (t.toString().toLowerCase()
-            .indexOf(pfs.getQueryRestriction().toLowerCase()) != -1) {
+        if (t.toString().toLowerCase().indexOf(match.toLowerCase()) != -1) {
           filteredResult.add(t);
         }
       }
@@ -333,6 +344,29 @@ public abstract class RootServiceJpa implements RootService {
     return result;
   }
 
+  /**
+   * Returns the user for the userName. Utility method.
+   *
+   * @param userName the userName
+   * @return the user
+   * @throws Exception the exception
+   */
+  public User getUser(String userName) throws Exception {
+    if (userMap.containsKey(userName)) {
+      return userMap.get(userName);
+    }
+    javax.persistence.Query query =
+        manager
+            .createQuery("select u from UserJpa u where userName = :userName");
+    query.setParameter("userName", userName);
+    try {
+      User user = (User) query.getSingleResult();
+      userMap.put(userName, user);
+      return user;
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
 
   /* see superclass */
   @Override
@@ -344,4 +378,45 @@ public abstract class RootServiceJpa implements RootService {
   public void refreshCaches() throws Exception {
     // n/a
   }
+
+  /**
+   * Returns the query results.
+   *
+   * @param <T> the
+   * @param query the query
+   * @param fieldNamesKey the field names key
+   * @param clazz the clazz
+   * @param pfs the pfs
+   * @param totalCt the total ct
+   * @return the query results
+   * @throws Exception the exception
+   */
+  public <T> List<?> getQueryResults(String query, Class<?> fieldNamesKey,
+    Class<T> clazz, PfsParameter pfs, int[] totalCt) throws Exception {
+
+    if (query == null || query.isEmpty()) {
+      throw new Exception("Unexpected empty query.");
+    }
+
+    FullTextQuery fullTextQuery = null;
+    try {
+      fullTextQuery =
+          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, query, pfs,
+              manager);
+    } catch (ParseException e) {
+      // If parse exception, try a literal query
+      StringBuilder escapedQuery = new StringBuilder();
+      if (query != null && !query.isEmpty()) {
+        escapedQuery.append(QueryParserBase.escape(query));
+      }
+      fullTextQuery =
+          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+              escapedQuery.toString(), pfs, manager);
+    }
+
+    totalCt[0] = fullTextQuery.getResultSize();
+    return fullTextQuery.getResultList();
+
+  }
+
 }
