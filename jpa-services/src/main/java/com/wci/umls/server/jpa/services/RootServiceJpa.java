@@ -36,6 +36,7 @@ import com.wci.umls.server.services.RootService;
  */
 public abstract class RootServiceJpa implements RootService {
 
+
   /** The last modified flag. */
   protected boolean lastModifiedFlag = true;
 
@@ -44,9 +45,10 @@ public abstract class RootServiceJpa implements RootService {
 
   /** The factory. */
   protected static EntityManagerFactory factory = null;
+
   static {
-    Logger.getLogger(RootServiceJpa.class).info(
-        "Setting root service entity manager factory.");
+    Logger.getLogger(RootServiceJpa.class)
+        .info("Setting root service entity manager factory.");
     Properties config;
     try {
       config = ConfigUtility.getConfigProperties();
@@ -77,8 +79,8 @@ public abstract class RootServiceJpa implements RootService {
       throw new Exception("Factory is null, serious problem.");
     }
     if (!factory.isOpen()) {
-      Logger.getLogger(getClass()).info(
-          "Setting root service entity manager factory.");
+      Logger.getLogger(getClass())
+          .info("Setting root service entity manager factory.");
       Properties config = ConfigUtility.getConfigProperties();
       factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
     }
@@ -97,8 +99,8 @@ public abstract class RootServiceJpa implements RootService {
       throw new Exception("Factory is null, serious problem.");
     }
     if (!factory.isOpen()) {
-      Logger.getLogger(getClass()).info(
-          "Setting root service entity manager factory.");
+      Logger.getLogger(getClass())
+          .info("Setting root service entity manager factory.");
       Properties config = ConfigUtility.getConfigProperties();
       factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
     }
@@ -203,7 +205,7 @@ public abstract class RootServiceJpa implements RootService {
    */
   public EntityManager getEntityManager() throws Exception {
     return manager;
-    }
+  }
 
   /**
    * Apply pfs to query.
@@ -225,10 +227,10 @@ public abstract class RootServiceJpa implements RootService {
       }
 
       if (pfs.getActiveOnly()) {
-        localQueryStr.append("  AND a.active = 1 ");
+        localQueryStr.append("  AND a.obsolete = 0 ");
       }
       if (pfs.getInactiveOnly()) {
-        localQueryStr.append("  AND a.active = 0 ");
+        localQueryStr.append("  AND a.obsolete = 1 ");
       }
 
       // add an order by clause to end of the query, assume driving table
@@ -308,9 +310,8 @@ public abstract class RootServiceJpa implements RootService {
     }
 
     // Handle filtering based on toString()
-    if (pfs != null
-        && (pfs.getQueryRestriction() != null && !pfs.getQueryRestriction()
-            .isEmpty())) {
+    if (pfs != null && (pfs.getQueryRestriction() != null
+        && !pfs.getQueryRestriction().isEmpty())) {
 
       // Strip last char off if it is a *
       String match = pfs.getQueryRestriction();
@@ -355,9 +356,8 @@ public abstract class RootServiceJpa implements RootService {
     if (userMap.containsKey(userName)) {
       return userMap.get(userName);
     }
-    javax.persistence.Query query =
-        manager
-            .createQuery("select u from UserJpa u where userName = :userName");
+    javax.persistence.Query query = manager
+        .createQuery("select u from UserJpa u where userName = :userName");
     query.setParameter("userName", userName);
     try {
       User user = (User) query.getSingleResult();
@@ -373,10 +373,26 @@ public abstract class RootServiceJpa implements RootService {
   public void setLastModifiedFlag(boolean lastModifiedFlag) {
     this.lastModifiedFlag = lastModifiedFlag;
   }
+
   /* see superclass */
   @Override
-  public void refreshCaches() throws Exception {
-    // n/a
+  public void commitClearBegin() throws Exception {
+    commit();
+    clear();
+    beginTransaction();
+  }
+
+  /* see superclass */
+  @Override
+  public void logAndCommit(int objectCt, int logCt, int commitCt)
+    throws Exception {
+    // log at regular intervals
+    if (objectCt % logCt == 0) {
+      Logger.getLogger(getClass()).info("    count = " + objectCt);
+    }
+    if (objectCt % commitCt == 0) {
+      commitClearBegin();
+    }
   }
 
   /**
@@ -400,18 +416,16 @@ public abstract class RootServiceJpa implements RootService {
 
     FullTextQuery fullTextQuery = null;
     try {
-      fullTextQuery =
-          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, query, pfs,
-              manager);
+      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+          query, pfs, manager);
     } catch (ParseException e) {
       // If parse exception, try a literal query
       StringBuilder escapedQuery = new StringBuilder();
       if (query != null && !query.isEmpty()) {
         escapedQuery.append(QueryParserBase.escape(query));
       }
-      fullTextQuery =
-          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-              escapedQuery.toString(), pfs, manager);
+      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+          escapedQuery.toString(), pfs, manager);
     }
 
     totalCt[0] = fullTextQuery.getResultSize();

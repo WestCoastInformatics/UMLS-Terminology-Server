@@ -199,4 +199,5 @@ public class LuceneReindexAlgorithm extends RootServiceJpa
   public void refreshCaches() throws Exception {
     // n/a
   }
+
 }
