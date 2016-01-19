@@ -33,7 +33,7 @@ import com.wci.umls.server.model.content.SubsetMember;
 @Entity
 @Table(name = "atom_subset_members", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
-}))
+}) )
 @Audited
 @Indexed
 @XmlRootElement(name = "atomMember")
@@ -177,7 +177,7 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
    * @return the member name
    */
   @Fields({
-      @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord") ),
       @Field(name = "memberNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
   public String getMemberName() {
@@ -303,7 +303,7 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
    *
    * @return the subset name
    */
-  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"))
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord") )
   public String getSubsetName() {
     return subset == null ? null : subset.getName();
   }
@@ -331,15 +331,11 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
     int result = super.hashCode();
     result = prime * result + ((member == null) ? 0 : member.hashCode());
     result =
-        prime
-            * result
-            + ((member == null || member.getTerminologyId() == null) ? 0
-                : member.getTerminologyId().hashCode());
+        prime * result + ((member == null || member.getTerminologyId() == null)
+            ? 0 : member.getTerminologyId().hashCode());
     result =
-        prime
-            * result
-            + ((subset == null || subset.getTerminologyId() == null) ? 0
-                : subset.getTerminologyId().hashCode());
+        prime * result + ((subset == null || subset.getTerminologyId() == null)
+            ? 0 : subset.getTerminologyId().hashCode());
     return result;
   }
 
@@ -364,8 +360,8 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
     } else if (member.getTerminologyId() == null) {
       if (other.member != null && other.member.getTerminologyId() != null)
         return false;
-    } else if (!member.getTerminologyId().equals(
-        other.member.getTerminologyId()))
+    } else if (!member.getTerminologyId()
+        .equals(other.member.getTerminologyId()))
       return false;
     if (subset == null) {
       if (other.subset != null)
@@ -373,8 +369,8 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
     } else if (subset.getTerminologyId() == null) {
       if (other.subset != null && other.subset.getTerminologyId() != null)
         return false;
-    } else if (!subset.getTerminologyId().equals(
-        other.subset.getTerminologyId()))
+    } else if (!subset.getTerminologyId()
+        .equals(other.subset.getTerminologyId()))
       return false;
     return true;
   }

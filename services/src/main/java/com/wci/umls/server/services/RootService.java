@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
 
@@ -121,4 +121,11 @@ public interface RootService {
    */
   public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz,
     PfsParameter pfs) throws Exception;
+
+  /**
+   * Sets the last modified flag.
+   *
+   * @param lastModifiedFlag the last modified flag
+   */
+  public void setLastModifiedFlag(boolean lastModifiedFlag)
 }

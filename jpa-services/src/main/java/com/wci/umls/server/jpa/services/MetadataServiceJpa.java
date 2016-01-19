@@ -80,9 +80,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   /** The listeners enabled. */
   protected boolean listenersEnabled = true;
 
-  /** The last modified flag. */
-  protected boolean lastModifiedFlag = false;
-
   /** The listener. */
   protected static List<WorkflowListener> listeners = null;
   static {
@@ -1344,11 +1341,6 @@ public class MetadataServiceJpa extends RootServiceJpa implements
     return lastModifiedFlag;
   }
 
-  /* see superclass */
-  @Override
-  public void setLastModifiedFlag(boolean lastModifiedFlag) {
-    this.lastModifiedFlag = lastModifiedFlag;
-  }
 
   /* see superclass */
   @Override

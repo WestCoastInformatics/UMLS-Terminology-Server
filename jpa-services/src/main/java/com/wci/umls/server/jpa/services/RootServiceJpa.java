@@ -28,6 +28,9 @@ import com.wci.umls.server.services.RootService;
  */
 public abstract class RootServiceJpa implements RootService {
 
+  /** The last modified flag. */
+  protected boolean lastModifiedFlag = false;
+
   /** The factory. */
   protected static EntityManagerFactory factory = null;
   static {
@@ -330,6 +333,12 @@ public abstract class RootServiceJpa implements RootService {
     return result;
   }
 
+
+  /* see superclass */
+  @Override
+  public void setLastModifiedFlag(boolean lastModifiedFlag) {
+    this.lastModifiedFlag = lastModifiedFlag;
+  }
   /* see superclass */
   @Override
   public void refreshCaches() throws Exception {
