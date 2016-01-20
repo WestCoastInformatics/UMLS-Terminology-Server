@@ -28,7 +28,7 @@ public class EqualsHashcodeTester extends ProxyTester {
    * @return true, if successful
    * @throws Exception the exception
    */
-  public boolean testIdentitiyFieldEquals() throws Exception {
+  public boolean testIdentityFieldEquals() throws Exception {
     Logger.getLogger(getClass()).debug(
         "Test identity field equals - " + clazz.getName());
     Object o1 = createObject(1);
@@ -43,7 +43,7 @@ public class EqualsHashcodeTester extends ProxyTester {
    * @return true, if successful
    * @throws Exception the exception
    */
-  public boolean testNonIdentitiyFieldEquals() throws Exception {
+  public boolean testNonIdentityFieldEquals() throws Exception {
     Logger.getLogger(getClass()).debug(
         "Test non identity field equals - " + clazz.getName());
     Object o1 = createObject(1);
@@ -128,7 +128,7 @@ public class EqualsHashcodeTester extends ProxyTester {
    * @return true, if successful
    * @throws Exception the exception
    */
-  public boolean testIdentitiyFieldHashcode() throws Exception {
+  public boolean testIdentityFieldHashcode() throws Exception {
     Logger.getLogger(getClass()).debug(
         "Test identity field hashcode - " + clazz.getName());
     Object o1 = createObject(1);
@@ -143,7 +143,7 @@ public class EqualsHashcodeTester extends ProxyTester {
    * @return true, if successful
    * @throws Exception the exception
    */
-  public boolean testNonIdentitiyFieldHashcode() throws Exception {
+  public boolean testNonIdentityFieldHashcode() throws Exception {
     Logger.getLogger(getClass()).debug(
         "Test non identity field hashcode - " + clazz.getName());
     Object o1 = createObject(1);

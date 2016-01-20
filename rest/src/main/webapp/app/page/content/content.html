@@ -85,7 +85,11 @@
                 ng-click="getComponent(searchResult.terminologyId, searchResult.terminology, searchResult.version)">
                 <td><span
                     ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>{{searchResult.terminologyId}}</td>
-                <td style="word-break: break-word;">{{searchResult.value}}</td>
+                <td style="word-break: break-word;">{{searchResult.value}}
+          <span class="label label-default" ng-show="searchResult.obsolete"
+            tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>                
+                
+                </td>
               </tr>
             </tbody>
           </table>
@@ -198,7 +202,7 @@
             ng-show="metadata.terminology.metathesaurus && component.object.suppressible"
             tooltip="Suppressible">S</span>
           <span class="label label-default" ng-show="component.object.obsolete"
-            tooltip="{{metadata.obsoleteLabel}}">{{metadata.ObsoleteIndicator}}</span>
+            tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
           <span style="padding-bottom: 2px;"
             ng-show="metadata.terminology.descriptionLogicTerminology && component.object.anonymous"
             class="label label-info" tooltip="Anonymous">A</span>

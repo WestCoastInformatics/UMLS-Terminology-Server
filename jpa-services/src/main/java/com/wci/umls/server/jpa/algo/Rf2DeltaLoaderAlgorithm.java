@@ -20,6 +20,7 @@ import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
@@ -460,7 +461,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       // Split line
-      String fields[] = line.split("\t");
+      String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       // if not header
       if (!fields[0].equals("id")) {
@@ -605,7 +606,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.DESCRIPTION);
     while ((line = reader.readLine()) != null) {
       // split line
-      String fields[] = line.split("\t");
+      String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       // if not header
       if (!fields[0].equals("id")) {
@@ -785,7 +786,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.DESCRIPTION);
     while ((line = reader.readLine()) != null) {
       // split line
-      String fields[] = line.split("\t");
+      String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       // if not header
       if (!fields[0].equals("id")) {
@@ -977,7 +978,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       // split line
-      String fields[] = line.split("\t");
+      String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       // if not header
       if (!fields[0].equals("id")) {
@@ -1125,7 +1126,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       // split line
-      String fields[] = line.split("\t");
+      String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       // if not header
       if (!fields[0].equals("id")) {
@@ -1248,7 +1249,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       // split line
-      String fields[] = line.split("\t");
+      String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       // if not header
       if (!fields[0].equals("id")) {
@@ -1401,7 +1402,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       // split line
-      String fields[] = line.split("\t");
+      String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       // if not header
       if (!fields[0].equals("id")) {
@@ -1550,7 +1551,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       // split line
-      String fields[] = line.split("\t");
+      String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       // if not header
       if (!fields[0].equals("id")) {
@@ -1711,7 +1712,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       // split line
-      String fields[] = line.split("\t");
+      String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       // if not header
       if (!fields[0].equals("id")) {
@@ -1861,7 +1862,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       // split line
-      String fields[] = line.split("\t");
+      String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       // if not header
       if (!fields[0].equals("id")) {
@@ -2041,7 +2042,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       // split line
-      String fields[] = line.split("\t");
+      String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       // if not header
       if (!fields[0].equals("id")) {
@@ -2234,7 +2235,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
     while ((line = reader.readLine()) != null) {
 
       // Split line
-      String fields[] = line.split("\t");
+      String fields[] = FieldedStringTokenizer.split(line,"\t");
 
       // If not header
       if (!fields[0].equals("id")) {

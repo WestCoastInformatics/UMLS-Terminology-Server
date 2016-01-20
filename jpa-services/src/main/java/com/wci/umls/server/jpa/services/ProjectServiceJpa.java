@@ -58,8 +58,8 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   @Override
   public Project getProject(Long id) {
     Logger.getLogger(getClass()).debug("Project Service - get project " + id);
-    Project project = manager.find(ProjectJpa.class, id);
-    handleLazyInitialization(project);
+    final Project project = manager.find(ProjectJpa.class, id);
+    handleLazyInit(project);
     return project;
   }
 
@@ -71,11 +71,11 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     javax.persistence.Query query =
         manager.createQuery("select a from ProjectJpa a");
     try {
-      List<Project> projects = query.getResultList();
-      ProjectList projectList = new ProjectListJpa();
+      final List<Project> projects = query.getResultList();
+      final ProjectList projectList = new ProjectListJpa();
       projectList.setObjects(projects);
-      for (Project project : projectList.getObjects()) {
-        handleLazyInitialization(project);
+      for (final Project project : projectList.getObjects()) {
+        handleLazyInit(project);
       }
       return projectList;
     } catch (NoResultException e) {
@@ -90,27 +90,27 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     Logger.getLogger(getClass()).debug(
         "Project Service - get user role for project - " + username + ", "
             + projectId);
-    Project project = getProject(projectId);
+    final Project project = getProject(projectId);
     if (project == null) {
       throw new Exception("No project found for " + projectId);
     }
 
     // check admin
-    for (User user : project.getAdministrators()) {
+    for (final User user : project.getAdministrators()) {
       if (username.equals(user.getUserName())) {
         return UserRole.ADMINISTRATOR;
       }
     }
 
     // check lead
-    for (User user : project.getLeads()) {
+    for (final User user : project.getLeads()) {
       if (username.equals(user.getUserName())) {
         return UserRole.LEAD;
       }
     }
 
     // check author
-    for (User user : project.getAuthors()) {
+    for (final User user : project.getAuthors()) {
       if (username.equals(user.getUserName())) {
         return UserRole.AUTHOR;
       }
@@ -181,7 +181,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     try {
       // Get transaction and object
       tx = manager.getTransaction();
-      Project project = manager.find(ProjectJpa.class, id);
+      final Project project = manager.find(ProjectJpa.class, id);
 
       // if project doesn't exist, return
       if (project == null)
@@ -221,7 +221,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
    * @param project the project
    */
   @SuppressWarnings("static-method")
-  private void handleLazyInitialization(Project project) {
+  private void handleLazyInit(Project project) {
     if (project == null) {
       return;
     }

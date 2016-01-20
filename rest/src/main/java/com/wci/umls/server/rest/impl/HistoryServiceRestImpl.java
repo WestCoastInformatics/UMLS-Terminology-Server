@@ -71,7 +71,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
-      authorize(securityService, authToken, "get release history",
+      authorizeApp(securityService, authToken, "get release history",
           UserRole.VIEWER);
 
       ReleaseInfoList result = historyService.getReleaseHistory(terminology);
@@ -100,7 +100,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
-      authorize(securityService, authToken, "get current release info",
+      authorizeApp(securityService, authToken, "get current release info",
           UserRole.VIEWER);
 
       ReleaseInfo result = historyService.getCurrentReleaseInfo(terminology);
@@ -129,7 +129,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
-      authorize(securityService, authToken, "get previous release info",
+      authorizeApp(securityService, authToken, "get previous release info",
           UserRole.VIEWER);
 
       ReleaseInfo result = historyService.getPreviousReleaseInfo(terminology);
@@ -158,7 +158,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
-      authorize(securityService, authToken, "get planned release info",
+      authorizeApp(securityService, authToken, "get planned release info",
           UserRole.VIEWER);
 
       ReleaseInfo result = historyService.getPlannedReleaseInfo(terminology);
@@ -188,7 +188,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
-      authorize(securityService, authToken, "get release info for " + name,
+      authorizeApp(securityService, authToken, "get release info for " + name,
           UserRole.VIEWER);
 
       ReleaseInfo result = historyService.getReleaseInfo(terminology, name);
@@ -217,7 +217,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
-      authorize(securityService, authToken, "add release info",
+      authorizeApp(securityService, authToken, "add release info",
           UserRole.ADMINISTRATOR);
 
       releaseInfo.setLastModifiedBy(securityService
@@ -248,7 +248,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
-      authorize(securityService, authToken, "update release info",
+      authorizeApp(securityService, authToken, "update release info",
           UserRole.ADMINISTRATOR);
 
       releaseInfo.setLastModifiedBy(securityService
@@ -276,7 +276,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
-      authorize(securityService, authToken, "remove release info",
+      authorizeApp(securityService, authToken, "remove release info",
           UserRole.ADMINISTRATOR);
 
       historyService.removeReleaseInfo(id);
@@ -306,7 +306,7 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     StartEditingCycleAlgorithm algorithm =
         new StartEditingCycleAlgorithm(releaseVersion, terminology, version);
     try {
-      authorize(securityService, authToken, "start editing cycle",
+      authorizeApp(securityService, authToken, "start editing cycle",
           UserRole.ADMINISTRATOR);
       algorithm.setUser(securityService.getUsernameForToken(authToken));
       algorithm.compute();

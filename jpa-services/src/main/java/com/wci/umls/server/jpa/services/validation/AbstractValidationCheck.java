@@ -16,7 +16,7 @@ import com.wci.umls.server.services.handlers.ValidationCheck;
 /**
  * Abstract validation check to make implementation easier.
  */
-public class AbstractValidationCheck implements ValidationCheck {
+public abstract class AbstractValidationCheck implements ValidationCheck {
 
   /* see superclass */
   @Override

@@ -1,11 +1,12 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,12 +93,14 @@ public class RrfReaders {
   /**
    * Open original readers.
    *
+   * @param prefix the prefix (e.g. MR or RXN)
    * @throws Exception the exception
    */
-  public void openOriginalReaders() throws Exception {
+  public void openOriginalReaders(String prefix) throws Exception {
 
     for (Keys key : Keys.values()) {
-      readers.put(key, getReader(key.toString() + ".RRF"));
+      readers.put(key,
+          getReader(key.toString().replace("MR", prefix) + ".RRF"));
     }
     readers.put(Keys.SRDEF, getReader("SRDEF"));
   }
@@ -129,7 +132,8 @@ public class RrfReaders {
     if (file != null && file.exists()) {
       return new PushBackReader(new BufferedReader(new FileReader(file)));
     } else {
-      return null;
+      // if no file, return an empty stream
+      return new PushBackReader(new StringReader(""));
     }
   }
 

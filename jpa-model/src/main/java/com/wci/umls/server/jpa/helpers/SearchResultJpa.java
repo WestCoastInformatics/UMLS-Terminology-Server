@@ -29,6 +29,9 @@ public class SearchResultJpa implements SearchResult {
   /** The value. */
   private String value;
 
+  /** The obsolete. */
+  private boolean obsolete;
+
   /**
    * Default constructor.
    */
@@ -47,6 +50,7 @@ public class SearchResultJpa implements SearchResult {
     terminologyId = result.getTerminologyId();
     version = result.getVersion();
     value = result.getValue();
+    obsolete = result.isObsolete();
   }
 
   /**
@@ -117,44 +121,44 @@ public class SearchResultJpa implements SearchResult {
     this.version = version;
   }
 
-  /**
-   * Gets the value.
-   *
-   * @return the value
-   */
+  /* see superclass */
   @Override
   @XmlElement(name = "value")
   public String getValue() {
     return this.value;
   }
 
-  /**
-   * Sets the value.
-   *
-   * @param value the value
-   */
   @Override
   public void setValue(String value) {
     this.value = value;
-
   }
 
   /* see superclass */
   @Override
+  public boolean isObsolete() {
+    return obsolete;
+  }
+
+  @Override
+  public void setObsolete(boolean obsolete) {
+    this.obsolete = obsolete;
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + (obsolete ? 1231 : 1237);
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result =
         prime * result
             + ((terminologyId == null) ? 0 : terminologyId.hashCode());
-    result = prime * result + ((version == null) ? 0 : version.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
-  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -164,6 +168,8 @@ public class SearchResultJpa implements SearchResult {
     if (getClass() != obj.getClass())
       return false;
     SearchResultJpa other = (SearchResultJpa) obj;
+    if (obsolete != other.obsolete)
+      return false;
     if (terminology == null) {
       if (other.terminology != null)
         return false;
@@ -174,15 +180,15 @@ public class SearchResultJpa implements SearchResult {
         return false;
     } else if (!terminologyId.equals(other.terminologyId))
       return false;
-    if (version == null) {
-      if (other.version != null)
-        return false;
-    } else if (!version.equals(other.version))
-      return false;
     if (value == null) {
       if (other.value != null)
         return false;
     } else if (!value.equals(other.value))
+      return false;
+    if (version == null) {
+      if (other.version != null)
+        return false;
+    } else if (!version.equals(other.version))
       return false;
     return true;
   }
@@ -192,7 +198,6 @@ public class SearchResultJpa implements SearchResult {
   public String toString() {
     return "SearchResultJpa [id=" + id + ", terminologyId=" + terminologyId
         + ", terminology=" + terminology + ", version=" + version + ", value="
-        + value + "]";
+        + value + ", obsolete=" + obsolete + "]";
   }
-
 }

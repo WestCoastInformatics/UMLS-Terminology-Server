@@ -28,7 +28,7 @@ import com.wci.umls.server.model.content.CodeRelationship;
 @Entity
 @Table(name = "codes", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
-}))
+}) )
 @Audited
 @Indexed
 @XmlRootElement(name = "code")

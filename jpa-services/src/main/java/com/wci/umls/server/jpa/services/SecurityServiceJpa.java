@@ -80,7 +80,6 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     return authHelper(authUser);
   }
 
-
   /**
    * Auth helper.
    *
@@ -135,7 +134,6 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     return authUser;
   }
 
-
   /* see superclass */
   @Override
   public void logout(String authToken) throws Exception {
@@ -181,24 +179,20 @@ public class SecurityServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public UserRole getApplicationRoleForToken(String authToken) throws Exception {
-
     if (authToken == null) {
       throw new LocalException(
           "Attempt to access a service without an AuthToken, the user is likely not logged in.");
     }
+
     String parsedToken = authToken.replace("\"", "");
     String username = getUsernameForToken(parsedToken);
     // check for null username
     if (username == null) {
-      throw new LocalException(
-          "Unable to find user for the AuthToken");
+      throw new LocalException("Unable to find user for the AuthToken");
     }
     User user = getUser(username.toLowerCase());
     if (user == null) {
       return UserRole.VIEWER;
-      // throw new
-      // LocalException("Unable to obtain user information for username = " +
-      // username);
     }
     return user.getApplicationRole();
   }

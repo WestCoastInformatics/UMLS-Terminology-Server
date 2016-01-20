@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -69,7 +69,14 @@ public class RrfFileSorter {
       final File releasedat = findFile(inputDir, "release.dat");
       p.load(new FileInputStream(releasedat));
     } catch (Exception e) {
-      throw new Exception("Unable to resolve version from release.dat", e);
+      // If requiring all files, throw exception
+      if (requireAllFiles) {
+        throw new Exception("Unable to resolve version from release.dat", e);
+      }
+      // otherwise, return null
+      else {
+        return null;
+      }
     }
     fileVersion = p.getProperty("umls.release.name");
     if (fileVersion == null) {
@@ -84,9 +91,11 @@ public class RrfFileSorter {
    *
    * @param inputDir the input dir
    * @param outputDir the output dir
+   * @param prefix the prefix
    * @throws Exception the exception
    */
-  public void sortFiles(File inputDir, File outputDir) throws Exception {
+  public void sortFiles(File inputDir, File outputDir, String prefix)
+    throws Exception {
     Logger.getLogger(getClass()).info("Start sorting files");
 
     // Remove and remake output dir
@@ -102,39 +111,39 @@ public class RrfFileSorter {
     }
 
     Map<String, String> dirMap = new HashMap<>();
-    dirMap.put("MRCONSO.RRF", "/");
-    dirMap.put("MRDEF.RRF", "/");
-    dirMap.put("MRDOC.RRF", "/");
-    dirMap.put("MRMAP.RRF", "/");
-    dirMap.put("MRRANK.RRF", "/");
-    dirMap.put("MRREL.RRF", "/");
-    dirMap.put("MRSAB.RRF", "/");
-    dirMap.put("MRSAT.RRF", "/");
-    dirMap.put("MRSTY.RRF", "/");
+    dirMap.put(prefix + "CONSO.RRF", "/");
+    dirMap.put(prefix + "DEF.RRF", "/");
+    dirMap.put(prefix + "DOC.RRF", "/");
+    dirMap.put(prefix + "MAP.RRF", "/");
+    dirMap.put(prefix + "RANK.RRF", "/");
+    dirMap.put(prefix + "REL.RRF", "/");
+    dirMap.put(prefix + "SAB.RRF", "/");
+    dirMap.put(prefix + "SAT.RRF", "/");
+    dirMap.put(prefix + "STY.RRF", "/");
     dirMap.put("SRDEF", "/");
 
     Map<String, Integer> sortByMap = new HashMap<>();
-    sortByMap.put("MRCONSO.RRF", 0);
-    sortByMap.put("MRDEF.RRF", 0);
-    sortByMap.put("MRDOC.RRF", 0);
-    sortByMap.put("MRMAP.RRF", 0);
-    sortByMap.put("MRRANK.RRF", 0);
-    sortByMap.put("MRREL.RRF", 0);
-    sortByMap.put("MRSAB.RRF", 0);
-    sortByMap.put("MRSAT.RRF", 0);
-    sortByMap.put("MRSTY.RRF", 0);
+    sortByMap.put(prefix + "CONSO.RRF", 0);
+    sortByMap.put(prefix + "DEF.RRF", 0);
+    sortByMap.put(prefix + "DOC.RRF", 0);
+    sortByMap.put(prefix + "MAP.RRF", 0);
+    sortByMap.put(prefix + "RANK.RRF", 0);
+    sortByMap.put(prefix + "REL.RRF", 0);
+    sortByMap.put(prefix + "SAB.RRF", 0);
+    sortByMap.put(prefix + "SAT.RRF", 0);
+    sortByMap.put(prefix + "STY.RRF", 0);
     sortByMap.put("SRDEF", 0);
 
     Map<String, String> fileMap = new HashMap<>();
-    fileMap.put("MRCONSO.RRF", "consoByConcept.sort");
-    fileMap.put("MRDEF.RRF", "defByConcept.sort");
-    fileMap.put("MRDOC.RRF", "docByKey.sort");
-    fileMap.put("MRMAP.RRF", "mapByConcept.sort");
-    fileMap.put("MRRANK.RRF", "rankByRank.sort");
-    fileMap.put("MRREL.RRF", "relByConcept.sort");
-    fileMap.put("MRSAB.RRF", "sabBySab.sort");
-    fileMap.put("MRSAT.RRF", "satByConcept.sort");
-    fileMap.put("MRSTY.RRF", "styByConcept.sort");
+    fileMap.put(prefix + "CONSO.RRF", "consoByConcept.sort");
+    fileMap.put(prefix + "DEF.RRF", "defByConcept.sort");
+    fileMap.put(prefix + "DOC.RRF", "docByKey.sort");
+    fileMap.put(prefix + "MAP.RRF", "mapByConcept.sort");
+    fileMap.put(prefix + "RANK.RRF", "rankByRank.sort");
+    fileMap.put(prefix + "REL.RRF", "relByConcept.sort");
+    fileMap.put(prefix + "SAB.RRF", "sabBySab.sort");
+    fileMap.put(prefix + "SAT.RRF", "satByConcept.sort");
+    fileMap.put(prefix + "STY.RRF", "styByConcept.sort");
     fileMap.put("SRDEF", "srdef.sort");
 
     // Sort files
@@ -156,14 +165,14 @@ public class RrfFileSorter {
         }
         fileVersion = p.getProperty("umls.release.name");
         if (fileVersion == null) {
-          throw new Exception("Unable to determine file version from "
-              + file.getName());
+          throw new Exception(
+              "Unable to determine file version from " + file.getName());
         }
       }
 
       // Determine fields to sort by
       fields = new int[] {
-        sortByMap.get(key)
+          sortByMap.get(key)
       };
 
       // Sort the file
@@ -234,9 +243,8 @@ public class RrfFileSorter {
       }
       columns.append(sortColumn);
     }
-    Logger.getLogger(getClass()).info(
-        "    Sorting " + fileIn.getName() + "  into " + fileOut.toString()
-            + " by columns " + columns);
+    Logger.getLogger(getClass()).info("    Sorting " + fileIn.getName()
+        + "  into " + fileOut.toString() + " by columns " + columns);
     FileSorter.sortFile(fileIn.toString(), fileOut.toString(), comp);
 
   }

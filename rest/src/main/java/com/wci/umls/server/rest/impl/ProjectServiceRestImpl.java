@@ -75,7 +75,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorize(securityService, authToken, "add project",
+      authorizeApp(securityService, authToken, "add project",
           UserRole.ADMINISTRATOR);
 
       // check to see if project already exists
@@ -116,7 +116,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     // Create service and configure transaction scope
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorize(securityService, authToken, "update project",
+      authorizeApp(securityService, authToken, "update project",
           UserRole.ADMINISTRATOR);
 
       // check to see if project already exists
@@ -158,7 +158,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorize(securityService, authToken, "remove project",
+      authorizeApp(securityService, authToken, "remove project",
           UserRole.ADMINISTRATOR);
 
       // Create service and configure transaction scope
@@ -188,7 +188,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorize(securityService, authToken, "get project scope",
+      authorizeApp(securityService, authToken, "get project scope",
           UserRole.VIEWER);
 
       ConceptList list =
@@ -224,7 +224,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorize(securityService, authToken, "retrieve the project",
+      authorizeApp(securityService, authToken, "retrieve the project",
           UserRole.VIEWER);
 
       Project project = projectService.getProject(id);
@@ -252,7 +252,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorize(securityService, authToken, "retrieve projects",
+      authorizeApp(securityService, authToken, "retrieve projects",
           UserRole.VIEWER);
 
       ProjectList projects = projectService.getProjects();

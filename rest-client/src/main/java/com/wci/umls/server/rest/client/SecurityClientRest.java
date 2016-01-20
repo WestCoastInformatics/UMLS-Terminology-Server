@@ -53,7 +53,7 @@ public class SecurityClientRest extends RootClientRest implements
             + "/security/authenticate/" + username);
 
     Response response =
-        target.request(MediaType.APPLICATION_JSON).post(Entity.text(password));
+        target.request(MediaType.APPLICATION_XML).post(Entity.text(password));
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -74,7 +74,7 @@ public class SecurityClientRest extends RootClientRest implements
     WebTarget target =
         client.target(config.getProperty("base.url") + "/security/logout/"
             + authToken);
-    Response response = target.request(MediaType.APPLICATION_JSON).get();
+    Response response = target.request(MediaType.APPLICATION_XML).get();
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a

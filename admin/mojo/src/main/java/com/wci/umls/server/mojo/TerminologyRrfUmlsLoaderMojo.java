@@ -41,6 +41,12 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
   private String version;
 
   /**
+   * The terminology version.
+   * @parameter
+   */
+  private String prefix;
+
+  /**
    * Input directory.
    * @parameter
    * @required
@@ -94,8 +100,8 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
       }
 
       boolean serverRunning = ConfigUtility.isServerActive();
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -125,7 +131,7 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
         contentService.loadTerminologyRrf(terminology, version, false,
-            inputDir, authToken);
+            prefix == null ? "MR" : prefix, inputDir, authToken);
 
       } else {
         getLog().info("Running against server");
@@ -138,8 +144,8 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
           client.luceneReindex(null, authToken);
         }
 
-        client.loadTerminologyRrf(terminology, version, false, inputDir,
-            authToken);
+        client.loadTerminologyRrf(terminology, version, false,
+            prefix == null ? "MR" : prefix, inputDir, authToken);
       }
 
     } catch (Exception e) {

@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -152,7 +152,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   @Override
   public void resolve(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
-    throws Exception {
+      throws Exception {
     if (relationship != null) {
       if (relationship.getFrom() != null) {
         relationship.getFrom().getTerminology();
@@ -319,7 +319,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   @Override
   public void resolve(
     SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member)
-    throws Exception {
+      throws Exception {
     if (member != null) {
       boolean nullId = member.getId() == null;
       member.getTerminology();
@@ -383,6 +383,12 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   public void resolve(RootTerminology rootTerminology) {
     rootTerminology.getSynonymousNames().size();
     rootTerminology.getLanguage().getAbbreviation();
+  }
+
+  /* see superclass */
+  @Override
+  public String getName() {
+    return "Default graph resolver";
   }
 
 }

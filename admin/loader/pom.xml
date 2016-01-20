@@ -39,6 +39,8 @@
     <server>false</server>
     <!-- Set to 'create' for loaders if db should be reset -->
     <mode></mode>
+    <!-- Prefix for RRF -->
+    <prefix>MR</prefix>
   </properties>
 
   <profiles>
@@ -62,6 +64,7 @@
                 <configuration>
                   <terminology>${terminology}</terminology>
                   <version>${version}</version>
+                  <prefix>${prefix}</prefix>
                   <inputDir>${input.dir}</inputDir>
                   <server>${server}</server>
                   <mode>${mode}</mode>
@@ -92,6 +95,7 @@
                 <configuration>
                   <terminology>${terminology}</terminology>
                   <version>${version}</version>
+                  <prefix>${prefix}</prefix>
                   <inputDir>${input.dir}</inputDir>
                   <server>${server}</server>
                   <mode>${mode}</mode>
@@ -164,7 +168,7 @@
       </build>
     </profile>
 
-    
+
     <!-- Load RF2 delta, specify -Drun.config.umls=... -Dterminology=... -->
     <profile>
       <id>RF2-delta</id>
@@ -194,7 +198,7 @@
       </build>
     </profile>
 
-    <!-- Load RF2 sample, specify -Drun.config=...  -->
+    <!-- Load RF2 sample, specify -Drun.config=... -->
     <profile>
       <id>RF2-sample</id>
       <build>
@@ -222,7 +226,7 @@
         </plugins>
       </build>
     </profile>
-    
+
     <!-- Load ClaML, specify -Drun.config.umls=... -Dterminology=... -->
     <profile>
       <id>ClaML</id>

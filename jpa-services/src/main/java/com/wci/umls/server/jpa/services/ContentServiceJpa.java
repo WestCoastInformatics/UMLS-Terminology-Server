@@ -2589,6 +2589,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       sr.setTerminology(atomClass.getTerminology());
       sr.setVersion(atomClass.getVersion());
       sr.setValue(atomClass.getName());
+      sr.setObsolete(atomClass.isObsolete());
       results.addObject(sr);
     }
 
@@ -2735,6 +2736,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       sr.setTerminology(atomClass.getTerminology());
       sr.setVersion(atomClass.getVersion());
       sr.setValue(atomClass.getName());
+      sr.setObsolete(atomClass.isObsolete());
       results.addObject(sr);
     }
 
