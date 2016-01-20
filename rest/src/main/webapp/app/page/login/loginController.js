@@ -33,14 +33,12 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location',
       // success
       function(response) {
         utilService.clearError();
-        console.debug("user = ", response.data);
         securityService.setUser(response.data);
 
         // set request header authorization and reroute
-        console.debug("authToken = " + response.data.authToken);
         $http.defaults.headers.common.Authorization = response.data.authToken;
         $location.path("/content");
-        gpService.decrement();
+        gpService.decrement();      
       },
 
       // error

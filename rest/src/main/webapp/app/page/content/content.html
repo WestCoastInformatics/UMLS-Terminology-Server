@@ -8,18 +8,20 @@
       <table class="table">
         <tr>
           <td width="15%;">Terminology</td>
-          <td width="85%;"><select width="100%"
-            ng-model="metadata.terminology"
-            ng-change="setTerminology(metadata.terminology)"
-            ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
+          <td width="85%;">
+            <select width="100%" ng-model="metadata.terminology"
+              ng-change="setTerminology(metadata.terminology)"
+              ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
 
             <button ng-show="!metadata.terminology.metathesaurus"
               class="btn btn-sm btn-primary" ng-click="browseHierarchy()"
-              tooltip="Click to browse top level hierarchy">Browse</button></td>
+              tooltip="Click to browse top level hierarchy">Browse</button>
+          </td>
         </tr>
         <tr>
           <td>Query</td>
-          <td><form>
+          <td>
+            <form>
               <input style="margin-bottom: 5px; width: 175px" type="text"
                 ng-model="searchParams.query" placeholder="Enter search terms"
                 typeahead="suggestion for suggestion in autocomplete($viewValue)"
@@ -83,12 +85,17 @@
               <tr ng-class="{active: searchResult.active}"
                 ng-repeat="searchResult in searchResults.list"
                 ng-click="getComponent(searchResult.terminologyId, searchResult.terminology, searchResult.version)">
-                <td><span
-                    ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>{{searchResult.terminologyId}}</td>
-                <td style="word-break: break-word;">{{searchResult.value}}
-          <span class="label label-default" ng-show="searchResult.obsolete"
-            tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>                
-                
+                <td>
+                  <span
+                    ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>
+                  {{searchResult.terminologyId}}
+                </td>
+                <td style="word-break: break-word;">
+                  {{searchResult.value}}
+                  <span class="label label-default"
+                    ng-show="searchResult.obsolete"
+                    tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+
                 </td>
               </tr>
             </tbody>
@@ -252,7 +259,8 @@
 
         <!--  Semantic types -->
         <div ng-show="component.object.semanticType.length > 0">
-          <h4>{{metadata.semanticTypesLabel}} ({{pagedSemanticTypes.totalCount}})</h4>
+          <h4>{{metadata.semanticTypesLabel}}
+            ({{pagedSemanticTypes.totalCount}})</h4>
 
 
           <span style="display: block;">

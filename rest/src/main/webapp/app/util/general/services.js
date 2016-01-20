@@ -1,5 +1,5 @@
 // Error service
-tsApp.service('utilService', [ '$location', '$anchorScroll', function($location, $anchorscroll) {
+tsApp.service('utilService', [ '$location', '$anchorScroll', '$cookies', function($location, $anchorscroll, $cookies) {
   console.debug('configure utilService');
   // declare the error
   this.error = {
@@ -130,11 +130,36 @@ tsApp.service('securityService', [ '$http', '$location', 'utilService', 'gpServi
       password : null,
       name : null,
       authToken : null,
-      applicationRole : null
+      applicationRole : null,
+      userPreferences : null
     };
 
+    // Search results
+    var searchParams = {
+      page : 1,
+      query : null
+    }
+    
     // Gets the user
     this.getUser = function() {
+      // Determine if page has been reloaded
+      if (!$http.defaults.headers.common.Authorization) {
+        console.debug('no header');
+        // Retrieve cookie
+        if ($cookies.get('user')) {
+          var cookieUser = JSON.parse($cookieStore.get('user'));
+          // If there is a user cookie, load it
+          if (cookieUser) {
+            this.setUser(cookieUser);
+            $http.defaults.headers.common.Authorization = user.authToken;
+          }
+        }
+
+        // If no cookie, just come in as "guest" user
+        else {
+          this.setGuestUser();
+        }
+      }
       return user;
     }
 
@@ -145,8 +170,25 @@ tsApp.service('securityService', [ '$http', '$location', 'utilService', 'gpServi
       user.authToken = data.authToken;
       user.password = "";
       user.applicationRole = data.applicationRole;
+      user.userPreferences = data.userPreferences;
+      
+      // Whenver set user is called, we should save a cookie
+      $cookies.put('user', JSON.stringify(user));
     }
 
+    this.setGuestUser = function() {
+      user.userName = 'guest';
+      user.name = 'Guest';
+      user.authToken = 'guest';
+      user.password = 'guest';
+      user.applicationRole = 'VIEWER';
+      user.userPreferences = {};
+
+      // Whenever set user is called, we should save a cookie
+      $cookies.put('user', JSON.stringify(user));
+
+    }
+    
     // Clears the user
     this.clearUser = function() {
       user.userName = null;
@@ -154,6 +196,10 @@ tsApp.service('securityService', [ '$http', '$location', 'utilService', 'gpServi
       user.authToken = null;
       user.password = null;
       user.applicationRole = null;
+      user.userPreferences = null;
+
+      $cookies.remove('user');
+
     }
 
     var httpClearUser = this.clearUser;
