@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -25,14 +25,17 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
  * Implementation {@link ComputePreferredNameHandler} for data with term-type
  * ordering.
  */
-public class RrfComputePreferredNameHandler implements
-    ComputePreferredNameHandler {
+public class RrfComputePreferredNameHandler
+    implements ComputePreferredNameHandler {
 
   /** The UMLS terminology. */
   public String umlsTerminology;
 
   /** The UMLS version. */
   public String umlsVersion;
+
+  /** The require tty map. */
+  public boolean requirePrecedence = true;
 
   /** The list. */
   private PrecedenceList list = null;
@@ -52,6 +55,7 @@ public class RrfComputePreferredNameHandler implements
   public void setProperties(Properties p) {
     umlsTerminology = p.getProperty("terminology");
     umlsVersion = p.getProperty("version");
+    requirePrecedence = !"false".equals(p.getProperty("requirePrecedence"));
   }
 
   /* see superclass */
@@ -123,28 +127,31 @@ public class RrfComputePreferredNameHandler implements
       cacheList();
     }
     String rank = null;
-    if (!ttyRankMap.containsKey(atom.getTerminology() + "/"
-        + atom.getTermType())) {
-      Logger.getLogger(getClass()).error("  terminology = " + atom.getTerminology());
+    if (!ttyRankMap
+        .containsKey(atom.getTerminology() + "/" + atom.getTermType())) {
+      Logger.getLogger(getClass())
+          .error("  terminology = " + atom.getTerminology());
       Logger.getLogger(getClass()).error("  termType = " + atom.getTermType());
-      // See caveats in the cacheList call above for more info
-      throw new Exception(
-          "Atom terminology/type are not present in the default precedence list.");
+
+      if (requirePrecedence) {
+        // See caveats in the cacheList call above for more info
+        throw new Exception(
+            "Atom terminology/type are not present in the default precedence list.");
+      }
+      // Return empty rank if we can't find any info.
+      else {
+        return "0";
+      }
     }
     if (atom.getStringClassId() != null && !atom.getStringClassId().isEmpty()) {
-      rank =
-          (atom.isObsolete() ? 0 : 1)
-              + (atom.isSuppressible() ? 0 : 1)
-              + ttyRankMap
-                  .get(atom.getTerminology() + "/" + atom.getTermType())
-              + (10000000000L - Long.parseLong(atom.getStringClassId()
-                  .substring(1))) + (100000000000L - atom.getId());
+      rank = (atom.isObsolete() ? 0 : 1) + (atom.isSuppressible() ? 0 : 1)
+          + ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType())
+          + (10000000000L
+              - Long.parseLong(atom.getStringClassId().substring(1)))
+          + (100000000000L - atom.getId());
     } else {
-      rank =
-          (atom.isObsolete() ? 0 : 1)
-              + (atom.isSuppressible() ? 0 : 1)
-              + ttyRankMap
-                  .get(atom.getTerminology() + "/" + atom.getTermType());
+      rank = (atom.isObsolete() ? 0 : 1) + (atom.isSuppressible() ? 0 : 1)
+          + ttyRankMap.get(atom.getTerminology() + "/" + atom.getTermType());
     }
     return rank;
   }
@@ -155,9 +162,25 @@ public class RrfComputePreferredNameHandler implements
    * @throws Exception the exception
    */
   private void cacheList() throws Exception {
-    MetadataService service = new MetadataServiceJpa();
-    list = service.getDefaultPrecedenceList(umlsTerminology, umlsVersion);
-    service.close();
+    final MetadataService service = new MetadataServiceJpa();
+    try {
+      list = service.getDefaultPrecedenceList(umlsTerminology, umlsVersion);
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      service.close();
+    }
+    // No list - simply return - this can happen if the rank file does not exist
+    if (list == null) {
+      if (requirePrecedence) {
+        // Remember, these may have come from the first atom encountered, e.g.
+        // in the "single" case
+        throw new Exception("No default precedence exists for "
+            + umlsTerminology + ", " + umlsVersion);
+      } else {
+        return;
+      }
+    }
     List<KeyValuePair> list2 = list.getPrecedence().getKeyValuePairs();
     int ct = 1;
     for (int i = list2.size() - 1; i >= 0; i--) {
@@ -166,8 +189,8 @@ public class RrfComputePreferredNameHandler implements
       final KeyValuePair pair = list2.get(i);
       ttyRankMap.put(pair.getKey() + "/" + pair.getValue(), padded);
     }
-    Logger.getLogger(getClass()).info(
-        "  default precedence list = " + ttyRankMap);
+    Logger.getLogger(getClass())
+        .info("  default precedence list = " + ttyRankMap);
   }
 
   /* see superclass */

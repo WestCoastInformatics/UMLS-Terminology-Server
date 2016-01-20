@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -50,23 +50,21 @@ public class RootServiceRestImpl {
     }
     // throw the local exception as a web application exception
     if (e instanceof LocalException) {
-      throw new WebApplicationException(Response.status(500).entity(message)
-          .build());
+      throw new WebApplicationException(
+          Response.status(500).entity(message).build());
     }
 
     // throw the web application exception as-is, e.g. for 401 errors
     if (e instanceof WebApplicationException) {
       throw new WebApplicationException(message, e);
     }
-    throw new WebApplicationException(Response
-        .status(500)
-        .entity(
-            "\"Unexpected error trying to " + whatIsHappening
-                + ". Please contact the administrator.\"").build());
+    throw new WebApplicationException(
+        Response
+            .status(500).entity("\"Unexpected error trying to "
+                + whatIsHappening + ". Please contact the administrator.\"")
+        .build());
 
   }
-
-
 
   /**
    * Authorize the users application role.
@@ -75,9 +73,10 @@ public class RootServiceRestImpl {
    * @param authToken the auth token
    * @param perform the perform
    * @param authRole the auth role
+   * @return the string
    * @throws Exception the exception
    */
-  public static void authorizeApp(SecurityService securityService,
+  public static String authorizeApp(SecurityService securityService,
     String authToken, String perform, UserRole authRole) throws Exception {
     // authorize call
     UserRole role = securityService.getApplicationRoleForToken(authToken);
@@ -87,7 +86,9 @@ public class RootServiceRestImpl {
     }
     if (!role.hasPrivilegesOf(cmpRole))
       throw new WebApplicationException(Response.status(401)
-          .entity("User does not have permissions to " + perform + ".").build());
+          .entity("User does not have permissions to " + perform + ".")
+          .build());
+    return securityService.getUsernameForToken(authToken);
   }
 
   /**
@@ -97,7 +98,7 @@ public class RootServiceRestImpl {
    * @return the total elapsed time str
    */
   @SuppressWarnings({
-    "boxing"
+      "boxing"
   })
   protected static String getTotalElapsedTimeStr(long time) {
     Long resultnum = (System.nanoTime() - time) / 1000000000;
@@ -123,7 +124,8 @@ public class RootServiceRestImpl {
    *
    * @param websocket2 the notification websocket
    */
-  public static void setNotificationWebsocket(NotificationWebsocket websocket2) {
+  public static void setNotificationWebsocket(
+    NotificationWebsocket websocket2) {
     websocket = websocket2;
   }
 }

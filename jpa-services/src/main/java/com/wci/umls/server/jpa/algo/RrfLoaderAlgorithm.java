@@ -1,9 +1,7 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
-
-import gnu.trove.strategy.HashingStrategy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -95,10 +93,15 @@ import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
 
+import gnu.trove.strategy.HashingStrategy;
+
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
 public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
+
+  /** The prefix. */
+  private String prefix = "MR";
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -278,6 +281,20 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     this.readers = readers;
   }
 
+  /**
+   * Sets the prefix.
+   *
+   * @param prefix the prefix
+   */
+  public void setPrefix(String prefix) {
+    this.prefix = prefix;
+  }
+
+  /**
+   * Compute.
+   *
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -287,9 +304,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       Logger.getLogger(getClass()).info("  version = " + version);
       Logger.getLogger(getClass()).info("  single mode = " + singleMode);
       Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
-      releaseVersionDate =
-          ConfigUtility.DATE_FORMAT.parse(releaseVersion.substring(0, 4)
-              + "0101");
+      releaseVersionDate = ConfigUtility.DATE_FORMAT
+          .parse(releaseVersion.substring(0, 4) + "0101");
 
       // Track system level information
       long startTimeOrig = System.nanoTime();
@@ -343,7 +359,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // Need to reset MRSAT reader
       readers.closeReaders();
-      readers.openOriginalReaders();
+      readers.openOriginalReaders(prefix);
 
       // Subsets/members
       loadMrsatSubsets();
@@ -363,8 +379,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         if (info == null) {
           info = new ReleaseInfoJpa();
           info.setName(version);
-          info.setDescription(terminology.getTerminology() + " " + version
-              + " release");
+          info.setDescription(
+              terminology.getTerminology() + " " + version + " release");
           info.setPlanned(false);
           info.setPublished(true);
           info.setReleaseBeginDate(null);
@@ -513,7 +529,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // Handle AttributeNames
       if ((fields[0].equals("ATN") || fields[0].equals("MAPATN"))
-          && fields[2].equals("expanded_form") && !atnSeen.contains(fields[1])) {
+          && fields[2].equals("expanded_form")
+          && !atnSeen.contains(fields[1])) {
         final AttributeName atn = new AttributeNameJpa();
         atn.setAbbreviation(fields[1]);
         atn.setExpandedForm(fields[3]);
@@ -545,8 +562,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         if (latCodeMap.containsKey(fields[1])) {
           lat.setISOCode(latCodeMap.get(fields[1]));
         } else {
-          throw new Exception("Language map does not have 2 letter code for "
-              + fields[1]);
+          throw new Exception(
+              "Language map does not have 2 letter code for " + fields[1]);
         }
         Logger.getLogger(getClass()).debug("    add language - " + lat);
         addLanguage(lat);
@@ -569,8 +586,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         // DL fields are all left false, with no domain/range
         // no equivalent types or supertypes included
         relaMap.put(fields[1], rela);
-        Logger.getLogger(getClass()).debug(
-            "    add additional relationship type - " + rela);
+        Logger.getLogger(getClass())
+            .debug("    add additional relationship type - " + rela);
       } else if (fields[0].equals("RELA") && fields[2].equals("rela_inverse")) {
         inverseRelaMap.put(fields[1], fields[3]);
 
@@ -646,14 +663,16 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.SY);
         }
         if (fields[3].equals("preferred")) {
-          if (ttyMap.get(fields[1]).getCodeVariantType() == CodeVariantType.ET) {
+          if (ttyMap.get(fields[1])
+              .getCodeVariantType() == CodeVariantType.ET) {
             ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.PET);
           } else {
             ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.PN);
           }
         }
         if (fields[3].equals("entry_term")) {
-          if (ttyMap.get(fields[1]).getCodeVariantType() == CodeVariantType.PN) {
+          if (ttyMap.get(fields[1])
+              .getCodeVariantType() == CodeVariantType.PN) {
             ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.PET);
           } else {
             ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.ET);
@@ -822,7 +841,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     // Add the terminology for this load, e.g. "UMLS"
     // Skip in single mode
-    if (!singleMode) {
+    if (!singleMode && !loadedTerminologies.containsKey(terminology)) {
       Terminology term = new TerminologyJpa();
       term.setAssertsRelDirection(false);
       term.setCurrent(true);
@@ -910,6 +929,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     list.setLastModifiedBy(loader);
     list.setName("DEFAULT");
     addPrecedenceList(list);
+
   }
 
   /**
@@ -1116,9 +1136,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         addAttribute(att, relationship);
       } else if (fields[4].equals("CODE")) {
         // Get the code for the terminology and CODE of the AUI
-        Code code =
-            getCode(codeIdMap.get(atomTerminologyMap.get(fields[3])
-                + atomCodeIdMap.get(fields[3])));
+        Code code = getCode(codeIdMap.get(
+            atomTerminologyMap.get(fields[3]) + atomCodeIdMap.get(fields[3])));
         code.addAttribute(att);
         addAttribute(att, code);
       } else if (fields[4].equals("CUI")) {
@@ -1176,15 +1195,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         if (isExtensionModule(fields[10])) {
           // terminology + module concept id
           final String key = fields[9] + fields[10];
-          Logger.getLogger(getClass()).info(
-              "  extension module = " + fields[10] + ", " + key);
+          Logger.getLogger(getClass())
+              .info("  extension module = " + fields[10] + ", " + key);
           if (!moduleConceptIdMap.containsKey(key)) {
             moduleConceptIdMap.put(key, new HashSet<Long>());
           }
-          Logger.getLogger(getClass()).info(
-              "    concept = " + atomConceptIdMap.get(fields[3]));
-          moduleConceptIdMap.get(key).add(
-              conceptIdMap.get(atomTerminologyMap.get(fields[3])
+          Logger.getLogger(getClass())
+              .info("    concept = " + atomConceptIdMap.get(fields[3]));
+          moduleConceptIdMap.get(key)
+              .add(conceptIdMap.get(atomTerminologyMap.get(fields[3])
                   + atomConceptIdMap.get(fields[3])));
         }
       }
@@ -1330,8 +1349,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             // We now know subset type, insert it and remove the corresponding
             // opposite type
             if (idTerminologyAtomSubsetMap.containsKey(subsetIdKey)) {
-              Logger.getLogger(getClass()).debug(
-                  "  Concept subset " + conceptSubset);
+              Logger.getLogger(getClass())
+                  .debug("  Concept subset " + conceptSubset);
               addSubset(conceptSubset);
               idTerminologyAtomSubsetMap.remove(subsetIdKey);
             }
@@ -1388,8 +1407,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           memberAtt.setPublished(true);
           memberAtt.setName(atvFields[1]);
           memberAtt.setValue(atvFields[2]);
-          Logger.getLogger(getClass()).debug(
-              "        Add member attribute" + memberAtt);
+          Logger.getLogger(getClass())
+              .debug("        Add member attribute" + memberAtt);
           addAttribute(memberAtt, member);
 
           // This member is not yet committed, so no need for an
@@ -1430,8 +1449,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       Concept concept = getConcept(conceptIdMap.get(key));
       ConceptSubset subset = new ConceptSubsetJpa();
       subset.setName(concept.getName());
-      subset.setDescription("Represents the members of module "
-          + concept.getTerminologyId());
+      subset.setDescription(
+          "Represents the members of module " + concept.getTerminologyId());
       subset.setDisjointSubset(false);
       subset.setLabelSubset(true);
       subset.setLastModified(releaseVersionDate);
@@ -1496,6 +1515,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           && !fields[10].equals("SAB")) {
         continue;
       }
+      System.out.println("line = " + line);
 
       // Field description
       // 0 CUI1
@@ -1608,14 +1628,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (fields[2].equals("CODE") && fields[6].equals("CODE")) {
         final CodeRelationship codeRel = new CodeRelationshipJpa();
 
-        final Code fromCode =
-            getCode(codeIdMap.get(atomTerminologyMap.get(fields[5])
-                + atomCodeIdMap.get(fields[5])));
+        final Code fromCode = getCode(codeIdMap.get(
+            atomTerminologyMap.get(fields[5]) + atomCodeIdMap.get(fields[5])));
         codeRel.setFrom(fromCode);
 
-        final Code toCode =
-            getCode(codeIdMap.get(atomTerminologyMap.get(fields[1])
-                + atomCodeIdMap.get(fields[1])));
+        final Code toCode = getCode(codeIdMap.get(
+            atomTerminologyMap.get(fields[1]) + atomCodeIdMap.get(fields[1])));
         codeRel.setTo(toCode);
 
         setRelationshipFields(fields, codeRel);
@@ -1623,8 +1641,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         relationshipMap.put(fields[8], codeRel.getId());
 
       } else {
-        Logger.getLogger(getClass()).debug(
-            "  SKIPPING relationship STYPE1!=STYPE2 - " + line);
+        Logger.getLogger(getClass())
+            .debug("  SKIPPING relationship STYPE1!=STYPE2 - " + line);
         continue;
       }
 
@@ -1644,10 +1662,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @param relationship the relationship
    * @throws Exception the exception
    */
-  private void setRelationshipFields(
-    String[] fields,
+  private void setRelationshipFields(String[] fields,
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
-    throws Exception {
+      throws Exception {
     relationship.setTimestamp(releaseVersionDate);
     relationship.setLastModified(releaseVersionDate);
     relationship.setLastModifiedBy(loader);
@@ -1808,8 +1825,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // Albumin|0|N|256|
 
       // set the root terminology language
-      loadedRootTerminologies.get(fields[11]).setLanguage(
-          loadedLanguages.get(fields[1]));
+      loadedRootTerminologies.get(fields[11])
+          .setLanguage(loadedLanguages.get(fields[1]));
 
       final Atom atom = new AtomJpa();
       atom.setLanguage(fields[1].intern());
@@ -1823,10 +1840,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       atom.setName(fields[14]);
       atom.setTerminology(fields[11].intern());
       if (loadedTerminologies.get(fields[11]) == null) {
-        throw new Exception("Atom references terminology that does not exist: "
-            + fields[11]);
+        throw new Exception(
+            "Atom references terminology that does not exist: " + fields[11]);
       }
-      atom.setVersion(loadedTerminologies.get(fields[11]).getVersion().intern());
+      atom.setVersion(
+          loadedTerminologies.get(fields[11]).getVersion().intern());
       // skip in single mode
       if (!singleMode) {
         atom.putAlternateTerminologyId(terminology, fields[7]);
@@ -1948,13 +1966,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         final AtomSubset atomSubset = new AtomSubsetJpa();
         setSubsetFields(atomSubset, fields);
         cuiAuiAtomSubsetMap.put(fields[0] + fields[7], atomSubset);
-        idTerminologyAtomSubsetMap.put(atomSubset.getTerminologyId()
-            + atomSubset.getTerminology(), atomSubset);
+        idTerminologyAtomSubsetMap.put(
+            atomSubset.getTerminologyId() + atomSubset.getTerminology(),
+            atomSubset);
         final ConceptSubset conceptSubset = new ConceptSubsetJpa();
         setSubsetFields(conceptSubset, fields);
         cuiAuiConceptSubsetMap.put(fields[0] + fields[7], conceptSubset);
-        idTerminologyConceptSubsetMap.put(conceptSubset.getTerminologyId()
-            + conceptSubset.getTerminology(), conceptSubset);
+        idTerminologyConceptSubsetMap.put(
+            conceptSubset.getTerminologyId() + conceptSubset.getTerminology(),
+            conceptSubset);
       }
 
     }
@@ -1980,12 +2000,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     objectCt = 0;
     // NOTE: Hibernate-specific to support iterating
     Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session
-            .createQuery(
-                "select a from AtomJpa a " + "where conceptId is not null "
-                    + "and conceptId != '' order by terminology, conceptId")
-            .setReadOnly(true).setFetchSize(1000);
+    org.hibernate.Query hQuery = session
+        .createQuery("select a from AtomJpa a " + "where conceptId is not null "
+            + "and conceptId != '' order by terminology, conceptId")
+        .setReadOnly(true).setFetchSize(1000);
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     prevCui = null;
     cui = null;
@@ -2029,12 +2047,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     objectCt = 0;
 
     // NOTE: Hibernate-specific to support iterating
-    hQuery =
-        session
-            .createQuery(
-                "select a from AtomJpa a where descriptorId is not null "
-                    + "and descriptorId != '' order by terminology, descriptorId")
-            .setReadOnly(true).setFetchSize(1000);
+    hQuery = session
+        .createQuery("select a from AtomJpa a where descriptorId is not null "
+            + "and descriptorId != '' order by terminology, descriptorId")
+        .setReadOnly(true).setFetchSize(1000);
     results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     String prevDui = null;
     Descriptor dui = null;
@@ -2079,13 +2095,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     objectCt = 0;
     // NOTE: Hibernate-specific to support iterating
     // Skip NOCODE
-    hQuery =
-        session
-            .createQuery(
-                "select a from AtomJpa a where codeId != 'NOCODE' "
-                    + "and codeId is not null and codeId != '' "
-                    + "order by terminology, codeId").setReadOnly(true)
-            .setFetchSize(1000);
+    hQuery = session
+        .createQuery("select a from AtomJpa a where codeId != 'NOCODE' "
+            + "and codeId is not null and codeId != '' "
+            + "order by terminology, codeId")
+        .setReadOnly(true).setFetchSize(1000);
     results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     String prevCode = null;
     Code code = null;
@@ -2139,7 +2153,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     // // NOTE: atoms are not connected to lexical classes as there are
     // // currently no known uses for this.
-    // Logger.getLogger(getClass()).info("  Add lexical classes");
+    // Logger.getLogger(getClass()).info(" Add lexical classes");
     // objectCt = 0;
     // query =
     // manager
@@ -2186,7 +2200,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // // NOTE: currently atoms are not loaded for string classes
     // // We simply load the objects themselves ( for SUI maintenance)
     // // There are no known use cases for having the atoms here.
-    // Logger.getLogger(getClass()).info("  Add string classes");
+    // Logger.getLogger(getClass()).info(" Add string classes");
     // objectCt = 0;
     // query =
     // manager
@@ -2264,6 +2278,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     subset.setTerminologyId(fields[13]);
   }
 
+  /**
+   * Reset.
+   *
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -2283,18 +2302,31 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 
+  /**
+   * Adds the progress listener.
+   *
+   * @param l the l
+   */
   /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
+  /**
+   * Removes the progress listener.
+   *
+   * @param l the l
+   */
   /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
+  /**
+   * Cancel.
+   */
   /* see superclass */
   @Override
   public void cancel() {
@@ -2331,6 +2363,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     return result;
   }
 
+  /**
+   * Close.
+   *
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
   public void close() throws Exception {

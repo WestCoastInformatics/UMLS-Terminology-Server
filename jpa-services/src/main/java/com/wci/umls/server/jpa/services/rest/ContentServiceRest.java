@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 /*
  * 
@@ -55,7 +55,7 @@ public interface ContentServiceRest {
    */
   public SearchResultList findConceptsForQuery(String terminology,
     String version, String query, PfscParameterJpa pfsc, String authToken)
-    throws Exception;
+      throws Exception;
 
   /**
    * Find concepts for query.
@@ -170,7 +170,7 @@ public interface ContentServiceRest {
    */
   public RelationshipList findDeepRelationshipsForConcept(String terminologyId,
     String terminology, String version, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+      throws Exception;
 
   /**
    * Returns the relationships for descriptor.
@@ -233,7 +233,7 @@ public interface ContentServiceRest {
    */
   public SearchResultList findDescriptorsForQuery(String terminology,
     String version, String query, PfscParameterJpa pfsc, String authToken)
-    throws Exception;
+      throws Exception;
 
   /**
    * Find descriptors for query.
@@ -443,12 +443,14 @@ public interface ContentServiceRest {
    * @param terminology the terminology
    * @param version the terminology version
    * @param singleMode the single mode
+   * @param prefix the prefix
    * @param inputDir the input dir
    * @param authToken the auth token
    * @throws Exception the exception
    */
   public void loadTerminologyRrf(String terminology, String version,
-    boolean singleMode, String inputDir, String authToken) throws Exception;
+    boolean singleMode, String prefix, String inputDir, String authToken)
+      throws Exception;
 
   /**
    * Load terminology snapshot from RF2 directory.
@@ -674,7 +676,7 @@ public interface ContentServiceRest {
    */
   public TreeList findConceptTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+      throws Exception;
 
   /**
    * Find descriptor tree children.
@@ -687,9 +689,9 @@ public interface ContentServiceRest {
    * @return the tree list
    * @throws Exception the exception
    */
-  public TreeList findDescriptorTreeChildren(String terminology,
-    String version, String terminologyId, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public TreeList findDescriptorTreeChildren(String terminology, String version,
+    String terminologyId, PfsParameterJpa pfs, String authToken)
+      throws Exception;
 
   /**
    * Find code tree children.
@@ -704,7 +706,7 @@ public interface ContentServiceRest {
    */
   public TreeList findCodeTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+      throws Exception;
 
   /**
    * Find concept-based terminology tree roots.
