@@ -602,7 +602,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
       final String fields[] = line.split("\t");
       if (!fields[0].equals(id)) {
-
         // Stop if the effective time is past the release version
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
@@ -651,6 +650,11 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         addAttribute(attribute2, atom);
 
         // set concept from cache and set initial prev concept
+        final Long conceptId = conceptIdMap.get(fields[4]);
+        if (conceptId == null) {
+          throw new Exception(
+              "Descriptions file references nonexistent concept: " + fields[4]);
+        }
         final Concept concept = getConcept(conceptIdMap.get(fields[4]));
 
         if (concept != null) {

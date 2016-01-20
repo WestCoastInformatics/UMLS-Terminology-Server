@@ -5,7 +5,8 @@ set extDir=/cygdrive/c/data/SNOMED/SnomedCT_Release_VTS1000009_20151001/Snapshot
 set outDir=/cygdrive/c/data/SNOMED/SnomedCT_VET_Snapshot
 
 set sctLabel=_INT_
-set extLabel=_VTS1000009_
+#set extLabel=_VTS1000009_
+set extLabel=_VTS_
  
 set sctVersion=20150731
 set extVersion=20151001
@@ -39,14 +40,14 @@ foreach f (`find . "*txt"`)
   /bin/mv -f $f $f2
 end
 
-# append ext data
+# append ext data and fix effective times to be YYYYMMDD
 echo "Append ext data"
 foreach f (`find $extDir -name "*txt"`)
   echo "  $f"
   set pat = `echo $f | perl -pe 's/.*der2_([^_]*_[^_]*)[\-_].*/$1/; s/.*sct2_([^_]*)_.*/$1/;'`
   set f2 = `find $outDir -name "*_${pat}[-_]*txt"`
   echo "    >> $f2"
-  egrep -v '^id' $f >> $f2
+  egrep -v '^id' $f | perl -ne '@_ = split/\t/; $_[1] =~ s/(\d{8}).*/$1/; print join "\t", @_; ' >> $f2
 end
 
 #
@@ -66,7 +67,6 @@ perl -ne ' \
   if ($_[8] eq "900000000000010007") { \
     $_[8] = "900000000000011006"; } print join "\t", @_;' Terminology/*_Rel*txt >! /tmp/y.$$
 /bin/mv -f /tmp/y.$$ Terminology/*_Rel*txt
-    
 
 echo "-----------------------------------------------"
 echo "Finished ...`/bin/date`"
