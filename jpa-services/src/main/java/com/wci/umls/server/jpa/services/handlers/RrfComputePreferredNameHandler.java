@@ -129,16 +129,18 @@ public class RrfComputePreferredNameHandler
     String rank = null;
     if (!ttyRankMap
         .containsKey(atom.getTerminology() + "/" + atom.getTermType())) {
-      Logger.getLogger(getClass())
-          .error("  terminology = " + atom.getTerminology());
-      Logger.getLogger(getClass()).error("  termType = " + atom.getTermType());
 
       if (requirePrecedence) {
+        Logger.getLogger(getClass())
+            .error("  terminology = " + atom.getTerminology());
+        Logger.getLogger(getClass())
+            .error("  termType = " + atom.getTermType());
         // See caveats in the cacheList call above for more info
         throw new Exception(
             "Atom terminology/type are not present in the default precedence list.");
       }
-      // Return empty rank if we can't find any info.
+      // Return empty rank if we can not find any precedence and we do not
+      // require it
       else {
         return "0";
       }
