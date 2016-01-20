@@ -1593,20 +1593,22 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       } else if (fields[2].equals("SCUI") && fields[6].equals("SCUI")) {
         final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
 
-        final Concept fromConcept =
-            getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[5])
-                + atomConceptIdMap.get(fields[5])));
-        conceptRel.setFrom(fromConcept);
+        final Long fromId = conceptIdMap.get(atomTerminologyMap.get(fields[5])
+            + atomConceptIdMap.get(fields[5]));
+        final Long toId = conceptIdMap.get(atomTerminologyMap.get(fields[5])
+            + atomConceptIdMap.get(fields[1]));
 
-        final Concept toConcept =
-            getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[1])
-                + atomConceptIdMap.get(fields[1])));
-        conceptRel.setTo(toConcept);
-
-        setRelationshipFields(fields, conceptRel);
-        addRelationship(conceptRel);
-        relationshipMap.put(fields[8], conceptRel.getId());
-
+        if (fromId == null || toId == null) {
+          // Referential integrity error, we know this happens in RXNORM
+          // because RXAUI 5430346 has a relationship with SCUI type
+          // but the SCUI of this atom is null;
+        } else {
+          conceptRel.setFrom(getConcept(fromId));
+          conceptRel.setTo(getConcept(toId));
+          setRelationshipFields(fields, conceptRel);
+          addRelationship(conceptRel);
+          relationshipMap.put(fields[8], conceptRel.getId());
+        }
       } else if (fields[2].equals("SDUI") && fields[6].equals("SDUI")) {
         final DescriptorRelationship descriptorRel =
             new DescriptorRelationshipJpa();
