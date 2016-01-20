@@ -1602,6 +1602,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           // Referential integrity error, we know this happens in RXNORM
           // because RXAUI 5430346 has a relationship with SCUI type
           // but the SCUI of this atom is null;
+          Logger.getLogger(getClass()).error("line = " + line);
+          Logger.getLogger(getClass())
+              .error("Referential integrity issue with fields 2 and 6: "
+                  + fromId + ", " + toId);
         } else {
           conceptRel.setFrom(getConcept(fromId));
           conceptRel.setTo(getConcept(toId));
@@ -1613,35 +1617,47 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         final DescriptorRelationship descriptorRel =
             new DescriptorRelationshipJpa();
 
-        final Descriptor fromDescriptor =
-            getDescriptor(descriptorIdMap.get(atomTerminologyMap.get(fields[5])
-                + atomDescriptorIdMap.get(fields[5])));
-        descriptorRel.setFrom(fromDescriptor);
+        final Long fromId =
+            descriptorIdMap.get(atomTerminologyMap.get(fields[5])
+                + atomDescriptorIdMap.get(fields[5]));
+        final Long toId = descriptorIdMap.get(atomTerminologyMap.get(fields[1])
+            + atomDescriptorIdMap.get(fields[1]));
 
-        final Descriptor toDescriptor =
-            getDescriptor(descriptorIdMap.get(atomTerminologyMap.get(fields[1])
-                + atomDescriptorIdMap.get(fields[1])));
-        descriptorRel.setTo(toDescriptor);
-
-        setRelationshipFields(fields, descriptorRel);
-        addRelationship(descriptorRel);
-        relationshipMap.put(fields[8], descriptorRel.getId());
+        if (fromId == null || toId == null) {
+          // Referential integrity error
+          Logger.getLogger(getClass()).error("line = " + line);
+          Logger.getLogger(getClass())
+              .error("Referential integrity issue with fields 2 and 6: "
+                  + fromId + ", " + toId);
+        } else {
+          descriptorRel.setFrom(getDescriptor(fromId));
+          descriptorRel.setTo(getDescriptor(toId));
+          setRelationshipFields(fields, descriptorRel);
+          addRelationship(descriptorRel);
+          relationshipMap.put(fields[8], descriptorRel.getId());
+        }
 
       } else if (fields[2].equals("CODE") && fields[6].equals("CODE")) {
         final CodeRelationship codeRel = new CodeRelationshipJpa();
 
-        final Code fromCode = getCode(codeIdMap.get(
-            atomTerminologyMap.get(fields[5]) + atomCodeIdMap.get(fields[5])));
-        codeRel.setFrom(fromCode);
+        final Long fromId = codeIdMap.get(
+            atomTerminologyMap.get(fields[5]) + atomCodeIdMap.get(fields[5]));
+        final Long toId = codeIdMap.get(
+            atomTerminologyMap.get(fields[1]) + atomCodeIdMap.get(fields[1]));
+        if (fromId == null || toId == null) {
+          // Referential integrity error
+          Logger.getLogger(getClass()).error("line = " + line);
+          Logger.getLogger(getClass())
+              .error("Referential integrity issue with fields 2 and 6: "
+                  + fromId + ", " + toId);
+        } else {
 
-        final Code toCode = getCode(codeIdMap.get(
-            atomTerminologyMap.get(fields[1]) + atomCodeIdMap.get(fields[1])));
-        codeRel.setTo(toCode);
-
-        setRelationshipFields(fields, codeRel);
-        addRelationship(codeRel);
-        relationshipMap.put(fields[8], codeRel.getId());
-
+          codeRel.setFrom(getCode(fromId));
+          codeRel.setTo(getCode(toId));
+          setRelationshipFields(fields, codeRel);
+          addRelationship(codeRel);
+          relationshipMap.put(fields[8], codeRel.getId());
+        }
       } else {
         Logger.getLogger(getClass())
             .debug("  SKIPPING relationship STYPE1!=STYPE2 - " + line);
