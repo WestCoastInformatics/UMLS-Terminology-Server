@@ -371,7 +371,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       commitClearBegin();
 
       // Add release info for individual terminology
-      for (Terminology terminology : getTerminologyLatestVersions()
+      for (final Terminology terminology : getTerminologyLatestVersions()
           .getObjects()) {
         final String version = terminology.getVersion();
         ReleaseInfo info =
@@ -418,10 +418,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       clear();
 
       Logger.getLogger(getClass()).info("Log component stats");
-      Map<String, Integer> stats = getComponentStats(null, null, null);
-      List<String> statsList = new ArrayList<>(stats.keySet());
+      final Map<String, Integer> stats = getComponentStats(null, null, null);
+      final List<String> statsList = new ArrayList<>(stats.keySet());
       Collections.sort(statsList);
-      for (String key : statsList) {
+      for (final String key : statsList) {
         Logger.getLogger(getClass()).info("  " + key + " = " + stats.get(key));
       }
       // Final logging messages
@@ -505,12 +505,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Load MRDOC abbreviation types");
     String line = null;
     Set<String> atnSeen = new HashSet<>();
-    Map<String, RelationshipType> relMap = new HashMap<>();
-    Map<String, String> inverseRelMap = new HashMap<>();
-    Map<String, AdditionalRelationshipType> relaMap = new HashMap<>();
-    Map<String, String> inverseRelaMap = new HashMap<>();
-    Map<String, TermType> ttyMap = new HashMap<>();
-    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDOC);
+    final Map<String, RelationshipType> relMap = new HashMap<>();
+    final Map<String, String> inverseRelMap = new HashMap<>();
+    final Map<String, AdditionalRelationshipType> relaMap = new HashMap<>();
+    final Map<String, String> inverseRelaMap = new HashMap<>();
+    final Map<String, TermType> ttyMap = new HashMap<>();
+    final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDOC);
     int objectCt = 0;
     final String fields[] = new String[4];
     while ((line = reader.readLine()) != null) {
@@ -692,7 +692,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // General metadata entries (skip MAPATN)
       else if (!fields[0].equals("MAPATN")) {
-        GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
+        final GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
 
         entry.setTimestamp(releaseVersionDate);
         entry.setLastModified(releaseVersionDate);
@@ -714,7 +714,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
 
     // Add TTYs when done
-    for (TermType tty : ttyMap.values()) {
+    for (final TermType tty : ttyMap.values()) {
       addTermType(tty);
       loadedTermTypes.put(tty.getAbbreviation(), tty);
     }
@@ -731,7 +731,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private void loadMrsab() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRSAB data");
     String line = null;
-    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAB);
+    final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAB);
     final String fields[] = new String[25];
     while ((line = reader.readLine()) != null) {
 
@@ -787,7 +787,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         continue;
       }
 
-      Terminology term = new TerminologyJpa();
+      final Terminology term = new TerminologyJpa();
 
       term.setAssertsRelDirection(false);
       term.setCitation(new CitationJpa(fields[24]));
@@ -813,7 +813,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       term.setDescriptionLogicTerminology(false);
 
       if (!loadedRootTerminologies.containsKey(fields[3])) {
-        RootTerminology root = new RootTerminologyJpa();
+        final RootTerminology root = new RootTerminologyJpa();
         root.setAcquisitionContact(null); // no data for this in MRSAB
         root.setContentContact(new ContactInfoJpa(fields[12]));
         root.setFamily(fields[5]);
@@ -829,7 +829,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         loadedRootTerminologies.put(root.getTerminology(), root);
       }
 
-      RootTerminology root = loadedRootTerminologies.get(fields[3]);
+      final RootTerminology root = loadedRootTerminologies.get(fields[3]);
       term.setRootTerminology(root);
       addTerminology(term);
       // cache terminology by RSAB and VSAB
@@ -842,7 +842,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // Add the terminology for this load, e.g. "UMLS"
     // Skip in single mode
     if (!singleMode && !loadedTerminologies.containsKey(terminology)) {
-      Terminology term = new TerminologyJpa();
+      final Terminology term = new TerminologyJpa();
       term.setAssertsRelDirection(false);
       term.setCurrent(true);
       term.setOrganizingClassType(IdType.CONCEPT);
@@ -855,7 +855,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       term.setDescriptionLogicTerminology(false);
       term.setMetathesaurus(true);
 
-      RootTerminology root = new RootTerminologyJpa();
+      final RootTerminology root = new RootTerminologyJpa();
       root.setFamily(terminology);
       root.setPreferredName(terminology);
       root.setRestrictionLevel(0);
@@ -883,16 +883,16 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    */
   private void loadMrrank() throws Exception {
 
-    PrecedenceList list = new PrecedenceListJpa();
+    final PrecedenceList list = new PrecedenceListJpa();
     list.setDefaultList(true);
     list.setTerminology(terminology);
     list.setVersion(version);
 
-    List<KeyValuePair> lkvp = new ArrayList<>();
+    final List<KeyValuePair> lkvp = new ArrayList<>();
 
     Logger.getLogger(getClass()).info("  Load MRRANK data");
     String line = null;
-    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRRANK);
+    final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRRANK);
     final String fields[] = new String[4];
     while ((line = reader.readLine()) != null) {
 
@@ -912,7 +912,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         continue;
       }
 
-      KeyValuePair pair = new KeyValuePair();
+      final KeyValuePair pair = new KeyValuePair();
       pair.setKey(fields[1]);
       pair.setValue(fields[2]);
       lkvp.add(pair);
@@ -921,7 +921,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       loadedTermTypes.get(fields[2]).setSuppressible(fields[3].equals("Y"));
     }
 
-    KeyValuePairList kvpl = new KeyValuePairList();
+    final KeyValuePairList kvpl = new KeyValuePairList();
     kvpl.setKeyValuePairs(lkvp);
     list.setPrecedence(kvpl);
     list.setTimestamp(releaseVersionDate);
@@ -941,7 +941,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Load MRDEF data");
     String line = null;
     int objectCt = 0;
-    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDEF);
+    final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDEF);
     // make set of all atoms that got an additional definition
     Set<Atom> modifiedAtoms = new HashSet<>();
     final String fields[] = new String[8];
@@ -980,7 +980,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // symptoms (NIAID).|N||
 
       final Definition def = new DefinitionJpa();
-
       final Atom atom = getAtom(atomIdMap.get(fields[1]));
 
       atom.addDefinition(def);
@@ -1038,14 +1037,14 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     String line = null;
 
     int objectCt = 0;
-    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAT);
+    final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAT);
     // make set of all atoms that got an additional attribute
-    Set<Atom> modifiedAtoms = new HashSet<>();
-    Set<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> modifiedRelationships =
+    final Set<Atom> modifiedAtoms = new HashSet<>();
+    final Set<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> modifiedRelationships =
         new HashSet<>();
-    Set<Code> modifiedCodes = new HashSet<>();
-    Set<Descriptor> modifiedDescriptors = new HashSet<>();
-    Set<Concept> modifiedConcepts = new HashSet<>();
+    final Set<Code> modifiedCodes = new HashSet<>();
+    final Set<Descriptor> modifiedDescriptors = new HashSet<>();
+    final Set<Concept> modifiedConcepts = new HashSet<>();
     final String fields[] = new String[13];
     while ((line = reader.readLine()) != null) {
 
@@ -1121,46 +1120,76 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       // Special case of a CODE attribute where the AUI has "NOCODE" as the code
       // UMLS has one case of an early XM atom with NOCODE (ICD9CM to CCS map)
-      // In loadMrconso we skip NOCODE codes, never creating them.
+      // In loadMrconso we skip NOCODE codes, never creating them as Code
+      // objects.
       else if (fields[4].equals("CODE")
           && atomCodeIdMap.get(fields[3]).equals("NOCODE")) {
         // Get the concept for the AUI
-        Atom atom = getAtom(atomIdMap.get(fields[3]));
+        final Atom atom = getAtom(atomIdMap.get(fields[3]));
         atom.addAttribute(att);
         addAttribute(att, atom);
       } else if (fields[4].equals("RUI")) {
         // Get the relationship for the RUI
-        Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship =
+        final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship =
             getRelationship(relationshipMap.get(fields[3]), null);
         relationship.addAttribute(att);
         addAttribute(att, relationship);
       } else if (fields[4].equals("CODE")) {
-        // Get the code for the terminology and CODE of the AUI
-        Code code = getCode(codeIdMap.get(
-            atomTerminologyMap.get(fields[3]) + atomCodeIdMap.get(fields[3])));
-        code.addAttribute(att);
-        addAttribute(att, code);
+        final Long codeId = codeIdMap.get(
+            atomTerminologyMap.get(fields[3]) + atomCodeIdMap.get(fields[3]));
+        if (codeId == null) {
+          // Referential integrity error
+          Logger.getLogger(getClass()).error("line = " + line);
+          Logger.getLogger(getClass())
+              .error("Referential integrity issue with field 3: " + codeId);
+        } else {
+          // Get the code for the terminology and CODE of the AUI
+          final Code code = getCode(codeId);
+          code.addAttribute(att);
+          addAttribute(att, code);
+        }
       } else if (fields[4].equals("CUI")) {
         // Get the concept for the terminology and CUI
         att.setTerminology(terminology);
         att.setVersion(version);
-        Concept concept = getConcept(conceptIdMap.get(terminology + fields[0]));
+        final Concept concept =
+            getConcept(conceptIdMap.get(terminology + fields[0]));
         concept.addAttribute(att);
         addAttribute(att, concept);
-      } else if (fields[4].equals("SDUI")) {
-        // Get the descriptor for the terminology and SDUI of the AUI
-        Descriptor descriptor =
-            getDescriptor(descriptorIdMap.get(atomTerminologyMap.get(fields[3])
-                + atomDescriptorIdMap.get(fields[3])));
-        descriptor.addAttribute(att);
-        addAttribute(att, descriptor);
       } else if (fields[4].equals("SCUI")) {
         // Get the concept for the terminology and SCUI of the AUI
-        Concept concept =
-            getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[3])
-                + atomConceptIdMap.get(fields[3])));
-        concept.addAttribute(att);
-        addAttribute(att, concept);
+        final Long conceptId =
+            conceptIdMap.get(atomTerminologyMap.get(fields[3])
+                + atomConceptIdMap.get(fields[3]));
+        if (conceptId == null) {
+          // Referential integrity error
+          Logger.getLogger(getClass()).error("line = " + line);
+          Logger.getLogger(getClass())
+              .error("Referential integrity issue with field 3: " + conceptId);
+
+        } else {
+          final Concept concept =
+              getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[3])
+                  + atomConceptIdMap.get(fields[3])));
+          concept.addAttribute(att);
+          addAttribute(att, concept);
+        }
+      } else if (fields[4].equals("SDUI")) {
+        final Long descriptorId =
+            descriptorIdMap.get(atomTerminologyMap.get(fields[3])
+                + atomDescriptorIdMap.get(fields[3]));
+        if (descriptorId == null) {
+          // Referential integrity error
+          Logger.getLogger(getClass()).error("line = " + line);
+          Logger.getLogger(getClass()).error(
+              "Referential integrity issue with field 3: " + descriptorId);
+
+        } else {
+          // Get the descriptor for the terminology and SDUI of the AUI
+          final Descriptor descriptor = getDescriptor(descriptorId);
+          descriptor.addAttribute(att);
+          addAttribute(att, descriptor);
+        }
       }
 
       // Update objects before commit
@@ -1255,8 +1284,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     String line = null;
 
     int objectCt = 0;
-    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAT);
-    Map<String, SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> addedSubsetMembers =
+    final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAT);
+    final Map<String, SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> addedSubsetMembers =
         new HashMap<>();
     String prevMetaUi = null;
     final String fields[] = new String[13];
@@ -1392,7 +1421,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             atvFields[2] = "";
           }
           // C3853348|L11739318|S14587084|A24131773|AUI|442311000124105|AT200797951|45bb6996-8734-5033-b069-302708da2761|SUBSET_MEMBER|SNOMEDCT_US|900000000000509007~ACCEPTABILITYID~900000000000548007|N||
-          Attribute memberAtt = new AttributeJpa();
+          final Attribute memberAtt = new AttributeJpa();
           // No terminology id for the member attribute
           // borrow most other data
           memberAtt.setTerminologyId("");
@@ -1438,16 +1467,16 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private void loadExtensionLabelSets() throws Exception {
 
     // for each non core module, create a Subset object
-    List<ConceptSubset> subsets = new ArrayList<>();
-    for (String key : moduleConceptIdMap.keySet()) {
+    final List<ConceptSubset> subsets = new ArrayList<>();
+    for (final String key : moduleConceptIdMap.keySet()) {
       Logger.getLogger(getClass()).info("  Create subset for module = " + key);
       // bail if concept doesn't exist
       if (!conceptIdMap.containsKey(key)) {
         Logger.getLogger(getClass()).warn("    MISSING CONCEPT");
         continue;
       }
-      Concept concept = getConcept(conceptIdMap.get(key));
-      ConceptSubset subset = new ConceptSubsetJpa();
+      final Concept concept = getConcept(conceptIdMap.get(key));
+      final ConceptSubset subset = new ConceptSubsetJpa();
       subset.setName(concept.getName());
       subset.setDescription(
           "Represents the members of module " + concept.getTerminologyId());
@@ -1470,10 +1499,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // Create members
       int objectCt = 0;
       Logger.getLogger(getClass()).info("  Add subset members");
-      for (Long id : moduleConceptIdMap.get(key)) {
+      for (final Long id : moduleConceptIdMap.get(key)) {
         final Concept memberConcept = getConcept(id);
 
-        ConceptSubsetMember member = new ConceptSubsetMemberJpa();
+        final ConceptSubsetMember member = new ConceptSubsetMemberJpa();
         member.setLastModified(releaseVersionDate);
         member.setTimestamp(releaseVersionDate);
         member.setLastModifiedBy(loader);
@@ -1503,7 +1532,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     String line = null;
 
     int objectCt = 0;
-    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRREL);
+    final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRREL);
     final String fields[] = new String[16];
     while ((line = reader.readLine()) != null) {
 
@@ -1515,7 +1544,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           && !fields[10].equals("SAB")) {
         continue;
       }
-      System.out.println("line = " + line);
 
       // Field description
       // 0 CUI1
@@ -1680,8 +1708,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @param relationship the relationship
    * @throws Exception the exception
    */
-  private void setRelationshipFields(String[] fields,
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+  private void setRelationshipFields(final String[] fields,
+    final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
       throws Exception {
     relationship.setTimestamp(releaseVersionDate);
     relationship.setLastModified(releaseVersionDate);
@@ -1727,7 +1755,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private void loadMrsty() throws Exception {
     Logger.getLogger(getClass()).info("  Load MRSTY data");
     String line = null;
-    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSTY);
+    final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSTY);
     // make set of all concepts that got an additional sty
     int objectCt = 0;
     Set<Concept> modifiedConcepts = new HashSet<>();
@@ -1804,7 +1832,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     String line = null;
 
     int objectCt = 0;
-    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRCONSO);
+    final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRCONSO);
     final String fields[] = new String[18];
     String prevCui = null;
     Concept cui = null;
@@ -2017,7 +2045,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     Logger.getLogger(getClass()).info("  Add concepts");
     objectCt = 0;
     // NOTE: Hibernate-specific to support iterating
-    Session session = manager.unwrap(Session.class);
+    final Session session = manager.unwrap(Session.class);
     org.hibernate.Query hQuery = session
         .createQuery("select a from AtomJpa a " + "where conceptId is not null "
             + "and conceptId != '' order by terminology, conceptId")
@@ -2243,12 +2271,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     commitClearBegin();
 
     // Update all root terminologies now that we know languages and names
-    for (RootTerminology root : loadedRootTerminologies.values()) {
+    for (final RootTerminology root : loadedRootTerminologies.values()) {
       updateRootTerminology(root);
     }
 
     // Update all root terminologies now that we know languages and names
-    for (Terminology terminology : loadedTerminologies.values()) {
+    for (final Terminology terminology : loadedTerminologies.values()) {
       updateTerminology(terminology);
     }
     commitClearBegin();
@@ -2265,7 +2293,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   @Override
   public String getComputedPreferredName(AtomClass atomClass) throws Exception {
     final List<Atom> atoms = new ArrayList<>();
-    for (Atom atom : atomClass.getAtoms()) {
+    for (final Atom atom : atomClass.getAtoms()) {
       atoms.add(getAtom(atom.getId()));
     }
     atomClass.setAtoms(atoms);
@@ -2313,7 +2341,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @param note progress note
    */
   public void fireProgressEvent(int pct, String note) {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
+    final ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
     for (int i = 0; i < listeners.size(); i++) {
       listeners.get(i).updateProgress(pe);
     }
