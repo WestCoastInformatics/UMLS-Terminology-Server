@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -47,6 +47,9 @@ public class DefaultSearchHandler implements SearchHandler {
 
   /** The spell checker. */
   private SpellChecker spellChecker = null;
+
+  /** The score map. */
+  private Map<Long, Float> scoreMap = new HashMap<>();
 
   /* see superclass */
   @Override
@@ -181,13 +184,11 @@ public class DefaultSearchHandler implements SearchHandler {
     }
     FullTextQuery fullTextQuery = null;
     try {
-      System.out.println("  query1 = " + finalQuery);
       Logger.getLogger(getClass()).debug("query = " + finalQuery);
       fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
           finalQuery.toString(), pfs, manager);
     } catch (ParseException e) {
       // If there's a parse exception, try the literal query
-      System.out.println("  query2 = " + finalQuery);
       Logger.getLogger(getClass()).debug("query = " + finalQuery);
       fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
           escapedQuery + terminologyClause, pfs, manager);
@@ -235,8 +236,6 @@ public class DefaultSearchHandler implements SearchHandler {
         }
         // Try the query again (if at least one expansion was found)
         if (found) {
-          System.out
-              .println("  query3 = " + newQuery.toString() + terminologyClause);
           fullTextQuery =
               IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
                   newQuery.toString() + terminologyClause, pfs, manager);
@@ -270,8 +269,6 @@ public class DefaultSearchHandler implements SearchHandler {
 
         // Try the query again (if replacement found)
         if (found) {
-          System.out
-              .println("  query4 = " + newQuery.toString() + terminologyClause);
           fullTextQuery =
               IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
                   newQuery.toString() + terminologyClause, pfs, manager);
@@ -296,8 +293,6 @@ public class DefaultSearchHandler implements SearchHandler {
           }
         }
         // Try the query again
-        System.out
-            .println("  query5 = " + newQuery.toString() + terminologyClause);
         fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
             newQuery.toString() + terminologyClause, pfs, manager);
         totalCt[0] = fullTextQuery.getResultSize();
@@ -306,21 +301,18 @@ public class DefaultSearchHandler implements SearchHandler {
 
     }
 
-    // execute the query
-    @SuppressWarnings("unchecked")
-    List<T> classes = fullTextQuery.getResultList();
-
     // Use this code to see the actual score values
-    // fullTextQuery.setProjection(FullTextQuery.SCORE, FullTextQuery.ID);
-    // List<T> classes = new ArrayList<>();
-    // List<Object[]> obj = fullTextQuery.getResultList();
-    // for (Object[] objArray : obj) {
-    // Object score = objArray[0];
-    // long id = (Long)objArray[1];
-    // T t = getComponent( id, clazz);
-    // classes.add(t);
-    // Logger.getLogger(getClass()).info(t.getName() + " = " + score);
-    // }
+    fullTextQuery.setProjection(FullTextQuery.SCORE, FullTextQuery.THIS);
+    final List<T> classes = new ArrayList<>();
+    @SuppressWarnings("unchecked")
+    final List<Object[]> results = fullTextQuery.getResultList();
+    for (final Object[] result : results) {
+      Object score = result[0];
+      @SuppressWarnings("unchecked")
+      T t = (T) result[1];
+      classes.add(t);
+      scoreMap.put(t.getId(), Float.parseFloat(score.toString()));
+    }
 
     return classes;
 
@@ -330,5 +322,11 @@ public class DefaultSearchHandler implements SearchHandler {
   @Override
   public String getName() {
     return "Default search handler";
+  }
+
+  /* see superclass */
+  @Override
+  public Map<Long, Float> getScoreMap() {
+    return scoreMap;
   }
 }

@@ -1,9 +1,10 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services.handlers;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 
@@ -40,4 +41,10 @@ public interface SearchHandler extends Configurable {
     String literalField, Class<?> fieldNamesKey, Class<T> clazz,
     PfsParameter pfs, int[] totalCt, EntityManager manager) throws Exception;
 
+  /**
+   * Returns the score map for the most recent call to getQueryResults
+   *
+   * @return the score map
+   */
+  public Map<Long,Float> getScoreMap();
 }

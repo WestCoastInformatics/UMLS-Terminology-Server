@@ -69,6 +69,7 @@ public class SearchResultJpaUnitTest {
     tester.include("version");
     tester.include("value");
     tester.include("obsolete");
+    tester.include("score");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());

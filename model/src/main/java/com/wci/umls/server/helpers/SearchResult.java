@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
 
@@ -91,4 +91,18 @@ public interface SearchResult {
    * @param obsolete the obsolete
    */
   public void setObsolete(boolean obsolete);
+
+  /**
+   * Returns the score.
+   *
+   * @return the score
+   */
+  public float getScore();
+
+  /**
+   * Sets the score.
+   *
+   * @param score the score
+   */
+  public void setScore(float score);
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.helpers;
 
@@ -32,6 +32,9 @@ public class SearchResultJpa implements SearchResult {
   /** The obsolete. */
   private boolean obsolete;
 
+  /** The score. */
+  private float score;
+
   /**
    * Default constructor.
    */
@@ -51,6 +54,7 @@ public class SearchResultJpa implements SearchResult {
     version = result.getVersion();
     value = result.getValue();
     obsolete = result.isObsolete();
+    score = result.getScore();
   }
 
   /**
@@ -128,6 +132,7 @@ public class SearchResultJpa implements SearchResult {
     return this.value;
   }
 
+  /* see superclass */
   @Override
   public void setValue(String value) {
     this.value = value;
@@ -139,26 +144,41 @@ public class SearchResultJpa implements SearchResult {
     return obsolete;
   }
 
+  /* see superclass */
   @Override
   public void setObsolete(boolean obsolete) {
     this.obsolete = obsolete;
   }
 
+  /* see superclass */
+  @Override
+  public float getScore() {
+    return score;
+  }
+
+  /* see superclass */
+  @Override
+  public void setScore(float score) {
+    this.score = score;
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + (obsolete ? 1231 : 1237);
+    result = prime * result + Float.floatToIntBits(score);
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result
-            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result = prime * result
+        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -169,6 +189,8 @@ public class SearchResultJpa implements SearchResult {
       return false;
     SearchResultJpa other = (SearchResultJpa) obj;
     if (obsolete != other.obsolete)
+      return false;
+    if (Float.floatToIntBits(score) != Float.floatToIntBits(other.score))
       return false;
     if (terminology == null) {
       if (other.terminology != null)
@@ -198,6 +220,7 @@ public class SearchResultJpa implements SearchResult {
   public String toString() {
     return "SearchResultJpa [id=" + id + ", terminologyId=" + terminologyId
         + ", terminology=" + terminology + ", version=" + version + ", value="
-        + value + ", obsolete=" + obsolete + "]";
+        + value + ", obsolete=" + obsolete + ", score=" + score + "]";
   }
+
 }
