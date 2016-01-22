@@ -1633,8 +1633,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           // but the SCUI of this atom is null;
           Logger.getLogger(getClass()).error("line = " + line);
           Logger.getLogger(getClass()).error(
-              "Referential integrity issue with field 2 or 6: " + fields[5]
-                  + ", " + fields[1]);
+              "Referential integrity issue with field 2 or 6: " + fields[1]
+                  + ", " + fields[5]);
         } else {
           conceptRel.setFrom(getConcept(fromId));
           conceptRel.setTo(getConcept(toId));
@@ -1657,8 +1657,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           // Referential integrity error
           Logger.getLogger(getClass()).error("line = " + line);
           Logger.getLogger(getClass()).error(
-              "Referential integrity issue with field 2 or 6: " + fields[5]
-                  + ", " + fields[1]);
+              "Referential integrity issue with field 2 or 6: " + fields[1]
+                  + ", " + fields[5]);
         } else {
           descriptorRel.setFrom(getDescriptor(fromId));
           descriptorRel.setTo(getDescriptor(toId));
