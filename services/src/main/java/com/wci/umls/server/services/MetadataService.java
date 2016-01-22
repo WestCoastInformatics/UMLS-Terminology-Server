@@ -283,13 +283,6 @@ public interface MetadataService extends RootService, Configurable {
   public boolean isLastModifiedFlag();
 
   /**
-   * Sets the last modified flag.
-   *
-   * @param lastModifiedFlag the last modified flag
-   */
-  public void setLastModifiedFlag(boolean lastModifiedFlag);
-
-  /**
    * Adds the semantic type.
    *
    * @param semanticType the semantic type
@@ -610,7 +603,5 @@ public interface MetadataService extends RootService, Configurable {
    */
   public GraphResolutionHandler getGraphResolutionHandler(String terminology)
     throws Exception;
-
-  
 
 }

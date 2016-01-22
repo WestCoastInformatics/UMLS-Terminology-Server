@@ -5,9 +5,8 @@
 <web-app>
   <display-name>Term Server REST Services</display-name>
 
-
   <listener>
-    <listener-class>org.ihtsdo.otf.refset.rest.impl.SessionFactoryShutdownListener</listener-class>
+    <listener-class>com.wci.umls.server.rest.impl.SessionFactoryShutdownListener</listener-class>
   </listener>
 
   <!-- Jersey configuration. For additional configuration see the class TermServerApplication -->

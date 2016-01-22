@@ -19,15 +19,14 @@
         ng-bind-html="tree.nodeTerminologyId | highlight:searchParams.query"></span>
       <span ng-show="showExtension && isDerivedLabelSet(tree)"
         ng-bind-html="tree.nodeTerminologyId | highlightLabelFor:tree.nodeTerminologyId"
-        tooltip-html-unsafe="<div style='text-align:left;'>{{getDerivedLabelSetsValue(tree)}}</div>"></span>
+        uib-tooltip-html="getDerivedLabelSetsValue(tree)}}"></span>
     </a>
 
     <span ng-show="!showExtension || !isLabelSet(tree)"
       ng-bind-html="tree.nodeName | highlight:searchParams.query"></span>
     <span ng-show="showExtension && isLabelSet(tree)"
       ng-bind-html="tree.nodeName | highlightLabel:tree.nodeName"
-      tooltip-html-unsafe="<div style='text-align:left;'>{{getLabelSetsValue(tree)}}</div>"></span>
-  </span>
+      uib-tooltip-html="getLabelSetsValue(tree)"></span>
   </span>
 
   <ol ui-tree-nodes="" ng-model="tree.child" ng-class="{hidden: collapsed}">

@@ -6,7 +6,7 @@ tsApp
       '$location',
       '$anchorScroll',
       '$cookies',
-      function($location, $anchorscroll, $cookies) {
+      function($location, $anchorScroll, $cookies) {
         console.debug('configure utilService');
         // declare the error
         this.error = {
@@ -399,8 +399,8 @@ tsApp.service('gpService', function() {
 });
 
 // Security service
-tsApp.service('securityService', [ '$http', '$location', 'utilService', 'gpService',
-  function($http, $location, utilService, gpService) {
+tsApp.service('securityService', [ '$http', '$location', '$cookies', 'utilService', 'gpService',
+  function($http, $location, $cookies, utilService, gpService) {
     console.debug('configure securityService');
 
     // Declare the user
@@ -423,7 +423,6 @@ tsApp.service('securityService', [ '$http', '$location', 'utilService', 'gpServi
     this.getUser = function() {
       // Determine if page has been reloaded
       if (!$http.defaults.headers.common.Authorization) {
-        console.debug('no header');
         // Retrieve cookie
         if ($cookies.get('user')) {
           var cookieUser = JSON.parse($cookies.get('user'));
@@ -433,12 +432,8 @@ tsApp.service('securityService', [ '$http', '$location', 'utilService', 'gpServi
             $http.defaults.headers.common.Authorization = user.authToken;
           }
         }
-
-        // If no cookie, just come in as "guest" user
-        else {
-          this.setGuestUser();
-        }
       }
+      // return user (blank if not found)
       return user;
     }
 

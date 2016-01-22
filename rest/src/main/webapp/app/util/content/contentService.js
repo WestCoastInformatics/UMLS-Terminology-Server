@@ -11,7 +11,7 @@ tsApp
       function($http, $q, gpService, utilService, metadataService) {
         console.debug("configure contentService");
 
-        // Terminology metadata
+        // Initialize
         var metadata = metadataService.getModel();
 
         // The component and the history list

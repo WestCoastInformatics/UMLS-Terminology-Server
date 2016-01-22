@@ -38,7 +38,7 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
     controller : 'MetadataCtrl',
     reloadOnSearch : false
   }).otherwise({
-    redirectTo : '/'
+    redirectTo : '/content'
   });
 
 } ]);
@@ -147,3 +147,84 @@ tsApp.controller('FooterCtrl', [ '$scope', 'gpService', 'securityService',
   }
 
 ]);
+
+//Confirm dialog conroller and directive
+tsApp.controller('ConfirmModalCtrl', function($scope, $uibModalInstance, data) {
+  // Local data for scope
+  $scope.data = angular.copy(data);
+
+  // OK function
+  $scope.ok = function() {
+    $uibModalInstance.close();
+  };
+  // Cancel function
+  $scope.cancel = function() {
+    $uibModalInstance.dismiss('cancel');
+  };
+});
+
+tsApp
+  .value(
+    '$confirmModalDefaults',
+    {
+      template : '<div class="modal-header"><h3 class="modal-title">Confirm</h3></div><div class="modal-body">{{data.text}}</div><div class="modal-footer"><button class="btn btn-primary" ng-click="ok()">OK</button><button class="btn btn-warning" ng-click="cancel()">Cancel</button></div>',
+      controller : 'ConfirmModalCtrl'
+    });
+
+tsApp.factory('$confirm', function($uibModal, $confirmModalDefaults) {
+  return function(data, settings) {
+    settings = angular.extend($confirmModalDefaults, (settings || {}));
+    data = data || {};
+
+    if ('templateUrl' in settings && 'template' in settings) {
+      delete settings.template;
+    }
+
+    settings.resolve = {
+      data : function() {
+        return data;
+      }
+    };
+
+    return $uibModal.open(settings).result;
+  };
+});
+
+tsApp.directive('confirm', function($confirm) {
+  return {
+    priority : 1,
+    restrict : 'A',
+    scope : {
+      confirmIf : '=',
+      ngClick : '&',
+      confirm : '@'
+    },
+    link : function(scope, element, attrs) {
+      function reBind(func) {
+        element.unbind('click').bind('click', function() {
+          func();
+        });
+      }
+
+      function bindConfirm() {
+        $confirm({
+          text : scope.confirm
+        }).then(scope.ngClick);
+      }
+
+      if ('confirmIf' in attrs) {
+        scope.$watch('confirmIf', function(newVal) {
+          if (newVal) {
+            reBind(bindConfirm);
+          } else {
+            reBind(function() {
+              scope.$apply(scope.ngClick);
+            });
+          }
+        });
+      } else {
+        reBind(bindConfirm);
+      }
+    }
+  }
+})

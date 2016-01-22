@@ -15,7 +15,7 @@
 
             <button ng-show="!metadata.terminology.metathesaurus"
               class="btn btn-sm btn-primary" ng-click="browseHierarchy()"
-              tooltip="Click to browse top level hierarchy">Browse</button>
+              uib-tooltip="Click to browse top level hierarchy">Browse</button>
           </td>
         </tr>
         <tr>
@@ -32,7 +32,7 @@
               <!-- Mobile friendly line-break -->
               <br ng-show="metadata.semanticTypes" class="visible-xs-inline" />
               <select style="margin-bottom: 5px; width: 175px;"
-                tooltip="Semantic Type" ng-show="metadata.semanticTypes"
+                uib-tooltip="Semantic Type" ng-show="metadata.semanticTypes"
                 ng-model="semanticType"
                 ng-options="item.value for item in metadata.semanticTypes | orderBy:'value'">
 
@@ -44,7 +44,7 @@
                 ng-click="searchParams.page = 1 && findComponents(true)">Search</button>
               <button class="btn btn-sm btn-warning"
                 ng-show="searchParams.query || semanticType"
-                ng-click="clearQuery()" tooltip="Click to clear search">Clear</button>
+                ng-click="clearQuery()" uib-tooltip="Click to clear search">Clear</button>
             </form>
         </tr>
       </table>
@@ -65,7 +65,7 @@
             Results
             <a ng-show="!metadata.terminology.metathesaurus"
               class="pull-right glyphicon glyphicon-tree-conifer"
-              ng-click="setTreeView()" tooltip="Switch to tree view"></a>
+              ng-click="setTreeView()" uib-tooltip="Switch to tree view"></a>
           </div>
 
           <!--  Margin added to prevent crowding -->
@@ -94,7 +94,7 @@
                   {{searchResult.value}}
                   <span class="label label-default"
                     ng-show="searchResult.obsolete"
-                    tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+                    uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
 
                 </td>
               </tr>
@@ -119,15 +119,16 @@
 
               <a class="glyphicon glyphicon-star"
                 ng-show="showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
-                tooltip="Click to hide extension highlights in tree"
+                uib-tooltip="Click to hide extension highlights in tree"
                 ng-click="toggleExtension()"> </a>
               <a class="glyphicon glyphicon-star-empty"
                 ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
-                tooltip="Click to show extension highlights in tree"
+                uib-tooltip="Click to show extension highlights in tree"
                 ng-click="toggleExtension()"> </a>
               &nbsp;
               <a class="pull-right glyphicon glyphicon-th-list"
-                ng-click="setListView()" tooltip="Switch to list view"> </a>
+                ng-click="setListView()" uib-tooltip="Switch to list view">
+              </a>
             </span>
           </div>
 
@@ -162,12 +163,13 @@
           {{component.error}}
           <button class="btn btn-xs btn-primary"
             ng-click="getConceptFromHistory(component.historyIndex - 1)"
-            tooltip="{{getComponentStr(component.history[component.historyIndex - 1])}}">Back</button>
+            uib-tooltip="{{getComponentStr(component.history[component.historyIndex - 1])}}">Back</button>
         </div>
-        <div class="alert alert-info">
-          <span class="dropdown" dropdown dropdown-append-to-body
-            tooltip="View All History">
-            <a ng-show="component.history.length > 2"
+        <div class="nobreak alert alert-info">
+          <div style="display: inline" class="dropdown" dropdown
+            dropdown-append-to-body>
+            <a uib-tooltip="View All History"
+              ng-show="component.history.length > 2"
               class="glyphicon glyphicon-time dropdown-toggle" dropdown-toggle></a>
             <ul class="dropdown-menu">
               <li ng-show="localHistoryNextCt > 0">...
@@ -181,18 +183,18 @@
               <li ng-show="localHistoryPreviousCt > 0">...
                 {{localHistoryPreviousCt}} less recent</li>
             </ul>
-          </span>
+          </div>
           <a class="glyphicon glyphicon-step-backward"
             ng-click="getComponentFromHistory(component.historyIndex -1)"
             ng-show="component.historyIndex > 0"
-            tooltip="{{getComponentStr(component.history[component.historyIndex - 1])}}"></a>
+            uib-tooltip="{{getComponentStr(component.history[component.historyIndex - 1])}}"></a>
           <span
             ng-show="component.object.terminology != metadata.terminology.terminology">{{component.object.terminology}}</span>
           {{component.type}} Report
           <a class="glyphicon glyphicon-step-forward"
             ng-click="getComponentFromHistory(component.historyIndex + 1)"
             ng-show="component.history.length > component.historyIndex + 1 && component.history.length > 0"
-            tooltip="{{getComponentStr(component.history[component.historyIndex + 1])}}"></a>
+            uib-tooltip="{{getComponentStr(component.history[component.historyIndex + 1])}}"></a>
 
         </div>
 
@@ -207,19 +209,19 @@
           {{component.object.terminologyId}} {{component.object.name}}
           <span class="label label-warning"
             ng-show="metadata.terminology.metathesaurus && component.object.suppressible"
-            tooltip="Suppressible">S</span>
+            uib-tooltip="Suppressible">S</span>
           <span class="label label-default" ng-show="component.object.obsolete"
-            tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+            uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
           <span style="padding-bottom: 2px;"
             ng-show="metadata.terminology.descriptionLogicTerminology && component.object.anonymous"
-            class="label label-info" tooltip="Anonymous">A</span>
+            class="label label-info" uib-tooltip="Anonymous">A</span>
           <span style="padding-bottom: 2px;"
             ng-show="metadata.terminology.descriptionLogicTerminology && !component.object.fullyDefined && !component.object.anonymous"
-            class="label label-info" tooltip="Primitive">P</span>
+            class="label label-info" uib-tooltip="Primitive">P</span>
           <span style="padding-bottom: 2px;"
             ng-show="metadata.terminology.descriptionLogicTerminology && component.object.fullyDefined"
             class="label label-info"
-            tooltip="Necessary and sufficient definition">D</span>
+            uib-tooltip="Necessary and sufficient definition">D</span>
         </h3>
 
         <!-- Buttons for suppressible/obsolete -->
@@ -280,16 +282,16 @@
 
             <button class="btn btn-xs btn-warning" ng-show="styPaging.filter"
               ng-click="styPaging.filter = ''; getPagedSemanticTypes()"
-              tooltip="Click to clear filter text">Clear</button>
+              uib-tooltip="Click to clear filter text">Clear</button>
           </span>
 
           <ul class="icon-list">
             <li class="cr-list" ng-repeat="item in pagedSemanticTypes"
               ng-show="showItem(item)"><span class="label label-warning"
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
-                tooltip="Suppressible">S</span> <span
+                uib-tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+                uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
               {{item.semanticType}}</li>
           </ul>
 
@@ -318,17 +320,17 @@
 
             <button class="btn btn-xs btn-warning" ng-show="defPaging.fitler"
               ng-click="defPaging.filter = ''; getPagedDefinitions()"
-              tooltip="Click to clear filter text">Clear</button>
+              uib-tooltip="Click to clear filter text">Clear</button>
           </span>
           <ul class="icon-list">
             <li class="cr-list" ng-repeat="item in pagedDefinitions"
               ng-show="showItem(item)"><span class="label label-info"
-                ng-show="item.atomElement" tooltip="{{item.atomElementStr}}">i</span>
+                ng-show="item.atomElement" uib-tooltip="{{item.atomElementStr}}">i</span>
               <span class="label label-warning"
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
-                tooltip="Suppressible">S</span> <span
+                uib-tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+                uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
               {{item.value}}</li>
           </ul>
         </div>
@@ -354,7 +356,7 @@
 
             <button class="btn btn-xs btn-warning" ng-show="atomPaging.filter"
               ng-click="atomPaging.filter = ''; getPagedAtoms()"
-              tooltip="Click to clear filter text">Clear</button>
+              uib-tooltip="Click to clear filter text">Clear</button>
           </span>
 
           <ul class="icon-list">
@@ -367,9 +369,9 @@
                 <div style="display: table-cell; padding: 1px;">
                   <span class="label label-warning"
                     ng-show="metadata.terminology.metathesaurus && item.suppressible"
-                    tooltip="Suppressible">S</span>
+                    uib-tooltip="Suppressible">S</span>
                   <span class="label label-default" ng-show="item.obsolete"
-                    tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+                    uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
                   <!-- Format:  termType name [ terminology ] codeId componentId descriptorId conceptTerminologyIds
                                                 NOTE: codeId, componentId, descriptorId automatically shown if of differing terminology, 
                                                 see each type below for additional rules -->
@@ -383,12 +385,12 @@
                   <span
                     ng-show="item.terminology != component.object.terminology">
                     {{item.terminology}} /</span>
-                  <span tooltip="{{getTermTypeName(item.termType)}}">{{item.termType}}</span>
+                  <span uib-tooltip="{{getTermTypeName(item.termType)}}">{{item.termType}}</span>
                   , {{item.language}} ]
                   <!-- For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
                   <span
                     ng-show="item.codeId != component.object.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
-                    tooltip="{{item.terminology}} code">
+                    uib-tooltip="{{item.terminology}} code">
                     <a ng-show="item.codeId != 'NOCODE'"
                       ng-click="getComponentFromType(item.codeId, item.terminology, item.version,'CODE')">{{item.codeId}}</a>
                     <span ng-show="item.codeId==='NOCODE'">NOCODE</span>
@@ -396,7 +398,7 @@
                   <!-- For concept id, do not show if identical to component id -->
                   <span
                     ng-show="item.terminology != component.object.terminology || item.conceptId != component.object.terminologyId"
-                    tooltip="{{item.terminology}} concept">
+                    uib-tooltip="{{item.terminology}} concept">
                     <a
                       ng-click="getComponentFromType(item.conceptId, item.terminology, item.version,'CONCEPT')">{{item.conceptId}}</a>
                   </span>
@@ -404,7 +406,7 @@
                   <!-- For descriptor id, do not show if identical to component id -->
                   <span
                     ng-show="item.terminology != component.object.terminology || item.descriptorId != component.object.terminologyId"
-                    tooltip="{{item.terminology}} descriptor">
+                    uib-tooltip="{{item.terminology}} descriptor">
                     <a
                       ng-click="getComponentFromType(item.descriptorId, item.terminology, item.version,'DESCRIPTOR')">{{item.descriptorId}}</a>
                   </span>
@@ -413,7 +415,7 @@
                   <span ng-repeat="(key, value) in item.conceptTerminologyIds">
                     <a
                       ng-show="key != component.object.terminology || value != component.object.terminologyId"
-                      tooltip="{{key}} concept"
+                      uib-tooltip="{{key}} concept"
                       ng-click="getComponentFromType(value, key, getTerminologyVersion(key),'CONCEPT')">{{value}}</a>
                   </span>
 
@@ -437,7 +439,7 @@
                         <li
                           ng-repeat="attribute in item.attribute | orderBy: ['name', 'value']">
                           <span class="label label-info"
-                            tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+                            uib-tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
                           = {{attribute.value}}
                         </li>
                       </ul>
@@ -456,7 +458,7 @@
                               <li
                                 ng-repeat="attribute in member.attribute | orderBy: ['name', 'value']">
                                 <span class="label label-info"
-                                  tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+                                  uib-tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
                                 = {{attribute.value}}
                               </li>
                             </ul>
@@ -473,10 +475,10 @@
                         <li
                           ng-repeat="relationship in item.relationship | orderBy:['relationshipType', 'toName']"><span
                             class="label label-info"
-                            tooltip="{{getRelationshipTypeName(relationship.relationshipType)}}">{{relationship.relationshipType}}</span>
+                            uib-tooltip="{{getRelationshipTypeName(relationship.relationshipType)}}">{{relationship.relationshipType}}</span>
                           {{relationship.additionalRelationshipType}} <a
                             ng-click="findComponentsForQuery(relationship.toName)"
-                            tooltip="Search for {{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toName}}</a>
+                            uib-tooltip="Search for {{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toName}}</a>
                         </li>
                       </ul>
                     </div>
@@ -513,18 +515,18 @@
             <button class="btn btn-xs btn-warning"
               ng-show="attributePaging.filter"
               ng-click="attributePaging.filter = ''; getPagedAttributes()"
-              tooltip="Click to clear filter text">Clear</button>
+              uib-tooltip="Click to clear filter text">Clear</button>
           </span>
 
           <ul class="icon-list">
             <li class="cr-list" ng-repeat="item in pagedAttributes"
               ng-show="showItem(item)"><span class="label label-warning"
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
-                tooltip="Suppressible">S</span> <span
+                uib-tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+                uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
               <span class="label label-info"
-                tooltip="{{getAttributeNameName(item.name)}}">{{item.name}}</span>
+                uib-tooltip="{{getAttributeNameName(item.name)}}">{{item.name}}</span>
               = {{item.value}}
           </ul>
         </div>
@@ -549,23 +551,23 @@
 
             <button class="btn btn-xs btn-warning" ng-show="memberPaging.filter"
               ng-click="memberPaging.filter = ''; getPagedMembers()"
-              tooltip="Click to clear filter text">Clear</button>
+              uib-tooltip="Click to clear filter text">Clear</button>
           </span>
 
           <ul>
             <li class="cr-list" ng-repeat="item in pagedMembers"
               ng-show="showItem(item)"><span class="label label-warning"
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
-                tooltip="Suppressible">S</span> <span
+                uib-tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+                uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
               {{item.subsetName}}
               <div ng-show="item.attribute.length > 0">
                 <ul>
                   <li
                     ng-repeat="attribute in item.attribute | orderBy: ['name', 'value']">
                     <span class="label label-info"
-                      tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+                      uib-tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
                     = {{attribute.value}}
                   </li>
                 </ul>
@@ -583,9 +585,9 @@
             <button ng-show="metadata.terminology.descriptionLogicTerminology"
               ng-click="toggleInferred()" class="btn btn-xs btn-primary">
               <span ng-show="showInferred"
-                tooltip="Showing inferred, click for stated">Inferred</span>
+                uib-tooltip="Showing inferred, click for stated">Inferred</span>
               <span ng-show="!showInferred"
-                tooltip="Showing stated, click for inferred">Stated</span>
+                uib-tooltip="Showing stated, click for inferred">Stated</span>
             </button>
           </h4>
           <span style="display: block;">
@@ -605,34 +607,34 @@
 
             <button class="btn btn-xs btn-warning" ng-show="relPaging.filter"
               ng-click="relPaging.filter = ''; getPagedRelationships()"
-              tooltip="Click to clear filter text">Clear</button>
+              uib-tooltip="Click to clear filter text">Clear</button>
           </span>
 
           <ul class="icon-list">
             <li class="cr-list" ng-repeat="item in pagedRelationships"
               ng-show="showItem(item)"><span ng-show="item.group > 0">
                 <span class="label label-success"
-                  tooltip="Relationship group {{item.group}}">{{item.group}}</span>
+                  uib-tooltip="Relationship group {{item.group}}">{{item.group}}</span>
                 &nbsp;
               </span> <span class="label label-warning"
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
-                tooltip="Suppressible">S</span> <span
+                uib-tooltip="Suppressible">S</span> <span
                 class="label label-default" ng-show="item.obsolete"
-                tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+                uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
               <span class="label label-info"
-                tooltip="{{getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
+                uib-tooltip="{{getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
 
               {{item.additionalRelationshipType}} <!-- Mobile friendly switch -->
               <span class="hidden-xs">
                 <a
                   ng-click="getComponent(item.toTerminologyId, component.object.terminology, component.object.version)"
-                  tooltip="{{item.terminology}} {{componentType | lowercase}}">{{item.toTerminologyId}}</a>
+                  uib-tooltip="{{item.terminology}} {{componentType | lowercase}}">{{item.toTerminologyId}}</a>
                 {{item.toName}}
 
               </span> <span class="visible-xs-inline">
                 <a
                   ng-click="getComponent(item.toTerminologyId, component.object.terminology, component.object.version)"
-                  tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
+                  uib-tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
               </span></li>
           </ul>
         </div>

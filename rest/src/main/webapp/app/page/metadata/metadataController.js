@@ -17,15 +17,12 @@ tsApp.controller('MetadataCtrl', [
     }
 
     // the currently viewed terminology (set by default or user)
-    $scope.metadata = metadataService.getModel();
     $scope.user = securityService.getUser();
+    $scope.metadata = metadataService.getModel();
 
-    // If terminology is blank, then reload
+    // If terminology is blank, then redirect to content to  set a terminolggy
     if (!$scope.metadata.terminology) {
-      utilService.handleError({
-        data : "User is no longer logged in."
-      });
-      $location.path("/");
+      $location.path("/content");
     }
 
   } ]);

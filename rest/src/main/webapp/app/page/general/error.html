@@ -5,15 +5,17 @@
     class="border-error alert-error" ng-show="error.message.length > 0">
     <h4 class="alert alert-danger alert-error">
       {{error.message}}
-      <div style="display: inline; float: right;">
-        <i ng-show="error.longMessage" title="{{error.expand ? 'Show' : 'Hide'}} long eror"
-          class="noul material-icons md-18" ng-click="error.expand = !error.expand;">attach_file</i>
+      <span style="display: inline; float: right;">
+        <i ng-show="error.longMessage"
+          title="{{error.expand ? 'Show' : 'Hide'}} long eror"
+          class="noul material-icons md-18"
+          ng-click="error.expand = !error.expand;">attach_file</i>
         <i class="glyphicon glyphicon-remove" ng-click="clearError()"></i>
-      </div>
-      <p ng-show="error.longMessage && error.expand">
-        <br />{{error.longMessage}}
-      </p>
+      </span>
     </h4>
+    <span ng-show="error.longMessage && error.expand">
+      <br />{{error.longMessage}}
+    </span>
   </div>
   <!-- padding -->
   <div class="col-md-1 col-xs-0"></div>
