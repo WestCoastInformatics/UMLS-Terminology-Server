@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.helpers;
 
+import java.lang.reflect.Method;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -27,8 +29,8 @@ public class XmlSerializationTester extends ProxyTester {
    * @throws Exception the exception
    */
   public boolean testXmlSerialization() throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Test xml serialization - " + clazz.getName());
+    Logger.getLogger(getClass())
+        .debug("Test xml serialization - " + clazz.getName());
     Object obj = createObject(1);
     String xml = ConfigUtility.getStringForGraph(obj);
     Logger.getLogger(getClass()).debug(xml);
@@ -40,6 +42,23 @@ public class XmlSerializationTester extends ProxyTester {
     Logger.getLogger(getClass()).debug(obj2);
     Logger.getLogger(getClass()).debug(obj3);
 
+    // If obj has an "id" field, compare the ids
+    try {
+    final Method method = obj.getClass().getMethod("getId", new Class<?>[] {});
+    if (method != null && method.getReturnType() == Long.class) {
+
+      final Long id1 = (Long) method.invoke(obj, new Object[] {});
+      final Long id2 = (Long) method.invoke(obj2, new Object[] {});
+      final Long id3 = (Long) method.invoke(obj3, new Object[] {});
+      if (!id1.equals(id2) || !id2.equals(id3)) {
+        Logger.getLogger(getClass())
+            .debug("  id fields do not match " + id1 + ", " + id2 + ", " + id3);
+        return false;
+      }
+    }
+    } catch (NoSuchMethodException e) {
+      // this is OK
+    }
     return obj.equals(obj2) && obj.equals(obj3);
   }
 
