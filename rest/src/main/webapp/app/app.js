@@ -1,7 +1,8 @@
 'use strict'
 
-var tsApp = angular.module('tsApp', [ 'ngRoute', 'ui.bootstrap', 'ui.tree' ])
-  .config(function($rootScopeProvider) {
+var tsApp = angular.module('tsApp',
+  [ 'ngRoute', 'ui.bootstrap', 'ui.tree', 'ui.tinymce', 'ngCookies' ]).config(
+  function($rootScopeProvider) {
 
     // Set recursive digest limit higher to handle very deep trees.
     $rootScopeProvider.digestTtl(15);
@@ -43,38 +44,31 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
 } ]);
 
 // Simple glass pane controller
-tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService',
-  function($scope, gpService) {
-    console.debug('configure GlassPaneCtrl');
+tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService', function($scope, gpService) {
+  console.debug('configure GlassPaneCtrl');
 
-    $scope.glassPane = gpService.glassPane;
+  $scope.glassPane = gpService.glassPane;
 
-  } ]);
+} ]);
 
 // Simple error controller
-tsApp.controller('ErrorCtrl', [ '$scope', 'utilService',
-  function($scope, utilService) {
-    console.debug('configure ErrorCtrl');
+tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilService) {
+  console.debug('configure ErrorCtrl');
 
-    $scope.error = utilService.error;
+  $scope.error = utilService.error;
 
-    $scope.clearError = function() {
-      utilService.clearError();
-    }
+  $scope.clearError = function() {
+    utilService.clearError();
+  }
 
-    $scope.setError = function(message) {
-      utilService.setError(message);
-    }
+  $scope.setError = function(message) {
+    utilService.setError(message);
+  }
 
-  } ]);
+} ]);
 
 // Tab controller
-tsApp.controller('TabCtrl', [
-  '$scope',
-  '$interval',
-  '$timeout',
-  'securityService',
-  'tabService',
+tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', 'securityService', 'tabService',
   function($scope, $interval, $timeout, securityService, tabService) {
     console.debug('configure TabCtrl');
 
@@ -118,18 +112,17 @@ tsApp.controller('TabCtrl', [
   } ]);
 
 // Header controller
-tsApp.controller('HeaderCtrl', [ '$scope', 'securityService',
-  function($scope, securityService) {
-    console.debug('configure HeaderCtrl');
+tsApp.controller('HeaderCtrl', [ '$scope', 'securityService', function($scope, securityService) {
+  console.debug('configure HeaderCtrl');
 
-    // Declare user
-    $scope.user = securityService.getUser();
+  // Declare user
+  $scope.user = securityService.getUser();
 
-    // Logout method
-    $scope.logout = function() {
-      securityService.logout();
-    }
-  } ]);
+  // Logout method
+  $scope.logout = function() {
+    securityService.logout();
+  }
+} ]);
 
 // Footer controller
 tsApp.controller('FooterCtrl', [ '$scope', 'gpService', 'securityService',
