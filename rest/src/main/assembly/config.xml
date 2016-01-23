@@ -1,0 +1,17 @@
+<assembly>
+  <id>classes</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <fileSets>
+    <fileSet>
+      <directory>${project.build.directory}/classes</directory>
+      <excludes>
+        <exclude>**/TermServerApplication*.class</exclude>
+      </excludes>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+  </fileSets>
+  <includeBaseDirectory>false</includeBaseDirectory>
+</assembly>
+
