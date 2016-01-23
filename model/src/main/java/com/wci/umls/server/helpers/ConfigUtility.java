@@ -274,11 +274,12 @@ public class ConfigUtility {
    * @return the graph for string
    * @throws JAXBException the JAXB exception
    */
-  public static Object getGraphForString(String xml, Class<?> graphClass)
+  @SuppressWarnings("unchecked")
+  public static <T> T getGraphForString(String xml, Class<T> graphClass)
     throws JAXBException {
     JAXBContext context = JAXBContext.newInstance(graphClass);
     Unmarshaller unmarshaller = context.createUnmarshaller();
-    return unmarshaller.unmarshal(new StreamSource(new StringReader(xml)));
+    return (T) unmarshaller.unmarshal(new StreamSource(new StringReader(xml)));
   }
 
   /**
@@ -289,7 +290,7 @@ public class ConfigUtility {
    * @return the graph for json
    * @throws Exception the exception
    */
-  public static Object getGraphForJson(String json, Class<?> graphClass)
+  public static <T> T getGraphForJson(String json, Class<T> graphClass)
     throws Exception {
     InputStream in =
         new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
@@ -311,7 +312,7 @@ public class ConfigUtility {
    * @throws JAXBException the JAXB exception
    */
   @SuppressWarnings("resource")
-  public static Object getGraphForFile(File file, Class<?> graphClass)
+  public static <T> T getGraphForFile(File file, Class<T> graphClass)
     throws FileNotFoundException, JAXBException {
     return getGraphForString(
         new Scanner(file, "UTF-8").useDelimiter("\\A").next(), graphClass);
@@ -327,7 +328,7 @@ public class ConfigUtility {
    * @throws JAXBException the JAXB exception
    */
   @SuppressWarnings("resource")
-  public static Object getGraphForStream(InputStream in, Class<?> graphClass)
+  public static <T> T getGraphForStream(InputStream in, Class<T> graphClass)
     throws FileNotFoundException, JAXBException {
     return getGraphForString(
         new Scanner(in, "UTF-8").useDelimiter("\\A").next(), graphClass);
