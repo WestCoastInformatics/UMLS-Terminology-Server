@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.UserImpl;
+import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 
 /**
@@ -44,7 +44,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
       properties = ConfigUtility.getConfigProperties();
     }
 
-    User user = new UserImpl();
+    User user = new UserJpa();
 
     // check specified admin users list from config file
     if (getAdminUsersFromConfigFile().contains(username)) {
