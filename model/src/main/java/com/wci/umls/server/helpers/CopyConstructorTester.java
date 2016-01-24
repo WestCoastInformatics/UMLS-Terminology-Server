@@ -36,6 +36,7 @@ public class CopyConstructorTester extends ProxyTester {
     }).newInstance(new Object[] {
       o1
     });
+
     return o1.equals(o2) && o1.hashCode() == o2.hashCode();
   }
 
