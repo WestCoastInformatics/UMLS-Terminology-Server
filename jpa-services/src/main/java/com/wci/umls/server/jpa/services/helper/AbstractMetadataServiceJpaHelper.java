@@ -51,13 +51,20 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
 
   /* see superclass */
   @Override
-  public Terminology getTerminology(String terminology, String version)
+  public RootTerminology getRootTerminology(String terminology)
     throws Exception {
     // n/a
     return null;
   }
 
   /* see superclass */
+  @Override
+  public Terminology getTerminology(String terminology, String version)
+    throws Exception {
+    // n/a
+    return null;
+  }
+
   @Override
   public TerminologyList getVersions(String terminology) throws Exception {
     // n/a
@@ -158,7 +165,8 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
 
   /* see superclass */
   @Override
-  public void updateAttributeName(AttributeName AttributeName) throws Exception {
+  public void updateAttributeName(AttributeName AttributeName)
+    throws Exception {
     // n/a
 
   }
@@ -243,7 +251,8 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
 
   /* see superclass */
   @Override
-  public void updatePropertyChain(PropertyChain propertyChain) throws Exception {
+  public void updatePropertyChain(PropertyChain propertyChain)
+    throws Exception {
     // n/a
   }
 
@@ -339,8 +348,8 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
 
   /* see superclass */
   @Override
-  public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry)
-    throws Exception {
+  public GeneralMetadataEntry addGeneralMetadataEntry(
+    GeneralMetadataEntry entry) throws Exception {
     // n/a
     return null;
   }
@@ -361,7 +370,8 @@ public abstract class AbstractMetadataServiceJpaHelper extends RootServiceJpa
 
   /* see superclass */
   @Override
-  public PrecedenceList addPrecedenceList(PrecedenceList list) throws Exception {
+  public PrecedenceList addPrecedenceList(PrecedenceList list)
+    throws Exception {
     // n/a
     return null;
   }

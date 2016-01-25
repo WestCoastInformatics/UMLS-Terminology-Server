@@ -53,6 +53,7 @@ import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -88,6 +89,7 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.TermTypeStyle;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
@@ -332,6 +334,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       loadMrdoc();
 
       // Load MRSAB data
+      cacheExistingTerminologies();
       loadMrsab();
 
       // Load precedence info
@@ -722,6 +725,29 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     commitClearBegin();
   }
 
+  private void cacheExistingTerminologies() throws Exception {
+    final MetadataService service = new MetadataServiceJpa();
+    try {
+      for (final RootTerminology root : service.getRootTerminologies()
+          .getObjects()) {
+        // lazy init
+        root.getSynonymousNames().size();
+        root.getLanguage().getAbbreviation();
+        loadedRootTerminologies.put(root.getTerminology(), root);
+      }
+      for (final Terminology term : service.getTerminologies().getObjects()) {
+        // lazy init
+        term.getSynonymousNames().size();
+        term.getRootTerminology().getTerminology();
+        loadedTerminologies.put(term.getTerminology(), term);
+      }
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      service.close();
+    }
+  }
+
   /**
    * Load MRSAB. This is responsible for loading {@link Terminology} and
    * {@link RootTerminology} info.
@@ -787,38 +813,39 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         continue;
       }
 
-      final Terminology term = new TerminologyJpa();
-
-      term.setAssertsRelDirection(false);
-      term.setCitation(new CitationJpa(fields[24]));
-      term.setCurrent(fields[21].equals("Y"));
-      if (!fields[8].equals("")) {
-        term.setEndDate(ConfigUtility.DATE_FORMAT2.parse(fields[8]));
-      }
-
-      term.setOrganizingClassType(IdType.CODE);
-      term.setPreferredName(fields[4]);
-      if (!fields[7].equals("")) {
-        term.setStartDate(ConfigUtility.DATE_FORMAT2.parse(fields[7]));
-      }
-
-      term.setTimestamp(releaseVersionDate);
-      term.setLastModified(releaseVersionDate);
-      term.setLastModifiedBy(loader);
-      term.setTerminology(fields[3]);
+      String termVersion = null;
       if (singleMode || fields[6].equals(""))
-        term.setVersion(version);
+        termVersion = version;
       else
-        term.setVersion(fields[6]);
-      term.setDescriptionLogicTerminology(false);
+        termVersion = fields[6];
 
-      if (!loadedRootTerminologies.containsKey(fields[3])) {
-        // Check if it already exsists (as in the case of running a second RRF
-        // loader)
-        RootTerminology root = getRootTerminology(fields[3]);
-        // Add if it does not yet exist
-        if (root == null) {
-          root = new RootTerminologyJpa();
+      Terminology term = loadedTerminologies.get(fields[3]);
+      if (term == null || !term.getVersion().equals(termVersion)) {
+        term = new TerminologyJpa();
+
+        term.setAssertsRelDirection(false);
+        term.setCitation(new CitationJpa(fields[24]));
+        term.setCurrent(fields[21].equals("Y"));
+        if (!fields[8].equals("")) {
+          term.setEndDate(ConfigUtility.DATE_FORMAT2.parse(fields[8]));
+        }
+
+        term.setOrganizingClassType(IdType.CODE);
+        term.setPreferredName(fields[4]);
+        if (!fields[7].equals("")) {
+          term.setStartDate(ConfigUtility.DATE_FORMAT2.parse(fields[7]));
+        }
+
+        term.setTimestamp(releaseVersionDate);
+        term.setLastModified(releaseVersionDate);
+        term.setLastModifiedBy(loader);
+        term.setTerminology(fields[3]);
+        term.setVersion(termVersion);
+        term.setDescriptionLogicTerminology(false);
+
+        if (!loadedRootTerminologies.containsKey(fields[3])) {
+          // Add if it does not yet exist
+          final RootTerminology root = new RootTerminologyJpa();
           root.setAcquisitionContact(null); // no data for this in MRSAB
           root.setContentContact(new ContactInfoJpa(fields[12]));
           root.setFamily(fields[5]);
@@ -831,17 +858,17 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           root.setLastModified(releaseVersionDate);
           root.setLastModifiedBy(loader);
           addRootTerminology(root);
+          loadedRootTerminologies.put(root.getTerminology(), root);
         }
-        loadedRootTerminologies.put(root.getTerminology(), root);
-      }
 
-      final RootTerminology root = loadedRootTerminologies.get(fields[3]);
-      term.setRootTerminology(root);
-      addTerminology(term);
-      // cache terminology by RSAB and VSAB
-      loadedTerminologies.put(term.getTerminology(), term);
-      if (!fields[2].equals("")) {
-        loadedTerminologies.put(fields[2], term);
+        final RootTerminology root = loadedRootTerminologies.get(fields[3]);
+        term.setRootTerminology(root);
+        addTerminology(term);
+        // cache terminology by RSAB and VSAB
+        loadedTerminologies.put(term.getTerminology(), term);
+        if (!fields[2].equals("")) {
+          loadedTerminologies.put(fields[2], term);
+        }
       }
     }
 
@@ -861,20 +888,23 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       term.setDescriptionLogicTerminology(false);
       term.setMetathesaurus(true);
 
-      final RootTerminology root = new RootTerminologyJpa();
-      root.setFamily(terminology);
-      root.setPreferredName(terminology);
-      root.setRestrictionLevel(0);
-      root.setTerminology(terminology);
-      root.setTimestamp(releaseVersionDate);
-      root.setLastModified(releaseVersionDate);
-      root.setLastModifiedBy(loader);
-      root.setLanguage(loadedLanguages.get("ENG"));
-      if (root.getLanguage() == null) {
-        throw new Exception("Unable to find ENG langauge.");
+      RootTerminology root = loadedRootTerminologies.get(terminology);
+      if (!loadedRootTerminologies.containsKey(terminology)) {
+        root = new RootTerminologyJpa();
+        root.setFamily(terminology);
+        root.setPreferredName(terminology);
+        root.setRestrictionLevel(0);
+        root.setTerminology(terminology);
+        root.setTimestamp(releaseVersionDate);
+        root.setLastModified(releaseVersionDate);
+        root.setLastModifiedBy(loader);
+        root.setLanguage(loadedLanguages.get("ENG"));
+        if (root.getLanguage() == null) {
+          throw new Exception("Unable to find ENG langauge.");
+        }
+        addRootTerminology(root);
+        loadedRootTerminologies.put(root.getTerminology(), root);
       }
-      addRootTerminology(root);
-      loadedRootTerminologies.put(root.getTerminology(), root);
       term.setRootTerminology(root);
       addTerminology(term);
       loadedTerminologies.put(term.getTerminology(), term);
@@ -2052,7 +2082,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     objectCt = 0;
     // NOTE: Hibernate-specific to support iterating
     // Restrict to timestamp used for THESE atoms, in case multiple RRF
-    // files are loaded    
+    // files are loaded
     final Session session = manager.unwrap(Session.class);
     org.hibernate.Query hQuery = session
         .createQuery("select a from AtomJpa a " + "where conceptId is not null "
@@ -2103,8 +2133,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     objectCt = 0;
 
     // NOTE: Hibernate-specific to support iterating
-    hQuery = session
-        .createQuery("select a from AtomJpa a " + "where descriptorId is not null "
+    hQuery = session.createQuery(
+        "select a from AtomJpa a " + "where descriptorId is not null "
             + "and descriptorId != '' and timestamp = :timestamp "
             + "order by terminology, descriptorId");
     hQuery.setParameter("timestamp", releaseVersionDate);

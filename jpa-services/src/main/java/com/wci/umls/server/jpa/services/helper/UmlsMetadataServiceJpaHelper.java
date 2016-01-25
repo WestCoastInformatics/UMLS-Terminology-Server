@@ -193,8 +193,7 @@ public class UmlsMetadataServiceJpaHelper
     String version) throws Exception {
     try {
       // Assume there is only one default precedence list (because this is from
-      // a
-      // UMLS loader)
+      // a UMLS loader)
       javax.persistence.Query query = manager.createQuery(
           "SELECT p from PrecedenceListJpa p" + " where defaultList = 1 ");
 
