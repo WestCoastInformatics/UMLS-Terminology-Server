@@ -210,6 +210,7 @@ public class ConfigUtility {
     try {
       o = toInstantiate.newInstance();
     } catch (Exception e) {
+      e.printStackTrace();
       // do nothing
     }
     if (o == null) {
