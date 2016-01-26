@@ -7,7 +7,7 @@ var tsApp = angular.module('tsApp',
     // Set recursive digest limit higher to handle very deep trees.
     $rootScopeProvider.digestTtl(15);
 
-  });
+  ;
 
 // Declare top level URL vars
 var securityUrl = "security/";
@@ -29,18 +29,16 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
     templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl',
     reloadOnSearch : false
-  }).when('/content', {
+  .when('/content', {
     templateUrl : 'app/page/content/content.html',
     controller : 'ContentCtrl',
     reloadOnSearch : false
-  }).when('/metadata', {
+  .when('/metadata', {
     templateUrl : 'app/page/metadata/metadata.html',
     controller : 'MetadataCtrl',
     reloadOnSearch : false
-  }).otherwise({
-    redirectTo : '/content'
-  });
-
+  .otherwise({
+    redirectTo : '/content' 
 } ]);
 
 // Simple glass pane controller
@@ -59,11 +57,11 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
 
   $scope.clearError = function() {
     utilService.clearError();
-  }
+  };
 
   $scope.setError = function(message) {
     utilService.setError(message);
-  }
+  };
 
 } ]);
 
@@ -107,9 +105,9 @@ tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', 'securityServic
     // for ng-show
     $scope.isAdmin = function() {
       return user.applicationRole == 'ADMIN';
-    }
+    };
 
-  } ]);
+  }; ]);
 
 // Header controller
 tsApp.controller('HeaderCtrl', [ '$scope', 'securityService', function($scope, securityService) {
@@ -121,7 +119,7 @@ tsApp.controller('HeaderCtrl', [ '$scope', 'securityService', function($scope, s
   // Logout method
   $scope.logout = function() {
     securityService.logout();
-  }
+  };
 } ]);
 
 // Footer controller
@@ -144,11 +142,11 @@ tsApp.controller('FooterCtrl', [ '$scope', 'gpService', 'securityService',
       return gpService.glassPane.counter;
     }
 
-  }
+  };
 
 ]);
 
-//Confirm dialog conroller and directive
+// Confirm dialog conroller and directive
 tsApp.controller('ConfirmModalCtrl', function($scope, $uibModalInstance, data) {
   // Local data for scope
   $scope.data = angular.copy(data);
@@ -183,7 +181,7 @@ tsApp.factory('$confirm', function($uibModal, $confirmModalDefaults) {
     settings.resolve = {
       data : function() {
         return data;
-      }
+      };
     };
 
     return $uibModal.open(settings).result;
@@ -226,5 +224,5 @@ tsApp.directive('confirm', function($confirm) {
         reBind(bindConfirm);
       }
     }
-  }
+  };
 })

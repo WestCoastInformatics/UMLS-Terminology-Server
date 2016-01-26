@@ -41,17 +41,10 @@ tsApp.controller('ContentCtrl', [
     $scope.autocompleteUrl = null;
 
     // Track search results and what type we are querying for
-    $scope.queryForList = true // whether
-    // to
-    // query
-    // for
-    // list,
-    // default
-    $scope.queryForTree = false; // whether
-    // to
-    // query
-    // for
-    // tree
+    $scope.queryForList = true;
+    // whether to query for list, default
+    $scope.queryForTree = false;
+    // whether to query for tree
 
     // Variables for iterating through trees in report
     $scope.treeCount = null;
@@ -92,7 +85,7 @@ tsApp.controller('ContentCtrl', [
       metadataService.setTerminology(terminology);
       // clear the STY
       $scope.semanticType = null;
-    }
+    };
 
     // Autocomplete function
     $scope.autocomplete = function(searchTerms) {
@@ -101,7 +94,7 @@ tsApp.controller('ContentCtrl', [
         return new Array();
       }
       return contentService.autocomplete(searchTerms, $scope.autocompleteUrl);
-    }
+    };
 
     // 
     // Supporting trees
@@ -150,7 +143,7 @@ tsApp.controller('ContentCtrl', [
 
         });
 
-    }
+    };
 
     // Helper function to get previous or next tree by offset
     $scope.getTreeByOffset = function(offset) {
@@ -167,7 +160,7 @@ tsApp.controller('ContentCtrl', [
 
       $scope.getTree(treeViewed);
 
-    }
+    };
 
     /** Fake "enum" for clarity. Could use freeze, but meh */
     var TreeNodeExpansionState = {
@@ -218,7 +211,7 @@ tsApp.controller('ContentCtrl', [
         return TreeNodeExpansionState.Undefined;
       }
 
-    }
+    };
 
     // Determine the icon to show (plus, right, down, or blank)
     $scope.getTreeNodeIcon = function(tree, collapsed) {
@@ -242,14 +235,12 @@ tsApp.controller('ContentCtrl', [
       default:
         return 'glyphicon-question-sign';
       }
-    }
+    };
 
     // Helper function to determine whether siblings are hidden on a
     // user-expanded list
     $scope.hasHiddenSiblings = function(tree) {
-
-      // TODO Identify strange bug causing non-tree objects to be
-      // passed in
+      // Skip things not set or without children
       if (!tree || !tree.child)
         return;
 
@@ -259,7 +250,7 @@ tsApp.controller('ContentCtrl', [
       default:
         return false;
       }
-    }
+    };
 
     // Helper function to determine whether to toggle children
     // and/or
@@ -281,20 +272,21 @@ tsApp.controller('ContentCtrl', [
         // set
 
       }
-    }
+    };
 
     // Get a tree node's children and add to the parent
     $scope.getAndSetChildTrees = function(tree, startIndex) {
       if (!tree) {
         return;
       }
-
+      var lstartIndex = startIndex;
       // set default for startIndex if not specified
-      if (!startIndex)
-        startIndex = 0;
+      if (!startIndex) {
+        lstartIndex = 0;
+      }
 
       // Get child trees
-      contentService.getChildTrees(tree, startIndex).then(function(data) {
+      contentService.getChildTrees(tree, lstartIndex).then(function(data) {
         // construct ancestor path (for sake of
         // completeness, not filled
         // in on server-side)
@@ -325,7 +317,7 @@ tsApp.controller('ContentCtrl', [
 
       });
 
-    }
+    };
 
     // 
     // Search functions
@@ -338,7 +330,7 @@ tsApp.controller('ContentCtrl', [
       $scope.semanticType = null;
       // $scope.searchResults.list = [];
       // $scope.searchResults.tree = [];
-    }
+    };
 
     // Perform a search for the tree view
     $scope.setTreeView = function() {
@@ -348,7 +340,7 @@ tsApp.controller('ContentCtrl', [
         $scope.searchParams.page = 1;
         $scope.findComponentsAsTree($scope.searchParams.query);
       }
-    }
+    };
 
     // Perform a search for the list view
     $scope.setListView = function() {
@@ -358,7 +350,7 @@ tsApp.controller('ContentCtrl', [
         $scope.searchParams.page = 1;
         $scope.findComponentsAsList($scope.searchParams.query);
       }
-    }
+    };
 
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a search result
@@ -369,7 +361,7 @@ tsApp.controller('ContentCtrl', [
         $scope.setComponentLocalHistory($scope.component.historyIndex);
         applyPaging();
       });
-    }
+    };
 
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a link in a report
@@ -381,14 +373,14 @@ tsApp.controller('ContentCtrl', [
           $scope.getTree(0);
           applyPaging();
         });
-    }
+    };
 
     // Find components for a programmatic query
     $scope.findComponentsForQuery = function(queryStr) {
       $scope.searchParams.page = 1;
       $scope.searchParams.query = queryStr;
       $scope.findComponents(true);
-    }
+    };
 
     // Find concepts based on current search
     // - loadFirst indicates whether to auto-load result[0]
@@ -402,7 +394,7 @@ tsApp.controller('ContentCtrl', [
       $location.hash('top');
       $anchorScroll();
 
-    }
+    };
 
     // Perform search and populate list view
     $scope.findComponentsAsList = function(loadFirst) {
@@ -411,9 +403,10 @@ tsApp.controller('ContentCtrl', [
 
       // ensure query string has minimum length
       /*
-             * if ($scope.searchParams.query == null || $scope.searchParams.query.length < 3) {
-             * alert("You must use at least one character to search"); return; }
-             */
+       * if ($scope.searchParams.query == null ||
+       * $scope.searchParams.query.length < 3) { alert("You must use at least
+       * one character to search"); return; }
+       */
 
       var semanticType = null;
       if ($scope.semanticType) {
@@ -431,7 +424,7 @@ tsApp.controller('ContentCtrl', [
               $scope.metadata.terminology.terminology, $scope.metadata.terminology.version);
           }
         });
-    }
+    };
 
     // Perform search and populate tree view
     // - loadFirst is currently not used here
@@ -470,13 +463,13 @@ tsApp.controller('ContentCtrl', [
         // so leave it alone for now.
 
       });
-    }
+    };
 
     // Load hierarchy into tree view
     $scope.browseHierarchy = function() {
       $scope.searchOrBrowse = "BROWSE";
       $scope.queryForTree = true;
-      $scope.queryForList = false
+      $scope.queryForList = false;
       $scope.browsingHierarchy = true;
       $scope.searchParams.page = 1;
       $scope.searchParams.query = null;
@@ -489,18 +482,12 @@ tsApp.controller('ContentCtrl', [
         // structure with count
         // variables
         $scope.searchResults.tree = [];
-        $scope.searchResults.tree.push(data); // treeList
-        // array
-        // of
-        // size
-        // 1
+        $scope.searchResults.tree.push(data);
+        // treeList array of size 1
         $scope.searchResults.tree.totalCount = data.totalCount;
         $scope.searchResults.tree.count = data.count;
-
-        // TODO: if there is no hierarchy, display a message
-        // indicating
       });
-    }
+    };
 
     // 
     // Show/Hide List Elements
@@ -514,8 +501,7 @@ tsApp.controller('ContentCtrl', [
     $scope.showExtension = false;
 
     // Helper function to determine if an item has boolean fields
-    // set to
-    // true in its child arrays
+    // set to true in its child arrays
     $scope.hasBooleanFieldTrue = function(item, fieldToCheck) {
 
       // check for proper arguments
@@ -549,7 +535,7 @@ tsApp.controller('ContentCtrl', [
 
       // default is false
       return false;
-    }
+    };
 
     // Helper function to determine whether an item should be shown
     // based on
@@ -581,7 +567,7 @@ tsApp.controller('ContentCtrl', [
         return false;
       }
       return true;
-    }
+    };
 
     // Function to toggle obsolete flag and apply paging
     $scope.toggleObsolete = function() {
@@ -591,7 +577,7 @@ tsApp.controller('ContentCtrl', [
         $scope.showObsolete = !$scope.showObsolete;
       }
       applyPaging();
-    }
+    };
 
     // Function to toggle suppressible flag and apply paging
     $scope.toggleSuppressible = function() {
@@ -602,7 +588,7 @@ tsApp.controller('ContentCtrl', [
       }
 
       applyPaging();
-    }
+    };
 
     // Function to toggle atom element flag and apply paging
     $scope.toggleAtomElement = function() {
@@ -613,7 +599,7 @@ tsApp.controller('ContentCtrl', [
       }
 
       applyPaging();
-    }
+    };
 
     // Function to toggle inferred flag and apply paging
     $scope.toggleInferred = function() {
@@ -624,7 +610,7 @@ tsApp.controller('ContentCtrl', [
       }
       // apply paging just to rels
       $scope.getPagedRelationships();
-    }
+    };
 
     // Function to toggle showing of extension info
     $scope.toggleExtension = function() {
@@ -633,7 +619,7 @@ tsApp.controller('ContentCtrl', [
       } else {
         $scope.showExtension = !$scope.showExtension;
       }
-    }
+    };
 
     // 
     // Expand/Collapse functions
@@ -642,7 +628,7 @@ tsApp.controller('ContentCtrl', [
     // Toggle collapse state
     $scope.toggleItemCollapse = function(item) {
       item.expanded = !item.expanded;
-    }
+    };
 
     // Returns the css class for an item's collapsible control
     $scope.getCollapseIcon = function(item) {
@@ -658,7 +644,7 @@ tsApp.controller('ContentCtrl', [
         return 'glyphicon glyphicon-minus';
       else
         return 'glyphicon glyphicon-plus';
-    }
+    };
 
     //
     // Paging functions
@@ -683,27 +669,27 @@ tsApp.controller('ContentCtrl', [
     $scope.styPaging = {
       page : 1,
       filter : ""
-    }
+    };
 
     $scope.defPaging = {
       page : 1,
       filter : ""
-    }
+    };
 
     $scope.attributePaging = {
       page : 1,
       filter : ""
-    }
+    };
 
     $scope.memberPaging = {
       page : 1,
       filter : ""
-    }
+    };
 
     $scope.relPaging = {
       page : 1,
       filter : ""
-    }
+    };
 
     // apply paging to all elements
     function applyPaging() {
@@ -755,163 +741,41 @@ tsApp.controller('ContentCtrl', [
         $scope.pagedRelationships.totalCount = data.totalCount;
 
       });
-    }
+    };
 
     // Get paged atoms (assume all are loaded)
     $scope.getPagedAtoms = function() {
-      $scope.pagedAtoms = $scope.getPagedArray($scope.component.object.atom,
-        $scope.atomPaging.page, true, $scope.atomPaging.filter);
-    }
+      $scope.pagedAtoms = utilService.getPagedArray($scope.component.object.atom,
+        $scope.atomPaging, $scope.pageSizes.general);
+    };
 
     // Get paged definitions (assume all are loaded)
     $scope.getPagedDefinitions = function() {
-
-      // get the paged array, with flags and filter (TODO: Support
-      // filtering)
-      $scope.pagedDefinitions = $scope.getPagedArray($scope.component.object.definition,
-        $scope.defPaging.page, true, $scope.defPaging.filter, 'value', false);
-    }
+      // get the paged array, with flags and filter
+      $scope.pagedDefinitions = utilService.getPagedArray($scope.component.object.definition,
+        $scope.defPaging, $scope.pageSizes.general);
+    };
 
     // Get paged attributes (assume all are loaded)
     $scope.getPagedAttributes = function() {
-
       // get the paged array, with flags and filter
-      $scope.pagedAttributes = $scope.getPagedArray($scope.component.object.attribute,
-        $scope.attributePaging.page, true, $scope.attributePaging.filter, 'name', false);
-
-    }
+      $scope.pagedAttributes = utilService.getPagedArray($scope.component.object.attribute,
+        $scope.attributePaging, $scope.pageSizes.general);
+    };
 
     // Get paged members (assume all are loaded)
     $scope.getPagedMembers = function() {
-
       // get the paged array, with flags and filter
-      $scope.pagedMembers = $scope.getPagedArray($scope.component.object.member,
-        $scope.memberPaging.page, true, $scope.memberPaging.filter, 'name', false);
-    }
+      $scope.pagedMembers = utilService.getPagedArray($scope.component.object.member,
+        $scope.memberPaging, $scope.pageSizes.general);
+    };
 
     // Get paged STYs (assume all are loaded)
     $scope.getPagedSemanticTypes = function() {
-
       // get the paged array, with flags and filter
-      $scope.pagedSemanticTypes = $scope.getPagedArray($scope.component.object.semanticType,
-        $scope.styPaging.page, true, $scope.styPaging.filter, 'semanticType', false);
-    }
-
-    // Helper to get a paged array with show/hide flags (ENABLED)
-    // and
-    // filtered by
-    // / query string (NOT ENABLED)
-    $scope.getPagedArray = function(array, page, applyFlags, filterStr, sortField, ascending) {
-
-      var newArray = new Array();
-
-      // if array blank or not an array, return blank list
-      if (array == null || array == undefined || !Array.isArray(array))
-        return newArray;
-
-      // apply page 1 if not supplied
-      if (!page)
-        page = 1;
-
-      newArray = array;
-
-      // apply sort if specified
-      if (sortField) {
-        // if ascending specified, use that value, otherwise use
-        // false
-        newArray.sort($scope.sort_by(sortField, ascending ? ascending : false))
-      }
-
-      // apply flags
-      if (applyFlags) {
-        newArray = getArrayByFlags(newArray);
-      }
-
-      // apply filter
-      if (filterStr) {
-        newArray = getArrayByFilter(newArray, filterStr);
-      }
-
-      // get the page indices
-      var fromIndex = (page - 1) * $scope.pageSizes.general;
-      var toIndex = Math.min(fromIndex + $scope.pageSizes.general, array.length);
-
-      // slice the array
-      var results = newArray.slice(fromIndex, toIndex);
-
-      // add the total count before slicing
-      results.totalCount = newArray.length;
-
-      return results;
-    }
-
-    // function for sorting an array by (string) field and direction
-    $scope.sort_by = function(field, reverse) {
-
-      // key: function to return field value from object
-      var key = function(x) {
-        return x[field]
-      };
-
-      // convert reverse to integer (1 = ascending, -1 =
-      // descending)
-      reverse = !reverse ? 1 : -1;
-
-      return function(a, b) {
-        return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
-      }
-    }
-
-    // Filter array by show/hide flags
-    function getArrayByFlags(array) {
-
-      var newArray = new Array();
-
-      // if array blank or not an array, return blank list
-      if (array == null || array == undefined || !Array.isArray(array))
-        return newArray;
-
-      // apply show/hide flags via showItem() function
-      for (var i = 0; i < array.length; i++) {
-        if ($scope.showItem(array[i])) {
-          newArray.push(array[i]);
-        }
-      }
-
-      return newArray;
-    }
-
-    // Get array by filter text matching terminologyId or name
-    function getArrayByFilter(array, filter) {
-      var newArray = [];
-
-      for ( var object in array) {
-
-        if (objectContainsFilterText(array[object], filter)) {
-          newArray.push(array[object]);
-        }
-      }
-      return newArray;
-    }
-
-    // Returns true if any field on object contains filter text
-    function objectContainsFilterText(object, filter) {
-
-      if (!filter || !object)
-        return false;
-
-      for ( var prop in object) {
-        var value = object[prop];
-        // check property for string, note this will cover child
-        // elements
-        // TODO May want to make this more restrictive?
-        if (value && value.toString().toLowerCase().indexOf(filter.toLowerCase()) != -1) {
-          return true;
-        }
-      }
-
-      return false;
-    }
+      $scope.pagedSemanticTypes = utilService.getPagedArray($scope.component.object.semanticType,
+        $scope.styPaging, $scope.pageSizes.general);
+    };
 
     // 
     // Misc helper functions
@@ -928,7 +792,7 @@ tsApp.controller('ContentCtrl', [
           $scope.searchResults.list[i].active = false;
         }
       }
-    }
+    };
 
     //
     // METADATA related functions
@@ -941,7 +805,7 @@ tsApp.controller('ContentCtrl', [
           return $scope.metadata.terminologies[i].version;
         }
       }
-    }
+    };
     // Function to filter viewable terminologies for picklist
     $scope.getViewableTerminologies = function() {
       var viewableTerminologies = new Array();
@@ -952,35 +816,35 @@ tsApp.controller('ContentCtrl', [
         // exclude MTH and SRC
         if ($scope.metadata.terminologies[i].terminology != 'MTH'
           && $scope.metadata.terminologies[i].terminology != 'SRC')
-          viewableTerminologies.push($scope.metadata.terminologies[i])
+          viewableTerminologies.push($scope.metadata.terminologies[i]);
       }
       return viewableTerminologies;
-    }
+    };
 
     // get relationship type name from its abbreviation
     $scope.getRelationshipTypeName = function(abbr) {
       return metadataService.getRelationshipTypeName(abbr);
-    }
+    };
 
     // get attribute name name from its abbreviation
     $scope.getAttributeNameName = function(abbr) {
       return metadataService.getAttributeNameName(abbr);
-    }
+    };
 
     // get term type name from its abbreviation
     $scope.getTermTypeName = function(abbr) {
       return metadataService.getTermTypeName(abbr);
-    }
+    };
 
     // get general entry name from its abbreviation
     $scope.getGeneralEntryValue = function(abbr) {
       return metadataService.getGeneralEntryValue(abbr);
-    }
+    };
 
     // Gets the label set name
     $scope.getLabelSetName = function(abbr) {
       return metadataService.getLabelSetName(abbr);
-    }
+    };
 
     // Label functions
     $scope.isDerivedLabelSet = metadataService.isDerivedLabelSet;
@@ -990,12 +854,12 @@ tsApp.controller('ContentCtrl', [
       return $sce.trustAsHtml('<div style="text-align:left;">'
         + metadataService.getDerivedLabelSetsValue() + '</div>');
 
-    }
+    };
 
     $scope.getLabelSetsValue = function() {
       return $sce.trustAsHtml('<div style="text-align:left;">' + metadataService.getLabelSetsValue
         + '</div>');
-    }
+    };
 
     $scope.countLabels = metadataService.countLabels;
 
@@ -1043,9 +907,7 @@ tsApp.controller('ContentCtrl', [
     // Local history variables for the display.
     $scope.localHistory = null;
     $scope.localHistoryPageSize = $scope.pageSizes.general; // NOTE:
-    // must
-    // be
-    // even number!
+    // must be even number!
     $scope.localHistoryPreviousCt = 0;
     $scope.localHistoryNextCt = 0;
 
@@ -1061,7 +923,7 @@ tsApp.controller('ContentCtrl', [
         $scope.getTree(0);
         applyPaging();
       });
-    }
+    };
 
     // Get a string representation fo the component
     $scope.getComponentStr = function(component) {
@@ -1070,7 +932,7 @@ tsApp.controller('ContentCtrl', [
 
       return component.terminology + "/" + component.terminologyId + " " + component.type + ": "
         + component.name;
-    }
+    };
 
     // Function to set the local history for drop down list based on
     // an
@@ -1102,7 +964,7 @@ tsApp.controller('ContentCtrl', [
 
       // return the local history
       $scope.localHistory = $scope.component.history.slice(lowerBound, upperBound);
-    }
+    };
 
     // when navigating back, apply paging if there is a component
     if ($scope.component.object) {

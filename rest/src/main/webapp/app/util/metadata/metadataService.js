@@ -61,7 +61,7 @@ tsApp
         // Obtain the data model
         this.getModel = function() {
           return metadata;
-        }
+        };
 
         // Sets terminology object
         // and performs lookup of all related metadata
@@ -181,7 +181,7 @@ tsApp
 
           // Return all deferred promises
           return $q.all([ deferred.promise, deferred2.promise ]);
-        }
+        };
 
         // Returns the terminology object for the terminology name
         this.getTerminology = function(terminology, version) {
@@ -205,7 +205,7 @@ tsApp
           } else {
             return metadata.terminology;
           }
-        }
+        };
 
         // initialize all terminologies
         this.initTerminologies = function() {
@@ -213,7 +213,7 @@ tsApp
           var deferred = $q.defer();
 
           // Get terminologies
-          gpService.increment()
+          gpService.increment();
           $http.get(metadataUrl + 'terminology/terminologies').then(
           // success
           function(response) {
@@ -229,7 +229,7 @@ tsApp
             deferred.reject(response.data);
           });
           return deferred.promise;
-        }
+        };
 
         // get relationship type name from its abbreviation
         this.getRelationshipTypeName = function(abbr) {
@@ -239,7 +239,7 @@ tsApp
             }
           }
           return null;
-        }
+        };
 
         // get attribute name name from its abbreviation
         this.getAttributeNameName = function(abbr) {
@@ -249,7 +249,7 @@ tsApp
             }
           }
           return null;
-        }
+        };
 
         // get term type name from its abbreviation
         this.getTermTypeName = function(abbr) {
@@ -259,7 +259,7 @@ tsApp
             }
           }
           return null;
-        }
+        };
 
         // get general entry name from its abbreviation
         this.getGeneralEntryValue = function(abbr) {
@@ -269,7 +269,7 @@ tsApp
             }
           }
           return null;
-        }
+        };
 
         // get label sets name
         this.getLabelSetName = function(abbr) {
@@ -279,7 +279,7 @@ tsApp
             }
           }
           return null;
-        }
+        };
 
         this.isDerivedLabelSet = function(tree) {
           for (var i = 0; i < tree.labels.length; i++) {
@@ -288,7 +288,7 @@ tsApp
             }
           }
           return false;
-        }
+        };
 
         this.isLabelSet = function(tree) {
           for (var i = 0; i < tree.labels.length; i++) {
@@ -297,7 +297,7 @@ tsApp
             }
           }
           return false;
-        }
+        };
 
         this.getDerivedLabelSetsValue = function(tree) {
           if (tree.labels == undefined) {
@@ -315,7 +315,7 @@ tsApp
             }
           }
           return retval;
-        }
+        };
 
         this.getLabelSetsValue = function(tree) {
           if (tree.labels == undefined) {
@@ -333,7 +333,7 @@ tsApp
             }
           }
           return retval;
-        }
+        };
 
         // Returns the label count
         this.countLabels = function(component) {
@@ -350,7 +350,7 @@ tsApp
             }
           }
           return retval;
-        }
+        };
 
       }
 
