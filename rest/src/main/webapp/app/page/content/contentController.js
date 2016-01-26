@@ -129,11 +129,11 @@ tsApp.controller('ContentCtrl', [
           // component)
           // ASSUMES: unilinear path (e.g. A~B~C~D, no siblings)
           var parentTree = $scope.componentTree[0];
-          while (parentTree.child.length > 0) {
+          while (parentTree.children.length > 0) {
             // check if child has no children
-            if (parentTree.child[0].child.length == 0)
+            if (parentTree.children[0].children.length == 0)
               break;
-            parentTree = parentTree.child[0];
+            parentTree = parentTree.children[0];
           }
 
           // replace the parent tree of the lowest level with
@@ -186,24 +186,24 @@ tsApp.controller('ContentCtrl', [
       }
 
       // case 1: no children loaded, but children exist
-      if (tree.childCt > 0 && tree.child.length == 0) {
+      if (tree.childCt > 0 && tree.children.length == 0) {
         return TreeNodeExpansionState.Unloaded;
       }
 
       // case 2: some children loaded, not by user, expandable
       // from node
-      else if (tree.child.length < tree.childCt && tree.child.length < $scope.pageSizes.sibling) {
+      else if (tree.children.length < tree.childCt && tree.children.length < $scope.pageSizes.sibling) {
         return TreeNodeExpansionState.ExpandableFromNode;
       }
 
       // case 3: some children loaded by user, expandable from
       // list
-      else if (tree.child.length < tree.childCt && tree.child.length >= $scope.pageSizes.sibling) {
+      else if (tree.children.length < tree.childCt && tree.children.length >= $scope.pageSizes.sibling) {
         return TreeNodeExpansionState.ExpandableFromList;
       }
 
       // case 4: all children loaded
-      else if (tree.child.length == tree.childCt) {
+      else if (tree.children.length == tree.childCt) {
         return TreeNodeExpansionState.Loaded;
       }
 
@@ -241,7 +241,7 @@ tsApp.controller('ContentCtrl', [
     // user-expanded list
     $scope.hasHiddenSiblings = function(tree) {
       // Skip things not set or without children
-      if (!tree || !tree.child)
+      if (!tree || !tree.children)
         return;
 
       switch ($scope.getTreeNodeExpansionState(tree)) {
@@ -299,8 +299,8 @@ tsApp.controller('ContentCtrl', [
           // (don't override
           // present data)
           var childPresent = false;
-          for (var j = 0; j < tree.child.length; j++) {
-            if (tree.child[j].nodeTerminologyId === data.trees[i].nodeTerminologyId) {
+          for (var j = 0; j < tree.children.length; j++) {
+            if (tree.children[j].nodeTerminologyId === data.trees[i].nodeTerminologyId) {
               childPresent = true;
               break;
             }
@@ -308,7 +308,7 @@ tsApp.controller('ContentCtrl', [
 
           // if not present, add
           if (!childPresent) {
-            tree.child.push(data.trees[i]);
+            tree.children.push(data.trees[i]);
           }
         }
 
