@@ -469,12 +469,6 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     members.remove(member);
   }
 
-  /**
-   * CUSTOM equals: uses .toString() on the concept terminology ids map.
-   *
-   * @return the int
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;

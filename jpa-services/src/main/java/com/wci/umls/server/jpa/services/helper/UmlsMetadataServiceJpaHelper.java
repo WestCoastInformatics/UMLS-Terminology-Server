@@ -386,6 +386,8 @@ public class UmlsMetadataServiceJpaHelper
       "unchecked", "static-method"
   })
   void cacheAtoms() {
+    Logger.getLogger(getClass())
+        .info("  cacheing source-level data - one time only");
     if (termTypesMap.isEmpty()) {
       EntityManager manager = factory.createEntityManager();
       javax.persistence.Query query =

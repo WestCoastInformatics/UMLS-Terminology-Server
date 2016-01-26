@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.helper;
 
@@ -17,6 +17,7 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.Concept;
@@ -34,6 +35,81 @@ public class TerminologyUtility {
   /** The additional type hierarchy. */
   public static Map<String, Set<String>> additionalTypeHierarchy =
       new HashMap<>();
+
+  /**
+   * Returns the concept for rel type.
+   *
+   * @param concept the concept
+   * @param additionalRelType the additional rel type
+   * @return the concept for rel type
+   */
+  public static Concept getConceptForRelType(Concept concept,
+    String additionalRelType) {
+    for (final ConceptRelationship rel : concept.getRelationships()) {
+      if (!rel.isObsolete()
+          && rel.getAdditionalRelationshipType().equals(additionalRelType)) {
+        return rel.getTo();
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Returns the concepts for rel type.
+   *
+   * @param concept the concept
+   * @param additionalRelType the additional rel type
+   * @return the concepts for rel type
+   */
+  public static List<Concept> getConceptsForRelType(Concept concept,
+    String additionalRelType) {
+    final List<Concept> concepts = new ArrayList<>();
+    for (final ConceptRelationship rel : concept.getRelationships()) {
+      if (!rel.isObsolete()
+          && rel.getAdditionalRelationshipType().equals(additionalRelType)) {
+        concepts.add(rel.getTo());
+      }
+    }
+    return concepts;
+  }
+
+  /**
+   * Checks for atom with terminology and tty.
+   *
+   * @param terminology the terminology
+   * @param tty the tty
+   * @param concept the concept
+   * @return true, if successful
+   */
+  public static boolean hasAtomWithTerminologyAndTty(Concept concept, String terminology,
+    String tty) {
+    for (final Atom atom : concept.getAtoms()) {
+      if (atom.getTerminology().equals(terminology)
+          && atom.getTermType().equals(tty)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Returns the atom with terminology and tty.
+   *
+   * @param terminology the terminology
+   * @param tty the tty
+   * @param concept the concept
+   * @return the atom with terminology and tty
+   */
+  public static Atom getAtomWithTerminologyAndTty(Concept concept, String terminology,
+    String tty) {
+    for (final Atom atom : concept.getAtoms()) {
+      if (atom.getTerminology().equals(terminology)
+          && atom.getTermType().equals(tty)) {
+        return atom;
+      }
+    }
+    return null;
+  }
 
   /**
    * Returns the active parent concepts.
@@ -101,8 +177,9 @@ public class TerminologyUtility {
       for (AdditionalRelationshipType type : service
           .getAdditionalRelationshipTypes(terminology, version).getObjects()) {
         while (type.getSuperType() != null) {
-          additionalTypeHierarchy.get(
-              terminology + version + type.getSuperType().getAbbreviation())
+          additionalTypeHierarchy
+              .get(
+                  terminology + version + type.getSuperType().getAbbreviation())
               .add(type.getAbbreviation());
           type = type.getSuperType();
         }
@@ -143,8 +220,8 @@ public class TerminologyUtility {
    * @throws NoSuchAlgorithmException the no such algorithm exception
    * @throws UnsupportedEncodingException the unsupported encoding exception
    */
-  public static UUID getUuid(String value) throws NoSuchAlgorithmException,
-    UnsupportedEncodingException {
+  public static UUID getUuid(String value)
+    throws NoSuchAlgorithmException, UnsupportedEncodingException {
 
     MessageDigest sha1Algorithm = MessageDigest.getInstance("SHA-1");
 
