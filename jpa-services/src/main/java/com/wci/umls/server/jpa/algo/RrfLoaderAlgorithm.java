@@ -735,7 +735,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         final Language lang = root.getLanguage();
         if (lang != null) {
           lang.getAbbreviation();
-
         }
         loadedRootTerminologies.put(root.getTerminology(), root);
       }
