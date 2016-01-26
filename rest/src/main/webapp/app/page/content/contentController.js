@@ -293,14 +293,14 @@ tsApp.controller('ContentCtrl', [
         var ancestorPath = tree.ancestorPath + '~' + tree.nodeTerminologyId;
 
         // cycle over children, and construct tree nodes
-        for (var i = 0; i < data.tree.length; i++) {
+        for (var i = 0; i < data.trees.length; i++) {
 
           // check that child is not already present
           // (don't override
           // present data)
           var childPresent = false;
           for (var j = 0; j < tree.child.length; j++) {
-            if (tree.child[j].nodeTerminologyId === data.tree[i].nodeTerminologyId) {
+            if (tree.child[j].nodeTerminologyId === data.trees[i].nodeTerminologyId) {
               childPresent = true;
               break;
             }
@@ -308,7 +308,7 @@ tsApp.controller('ContentCtrl', [
 
           // if not present, add
           if (!childPresent) {
-            tree.child.push(data.tree[i]);
+            tree.child.push(data.trees[i]);
           }
         }
 
@@ -416,7 +416,7 @@ tsApp.controller('ContentCtrl', [
         $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
         $scope.searchParams.page, semanticType).then(
         function(data) {
-          $scope.searchResults.list = data.searchResult;
+          $scope.searchResults.list = data.results;
           $scope.searchResults.list.totalCount = data.totalCount;
 
           if (loadFirst && $scope.searchResults.list.length > 0) {
@@ -724,7 +724,7 @@ tsApp.controller('ContentCtrl', [
         // relationships also by
         // group
         if ($scope.metadata.terminology.descriptionLogicTerminology) {
-          data.relationship.sort(function(a, b) {
+          data.relationships.sort(function(a, b) {
             if (a.relationshipType < b.relationshipType)
               return -1;
             if (a.relationshipType > b.relationshipType)
@@ -737,7 +737,7 @@ tsApp.controller('ContentCtrl', [
           });
         }
 
-        $scope.pagedRelationships = data.relationship;
+        $scope.pagedRelationships = data.relationships;
         $scope.pagedRelationships.totalCount = data.totalCount;
 
       });
@@ -745,35 +745,35 @@ tsApp.controller('ContentCtrl', [
 
     // Get paged atoms (assume all are loaded)
     $scope.getPagedAtoms = function() {
-      $scope.pagedAtoms = utilService.getPagedArray($scope.component.object.atom,
+      $scope.pagedAtoms = utilService.getPagedArray($scope.component.object.atoms,
         $scope.atomPaging, $scope.pageSizes.general);
     };
 
     // Get paged definitions (assume all are loaded)
     $scope.getPagedDefinitions = function() {
       // get the paged array, with flags and filter
-      $scope.pagedDefinitions = utilService.getPagedArray($scope.component.object.definition,
+      $scope.pagedDefinitions = utilService.getPagedArray($scope.component.object.definitions,
         $scope.defPaging, $scope.pageSizes.general);
     };
 
     // Get paged attributes (assume all are loaded)
     $scope.getPagedAttributes = function() {
       // get the paged array, with flags and filter
-      $scope.pagedAttributes = utilService.getPagedArray($scope.component.object.attribute,
+      $scope.pagedAttributes = utilService.getPagedArray($scope.component.object.attributes,
         $scope.attributePaging, $scope.pageSizes.general);
     };
 
     // Get paged members (assume all are loaded)
     $scope.getPagedMembers = function() {
       // get the paged array, with flags and filter
-      $scope.pagedMembers = utilService.getPagedArray($scope.component.object.member,
+      $scope.pagedMembers = utilService.getPagedArray($scope.component.object.members,
         $scope.memberPaging, $scope.pageSizes.general);
     };
 
     // Get paged STYs (assume all are loaded)
     $scope.getPagedSemanticTypes = function() {
       // get the paged array, with flags and filter
-      $scope.pagedSemanticTypes = utilService.getPagedArray($scope.component.object.semanticType,
+      $scope.pagedSemanticTypes = utilService.getPagedArray($scope.component.object.semanticTypes,
         $scope.styPaging, $scope.pageSizes.general);
     };
 

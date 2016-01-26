@@ -82,7 +82,7 @@ tsApp
           $http.get(autocompleteUrl + encodeURIComponent(searchTerms)).then(
           // success
           function(response) {
-            deferred.resolve(response.data.string);
+            deferred.resolve(response.data.strings);
           },
           // error
           function(response) {
@@ -210,26 +210,26 @@ tsApp
                 } else {
 
                   // cycle over all atoms for pre-processing
-                  for (var i = 0; i < data.atom.length; i++) {
+                  for (var i = 0; i < data.atoms.length; i++) {
 
                     // assign expandable content flag
-                    data.atom[i].hasContent = atomHasContent(data.atom[i]);
+                    data.atoms[i].hasContent = atomHasContent(data.atoms[i]);
 
                     // push any definitions up to top level
-                    for (var j = 0; j < data.atom[i].definition.length; j++) {
-                      var definition = data.atom[i].definition[j];
+                    for (var j = 0; j < data.atoms[i].definitions.length; j++) {
+                      var definition = data.atoms[i].definitions[j];
 
                       // set the atom element flag
                       definition.atomElement = true;
 
                       // add the atom information for tooltip
                       // display
-                      definition.atomElementStr = data.atom[i].name + " ["
-                        + data.atom[i].terminology + "/" + data.atom[i].termType + "]";
+                      definition.atomElementStr = data.atoms[i].name + " ["
+                        + data.atoms[i].terminology + "/" + data.atoms[i].termType + "]";
 
                       // add the definition to the top level
                       // component
-                      data.definition.push(definition);
+                      data.definitions.push(definition);
                     }
                   }
 
@@ -307,11 +307,11 @@ tsApp
         function atomHasContent(atom) {
           if (!atom)
             return false;
-          if (atom.attribute.length > 0)
+          if (atom.attributes.length > 0)
             return true;
-          if (atom.definition.length > 0)
+          if (atom.definitions.length > 0)
             return true;
-          if (atom.relationship.length > 0)
+          if (atom.relationships.length > 0)
             return true;
           return false;
         }

@@ -129,7 +129,7 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   }
 
   /* see superclass */
-  @XmlElement(type = AtomJpa.class, name = "atom")
+  @XmlElement(type = AtomJpa.class)
   @Override
   public List<Atom> getAtoms() {
     if (atoms == null) {

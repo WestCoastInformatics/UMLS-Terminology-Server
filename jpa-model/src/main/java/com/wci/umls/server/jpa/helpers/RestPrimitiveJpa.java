@@ -51,7 +51,7 @@ public class RestPrimitiveJpa implements RestPrimitive {
 
   /* see superclass */
   @Override
-  @XmlElement(name = "value")
+  @XmlElement
   public String getValue() {
     return value;
   }

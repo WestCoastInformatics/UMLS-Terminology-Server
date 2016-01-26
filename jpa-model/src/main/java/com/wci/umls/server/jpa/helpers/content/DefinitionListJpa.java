@@ -22,7 +22,7 @@ public class DefinitionListJpa extends AbstractResultList<Definition> implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = DefinitionJpa.class, name = "definition")
+  @XmlElement(type = DefinitionJpa.class, name = "definitions")
   public List<Definition> getObjects() {
     return super.getObjectsTransient();
   }

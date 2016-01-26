@@ -21,7 +21,7 @@ public class UserListJpa extends AbstractResultList<User> implements UserList {
 
   /* see superclass */
   @Override
-  @XmlElement(type = UserJpa.class, name = "user")
+  @XmlElement(type = UserJpa.class, name = "users")
   public List<User> getObjects() {
     return super.getObjectsTransient();
   }
