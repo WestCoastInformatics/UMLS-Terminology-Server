@@ -25,7 +25,7 @@ public class RelationshipListJpa
 
   /* see superclass */
   @Override
-  @XmlElement(type = AbstractRelationship.class, name = "relationship")
+  @XmlElement(type = AbstractRelationship.class, name="relationships")
   public List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> getObjects() {
     return super.getObjectsTransient();
   }

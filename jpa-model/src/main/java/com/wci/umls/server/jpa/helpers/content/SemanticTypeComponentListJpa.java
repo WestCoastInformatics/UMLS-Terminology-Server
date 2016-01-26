@@ -24,7 +24,7 @@ public class SemanticTypeComponentListJpa extends
 
   /* see superclass */
   @Override
-  @XmlElement(type = SemanticTypeComponentJpa.class, name = "semanticTypeComponent")
+  @XmlElement(type = SemanticTypeComponentJpa.class, name="semanticTypes")
   public List<SemanticTypeComponent> getObjects() {
     return super.getObjectsTransient();
   }

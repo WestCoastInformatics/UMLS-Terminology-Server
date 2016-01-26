@@ -23,7 +23,7 @@ public class AdditionalRelationshipTypeListJpa extends
 
   /* see superclass */
   @Override
-  @XmlElement(type = AdditionalRelationshipTypeJpa.class, name = "type")
+  @XmlElement(type = AdditionalRelationshipTypeJpa.class, name = "types")
   public List<AdditionalRelationshipType> getObjects() {
     return super.getObjectsTransient();
   }

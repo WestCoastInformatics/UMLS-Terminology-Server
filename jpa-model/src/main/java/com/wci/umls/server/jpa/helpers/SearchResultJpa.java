@@ -63,7 +63,7 @@ public class SearchResultJpa implements SearchResult {
    * @return the id
    */
   @Override
-  @XmlElement(name = "id")
+  @XmlElement
   public Long getId() {
     return this.id;
   }
@@ -85,7 +85,7 @@ public class SearchResultJpa implements SearchResult {
    * @return the id
    */
   @Override
-  @XmlElement(name = "terminologyId")
+  @XmlElement
   public String getTerminologyId() {
     return this.terminologyId;
   }
@@ -127,7 +127,7 @@ public class SearchResultJpa implements SearchResult {
 
   /* see superclass */
   @Override
-  @XmlElement(name = "value")
+  @XmlElement
   public String getValue() {
     return this.value;
   }

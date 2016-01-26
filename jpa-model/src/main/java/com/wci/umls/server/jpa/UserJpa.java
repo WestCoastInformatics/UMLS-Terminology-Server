@@ -235,7 +235,7 @@ public class UserJpa implements User {
   }
 
   /* see superclass */
-  @XmlElement(type = UserPreferencesJpa.class, name = "userPreferences")
+  @XmlElement(type = UserPreferencesJpa.class)
   @Override
   public UserPreferences getUserPreferences() {
     return userPreferences;

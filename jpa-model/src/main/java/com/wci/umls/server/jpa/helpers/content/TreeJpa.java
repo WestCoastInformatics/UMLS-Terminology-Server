@@ -234,7 +234,7 @@ public class TreeJpa implements Tree {
 
   /* see superclass */
   @Override
-  @XmlElement(type = TreeJpa.class, name = "child")
+  @XmlElement(type = TreeJpa.class)
   public List<Tree> getChildren() {
     if (children == null) {
       children = new ArrayList<>();

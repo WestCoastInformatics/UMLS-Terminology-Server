@@ -171,7 +171,7 @@ public class UserPreferencesJpa implements UserPreferences {
    *
    * @return the precedence list
    */
-  @XmlElement(type = PrecedenceListJpa.class, name = "precedenceList")
+  @XmlElement(type = PrecedenceListJpa.class)
   @Override
   public PrecedenceList getPrecedenceList() {
     return precedenceList;

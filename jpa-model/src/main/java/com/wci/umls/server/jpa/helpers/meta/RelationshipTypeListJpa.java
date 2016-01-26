@@ -22,7 +22,7 @@ public class RelationshipTypeListJpa extends
 
   /* see superclass */
   @Override
-  @XmlElement(type = RelationshipTypeJpa.class, name = "type")
+  @XmlElement(type = RelationshipTypeJpa.class, name = "types")
   public List<RelationshipType> getObjects() {
     return super.getObjectsTransient();
   }

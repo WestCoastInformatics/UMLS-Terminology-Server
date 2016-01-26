@@ -266,7 +266,7 @@ public class ReleaseInfoJpa implements ReleaseInfo {
 
   /* see superclass */
   @Override
-  @XmlElement(type = ReleasePropertyJpa.class, name = "property")
+  @XmlElement(type = ReleasePropertyJpa.class)
   public List<ReleaseProperty> getProperties() {
     return properties;
   }

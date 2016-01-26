@@ -22,7 +22,7 @@ public class RootTerminologyListJpa extends AbstractResultList<RootTerminology>
 
   /* see superclass */
   @Override
-  @XmlElement(type = RootTerminologyJpa.class, name = "rootTerminology")
+  @XmlElement(type = RootTerminologyJpa.class, name = "rootTerminologies")
   public List<RootTerminology> getObjects() {
     return super.getObjectsTransient();
   }

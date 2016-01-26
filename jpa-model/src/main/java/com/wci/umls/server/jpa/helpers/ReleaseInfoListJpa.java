@@ -22,7 +22,7 @@ public class ReleaseInfoListJpa extends AbstractResultList<ReleaseInfo>
 
   /* see superclass */
   @Override
-  @XmlElement(type = ReleaseInfoJpa.class, name = "releaseInfo")
+  @XmlElement(type = ReleaseInfoJpa.class, name = "releaseInfos")
   public List<ReleaseInfo> getObjects() {
     return super.getObjectsTransient();
   }

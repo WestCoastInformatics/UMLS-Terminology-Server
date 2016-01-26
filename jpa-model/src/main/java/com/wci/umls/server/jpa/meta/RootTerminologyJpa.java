@@ -129,7 +129,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = ContactInfoJpa.class, name = "acquisitionContact")
+  @XmlElement(type = ContactInfoJpa.class)
   public ContactInfo getAcquisitionContact() {
     return acquisitionContact;
   }
@@ -142,7 +142,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = ContactInfoJpa.class, name = "contentContact")
+  @XmlElement(type = ContactInfoJpa.class)
   public ContactInfo getContentContact() {
     return contentContact;
   }
@@ -185,7 +185,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = LanguageJpa.class, name = "language")
+  @XmlElement(type = LanguageJpa.class)
   public Language getLanguage() {
     return language;
   }
@@ -198,7 +198,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = ContactInfoJpa.class, name = "licenseContact")
+  @XmlElement(type = ContactInfoJpa.class)
   public ContactInfo getLicenseContact() {
     return licenseContact;
   }
@@ -247,7 +247,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = String.class, name = "syName")
+  @XmlElement(type = String.class)
   public List<String> getSynonymousNames() {
     if (synonymousNames == null) {
       synonymousNames = new ArrayList<>();

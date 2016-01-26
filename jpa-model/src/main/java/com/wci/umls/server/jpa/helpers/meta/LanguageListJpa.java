@@ -22,7 +22,7 @@ public class LanguageListJpa extends AbstractResultList<Language> implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = LanguageJpa.class, name = "type")
+  @XmlElement(type = LanguageJpa.class, name = "types")
   public List<Language> getObjects() {
     return super.getObjectsTransient();
   }

@@ -22,7 +22,7 @@ public class ConceptListJpa extends AbstractResultList<Concept> implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = ConceptJpa.class, name = "concept")
+  @XmlElement(type = ConceptJpa.class, name = "concepts")
   public List<Concept> getObjects() {
     return super.getObjectsTransient();
   }

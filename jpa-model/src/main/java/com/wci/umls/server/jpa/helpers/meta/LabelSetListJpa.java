@@ -22,7 +22,7 @@ public class LabelSetListJpa extends AbstractResultList<LabelSet> implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = LabelSetJpa.class, name = "name")
+  @XmlElement(type = LabelSetJpa.class, name = "names")
   public List<LabelSet> getObjects() {
     return super.getObjectsTransient();
   }

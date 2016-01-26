@@ -1,7 +1,6 @@
 // Login controller
-tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location',
-  'securityService', 'gpService', 'utilService',
-  function($scope, $http, $location, securityService, gpService, utilService) {
+tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService', 'gpService',
+  'utilService', function($scope, $http, $location, securityService, gpService, utilService) {
     console.debug('configure LoginCtrl');
 
     // Clear user info
@@ -21,7 +20,7 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location',
       }
 
       // login
-      gpService.increment()
+      gpService.increment();
       return $http({
         url : securityUrl + 'authenticate/' + name,
         method : 'POST',
@@ -38,7 +37,7 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location',
         // set request header authorization and reroute
         $http.defaults.headers.common.Authorization = response.data.authToken;
         $location.path("/content");
-        gpService.decrement();      
+        gpService.decrement();
       },
 
       // error
@@ -46,11 +45,11 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location',
         utilService.handleError(response);
         gpService.decrement();
       });
-    }
+    };
 
     // Logout function
     $scope.logout = function() {
       securityService.logout();
-    }
+    };
 
   } ]);

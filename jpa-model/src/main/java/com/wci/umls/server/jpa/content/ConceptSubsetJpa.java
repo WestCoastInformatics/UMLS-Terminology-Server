@@ -70,7 +70,7 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
   }
 
   /* see superclass */
-  @XmlElement(type = ConceptSubsetMemberJpa.class, name = "member")
+  @XmlElement(type = ConceptSubsetMemberJpa.class)
   @Override
   public List<ConceptSubsetMember> getMembers() {
     if (members == null) {

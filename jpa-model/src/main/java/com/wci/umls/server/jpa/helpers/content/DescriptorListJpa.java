@@ -23,7 +23,7 @@ public class DescriptorListJpa extends AbstractResultList<Descriptor> implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = DescriptorJpa.class, name = "descriptor")
+  @XmlElement(type = DescriptorJpa.class, name = "descriptors")
   public List<Descriptor> getObjects() {
     return super.getObjectsTransient();
   }

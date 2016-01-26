@@ -22,7 +22,7 @@ public class AttributeNameListJpa extends AbstractResultList<AttributeName>
 
   /* see superclass */
   @Override
-  @XmlElement(type = AttributeNameJpa.class, name = "name")
+  @XmlElement(type = AttributeNameJpa.class, name = "names")
   public List<AttributeName> getObjects() {
     return super.getObjectsTransient();
   }

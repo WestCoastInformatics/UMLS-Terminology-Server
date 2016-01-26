@@ -22,7 +22,7 @@ public class GeneralConceptAxiomListJpa extends
 
   /* see superclass */
   @Override
-  @XmlElement(type = GeneralConceptAxiomJpa.class, name = "GeneralConceptAxiom")
+  @XmlElement(type = GeneralConceptAxiomJpa.class, name = "generalConceptAxioms")
   public List<GeneralConceptAxiom> getObjects() {
     return super.getObjectsTransient();
   }

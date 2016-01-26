@@ -55,7 +55,7 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
 
   /* see superclass */
   @Override
-  @XmlElement(type = AttributeJpa.class, name = "attribute")
+  @XmlElement(type = AttributeJpa.class)
   public List<Attribute> getAttributes() {
     if (attributes == null) {
       attributes = new ArrayList<>(1);

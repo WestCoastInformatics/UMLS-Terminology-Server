@@ -20,7 +20,7 @@ public class TreeListJpa extends AbstractResultList<Tree> implements TreeList {
 
   /* see superclass */
   @Override
-  @XmlElement(type = TreeJpa.class, name = "tree")
+  @XmlElement(type = TreeJpa.class, name = "trees")
   public List<Tree> getObjects() {
     return super.getObjectsTransient();
   }
