@@ -42,7 +42,8 @@ public interface SearchHandler extends Configurable {
     PfsParameter pfs, int[] totalCt, EntityManager manager) throws Exception;
 
   /**
-   * Returns the score map for the most recent call to getQueryResults
+   * Returns the score map for the most recent call to getQueryResults.
+   * NOTE: this is NOT thread safe.
    *
    * @return the score map
    */
