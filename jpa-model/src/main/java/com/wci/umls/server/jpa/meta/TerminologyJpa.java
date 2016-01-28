@@ -136,7 +136,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = CitationJpa.class, name = "citation")
+  @XmlElement(type = CitationJpa.class)
   public Citation getCitation() {
     return citation;
   }

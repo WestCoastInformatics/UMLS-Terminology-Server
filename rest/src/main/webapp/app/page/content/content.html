@@ -260,7 +260,7 @@
 
 
         <!--  Semantic types -->
-        <div ng-show="component.object.semanticType.length > 0">
+        <div ng-show="component.object.semanticTypes.length > 0">
           <h4>{{metadata.semanticTypesLabel}}
             ({{pagedSemanticTypes.totalCount}})</h4>
 
@@ -270,12 +270,12 @@
               boundary-links="true" class="pagination-sm"
               previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
               last-text="&raquo;"
-              ng-show="component.object.semanticType.length > pageSizes.general"
+              ng-show="component.object.semanticTypes.length > pageSizes.general"
               total-items="pagedSemanticTypes.totalCount"
               ng-model="styPaging.page" ng-change="getPagedSemanticTypes()"></pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
-              ng-show="component.object.semanticType.length > pageSizes.general"
+              ng-show="component.object.semanticTypes.length > pageSizes.general"
               type="text" ng-model="styPaging.filter"
               ng-model-options="{ debounce: 300 }"
               ng-change="getPagedSemanticTypes()">
@@ -299,7 +299,7 @@
         <!--  end Semantic types -->
 
         <!--  Definitions -->
-        <div ng-show="component.object.definition.length > 0">
+        <div ng-show="component.object.definitions.length > 0">
           <h4>{{metadata.definitionsLabel}}
             ({{pagedDefinitions.totalCount}})</h4>
 
@@ -308,12 +308,12 @@
               boundary-links="true" class="pagination-sm"
               previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
               last-text="&raquo;"
-              ng-show="component.object.definition.length > pageSizes.general"
+              ng-show="component.object.definitions.length > pageSizes.general"
               total-items="pagedDefinitions.totalCount"
               ng-model="defPaging.page" ng-change="getPagedDefinitions()"></pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
-              ng-show="component.object.definition.length > pageSizes.general"
+              ng-show="component.object.definitions.length > pageSizes.general"
               type="text" ng-model="defPaging.filter"
               ng-model-options="{ debounce: 300 }"
               ng-change="getPagedDefinitions()">
@@ -337,7 +337,7 @@
         <!-- end Definitions -->
 
         <!-- Atoms -->
-        <div ng-show="component.object.atom.length > 0">
+        <div ng-show="component.object.atoms.length > 0">
           <h4>{{metadata.atomsLabel}} ({{pagedAtoms.totalCount}})</h4>
 
           <span style="display: block;">
@@ -345,12 +345,12 @@
               boundary-links="true" class="pagination-sm"
               previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
               last-text="&raquo;"
-              ng-show="component.object.atom.length > pageSizes.general"
+              ng-show="component.object.atoms.length > pageSizes.general"
               total-items="pagedAtoms.totalCount" ng-model="atomPaging.page"
               ng-change="getPagedAtoms()"></pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
-              ng-show="component.object.atom.length > pageSizes.general"
+              ng-show="component.object.atoms.length > pageSizes.general"
               type="text" ng-model="atomPaging.filter"
               ng-model-options="{ debounce: 300 }" ng-change="getPagedAtoms()">
 
@@ -422,22 +422,22 @@
                   <div style="margin-left: 20px;" ng-show="item.expanded">
 
                     <!-- Atom Definitions -->
-                    <div ng-show="item.definition.length > 0">
+                    <div ng-show="item.definitions.length > 0">
                       <strong>{{metadata.definitionsLabel}}</strong>
                       <ul>
                         <li
-                          ng-repeat="definition in item.definition | orderBy:'value'">
+                          ng-repeat="definition in item.definitions | orderBy:'value'">
                           {{definition.value}}</li>
                       </ul>
                     </div>
                     <!-- end Atom Definitions -->
 
                     <!-- Atom Attributes -->
-                    <div ng-show="item.attribute.length > 0">
+                    <div ng-show="item.attributes.length > 0">
                       <strong>{{metadata.attributesLabel}}</strong>
                       <ul>
                         <li
-                          ng-repeat="attribute in item.attribute | orderBy: ['name', 'value']">
+                          ng-repeat="attribute in item.attributes | orderBy: ['name', 'value']">
                           <span class="label label-info"
                             uib-tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
                           = {{attribute.value}}
@@ -453,10 +453,10 @@
                         <li
                           ng-repeat="member in item.member | orderBy: ['name', 'value']">
                           {{member.subsetName}}
-                          <div ng-show="item.attribute.length > 0">
+                          <div ng-show="item.attributes.length > 0">
                             <ul>
                               <li
-                                ng-repeat="attribute in member.attribute | orderBy: ['name', 'value']">
+                                ng-repeat="attribute in member.attributes | orderBy: ['name', 'value']">
                                 <span class="label label-info"
                                   uib-tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
                                 = {{attribute.value}}
@@ -469,11 +469,11 @@
                     <!-- end Atom Subsets -->
 
                     <!-- Atom Relationship -->
-                    <div ng-show="item.relationship.length > 0">
+                    <div ng-show="item.relationships.length > 0">
                       <strong>{{metadata.atomRelationshipsLabel}}</strong>
                       <ul>
                         <li
-                          ng-repeat="relationship in item.relationship | orderBy:['relationshipType', 'toName']"><span
+                          ng-repeat="relationship in item.relationships | orderBy:['relationshipType', 'toName']"><span
                             class="label label-info"
                             uib-tooltip="{{getRelationshipTypeName(relationship.relationshipType)}}">{{relationship.relationshipType}}</span>
                           {{relationship.additionalRelationshipType}} <a
@@ -495,19 +495,19 @@
 
 
         <!-- Attributes -->
-        <div ng-show="component.object.attribute.length > 0">
+        <div ng-show="component.object.attributes.length > 0">
           <h4>{{metadata.attributesLabel}} ({{pagedAttributes.totalCount}})</h4>
           <span style="display: block;">
             <pagination items-per-page="pageSizes.general" max-size="5"
               boundary-links="true" class="pagination-sm"
               previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
               last-text="&raquo;"
-              ng-show="component.object.attribute.length > pageSizes.general"
+              ng-show="component.object.attributes.length > pageSizes.general"
               total-items="pagedAttributes.totalCount"
               ng-model="attributePaging.page" ng-change="getPagedAttributes()"></pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
-              ng-show="component.object.attribute.length > pageSizes.general"
+              ng-show="component.object.attributes.length > pageSizes.general"
               type="text" ng-model="attributePaging.filter"
               ng-model-options="{ debounce: 300 }"
               ng-change="getPagedAttributes()">
@@ -533,19 +533,19 @@
         <!-- end Attributes -->
 
         <!-- Subsets -->
-        <div ng-show="component.object.member.length > 0">
+        <div ng-show="component.object.members.length > 0">
           <h4>{{metadata.subsetsLabel}} ({{pagedMembers.totalCount}})</h4>
           <span style="display: block;">
             <pagination items-per-page="pageSizes.general" max-size="5"
               boundary-links="true" class="pagination-sm"
               previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
               last-text="&raquo;"
-              ng-show="component.object.member.length > pageSizes.general"
+              ng-show="component.object.members.length > pageSizes.general"
               total-items="pagedMembers.totalCount"
               ng-model="membersPaging.page" ng-change="getPagedMembers()"></pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
-              ng-show="component.object.member.length > pageSizes.general"
+              ng-show="component.object.members.length > pageSizes.general"
               type="text" ng-model="memberPaging.filter"
               ng-model-options="{ debounce: 300 }" ng-change="getPagedMembers()">
 
@@ -562,10 +562,10 @@
                 class="label label-default" ng-show="item.obsolete"
                 uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
               {{item.subsetName}}
-              <div ng-show="item.attribute.length > 0">
+              <div ng-show="item.attributes.length > 0">
                 <ul>
                   <li
-                    ng-repeat="attribute in item.attribute | orderBy: ['name', 'value']">
+                    ng-repeat="attribute in item.attributes | orderBy: ['name', 'value']">
                     <span class="label label-info"
                       uib-tooltip="{{getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
                     = {{attribute.value}}

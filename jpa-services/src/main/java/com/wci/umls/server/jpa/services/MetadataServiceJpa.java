@@ -335,6 +335,25 @@ public class MetadataServiceJpa extends RootServiceJpa
 
   /* see superclass */
   @Override
+  public RootTerminology getRootTerminology(String terminology)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("Metadata service - get root terminology " + terminology);
+    try {
+      javax.persistence.Query query =
+          manager.createQuery("SELECT t FROM RootTerminologyJpa t "
+              + "WHERE terminology = :terminology");
+      query.setParameter("terminology", terminology);
+      return (RootTerminology) query.getSingleResult();
+    } catch (Exception e) {
+      // not found, or too many found
+      return null;
+    }
+
+  }
+
+  /* see superclass */
+  @Override
   public Terminology getTerminology(String terminology, String version)
     throws Exception {
     Logger.getLogger(getClass()).info(

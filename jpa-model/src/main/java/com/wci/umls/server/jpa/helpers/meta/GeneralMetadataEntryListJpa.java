@@ -23,7 +23,7 @@ public class GeneralMetadataEntryListJpa extends
 
   /* see superclass */
   @Override
-  @XmlElement(type = GeneralMetadataEntryJpa.class, name = "type")
+  @XmlElement(type = GeneralMetadataEntryJpa.class, name = "types")
   public List<GeneralMetadataEntry> getObjects() {
     return super.getObjectsTransient();
   }

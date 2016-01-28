@@ -1,7 +1,7 @@
 
 <div ui-tree-handle>
   <!-- Expand/collapse controls -->
-  <a ng-if="tree.child && tree.childCt > 0" data-nodrag
+  <a ng-if="tree.children && tree.childCt > 0" data-nodrag
     ng-click="getChildTrees(tree, this)">
     <span class="glyphicon" ng-class="getTreeNodeIcon(tree, collapsed)"></span>
   </a>
@@ -29,15 +29,15 @@
       uib-tooltip-html="getLabelSetsValue(tree)"></span>
   </span>
 
-  <ol ui-tree-nodes="" ng-model="tree.child" ng-class="{hidden: collapsed}">
-    <li ng-repeat="tree in tree.child" ui-tree-node
+  <ol ui-tree-nodes="" ng-model="tree.children" ng-class="{hidden: collapsed}">
+    <li ng-repeat="tree in tree.children" ui-tree-node
       ng-include="'app/component/tree/searchResultsTree_renderer.html'"></li>
 
     <!-- if not all children displayed, display a message -->
     <li ng-show="hasHiddenSiblings(tree) == true"><i
-        class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <a
-        ng-click="getAndSetChildTrees(tree, tree.child.length)">...
-        {{tree.childCt - tree.child.length}} more</a></li>
+      class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <a
+        ng-click="getAndSetChildTrees(tree, tree.children.length)">...
+        {{tree.childCt - tree.children.length}} more</a></li>
 
   </ol>
 </div>

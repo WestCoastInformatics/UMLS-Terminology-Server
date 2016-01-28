@@ -24,7 +24,7 @@ public class TreePositionListJpa extends
 
   /* see superclass */
   @Override
-  @XmlElement(type = AbstractTreePosition.class, name = "treepos")
+  @XmlElement(type = AbstractTreePosition.class, name = "treePositions")
   public List<TreePosition<? extends AtomClass>> getObjects() {
     return super.getObjectsTransient();
   }

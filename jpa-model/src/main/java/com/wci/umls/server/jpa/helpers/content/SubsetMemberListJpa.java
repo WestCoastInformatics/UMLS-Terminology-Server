@@ -27,7 +27,7 @@ public class SubsetMemberListJpa
 
   /* see superclass */
   @Override
-  @XmlElement(type = AbstractSubsetMember.class, name = "member")
+  @XmlElement(type = AbstractSubsetMember.class, name = "members")
   public List<SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> getObjects() {
     return super.getObjectsTransient();
   }

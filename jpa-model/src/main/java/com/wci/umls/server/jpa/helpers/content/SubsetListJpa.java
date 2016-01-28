@@ -22,7 +22,7 @@ public class SubsetListJpa extends AbstractResultList<Subset> implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = AbstractSubset.class, name = "subset")
+  @XmlElement(type = AbstractSubset.class, name = "subsets")
   public List<Subset> getObjects() {
     return super.getObjectsTransient();
   }

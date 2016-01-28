@@ -22,7 +22,7 @@ public class ReleasePropertyListJpa extends AbstractResultList<ReleaseProperty>
 
   /* see superclass */
   @Override
-  @XmlElement(type = ReleasePropertyJpa.class, name = "releaseProperty")
+  @XmlElement(type = ReleasePropertyJpa.class, name = "properties")
   public List<ReleaseProperty> getObjects() {
     return super.getObjectsTransient();
   }

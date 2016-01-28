@@ -22,7 +22,7 @@ public class TermTypeListJpa extends AbstractResultList<TermType> implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = TermTypeJpa.class, name = "type")
+  @XmlElement(type = TermTypeJpa.class, name = "types")
   public List<TermType> getObjects() {
     return super.getObjectsTransient();
   }

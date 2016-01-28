@@ -165,6 +165,10 @@ public class RrfComputePreferredNameHandler
    */
   private void cacheList() throws Exception {
     final MetadataService service = new MetadataServiceJpa();
+    // Skip this if not using precedence
+    if (!requirePrecedence) {
+      return;
+    }
     try {
       list = service.getDefaultPrecedenceList(umlsTerminology, umlsVersion);
     } catch (Exception e) {

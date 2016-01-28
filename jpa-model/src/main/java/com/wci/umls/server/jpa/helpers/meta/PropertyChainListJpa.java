@@ -22,7 +22,7 @@ public class PropertyChainListJpa extends AbstractResultList<PropertyChain>
 
   /* see superclass */
   @Override
-  @XmlElement(type = PropertyChainJpa.class, name = "type")
+  @XmlElement(type = PropertyChainJpa.class, name = "chains")
   public List<PropertyChain> getObjects() {
     return super.getObjectsTransient();
   }

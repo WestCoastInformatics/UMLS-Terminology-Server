@@ -23,7 +23,7 @@ public class StringClassListJpa extends AbstractResultList<StringClass>
 
   /* see superclass */
   @Override
-  @XmlElement(type = StringClassJpa.class, name = "stringClass")
+  @XmlElement(type = StringClassJpa.class, name="stringClasses")
   public List<StringClass> getObjects() {
     return super.getObjectsTransient();
   }

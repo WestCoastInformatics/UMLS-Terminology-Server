@@ -60,7 +60,7 @@ public class ValidationResultJpa implements ValidationResult {
   }
 
   /* see superclass */
-  @XmlElement(type = String.class, name = "error")
+  @XmlElement(type = String.class)
   @Override
   public Set<String> getErrors() {
     return errors;
@@ -95,7 +95,7 @@ public class ValidationResultJpa implements ValidationResult {
   }
 
   /* see superclass */
-  @XmlElement(type = String.class, name = "warning")
+  @XmlElement(type = String.class)
   @Override
   public Set<String> getWarnings() {
     return warnings;

@@ -22,7 +22,7 @@ public class StringList extends AbstractResultList<String> {
   }
 
   @Override
-  @XmlElement(type = String.class, name = "string")
+  @XmlElement(type = String.class, name = "strings")
   public List<String> getObjects() {
     return super.getObjectsTransient();
   }

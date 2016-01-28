@@ -109,21 +109,24 @@ public class DefaultSearchHandler implements SearchHandler {
     }
     escapedQuery = "\"" + QueryParserBase.escape(escapedQuery) + "\"";
 
+    // A slash character indicats a regex in lucene, fix that
+    final String fixedQuery = query == null ? "" : query.replaceAll("\\/", " ");
+
     // Build a combined query with an OR between query typed and exact match
     String combinedQuery = null;
     // For a fielded query search, simply perform the search as written
     // no need for modifications. Also if no literal search field is supplied
-    if (query.isEmpty() || query.contains(":") || literalField == null) {
-      combinedQuery = query;
+    if (fixedQuery.isEmpty() || query.contains(":") || literalField == null) {
+      combinedQuery = fixedQuery;
     } else {
       combinedQuery =
-          (query.isEmpty() ? "" : query + " OR ") + literalField + ":"
+          (fixedQuery.isEmpty() ? "" : fixedQuery + " OR ") + literalField + ":"
               + escapedQuery + "^20.0";
       // create an exact expansion entry. i.e. if the search term exactly
       // matches something in the acronyms file, then use additional "OR"
       // clauses
-      if (acronymExpansionMap.containsKey(query)) {
-        for (String expansion : acronymExpansionMap.get(query)) {
+      if (acronymExpansionMap.containsKey(fixedQuery)) {
+        for (String expansion : acronymExpansionMap.get(fixedQuery)) {
           combinedQuery +=
               " OR " + literalField + ":\"" + expansion + "\"" + "^20.0";
         }
@@ -131,10 +134,10 @@ public class DefaultSearchHandler implements SearchHandler {
     }
 
     // Check for spelling mistakes (if not a fielded search)
-    if (!query.contains(":") && !query.isEmpty()) {
+    if (!fixedQuery.contains(":") && !fixedQuery.isEmpty()) {
       boolean flag = false;
       StringBuilder correctedQuery = new StringBuilder();
-      for (String token : FieldedStringTokenizer.split(query,
+      for (String token : FieldedStringTokenizer.split(fixedQuery,
           " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^")) {
         if (token.length() == 0) {
           continue;
@@ -173,7 +176,7 @@ public class DefaultSearchHandler implements SearchHandler {
 
     // Assemble query
     StringBuilder finalQuery = new StringBuilder();
-    if (query.isEmpty()) {
+    if (fixedQuery.isEmpty()) {
       // Just use PFS and skip the leading "AND"
       finalQuery.append(terminologyClause.substring(5));
     } else if (combinedQuery.contains(" OR ")) {
@@ -191,7 +194,7 @@ public class DefaultSearchHandler implements SearchHandler {
       fullTextQuery =
           IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
               finalQuery.toString(), pfs, manager);
-    } catch (ParseException e) {
+    } catch (ParseException | IllegalArgumentException e) {
       // If there's a parse exception, try the literal query
       Logger.getLogger(getClass()).debug("query = " + finalQuery);
       fullTextQuery =
@@ -216,14 +219,14 @@ public class DefaultSearchHandler implements SearchHandler {
 
     // Only look to other algorithms if this is NOT a fielded query
     // and the query exists
-    if (query != null && !query.isEmpty() && !query.contains(":")) {
+    if (fixedQuery != null && !fixedQuery.isEmpty() && !fixedQuery.contains(":")) {
 
       // If at this point there are zero results,
       // Run the query through acronym expansion
       if (totalCt[0] == 0) {
         // use wordInd tokenization
         String[] tokens =
-            FieldedStringTokenizer.split(query,
+            FieldedStringTokenizer.split(fixedQuery,
                 " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         boolean found = false;
@@ -254,7 +257,7 @@ public class DefaultSearchHandler implements SearchHandler {
       if (totalCt[0] == 0) {
         // use wordInd tokenization
         String[] tokens =
-            FieldedStringTokenizer.split(query,
+            FieldedStringTokenizer.split(fixedQuery,
                 " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         newQuery.append("(");
@@ -289,7 +292,7 @@ public class DefaultSearchHandler implements SearchHandler {
       if (totalCt[0] == 0) {
         // use wordInd tokenization
         String[] tokens =
-            FieldedStringTokenizer.split(query,
+            FieldedStringTokenizer.split(fixedQuery,
                 " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         for (String token : tokens) {

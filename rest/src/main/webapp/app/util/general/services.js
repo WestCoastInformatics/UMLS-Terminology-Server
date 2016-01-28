@@ -22,7 +22,7 @@ tsApp
           plugins : 'autolink autoresize link image charmap searchreplace lists paste',
           toolbar : 'undo redo | styleselect lists | bold italic underline strikethrough | charmap link image',
           forced_root_block : ''
-        }
+        };
 
         // Prep query
         this.prepQuery = function(query) {
@@ -36,7 +36,7 @@ tsApp
             return encodeURIComponent(query2);
           }
           return encodeURIComponent(query);
-        }
+        };
 
         // Prep pfs filter
         this.prepPfs = function(pfs) {
@@ -52,26 +52,26 @@ tsApp
             return pfs2;
           }
           return pfs;
-        }
+        };
 
         // Sets the error
         this.setError = function(message) {
           this.error.message = message;
-        }
+        };
 
         // Clears the error
         this.clearError = function() {
           this.error.message = null;
           this.error.longMessage = null;
           this.error.expand = false;
-        }
+        };
 
         // Handle error message
         this.handleError = function(response) {
           console.debug('Handle error: ', response);
           if (response.data && response.data.length > 100) {
             this.error.message = "Unexpected error, click the icon to view attached full error";
-            this.error.longMessage = response.data
+            this.error.longMessage = response.data;
           } else {
             this.error.message = response.data;
           }
@@ -89,7 +89,7 @@ tsApp
             $location.hash('top');
             $anchorScroll();
           }
-        }
+        };
 
         // Dialog error handler
         this.handleDialogError = function(errors, error) {
@@ -115,7 +115,7 @@ tsApp
           else {
             this.clearError();
           }
-        }
+        };
 
         // Convert date to a string
         this.toDate = function(lastModified) {
@@ -142,7 +142,7 @@ tsApp
             second = '0' + second;
           }
           return year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
-        }
+        };
 
         // Convert date to a short string
         this.toShortDate = function(lastModified) {
@@ -157,7 +157,7 @@ tsApp
             day = '0' + day;
           }
           return year + '-' + month + '-' + day;
-        }
+        };
 
         // Convert date to a simple string
         this.toSimpleDate = function(lastModified) {
@@ -172,7 +172,7 @@ tsApp
             day = '0' + day;
           }
           return year + month + day;
-        }
+        };
 
         // Table sorting mechanism
         this.setSortField = function(table, field, paging) {
@@ -222,7 +222,7 @@ tsApp
           // apply sort if specified
           if (paging.sortField) {
             // if ascending specified, use that value, otherwise use false
-            newArray.sort(this.sort_by(paging.sortField, paging.ascending))
+            newArray.sort(this.sortBy(paging.sortField, paging.ascending));
           }
 
           // apply filter
@@ -246,14 +246,14 @@ tsApp
           results.totalCount = newArray.length;
 
           return results;
-        }
+        };
 
         // function for sorting an array by (string) field and direction
-        this.sort_by = function(field, reverse) {
+        this.sortBy = function(field, reverse) {
 
           // key: function to return field value from object
           var key = function(x) {
-            return x[field]
+            return x[field];
           };
 
           // convert reverse to integer (1 = ascending, -1 =
@@ -262,8 +262,8 @@ tsApp
 
           return function(a, b) {
             return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
-          }
-        }
+          };
+        };
 
         // Get array by filter text matching terminologyId or name
         this.getArrayByFilter = function(array, filter) {
@@ -276,7 +276,7 @@ tsApp
             }
           }
           return newArray;
-        }
+        };
 
         // Get array by filter on conceptActive status
         this.getArrayByActiveStatus = function(array, filter) {
@@ -293,7 +293,7 @@ tsApp
             }
           }
           return newArray;
-        }
+        };
 
         // Returns true if any field on object contains filter text
         this.objectContainsFilterText = function(object, filter) {
@@ -310,14 +310,14 @@ tsApp
           }
 
           return false;
-        }
+        };
 
         // Finds the object in a list by the field
         this.findBy = function(list, obj, field) {
 
           // key: function to return field value from object
           var key = function(x) {
-            return x[field]
+            return x[field];
           };
 
           for (var i = 0; i < list.length; i++) {
@@ -326,13 +326,13 @@ tsApp
             }
           }
           return null;
-        }
+        };
 
         // Get words of a string
         this.getWords = function(str) {
           // Same as in tinymce options
           return str.match(/[^\s,\.]+/g);
-        }
+        };
 
         // Single and multiple-word ordered phrases
         this.getPhrases = function(str) {
@@ -342,7 +342,8 @@ tsApp
           for (var i = 0; i < words.length; i++) {
             for (var j = i + 1; j <= words.length; j++) {
               var phrase = words.slice(i, j).join(' ');
-              // a phrase have at least 5 chars and no start/end words that are purely punctuation
+              // a phrase have at least 5 chars and no start/end words that are
+              // purely punctuation
               if (phrase.length > 5 && words[i].match(/.*[A-Za-z0-9].*/)
                 && words[j - 1].match(/.*[A-Za-z0-9].*/)) {
                 phrases.push(phrase.toLowerCase());
@@ -350,7 +351,7 @@ tsApp
             }
           }
           return phrases;
-        }
+        };
 
         // Utility for cleaning a query
         this.cleanQuery = function(queryStr) {
@@ -366,7 +367,7 @@ tsApp
           }
           console.debug(queryStr, " => ", cleanQuery);
           return cleanQuery;
-        }
+        };
 
       } ]);
 
@@ -380,21 +381,21 @@ tsApp.service('gpService', function() {
 
   this.isGlassPaneSet = function() {
     return this.glassPane.counter;
-  }
+  };
 
   this.isGlassPaneNegative = function() {
     return this.glassPane.counter < 0;
-  }
+  };
 
   // Increments glass pane counter
   this.increment = function(message) {
     this.glassPane.counter++;
-  }
+  };
 
   // Decrements glass pane counter
   this.decrement = function() {
     this.glassPane.counter--;
-  }
+  };
 
 });
 
@@ -417,7 +418,7 @@ tsApp.service('securityService', [ '$http', '$location', '$cookies', 'utilServic
     var searchParams = {
       page : 1,
       query : null
-    }
+    };
 
     // Gets the user
     this.getUser = function() {
@@ -435,7 +436,7 @@ tsApp.service('securityService', [ '$http', '$location', '$cookies', 'utilServic
       }
       // return user (blank if not found)
       return user;
-    }
+    };
 
     // Sets the user
     this.setUser = function(data) {
@@ -448,7 +449,7 @@ tsApp.service('securityService', [ '$http', '$location', '$cookies', 'utilServic
 
       // Whenver set user is called, we should save a cookie
       $cookies.put('user', JSON.stringify(user));
-    }
+    };
 
     this.setGuestUser = function() {
       user.userName = 'guest';
@@ -461,7 +462,7 @@ tsApp.service('securityService', [ '$http', '$location', '$cookies', 'utilServic
       // Whenever set user is called, we should save a cookie
       $cookies.put('user', JSON.stringify(user));
 
-    }
+    };
 
     // Clears the user
     this.clearUser = function() {
@@ -474,14 +475,14 @@ tsApp.service('securityService', [ '$http', '$location', '$cookies', 'utilServic
 
       $cookies.remove('user');
 
-    }
+    };
 
     var httpClearUser = this.clearUser;
 
     // isLoggedIn function
     this.isLoggedIn = function() {
       return user.authToken;
-    }
+    };
 
     this.logout = function() {
       if (user.authToken == null) {
@@ -509,7 +510,7 @@ tsApp.service('securityService', [ '$http', '$location', '$cookies', 'utilServic
         utilService.handleError(response);
         gpService.decrement();
       });
-    }
+    };
   } ]);
 
 // Tab service
@@ -531,7 +532,7 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService',
     // Sets the selected tab
     this.setSelectedTab = function(tab) {
       this.selectedTab = tab;
-    }
+    };
 
     // sets the selected tab by label
     // to be called by controllers when their
@@ -543,7 +544,7 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService',
           break;
         }
       }
-    }
+    };
 
   } ]);
 
@@ -569,35 +570,35 @@ tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
       console.debug("url = " + url);
       return url;
 
-    }
+    };
 
     this.connection = new WebSocket(this.getUrl());
 
     this.connection.onopen = function() {
       // Log so we know it is happening
       console.log('Connection open');
-    }
+    };
 
     this.connection.onclose = function() {
       // Log so we know it is happening
       console.log('Connection closed');
-    }
+    };
 
     // error handler
     this.connection.onerror = function(error) {
       utilService.handleError(error, null, null, null);
-    }
+    };
 
     // handle receipt of a message
     this.connection.onmessage = function(e) {
       var message = e.data;
       console.log("MESSAGE: " + message);
       // TODO: what else to do?
-    }
+    };
 
     // Send a message to the websocket server endpoint
     this.send = function(message) {
       this.connection.send(JSON.stringify(message));
-    }
+    };
 
   } ]);

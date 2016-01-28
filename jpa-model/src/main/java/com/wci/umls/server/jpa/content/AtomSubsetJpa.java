@@ -26,7 +26,7 @@ import com.wci.umls.server.model.content.Subset;
 @Entity
 @Table(name = "atom_subsets", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
-}))
+}) )
 @Audited
 @XmlRootElement(name = "atomSubset")
 public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
@@ -60,7 +60,7 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
 
   /* see superclass */
   @Override
-  @XmlElement(type = AtomSubsetMemberJpa.class, name = "member")
+  @XmlElement(type = AtomSubsetMemberJpa.class)
   public List<AtomSubsetMember> getMembers() {
     if (members == null) {
       members = new ArrayList<>();

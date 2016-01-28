@@ -38,7 +38,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 @Entity
 @Table(name = "concepts", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
-}))
+}) )
 @Audited
 @XmlRootElement(name = "concept")
 @Indexed
@@ -127,7 +127,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    *
    * @return the definitions
    */
-  @XmlElement(type = DefinitionJpa.class, name = "definition")
+  @XmlElement(type = DefinitionJpa.class)
   @Override
   public List<Definition> getDefinitions() {
     if (definitions == null) {
@@ -179,7 +179,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    *
    * @return the relationships
    */
-  @XmlElement(type = ConceptRelationshipJpa.class, name = "relationship")
+  @XmlElement(type = ConceptRelationshipJpa.class)
   @Override
   public List<ConceptRelationship> getRelationships() {
     if (relationships == null) {
@@ -268,7 +268,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   }
 
   /* see superclass */
-  @XmlElement(type = SemanticTypeComponentJpa.class, name = "semanticType")
+  @XmlElement(type = SemanticTypeComponentJpa.class)
   @Override
   public List<SemanticTypeComponent> getSemanticTypes() {
     if (semanticTypes == null) {
@@ -327,7 +327,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   }
 
   /* see superclass */
-  @XmlElement(type = ConceptSubsetMemberJpa.class, name = "member")
+  @XmlElement(type = ConceptSubsetMemberJpa.class)
   @Override
   public List<ConceptSubsetMember> getMembers() {
     if (members == null) {

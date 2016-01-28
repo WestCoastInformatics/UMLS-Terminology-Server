@@ -79,6 +79,16 @@ public interface MetadataService extends RootService, Configurable {
   public RootTerminologyList getRootTerminologies() throws Exception;
 
   /**
+   * Returns the root terminology.
+   *
+   * @param terminology the terminology
+   * @return the root terminology
+   * @throws Exception the exception
+   */
+  public RootTerminology getRootTerminology(String terminology)
+    throws Exception;
+
+  /**
    * Returns the terminology.
    *
    * @param terminology the terminology
@@ -496,8 +506,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the general metadata entry
    * @throws Exception the exception
    */
-  public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry)
-    throws Exception;
+  public GeneralMetadataEntry addGeneralMetadataEntry(
+    GeneralMetadataEntry entry) throws Exception;
 
   /**
    * Update general metadata entry.

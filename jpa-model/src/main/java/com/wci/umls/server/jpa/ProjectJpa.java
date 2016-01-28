@@ -220,7 +220,7 @@ public class ProjectJpa implements Project {
 
   /* see superclass */
   @Override
-  @XmlElement(type = UserJpa.class, name = "lead")
+  @XmlElement(type = UserJpa.class)
   public Set<User> getLeads() {
     return leads;
   }
@@ -245,7 +245,7 @@ public class ProjectJpa implements Project {
 
   /* see superclass */
   @Override
-  @XmlElement(type = UserJpa.class, name = "author")
+  @XmlElement(type = UserJpa.class)
   public Set<User> getAuthors() {
     return authors;
   }
@@ -270,7 +270,7 @@ public class ProjectJpa implements Project {
 
   /* see superclass */
   @Override
-  @XmlElement(type = UserJpa.class, name = "administrator")
+  @XmlElement(type = UserJpa.class)
   public Set<User> getAdministrators() {
     return administrators;
   }

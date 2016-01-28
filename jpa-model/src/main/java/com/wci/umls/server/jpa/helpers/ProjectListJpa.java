@@ -22,7 +22,7 @@ public class ProjectListJpa extends AbstractResultList<Project> implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = ProjectJpa.class, name = "project")
+  @XmlElement(type = ProjectJpa.class, name = "projects")
   public List<Project> getObjects() {
     return super.getObjectsTransient();
   }
