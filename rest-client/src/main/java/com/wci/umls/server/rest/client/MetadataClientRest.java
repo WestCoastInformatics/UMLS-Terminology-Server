@@ -67,8 +67,7 @@ public class MetadataClientRest extends RootClientRest implements
 
     // converting to object
     KeyValuePairLists result =
-        (KeyValuePairLists) ConfigUtility.getGraphForString(resultString,
-            KeyValuePairLists.class);
+        ConfigUtility.getGraphForString(resultString, KeyValuePairLists.class);
     return result;
   }
 
@@ -95,8 +94,7 @@ public class MetadataClientRest extends RootClientRest implements
 
     // converting to object
     TerminologyList result =
-        (TerminologyList) ConfigUtility.getGraphForString(resultString,
-            TerminologyList.class);
+        ConfigUtility.getGraphForString(resultString, TerminologyList.class);
     return result;
   }
 
@@ -122,8 +120,7 @@ public class MetadataClientRest extends RootClientRest implements
 
     // converting to object
     TerminologyList result =
-        (TerminologyList) ConfigUtility.getGraphForString(resultString,
-            TerminologyList.class);
+        ConfigUtility.getGraphForString(resultString, TerminologyList.class);
     return result;
   }
 
@@ -152,8 +149,7 @@ public class MetadataClientRest extends RootClientRest implements
     }
     // converting to object
     Terminology result =
-        (Terminology) ConfigUtility.getGraphForString(resultString,
-            TerminologyJpa.class);
+        ConfigUtility.getGraphForString(resultString, TerminologyJpa.class);
     return result;
   }
 
@@ -183,8 +179,7 @@ public class MetadataClientRest extends RootClientRest implements
     }
     // converting to object
     PrecedenceList result =
-        (PrecedenceList) ConfigUtility.getGraphForString(resultString,
-            PrecedenceListJpa.class);
+        ConfigUtility.getGraphForString(resultString, PrecedenceListJpa.class);
     return result;
   }
 }

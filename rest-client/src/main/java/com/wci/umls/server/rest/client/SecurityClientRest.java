@@ -61,8 +61,7 @@ public class SecurityClientRest extends RootClientRest implements
       throw new Exception(response.toString());
     }
     // return user
-    UserJpa user =
-        (UserJpa) ConfigUtility.getGraphForString(resultString, UserJpa.class);
+    UserJpa user = ConfigUtility.getGraphForString(resultString, UserJpa.class);
     return user;
   }
 
@@ -107,8 +106,7 @@ public class SecurityClientRest extends RootClientRest implements
     }
 
     // converting to object
-    UserJpa user =
-        (UserJpa) ConfigUtility.getGraphForString(resultString, UserJpa.class);
+    UserJpa user = ConfigUtility.getGraphForString(resultString, UserJpa.class);
     return user;
   }
 
@@ -137,8 +135,7 @@ public class SecurityClientRest extends RootClientRest implements
     }
 
     // converting to object
-    UserJpa user =
-        (UserJpa) ConfigUtility.getGraphForString(resultString, UserJpa.class);
+    UserJpa user = ConfigUtility.getGraphForString(resultString, UserJpa.class);
     return user;
   }
 
@@ -162,8 +159,7 @@ public class SecurityClientRest extends RootClientRest implements
 
     // converting to object
     UserListJpa list =
-        (UserListJpa) ConfigUtility.getGraphForString(resultString,
-            UserListJpa.class);
+        ConfigUtility.getGraphForString(resultString, UserListJpa.class);
     return list;
   }
 
@@ -190,7 +186,7 @@ public class SecurityClientRest extends RootClientRest implements
 
     // converting to object
     UserJpa result =
-        (UserJpa) ConfigUtility.getGraphForString(resultString, UserJpa.class);
+        ConfigUtility.getGraphForString(resultString, UserJpa.class);
 
     return result;
   }
