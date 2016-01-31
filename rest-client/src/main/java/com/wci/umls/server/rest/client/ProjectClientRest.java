@@ -42,7 +42,6 @@ public class ProjectClientRest extends RootClientRest implements
     this.config = config;
   }
 
-  
   @Override
   public Project addProject(ProjectJpa project, String authToken)
     throws Exception {
@@ -69,8 +68,7 @@ public class ProjectClientRest extends RootClientRest implements
 
     // converting to object
     ProjectJpa result =
-        (ProjectJpa) ConfigUtility.getGraphForString(resultString,
-            ProjectJpa.class);
+        ConfigUtility.getGraphForString(resultString, ProjectJpa.class);
 
     return result;
   }
@@ -104,8 +102,7 @@ public class ProjectClientRest extends RootClientRest implements
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/remove/"
-            + id);
+        client.target(config.getProperty("base.url") + "/project/remove/" + id);
 
     if (id == null)
       return;
@@ -121,7 +118,6 @@ public class ProjectClientRest extends RootClientRest implements
     }
   }
 
- 
   @Override
   public ConceptList findConceptsInScope(Long id, PfsParameterJpa pfs,
     String authToken) throws Exception {
@@ -130,15 +126,13 @@ public class ProjectClientRest extends RootClientRest implements
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/scope/"
-            + id);
+        client.target(config.getProperty("base.url") + "/project/scope/" + id);
     String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);
     Response response =
         target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .post(Entity.xml(pfsString));
+            .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -176,8 +170,7 @@ public class ProjectClientRest extends RootClientRest implements
 
     // converting to object
     ProjectJpa project =
-        (ProjectJpa) ConfigUtility.getGraphForString(resultString,
-            ProjectJpa.class);
+        ConfigUtility.getGraphForString(resultString, ProjectJpa.class);
     return project;
   }
 
@@ -200,8 +193,7 @@ public class ProjectClientRest extends RootClientRest implements
 
     // converting to object
     ProjectListJpa list =
-        (ProjectListJpa) ConfigUtility.getGraphForString(resultString,
-            ProjectListJpa.class);
+        ConfigUtility.getGraphForString(resultString, ProjectListJpa.class);
     return list;
   }
 

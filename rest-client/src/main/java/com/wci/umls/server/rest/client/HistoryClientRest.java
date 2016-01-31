@@ -67,8 +67,7 @@ public class HistoryClientRest implements HistoryServiceRest {
 
     // converting to object
     ReleaseInfoListJpa c =
-        (ReleaseInfoListJpa) ConfigUtility.getGraphForString(resultString,
-            ReleaseInfoListJpa.class);
+        ConfigUtility.getGraphForString(resultString, ReleaseInfoListJpa.class);
     return c;
   }
 
@@ -100,8 +99,7 @@ public class HistoryClientRest implements HistoryServiceRest {
 
     // converting to object
     ReleaseInfoJpa info =
-        (ReleaseInfoJpa) ConfigUtility.getGraphForString(resultString,
-            ReleaseInfoJpa.class);
+        ConfigUtility.getGraphForString(resultString, ReleaseInfoJpa.class);
     return info;
   }
 
@@ -133,8 +131,7 @@ public class HistoryClientRest implements HistoryServiceRest {
 
     // converting to object
     ReleaseInfoJpa info =
-        (ReleaseInfoJpa) ConfigUtility.getGraphForString(resultString,
-            ReleaseInfoJpa.class);
+        ConfigUtility.getGraphForString(resultString, ReleaseInfoJpa.class);
     return info;
   }
 
@@ -166,8 +163,7 @@ public class HistoryClientRest implements HistoryServiceRest {
 
     // converting to object
     ReleaseInfoJpa info =
-        (ReleaseInfoJpa) ConfigUtility.getGraphForString(resultString,
-            ReleaseInfoJpa.class);
+        ConfigUtility.getGraphForString(resultString, ReleaseInfoJpa.class);
     return info;
   }
 
@@ -195,8 +191,7 @@ public class HistoryClientRest implements HistoryServiceRest {
 
     // converting to object
     ReleaseInfoJpa info =
-        (ReleaseInfoJpa) ConfigUtility.getGraphForString(resultString,
-            ReleaseInfoJpa.class);
+        ConfigUtility.getGraphForString(resultString, ReleaseInfoJpa.class);
     return info;
   }
 
@@ -225,8 +220,7 @@ public class HistoryClientRest implements HistoryServiceRest {
 
     // converting to object
     ReleaseInfoJpa info =
-        (ReleaseInfoJpa) ConfigUtility.getGraphForString(resultString,
-            ReleaseInfoJpa.class);
+        ConfigUtility.getGraphForString(resultString, ReleaseInfoJpa.class);
 
     return info;
   }

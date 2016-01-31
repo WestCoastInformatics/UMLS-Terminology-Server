@@ -204,16 +204,14 @@ public class AbstractListUnit<T> {
 
     xml = ConfigUtility.getStringForGraph(list);
 
-    ResultList<T> list3 =
-        (ResultList<T>) ConfigUtility.getGraphForString(xml, list.getClass());
+    ResultList<T> list3 = ConfigUtility.getGraphForString(xml, list.getClass());
 
     assertTrue(list.equals(list3));
 
     // Add 2 contents
     list.addObject(object2);
     xml = ConfigUtility.getStringForGraph(list);
-    list3 =
-        (ResultList<T>) ConfigUtility.getGraphForString(xml, list.getClass());
+    list3 = ConfigUtility.getGraphForString(xml, list.getClass());
 
     assertTrue(list.equals(list3));
 

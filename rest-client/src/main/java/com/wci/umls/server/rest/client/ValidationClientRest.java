@@ -65,8 +65,8 @@ public class ValidationClientRest implements ValidationServiceRest {
 
     // converting to object
     ValidationResult result =
-        (ValidationResult) ConfigUtility.getGraphForString(resultString,
-            ValidationResultJpa.class);
+        ConfigUtility
+            .getGraphForString(resultString, ValidationResultJpa.class);
     return result;
   }
 
@@ -94,8 +94,8 @@ public class ValidationClientRest implements ValidationServiceRest {
 
     // converting to object
     ValidationResult result =
-        (ValidationResult) ConfigUtility.getGraphForString(resultString,
-            ValidationResultJpa.class);
+        ConfigUtility
+            .getGraphForString(resultString, ValidationResultJpa.class);
     return result;
   }
 
@@ -125,8 +125,8 @@ public class ValidationClientRest implements ValidationServiceRest {
 
     // converting to object
     ValidationResult result =
-        (ValidationResult) ConfigUtility.getGraphForString(resultString,
-            ValidationResultJpa.class);
+        ConfigUtility
+            .getGraphForString(resultString, ValidationResultJpa.class);
     return result;
   }
 
@@ -154,8 +154,8 @@ public class ValidationClientRest implements ValidationServiceRest {
 
     // converting to object
     ValidationResult result =
-        (ValidationResult) ConfigUtility.getGraphForString(resultString,
-            ValidationResultJpa.class);
+        ConfigUtility
+            .getGraphForString(resultString, ValidationResultJpa.class);
     return result;
   }
 
@@ -182,8 +182,8 @@ public class ValidationClientRest implements ValidationServiceRest {
 
     // converting to object
     ValidationResult result =
-        (ValidationResult) ConfigUtility.getGraphForString(resultString,
-            ValidationResultJpa.class);
+        ConfigUtility
+            .getGraphForString(resultString, ValidationResultJpa.class);
     return result;
   }
 
