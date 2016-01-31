@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
 
@@ -115,11 +115,12 @@ public interface RootService {
    * @param <T> the
    * @param list the list
    * @param clazz the clazz
+   * @param totalCt the total ct
    * @param pfs the pfs
    * @return the list
    * @throws Exception the exception
    */
-  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz,
+  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz, int[] totalCt,
     PfsParameter pfs) throws Exception;
 
   /**

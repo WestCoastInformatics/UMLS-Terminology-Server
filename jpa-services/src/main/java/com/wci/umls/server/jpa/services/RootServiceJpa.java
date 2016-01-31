@@ -261,7 +261,7 @@ public abstract class RootServiceJpa implements RootService {
    * @throws Exception the exception
    */
   @Override
-  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz,
+  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz, int[] totalCt,
     PfsParameter pfs) throws Exception {
 
     // Skip empty pfs
@@ -286,6 +286,7 @@ public abstract class RootServiceJpa implements RootService {
               new Class<?>[] {});
 
       if (!sortMethod.getReturnType().equals(String.class)
+          && !sortMethod.getReturnType().isEnum()
           && !sortMethod.getReturnType().equals(Date.class)) {
         throw new Exception("Referenced sort field is not of type String");
       }
@@ -308,6 +309,8 @@ public abstract class RootServiceJpa implements RootService {
         }
       });
     }
+    // Total count before filtering
+    totalCt[0] = result.size();
 
     // Handle filtering based on toString()
     if (pfs != null && (pfs.getQueryRestriction() != null
