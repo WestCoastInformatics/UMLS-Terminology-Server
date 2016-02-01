@@ -131,7 +131,7 @@ public class TerminologyRrfSingleLoaderMojo extends AbstractMojo {
         }
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService.loadTerminologyRrf(terminology, version, true,
+        contentService.loadTerminologyRrf(terminology, version, true, true,
             prefix == null ? "MR" : prefix, inputDir, authToken);
 
       } else {
@@ -145,9 +145,8 @@ public class TerminologyRrfSingleLoaderMojo extends AbstractMojo {
           client.luceneReindex(null, authToken);
         }
 
-        client.loadTerminologyRrf(terminology, version, true, inputDir,
-            prefix == null ? "MR" : prefix,
-            authToken);
+        client.loadTerminologyRrf(terminology, version, true, true, inputDir,
+            prefix == null ? "MR" : prefix, authToken);
       }
 
     } catch (Exception e) {

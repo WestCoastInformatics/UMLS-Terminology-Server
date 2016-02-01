@@ -443,13 +443,14 @@ public interface ContentServiceRest {
    * @param terminology the terminology
    * @param version the terminology version
    * @param singleMode the single mode
+   * @param codeFlag the code flag
    * @param prefix the prefix
    * @param inputDir the input dir
    * @param authToken the auth token
    * @throws Exception the exception
    */
   public void loadTerminologyRrf(String terminology, String version,
-    boolean singleMode, String prefix, String inputDir, String authToken)
+    Boolean singleMode, Boolean codeFlag, String prefix, String inputDir, String authToken)
       throws Exception;
 
   /**

@@ -272,13 +272,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @PUT
-  @Path("/terminology/load/rrf/{singleMode}/{terminology}/{version}")
+  @Path("/terminology/load/rrf")
   @Consumes(MediaType.TEXT_PLAIN)
   @ApiOperation(value = "Load all terminologies from an RRF directory", notes = "Loads terminologies from an RRF directory for specified terminology and version")
   public void loadTerminologyRrf(
-    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Terminology version, e.g. latest", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Single mode, e.g. false", required = true) @PathParam("singleMode") boolean singleMode,
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. latest", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Single mode, e.g. false", required = true) @QueryParam("singleMode") Boolean singleMode,
+    @ApiParam(value = "Code flag, e.g. false", required = true) @QueryParam("codeFlag") Boolean codeFlag,
     @ApiParam(value = "Prefix, e.g. MR or RXN", required = false) @QueryParam("prefix") String prefix,
     @ApiParam(value = "RRF input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -325,6 +326,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       RrfLoaderAlgorithm algorithm = new RrfLoaderAlgorithm();
       algorithm.setTerminology(terminology);
       algorithm.setVersion(version);
+      if (codeFlag != null) {
+        algorithm.setCodesFlag(true);
+      }
       algorithm.setSingleMode(singleMode);
       algorithm.setReleaseVersion(releaseVersion);
       algorithm.setReaders(readers);
