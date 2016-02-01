@@ -117,6 +117,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** The single mode. */
   private boolean singleMode = false;
 
+  /** The codes flag. */
+  private boolean codesFlag = false;
+
   /** The release version. */
   private String releaseVersion;
 
@@ -272,6 +275,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    */
   public void setSingleMode(boolean singleMode) {
     this.singleMode = singleMode;
+  }
+
+  /**
+   * Sets the codes flag.
+   *
+   * @param codesFlag the codes flag
+   */
+  public void setCodesFlag(boolean codesFlag) {
+    this.codesFlag = codesFlag;
   }
 
   /**
@@ -1161,7 +1173,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // UMLS has one case of an early XM atom with NOCODE (ICD9CM to CCS map)
       // In loadMrconso we skip NOCODE codes, never creating them as Code
       // objects.
-      else if (fields[4].equals("CODE")
+      else if (codesFlag && fields[4].equals("CODE")
           && atomCodeIdMap.get(fields[3]).equals("NOCODE")) {
         // Get the concept for the AUI
         final Atom atom = getAtom(atomIdMap.get(fields[3]));
@@ -1173,7 +1185,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             getRelationship(relationshipMap.get(fields[3]), null);
         relationship.addAttribute(att);
         addAttribute(att, relationship);
-      } else if (fields[4].equals("CODE")) {
+      } else if (codesFlag && fields[4].equals("CODE")) {
         final Long codeId = codeIdMap.get(
             atomTerminologyMap.get(fields[3]) + atomCodeIdMap.get(fields[3]));
         if (codeId == null) {
@@ -1704,7 +1716,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           relationshipMap.put(fields[8], descriptorRel.getId());
         }
 
-      } else if (fields[2].equals("CODE") && fields[6].equals("CODE")) {
+      } else if (codesFlag && fields[2].equals("CODE") && fields[6].equals("CODE")) {
         final CodeRelationship codeRel = new CodeRelationshipJpa();
 
         final Long fromId = codeIdMap.get(
@@ -2182,63 +2194,66 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     }
     results.close();
 
-    Logger.getLogger(getClass()).info("  Add codes");
-    objectCt = 0;
-    // NOTE: Hibernate-specific to support iterating
-    // Skip NOCODE
-    hQuery = session
-        .createQuery("select a from AtomJpa a " + "where codeId is not null "
-            + "and codeId != '' and timestamp = :timestamp "
-            + "order by terminology, codeId");
-    hQuery.setParameter("timestamp", releaseVersionDate);
-    hQuery.setReadOnly(true).setFetchSize(1000);
-    results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    String prevCode = null;
-    Code code = null;
-    while (results.next()) {
-      final Atom atom = (Atom) results.get()[0];
-      if (atom.getCodeId() == null || atom.getCodeId().isEmpty()) {
-        continue;
-      }
-      // skip where code == concept - problem because rels connect to the code
-      // if (atom.getCodeId().equals(atom.getConceptId())) {
-      // continue;
-      // }
-      // skip where code == descriptor
-      // if (atom.getCodeId().equals(atom.getDescriptorId())) {
-      // continue;
-      // }
-      if (prevCode == null || !prevCode.equals(atom.getCodeId())) {
-        if (code != null) {
-          // compute preferred name
-          code.setName(getComputedPreferredName(code));
-          addCode(code);
-          codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
-              code.getId());
-          logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+    // Use flag to decide whether to handle codes
+    if (codesFlag) {
+      Logger.getLogger(getClass()).info("  Add codes");
+      objectCt = 0;
+      // NOTE: Hibernate-specific to support iterating
+      // Skip NOCODE
+      hQuery = session
+          .createQuery("select a from AtomJpa a " + "where codeId is not null "
+              + "and codeId != '' and timestamp = :timestamp "
+              + "order by terminology, codeId");
+      hQuery.setParameter("timestamp", releaseVersionDate);
+      hQuery.setReadOnly(true).setFetchSize(1000);
+      results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+      String prevCode = null;
+      Code code = null;
+      while (results.next()) {
+        final Atom atom = (Atom) results.get()[0];
+        if (atom.getCodeId() == null || atom.getCodeId().isEmpty()) {
+          continue;
         }
-        code = new CodeJpa();
-        code.setTimestamp(releaseVersionDate);
-        code.setLastModified(releaseVersionDate);
-        code.setLastModifiedBy(loader);
-        code.setPublished(true);
-        code.setPublishable(true);
-        code.setTerminology(atom.getTerminology());
-        code.setTerminologyId(atom.getCodeId());
-        code.setVersion(atom.getVersion());
-        code.setWorkflowStatus(published);
+        // skip where code == concept - problem because rels connect to the code
+        // if (atom.getCodeId().equals(atom.getConceptId())) {
+        // continue;
+        // }
+        // skip where code == descriptor
+        // if (atom.getCodeId().equals(atom.getDescriptorId())) {
+        // continue;
+        // }
+        if (prevCode == null || !prevCode.equals(atom.getCodeId())) {
+          if (code != null) {
+            // compute preferred name
+            code.setName(getComputedPreferredName(code));
+            addCode(code);
+            codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
+                code.getId());
+            logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+          }
+          code = new CodeJpa();
+          code.setTimestamp(releaseVersionDate);
+          code.setLastModified(releaseVersionDate);
+          code.setLastModifiedBy(loader);
+          code.setPublished(true);
+          code.setPublishable(true);
+          code.setTerminology(atom.getTerminology());
+          code.setTerminologyId(atom.getCodeId());
+          code.setVersion(atom.getVersion());
+          code.setWorkflowStatus(published);
+        }
+        code.addAtom(atom);
+        prevCode = atom.getCodeId();
       }
-      code.addAtom(atom);
-      prevCode = atom.getCodeId();
+      if (code != null) {
+        code.setName(getComputedPreferredName(code));
+        addCode(code);
+        codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
+            code.getId());
+        commitClearBegin();
+      }
+      results.close();
     }
-    if (code != null) {
-      code.setName(getComputedPreferredName(code));
-      addCode(code);
-      codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
-          code.getId());
-      commitClearBegin();
-    }
-    results.close();
 
     // NOTE: for efficiency and lack of use cases, we've temporarily
     // suspended the loading of LexicalClass and StringClass objects
