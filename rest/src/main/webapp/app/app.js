@@ -7,7 +7,7 @@ var tsApp = angular.module('tsApp',
     // Set recursive digest limit higher to handle very deep trees.
     $rootScopeProvider.digestTtl(15);
 
-  ;
+  });
 
 // Declare top level URL vars
 var securityUrl = "security/";
@@ -25,21 +25,26 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
 
   // Set reloadOnSearch so that $location.hash() calls do not reload the
   // controller
-  $routeProvider.when('/', {
+  $routeProvider
+  .when('/', {
     templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl',
     reloadOnSearch : false
+  })
   .when('/content', {
     templateUrl : 'app/page/content/content.html',
     controller : 'ContentCtrl',
     reloadOnSearch : false
+  })
   .when('/metadata', {
     templateUrl : 'app/page/metadata/metadata.html',
     controller : 'MetadataCtrl',
     reloadOnSearch : false
+  })
   .otherwise({
     redirectTo : '/content' 
-} ]);
+  });
+}]);
 
 // Simple glass pane controller
 tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService', function($scope, gpService) {
@@ -106,8 +111,7 @@ tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', 'securityServic
     $scope.isAdmin = function() {
       return user.applicationRole == 'ADMIN';
     };
-
-  }; ]);
+} ]);
 
 // Header controller
 tsApp.controller('HeaderCtrl', [ '$scope', 'securityService', function($scope, securityService) {
@@ -141,8 +145,7 @@ tsApp.controller('FooterCtrl', [ '$scope', 'gpService', 'securityService',
     $scope.getGlassPaneCounter = function() {
       return gpService.glassPane.counter;
     }
-
-  };
+}
 
 ]);
 
@@ -181,7 +184,7 @@ tsApp.factory('$confirm', function($uibModal, $confirmModalDefaults) {
     settings.resolve = {
       data : function() {
         return data;
-      };
+      }
     };
 
     return $uibModal.open(settings).result;
@@ -224,5 +227,6 @@ tsApp.directive('confirm', function($confirm) {
         reBind(bindConfirm);
       }
     }
-  };
-})
+  }
+  });
+
