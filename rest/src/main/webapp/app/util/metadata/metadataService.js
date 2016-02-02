@@ -218,7 +218,7 @@ tsApp
           // success
           function(response) {
             console.debug("  terminologies = ", response.data);
-            metadata.terminologies = response.data.terminology;
+            metadata.terminologies = response.data.terminologies;
             gpService.decrement();
             deferred.resolve(response.data);
           },

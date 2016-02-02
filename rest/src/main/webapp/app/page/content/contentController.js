@@ -55,8 +55,10 @@ tsApp.controller('ContentCtrl', [
     // Watch expressions
     //
 
-    // Watch for changes in metadata.terminology
+    // Watch for changes in metadata.terminologies
     $scope.$watch('metadata.terminology', function() {
+    	
+    	
       // clear the terminology-specific variables
       $scope.autoCompleteUrl = null;
 
@@ -64,6 +66,9 @@ tsApp.controller('ContentCtrl', [
       if ($scope.metadata.terminology == null) {
         return;
       }
+      
+      console.log('Terminology changed', $scope.metadata.terminology);
+      
 
       // set the autocomplete url, with pattern:
       // /type/{terminology}/{version}/autocomplete/{searchTerm}
@@ -72,7 +77,7 @@ tsApp.controller('ContentCtrl', [
         + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
         + "/autocomplete/";
 
-      // metadataService.setTerminology($scope.metadata.terminology);
+      // metadataService.setTerminology($scope.metadata.terminologies);
 
     });
 
