@@ -28,18 +28,14 @@ import org.hibernate.search.SearchFactory;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Fields;
+import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
+import org.reflections.Reflections;
 
 import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.jpa.content.CodeJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
-import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
-import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
-import com.wci.umls.server.jpa.content.DescriptorJpa;
 
 /**
  * Performs utility functions relating to Lucene indexes and Hibernate Search.
@@ -59,11 +55,14 @@ public class IndexUtility {
   // Initialize the field names maps
   static {
     try {
-      Class<?>[] classes = new Class<?>[] {
-          ConceptJpa.class, DescriptorJpa.class, CodeJpa.class,
-          ConceptRelationshipJpa.class, ConceptSubsetMemberJpa.class,
-          ConceptTreePositionJpa.class
-      };
+      final Map<String, Class<?>> reindexMap = new HashMap<>();
+      final Reflections reflections = new Reflections();
+      for (final Class<?> clazz : reflections
+          .getTypesAnnotatedWith(Indexed.class)) {
+        reindexMap.put(clazz.getSimpleName(), clazz);
+      }
+      Class<?>[] classes = reindexMap.values().toArray(new Class<?>[0]);
+
       for (Class<?> clazz : classes) {
         stringFieldNames.put(clazz,
             IndexUtility.getIndexedFieldNames(clazz, true));
