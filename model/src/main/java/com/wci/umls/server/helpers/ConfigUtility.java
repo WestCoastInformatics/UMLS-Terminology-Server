@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
 
@@ -133,6 +133,32 @@ public class ConfigUtility {
     } catch (Exception e) {
       return false;
     }
+  }
+
+  /**
+   * Indicates whether or not analysis mode is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   * @throws Exception the exception
+   */
+  public static boolean isAnalysisMode() throws Exception {
+
+    try {
+      if (config == null)
+        config = ConfigUtility.getConfigProperties();
+
+      return !"true".equals(config.getProperty("analysis.mode").toString());
+    } catch (Throwable e) {
+      return false;
+    }
+  }
+
+  /**
+   * Reset config properties. Needed for testing so we can reset the state of
+   * config.properties and reload it.
+   */
+  public static void resetConfigProperties() {
+    config = null;
   }
 
   /**
