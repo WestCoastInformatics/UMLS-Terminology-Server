@@ -768,7 +768,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         session
             .createQuery(
                 "select a from AtomJpa a " + "where conceptId is not null "
-                    + "and conceptId != '' order by terminology, conceptId")
+                    + "and conceptId != '' and terminology = :terminology "
+                    + "order by terminology, conceptId")
+            .setParameter("terminology", terminology)
             .setReadOnly(true).setFetchSize(1000);
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     String prevCui = null;
