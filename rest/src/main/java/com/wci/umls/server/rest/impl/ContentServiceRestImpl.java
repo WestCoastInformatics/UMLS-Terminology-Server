@@ -326,7 +326,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       RrfLoaderAlgorithm algorithm = new RrfLoaderAlgorithm();
       algorithm.setTerminology(terminology);
       algorithm.setVersion(version);
-      if (codeFlag != null) {
+      if (codeFlag == null) {
         algorithm.setCodesFlag(true);
       }
       algorithm.setSingleMode(singleMode);
