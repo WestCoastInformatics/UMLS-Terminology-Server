@@ -289,7 +289,12 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     }
     // needed for dev UMLS because SNOMED has "multiple roots" that contain dup
     // strings
+    
     Set<String> seen = new HashSet<>();
+    // Add STYs already existing
+    for (final SemanticType sty : getSemanticTypes(terminology,version).getObjects()){
+      seen.add(sty.getValue());
+    }
     for (Map.Entry<Long, String> entry : idValueMap.entrySet()) {
       final String semanticType = entry.getValue();
       sb.append((sb.length() == 0 ? "" : ",")).append(semanticType);
