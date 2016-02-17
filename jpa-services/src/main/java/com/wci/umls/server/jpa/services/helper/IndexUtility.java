@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -170,9 +171,12 @@ public class IndexUtility {
           jpaType = f.getAnnotation(ManyToMany.class).targetEntity();
         } else if (f.isAnnotationPresent(ManyToOne.class)) {
           jpaType = f.getAnnotation(ManyToOne.class).targetEntity();
+        } else if (f.isAnnotationPresent(OneToOne.class)) {
+          jpaType = f.getAnnotation(OneToOne.class).targetEntity();
         } else {
           throw new Exception(
-              "Unable to determine jpa type, @IndexedEmbedded must be used with @OneToMany, @ManyToOne, or @ManyToMany ");
+              "Unable to determine jpa type, @IndexedEmbedded must be used with "
+                  + "@OneToOne, @OneToMany, @ManyToOne, or @ManyToMany ");
 
         }
 
