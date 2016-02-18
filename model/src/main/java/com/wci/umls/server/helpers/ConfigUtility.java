@@ -271,7 +271,7 @@ public class ConfigUtility {
       throw new Exception("Unexpected null classkey " + classKey);
     }
     String handlerClass = config.getProperty(classKey);
-    Logger.getLogger(ConfigUtility.class).info("Instantiate " + handlerClass);
+    Logger.getLogger(ConfigUtility.class).debug("Instantiate " + handlerClass);
     T handler =
         ConfigUtility.newHandlerInstance(handlerName, handlerClass, type);
 
@@ -284,7 +284,7 @@ public class ConfigUtility {
       if (key.toString().startsWith(property + "." + handlerName + ".")) {
         String shortKey = key.toString()
             .substring((property + "." + handlerName + ".").length());
-        Logger.getLogger(ConfigUtility.class).info(" property " + shortKey
+        Logger.getLogger(ConfigUtility.class).debug(" property " + shortKey
             + " = " + config.getProperty(key.toString()));
         handlerProperties.put(shortKey, config.getProperty(key.toString()));
       }
