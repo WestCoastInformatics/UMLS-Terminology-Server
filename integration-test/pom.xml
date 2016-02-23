@@ -110,6 +110,14 @@
     </profile>
 
     <!-- MOJO integration tests -->
+    <!-- To configure this a number of -D parameters have to be passed to configure 
+      the config setup for each loader. All should use the same database and the same DEFAULT 
+      security settings. -->
+    <!-- -Drun.config.umls=/home/ec2-tomcat/umls/config/config-testrrf.properties -->
+    <!-- -Drun.config.rrf=/home/ec2-tomcat/umls/config/config-testrrf.properties -->
+    <!-- -Drun.config.owl=/home/ec2-tomcat/owl/config/config-testowl.properties -->
+    <!-- -Drun.config.claml=/home/ec2-tomcat/claml/config/config-testclaml.properties -->
+    <!-- -Drun.config.rf2=/home/ec2-tomcat/claml/config/config-testrf2.properties -->
     <profile>
       <id>mojo</id>
       <build>

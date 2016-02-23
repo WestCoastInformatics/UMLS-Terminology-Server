@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.services;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -294,6 +295,8 @@ public abstract class RootServiceJpa implements RootService {
       // allow the method to be accessed
       sortMethod.setAccessible(true);
 
+      final boolean ascending = (pfs != null) ? pfs.isAscending() : true;
+
       // sort the list
       Collections.sort(result, new Comparator<T>() {
         @Override
@@ -302,12 +305,17 @@ public abstract class RootServiceJpa implements RootService {
           try {
             final String s1 = (String) sortMethod.invoke(t1, new Object[] {});
             final String s2 = (String) sortMethod.invoke(t2, new Object[] {});
-            return s1.compareTo(s2);
+            if (ascending) {
+              return s1.compareTo(s2);
+            } else {
+              return s2.compareTo(s1);
+            }
           } catch (Exception e) {
             return 0;
           }
         }
       });
+
     }
     // Total count before filtering
     totalCt[0] = result.size();
@@ -346,6 +354,76 @@ public abstract class RootServiceJpa implements RootService {
     }
 
     return result;
+  }
+
+  /**
+   * Returns the pfs comparator.
+   *
+   * @param <T> the
+   * @param clazz the clazz
+   * @param pfs the pfs
+   * @return the pfs comparator
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  protected <T> Comparator<T> getPfsComparator(Class<T> clazz, PfsParameter pfs)
+    throws Exception {
+    if (pfs != null
+        && (pfs.getSortField() != null && !pfs.getSortField().isEmpty())) {
+      // check that specified sort field exists on Concept and is
+      // a string
+      final Field sortField = clazz.getField(pfs.getSortField());
+
+      // allow the field to access the Concept values
+      sortField.setAccessible(true);
+
+      if (pfs.isAscending()) {
+        // make comparator
+        return new Comparator<T>() {
+          @Override
+          public int compare(T o1, T o2) {
+            try {
+              // handle dates explicitly
+              if (o2 instanceof Date) {
+                return ((Date) sortField.get(o1))
+                    .compareTo((Date) sortField.get(o2));
+              } else {
+                // otherwise, sort based on conversion to string
+                return (sortField.get(o1).toString())
+                    .compareTo(sortField.get(o2).toString());
+              }
+            } catch (IllegalAccessException e) {
+              // on exception, return equality
+              return 0;
+            }
+          }
+        };
+      } else {
+        // make comparator
+        return new Comparator<T>() {
+          @Override
+          public int compare(T o2, T o1) {
+            try {
+              // handle dates explicitly
+              if (o2 instanceof Date) {
+                return ((Date) sortField.get(o1))
+                    .compareTo((Date) sortField.get(o2));
+              } else {
+                // otherwise, sort based on conversion to string
+                return (sortField.get(o1).toString())
+                    .compareTo(sortField.get(o2).toString());
+              }
+            } catch (IllegalAccessException e) {
+              // on exception, return equality
+              return 0;
+            }
+          }
+        };
+      }
+
+    } else {
+      return null;
+    }
   }
 
   /**

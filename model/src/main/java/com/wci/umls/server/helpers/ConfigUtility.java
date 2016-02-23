@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
 
@@ -136,6 +136,32 @@ public class ConfigUtility {
   }
 
   /**
+   * Indicates whether or not analysis mode is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   * @throws Exception the exception
+   */
+  public static boolean isAnalysisMode() throws Exception {
+
+    try {
+      if (config == null)
+        config = ConfigUtility.getConfigProperties();
+
+      return !"true".equals(config.getProperty("analysis.mode").toString());
+    } catch (Throwable e) {
+      return false;
+    }
+  }
+
+  /**
+   * Reset config properties. Needed for testing so we can reset the state of
+   * config.properties and reload it.
+   */
+  public static void resetConfigProperties() {
+    config = null;
+  }
+
+  /**
    * Returns the config properties.
    * @return the config properties
    *
@@ -245,7 +271,7 @@ public class ConfigUtility {
       throw new Exception("Unexpected null classkey " + classKey);
     }
     String handlerClass = config.getProperty(classKey);
-    Logger.getLogger(ConfigUtility.class).info("Instantiate " + handlerClass);
+    Logger.getLogger(ConfigUtility.class).debug("Instantiate " + handlerClass);
     T handler =
         ConfigUtility.newHandlerInstance(handlerName, handlerClass, type);
 
@@ -258,7 +284,7 @@ public class ConfigUtility {
       if (key.toString().startsWith(property + "." + handlerName + ".")) {
         String shortKey = key.toString()
             .substring((property + "." + handlerName + ".").length());
-        Logger.getLogger(ConfigUtility.class).info(" property " + shortKey
+        Logger.getLogger(ConfigUtility.class).debug(" property " + shortKey
             + " = " + config.getProperty(key.toString()));
         handlerProperties.put(shortKey, config.getProperty(key.toString()));
       }

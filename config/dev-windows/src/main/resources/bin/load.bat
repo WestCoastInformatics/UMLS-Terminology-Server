@@ -8,9 +8,11 @@ REM
 REM
 REM Set environment variables at system level
 REM
-set UMLS_CODE="C:/workspace/UMLS-Terminology-Server"
-set UMLS_DATA="C:/umlsserver/data"
-set UMLS_CONFIG="C:/umlsserver/config/config.properties"
+REM   NOTE: avoid putting quotes and using paths with spaces
+REM
+set UMLS_CODE=C:/workspace/UMLS-Terminology-Server
+set UMLS_DATA=C:/umlsserver/data
+set UMLS_CONFIG=C:/umlsserver/config/config.properties
 set SERVER=false
 
 echo ------------------------------------------------
