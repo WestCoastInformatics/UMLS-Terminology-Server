@@ -578,7 +578,7 @@ tsApp
               gpService.decrement();
               deferred.resolve(response.data);
             }, function(response) {
-              errorService.handleError(response);
+              utilService.handleError(response);
               gpService.decrement();
               deferred.reject(response.data);
             });

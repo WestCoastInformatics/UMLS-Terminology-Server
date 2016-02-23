@@ -113,7 +113,7 @@ tsApp.controller('ContentCtrl', [
         $scope.component.object.terminology, $scope.component.object.version, startIndex).then(
         function(data) {
 
-          $scope.componentTree = data.tree;
+          $scope.componentTree = data.trees;
 
           // set the count and position variables
           $scope.treeCount = data.totalCount;
@@ -220,6 +220,8 @@ tsApp.controller('ContentCtrl', [
 
     // Determine the icon to show (plus, right, down, or blank)
     $scope.getTreeNodeIcon = function(tree, collapsed) {
+    	
+    	return null;/*
 
       // if childCt is zero, return leaf
       if (tree.childCt == 0)
@@ -239,15 +241,16 @@ tsApp.controller('ContentCtrl', [
           return 'glyphicon-chevron-down';
       default:
         return 'glyphicon-question-sign';
-      }
+      }*/
     };
 
     // Helper function to determine whether siblings are hidden on a
     // user-expanded list
     $scope.hasHiddenSiblings = function(tree) {
+   
       // Skip things not set or without children
       if (!tree || !tree.children)
-        return;
+        return false;
 
       switch ($scope.getTreeNodeExpansionState(tree)) {
       case TreeNodeExpansionState.ExpandableFromList:
