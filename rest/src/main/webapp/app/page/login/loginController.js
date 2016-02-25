@@ -8,6 +8,8 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService
 
     // Declare the user
     $scope.user = securityService.getUser();
+    
+    // TODO Check status and either revert to #/content or #/landing depending locationChange
 
     // Login function
     $scope.login = function(name, password) {
