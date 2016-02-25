@@ -209,7 +209,7 @@
           {{component.object.terminologyId}} {{component.object.name}}
           <span class="label label-warning"
             ng-show="metadata.terminology.metathesaurus && component.object.suppressible"
-            uib-tooltip="Suppressible">S</span>
+            uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator</span>
           <span class="label label-default" ng-show="component.object.obsolete"
             uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
           <span style="padding-bottom: 2px;"
@@ -229,7 +229,7 @@
         <button ng-show="!metadata.terminology.descriptionLogicTerminology"
           ng-click="toggleSODisplay()" class="btn btn-xs btn-primary">
           <span ng-show="showSOElements">Hide Obsolete & Suppressible</span>
-          <span ng-show="showSOElements">Show Obsolete & Suppressible</span>
+          <span ng-show="!showSOElements">Show Obsolete & Suppressible</span>
         </button>
 
 
@@ -285,7 +285,7 @@
             <li class="cr-list" ng-repeat="item in pagedSemanticTypes"
               ng-show="showItem(item)"><span class="label label-warning"
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
-                uib-tooltip="Suppressible">S</span> <span
+                uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator</span> <span
                 class="label label-default" ng-show="item.obsolete"
                 uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
               {{item.semanticType}}</li>
@@ -324,7 +324,7 @@
                 ng-show="item.atomElement" uib-tooltip="{{item.atomElementStr}}">i</span>
               <span class="label label-warning"
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
-                uib-tooltip="Suppressible">S</span> <span
+                uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator</span> <span
                 class="label label-default" ng-show="item.obsolete"
                 uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
               {{item.value}}</li>
@@ -365,7 +365,7 @@
                 <div style="display: table-cell; padding: 1px;">
                   <span class="label label-warning"
                     ng-show="metadata.terminology.metathesaurus && item.suppressible"
-                    uib-tooltip="Suppressible">S</span>
+                    uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator</span>
                   <span class="label label-default" ng-show="item.obsolete"
                     uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
                   <!-- Format:  termType name [ terminology ] codeId componentId descriptorId conceptTerminologyIds
@@ -518,7 +518,7 @@
             <li class="cr-list" ng-repeat="item in pagedAttributes"
               ng-show="showItem(item)"><span class="label label-warning"
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
-                uib-tooltip="Suppressible">S</span> <span
+                uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator</span> <span
                 class="label label-default" ng-show="item.obsolete"
                 uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
               <span class="label label-info"
@@ -554,7 +554,7 @@
             <li class="cr-list" ng-repeat="item in pagedMembers"
               ng-show="showItem(item)"><span class="label label-warning"
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
-                uib-tooltip="Suppressible">S</span> <span
+                uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator</span> <span
                 class="label label-default" ng-show="item.obsolete"
                 uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
               {{item.subsetName}}
@@ -614,7 +614,7 @@
                 &nbsp;
               </span> <span class="label label-warning"
                 ng-show="metadata.terminology.metathesaurus && item.suppressible"
-                uib-tooltip="Suppressible">S</span> <span
+                uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator}}</span> <span
                 class="label label-default" ng-show="item.obsolete"
                 uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
               <span class="label label-info"

@@ -31,6 +31,8 @@ tsApp
           extensionsLabel : "Extensions",
           obsoleteLabel : "Obsolete",
           obsoleteIndicator : "O",
+          suppressibleLabel : "Suppressible",
+          suppressibleIndicator : "S",
           treeSortField : "nodeName",
           terminologies : null,
           semanticTypes : null
