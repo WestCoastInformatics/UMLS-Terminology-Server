@@ -227,13 +227,9 @@
         <!-- Buttons for suppressible/obsolete -->
 
         <button ng-show="!metadata.terminology.descriptionLogicTerminology"
-          ng-click="toggleSuppressible()" class="btn btn-xs btn-primary">
-          <span ng-show="showSuppressible">Hide Suppressible</span>
-          <span ng-show="!showSuppressible">Show Suppressible</span>
-        </button>
-        <button ng-click="toggleObsolete()" class="btn btn-xs btn-primary">
-          <span ng-show="showObsolete">Hide {{metadata.obsoleteLabel}}</span>
-          <span ng-show="!showObsolete">Show {{metadata.obsoleteLabel}}</span>
+          ng-click="toggleSODisplay()" class="btn btn-xs btn-primary">
+          <span ng-show="showSOElements">Hide Obsolete & Suppressible</span>
+          <span ng-show="showSOElements">Show Obsolete & Suppressible</span>
         </button>
 
 

@@ -502,8 +502,7 @@ tsApp.controller('ContentCtrl', [
     // 
 
     // variables for showing/hiding elements based on boolean fields
-    $scope.showSuppressible = false;
-    $scope.showObsolete = false;
+    $scope.showSOElements = false;
     $scope.showAtomElement = true;
     $scope.showInferred = true;
     $scope.showExtension = false;
@@ -550,13 +549,8 @@ tsApp.controller('ContentCtrl', [
     // obsolete/suppressible
     $scope.showItem = function(item) {
 
-      // trigger on suppressible (model data)
-      if (!$scope.showSuppressible && item.suppressible) {
-        return false;
-      }
-
-      // trigger on obsolete (model data)
-      if (!$scope.showObsolete && item.obsolete) {
+      // trigger on suppressible and obsolete(model data)
+      if (!$scope.showSOElements && (item.suppressible || item.obsolete)) {
         return false;
       }
 
@@ -577,22 +571,12 @@ tsApp.controller('ContentCtrl', [
       return true;
     };
 
-    // Function to toggle obsolete flag and apply paging
-    $scope.toggleObsolete = function() {
-      if ($scope.showObsolete == null || $scope.showObsolete == undefined) {
-        $scope.showObsolete = false;
+    // Function to toggle suppressible and obsolete flag and apply paging
+    $scope.toggleSODisplay = function() {
+      if ($scope.showSOElements == null || $scope.showSOElements == undefined) {
+        $scope.showSOElements = false;
       } else {
-        $scope.showObsolete = !$scope.showObsolete;
-      }
-      applyPaging();
-    };
-
-    // Function to toggle suppressible flag and apply paging
-    $scope.toggleSuppressible = function() {
-      if ($scope.showSuppressible == null || $scope.showSuppressible == undefined) {
-        $scope.showSuppressible = false;
-      } else {
-        $scope.showSuppressible = !$scope.showSuppressible;
+        $scope.showSOElements = !$scope.showSOElements;
       }
 
       applyPaging();
@@ -717,8 +701,7 @@ tsApp.controller('ContentCtrl', [
     $scope.getPagedRelationships = function() {
 
       var filters = {
-        showSuppressible : $scope.showSuppressible,
-        showObsolete : $scope.showObsolete,
+        showSOElements : $scope.showSOElements,
         showInferred : $scope.showInferred,
         text : $scope.relPaging.filter
       };
