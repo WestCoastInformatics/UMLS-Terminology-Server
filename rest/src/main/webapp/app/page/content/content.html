@@ -166,12 +166,11 @@
             uib-tooltip="{{getComponentStr(component.history[component.historyIndex - 1])}}">Back</button>
         </div>
         <div class="nobreak alert alert-info">
-          <div style="display: inline" class="dropdown" dropdown
-            dropdown-append-to-body>
+          <div style="display: inline" uib-dropdown dropdown-append-to-body>
             <a uib-tooltip="View All History"
               ng-show="component.history.length > 2"
-              class="glyphicon glyphicon-time dropdown-toggle" dropdown-toggle></a>
-            <ul class="dropdown-menu">
+              class="glyphicon glyphicon-time dropdown-toggle" uib-dropdown-toggle id="history-dropdown"></a>
+           <ul uib-dropdown-menu role="menu" aria-labelledby="history-dropdown">	
               <li ng-show="localHistoryNextCt > 0">...
                 {{localHistoryNextCt}} more recent</li>
               <li ng-repeat="component in localHistory | orderBy:'index':true"
