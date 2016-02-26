@@ -31,6 +31,8 @@ tsApp
           extensionsLabel : "Extensions",
           obsoleteLabel : "Obsolete",
           obsoleteIndicator : "O",
+          suppressibleLabel : "Suppressible",
+          suppressibleIndicator : "S",
           treeSortField : "nodeName",
           terminologies : null,
           semanticTypes : null
@@ -218,7 +220,7 @@ tsApp
           // success
           function(response) {
             console.debug("  terminologies = ", response.data);
-            metadata.terminologies = response.data.terminology;
+            metadata.terminologies = response.data.terminologies;
             gpService.decrement();
             deferred.resolve(response.data);
           },

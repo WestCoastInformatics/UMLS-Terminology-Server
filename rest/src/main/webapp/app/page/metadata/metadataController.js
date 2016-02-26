@@ -22,7 +22,7 @@ tsApp.controller('MetadataCtrl',
       $scope.metadata = metadataService.getModel();
 
       // If terminology is blank, then redirect to /content to set a terminology
-      if (!$scope.metadata.terminology) {
+      if (!$scope.metadata.terminologies) {
         $location.path("/content");
       }
 

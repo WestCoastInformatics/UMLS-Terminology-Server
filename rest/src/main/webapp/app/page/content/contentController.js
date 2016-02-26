@@ -55,8 +55,10 @@ tsApp.controller('ContentCtrl', [
     // Watch expressions
     //
 
-    // Watch for changes in metadata.terminology
+    // Watch for changes in metadata.terminologies
     $scope.$watch('metadata.terminology', function() {
+    	
+    	
       // clear the terminology-specific variables
       $scope.autoCompleteUrl = null;
 
@@ -64,6 +66,9 @@ tsApp.controller('ContentCtrl', [
       if ($scope.metadata.terminology == null) {
         return;
       }
+      
+      console.log('Terminology changed', $scope.metadata.terminology);
+      
 
       // set the autocomplete url, with pattern:
       // /type/{terminology}/{version}/autocomplete/{searchTerm}
@@ -72,7 +77,7 @@ tsApp.controller('ContentCtrl', [
         + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
         + "/autocomplete/";
 
-      // metadataService.setTerminology($scope.metadata.terminology);
+      // metadataService.setTerminology($scope.metadata.terminologies);
 
     });
 
@@ -108,7 +113,7 @@ tsApp.controller('ContentCtrl', [
         $scope.component.object.terminology, $scope.component.object.version, startIndex).then(
         function(data) {
 
-          $scope.componentTree = data.tree;
+          $scope.componentTree = data.trees;
 
           // set the count and position variables
           $scope.treeCount = data.totalCount;
@@ -215,6 +220,8 @@ tsApp.controller('ContentCtrl', [
 
     // Determine the icon to show (plus, right, down, or blank)
     $scope.getTreeNodeIcon = function(tree, collapsed) {
+    	
+    	return null;/*
 
       // if childCt is zero, return leaf
       if (tree.childCt == 0)
@@ -234,15 +241,16 @@ tsApp.controller('ContentCtrl', [
           return 'glyphicon-chevron-down';
       default:
         return 'glyphicon-question-sign';
-      }
+      }*/
     };
 
     // Helper function to determine whether siblings are hidden on a
     // user-expanded list
     $scope.hasHiddenSiblings = function(tree) {
+   
       // Skip things not set or without children
       if (!tree || !tree.children)
-        return;
+        return false;
 
       switch ($scope.getTreeNodeExpansionState(tree)) {
       case TreeNodeExpansionState.ExpandableFromList:
@@ -494,8 +502,7 @@ tsApp.controller('ContentCtrl', [
     // 
 
     // variables for showing/hiding elements based on boolean fields
-    $scope.showSuppressible = false;
-    $scope.showObsolete = false;
+    $scope.showSOElements = false;
     $scope.showAtomElement = true;
     $scope.showInferred = true;
     $scope.showExtension = false;
@@ -542,13 +549,8 @@ tsApp.controller('ContentCtrl', [
     // obsolete/suppressible
     $scope.showItem = function(item) {
 
-      // trigger on suppressible (model data)
-      if (!$scope.showSuppressible && item.suppressible) {
-        return false;
-      }
-
-      // trigger on obsolete (model data)
-      if (!$scope.showObsolete && item.obsolete) {
+      // trigger on suppressible and obsolete(model data)
+      if (!$scope.showSOElements && (item.suppressible || item.obsolete)) {
         return false;
       }
 
@@ -569,22 +571,12 @@ tsApp.controller('ContentCtrl', [
       return true;
     };
 
-    // Function to toggle obsolete flag and apply paging
-    $scope.toggleObsolete = function() {
-      if ($scope.showObsolete == null || $scope.showObsolete == undefined) {
-        $scope.showObsolete = false;
+    // Function to toggle suppressible and obsolete flag and apply paging
+    $scope.toggleSODisplay = function() {
+      if ($scope.showSOElements == null || $scope.showSOElements == undefined) {
+        $scope.showSOElements = false;
       } else {
-        $scope.showObsolete = !$scope.showObsolete;
-      }
-      applyPaging();
-    };
-
-    // Function to toggle suppressible flag and apply paging
-    $scope.toggleSuppressible = function() {
-      if ($scope.showSuppressible == null || $scope.showSuppressible == undefined) {
-        $scope.showSuppressible = false;
-      } else {
-        $scope.showSuppressible = !$scope.showSuppressible;
+        $scope.showSOElements = !$scope.showSOElements;
       }
 
       applyPaging();
@@ -709,8 +701,7 @@ tsApp.controller('ContentCtrl', [
     $scope.getPagedRelationships = function() {
 
       var filters = {
-        showSuppressible : $scope.showSuppressible,
-        showObsolete : $scope.showObsolete,
+        showSOElements : $scope.showSOElements,
         showInferred : $scope.showInferred,
         text : $scope.relPaging.filter
       };

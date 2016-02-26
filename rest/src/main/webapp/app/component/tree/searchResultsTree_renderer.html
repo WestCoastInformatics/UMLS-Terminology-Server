@@ -34,7 +34,7 @@
       ng-include="'app/component/tree/searchResultsTree_renderer.html'"></li>
 
     <!-- if not all children displayed, display a message -->
-    <li ng-show="hasHiddenSiblings(tree) == true"><i
+    <li ng-show="hasHiddenSiblings(tree)"><i
       class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <a
         ng-click="getAndSetChildTrees(tree, tree.children.length)">...
         {{tree.childCt - tree.children.length}} more</a></li>
