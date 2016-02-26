@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 
 import com.wci.umls.server.helpers.Configurable;
-import com.wci.umls.server.helpers.HasLastModified;
+import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.model.content.AtomClass;
 
@@ -36,16 +36,16 @@ public interface SearchHandler extends Configurable {
    * @return the query results
    * @throws Exception the exception
    */
-  public <T extends HasLastModified> List<T> getQueryResults(
-    String terminology, String version, String branch, String query,
-    String literalField, Class<?> fieldNamesKey, Class<T> clazz,
-    PfsParameter pfs, int[] totalCt, EntityManager manager) throws Exception;
+  public <T extends HasId> List<T> getQueryResults(String terminology,
+    String version, String branch, String query, String literalField,
+    Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt,
+    EntityManager manager) throws Exception;
 
   /**
-   * Returns the score map for the most recent call to getQueryResults.
-   * NOTE: this is NOT thread safe.
+   * Returns the score map for the most recent call to getQueryResults. NOTE:
+   * this is NOT thread safe.
    *
    * @return the score map
    */
-  public Map<Long,Float> getScoreMap();
+  public Map<Long, Float> getScoreMap();
 }

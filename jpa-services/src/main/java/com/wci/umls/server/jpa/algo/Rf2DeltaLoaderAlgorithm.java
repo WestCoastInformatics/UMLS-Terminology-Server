@@ -2138,12 +2138,12 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         else if (!member2.equals(member)
             || !Rf2EqualityUtility.compareAttributes(member2, member,
                 new String[] {
-                    "moduleId", "valueId"
+                    "moduleId", "targetComponentId"
                 })) {
           Logger.getLogger(getClass()).debug("  update simple - " + member2);
           if (!member.equals(member2)) {
             Logger.getLogger(getClass()).debug(
-                "      update attribute value refset member - " + member2);
+                "      update association reference refset member - " + member2);
             updateSubsetMember(member2);
             if (isConcept) {
               concept.removeMember((ConceptSubsetMember) member);
