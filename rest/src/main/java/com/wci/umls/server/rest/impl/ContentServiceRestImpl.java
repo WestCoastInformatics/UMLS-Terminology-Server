@@ -144,7 +144,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
-    LuceneReindexAlgorithm algo = new LuceneReindexAlgorithm();
+    final LuceneReindexAlgorithm algo = new LuceneReindexAlgorithm();
     try {
       authorizeApp(securityService, authToken, "reindex",
           UserRole.ADMINISTRATOR);
@@ -184,8 +184,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
-    TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-    MetadataService service = new MetadataServiceJpa();
+    final TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
     try {
       authorizeApp(securityService, authToken, "compute transitive closure",
           UserRole.ADMINISTRATOR);
@@ -195,8 +194,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "  Compute transitive closure for  " + terminology + "/" + version);
       algo.setTerminology(terminology);
       algo.setVersion(version);
-      algo.setIdType(service.getTerminology(terminology, version)
-          .getOrganizingClassType());
+      algo.setIdType(
+          algo.getTerminology(terminology, version).getOrganizingClassType());
       algo.reset();
       algo.compute();
 
@@ -209,7 +208,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to compute transitive closure");
     } finally {
       algo.close();
-      service.close();
       securityService.close();
     }
   }
@@ -233,8 +231,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
-    TreePositionAlgorithm algo = new TreePositionAlgorithm();
-    MetadataService service = new MetadataServiceJpa();
+    final TreePositionAlgorithm algo = new TreePositionAlgorithm();
     try {
       authorizeApp(securityService, authToken, "compute tree positions ",
           UserRole.ADMINISTRATOR);
@@ -244,8 +241,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           .info("  Compute tree positions for " + terminology + "/" + version);
       algo.setTerminology(terminology);
       algo.setVersion(version);
-      algo.setIdType(service.getTerminology(terminology, version)
-          .getOrganizingClassType());
+      algo.setIdType(
+          algo.getTerminology(terminology, version).getOrganizingClassType());
       algo.setCycleTolerant(true);
       // compute "semantic types" for concept hierarchies
       if (algo.getIdType() == IdType.CONCEPT) {
@@ -264,7 +261,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to compute tree positions");
     } finally {
       algo.close();
-      service.close();
       securityService.close();
     }
   }
@@ -292,7 +288,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "load RRF",
           UserRole.ADMINISTRATOR);
@@ -305,7 +301,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // Sort files - not really needed because files are already sorted
       Logger.getLogger(getClass()).info("  Sort RRF Files");
-      RrfFileSorter sorter = new RrfFileSorter();
+      final RrfFileSorter sorter = new RrfFileSorter();
       // Be flexible about missing files for RXNORM
       sorter
           .setRequireAllFiles(!(prefix == null ? "MR" : prefix).equals("RXN"));
@@ -318,12 +314,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
 
       // Open readers - just open original RRF
-      RrfReaders readers = new RrfReaders(inputDirFile);
+      final RrfReaders readers = new RrfReaders(inputDirFile);
       // Use default prefix if not specified
       readers.openOriginalReaders(prefix == null ? "MR" : prefix);
 
       // Load RRF
-      RrfLoaderAlgorithm algorithm = new RrfLoaderAlgorithm();
+      final RrfLoaderAlgorithm algorithm = new RrfLoaderAlgorithm();
       algorithm.setTerminology(terminology);
       algorithm.setVersion(version);
       if (codeFlag == null) {
@@ -334,14 +330,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algorithm.setReaders(readers);
       algorithm.compute();
       algorithm.close();
-      algorithm = null;
 
       // Compute transitive closure
       // Obtain each terminology and run transitive closure on it with the
       // correct id type
       // Refresh caches after metadata has changed in loader
       contentService.refreshCaches();
-      for (Terminology t : contentService.getTerminologyLatestVersions()
+      for (final Terminology t : contentService.getTerminologyLatestVersions()
           .getObjects()) {
         // Only compute for organizing class types
         if (t.getOrganizingClassType() != null) {
@@ -358,7 +353,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // Compute tree positions
       // Refresh caches after metadata has changed in loader
-      for (Terminology t : contentService.getTerminologyLatestVersions()
+      for (final Terminology t : contentService.getTerminologyLatestVersions()
           .getObjects()) {
         // Only compute for organizing class types
         if (t.getOrganizingClassType() != null) {
@@ -379,9 +374,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
-      for (Terminology t : contentService.getTerminologyLatestVersions()
+      for (final Terminology t : contentService.getTerminologyLatestVersions()
           .getObjects()) {
-        for (Subset subset : contentService
+        for (final Subset subset : contentService
             .getConceptSubsets(t.getTerminology(), t.getVersion(), Branch.ROOT)
             .getObjects()) {
           final ConceptSubset conceptSubset = (ConceptSubset) subset;
@@ -433,6 +428,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
+    final MetadataService metadataService = new MetadataServiceJpa();
     try {
       authorizeApp(securityService, authToken, "start editing cycle",
           UserRole.ADMINISTRATOR);
@@ -442,7 +438,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       Logger.getLogger(getClass()).info("  inputDir = " + inputDir);
 
       // Check the input directory
-      File inputDirFile = new File(inputDir);
+      final File inputDirFile = new File(inputDir);
       if (!inputDirFile.exists()) {
         throw new Exception("Specified input directory does not exist");
       }
@@ -450,7 +446,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       // Previous computation of terminology version is based on file name
       // but for delta/daily build files, this is not the current version
       // look up the current version instead
-      MetadataService metadataService = new MetadataServiceJpa();
       final String version = metadataService.getLatestVersion(terminology);
       metadataService.close();
       if (version == null) {
@@ -459,18 +454,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // Sort files
       Logger.getLogger(getClass()).info("  Sort RF2 Files");
-      Rf2FileSorter sorter = new Rf2FileSorter();
+      final Rf2FileSorter sorter = new Rf2FileSorter();
       sorter.setSortByEffectiveTime(false);
       sorter.setRequireAllFiles(false);
       File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
       sorter.sortFiles(inputDirFile, outputDir);
 
       // Open readers
-      Rf2Readers readers = new Rf2Readers(outputDir);
+      final Rf2Readers readers = new Rf2Readers(outputDir);
       readers.openReaders();
 
       // Load delta
-      Rf2DeltaLoaderAlgorithm algorithm = new Rf2DeltaLoaderAlgorithm();
+      final Rf2DeltaLoaderAlgorithm algorithm = new Rf2DeltaLoaderAlgorithm();
       algorithm.setTerminology(terminology);
       algorithm.setVersion(version);
       algorithm.setReleaseVersion(sorter.getFileVersion());
@@ -481,7 +476,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       // Compute transitive closure
       Logger.getLogger(getClass()).info(
           "  Compute transitive closure from  " + terminology + "/" + version);
-      TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+      final TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
       algo.setTerminology(terminology);
       algo.setVersion(version);
       algo.setIdType(IdType.CONCEPT);
@@ -526,7 +521,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
 
     try {
       authorizeApp(securityService, authToken, "load snapshot",
@@ -540,27 +535,27 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // Sort files
       Logger.getLogger(getClass()).info("  Sort RF2 Files");
-      Rf2FileSorter sorter = new Rf2FileSorter();
+      final Rf2FileSorter sorter = new Rf2FileSorter();
       sorter.setSortByEffectiveTime(false);
       sorter.setRequireAllFiles(true);
-      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
+      final File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
       sorter.sortFiles(inputDirFile, outputDir);
-      String releaseVersion = sorter.getFileVersion();
+      final String releaseVersion = sorter.getFileVersion();
       Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
 
       // Open readers
-      Rf2Readers readers = new Rf2Readers(outputDir);
+      final Rf2Readers readers = new Rf2Readers(outputDir);
       readers.openReaders();
 
       // Load snapshot
-      Rf2SnapshotLoaderAlgorithm algorithm = new Rf2SnapshotLoaderAlgorithm();
+      final Rf2SnapshotLoaderAlgorithm algorithm =
+          new Rf2SnapshotLoaderAlgorithm();
       algorithm.setTerminology(terminology);
       algorithm.setVersion(version);
       algorithm.setReleaseVersion(releaseVersion);
       algorithm.setReaders(readers);
       algorithm.compute();
       algorithm.close();
-      algorithm = null;
 
       // Compute transitive closure
       Logger.getLogger(getClass()).info(
@@ -575,7 +570,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.close();
 
       // compute tree positions
-      TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
+      final TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
       algo2.setCycleTolerant(false);
       algo2.setIdType(IdType.CONCEPT);
       // some terminologies may have cycles, allow these for now.
@@ -589,7 +584,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
-      for (Subset subset : contentService
+      for (final Subset subset : contentService
           .getConceptSubsets(terminology, version, Branch.ROOT).getObjects()) {
         final ConceptSubset conceptSubset = (ConceptSubset) subset;
         if (conceptSubset.isLabelSubset()) {
@@ -662,9 +657,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       // releases)
       Logger.getLogger(getClass()).info("  Get release versions");
       Rf2FileSorter sorter = new Rf2FileSorter();
-      File conceptsFile =
+      final File conceptsFile =
           sorter.findFile(new File(inputDir, "Terminology"), "sct2_Concept");
-      Set<String> releaseSet = new HashSet<>();
+      final Set<String> releaseSet = new HashSet<>();
       BufferedReader reader = new BufferedReader(new FileReader(conceptsFile));
       String line;
       while ((line = reader.readLine()) != null) {
@@ -680,8 +675,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         }
       }
       reader.close();
-      File complexMapFile = sorter.findFile(new File(inputDir, "Refset/Map"),
-          "der2_iissscRefset_ComplexMap");
+      final File complexMapFile = sorter.findFile(
+          new File(inputDir, "Refset/Map"), "der2_iissscRefset_ComplexMap");
       reader = new BufferedReader(new FileReader(complexMapFile));
       while ((line = reader.readLine()) != null) {
         final String fields[] = FieldedStringTokenizer.split(line, "\t");
@@ -712,13 +707,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       }
 
       reader.close();
-      List<String> releases = new ArrayList<>(releaseSet);
+      final List<String> releases = new ArrayList<>(releaseSet);
       Collections.sort(releases);
 
       // check that release info does not already exist
-      HistoryService historyService = new HistoryServiceJpa();
+      final HistoryService historyService = new HistoryServiceJpa();
       Logger.getLogger(getClass()).info("  Releases to process");
-      for (String release : releases) {
+      for (final String release : releases) {
         Logger.getLogger(getClass()).info("    release = " + release);
         ReleaseInfo releaseInfo =
             historyService.getReleaseInfo(terminology, release);
@@ -737,21 +732,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       sorter.sortFiles(inputDirFile, outputDir);
 
       // Open readers
-      Rf2Readers readers = new Rf2Readers(outputDir);
+      final Rf2Readers readers = new Rf2Readers(outputDir);
       readers.openReaders();
 
       // Load initial snapshot - first release version
-      Rf2SnapshotLoaderAlgorithm algorithm = new Rf2SnapshotLoaderAlgorithm();
+      final Rf2SnapshotLoaderAlgorithm algorithm =
+          new Rf2SnapshotLoaderAlgorithm();
       algorithm.setTerminology(terminology);
       algorithm.setVersion(version);
       algorithm.setReleaseVersion(releases.get(0));
       algorithm.setReaders(readers);
       algorithm.compute();
       algorithm.close();
-      algorithm = null;
 
       // Load deltas
-      for (String release : releases) {
+      for (final String release : releases) {
         // Refresh caches for metadata handlers
         new MetadataServiceJpa().refreshCaches();
 
@@ -777,7 +772,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       // Compute transitive closure
       Logger.getLogger(getClass()).info(
           "  Compute transitive closure from  " + terminology + "/" + version);
-      TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+      final TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
       algo.setCycleTolerant(false);
       algo.setIdType(IdType.CONCEPT);
       algo.setTerminology(terminology);
@@ -787,7 +782,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.close();
 
       // compute tree positions
-      TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
+      final TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
       algo2.setCycleTolerant(false);
       algo2.setComputeSemanticType(true);
       algo2.setIdType(IdType.CONCEPT);
@@ -802,7 +797,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
-      for (Subset subset : contentService
+      for (final Subset subset : contentService
           .getConceptSubsets(terminology, version, Branch.ROOT).getObjects()) {
         final ConceptSubset conceptSubset = (ConceptSubset) subset;
         if (conceptSubset.isLabelSubset()) {
@@ -858,9 +853,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
-    ClamlLoaderAlgorithm algo = new ClamlLoaderAlgorithm();
-    TransitiveClosureAlgorithm algo2 = new TransitiveClosureAlgorithm();
-    TreePositionAlgorithm algo3 = new TreePositionAlgorithm();
+    final ClamlLoaderAlgorithm algo = new ClamlLoaderAlgorithm();
+    final TransitiveClosureAlgorithm algo2 = new TransitiveClosureAlgorithm();
+    final TreePositionAlgorithm algo3 = new TreePositionAlgorithm();
     try {
       authorizeApp(securityService, authToken, "loading claml",
           UserRole.ADMINISTRATOR);
@@ -926,9 +921,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
-    OwlLoaderAlgorithm algo = new OwlLoaderAlgorithm();
-    TransitiveClosureAlgorithm algo2 = new TransitiveClosureAlgorithm();
-    TreePositionAlgorithm algo3 = new TreePositionAlgorithm();
+    final OwlLoaderAlgorithm algo = new OwlLoaderAlgorithm();
+    final TransitiveClosureAlgorithm algo2 = new TransitiveClosureAlgorithm();
+    final TreePositionAlgorithm algo3 = new TreePositionAlgorithm();
     try {
       authorizeApp(securityService, authToken, "loading owl",
           UserRole.ADMINISTRATOR);
@@ -940,7 +935,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.setInputFile(inputFile);
       algo.compute();
 
-      MetadataService service = new MetadataServiceJpa();
+      final MetadataService service = new MetadataServiceJpa();
       service.refreshCaches();
 
       // Let service begin its own transaction
@@ -993,8 +988,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
-    RemoveTerminologyAlgorithm algo = new RemoveTerminologyAlgorithm();
-    MetadataService service = new MetadataServiceJpa();
+    final RemoveTerminologyAlgorithm algo = new RemoveTerminologyAlgorithm();
+    final MetadataService service = new MetadataServiceJpa();
     try {
       authorizeApp(securityService, authToken, "remove terminology",
           UserRole.ADMINISTRATOR);
@@ -1037,13 +1032,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /cui/"
         + terminology + "/" + version + "/" + terminologyId);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve the concept",
           UserRole.VIEWER);
 
-      Concept concept = contentService.getConcept(terminologyId, terminology,
-          version, Branch.ROOT);
+      final Concept concept = contentService.getConcept(terminologyId,
+          terminology, version, Branch.ROOT);
 
       if (concept != null) {
         contentService.getGraphResolutionHandler(terminology).resolve(concept);
@@ -1076,18 +1071,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       throws Exception {
 
     // Fix query
-    String queryStr = query == null ? "" : query;
+    final String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /cui/" + terminology + "/" + version
             + "?query=" + queryStr + " with PFS parameter "
             + (pfsc == null ? "empty" : pfsc.toString()));
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find concepts by query",
           UserRole.VIEWER);
-      SearchResultList sr = contentService.findConceptsForQuery(terminology,
-          version, Branch.ROOT, queryStr, pfsc);
+      final SearchResultList sr = contentService.findConceptsForQuery(
+          terminology, version, Branch.ROOT, queryStr, pfsc);
       return sr;
 
     } catch (Exception e) {
@@ -1112,20 +1107,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       throws Exception {
 
     // Fix query
-    String queryStr = query == null ? "" : query;
-    String jqlStr = jql == null ? "" : jql;
+    final String queryStr = query == null ? "" : query;
+    final String jqlStr = jql == null ? "" : jql;
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /cui?" + "query=" + queryStr + "&jql="
             + jqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find concepts by query",
           UserRole.VIEWER);
 
-      SearchResultList sr = contentService.findConceptsForGeneralQuery(queryStr,
-          jqlStr, Branch.ROOT, pfs);
+      final SearchResultList sr = contentService
+          .findConceptsForGeneralQuery(queryStr, jqlStr, Branch.ROOT, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1150,19 +1145,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       throws Exception {
 
     // Fix query
-    String queryStr = query == null ? "" : query;
-    String jqlStr = jql == null ? "" : jql;
+    final String queryStr = query == null ? "" : query;
+    final String jqlStr = jql == null ? "" : jql;
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /code?" + "query=" + queryStr + "&jql="
             + jqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find codes by query",
           UserRole.VIEWER);
 
-      SearchResultList sr = contentService.findCodesForGeneralQuery(queryStr,
-          jqlStr, Branch.ROOT, pfs);
+      final SearchResultList sr = contentService
+          .findCodesForGeneralQuery(queryStr, jqlStr, Branch.ROOT, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1188,7 +1183,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /cui/"
         + terminology + "/" + version + "/autocomplete/" + searchTerm);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find concepts by query",
           UserRole.VIEWER);
@@ -1219,12 +1214,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /dui/"
         + terminology + "/" + version + "/" + terminologyId);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve the descriptor",
           UserRole.VIEWER);
 
-      Descriptor descriptor = contentService.getDescriptor(terminologyId,
+      final Descriptor descriptor = contentService.getDescriptor(terminologyId,
           terminology, version, Branch.ROOT);
 
       if (descriptor != null) {
@@ -1266,13 +1261,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call (Content): /dui/" + terminology + "/" + version
             + "?query=" + queryStr + " with PFS parameter "
             + (pfsc == null ? "empty" : pfsc.toString()));
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find descriptors by query",
           UserRole.VIEWER);
 
-      SearchResultList sr = contentService.findDescriptorsForQuery(terminology,
-          version, Branch.ROOT, queryStr, pfsc);
+      final SearchResultList sr = contentService.findDescriptorsForQuery(
+          terminology, version, Branch.ROOT, queryStr, pfsc);
       return sr;
 
     } catch (Exception e) {
@@ -1297,19 +1292,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       throws Exception {
 
     // Fix query
-    String queryStr = query == null ? "" : query;
-    String jqlStr = jql == null ? "" : jql;
+    final String queryStr = query == null ? "" : query;
+    final String jqlStr = jql == null ? "" : jql;
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /dui" + "?query=" + queryStr + "&jql="
             + jqlStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find concepts by query",
           UserRole.VIEWER);
 
-      SearchResultList sr = contentService
+      final SearchResultList sr = contentService
           .findDescriptorsForGeneralQuery(queryStr, jqlStr, Branch.ROOT, pfs);
       return sr;
 
@@ -1336,7 +1331,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /dui/"
         + terminology + "/" + version + "/autocomplete/" + searchTerm);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find descriptors by query",
           UserRole.VIEWER);
@@ -1367,13 +1362,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/"
         + terminology + "/" + version + "/" + terminologyId);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve the code",
           UserRole.VIEWER);
 
-      Code code = contentService.getCode(terminologyId, terminology, version,
-          Branch.ROOT);
+      final Code code = contentService.getCode(terminologyId, terminology,
+          version, Branch.ROOT);
 
       if (code != null) {
         contentService.getGraphResolutionHandler(terminology).resolve(code);
@@ -1407,18 +1402,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       throws Exception {
 
     // Fix query
-    String queryStr = query == null ? "" : query;
+    final String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /code/" + terminology + "/" + version
             + "?query=" + queryStr + " with PFS parameter "
             + (pfsc == null ? "empty" : pfsc.toString()));
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find codes by query",
           UserRole.VIEWER);
 
-      SearchResultList sr = contentService.findCodesForQuery(terminology,
+      final SearchResultList sr = contentService.findCodesForQuery(terminology,
           version, Branch.ROOT, queryStr, pfsc);
       return sr;
 
@@ -1445,7 +1440,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/"
         + terminology + "/" + version + "/autocomplete/" + searchTerm);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find code by query",
           UserRole.VIEWER);
@@ -1474,13 +1469,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /lui/"
         + terminology + "/" + version + "/" + terminologyId);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve the lexical class",
           UserRole.VIEWER);
 
-      LexicalClass lexicalClass = contentService.getLexicalClass(terminologyId,
-          terminology, version, Branch.ROOT);
+      final LexicalClass lexicalClass = contentService
+          .getLexicalClass(terminologyId, terminology, version, Branch.ROOT);
 
       if (lexicalClass != null) {
         contentService.getGraphResolutionHandler(terminology)
@@ -1515,13 +1510,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /sui/"
         + terminology + "/" + version + "/" + terminologyId);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve the string class",
           UserRole.VIEWER);
 
-      StringClass stringClass = contentService.getStringClass(terminologyId,
-          terminology, version, Branch.ROOT);
+      final StringClass stringClass = contentService
+          .getStringClass(terminologyId, terminology, version, Branch.ROOT);
 
       if (stringClass != null) {
         contentService.getGraphResolutionHandler(terminology)
@@ -1559,15 +1554,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call (Content): /cui/" + terminology + "/" + version
             + "/" + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find ancestor concepts",
           UserRole.VIEWER);
 
-      ConceptList list = contentService.findAncestorConcepts(terminologyId,
-          terminology, version, parentsOnly, Branch.ROOT, pfs);
+      final ConceptList list = contentService.findAncestorConcepts(
+          terminologyId, terminology, version, parentsOnly, Branch.ROOT, pfs);
 
-      for (Concept concept : list.getObjects()) {
+      for (final Concept concept : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(concept);
       }
 
@@ -1600,15 +1595,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call (Content): /cui/" + terminology + "/" + version
             + "/" + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find descendant concepts",
           UserRole.VIEWER);
 
-      ConceptList list = contentService.findDescendantConcepts(terminologyId,
-          terminology, version, childrenOnly, Branch.ROOT, pfs);
+      final ConceptList list = contentService.findDescendantConcepts(
+          terminologyId, terminology, version, childrenOnly, Branch.ROOT, pfs);
 
-      for (Concept concept : list.getObjects()) {
+      for (final Concept concept : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(concept);
       }
 
@@ -1641,15 +1636,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call (Content): /dui/" + terminology + "/" + version
             + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find ancestor descriptors",
           UserRole.VIEWER);
 
-      DescriptorList list = contentService.findAncestorDescriptors(
+      final DescriptorList list = contentService.findAncestorDescriptors(
           terminologyId, terminology, version, parentsOnly, Branch.ROOT, pfs);
 
-      for (Descriptor descriptor : list.getObjects()) {
+      for (final Descriptor descriptor : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology)
             .resolve(descriptor);
       }
@@ -1682,15 +1677,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call (Content): /dui/" + terminology + "/" + version
             + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find descendant descriptors",
           UserRole.VIEWER);
 
-      DescriptorList list = contentService.findDescendantDescriptors(
+      final DescriptorList list = contentService.findDescendantDescriptors(
           terminologyId, terminology, version, childrenOnly, Branch.ROOT, pfs);
 
-      for (Descriptor descriptor : list.getObjects()) {
+      for (final Descriptor descriptor : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology)
             .resolve(descriptor);
       }
@@ -1723,14 +1718,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call (Content): /code/" + terminology + "/" + version
             + terminologyId + "/ancestors with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find ancestor codes",
           UserRole.VIEWER);
-      CodeList list = contentService.findAncestorCodes(terminologyId,
+      final CodeList list = contentService.findAncestorCodes(terminologyId,
           terminology, version, parentsOnly, Branch.ROOT, pfs);
 
-      for (Code code : list.getObjects()) {
+      for (final Code code : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(code);
       }
 
@@ -1762,15 +1757,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call (Content): /code/" + terminology + "/" + version
             + terminologyId + "/descendants with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find descendant codes",
           UserRole.VIEWER);
 
-      CodeList list = contentService.findDescendantCodes(terminologyId,
+      final CodeList list = contentService.findDescendantCodes(terminologyId,
           terminology, version, childrenOnly, Branch.ROOT, pfs);
 
-      for (Code code : list.getObjects()) {
+      for (final Code code : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(code);
       }
 
@@ -1798,15 +1793,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /cui/"
         + terminology + "/" + version + "/" + terminologyId + "/members");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
           "retrieve subset members for the concept", UserRole.VIEWER);
 
-      SubsetMemberList list = contentService.getSubsetMembersForConcept(
+      final SubsetMemberList list = contentService.getSubsetMembersForConcept(
           terminologyId, terminology, version, Branch.ROOT);
 
-      for (SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
+      for (final SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
@@ -1836,15 +1831,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /aui/"
         + terminology + "/" + version + "/" + terminologyId + "/members");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
           "retrieve subset members for the atom", UserRole.VIEWER);
 
-      SubsetMemberList list = contentService.getSubsetMembersForAtom(
+      final SubsetMemberList list = contentService.getSubsetMembersForAtom(
           terminologyId, terminology, version, Branch.ROOT);
 
-      for (SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
+      for (final SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
@@ -1879,34 +1874,35 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /cui/" + terminology + "/" + version
             + "/" + terminologyId + "/relationships?query=" + query);
-    String queryStr = query == null ? "" : query;
+    final String queryStr = query == null ? "" : query;
 
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
           "retrieve relationships for the concept", UserRole.VIEWER);
 
-      RelationshipList list =
+      final RelationshipList list =
           contentService.findRelationshipsForConcept(terminologyId, terminology,
               version, Branch.ROOT, queryStr, false, pfs);
 
       // Use graph resolver
-      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+      for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
 
       // For any relationships to anonymous concepts, we need to push that up to
       // the current level and set relationship groups and inferred/stated
-      RelationshipList result = new RelationshipListJpa();
+      final RelationshipList result = new RelationshipListJpa();
       int group = 0;
-      for (Relationship rel : list.getObjects()) {
-        ConceptRelationship rel2 = (ConceptRelationship) rel;
+      for (final Relationship rel : list.getObjects()) {
+        final ConceptRelationship rel2 = (ConceptRelationship) rel;
         if (rel2.getTo().isAnonymous()) {
 
           // count how many relationships there are
           int ct = 0;
-          for (ConceptRelationship innerRel : rel2.getTo().getRelationships()) {
+          for (final ConceptRelationship innerRel : rel2.getTo()
+              .getRelationships()) {
             // this is only for grouped role relationships
             if (!innerRel.isHierarchical()) {
               ct++;
@@ -1916,10 +1912,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           if (ct > 1) {
             group++;
           }
-          for (ConceptRelationship innerRel : rel2.getTo().getRelationships()) {
+          for (final ConceptRelationship innerRel : rel2.getTo()
+              .getRelationships()) {
             // this is only for grouped role relationships
             if (!innerRel.isHierarchical()) {
-              ConceptRelationship innerRel2 =
+              final ConceptRelationship innerRel2 =
                   new ConceptRelationshipJpa(innerRel, true);
               innerRel2.setFrom(rel2.getFrom());
               innerRel2.setStated(rel2.isStated());
@@ -1966,7 +1963,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /cui/" + terminology + "/" + version
             + "/" + terminologyId + "/relationships/deep");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
           "retrieve deep relationships for the concept", UserRole.VIEWER);
@@ -2003,17 +2000,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /dui/" + terminology + "/" + version
             + "/" + terminologyId + "/relationships?query=" + queryStr);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
           "retrieve relationships for the descriptor", UserRole.VIEWER);
 
-      RelationshipList list =
+      final RelationshipList list =
           contentService.findRelationshipsForDescriptor(terminologyId,
               terminology, version, Branch.ROOT, queryStr, false, pfs);
 
       // Use graph resolver
-      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+      for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
@@ -2049,16 +2046,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /code/" + terminology + "/" + version
             + "/" + terminologyId + "/relationships?query=" + queryStr);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
           "retrieve relationships for the code", UserRole.VIEWER);
 
-      RelationshipList list =
+      final RelationshipList list =
           contentService.findRelationshipsForCode(terminologyId, terminology,
               version, Branch.ROOT, queryStr, false, pfs);
 
-      for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+      for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
@@ -2087,12 +2084,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /aui/"
         + terminology + "/" + version + "/subsets");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve atom subsets",
           UserRole.VIEWER);
 
-      SubsetList list =
+      final SubsetList list =
           contentService.getAtomSubsets(terminology, version, Branch.ROOT);
       for (int i = 0; i < list.getCount(); i++) {
         contentService.getGraphResolutionHandler(terminology)
@@ -2121,11 +2118,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /cui/"
         + terminology + "/" + version + "/subsets");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve concept subsets",
           UserRole.VIEWER);
-      SubsetList list =
+      final SubsetList list =
           contentService.getConceptSubsets(terminology, version, Branch.ROOT);
       for (int i = 0; i < list.getCount(); i++) {
         contentService.getGraphResolutionHandler(terminology)
@@ -2159,19 +2156,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       throws Exception {
 
     // Fix query
-    String queryStr = query == null ? "" : query;
+    final String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /aui/subset/" + subsetId + "/"
             + terminology + "/" + version + "/members?query=" + queryStr);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find atom subset members",
           UserRole.VIEWER);
 
-      SubsetMemberList list = contentService.findAtomSubsetMembers(subsetId,
-          terminology, version, Branch.ROOT, queryStr, pfs);
-      for (SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
+      final SubsetMemberList list = contentService.findAtomSubsetMembers(
+          subsetId, terminology, version, Branch.ROOT, queryStr, pfs);
+      for (final SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
@@ -2200,19 +2197,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       throws Exception {
 
     // Fix query
-    String queryStr = query == null ? "" : query;
+    final String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /cui/subset/" + subsetId + "/"
             + terminology + "/" + version + "/members?query=" + queryStr);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find concept subset members",
           UserRole.VIEWER);
 
-      SubsetMemberList list = contentService.findConceptSubsetMembers(subsetId,
-          terminology, version, Branch.ROOT, queryStr, pfs);
-      for (SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
+      final SubsetMemberList list = contentService.findConceptSubsetMembers(
+          subsetId, terminology, version, Branch.ROOT, queryStr, pfs);
+      for (final SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
@@ -2241,12 +2238,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /cui/"
         + terminology + "/" + version + "/" + terminologyId + "/trees");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
           "retrieve trees for the concept ", UserRole.VIEWER);
 
-      TreePositionList list = contentService.findTreePositionsForConcept(
+      final TreePositionList list = contentService.findTreePositionsForConcept(
           terminologyId, terminology, version, Branch.ROOT, pfs);
 
       final TreeList treeList = new TreeListJpa();
@@ -2282,13 +2279,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Content): /dui/"
         + terminology + "/" + version + "/" + terminologyId + "/trees");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
           "retrieve trees for the descriptor ", UserRole.VIEWER);
 
-      TreePositionList list = contentService.findTreePositionsForDescriptor(
-          terminologyId, terminology, version, Branch.ROOT, pfs);
+      final TreePositionList list =
+          contentService.findTreePositionsForDescriptor(terminologyId,
+              terminology, version, Branch.ROOT, pfs);
 
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
@@ -2325,12 +2323,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/"
         + terminology + "/" + version + "/" + terminologyId + "/trees");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "retrieve trees for the code",
           UserRole.VIEWER);
 
-      TreePositionList list = contentService.findTreePositionsForCode(
+      final TreePositionList list = contentService.findTreePositionsForCode(
           terminologyId, terminology, version, Branch.ROOT, pfs);
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
@@ -2366,17 +2364,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       throws Exception {
 
     // Fix query
-    String queryStr = query == null ? "" : query;
+    final String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /cui/"
         + terminology + "/" + version + "/trees?query=" + query);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the concept",
           UserRole.VIEWER);
 
-      TreePositionList list = contentService.findConceptTreePositionsForQuery(
-          terminology, version, Branch.ROOT, queryStr, pfs);
+      final TreePositionList list =
+          contentService.findConceptTreePositionsForQuery(terminology, version,
+              Branch.ROOT, queryStr, pfs);
 
       // dummy variables for construction of artificial root
       Tree dummyTree = new TreeJpa();
@@ -2396,7 +2395,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         final Tree tree = contentService.getTreeForTreePosition(treepos);
 
         // construct a new dummy-root tree for merging with existing tree
-        Tree treeForTreePos = new TreeJpa(dummyTree);
+        final Tree treeForTreePos = new TreeJpa(dummyTree);
 
         // add retrieved tree to dummy root level
         treeForTreePos.addChild(tree);
@@ -2440,21 +2439,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       throws Exception {
 
     // Fix query
-    String queryStr = query == null ? "" : query;
+    final String queryStr = query == null ? "" : query;
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /dui/"
         + terminology + "/" + version + "/trees?query=" + query);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the descriptor",
           UserRole.VIEWER);
 
-      TreePositionList list =
+      final TreePositionList list =
           contentService.findDescriptorTreePositionsForQuery(terminology,
               version, Branch.ROOT, queryStr, pfs);
 
       // dummy variables for construction of artificial root
-      Tree dummyTree = new TreeJpa();
+      final Tree dummyTree = new TreeJpa();
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
       dummyTree.setNodeTerminologyId("dummy id");
@@ -2462,7 +2461,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       dummyTree.setTotalCount(list.getTotalCount());
 
       // initialize the return tree with dummy root and set total count
-      Tree returnTree = new TreeJpa(dummyTree);
+      final Tree returnTree = new TreeJpa(dummyTree);
 
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
@@ -2471,7 +2470,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         final Tree tree = contentService.getTreeForTreePosition(treepos);
 
         // construct a new dummy-root tree for merging with existing tree
-        Tree treeForTreePos = new TreeJpa(dummyTree);
+        final Tree treeForTreePos = new TreeJpa(dummyTree);
 
         // add retrieved tree to dummy root level
         treeForTreePos.addChild(tree);
@@ -2483,7 +2482,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // if only one child, dummy root not necessary
       if (returnTree.getChildren().size() == 1) {
-        Tree tree = returnTree.getChildren().get(0);
+        final Tree tree = returnTree.getChildren().get(0);
         tree.setTotalCount(returnTree.getTotalCount());
         return tree;
       }
@@ -2518,7 +2517,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     String queryStr = query == null ? "" : query;
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/"
         + terminology + "/" + version + "/trees?query=" + query);
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
@@ -2527,7 +2526,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           terminology, version, Branch.ROOT, queryStr, pfs);
 
       // dummy variables for construction of artificial root
-      Tree dummyTree = new TreeJpa();
+      final Tree dummyTree = new TreeJpa();
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
       dummyTree.setNodeTerminologyId("dummy id");
@@ -2535,7 +2534,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       dummyTree.setTotalCount(list.getTotalCount());
 
       // initialize the return tree with dummy root and set total count
-      Tree returnTree = new TreeJpa(dummyTree);
+      final Tree returnTree = new TreeJpa(dummyTree);
 
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
@@ -2544,7 +2543,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         final Tree tree = contentService.getTreeForTreePosition(treepos);
 
         // construct a new dummy-root tree for merging with existing tree
-        Tree treeForTreePos = new TreeJpa(dummyTree);
+        final Tree treeForTreePos = new TreeJpa(dummyTree);
 
         // add retrieved tree to dummy root level
         treeForTreePos.addChild(tree);
@@ -2556,7 +2555,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // if only one child, dummy root not necessary
       if (returnTree.getChildren().size() == 1) {
-        Tree tree = returnTree.getChildren().get(0);
+        final Tree tree = returnTree.getChildren().get(0);
         tree.setTotalCount(returnTree.getTotalCount());
         return tree;
       }
@@ -2590,23 +2589,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /cui/" + terminology + "/" + version
             + "/" + terminologyId + "/" + "/trees/children");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
 
       // the TreeList to return
-      TreeList childTrees = new TreeListJpa();
+      final TreeList childTrees = new TreeListJpa();
 
       // instantiate child tree positions array, used to construct trees
-      TreePositionList childTreePositions =
+      final TreePositionList childTreePositions =
           contentService.findConceptTreePositionChildren(terminologyId,
               terminology, version, Branch.ROOT, pfs);
 
       // for each tree position, construct a tree
-      for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+      for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
           .getObjects()) {
-        Tree childTree = new TreeJpa(childTreePosition);
+        final Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
 
@@ -2638,23 +2637,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /code/" + terminology + "/" + version
             + "/" + terminologyId + "/" + "/trees/children");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
 
       // the TreeList to return
-      TreeList childTrees = new TreeListJpa();
+      final TreeList childTrees = new TreeListJpa();
 
       // instantiate child tree positions array, used to construct trees
-      TreePositionList childTreePositions =
+      final TreePositionList childTreePositions =
           contentService.findCodeTreePositionChildren(terminologyId,
               terminology, version, Branch.ROOT, pfs);
 
       // for each tree position, construct a tree
-      for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+      for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
           .getObjects()) {
-        Tree childTree = new TreeJpa(childTreePosition);
+        final Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
 
@@ -2686,23 +2685,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /dui/" + terminology + "/" + version
             + "/" + terminologyId + "/" + "/trees/children");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the descriptor",
           UserRole.VIEWER);
 
       // the TreeList to return
-      TreeList childTrees = new TreeListJpa();
+      final TreeList childTrees = new TreeListJpa();
 
       // instantiate child tree positions array, used to construct trees
-      TreePositionList childTreePositions =
+      final TreePositionList childTreePositions =
           contentService.findDescriptorTreePositionChildren(terminologyId,
               terminology, version, Branch.ROOT, pfs);
 
       // for each tree position, construct a tree
-      for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+      for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
           .getObjects()) {
-        Tree childTree = new TreeJpa(childTreePosition);
+        final Tree childTree = new TreeJpa(childTreePosition);
         childTrees.addObject(childTree);
       }
 
@@ -2732,7 +2731,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /cui/"
         + terminology + "/" + version + "/" + "/trees/roots");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
 
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
@@ -2754,14 +2753,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         rootTree.setTotalCount(rootTreePositions.getTotalCount());
 
         // get the children tree positions
-        TreePositionList childTreePositions = contentService
+        final TreePositionList childTreePositions = contentService
             .findConceptTreePositionChildren(rootTree.getNodeTerminologyId(),
                 terminology, version, Branch.ROOT, pfs);
 
         // construct and add children
-        for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+        for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
             .getObjects()) {
-          Tree childTree = new TreeJpa(childTreePosition);
+          final Tree childTree = new TreeJpa(childTreePosition);
           rootTree.addChild(childTree);
         }
       }
@@ -2776,9 +2775,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         rootTree.setTotalCount(1);
 
         // construct and add children
-        for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions
+        for (final TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions
             .getObjects()) {
-          Tree childTree = new TreeJpa(rootTreePosition);
+          final Tree childTree = new TreeJpa(rootTreePosition);
           rootTree.addChild(childTree);
         }
       }
@@ -2807,7 +2806,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /dui/"
         + terminology + "/" + version + "/" + "/trees/roots");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
 
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
@@ -2830,14 +2829,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         rootTree.setTotalCount(rootTreePositions.getTotalCount());
 
         // get the children tree positions
-        TreePositionList childTreePositions = contentService
+        final TreePositionList childTreePositions = contentService
             .findDescriptorTreePositionChildren(rootTree.getNodeTerminologyId(),
                 terminology, version, Branch.ROOT, pfs);
 
         // construct and add children
-        for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+        for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
             .getObjects()) {
-          Tree childTree = new TreeJpa(childTreePosition);
+          final Tree childTree = new TreeJpa(childTreePosition);
           rootTree.mergeTree(childTree, null);
         }
       }
@@ -2852,9 +2851,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         rootTree.setTotalCount(1);
 
         // construct and add children
-        for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions
+        for (final TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions
             .getObjects()) {
-          Tree childTree = new TreeJpa(rootTreePosition);
+          final Tree childTree = new TreeJpa(rootTreePosition);
           rootTree.addChild(childTree);
         }
       }
@@ -2883,7 +2882,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/"
         + terminology + "/" + version + "/" + "/trees/roots");
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
 
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
@@ -2906,14 +2905,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         rootTree.setTotalCount(rootTreePositions.getTotalCount());
 
         // get the children tree positions
-        TreePositionList childTreePositions = contentService
+        final TreePositionList childTreePositions = contentService
             .findCodeTreePositionChildren(rootTree.getNodeTerminologyId(),
                 terminology, version, Branch.ROOT, pfs);
 
         // construct and add children
-        for (TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+        for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
             .getObjects()) {
-          Tree childTree = new TreeJpa(childTreePosition);
+          final Tree childTree = new TreeJpa(childTreePosition);
           rootTree.mergeTree(childTree, null);
         }
       }
@@ -2928,9 +2927,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         rootTree.setTotalCount(1);
 
         // construct and add children
-        for (TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions
+        for (final TreePosition<? extends ComponentHasAttributesAndName> rootTreePosition : rootTreePositions
             .getObjects()) {
-          Tree childTree = new TreeJpa(rootTreePosition);
+          final Tree childTree = new TreeJpa(rootTreePosition);
           rootTree.addChild(childTree);
         }
       }
