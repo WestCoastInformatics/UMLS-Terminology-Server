@@ -324,7 +324,7 @@ public class MetadataServiceJpa extends RootServiceJpa
   @SuppressWarnings("unchecked")
   @Override
   public RootTerminologyList getRootTerminologies() throws Exception {
-    Logger.getLogger(getClass()).info("Metadata service - get terminologies");
+    Logger.getLogger(getClass()).info("Metadata service - get root terminologies");
     javax.persistence.Query query =
         manager.createQuery("SELECT distinct t from RootTerminologyJpa t");
     RootTerminologyList terminologies = new RootTerminologyListJpa();

@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -72,6 +72,12 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
   private boolean cycleTolerant;
 
   /**
+   * Standalone means that it is not also represented as part of a
+   * metathesaurus. Default is true.
+   */
+  private boolean standalone = true;
+
+  /**
    * Instantiates an empty {@link RemoveTerminologyAlgorithm}.
    * @throws Exception if anything goes wrong
    */
@@ -138,6 +144,16 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     this.cycleTolerant = cycleTolerant;
   }
 
+  /**
+   * Sets the standalone flag. For deleting a UMLS terminology, this would be
+   * set to false so that the atoms would be removed also from UMLS concepts.
+   *
+   * @param standalone the standalone
+   */
+  public void setStandalone(boolean standalone) {
+    this.standalone = standalone;
+  }
+
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -162,6 +178,9 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
   private void removeTerminology(String terminology, String version,
     IdType idType) throws Exception {
 
+    // NOTE: do not change the order of calls, they are tuned
+    // to properly handle foreign key dependencies.
+
     // Check assumptions/prerequisites
     Logger.getLogger(getClass())
         .info("Start removing terminology - " + terminology + " " + version);
@@ -173,6 +192,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     beginTransaction();
 
     // remove terminology
+    Logger.getLogger(getClass()).info("  Remove terminology");
     Terminology t = getTerminology(terminology, version);
     if (t != null) {
       Logger.getLogger(getClass()).info(
@@ -183,7 +203,8 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     }
 
     // remove root terminology if all versions removed
-    for (RootTerminology root : getRootTerminologies().getObjects()) {   
+    Logger.getLogger(getClass()).info("  Remove root terminology");
+    for (RootTerminology root : getRootTerminologies().getObjects()) {
       if (root.getTerminology().equals(terminology)) {
         Logger.getLogger(getClass())
             .info("  remove root terminology = " + root.getTerminology());
@@ -197,6 +218,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     // Need to use query for metadata to override what the handler may be doing
     // this specifically means to remove things with this terminology/version
     // tuple
+    Logger.getLogger(getClass()).info("  Remove property chains");
     Query query = manager.createQuery(
         "SELECT a FROM PropertyChainJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -210,6 +232,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove attribute names
+    Logger.getLogger(getClass()).info("  Remove attribute names");
     query = manager.createQuery(
         "SELECT a FROM AttributeNameJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -222,6 +245,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove additional relationship type
+    Logger.getLogger(getClass()).info("  Remove additional relationship types");
     query = manager.createQuery(
         "SELECT a FROM AdditionalRelationshipTypeJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -248,6 +272,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove general metadata entry
+    Logger.getLogger(getClass()).info("  Remove general metadata");
     query = manager.createQuery(
         "SELECT a FROM GeneralMetadataEntryJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -262,6 +287,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove semantic types
+    Logger.getLogger(getClass()).info("  Remove semantic types");
     query = manager.createQuery(
         "SELECT a FROM SemanticTypeJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -274,6 +300,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove term types
+    Logger.getLogger(getClass()).info("  Remove term types");
     query = manager.createQuery(
         "SELECT a FROM TermTypeJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -286,6 +313,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove relationship type
+    Logger.getLogger(getClass()).info("  Remove relationship types");
     query = manager.createQuery(
         "SELECT a FROM RelationshipTypeJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -311,6 +339,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove languages
+    Logger.getLogger(getClass()).info("  Remove languages");
     query = manager.createQuery(
         "SELECT a FROM LanguageJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -323,6 +352,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove concept subset members
+    Logger.getLogger(getClass()).info("  Remove concept subset members");
     query = manager.createQuery(
         "SELECT a.id FROM ConceptSubsetMemberJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -336,6 +366,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove concept subsets
+    Logger.getLogger(getClass()).info("  Remove concept subsets");
     query = manager.createQuery(
         "SELECT a.id FROM ConceptSubsetJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -349,6 +380,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove atom subset members
+    Logger.getLogger(getClass()).info("  Remove atom subset members");
     query = manager.createQuery(
         "SELECT a.id FROM AtomSubsetMemberJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -362,6 +394,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove atom subsets
+    Logger.getLogger(getClass()).info("  Remove atom subsets");
     query = manager.createQuery(
         "SELECT a.id FROM AtomSubsetJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -375,6 +408,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove concept relationships
+    Logger.getLogger(getClass()).info("  Remove concept relationships");
     query = manager.createQuery(
         "SELECT a.id FROM ConceptRelationshipJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -389,6 +423,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
 
     // remove definitions from the concepts; definitions cannot be removed yet,
     // because they are used by atoms
+    Logger.getLogger(getClass()).info("  Remove definitions");
     query = manager.createQuery(
         "SELECT a.id FROM ConceptJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -404,6 +439,8 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove the concept transitive relationships
+    Logger.getLogger(getClass())
+        .info("  Remove concept transitive relationships");
     query = manager.createQuery(
         "SELECT a.id FROM ConceptTransitiveRelationshipJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -417,6 +454,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove the concept tree positions
+    Logger.getLogger(getClass()).info("  Remove concept tree positions");
     query = manager.createQuery(
         "SELECT a.id FROM ConceptTreePositionJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -430,6 +468,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove the concepts
+    Logger.getLogger(getClass()).info("  Remove concepts");
     query = manager.createQuery(
         "SELECT a.id FROM ConceptJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -442,33 +481,36 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     }
     commitClearBegin();
 
-    // go through all remaining concepts and remove atoms with matching
-    // terminology and version
-    // concepts may have UMLS terminology and matching atoms wouldn't otherwise
-    // be removed
-    // not using this code bc of invalid field names
-    /*
-     * SearchResultList results = findConceptsForQuery(null, null, Branch.ROOT,
-     * "atoms.terminology:" + terminology + " atoms.version:" + version, new
-     * PfscParameterJpa()); for (SearchResult result : results.getObjects()) {
-     * Concept concept = getConcept(result.getId());
-     */
-    query = manager.createQuery("SELECT a.id FROM ConceptJpa a");
-    ct = 0;
-    for (Long id : (List<Long>) query.getResultList()) {
-      Concept concept = getConcept(id);
-      List<Atom> keepAtoms = new ArrayList<Atom>();
-      for (Atom atom : concept.getAtoms()) {
-        if (!atom.getTerminology().equals(terminology)
-            || !atom.getVersion().equals(version)) {
-          keepAtoms.add(atom);
+    if (!standalone) {
+      // go through all remaining concepts and remove atoms with matching
+      // terminology and version
+      // concepts may have UMLS terminology and matching atoms wouldn't
+      // otherwise
+      // be removed
+      // not using this code bc of invalid field names
+      /*
+       * SearchResultList results = findConceptsForQuery(null, null,
+       * Branch.ROOT, "atoms.terminology:" + terminology + " atoms.version:" +
+       * version, new PfscParameterJpa()); for (SearchResult result :
+       * results.getObjects()) { Concept concept = getConcept(result.getId());
+       */
+      query = manager.createQuery("SELECT a.id FROM ConceptJpa a");
+      ct = 0;
+      for (Long id : (List<Long>) query.getResultList()) {
+        Concept concept = getConcept(id);
+        List<Atom> keepAtoms = new ArrayList<Atom>();
+        for (Atom atom : concept.getAtoms()) {
+          if (!atom.getTerminology().equals(terminology)
+              || !atom.getVersion().equals(version)) {
+            keepAtoms.add(atom);
+          }
         }
+        concept.setAtoms(keepAtoms);
+        updateConcept(concept);
+        logAndCommit(++ct, RootService.logCt, RootService.commitCt);
       }
-      concept.setAtoms(keepAtoms);
-      updateConcept(concept);
-      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+      commitClearBegin();
     }
-    commitClearBegin();
 
     // remove definitions from the atoms
     query = manager.createQuery(
@@ -486,6 +528,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove atom relationships
+    Logger.getLogger(getClass()).info("  Remove atom relationships");
     query = manager.createQuery(
         "SELECT a.id FROM AtomRelationshipJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -499,6 +542,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove descriptor relationships
+    Logger.getLogger(getClass()).info("  Remove descriptor relationships");
     query = manager.createQuery(
         "SELECT a.id FROM DescriptorRelationshipJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -512,6 +556,8 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove the descriptor transitive relationships
+    Logger.getLogger(getClass())
+        .info("  Remove descriptor transitive relationships");
     query = manager.createQuery(
         "SELECT a.id FROM DescriptorTransitiveRelationshipJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -526,6 +572,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove the descriptor tree positions
+    Logger.getLogger(getClass()).info("  Remove descriptor tree positions");
     query = manager.createQuery(
         "SELECT a.id FROM DescriptorTreePositionJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -539,6 +586,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove descriptors
+    Logger.getLogger(getClass()).info("  Remove descriptors");
     query = manager.createQuery(
         "SELECT a.id FROM DescriptorJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -552,6 +600,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove code relationships
+    Logger.getLogger(getClass()).info("  Remove code relationships");
     query = manager.createQuery(
         "SELECT a.id FROM CodeRelationshipJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -565,6 +614,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove the code transitive relationships
+    Logger.getLogger(getClass()).info("  Remove code transitive relationships");
     query = manager.createQuery(
         "SELECT a.id FROM CodeTransitiveRelationshipJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -578,6 +628,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove the code tree positions
+    Logger.getLogger(getClass()).info("  Remove code tree positions");
     query = manager.createQuery(
         "SELECT a.id FROM CodeTreePositionJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -591,6 +642,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove codes
+    Logger.getLogger(getClass()).info("  Remove codes");
     query = manager.createQuery(
         "SELECT a.id FROM CodeJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -604,6 +656,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove atoms - don't do this until after removing codes
+    Logger.getLogger(getClass()).info("  Remove atoms");
     query = manager.createQuery(
         "SELECT a.id FROM AtomJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -617,6 +670,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove semantic type components, definitions and attributes last
+    Logger.getLogger(getClass()).info("  Remove semantic type components");
     query = manager.createQuery(
         "SELECT a.id FROM SemanticTypeComponentJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -630,6 +684,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove the definitions
+    Logger.getLogger(getClass()).info("  Remove definitions ");
     query = manager.createQuery(
         "SELECT a.id FROM DefinitionJpa a WHERE terminology = :terminology "
             + " AND version = :version");
@@ -643,6 +698,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
     commitClearBegin();
 
     // remove the attributes
+    Logger.getLogger(getClass()).info("  Remove attributes");
     query = manager.createQuery(
         "SELECT a.id FROM AttributeJpa a WHERE terminology = :terminology "
             + " AND version = :version");

@@ -67,7 +67,7 @@ public class TerminologyClamlLoaderMojo extends AbstractMojo {
   public void execute() throws MojoFailureException {
     try {
 
-      getLog().info("Starting removing terminology");
+      getLog().info("Starting loading ClaML");
       getLog().info("  terminology = " + terminology);
       getLog().info("  version = " + version);
       getLog().info("  inputFile = " + inputFile);
