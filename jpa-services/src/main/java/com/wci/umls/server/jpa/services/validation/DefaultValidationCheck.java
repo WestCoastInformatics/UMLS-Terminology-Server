@@ -81,7 +81,7 @@ public class DefaultValidationCheck extends AbstractValidationCheck {
   /* see superclass */
   @Override
   public String getName() {
-    return "Default validation check";
+    return "Default Validation Check";
   }
 
 }

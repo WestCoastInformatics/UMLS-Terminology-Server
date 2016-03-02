@@ -118,7 +118,7 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
   /* see superclass */
   @Override
   public String getName() {
-    return "UTS security service handler";
+    return "UTS Security Service Handler";
   }
 
 }

@@ -147,7 +147,7 @@ public class DefaultIdentifierAssignmentHandler implements
   /* see superclass */
   @Override
   public String getName() {
-    return "Default id assignment algorithm";
+    return "Default Id Assignment Algorithm";
   }
 
 }

@@ -328,7 +328,7 @@ public class DefaultSearchHandler implements SearchHandler {
   /* see superclass */
   @Override
   public String getName() {
-    return "Default search handler";
+    return "Default Search Handler";
   }
 
   /* see superclass */

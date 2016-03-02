@@ -155,6 +155,6 @@ public class MultiRrfComputePreferredNameHandler
   /* see superclass */
   @Override
   public String getName() {
-    return "Multi-RRF compute preferred name handler";
+    return "Multi-RRF Compute Preferred Name Handler";
   }
 }

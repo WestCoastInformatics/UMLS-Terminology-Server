@@ -138,6 +138,6 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
 
   @Override
   public String getName() {
-    return "Sample custom security service";
+    return "Sample Custom Security Service";
   }
 }

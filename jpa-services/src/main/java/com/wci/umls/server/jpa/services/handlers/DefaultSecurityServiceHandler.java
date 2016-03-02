@@ -150,7 +150,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
   /* see superclass */
   @Override
   public String getName() {
-    return "Default security service handler";
+    return "Default Security Service Handler";
   }
 
 }

@@ -49,7 +49,7 @@ public class LvgNormalizedStringHandler implements NormalizedStringHandler {
   /* see superclass */
   @Override
   public String getName() {
-    return "LVG normalized string handler";
+    return "LVG Normalized String Handler";
   }
 
 }

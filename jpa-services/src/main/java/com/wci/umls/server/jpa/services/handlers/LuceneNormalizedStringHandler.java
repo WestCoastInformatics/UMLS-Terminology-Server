@@ -59,7 +59,7 @@ public class LuceneNormalizedStringHandler implements NormalizedStringHandler {
   /* see superclass */
   @Override
   public String getName() {
-    return "Lucene normalized string handler";
+    return "Lucene Normalized String Handler";
   }
 
 

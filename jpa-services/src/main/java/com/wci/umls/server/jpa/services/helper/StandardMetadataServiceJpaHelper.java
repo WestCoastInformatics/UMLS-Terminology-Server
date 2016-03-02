@@ -266,7 +266,7 @@ public class StandardMetadataServiceJpaHelper extends
   /* see superclass */
   @Override
   public String getName() {
-    return "Standard metadata handler";
+    return "Standard Metadata Handler";
   }
 
   
