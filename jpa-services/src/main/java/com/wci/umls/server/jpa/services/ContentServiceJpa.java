@@ -4193,13 +4193,18 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * actual lucene query.
    *
    * @param query the query
-   * @param pfs the pfs
+   * @param pfsc the pfsc
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   @SuppressWarnings("static-method")
-  private boolean isLuceneQueryInfo(String query, PfsParameter pfs) {
-    return pfs.getQueryRestriction() != null || pfs.getActiveOnly()
-        || pfs.getInactiveOnly() || (query != null && !query.isEmpty());
+  private boolean isLuceneQueryInfo(String query, PfscParameter pfsc) {
+    if (!pfsc.getSearchCriteria().isEmpty()) {
+      return pfsc.getQueryRestriction() != null || pfsc.getActiveOnly()
+          || pfsc.getInactiveOnly() || (query != null && !query.isEmpty());
+    } else {
+      // Done to permit blank queries as long as no search criterias are defined
+      return true;
+    }
   }
 
   /**
