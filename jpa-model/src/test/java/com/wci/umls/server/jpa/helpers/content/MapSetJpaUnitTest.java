@@ -1,9 +1,8 @@
 /*
- * Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.helpers.content;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.log4j.Logger;
@@ -21,6 +20,7 @@ import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
+import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.MapSet;
@@ -34,6 +34,18 @@ public class MapSetJpaUnitTest {
   /** The model object to test. */
   private MapSetJpa object;
 
+  /**  The a1. */
+  private Attribute a1;
+
+  /**  The a2. */
+  private Attribute a2;
+
+  /**  The m1. */
+  private Mapping m1;
+
+  /**  The m2. */
+  private Mapping m2;
+
   /**
    * Setup class.
    */
@@ -44,10 +56,18 @@ public class MapSetJpaUnitTest {
 
   /**
    * Setup.
+   *
+   * @throws Exception the exception
    */
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     object = new MapSetJpa();
+    ProxyTester tester = new ProxyTester(new AttributeJpa());
+    a1 = (AttributeJpa) tester.createObject(1);
+    a2 = (AttributeJpa) tester.createObject(2);
+    ProxyTester tester2 = new ProxyTester(new MappingJpa());
+    m1 = (MappingJpa) tester2.createObject(1);
+    m1 = (MappingJpa) tester2.createObject(2);
   }
 
   /**
@@ -80,6 +100,8 @@ public class MapSetJpaUnitTest {
     tester.include("version");
 
     tester.include("name");
+    tester.include("mapVersion");
+    tester.include("complexity");
     tester.include("fromComplexity");
     tester.include("toComplexity");
     tester.include("fromExhaustive");
@@ -89,7 +111,11 @@ public class MapSetJpaUnitTest {
     tester.include("toTerminology");
     tester.include("fromVersion");
     tester.include("toVersion");
-    
+
+    tester.proxy(Attribute.class, 1, a1);
+    tester.proxy(Attribute.class, 2, a2);
+    tester.proxy(Mapping.class, 1, m1);
+    tester.proxy(Mapping.class, 2, m2);
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -97,18 +123,6 @@ public class MapSetJpaUnitTest {
     assertTrue(tester.testIdentityFieldHashcode());
     assertTrue(tester.testNonIdentityFieldHashcode());
     assertTrue(tester.testIdentityFieldDifferentHashcode());
-  }
-
-  /**
-   * Test copy constructor.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testModelCopy041() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy041");
-    CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructorDeep(MapSet.class));
   }
 
   /**
@@ -120,30 +134,12 @@ public class MapSetJpaUnitTest {
   public void testModelDeepCopy041() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelDeepCopy041");
 
-    MapSet mapSet = new MapSetJpa();
-    ProxyTester tester = new ProxyTester(mapSet);
-    mapSet = (MapSet) tester.createObject(1);
-
-    ProxyTester tester2 = new ProxyTester(new AttributeJpa());
-    Attribute att = (Attribute) tester2.createObject(1);
-
-    ProxyTester tester4 = new ProxyTester(new MappingJpa());
-    Mapping mapping = (Mapping) tester4.createObject(1);
-
-    mapSet.addMapping(mapping);
-    mapSet.addAttribute(att);
-
-    MapSet mapSet2 = new MapSetJpa(mapSet, false);
-    assertEquals(0, mapSet2.getAttributes().size());
-    assertEquals(0, mapSet2.getMappings().size());
-
-    MapSet mapSet3 = new MapSetJpa(mapSet, true);
-    assertEquals(1, mapSet3.getAttributes().size());
-    assertEquals(att, mapSet3.getAttributes().iterator().next());
-    assertTrue(att != mapSet3.getAttributes().iterator().next());
-    assertEquals(1, mapSet3.getMappings().size());
-    assertEquals(mapping, mapSet3.getMappings().iterator().next());
-    assertTrue(mapping != mapSet3.getMappings().iterator().next());
+    CopyConstructorTester tester = new CopyConstructorTester(object);
+    tester.proxy(Attribute.class, 1, a1);
+    tester.proxy(Attribute.class, 2, a2);
+    tester.proxy(Mapping.class, 1, m1);
+    tester.proxy(Mapping.class, 2, m2);
+    assertTrue(tester.testCopyConstructorDeep(MapSet.class));
 
   }
 
@@ -178,7 +174,9 @@ public class MapSetJpaUnitTest {
     tester.include("terminologyId");
     tester.include("version");
     tester.include("name");
+    tester.include("mapVersion");
     tester.include("fromComplexity");
+    tester.include("complexity");
     tester.include("toComplexity");
     tester.include("fromExhaustive");
     tester.include("toExhaustive");
@@ -187,8 +185,44 @@ public class MapSetJpaUnitTest {
     tester.include("toTerminology");
     tester.include("fromVersion");
     tester.include("toVersion");
-    
+
     assertTrue(tester.testNotNullFields());
+  }
+
+  /**
+   * Test field indexing.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testModelIndexedFields041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields041");
+
+    // Test analyzed fields
+    IndexedFieldTester tester = new IndexedFieldTester(object);
+    tester.include("name");
+    assertTrue(tester.testAnalyzedIndexedFields());
+
+    // Test non analyzed fields
+    assertTrue(tester.testAnalyzedIndexedFields());
+    tester = new IndexedFieldTester(object);
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
+    tester.include("suppressible");
+    tester.include("obsolete");
+    tester.include("published");
+    tester.include("publishable");
+    tester.include("terminologyId");
+    tester.include("terminology");
+    tester.include("version");
+    tester.include("branch");
+    tester.include("nameSort");
+    tester.include("fromTerminology");
+    tester.include("fromVersion");
+    tester.include("toTerminology");
+    tester.include("toVersion");
+
+    assertTrue(tester.testNotAnalyzedIndexedFields());
   }
 
   /**

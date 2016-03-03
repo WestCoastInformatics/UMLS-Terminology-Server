@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -14,12 +14,12 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.search.annotations.Store;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
@@ -31,7 +31,7 @@ import com.wci.umls.server.model.content.Mapping;
 @Table(name = "mapsets", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "fromTerminology", "toTerminology", "fromVersion",
     "toVersion", "id"
-}))
+}) )
 @Audited
 @XmlRootElement(name = "mapSet")
 public class MapSetJpa extends AbstractComponentHasAttributes
@@ -154,7 +154,6 @@ public class MapSetJpa extends AbstractComponentHasAttributes
    * @return the from complexity
    */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromComplexity() {
     return fromComplexity;
   }
@@ -175,7 +174,6 @@ public class MapSetJpa extends AbstractComponentHasAttributes
    * @return the to complexity
    */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToComplexity() {
     return toComplexity;
   }
@@ -196,7 +194,6 @@ public class MapSetJpa extends AbstractComponentHasAttributes
    * @return the to exhaustive
    */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToExhaustive() {
     return toExhaustive;
   }
@@ -207,7 +204,6 @@ public class MapSetJpa extends AbstractComponentHasAttributes
    * @return the from exhaustive
    */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromExhaustive() {
     return fromExhaustive;
   }
@@ -248,7 +244,6 @@ public class MapSetJpa extends AbstractComponentHasAttributes
    * @return the type
    */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getType() {
     return type;
   }
@@ -427,15 +422,13 @@ public class MapSetJpa extends AbstractComponentHasAttributes
     this.mapVersion = mapVersion;
   }
 
-  /**
-   * Hash code.
-   *
-   * @return the int
-   */
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result =
+        prime * result + ((complexity == null) ? 0 : complexity.hashCode());
     result = prime * result
         + ((fromComplexity == null) ? 0 : fromComplexity.hashCode());
     result = prime * result
@@ -444,10 +437,9 @@ public class MapSetJpa extends AbstractComponentHasAttributes
         + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
     result =
         prime * result + ((fromVersion == null) ? 0 : fromVersion.hashCode());
-    result = prime * result + ((mappings == null) ? 0 : mappings.hashCode());
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
-        prime * result + ((complexity == null) ? 0 : complexity.hashCode());
+        prime * result + ((mapVersion == null) ? 0 : mapVersion.hashCode());
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((toComplexity == null) ? 0 : toComplexity.hashCode());
     result =
@@ -459,12 +451,7 @@ public class MapSetJpa extends AbstractComponentHasAttributes
     return result;
   }
 
-  /**
-   * Equals.
-   *
-   * @param obj the obj
-   * @return true, if successful
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -499,10 +486,10 @@ public class MapSetJpa extends AbstractComponentHasAttributes
         return false;
     } else if (!fromVersion.equals(other.fromVersion))
       return false;
-    if (mappings == null) {
-      if (other.mappings != null)
+    if (mapVersion == null) {
+      if (other.mapVersion != null)
         return false;
-    } else if (!mappings.equals(other.mappings))
+    } else if (!mapVersion.equals(other.mapVersion))
       return false;
     if (name == null) {
       if (other.name != null)
@@ -537,11 +524,7 @@ public class MapSetJpa extends AbstractComponentHasAttributes
     return true;
   }
 
-  /**
-   * To string.
-   *
-   * @return the string
-   */
+  /* see superclass */
   @Override
   public String toString() {
     return "MapSetJpa [mappings=" + mappings + ", name=" + name

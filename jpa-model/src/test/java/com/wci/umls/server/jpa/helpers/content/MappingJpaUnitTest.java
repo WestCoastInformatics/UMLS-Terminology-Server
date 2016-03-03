@@ -1,9 +1,8 @@
 /*
- * Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.helpers.content;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.log4j.Logger;
@@ -13,36 +12,55 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
+import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
-import com.wci.umls.server.jpa.content.MappingJpa;
+import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
+import com.wci.umls.server.jpa.content.MappingJpa;
+import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.model.content.Mapping;
+import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
+import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
+import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
+import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.RelationshipType;
 
 /**
- * Unit testing for {@link MapSetMemberJpa}.
+ * Unit testing for {@link MappingJpa}.
  */
 public class MappingJpaUnitTest {
 
   /** The model object to test. */
-  private MapSetJpa object;
+  private Mapping object;
 
-  /** Test fixture */
-  private Mapping mapping1;
+  /** The a1. */
+  private Attribute a1;
 
-  /** Test fixture */
-  private Mapping mapping2;
+  /** The a2. */
+  private Attribute a2;
 
-  /** Test fixture */
-  private MapSet mapSet1;
+  /** The ms1. */
+  private MapSet ms1;
 
-  /** Test fixture */
-  private MapSet mapSet2;
+  /** The ms2. */
+  private MapSet ms2;
+
+  /** The rt1. */
+  private RelationshipType rt1;
+
+  /** The rt2. */
+  private RelationshipType rt2;
+
+  /** The art1. */
+  private AdditionalRelationshipType art1;
+
+  /** The art2. */
+  private AdditionalRelationshipType art2;
 
   /**
    * Setup class.
@@ -54,34 +72,29 @@ public class MappingJpaUnitTest {
 
   /**
    * Setup.
+   *
+   * @throws Exception the exception
    */
   @Before
-  public void setup() {
-    object = new MapSetJpa();
+  public void setup() throws Exception {
+    object = new MappingJpa();
+    ProxyTester tester = new ProxyTester(new AttributeJpa());
+    a1 = (AttributeJpa) tester.createObject(1);
+    a2 = (AttributeJpa) tester.createObject(2);
 
-    mapping1 = new MappingJpa();
-    mapping1.setId(1L);
-    mapping1.setTerminologyId("1");
-    mapping1.setTerminology("1");
-    mapping1.setVersion("1");
-    mapping2 = new MappingJpa();
-    mapping2.setId(2L);
-    mapping2.setTerminologyId("2");
-    mapping2.setTerminology("2");
-    mapping2.setVersion("2");
+    ms1 = new MapSetJpa();
+    ms1.setId(1L);
+    ms2 = new MapSetJpa();
+    ms2.setId(2L);
 
-    mapSet1 = new MapSetJpa();
-    mapSet1.setId(1L);
-    mapSet1.setTerminologyId("1");
-    mapSet1.setTerminology("1");
-    mapSet1.setVersion("1");
-    mapSet1.setName("2");
-    mapSet2 = new MapSetJpa();
-    mapSet2.setId(2L);
-    mapSet2.setTerminologyId("2");
-    mapSet2.setTerminology("2");
-    mapSet2.setVersion("2");
-    mapSet2.setName("2");
+    ProxyTester tester2 = new ProxyTester(new RelationshipTypeJpa());
+    rt1 = (RelationshipTypeJpa) tester2.createObject(1);
+    rt2 = (RelationshipTypeJpa) tester2.createObject(2);
+
+    ProxyTester tester3 = new ProxyTester(new AdditionalRelationshipTypeJpa());
+    art1 = (AdditionalRelationshipTypeJpa) tester3.createObject(1);
+    art2 = (AdditionalRelationshipTypeJpa) tester3.createObject(2);
+
   }
 
   /**
@@ -93,16 +106,9 @@ public class MappingJpaUnitTest {
   public void testModelGetSet043() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelGetSet043");
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("memberId");
-    tester.exclude("memberTerminologyId");
-    tester.exclude("memberTerminology");
-    tester.exclude("memberVersion");
-    tester.exclude("memberName");
     tester.exclude("mapSetId");
     tester.exclude("mapSetTerminologyId");
-    tester.exclude("mapSetTerminology");
-    tester.exclude("mapSetVersion");
-    tester.exclude("mapSetName");
+    tester.exclude("mapSet");
     tester.test();
   }
 
@@ -122,7 +128,7 @@ public class MappingJpaUnitTest {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
-    
+
     tester.include("mapSet");
     tester.include("fromTerminologyId");
     tester.include("toTerminologyId");
@@ -131,36 +137,23 @@ public class MappingJpaUnitTest {
     tester.include("rule");
     tester.include("group");
     tester.include("rank");
+    tester.include("advice");
+    tester.include("relationshipType");
+    tester.include("additionalRelationshipType");
 
-    tester.proxy(Mapping.class, 1, new MappingJpa(mapping1, false));
-    tester.proxy(Mapping.class, 2, new MappingJpa(mapping2, false));
-    tester.proxy(MapSet.class, 1, new MapSetJpa(mapSet1, false));
-    tester.proxy(MapSet.class, 2, new MapSetJpa(mapSet2, false));
+    tester.proxy(Attribute.class, 1, a1);
+    tester.proxy(Attribute.class, 2, a2);
+    tester.proxy(RelationshipType.class, 1, rt1);
+    tester.proxy(RelationshipType.class, 2, rt2);
+    tester.proxy(AdditionalRelationshipType.class, 1, art1);
+    tester.proxy(AdditionalRelationshipType.class, 2, art2);
+    tester.proxy(MapSet.class, 1, ms1);
+    tester.proxy(MapSet.class, 2, ms2);
     assertTrue(tester.testIdentityFieldEquals());
-    tester.proxy(Mapping.class, 1, new MappingJpa(mapping1, false));
-    tester.proxy(Mapping.class, 2, new MappingJpa(mapping2, false));
-    tester.proxy(MapSet.class, 1, new MapSetJpa(mapSet1, false));
-    tester.proxy(MapSet.class, 2, new MapSetJpa(mapSet2, false));
     assertTrue(tester.testNonIdentityFieldEquals());
-    tester.proxy(Mapping.class, 1, new MappingJpa(mapping1, false));
-    tester.proxy(Mapping.class, 2, new MappingJpa(mapping2, false));
-    tester.proxy(MapSet.class, 1, new MapSetJpa(mapSet1, false));
-    tester.proxy(MapSet.class, 2, new MapSetJpa(mapSet2, false));
     assertTrue(tester.testIdentityFieldNotEquals());
-    tester.proxy(Mapping.class, 1, new MappingJpa(mapping1, false));
-    tester.proxy(Mapping.class, 2, new MappingJpa(mapping2, false));
-    tester.proxy(MapSet.class, 1, new MapSetJpa(mapSet1, false));
-    tester.proxy(MapSet.class, 2, new MapSetJpa(mapSet2, false));
     assertTrue(tester.testIdentityFieldHashcode());
-    tester.proxy(Mapping.class, 1, new MappingJpa(mapping1, false));
-    tester.proxy(Mapping.class, 2, new MappingJpa(mapping2, false));
-    tester.proxy(MapSet.class, 1, new MapSetJpa(mapSet1, false));
-    tester.proxy(MapSet.class, 2, new MapSetJpa(mapSet2, false));
     assertTrue(tester.testNonIdentityFieldHashcode());
-    tester.proxy(Mapping.class, 1, new MappingJpa(mapping1, false));
-    tester.proxy(Mapping.class, 2, new MappingJpa(mapping2, false));
-    tester.proxy(MapSet.class, 1, new MapSetJpa(mapSet1, false));
-    tester.proxy(MapSet.class, 2, new MapSetJpa(mapSet2, false));
     assertTrue(tester.testIdentityFieldDifferentHashcode());
   }
 
@@ -173,39 +166,15 @@ public class MappingJpaUnitTest {
   public void testModelCopy043() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelCopy043");
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    tester.proxy(Mapping.class, 1, mapping1);
-    tester.proxy(Mapping.class, 2, mapping2);
-    tester.proxy(MapSet.class, 1, mapSet1);
-    tester.proxy(MapSet.class, 2, mapSet2);
-    assertTrue(tester.testCopyConstructorDeep(MapSet.class));
-  }
-
-  /**
-   * Test xml transient fields
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testXmlTransient043() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient043");
-
-    object = new MapSetJpa(mapSet1, false);
-    object.addMapping(mapping1);
-    //object.setMapSet(mapSet1);
-    String xml = ConfigUtility.getStringForGraph(object);
-    assertTrue(xml.contains("<mapSetId>"));
-    assertTrue(xml.contains("<mapSetTerminologyId>"));
-    assertTrue(xml.contains("<mapSetTerminology>"));
-    assertTrue(xml.contains("<mapSetVersion>"));
-    assertTrue(xml.contains("<mapSetName>"));
-    assertFalse(xml.contains("<mapSet>"));
-    assertTrue(xml.contains("<memberId>"));
-    assertTrue(xml.contains("<memberTerminologyId>"));
-    assertTrue(xml.contains("<memberTerminology>"));
-    assertTrue(xml.contains("<memberVersion>"));
-    assertTrue(xml.contains("<memberName>"));
-    assertFalse(xml.contains("<member>"));
-
+    tester.proxy(Attribute.class, 1, a1);
+    tester.proxy(Attribute.class, 2, a2);
+    tester.proxy(RelationshipType.class, 1, rt1);
+    tester.proxy(RelationshipType.class, 2, rt2);
+    tester.proxy(AdditionalRelationshipType.class, 1, art1);
+    tester.proxy(AdditionalRelationshipType.class, 2, art2);
+    tester.proxy(MapSet.class, 1, ms1);
+    tester.proxy(MapSet.class, 2, ms2);
+    assertTrue(tester.testCopyConstructorDeep(Mapping.class));
   }
 
   /**
@@ -217,10 +186,14 @@ public class MappingJpaUnitTest {
   public void testModelXmlSerialization043() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlSerialization043");
     XmlSerializationTester tester = new XmlSerializationTester(object);
-    tester.proxy(Mapping.class, 1, mapping1);
-    tester.proxy(Mapping.class, 2, mapping2);
-    tester.proxy(MapSet.class, 1, mapSet1);
-    tester.proxy(MapSet.class, 2, mapSet2);
+    tester.proxy(Attribute.class, 1, a1);
+    tester.proxy(Attribute.class, 2, a2);
+    tester.proxy(RelationshipType.class, 1, rt1);
+    tester.proxy(RelationshipType.class, 2, rt2);
+    tester.proxy(AdditionalRelationshipType.class, 1, art1);
+    tester.proxy(AdditionalRelationshipType.class, 2, art2);
+    tester.proxy(MapSet.class, 1, ms1);
+    tester.proxy(MapSet.class, 2, ms2);
     assertTrue(tester.testXmlSerialization());
   }
 
@@ -242,16 +215,48 @@ public class MappingJpaUnitTest {
     tester.include("terminology");
     tester.include("terminologyId");
     tester.include("version");
-    
+
     tester.include("mapSet");
     tester.include("fromTerminologyId");
     tester.include("toTerminologyId");
     tester.include("fromIdType");
     tester.include("toIdType");
     tester.include("rule");
-    tester.include("mapGroup");
-    tester.include("rank"); 
+    tester.include("group");
+    tester.include("rank");
+    tester.include("advice");
     assertTrue(tester.testNotNullFields());
+  }
+
+  /**
+   * Test field indexing.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testModelIndexedFields041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields043");
+
+    // Test analyzed fields
+    IndexedFieldTester tester = new IndexedFieldTester(object);
+    // no analyzed fields
+    // assertTrue(tester.testAnalyzedIndexedFields());
+
+    // Test non analyzed fields
+    tester = new IndexedFieldTester(object);
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
+    tester.include("suppressible");
+    tester.include("obsolete");
+    tester.include("published");
+    tester.include("publishable");
+    tester.include("terminologyId");
+    tester.include("terminology");
+    tester.include("version");
+    tester.include("branch");
+    tester.include("fromTerminologyId");
+    tester.include("toTerminologyId");
+    assertTrue(tester.testNotAnalyzedIndexedFields());
   }
 
   /**
