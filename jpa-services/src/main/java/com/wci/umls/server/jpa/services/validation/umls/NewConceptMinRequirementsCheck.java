@@ -27,7 +27,7 @@ public class NewConceptMinRequirementsCheck extends AbstractValidationCheck {
 
   @Override
   public String getName() {
-    return "New concept minimum requirements check";
+    return "New Concept Minimum Requirements Check";
   }
 
 }

@@ -42,7 +42,7 @@ public class DefaultComputePreferredNameHandler
 
   @Override
   public String getName() {
-    return "Default preferred name handler";
+    return "Default Preferred Name Handler";
   }
 
 }

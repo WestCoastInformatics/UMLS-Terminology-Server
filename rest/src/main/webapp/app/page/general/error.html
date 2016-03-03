@@ -8,14 +8,14 @@
       <span style="display: inline; float: right;">
         <i ng-show="error.longMessage"
           title="{{error.expand ? 'Show' : 'Hide'}} long eror"
-          class="noul material-icons md-18"
-          ng-click="error.expand = !error.expand;">attach_file</i> <i
+          class="noul glyphicon glyphicon-icon-attach"
+          ng-click="error.expand = !error.expand;"></i> <i
           class="glyphicon glyphicon-remove" ng-click="clearError()"></i>
       </span>
+      <span ng-show="error.longMessage && error.expand">
+        <br />{{error.longMessage}}
+      </span>
     </h4>
-    <span ng-show="error.longMessage && error.expand">
-      <br />{{error.longMessage}}
-    </span>
   </div>
   <!-- padding -->
   <div class="col-md-1 col-xs-0"></div>

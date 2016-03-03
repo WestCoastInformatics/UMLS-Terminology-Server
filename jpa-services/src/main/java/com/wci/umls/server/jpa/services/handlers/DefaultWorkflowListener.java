@@ -171,7 +171,7 @@ public class DefaultWorkflowListener implements WorkflowListener {
   /* see superclass */
   @Override
   public String getName() {
-    return "Default workflow listener";
+    return "Default Workflow Listener";
   }
 
 @Override

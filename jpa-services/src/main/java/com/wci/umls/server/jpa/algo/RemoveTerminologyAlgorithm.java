@@ -68,9 +68,6 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
   /** The id type. */
   private IdType idType;
 
-  /** The cycle tolerant. */
-  private boolean cycleTolerant;
-
   /**
    * Standalone means that it is not also represented as part of a
    * metathesaurus. Default is true.
@@ -127,24 +124,6 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
   }
 
   /**
-   * Indicates whether or not cycle tolerant is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isCycleTolerant() {
-    return cycleTolerant;
-  }
-
-  /**
-   * Sets the cycle tolerant.
-   *
-   * @param cycleTolerant the cycle tolerant
-   */
-  public void setCycleTolerant(boolean cycleTolerant) {
-    this.cycleTolerant = cycleTolerant;
-  }
-
-  /**
    * Sets the standalone flag. For deleting a UMLS terminology, this would be
    * set to false so that the atoms would be removed also from UMLS concepts.
    *
@@ -186,9 +165,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
         .info("Start removing terminology - " + terminology + " " + version);
     fireProgressEvent(0, "Starting...");
 
-    // Disable transaction per operation
     setTransactionPerOperation(false);
-
     beginTransaction();
 
     // remove terminology

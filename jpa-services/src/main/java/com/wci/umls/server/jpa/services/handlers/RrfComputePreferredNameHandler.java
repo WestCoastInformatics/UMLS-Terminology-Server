@@ -202,7 +202,7 @@ public class RrfComputePreferredNameHandler
   /* see superclass */
   @Override
   public String getName() {
-    return "RF2 compute preferred name handler";
+    return "RF2 Compute Preferred Name Handler";
   }
 
 }

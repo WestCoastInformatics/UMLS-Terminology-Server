@@ -235,7 +235,7 @@ public class UuidHashIdentifierAssignmentHandler
   /* see superclass */
   @Override
   public String getName() {
-    return "UUID hash identifier assignment handler";
+    return "UUID Hash Identifier Assignment Handler";
   }
 
 @Override

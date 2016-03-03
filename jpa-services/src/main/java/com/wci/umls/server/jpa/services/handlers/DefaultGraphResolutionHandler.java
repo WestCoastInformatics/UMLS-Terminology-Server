@@ -388,7 +388,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   /* see superclass */
   @Override
   public String getName() {
-    return "Default graph resolver";
+    return "Default Graph Resolver";
   }
 
 }

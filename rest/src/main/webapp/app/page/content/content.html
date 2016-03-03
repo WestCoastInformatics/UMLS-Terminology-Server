@@ -69,12 +69,12 @@
           </div>
 
           <!--  Margin added to prevent crowding -->
-          <pagination items-per-page="pageSizes.general" max-size="5"
+          <uib-pagination items-per-page="pageSizes.general" max-size="5"
             boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
             next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
             ng-show="searchResults.list.totalCount > pageSizes.general"
             total-items="searchResults.list.totalCount"
-            ng-model="searchParams.page" ng-change="findComponents(false)"></pagination>
+            ng-model="searchParams.page" ng-change="findComponents(false)"></uib-pagination>
 
 
           <table class="table table-hover" style="margin-top: 10px;"
@@ -132,13 +132,13 @@
             </span>
           </div>
 
-          <pagination style="display:block;" items-per-page="pageSizes.trees"
+          <uib-pagination style="display:block;" items-per-page="pageSizes.trees"
             max-size="5" boundary-links="true" class="pagination-sm"
             previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
             last-text="&raquo;"
             ng-show="searchResults.tree.totalCount > pageSizes.trees"
             total-items="searchResults.tree.totalCount"
-            ng-model="searchParams.page" ng-change="findComponents(false)"></pagination>
+            ng-model="searchParams.page" ng-change="findComponents(false)"></uib-pagination>
 
           <div ng-if="searchResults.tree && searchResults.tree.totalCount > 0"
             style="display: block;" ui-tree>
@@ -261,13 +261,13 @@
 
 
           <span style="display: block;">
-            <pagination items-per-page="pageSizes.general" max-size="5"
+            <uib-pagination items-per-page="pageSizes.general" max-size="5"
               boundary-links="true" class="pagination-sm"
               previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
               last-text="&raquo;"
               ng-show="component.object.semanticTypes.length > pageSizes.general"
               total-items="pagedSemanticTypes.totalCount"
-              ng-model="styPaging.page" ng-change="getPagedSemanticTypes()"></pagination>
+              ng-model="styPaging.page" ng-change="getPagedSemanticTypes()"></uib-pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
               ng-show="component.object.semanticTypes.length > pageSizes.general"
@@ -299,13 +299,13 @@
             ({{pagedDefinitions.totalCount}})</h4>
 
           <span style="display: block;">
-            <pagination items-per-page="pageSizes.general" max-size="5"
+            <uib-pagination items-per-page="pageSizes.general" max-size="5"
               boundary-links="true" class="pagination-sm"
               previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
               last-text="&raquo;"
               ng-show="component.object.definitions.length > pageSizes.general"
               total-items="pagedDefinitions.totalCount"
-              ng-model="defPaging.page" ng-change="getPagedDefinitions()"></pagination>
+              ng-model="defPaging.page" ng-change="getPagedDefinitions()"></uib-pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
               ng-show="component.object.definitions.length > pageSizes.general"
@@ -341,13 +341,14 @@
           </span>
 
           <span style="display: block;">
-            <pagination items-per-page="pageSizes.general" max-size="5"
+            {{component.object.atoms.length}} / {{pageSizes.general}} / {{component.object.atoms.length > pageSizes.general}}
+            <uib-pagination items-per-page="pageSizes.general" max-size="5"
               boundary-links="true" class="pagination-sm"
               previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
               last-text="&raquo;"
-              ng-show="component.object.atoms.length > pageSizes.general"
+              
               total-items="pagedAtoms.totalCount" ng-model="atomPaging.page"
-              ng-change="getPagedAtoms()"></pagination>
+              ng-change="getPagedAtoms()"></uib-pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
               ng-show="component.object.atoms.length > pageSizes.general"
@@ -498,13 +499,13 @@
         <div ng-show="component.object.attributes.length > 0">
           <h4>{{metadata.attributesLabel}} ({{pagedAttributes.totalCount}})</h4>
           <span style="display: block;">
-            <pagination items-per-page="pageSizes.general" max-size="5"
+            <uib-pagination items-per-page="pageSizes.general" max-size="5"
               boundary-links="true" class="pagination-sm"
               previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
               last-text="&raquo;"
               ng-show="component.object.attributes.length > pageSizes.general"
               total-items="pagedAttributes.totalCount"
-              ng-model="attributePaging.page" ng-change="getPagedAttributes()"></pagination>
+              ng-model="attributePaging.page" ng-change="getPagedAttributes()"></uib-pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
               ng-show="component.object.attributes.length > pageSizes.general"
@@ -536,13 +537,13 @@
         <div ng-show="component.object.members.length > 0">
           <h4>{{metadata.subsetsLabel}} ({{pagedMembers.totalCount}})</h4>
           <span style="display: block;">
-            <pagination items-per-page="pageSizes.general" max-size="5"
+            <uib-pagination items-per-page="pageSizes.general" max-size="5"
               boundary-links="true" class="pagination-sm"
               previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
               last-text="&raquo;"
               ng-show="component.object.members.length > pageSizes.general"
               total-items="pagedMembers.totalCount"
-              ng-model="membersPaging.page" ng-change="getPagedMembers()"></pagination>
+              ng-model="membersPaging.page" ng-change="getPagedMembers()"></uib-pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
               ng-show="component.object.members.length > pageSizes.general"
@@ -591,13 +592,13 @@
             </button>
           </h4>
           <span style="display: block;">
-            <pagination items-per-page="pageSizes.rels" max-size="5"
+            <uib-pagination items-per-page="pageSizes.rels" max-size="5"
               boundary-links="true" class="pagination-sm"
               previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
               last-text="&raquo;"
               ng-show="pagedRelationships.totalCount > pageSizes.rels || relPaging.filter"
               total-items="pagedRelationships.totalCount"
-              ng-model="relPaging.page" ng-change="getPagedRelationships()"></pagination>
+              ng-model="relPaging.page" ng-change="getPagedRelationships()"></uib-pagination>
 
             <input class="input-filter" placeholder="Enter filter text"
               ng-show="pagedRelationships.totalCount > pageSizes.rels || relPaging.filter"
