@@ -3,39 +3,98 @@
  */
 package com.wci.umls.server.model.content;
 
+import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.RelationshipType;
+
 /**
- * Represents a mapping between two {@link MapObject}s.
+ * Represents a mapping between a from object and a to object.
  */
 public interface Mapping extends ComponentHasAttributes {
 
   /**
-   * Returns the label.
-   * 
-   * @return the label
+   * Gets the from id type.
+   *
+   * @return the from id type
    */
-  public String getLabel();
-
+  public String getFromIdType();
+  
   /**
-   * Sets the label.
-   * 
-   * @param label the label
+   * Sets the from id type.
+   *
+   * @param fromIdType the new from id type
    */
-  public void setLabel(String label);
-
+  public void setFromIdType(String fromIdType);
+  
   /**
-   * Returns the additional label.
-   * 
-   * @return the additional label
+   * Gets the to id type.
+   *
+   * @return the to id type
    */
-  public String getAdditionalLabel();
-
+  public String getToIdType();
+  
   /**
-   * Sets the additional label.
-   * 
-   * @param additionalLabel the additional label
+   * Sets the to id type.
+   *
+   * @param toIdType the new to id type
    */
-  public void setAdditionalLabel(String additionalLabel);
-
+  public void setToIdType(String toIdType);
+  
+  /**
+   * Gets the from terminology id.
+   *
+   * @return the from terminology id
+   */
+  public Long getFromTerminologyId();
+  
+  /**
+   * Sets the from terminology id.
+   *
+   * @param id the new from terminology id
+   */
+  public void setFromTerminologyId(Long id);
+  
+  /**
+   * Gets the to terminology id.
+   *
+   * @return the to terminology id
+   */
+  public Long getToTerminologyId();
+  
+  /**
+   * Sets the to terminology id.
+   *
+   * @param id the new to terminology id
+   */
+  public void setToTerminologyId(Long id);
+  
+  /**
+   * Gets the relationship type.
+   *
+   * @return the relationship type
+   */
+  public RelationshipType getRelationshipType();
+  
+  /**
+   * Sets the relationship type.
+   *
+   * @param relType the new relationship type
+   */
+  public void setRelationshipType(RelationshipType relType);
+  
+  /**
+   * Gets the additional relationship type.
+   *
+   * @return the additional relationship type
+   */
+  public AdditionalRelationshipType getAdditionalRelationshipType();
+  
+  /**
+   * Sets the additional relationship type.
+   *
+   * @param addRelType the new additional relationship type
+   */
+  public void setAdditionalRelationshipType(AdditionalRelationshipType addRelType);
+   
   /**
    * Returns the rank.
    * 
@@ -50,33 +109,22 @@ public interface Mapping extends ComponentHasAttributes {
    */
   public void setRank(String rank);
 
-  /**
-   * Returns the subset identifier.
-   * 
-   * @return the subset identifier
-   */
-  public String getSubsetIdentifier();
 
   /**
-   * Sets the subset identifier.
-   * 
-   * @param subsetId the subset identifier
+   * Gets the group.
+   *
+   * @return the group
    */
-  public void setSubsetIdentifier(String subsetId);
+  public String getGroup();
+
 
   /**
-   * Returns the type.
-   * 
-   * @return the type
+   * Sets the group.
+   *
+   * @param group the new group
    */
-  public String getType();
+  public void setGroup(String group);
 
-  /**
-   * Sets the type.
-   * 
-   * @param type the type
-   */
-  public void setType(String type);
 
   /**
    * Returns the rule.
@@ -92,47 +140,22 @@ public interface Mapping extends ComponentHasAttributes {
    */
   public void setRule(String rule);
 
-  /**
-   * Returns the restriction.
-   * 
-   * @return the restriction
-   */
-  public String getRestriction();
 
   /**
-   * Sets the restriction.
-   * 
-   * @param restriction the restriction
+   * Gets the advice.
+   *
+   * @return the advice
    */
-  public void setRestriction(String restriction);
+  public String getAdvice();
+
 
   /**
-   * Returns the map from.
-   * 
-   * @return the map from
+   * Sets the advice.
+   *
+   * @param advice the new advice
    */
-  public MapObject getMapFrom();
+  public void setAdvice(String advice);
 
-  /**
-   * Sets the map from.
-   * 
-   * @param from the map from
-   */
-  public void setMapFrom(MapObject from);
-
-  /**
-   * Returns the map to.
-   * 
-   * @return the map to
-   */
-  public MapObject getMapTo();
-
-  /**
-   * Sets the map to.
-   * 
-   * @param to the map to
-   */
-  public void setMapTo(MapObject to);
 
   /**
    * Returns the map set.
@@ -148,4 +171,35 @@ public interface Mapping extends ComponentHasAttributes {
    */
   public void setMapSet(MapSet mapSet);
 
+  /**
+   * Gets the from terminology.
+   *
+   * @return the from terminology
+   */
+  public String getFromTerminology();
+
+  /**
+   * Gets the to terminology.
+   *
+   * @return the to terminology
+   */
+  public String getToTerminology();
+
+  /**
+   * Gets the from version.
+   *
+   * @return the from version
+   */
+  public String getFromVersion();
+
+  /**
+   * Gets the to version.
+   *
+   * @return the to version
+   */
+  public String getToVersion();
+  
+
+  
+ 
 }

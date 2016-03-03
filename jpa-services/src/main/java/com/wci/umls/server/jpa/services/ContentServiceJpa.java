@@ -48,6 +48,7 @@ import com.wci.umls.server.helpers.content.DefinitionList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.GeneralConceptAxiomList;
 import com.wci.umls.server.helpers.content.LexicalClassList;
+import com.wci.umls.server.helpers.content.MappingList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.helpers.content.SubsetList;
@@ -77,6 +78,8 @@ import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.content.GeneralConceptAxiomJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
+import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -90,6 +93,7 @@ import com.wci.umls.server.jpa.helpers.content.DefinitionListJpa;
 import com.wci.umls.server.jpa.helpers.content.DescriptorListJpa;
 import com.wci.umls.server.jpa.helpers.content.GeneralConceptAxiomListJpa;
 import com.wci.umls.server.jpa.helpers.content.LexicalClassListJpa;
+import com.wci.umls.server.jpa.helpers.content.MappingListJpa;
 import com.wci.umls.server.jpa.helpers.content.RelationshipListJpa;
 import com.wci.umls.server.jpa.helpers.content.StringClassListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
@@ -112,6 +116,8 @@ import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.GeneralConceptAxiom;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
@@ -4218,5 +4224,217 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
     return ConfigUtility.newStandardHandlerInstanceWithConfiguration(
         "search.handler", ConfigUtility.DEFAULT, SearchHandler.class);
+  }
+  
+  /* see superclass */
+  @Override
+  public Mapping addMapping(Mapping mapping) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - add mapping " + mapping);
+    // Assign id
+    IdentifierAssignmentHandler idHandler = null;
+    if (assignIdentifiersFlag) {
+      idHandler = getIdentifierAssignmentHandler(mapping.getTerminology());
+      if (idHandler == null) {
+        throw new Exception(
+            "Unable to find id handler for " + mapping.getTerminology());
+      }
+      String id = idHandler.getTerminologyId(mapping);
+      mapping.setTerminologyId(id);
+    }
+
+    // Add component
+    Mapping newMapping = addComponent(mapping);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.mappingChanged(newMapping, WorkflowListener.Action.ADD);
+      }
+    }
+    return newMapping;
+  }
+
+  /* see superclass */
+  @Override
+  public void updateMapping(Mapping mapping) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - update mapping " + mapping);
+
+    // Id assignment should not change
+    final IdentifierAssignmentHandler idHandler =
+        getIdentifierAssignmentHandler(mapping.getTerminology());
+    if (assignIdentifiersFlag) {
+      if (!idHandler.allowIdChangeOnUpdate()) {
+        Mapping mapping2 = getMapping(mapping.getId());
+        if (!idHandler.getTerminologyId(mapping)
+            .equals(idHandler.getTerminologyId(mapping2))) {
+          throw new Exception(
+              "Update cannot be used to change object identity.");
+        }
+      } else {
+        // set mapping id on update
+        mapping.setTerminologyId(idHandler.getTerminologyId(mapping));
+      }
+    }
+    // update component
+    this.updateComponent(mapping);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.mappingChanged(mapping, WorkflowListener.Action.UPDATE);
+      }
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public void removeMapping(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - remove mapping " + id);
+    // Remove the component
+    Mapping mapping = removeComponent(id, MappingJpa.class);
+
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.mappingChanged(mapping, WorkflowListener.Action.REMOVE);
+      }
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public MapSet getMapSet(Long id) throws Exception {
+	    Logger.getLogger(getClass())
+	        .debug("Content Service - get mapSet " + id);
+	    return getComponent(id, MapSetJpa.class);
+  }
+  
+  /* see superclass */
+  @Override
+  public Mapping getMapping(Long id) throws Exception {
+	    Logger.getLogger(getClass())
+	        .debug("Content Service - get mapping " + id);
+	    return getComponent(id, MappingJpa.class);
+  }
+  
+  /* see superclass */
+  @Override
+  public Mapping getMapping(String terminologyId, String terminology, String version,
+    String branch) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get mapping "
+        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
+    return getComponent(terminologyId, terminology, version, branch,
+        MappingJpa.class);
+  }
+
+  /* see superclass */
+  @SuppressWarnings({
+      "unchecked"
+  })
+  @Override
+  public MappingList findMappingsForMapSet(Long mapSetId, String query,
+    PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - find mappings " + mapSetId 
+             + ", query=" + query);
+    
+        final StringBuilder sb = new StringBuilder();
+        if (query != null && !query.equals("")) {
+          sb.append(query).append(" AND ");
+        }
+        if (mapSetId == null) {
+          sb.append("mapSetId:[* TO *]");
+        } else {
+          sb.append("mapSetId:" + mapSetId);
+        }
+
+        int[] totalCt = new int[1];
+        final List<Mapping> list =
+            (List<Mapping>) getQueryResults(sb.toString(),
+                MappingJpa.class, MappingJpa.class, pfs,
+                totalCt);
+        final MappingList result = new MappingListJpa();
+        result.setTotalCount(totalCt[0]);
+        result.setObjects(list);
+        return result;
+  }
+  
+  /* see superclass */
+  @Override
+  public MapSet addMapSet(MapSet mapSet) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - add mapSet " + mapSet);
+    // Assign id
+    IdentifierAssignmentHandler idHandler = null;
+    if (assignIdentifiersFlag) {
+      idHandler = getIdentifierAssignmentHandler(mapSet.getTerminology());
+      if (idHandler == null) {
+        throw new Exception(
+            "Unable to find id handler for " + mapSet.getTerminology());
+      }
+      String id = idHandler.getTerminologyId(mapSet);
+      mapSet.setTerminologyId(id);
+    }
+
+    // Add component
+    MapSet newMapSet = addComponent(mapSet);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.mapSetChanged(newMapSet, WorkflowListener.Action.ADD);
+      }
+    }
+    return newMapSet;
+  }
+
+  /* see superclass */
+  @Override
+  public void updateMapSet(MapSet mapSet) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - update mapSet " + mapSet);
+
+    // Id assignment should not change
+    final IdentifierAssignmentHandler idHandler =
+        getIdentifierAssignmentHandler(mapSet.getTerminology());
+    if (assignIdentifiersFlag) {
+      if (!idHandler.allowIdChangeOnUpdate()) {
+        MapSet mapSet2 = getMapSet(mapSet.getId());
+        if (!idHandler.getTerminologyId(mapSet)
+            .equals(idHandler.getTerminologyId(mapSet2))) {
+          throw new Exception(
+              "Update cannot be used to change object identity.");
+        }
+      } else {
+        // set mapSet id on update
+        mapSet.setTerminologyId(idHandler.getTerminologyId(mapSet));
+      }
+    }
+    // update component
+    this.updateComponent(mapSet);
+
+    // Inform listeners
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.mapSetChanged(mapSet, WorkflowListener.Action.UPDATE);
+      }
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public void removeMapSet(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - remove mapSet " + id);
+    // Remove the component
+    MapSet mapSet = removeComponent(id, MapSetJpa.class);
+
+    if (listenersEnabled) {
+      for (WorkflowListener listener : listeners) {
+        listener.mapSetChanged(mapSet, WorkflowListener.Action.REMOVE);
+      }
+    }
   }
 }

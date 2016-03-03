@@ -16,6 +16,8 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
@@ -235,4 +237,22 @@ public class UuidHashIdentifierAssignmentHandler
   public String getName() {
     return "UUID hash identifier assignment handler";
   }
+
+@Override
+public String getTerminologyId(Mapping mapping) throws Exception {
+    StringBuilder hashKey = new StringBuilder();
+    // terminologyId, fromTerminologyId, toTerminologyId, name
+    hashKey.append(mapping.getFromTerminologyId()).append(mapping.getTerminologyId())
+        .append(mapping.getToTerminologyId());
+    return TerminologyUtility.getUuid(hashKey.toString()).toString();
+}
+
+@Override
+public String getTerminologyId(MapSet mapSet) throws Exception {
+    StringBuilder hashKey = new StringBuilder();
+    // terminologyId, terminology, name
+    hashKey.append(mapSet.getTerminology()).append(mapSet.getTerminologyId())
+        .append(mapSet.getName());
+    return TerminologyUtility.getUuid(hashKey.toString()).toString();
+}
 }

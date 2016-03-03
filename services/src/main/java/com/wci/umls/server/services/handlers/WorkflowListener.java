@@ -12,14 +12,19 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 
+// TODO: Auto-generated Javadoc
 /**
  * Generically represents a validation check on a concept.
+ *
+ * @see WorkflowEvent
  */
 public interface WorkflowListener extends Configurable {
 
@@ -190,6 +195,22 @@ public interface WorkflowListener extends Configurable {
    * @param action the action
    */
   public void subsetChanged(Subset subset, Action action);
+  
+  /**
+   * Mapping changed.
+   *
+   * @param mapping the mapping
+   * @param action the action
+   */
+  public void mappingChanged(Mapping mapping, Action action);
+  
+  /**
+   * Map set changed.
+   *
+   * @param mapSet the map set
+   * @param action the action
+   */
+  public void mapSetChanged(MapSet mapSet, Action action);
 
   /**
    * Subset member changed.

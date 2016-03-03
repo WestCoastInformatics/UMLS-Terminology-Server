@@ -9,8 +9,6 @@ package com.wci.umls.server.model.content;
 
 import java.util.List;
 
-import javax.xml.transform.Source;
-
 import com.wci.umls.server.model.meta.Terminology;
 
 /**
@@ -32,78 +30,6 @@ public interface MapSet extends ComponentHasAttributes {
    * @param name the name
    */
   public void setName(String name);
-
-  /**
-   * Returns the "to" source.
-   * 
-   * @return the "to" source
-   */
-  public Source getToSource();
-
-  /**
-   * Sets the "to" source.
-   * 
-   * @param toSource the "to" source
-   */
-  public void setToSource(Source toSource);
-
-  /**
-   * Returns the "to" root source. This is needed for map sets that do not have
-   * a versioned "to" source.
-   * 
-   * @return the "to" root source
-   */
-  public String getToRootSource();
-
-  /**
-   * Sets the "to" root source.
-   * 
-   * @param toRootSource the "to" root source
-   */
-  public void setToRootSource(String toRootSource);
-
-  /**
-   * Returns the "from" source.
-   * 
-   * @return the "from" source
-   */
-  public Source getFromSource();
-
-  /**
-   * Sets the "from" source.
-   * 
-   * @param fromSource the "from" source
-   */
-  public void setFromSource(Source fromSource);
-
-  /**
-   * Returns the "from" root source. This is needed for map sets that do not
-   * have a versioned "from" source.
-   * 
-   * @return the "from" root source
-   */
-  public String getFromRootSource();
-
-  /**
-   * Sets the "from" root source.
-   * 
-   * @param fromRootSource the "from" root source
-   */
-  public void setFromRootSource(String fromRootSource);
-
-  /**
-   * Returns the complexity.
-   * 
-   * @return the complexity
-   */
-  public String getComplexity();
-
-  /**
-   * Sets the complexity.
-   * 
-   * @param complexity the complexity
-   */
-  public void setComplexity(String complexity);
 
   /**
    * Returns the from complexity.
@@ -134,6 +60,20 @@ public interface MapSet extends ComponentHasAttributes {
   public void setToComplexity(String toComplexity);
 
   /**
+   * Gets the complexity.
+   *
+   * @return the complexity
+   */
+  public String getComplexity();
+
+  /**
+   * Sets the complexity.
+   *
+   * @param complexity the new complexity
+   */
+  public void setComplexity(String complexity);
+
+  /**
    * Returns the to exhaustive.
    * 
    * @return the to exhaustive
@@ -162,42 +102,6 @@ public interface MapSet extends ComponentHasAttributes {
   public void setFromExhaustive(String fromExhaustive);
 
   /**
-   * Returns the separator code.
-   * 
-   * @return the separator code
-   */
-  public String getSeparatorCode();
-
-  /**
-   * Sets the separator code.
-   * 
-   * @param separatorCode the separator code
-   */
-  public void setSeparatorCode(String separatorCode);
-
-  /**
-   * Returns the umls separator.
-   * 
-   * @return the umls separator
-   */
-  public String getUmlsSeparator();
-
-  /**
-   * Sets the umls separator.
-   * 
-   * @param umlsSeparator the umls separator
-   */
-  public void setUmlsSeparator(String umlsSeparator);
-
-  /**
-   * Returns the {@link MapObject} used to represent a mapping to nothing. Only
-   * certain sources make use of this construct.
-   * 
-   * @return the {@link MapObject} used to represent a mapping to nothing
-   */
-  public MapObject getMapObjectForNullMapping();
-
-  /**
    * Sets the type.
    * 
    * @param type the type
@@ -210,14 +114,6 @@ public interface MapSet extends ComponentHasAttributes {
    * @return the type
    */
   public String getType();
-
-  /**
-   * Sets the {@link MapObject} used to represent a mapping to nothing.
-   * 
-   * @param toNullObject the {@link MapObject} used to represent a mapping to
-   *          nothing
-   */
-  public void setMapObjectForNullMapping(MapObject toNullObject);
 
   /**
    * Returns the mappings.
@@ -244,4 +140,75 @@ public interface MapSet extends ComponentHasAttributes {
    * @param mapping the mapping
    */
   public void removeMapping(Mapping mapping);
+
+  /**
+   * Gets the from terminology.
+   *
+   * @return the from terminology
+   */
+  public String getFromTerminology();
+
+  /**
+   * Sets the from terminology.
+   *
+   * @param fromTerminology the new from terminology
+   */
+  public void setFromTerminology(String fromTerminology);
+
+  /**
+   * Gets the to terminology.
+   *
+   * @return the to terminology
+   */
+  public String getToTerminology();
+
+  /**
+   * Sets the to terminology.
+   *
+   * @param toTerminology the new to terminology
+   */
+  public void setToTerminology(String toTerminology);
+
+  /**
+   * Gets the from version.
+   *
+   * @return the from version
+   */
+  public String getFromVersion();
+
+  /**
+   * Sets the from version.
+   *
+   * @param fromVersion the new from version
+   */
+  public void setFromVersion(String fromVersion);
+
+  /**
+   * Gets the to version.
+   *
+   * @return the to version
+   */
+  public String getToVersion();
+
+  /**
+   * Sets the to version.
+   *
+   * @param toVersion the new to version
+   */
+  public void setToVersion(String toVersion);
+
+  /**
+   * Gets the map version.
+   *
+   * @return the map version
+   */
+  public String getMapVersion();
+
+  /**
+   * Sets the map version.
+   *
+   * @param mapVersion the new map version
+   */
+  public void setMapVersion(String mapVersion);
+
 }

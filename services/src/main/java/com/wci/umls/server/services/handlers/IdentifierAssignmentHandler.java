@@ -14,6 +14,8 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
@@ -22,6 +24,7 @@ import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
 
+// TODO: Auto-generated Javadoc
 /**
  * Generically represents an algorithm for assigning identifiers.
  */
@@ -146,6 +149,24 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @throws Exception the exception
    */
   public String getTerminologyId(Subset subset) throws Exception;
+  
+  /**
+   * Gets the terminology id.
+   *
+   * @param mapping the mapping
+   * @return the terminology id
+   * @throws Exception the exception
+   */
+  public String getTerminologyId(Mapping mapping) throws Exception;
+  
+  /**
+   * Gets the terminology id.
+   *
+   * @param mapSet the map set
+   * @return the terminology id
+   * @throws Exception the exception
+   */
+  public String getTerminologyId(MapSet mapSet) throws Exception;
 
   /**
    * Returns the terminology id.
