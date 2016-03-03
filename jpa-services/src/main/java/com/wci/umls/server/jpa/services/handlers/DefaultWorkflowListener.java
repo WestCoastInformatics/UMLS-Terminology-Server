@@ -13,6 +13,8 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
@@ -171,5 +173,17 @@ public class DefaultWorkflowListener implements WorkflowListener {
   public String getName() {
     return "Default Workflow Listener";
   }
+
+@Override
+public void mappingChanged(Mapping mapping, Action action) {
+	// n/a
+	
+}
+
+@Override
+public void mapSetChanged(MapSet mapSet, Action action) {
+	// n/a
+	
+}
 
 }

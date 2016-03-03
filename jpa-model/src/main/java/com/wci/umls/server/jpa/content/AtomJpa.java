@@ -17,6 +17,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -28,6 +29,7 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -326,6 +328,12 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   })
   public String getName() {
     return name;
+  }
+  
+  @XmlTransient
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.NO )
+  public String getNameNorm() {
+    return ConfigUtility.normalize(name);
   }
 
   /* see superclass */

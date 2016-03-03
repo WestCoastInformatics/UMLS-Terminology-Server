@@ -30,6 +30,7 @@ import org.apache.lucene.util.Version;
 import org.hibernate.search.engine.ProjectionConstants;
 import org.hibernate.search.jpa.FullTextQuery;
 
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.PfsParameter;
@@ -95,9 +96,15 @@ public class DefaultSearchHandler implements SearchHandler {
   /* see superclass */
   @Override
   public <T extends HasId> List<T> getQueryResults(String terminology,
-    String version, String branch, String query, String literalField,
-    Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt,
-    EntityManager manager) throws Exception {
+    String version, String branch, String query, String literalField, Class<?> fieldNamesKey, Class<T> clazz,
+    PfsParameter pfs, int[] totalCt, EntityManager manager) throws Exception {
+    
+    
+    // if the literal field specified is a sort field, also search normalized field
+    String normalizedField = null;
+    if (literalField != null && literalField.endsWith("Sort")) {
+      normalizedField = literalField.substring(0,  literalField.length() - 4) + "Norm";
+    }
 
     // Build an escaped form of the query with wrapped quotes removed
     // This will be used for literal/exact searching
@@ -114,19 +121,32 @@ public class DefaultSearchHandler implements SearchHandler {
     // Build a combined query with an OR between query typed and exact match
     String combinedQuery = null;
     // For a fielded query search, simply perform the search as written
-    // no need for modifications. Also if no literal search field is supplied
-    if (fixedQuery.isEmpty() || query.contains(":") || literalField == null) {
+    // no need for modifications. Also if no literal or normalized search field
+    // is supplied
+    if (fixedQuery.isEmpty() || query.contains(":")
+        || (literalField == null && normalizedField == null)) {
       combinedQuery = fixedQuery;
     } else {
-      combinedQuery = (fixedQuery.isEmpty() ? "" : fixedQuery + " OR ")
-          + literalField + ":" + escapedQuery + "^20.0";
+      combinedQuery = fixedQuery.isEmpty() ? "" : fixedQuery;
+      if (normalizedField != null && !normalizedField.isEmpty()) {
+        combinedQuery += " OR " + normalizedField + ":\"" + ConfigUtility.normalize(fixedQuery) + "\"" + "^10.0";
+      }
+      if (literalField != null && !literalField.isEmpty()) {
+        combinedQuery += " OR " + literalField + ":" + escapedQuery + "^20.0";
+      }
+      
       // create an exact expansion entry. i.e. if the search term exactly
       // matches something in the acronyms file, then use additional "OR"
       // clauses
       if (acronymExpansionMap.containsKey(fixedQuery)) {
         for (String expansion : acronymExpansionMap.get(fixedQuery)) {
-          combinedQuery +=
-              " OR " + literalField + ":\"" + expansion + "\"" + "^20.0";
+          
+          if (normalizedField != null && !normalizedField.isEmpty()) {
+            combinedQuery += " OR " + normalizedField + ":\"" + ConfigUtility.normalize(expansion) + "\"" + "^10.0";
+          }
+          if (literalField != null && !literalField.isEmpty()) {
+            combinedQuery += " OR " + literalField + ":\"" + expansion + "\"" + "^20.0";
+          }
         }
       }
     }
@@ -192,6 +212,7 @@ public class DefaultSearchHandler implements SearchHandler {
       fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
           finalQuery.toString(), pfs, manager);
     } catch (ParseException | IllegalArgumentException e) {
+      e.printStackTrace();
       // If there's a parse exception, try the literal query
       Logger.getLogger(getClass()).debug("query = " + finalQuery);
       fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
@@ -233,8 +254,10 @@ public class DefaultSearchHandler implements SearchHandler {
           // replace with acronym or keep the same
           if (acronymExpansionMap.containsKey(token.toUpperCase())) {
             found = true;
-            newQuery.append(FieldedStringTokenizer
-                .join(new ArrayList<>(acronymExpansionMap.get(token)), " "));
+            List<String> tempList = new ArrayList<>();
+            tempList.add(
+                "\"" + acronymExpansionMap.get(token.toUpperCase()) + "\"");
+            newQuery.append(FieldedStringTokenizer.join(tempList, " "));
           } else {
             newQuery.append(token);
           }
@@ -281,7 +304,7 @@ public class DefaultSearchHandler implements SearchHandler {
         }
       }
 
-      // TODO: if still zero, do wildcard search at the end of each term of the
+      // if still zero, do wildcard search at the end of each term of the
       // original query
       // e.g. a* b* c*
       if (totalCt[0] == 0) {

@@ -23,6 +23,7 @@ import com.wci.umls.server.helpers.content.LexicalClassList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.helpers.content.SubsetList;
+import com.wci.umls.server.helpers.content.MappingList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreePositionList;
@@ -39,6 +40,8 @@ import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.GeneralConceptAxiom;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
@@ -50,6 +53,8 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
+
+// TODO: Auto-generated Javadoc
 /**
  * Generically represents a service for accessing content.
  */
@@ -1562,4 +1567,95 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public SearchHandler getSearchHandler(String key) throws Exception;
+
+  /**
+   * Adds the mapping.
+   *
+   * @param mapping the mapping
+   * @return the mapping
+   * @throws Exception the exception
+   */
+  public Mapping addMapping(Mapping mapping) throws Exception;
+
+  /**
+   * Update mapping.
+   *
+   * @param mapping the mapping
+   * @throws Exception the exception
+   */
+  public void updateMapping(Mapping mapping) throws Exception;
+
+  /**
+   * Removes the mapping.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeMapping(Long id) throws Exception;
+
+  /**
+   * Gets the mapping.
+   *
+   * @param id the id
+   * @return the mapping
+   * @throws Exception the exception
+   */
+  public Mapping getMapping(Long id) throws Exception;
+
+  /**
+   * Gets the mapping.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the mapping
+   * @throws Exception the exception
+   */
+  public Mapping getMapping(String terminologyId, String terminology, String version, String branch) throws Exception;
+
+  /**
+   * Find mappings for map set.
+   *
+   * @param mapSetId the map set id
+   * @param query the query
+   * @param pfs the pfs
+   * @return the mapping list
+   * @throws Exception the exception
+   */
+  public MappingList findMappingsForMapSet(Long mapSetId, String query, PfsParameter pfs) throws Exception;
+
+  /**
+   * Adds the map set.
+   *
+   * @param mapSet the map set
+   * @return the map set
+   * @throws Exception the exception
+   */
+  public MapSet addMapSet(MapSet mapSet) throws Exception;
+
+  /**
+   * Update map set.
+   *
+   * @param mapSet the map set
+   * @throws Exception the exception
+   */
+  public void updateMapSet(MapSet mapSet) throws Exception;
+
+  /**
+   * Removes the map set.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeMapSet(Long id) throws Exception;
+
+  /**
+   * Gets the map set.
+   *
+   * @param id the id
+   * @return the map set
+   * @throws Exception the exception
+   */
+  public MapSet getMapSet(Long id) throws Exception;
 }

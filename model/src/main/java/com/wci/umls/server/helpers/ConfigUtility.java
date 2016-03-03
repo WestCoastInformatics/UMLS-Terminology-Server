@@ -787,5 +787,17 @@ public class ConfigUtility {
     }
     return value.substring(0, 1).toUpperCase() + value.substring(1);
   }
+  
 
+  /**
+   * Converts string field to case-insensitive string of tokens with punctuation removed
+   * For example, "HIV Infection" -> "hiv infection", "1,2-hydroxy" -> "1 2 hydroxy"
+   * @param field the field to be normalized
+   * @return
+   */
+  public static String normalize(String value) {
+    
+    String[] splitStrs = value.toLowerCase().split("[ \t({[)}]-_!@#%&*\\:;\"',.?/~+=|<>$`^]");
+    return String.join(" ",splitStrs).trim().replaceAll(" +", " ");
+  }
 }
