@@ -248,6 +248,7 @@ public class AtomJpaUnitTest {
     tester.include("terminology");
     tester.include("version");
     tester.include("nameSort");
+    tester.include("nameNorm");
     tester.include("codeId");
     tester.include("descriptorId");
     tester.include("conceptId");
