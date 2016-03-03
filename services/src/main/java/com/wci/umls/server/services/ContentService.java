@@ -54,7 +54,6 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
 
-// TODO: Auto-generated Javadoc
 /**
  * Generically represents a service for accessing content.
  */

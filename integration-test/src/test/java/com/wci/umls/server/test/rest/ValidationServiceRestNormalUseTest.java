@@ -128,21 +128,4 @@ public class ValidationServiceRestNormalUseTest extends
     assertTrue(result.getWarnings().size() == 0);
   }
 
-  /**
-   * Test validation of a concept merge.
-   *
-   * @throws Exception the exception
-   */
-  // TODO: get this test working
-  /*
-   * @Test public void testNormalUseRestValidation005() throws Exception {
-   * Logger.getLogger(getClass()).debug("Start test");
-   * 
-   * ValidationResult result = validationService.validateMerge(umlsTerminology,
-   * umlsVersion, "C0000005", "C00000039", authToken);
-   * 
-   * assertTrue(result.getErrors().size() == 0);
-   * assertTrue(result.getWarnings().size() == 0); }
-   */
-
 }

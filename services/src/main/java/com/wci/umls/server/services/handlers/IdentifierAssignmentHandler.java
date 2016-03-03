@@ -24,7 +24,6 @@ import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
 
-// TODO: Auto-generated Javadoc
 /**
  * Generically represents an algorithm for assigning identifiers.
  */

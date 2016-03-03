@@ -63,15 +63,14 @@ public class ConfigUtilityTest {
 
     normStr = ConfigUtility.normalize("1 2 hydroxy");
     assertTrue(normStr.equals("1 2 hydroxy"));
-    
+
     // test parantheses and brackets
     normStr = ConfigUtility.normalize("(1 2) hydroxy");
     assertTrue(normStr.equals("1 2 hydroxy"));
-    
-    // TODO This breaks -- escaping [] characters in ConfigUtility causes other tests to break
+
     normStr = ConfigUtility.normalize("[1] 2) hydroxy");
-    // assertTrue(normStr.equals("1 2 hydroxy"));
-    
+    assertTrue(normStr.equals("1 2 hydroxy"));
+
     normStr = ConfigUtility.normalize("(1 {2} hydroxy");
     assertTrue(normStr.equals("1 2 hydroxy"));
 

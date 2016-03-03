@@ -288,7 +288,6 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       //
       releaseVersion = getReleaseVersion(directOntology);
       if (releaseVersion != null) {
-        // TODO: consider other options
         try {
           releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
         } catch (Exception e) {
@@ -1369,17 +1368,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       rela.setExpandedForm(prop.getIRI().toString());
 
-      // TODO: reenable for Owl DL features
-      // NOT in OWL EL 2 - only for data properties
-      // rela.setFunctional(ontology.getFunctionalObjectPropertyAxioms(prop)
-      // .size() != 0);
-      // NOT in OWL EL 2
-      // rela.setInverseFunctional(ontology
-      // .getInverseFunctionalObjectPropertyAxioms(prop).size() != 0);
-
-      // NOT in OWL EL 2
-      // rela.setIrreflexive(ontology.getIrreflexiveObjectPropertyAxioms(prop)
-      // .size() != 0);
+      
       rela.setReflexive(ontology.getReflexiveObjectPropertyAxioms(prop).size() != 0);
 
       Logger.getLogger(getClass()).debug(
@@ -2377,8 +2366,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    */
   @SuppressWarnings("static-method")
   private String getTerminologyId(IRI iri) {
-    // TODO: we probably need to save information about the parts of the URL we
-    // are stripping
+
     if (iri.toString().contains("#")) {
       // everything after the last #
       return iri.toString().substring(iri.toString().lastIndexOf("#") + 1);

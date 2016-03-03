@@ -55,8 +55,6 @@ public class Handler008Test {
   public void testHandlerNormalUse008() throws Exception {
     Logger.getLogger(getClass()).info("TEST testHandlerNormalUse008");
 
-    // TODO: flesh out. for each data type
-
   }
 
   /*
@@ -80,7 +78,6 @@ public class Handler008Test {
       // do nothing
     }
 
-    // TODO: flesh out
 
   }
 
@@ -94,8 +91,6 @@ public class Handler008Test {
     // Call computePreferredName(new ConceptJpa())
     // TEST: no exceptions
     handlerService.getTerminologyId(new ConceptJpa());
-
-    // TODO: flesh out
 
   }
 

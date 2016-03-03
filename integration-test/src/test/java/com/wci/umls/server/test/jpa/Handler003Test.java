@@ -56,8 +56,6 @@ public class Handler003Test {
   public void testHandlerNormalUse003() throws Exception {
     Logger.getLogger(getClass()).info("TEST testHandlerNormalUse003");
 
-    // TODO: test
-
   }
 
   /*
@@ -81,7 +79,7 @@ public class Handler003Test {
       // do nothing
     }
 
-    // TODO: flsh out
+
   }
 
   /**
@@ -94,7 +92,6 @@ public class Handler003Test {
     // Call getTerminologyId(new ConceptJpa())
     // TEST: returns null
     assertEquals(handlerService.getTerminologyId(new ConceptJpa()), null);
-    // TODO: flesh out
   }
 
   /**

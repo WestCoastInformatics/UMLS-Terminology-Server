@@ -141,7 +141,6 @@ public class ProjectClientRest extends RootClientRest implements
     }
 
     // converting to object
-    // TODO
     // ConceptListJpa list =
     // (ConceptListJpa) ConfigUtility.getGraphForString(resultString,
     // ConceptListJpa.class);

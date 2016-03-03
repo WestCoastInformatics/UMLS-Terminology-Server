@@ -279,7 +279,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     if (searchHandlerNames == null) {
-      throw new Exception("Search handler names did not properly initialize, serious error.");
+      throw new Exception(
+          "Search handler names did not properly initialize, serious error.");
     }
   }
 
@@ -2563,7 +2564,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  // TODO CHeck if this function unused, references invalid sort field 'atomsName.sort' (should be atoms.nameSort)
   private <T extends AtomClass> SearchResultList findForGeneralQueryHelper(
     String luceneQuery, String jqlQuery, String branch, PfsParameter pfs,
     Class<?> fieldNamesKey, Class<T> clazz) throws Exception {
@@ -2579,7 +2579,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       SearchHandler searchHandler = getSearchHandler("");
       luceneQueryClasses =
           searchHandler.getQueryResults("", "", branch, luceneQuery,
-              "atomsName.sort",fieldNamesKey, clazz, pfs, totalCt, manager);
+              "atomsName.sort", fieldNamesKey, clazz, pfs, totalCt, manager);
       luceneQueryFlag = true;
     }
 
@@ -2975,7 +2975,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void clearBranch(String branch) {
-    // TODO: part of implementing branching
+ 
   }
 
   /* see superclass */
@@ -4231,7 +4231,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return ConfigUtility.newStandardHandlerInstanceWithConfiguration(
         "search.handler", ConfigUtility.DEFAULT, SearchHandler.class);
   }
-  
+
   /* see superclass */
   @Override
   public Mapping addMapping(Mapping mapping) throws Exception {
@@ -4312,23 +4312,21 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public MapSet getMapSet(Long id) throws Exception {
-	    Logger.getLogger(getClass())
-	        .debug("Content Service - get mapSet " + id);
-	    return getComponent(id, MapSetJpa.class);
+    Logger.getLogger(getClass()).debug("Content Service - get mapSet " + id);
+    return getComponent(id, MapSetJpa.class);
   }
-  
+
   /* see superclass */
   @Override
   public Mapping getMapping(Long id) throws Exception {
-	    Logger.getLogger(getClass())
-	        .debug("Content Service - get mapping " + id);
-	    return getComponent(id, MappingJpa.class);
+    Logger.getLogger(getClass()).debug("Content Service - get mapping " + id);
+    return getComponent(id, MappingJpa.class);
   }
-  
+
   /* see superclass */
   @Override
-  public Mapping getMapping(String terminologyId, String terminology, String version,
-    String branch) throws Exception {
+  public Mapping getMapping(String terminologyId, String terminology,
+    String version, String branch) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get mapping "
         + terminologyId + "/" + terminology + "/" + version + "/" + branch);
     return getComponent(terminologyId, terminology, version, branch,
@@ -4342,31 +4340,28 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @Override
   public MappingList findMappingsForMapSet(Long mapSetId, String query,
     PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - find mappings " + mapSetId 
-             + ", query=" + query);
-    
-        final StringBuilder sb = new StringBuilder();
-        if (query != null && !query.equals("")) {
-          sb.append(query).append(" AND ");
-        }
-        if (mapSetId == null) {
-          sb.append("mapSetId:[* TO *]");
-        } else {
-          sb.append("mapSetId:" + mapSetId);
-        }
+    Logger.getLogger(getClass()).debug(
+        "Content Service - find mappings " + mapSetId + ", query=" + query);
 
-        int[] totalCt = new int[1];
-        final List<Mapping> list =
-            (List<Mapping>) getQueryResults(sb.toString(),
-                MappingJpa.class, MappingJpa.class, pfs,
-                totalCt);
-        final MappingList result = new MappingListJpa();
-        result.setTotalCount(totalCt[0]);
-        result.setObjects(list);
-        return result;
+    final StringBuilder sb = new StringBuilder();
+    if (query != null && !query.equals("")) {
+      sb.append(query).append(" AND ");
+    }
+    if (mapSetId == null) {
+      sb.append("mapSetId:[* TO *]");
+    } else {
+      sb.append("mapSetId:" + mapSetId);
+    }
+
+    int[] totalCt = new int[1];
+    final List<Mapping> list = (List<Mapping>) getQueryResults(sb.toString(),
+        MappingJpa.class, MappingJpa.class, pfs, totalCt);
+    final MappingList result = new MappingListJpa();
+    result.setTotalCount(totalCt[0]);
+    result.setObjects(list);
+    return result;
   }
-  
+
   /* see superclass */
   @Override
   public MapSet addMapSet(MapSet mapSet) throws Exception {
@@ -4432,8 +4427,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void removeMapSet(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - remove mapSet " + id);
+    Logger.getLogger(getClass()).debug("Content Service - remove mapSet " + id);
     // Remove the component
     MapSet mapSet = removeComponent(id, MapSetJpa.class);
 

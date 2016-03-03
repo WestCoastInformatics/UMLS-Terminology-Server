@@ -20,7 +20,6 @@ import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 
-// TODO: Auto-generated Javadoc
 /**
  * Generically represents a validation check on a concept.
  *

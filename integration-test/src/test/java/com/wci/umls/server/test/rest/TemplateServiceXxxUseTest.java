@@ -15,12 +15,10 @@ import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
 
 /**
- * TODO: edit the description Implementation of the
- * "Template Service REST XXX Use" Test Cases.
+ * Implementation of the Template Service REST Use Test Cases.
  */
 public class TemplateServiceXxxUseTest {
 
-  // TODO: edit the service to use
   /** The service. */
   @SuppressWarnings("unused")
   private SecurityClientRest service;
@@ -42,26 +40,23 @@ public class TemplateServiceXxxUseTest {
    */
   @Before
   public void setup() throws Exception {
-    // TODO: Open the service (or services) you want to use
     service = new SecurityClientRest(ConfigUtility.getConfigProperties());
   }
 
   /**
-   * TODO: edit this comment to match the test case Test Xxx use of the yyy of
+   * 
    * {@link SecurityServiceRest}.
    * 
    * @throws Exception the exception
    */
   @Test
-  // TODO: Edit this method name to match the test case
   public void testXxxUseRestTemplate001() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
-    // TODO: implement the test case
+    
 
   }
 
-  // TODO: have additional methods like the one above as needed
 
   /**
    * Teardown.

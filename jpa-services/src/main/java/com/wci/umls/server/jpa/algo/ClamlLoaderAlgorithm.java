@@ -907,9 +907,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
               // Create an atom relationship between the "id"
               // and the "preferred" rubric of the "parent code"
             }
-            // tokens[3]; -- nothing to do with tokens[3] at this point
-            // TODO: could make an attribute out of it ? or a RELA (and relType
-            // would be "dagger" or "reference", etc).
+           
 
             if (type.equals("aster"))
               type = "* (asterisk)";

@@ -174,9 +174,7 @@ public class OwlApiClassifier implements Classifier {
     this.terminology = terminology;
     this.version = version;
     this.project = project;
-    // TODO: implement this for use within the term server,
-    // not needed for loader
-    // throw new UnsupportedOperationException();
+
   }
 
   /* see superclass */
@@ -189,8 +187,6 @@ public class OwlApiClassifier implements Classifier {
   @Override
   public void addModifiedConcepts(Set<Concept> modifiedConcepts)
     throws Exception {
-    // TODO: implement this for use within the term server,
-    // not needed for loader
     throw new UnsupportedOperationException();
   }
 
@@ -227,8 +223,8 @@ public class OwlApiClassifier implements Classifier {
       // want to print out the unsatisfiable classes excluding owl:Nothing,
       // and we can used a convenience method on the node to get these
       Set<OWLClass> unsatisfiable = bottomNode.getEntitiesMinusBottom();
-      Logger.getLogger(getClass()).info(
-          "  List unsatisfiable classes - equal to owl:Nothing");
+      Logger.getLogger(getClass())
+          .info("  List unsatisfiable classes - equal to owl:Nothing");
       if (!unsatisfiable.isEmpty()) {
         for (OWLClass owlClass : unsatisfiable) {
           Logger.getLogger(getClass()).error("    class = " + owlClass);
@@ -280,7 +276,6 @@ public class OwlApiClassifier implements Classifier {
   @Override
   public List<ConceptRelationship> getInferredHierarchicalRelationships()
     throws Exception {
-    // TODO: implment for term server
     return null;
   }
 
@@ -321,8 +316,7 @@ public class OwlApiClassifier implements Classifier {
    */
   @Override
   public List<ConceptRelationship> getNewInferredHierarchicalRelationships() {
-    // TODO: implement this for use within the term server,
-    // not needed for loader
+
     throw new UnsupportedOperationException();
   }
 
@@ -334,8 +328,6 @@ public class OwlApiClassifier implements Classifier {
    */
   @Override
   public List<ConceptRelationship> getOldInferredHierarchicalRelationships() {
-    // TODO: implement this for use within the term server,
-    // not needed for loader
     throw new UnsupportedOperationException();
   }
 
@@ -343,7 +335,7 @@ public class OwlApiClassifier implements Classifier {
   @Override
   public List<ConceptRelationship> getInferredRelationships() throws Exception {
     parentsVisited = new HashSet<>();
-    // TODO
+
     return null;
   }
 
@@ -353,7 +345,8 @@ public class OwlApiClassifier implements Classifier {
    * @param service the service
    * @throws Exception the exception
    */
-  public void addInferredRelationships(HistoryService service) throws Exception {
+  public void addInferredRelationships(HistoryService service)
+    throws Exception {
     parentsVisited = new HashSet<>();
     if (reasoner.getTopClassNode().getEntities().size() != 1) {
       throw new Exception("Unexpected equivalent classes at top node");
@@ -369,21 +362,22 @@ public class OwlApiClassifier implements Classifier {
     //
     // Use reasoner to find all sub-classes of the LHS.
     Map<String, Set<ConceptRelationship>> gcaRels = new HashMap<>();
-    for (GeneralConceptAxiom axiom : service.getGeneralConceptAxioms(
-        terminology, version, Branch.ROOT).getObjects()) {
+    for (GeneralConceptAxiom axiom : service
+        .getGeneralConceptAxioms(terminology, version, Branch.ROOT)
+        .getObjects()) {
 
       // Get subclasses of the LHS
-      // TODO: may need to "get descendants"
-      for (OWLClass owlClass : reasoner.getSubClasses(
-          exprMap.get(axiom.getLeftHandSide().getTerminologyId()), true)
+      for (OWLClass owlClass : reasoner
+          .getSubClasses(
+              exprMap.get(axiom.getLeftHandSide().getTerminologyId()), true)
           .getFlattened()) {
         Concept concept = getConceptForOwlClass(owlClass, service);
         if (!gcaRels.containsKey(concept.getTerminologyId())) {
           gcaRels.put(concept.getTerminologyId(),
               new HashSet<ConceptRelationship>());
         }
-        gcaRels.get(concept.getTerminologyId()).addAll(
-            axiom.getRightHandSide().getRelationships());
+        gcaRels.get(concept.getTerminologyId())
+            .addAll(axiom.getRightHandSide().getRelationships());
       }
 
     }
@@ -432,8 +426,9 @@ public class OwlApiClassifier implements Classifier {
       // Bail if not all parents have been looked at yet
       final Set<Concept> parents = new HashSet<>();
       boolean allParentsVisited = true;
-      for (OWLClass parClass : reasoner.getSuperClasses(
-          exprMap.get(chdConcept.getTerminologyId()), true).getFlattened()) {
+      for (OWLClass parClass : reasoner
+          .getSuperClasses(exprMap.get(chdConcept.getTerminologyId()), true)
+          .getFlattened()) {
         // Skip the top
         if (parClass.isTopEntity()) {
           continue;
@@ -465,9 +460,8 @@ public class OwlApiClassifier implements Classifier {
       }
 
       // Handle children as parents
-      localCt +=
-          inferRelationships(chdClass, gcaRels, reasoner, ontology, service,
-              localCt);
+      localCt += inferRelationships(chdClass, gcaRels, reasoner, ontology,
+          service, localCt);
     }
 
     return localCt;
@@ -504,7 +498,8 @@ public class OwlApiClassifier implements Classifier {
       }
     }
     for (ConceptRelationship chdRel : chd.getRelationships()) {
-      if (chdRel.isStated() && !chdRel.isObsolete() && !chdRel.isHierarchical()) {
+      if (chdRel.isStated() && !chdRel.isObsolete()
+          && !chdRel.isHierarchical()) {
         candidateRels.add(chdRel);
       }
     }
@@ -565,7 +560,8 @@ public class OwlApiClassifier implements Classifier {
    * @param reasoner the reasoner
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
-  private boolean isAncestor(OWLClass anc, OWLClass desc, OWLReasoner reasoner) {
+  private boolean isAncestor(OWLClass anc, OWLClass desc,
+    OWLReasoner reasoner) {
 
     Set<OWLClass> parents = reasoner.getSuperClasses(desc, true).getFlattened();
     if (parents.contains(anc)) {
@@ -676,15 +672,15 @@ public class OwlApiClassifier implements Classifier {
     for (ConceptRelationship rel : concept1.getRelationships()) {
       // ASSUMPTION: all rels are stated
       if (!rel.isStated()) {
-        throw new Exception("Unexpected non stated rel: " + rel + ", "
-            + concept2);
+        throw new Exception(
+            "Unexpected non stated rel: " + rel + ", " + concept2);
       }
       boolean typeNotFound = true;
       for (ConceptRelationship rel2 : concept2.getRelationships()) {
         // ASSUMPTION: all rels are stated
         if (!rel.isStated()) {
-          throw new Exception("Unexpected non stated rel: " + rel + ", "
-              + concept2);
+          throw new Exception(
+              "Unexpected non stated rel: " + rel + ", " + concept2);
         }
         // compare targets
         Integer result =
@@ -728,8 +724,8 @@ public class OwlApiClassifier implements Classifier {
         break;
       }
     }
-    // System.out.println("    " + a + " " + b + " " + c + " " + d + " " + e + " "
-//        + f + " " + g + " " + g);
+    // System.out.println(" " + a + " " + b + " " + c + " " + d + " " + e + " "
+    // + f + " " + g + " " + g);
 
     // concept1 is more specific than concept2 if
     if ((a || c) && !d && !e && !h) {
@@ -778,8 +774,6 @@ public class OwlApiClassifier implements Classifier {
    */
   @Override
   public List<ConceptRelationship> getNewInferredRelationships() {
-    // TODO: implement this for use within the term server,
-    // not needed for loader
     throw new UnsupportedOperationException();
   }
 
@@ -791,8 +785,6 @@ public class OwlApiClassifier implements Classifier {
    */
   @Override
   public List<ConceptRelationship> getOldInferredRelationships() {
-    // TODO: implement this for use within the term server,
-    // not needed for loader
     throw new UnsupportedOperationException();
   }
 
@@ -835,8 +827,7 @@ public class OwlApiClassifier implements Classifier {
    */
   @SuppressWarnings("static-method")
   private String getTerminologyId(IRI iri) {
-    // TODO: we probably need to save information about the parts of the URL we
-    // are stripping
+    
     if (iri.toString().contains("#")) {
       // everything after the last #
       return iri.toString().substring(iri.toString().lastIndexOf("#") + 1);
@@ -849,7 +840,7 @@ public class OwlApiClassifier implements Classifier {
   }
 
   /**
-   * Returns the sub class of relationship. TODO: consider adding to OwlUtility
+   * Returns the sub class of relationship.
    *
    * @param fromConcept the from concept
    * @param toConcept the to concept
@@ -890,7 +881,6 @@ public class OwlApiClassifier implements Classifier {
     component.setPublished(true);
     component.setObsolete(false);
     component.setSuppressible(false);
-    // TODO: optimize this or pass it in
     component.setLastModified(new Date());
     component.setTimestamp(new Date());
     component.setLastModifiedBy("loader");

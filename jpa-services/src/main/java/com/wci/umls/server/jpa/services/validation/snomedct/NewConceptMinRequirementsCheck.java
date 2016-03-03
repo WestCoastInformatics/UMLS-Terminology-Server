@@ -20,7 +20,7 @@ public class NewConceptMinRequirementsCheck extends AbstractValidationCheck {
     ValidationResult result = new ValidationResultJpa();
 
     if (!c.isObsolete()) {
-      // TODO
+      
     }
     return result;
   }

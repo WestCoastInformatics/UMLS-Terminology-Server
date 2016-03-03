@@ -123,7 +123,7 @@ public class LabelSetMarkedParentAlgorithm extends ContentServiceJpa implements
 
     // Go through each concept in the subset
     // Look up and save all of the ancestors
-    // TODO: this can be more efficient with an HQL Query
+    
     Logger.getLogger(getClass()).info("  Lookup all ancestors");
     Set<Long> ancestorConceptIds = new HashSet<>();
     Set<Long> conceptIds = new HashSet<>();

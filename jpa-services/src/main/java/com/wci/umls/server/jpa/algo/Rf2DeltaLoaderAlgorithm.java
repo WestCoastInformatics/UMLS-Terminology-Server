@@ -1372,7 +1372,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    * @throws Exception the exception
    */
   private void loadComplexMapRefSetMembers() throws Exception {
-    // TODO: do when we have mapping objects
+    
   }
 
   /**
@@ -1381,7 +1381,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
    * @throws Exception the exception
    */
   private void loadExtendedMapRefSetMembers() throws Exception {
-    // TODO: do when we have mapping objects
+    
   }
 
   /**
@@ -2439,7 +2439,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa implements
         throw new Exception("Unexpected mismatching attribute: " + a1.getName());
       }
     }
-    // TODO: determine if c2 has anything not in c1
+    
   }
 
   /**

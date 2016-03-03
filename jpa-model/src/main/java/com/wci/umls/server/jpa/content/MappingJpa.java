@@ -31,7 +31,6 @@ import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.RelationshipType;
 
-// TODO: Auto-generated Javadoc
 /**
  * JPA-enabled implementation of {@link Mapping}.
  */

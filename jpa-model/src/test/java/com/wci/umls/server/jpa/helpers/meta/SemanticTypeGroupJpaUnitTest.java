@@ -5,7 +5,7 @@ package com.wci.umls.server.jpa.helpers.meta;
 
 /**
  * Unit testing for SemanticTypeGroupJpa.
- * TODO: deal with this
+ * 
  */
 public class SemanticTypeGroupJpaUnitTest {
   //

@@ -73,8 +73,7 @@ public class HelperUnit011Test {
     assertTrue(map1.hashCode() == map3.hashCode());
     assertTrue(map1.toString().equals(map3.toString()));
 
-    // XmlSerializationTester tester4 = new XmlSerializationTester(map1);
-    // TODO: assertTrue(tester4.testXmlSerialization());
+  
 
     map1.toString();
   }

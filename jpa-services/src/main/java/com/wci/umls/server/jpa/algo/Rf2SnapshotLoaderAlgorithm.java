@@ -1176,8 +1176,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
    */
   private void loadComplexMapRefSets() throws Exception {
 
-    // TODO: for now terminology server doesn't load mappings.
-    // later development of mapping objects is needed
   }
 
   /**
@@ -1186,8 +1184,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
    * @throws Exception the exception
    */
   private void loadExtendedMapRefSets() throws Exception {
-    // TODO: for now terminology server doesn't load mappings.
-    // later development of mapping objects is needed
+  
   }
 
   /**

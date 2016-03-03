@@ -121,7 +121,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertTrue(c.getUsesRelationshipIntersection());
     assertEquals("PUBLISHED", c.getWorkflowStatus());
     assertEquals("loader", c.getLastModifiedBy());
-    // TODO: test atoms as well.
 
     // Test SNOMEDCT_US concept
     Logger.getLogger(getClass()).info(
@@ -151,7 +150,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertTrue(c.getUsesRelationshipIntersection());
     assertEquals("PUBLISHED", c.getWorkflowStatus());
     assertEquals("loader", c.getLastModifiedBy());
-    // TODO: test atoms too
+
 
     // Test UMLS concept
 
@@ -219,8 +218,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals("D019226", d.getTerminologyId());
     assertEquals("PUBLISHED", d.getWorkflowStatus());
     assertEquals("loader", d.getLastModifiedBy());
-    // TODO: test atoms as well.
-
   }
 
   /**
@@ -254,7 +251,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals("D019226", c.getTerminologyId());
     assertEquals("PUBLISHED", c.getWorkflowStatus());
     assertEquals("loader", c.getLastModifiedBy());
-    // TODO: test atoms as well.
+
 
     // Test SNOMEDCT_US concept
     Logger.getLogger(getClass()).info(
@@ -277,7 +274,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals("40667002", c.getTerminologyId());
     assertEquals("PUBLISHED", c.getWorkflowStatus());
     assertEquals("loader", c.getLastModifiedBy());
-    // TODO: test atoms too
   }
 
   /**
@@ -379,7 +375,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     }
     assertEquals(3, foundCt);
 
-    // TODO: test pfs parameter "active only" and "inactive only" features
+
   }
 
   /**
@@ -467,7 +463,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     }
     assertEquals(3, foundCt);
 
-    // TODO: test pfs parameter "active only" and "inactive only" features
+   
 
   }
 
@@ -921,9 +917,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
 
-    // TODO: test pfs parameter "active only" and "inactive only" features
-    // TODO: need to test multiple search criteria in conjunction
-
+  
   }
 
   /**
@@ -1161,9 +1155,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     }
     assertEquals(10, searchResults.getCount());
 
-    // TODO: need to test search criteria for descriptor relationships
-    // TODO: need to test multiple search criteria in conjunction
-    // TODO: test pfs parameter "active only" and "inactive only" features
+    
   }
 
   /**
@@ -1403,15 +1395,14 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     }
     assertEquals(10, searchResults.getCount());
 
-    // TODO: test pfs parameter "active only" and "inactive only" features
-
+    
   }
 
   /**
    * Test ancestor/descendant for concepts.
    *
    * @throws Exception the exception
-   */
+   */   
   @Test
   public void testNormalUseRestContent011() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
@@ -1464,10 +1455,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals(3, conceptList.getTotalCount());
     assertEquals(2, conceptList.getCount());
 
-    // TODO: need sort order check (by name)
-    // TODO: need "parents only" and "chlidren only" checks. (this also needs
-    // implementing)
-    // TODO: test pfs parameter "active only" and "inactive only" features
 
   }
 
@@ -1529,12 +1516,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         "    totalResults = " + descriptorList.getTotalCount());
     assertEquals(4, descriptorList.getTotalCount());
     assertEquals(2, descriptorList.getCount());
-
-    // TODO: need sort order check (by name)
-    // TODO: need "parents only" and "chlidren only" checks. (this also needs
-    // implementing)
-    // TODO: test pfs parameter "active only" and "inactive only" features
-
   }
 
   /**
@@ -1545,7 +1526,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   @Test
   public void testNormalUseRestContent013() throws Exception {
     // n/a - no code ancestors or descendants
-    // TODO: consider sample data from SAMPLE_2014AB
   }
 
   /**
@@ -1844,7 +1824,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertTrue(PfsParameterForComponentTest.testSort(list, pfs,
         AbstractRelationship.class));
 
-    // TODO: test pfs parameter "active only" and "inactive only" features
+   
 
   }
 
@@ -2013,7 +1993,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   public void testNormalUseRestContent025() throws Exception {
     Logger.getLogger(getClass()).info("Start test");
     // n/a - no sample data
-    // TODO: consider sample data from SAMPLE_2014AB
+   
   }
 
   /**
@@ -2305,7 +2285,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       assertTrue(leaf.getNodeName().toLowerCase().contains("a"));
     }
 
-    // TODO: consider other cases of this
+
 
   }
 
@@ -2349,8 +2329,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       assertTrue(leaf.getNodeName().toLowerCase().contains("pneumonia"));
     }
 
-    // TODO: consider other cases of this, may need bigger data set
-
   }
 
   /**
@@ -2363,8 +2341,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("Start test");
 
     // n/a - no sample data
-    // TODO: consider sample data from SAMPLE_2014AB
-  }
+   }
 
   /**
    * Test "find" concept tree children

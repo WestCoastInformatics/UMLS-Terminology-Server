@@ -33,7 +33,7 @@ public class SnomedctGraphResolutionHandler extends
   /** The atv prop. */
   private static Properties prop = null;
 
-  // TODO: have a setProperties and add these to config.properites
+
   /** The terminology. */
   private static String terminology = "SNOMEDCT";
 
