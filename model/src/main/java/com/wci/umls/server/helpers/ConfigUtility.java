@@ -83,6 +83,14 @@ public class ConfigUtility {
   public final static FastDateFormat DATE_FORMAT3 =
       FastDateFormat.getInstance("yyyy");
 
+  /** The Constant PUNCTUATION. */
+  public final static String PUNCTUATION =
+      " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^";
+
+  /** The Constant PUNCTUATION_REGEX. */
+  public final static String PUNCTUATION_REGEX =
+      "[ \\t\\-\\(\\{\\[\\)\\}\\]_!@#%&\\*\\\\:;\\\"',\\.\\?\\/~\\+=\\|<>$`^]";
+
   /** The config. */
   public static Properties config = null;
 
