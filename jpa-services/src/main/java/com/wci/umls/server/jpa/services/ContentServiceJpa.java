@@ -2557,6 +2557,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
+  // TODO CHeck if this function unused, references invalid sort field 'atomsName.sort' (should be atoms.nameSort)
   private <T extends AtomClass> SearchResultList findForGeneralQueryHelper(
     String luceneQuery, String jqlQuery, String branch, PfsParameter pfs,
     Class<?> fieldNamesKey, Class<T> clazz) throws Exception {
@@ -2572,7 +2573,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       SearchHandler searchHandler = getSearchHandler("");
       luceneQueryClasses =
           searchHandler.getQueryResults("", "", branch, luceneQuery,
-              "atomsName.sort", fieldNamesKey, clazz, pfs, totalCt, manager);
+              "atomsName.sort",fieldNamesKey, clazz, pfs, totalCt, manager);
       luceneQueryFlag = true;
     }
 
