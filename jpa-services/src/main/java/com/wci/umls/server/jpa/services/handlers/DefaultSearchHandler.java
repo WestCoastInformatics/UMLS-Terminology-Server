@@ -233,8 +233,11 @@ public class DefaultSearchHandler implements SearchHandler {
           // replace with acronym or keep the same
           if (acronymExpansionMap.containsKey(token.toUpperCase())) {
             found = true;
+            List<String> newList = new ArrayList<>();
+            // TODO Rename this something more dignified if it works
+            newList.add("\"" + acronymExpansionMap.get(token.toUpperCase()) + "\"");
             newQuery.append(FieldedStringTokenizer
-                .join(new ArrayList<>(acronymExpansionMap.get(token)), " "));
+                .join(newList, " "));
           } else {
             newQuery.append(token);
           }
