@@ -155,7 +155,7 @@ public class ConfigUtility {
       if (config == null)
         config = ConfigUtility.getConfigProperties();
 
-      return !"true".equals(config.getProperty("analysis.mode").toString());
+      return "true".equals(config.getProperty("analysis.mode").toString());
     } catch (Throwable e) {
       return false;
     }
