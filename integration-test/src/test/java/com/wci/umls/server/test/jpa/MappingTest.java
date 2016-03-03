@@ -27,7 +27,6 @@ import com.wci.umls.server.services.ContentService;
  */
 public class MappingTest {
 
-
   /**
    * Setup class.
    */
@@ -41,7 +40,7 @@ public class MappingTest {
    */
   @Before
   public void setup() {
-
+    // n/a
   }
 
   /**
@@ -72,12 +71,10 @@ public class MappingTest {
     mapSet.setVersion("20150131");
     mapSet.setTerminologyId("11111");
     mapSet.setTimestamp(new Date());
-    
-    
+
     mapSet = contentService.addMapSet(mapSet);
     Logger.getLogger(getClass()).info(mapSet);
-    assertEquals(mapSet.getName(),
-            "Test MapSet");
+    assertEquals(mapSet.getName(), "Test MapSet");
     Mapping mapping = new MappingJpa();
     mapping.setAdvice("advice");
     mapping.setFromIdType("CUI");
@@ -94,15 +91,12 @@ public class MappingTest {
     mapping.setTimestamp(new Date());
     mapping.setMapSet(mapSet);
     mapping = contentService.addMapping(mapping);
-    
+
     contentService.removeMapping(mapping.getId());
-    
+
     contentService.removeMapSet(mapSet.getId());
-    
 
   }
-
-
 
   /**
    * Teardown.

@@ -33,16 +33,15 @@ public class ConfigUtilityTest {
    */
   @Before
   public void setup() {
-
+    // n/a
   }
 
   /**
-   * Test normal use of the helper object.
-   *
+   * Test {@link ConfigUtility#normalize(String)}.
    * @throws Exception the exception
    */
   @Test
-  public void testHelperNormalUse001() throws Exception {
+  public void testHelperNormalize() throws Exception {
     Logger.getLogger(getClass()).info("TEST ConfigUtility normalize");
 
     String normStr;
@@ -67,9 +66,8 @@ public class ConfigUtilityTest {
     // test parantheses and brackets
     normStr = ConfigUtility.normalize("(1 2) hydroxy");
     assertTrue(normStr.equals("1 2 hydroxy"));
-
     normStr = ConfigUtility.normalize("[1] 2) hydroxy");
-    assertTrue(normStr.equals("1 2 hydroxy"));
+   assertTrue(normStr.equals("1 2 hydroxy"));
 
     normStr = ConfigUtility.normalize("(1 {2} hydroxy");
     assertTrue(normStr.equals("1 2 hydroxy"));

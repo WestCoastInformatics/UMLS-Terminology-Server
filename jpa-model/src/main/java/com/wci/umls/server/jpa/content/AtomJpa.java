@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -329,9 +329,14 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   public String getName() {
     return name;
   }
-  
+
+  /**
+   * Returns the name norm.
+   *
+   * @return the name norm
+   */
   @XmlTransient
-  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.NO )
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.NO)
   public String getNameNorm() {
     return ConfigUtility.normalize(name);
   }

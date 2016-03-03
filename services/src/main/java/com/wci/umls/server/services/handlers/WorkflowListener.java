@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services.handlers;
 
@@ -22,8 +22,6 @@ import com.wci.umls.server.model.content.SubsetMember;
 
 /**
  * Generically represents a validation check on a concept.
- *
- * @see WorkflowEvent
  */
 public interface WorkflowListener extends Configurable {
 

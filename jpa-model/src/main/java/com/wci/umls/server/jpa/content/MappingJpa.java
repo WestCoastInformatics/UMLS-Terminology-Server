@@ -1,5 +1,5 @@
-/**
- * Copyright 2015 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -37,7 +38,7 @@ import com.wci.umls.server.model.meta.RelationshipType;
 @Entity
 @Table(name = "mappings", uniqueConstraints = @UniqueConstraint(columnNames = {
     "fromTerminologyId", "toTerminologyId", "terminology", "version", "id"
-}))
+}) )
 @Audited
 @Indexed
 @XmlRootElement(name = "mapping")
@@ -50,9 +51,11 @@ public class MappingJpa extends AbstractComponentHasAttributes
   private MapSet mapSet;
 
   /** The from terminology id. */
+  @Column(nullable = false)
   private Long fromTerminologyId;
 
   /** The to terminology id. */
+  @Column(nullable = false)
   private Long toTerminologyId;
 
   /** The from id type. */
@@ -64,16 +67,16 @@ public class MappingJpa extends AbstractComponentHasAttributes
   private String toIdType;
 
   /** The advice. */
-  @Column(nullable = false)
+  @Column(nullable = false, length = 4000)
   private String advice;
 
   /** The rule. */
-  @Column(nullable = false)
+  @Column(nullable = false, length = 4000)
   private String rule;
 
   /** The group. */
-  @Column(nullable = false)
-  private String mapGroup;
+  @Column(name = "mapGroup", nullable = false)
+  private String group;
 
   /** The rank. */
   @Column(nullable = false)
@@ -109,7 +112,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
     toIdType = mapping.getToIdType();
     advice = mapping.getAdvice();
     rule = mapping.getRule();
-    mapGroup = mapping.getGroup();
+    group = mapping.getGroup();
     rank = mapping.getRank();
     relationshipType = mapping.getRelationshipType();
     additionalRelationshipType = mapping.getAdditionalRelationshipType();
@@ -168,6 +171,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
   }
 
   /* see superclass */
+  @XmlElement(type = RelationshipTypeJpa.class)
   @Override
   public RelationshipType getRelationshipType() {
     return relationshipType;
@@ -180,6 +184,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
   }
 
   /* see superclass */
+  @XmlElement(type = AdditionalRelationshipTypeJpa.class)
   @Override
   public AdditionalRelationshipType getAdditionalRelationshipType() {
     return additionalRelationshipType;
@@ -207,13 +212,13 @@ public class MappingJpa extends AbstractComponentHasAttributes
   /* see superclass */
   @Override
   public String getGroup() {
-    return mapGroup;
+    return group;
   }
 
   /* see superclass */
   @Override
   public void setGroup(String group) {
-    this.mapGroup = group;
+    this.group = group;
   }
 
   /* see superclass */
@@ -253,28 +258,46 @@ public class MappingJpa extends AbstractComponentHasAttributes
     this.mapSet = mapSet;
   }
 
-  /* see superclass */
-  @Override
-  public String getFromTerminology() {
-    return getMapSet().getFromTerminology();
+  /**
+   * Returns the map set id. For JAXB.
+   *
+   * @return the map set id
+   */
+  public Long getMapSetId() {
+    return mapSet == null ? null : mapSet.getId();
   }
 
-  /* see superclass */
-  @Override
-  public String getToTerminology() {
-    return getMapSet().getToTerminology();
+  /**
+   * Returns the map set terminology id.
+   *
+   * @return the map set terminology id
+   */
+  public String getMapSetTerminologyId() {
+    return mapSet == null ? null : mapSet.getTerminologyId();
   }
 
-  /* see superclass */
-  @Override
-  public String getFromVersion() {
-    return getMapSet().getFromVersion();
+  /**
+   * Sets the map set id. For JAXB
+   *
+   * @param id the map set id
+   */
+  public void setMapSetId(Long id) {
+    if (mapSet == null) {
+      mapSet = new MapSetJpa();
+    }
+    mapSet.setId(id);
   }
 
-  /* see superclass */
-  @Override
-  public String getToVersion() {
-    return getMapSet().getToVersion();
+  /**
+   * Sets the map set terminology id.
+   *
+   * @param id the map set terminology id
+   */
+  public void setMapSetTerminologyId(String id) {
+    if (mapSet == null) {
+      mapSet = new MapSetJpa();
+    }
+    mapSet.setTerminologyId(id);
   }
 
   /* see superclass */
@@ -289,7 +312,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
         prime * result + ((fromIdType == null) ? 0 : fromIdType.hashCode());
     result = prime * result
         + ((fromTerminologyId == null) ? 0 : fromTerminologyId.hashCode());
-    result = prime * result + ((mapGroup == null) ? 0 : mapGroup.hashCode());
+    result = prime * result + ((group == null) ? 0 : group.hashCode());
     result = prime * result + ((mapSet == null) ? 0 : mapSet.hashCode());
     result = prime * result + ((rank == null) ? 0 : rank.hashCode());
     result = prime * result
@@ -332,10 +355,10 @@ public class MappingJpa extends AbstractComponentHasAttributes
         return false;
     } else if (!fromTerminologyId.equals(other.fromTerminologyId))
       return false;
-    if (mapGroup == null) {
-      if (other.mapGroup != null)
+    if (group == null) {
+      if (other.group != null)
         return false;
-    } else if (!mapGroup.equals(other.mapGroup))
+    } else if (!group.equals(other.group))
       return false;
     if (mapSet == null) {
       if (other.mapSet != null)
@@ -376,7 +399,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
     return "MappingJpa [mapSet=" + mapSet + ", fromTerminologyId="
         + fromTerminologyId + ", toTerminologyId=" + toTerminologyId
         + ", fromIdType=" + fromIdType + ", toIdType=" + toIdType + ", advice="
-        + advice + ", rule=" + rule + ", group=" + mapGroup + ", rank=" + rank
+        + advice + ", rule=" + rule + ", group=" + group + ", rank=" + rank
         + ", relationshipType=" + relationshipType
         + ", additionalRelationshipType=" + additionalRelationshipType + "]";
   }
