@@ -10,7 +10,7 @@
   </parent>
 
   <!-- Module Metadata -->
-  <groupId>com.wcinformatics.uts</groupId>
+  <groupId>com.wcinformatics.umls.server</groupId>
   <artifactId>term-server-aggregator</artifactId>
   <version>1.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -81,7 +81,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>2.2.1</version>
+            <version>3.0.0</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -94,7 +94,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.9.1</version>
+            <version>2.10.3</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -109,7 +109,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.5</version>
+            <version>1.6</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -145,21 +145,7 @@
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.3</version>
-        <extensions>true</extensions>
-        <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>true</autoReleaseAfterClose>
-        </configuration>
-      </plugin>
-      
-      <!-- The Nexus Staging Maven Plugin is the recommended way to deploy your components 
-        to OSSRH and release them to the Central Repository. -->
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.3</version>
+        <version>1.6.6</version>
         <extensions>true</extensions>
         <configuration>
           <serverId>ossrh</serverId>
