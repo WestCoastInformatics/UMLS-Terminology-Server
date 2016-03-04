@@ -10,8 +10,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.content.MappingList;
+import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.helpers.content.MappingListJpa;
+import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 
 /**
@@ -26,10 +28,10 @@ public class MappingListUnitTest extends AbstractListUnit<Mapping> {
   private MappingList list2;
 
   /** The test fixture s1. */
-  private Mapping c1;
+  private Mapping m1;
 
   /** The test fixture s2. */
-  private Mapping c2;
+  private Mapping m2;
 
   /**
    * Setup class.
@@ -46,12 +48,22 @@ public class MappingListUnitTest extends AbstractListUnit<Mapping> {
   public void setup() {
     list = new MappingListJpa();
     list2 = new MappingListJpa();
-    c1 = new MappingJpa();
-    c1.setId(1L);
-    c1.setTerminologyId("1");
-    c2 = new MappingJpa();
-    c2.setId(2L);
-    c2.setTerminologyId("2");
+    MapSet ms1 = new MapSetJpa();
+    ms1.setId(1L);
+    ms1.setTerminologyId("1");
+    MapSet ms2 = new MapSetJpa();
+    ms2.setId(2L);
+    ms2.setTerminologyId("2");
+
+    m1 = new MappingJpa();
+    m1.setId(1L);
+    m1.setTerminologyId("1");
+    m1.setMapSet(ms1);
+
+    m2 = new MappingJpa();
+    m2.setId(2L);
+    m2.setTerminologyId("2");
+    m2.setMapSet(ms2);
 
   }
 
@@ -61,7 +73,7 @@ public class MappingListUnitTest extends AbstractListUnit<Mapping> {
    */
   @Test
   public void testNormalUse002() throws Exception {
-    testNormalUse(list, list2, c1, c2);
+    testNormalUse(list, list2, m1, m2);
   }
 
   /**
@@ -72,7 +84,7 @@ public class MappingListUnitTest extends AbstractListUnit<Mapping> {
    */
   @Test
   public void testDegenerateUse002() throws Exception {
-    testDegenerateUse(list, list2, c1, c2);
+    testDegenerateUse(list, list2, m1, m2);
   }
 
   /**
@@ -82,7 +94,7 @@ public class MappingListUnitTest extends AbstractListUnit<Mapping> {
    */
   @Test
   public void testEdgeCases002() throws Exception {
-    testEdgeCases(list, list2, c1, c2);
+    testEdgeCases(list, list2, m1, m2);
   }
 
   /**
@@ -93,7 +105,7 @@ public class MappingListUnitTest extends AbstractListUnit<Mapping> {
    */
   @Test
   public void testXmlSerialization002() throws Exception {
-    testXmllSerialization(list, list2, c1, c2);
+    testXmllSerialization(list, list2, m1, m2);
   }
 
   /**
