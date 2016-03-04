@@ -10,7 +10,6 @@
   <packaging>pom</packaging>
   <name>Terminology Server</name>
   <description>Aggregator project.</description>
-  <url>https://umls.terminology.tools/#/</url>
 
   <!-- Sub-modules -->
   <modules>
