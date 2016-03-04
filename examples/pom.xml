@@ -4,7 +4,7 @@
 
   <!-- Module Metadata -->
   <parent>
-    <groupId>com.wci.umls.server</groupId>
+    <groupId>com.wcinformatics.umls.server</groupId>
     <artifactId>term-server-parent</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
@@ -25,12 +25,12 @@
 
     <!-- Term server dependencies -->
     <dependency>
-      <groupId>com.wci.umls.server</groupId>
+      <groupId>com.wcinformatics.umls.server</groupId>
       <artifactId>term-server-rest-client</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>com.wci.umls.server</groupId>
+      <groupId>com.wcinformatics.umls.server</groupId>
       <artifactId>term-server-model</artifactId>
     </dependency>
 
