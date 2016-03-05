@@ -77,8 +77,8 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
 } ]);
 
 // Tab controller
-tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', 'securityService', 'tabService',
-  function($scope, $interval, $timeout, securityService, tabService) {
+tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location', 'securityService', 'tabService',
+  function($scope, $interval, $timeout, $location, securityService, tabService) {
     console.debug('configure TabCtrl');
 
     // Setup tabs
@@ -100,7 +100,7 @@ tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', 'securityServic
 
     // for ng-show
     $scope.isShowing = function() {
-      return securityService.isLoggedIn() && $location.url() !== '#/landing';
+       return securityService.isLoggedIn() && $location.url() !== '/';
     }
 
     // for ng-show
