@@ -100,7 +100,7 @@ tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location', 's
 
     // for ng-show
     $scope.isShowing = function() {
-       return securityService.isLoggedIn() && $location.url() !== '/';
+       return securityService.isLoggedIn() && $location.url() !== '/' && $location.url() !== '/login';
     }
 
     // for ng-show
