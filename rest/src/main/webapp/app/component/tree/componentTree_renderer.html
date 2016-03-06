@@ -5,38 +5,33 @@
 		 Open if collapsed flag false AND children have already been loaded
 		 Toggling behavior determined in js
 	-->
-  <a ng-if="tree.childCt > 0" data-nodrag ng-click="getChildTrees(tree, this)">
-    <span class="glyphicon" ng-class="getTreeNodeIcon(tree, collapsed)"></span>
+  <a ng-if="tree.childCt > 0" data-nodrag ng-click="toggleTree(this)">
+    <span class="glyphicon" ng-class="getTreeNodeIcon(this)"></span>
   </a>
-
   <i ng-show="tree.childCt == 0" class="glyphicon glyphicon-leaf"></i>
-
   <!-- if not the component viewed, render with hyperlink -->
   <span ng-show="tree.nodeTerminologyId != component.object.terminologyId">
-    <a
-      ng-click="getComponent(tree.nodeTerminologyId, component.object.terminology, component.object.version)">
-      {{tree.nodeTerminologyId}}</a>
+    <a ng-click="getComponent(this)"> {{tree.nodeTerminologyId}}</a>
     : {{tree.nodeName}}
   </span>
-
   <!-- if the component displayed, render in bold without hyperlink -->
   <span ng-show="tree.nodeTerminologyId === component.object.terminologyId">
     <span class="highlighted">{{tree.nodeTerminologyId}}:
       {{tree.nodeName}}</span>
   </span>
-
   <!-- recursive display of next level of tree -->
   <ol ui-tree-nodes="" ng-model="tree.children" ng-class="{hidden: collapsed}">
-
     <!--  render the children -->
     <li ng-repeat="tree in tree.children" ui-tree-node
       ng-include="'app/component/tree/componentTree_renderer.html'"></li>
-
-    <!-- if not all children displayed, display a message -->
-    <li ng-show="z"><i
-      class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <a
-        ng-click="getAndSetChildTrees(tree, tree.children.length)">...
-        {{tree.childCt - tree.children.length}} more</a></li>
   </ol>
-
+  <!-- if not all children displayed, display a message -->
+  <ol style="list-style-type:none;">
+    <li
+      ng-show="tree.children.length < tree.childCt
+        && tree.children.length >= pageSizes.sibling"><i
+      class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <a
+        ng-click="getTreeChildrenFromDOM(this)">... {{tree.childCt -
+        tree.children.length}} more</a></li>
+  </ol>
 </div>
