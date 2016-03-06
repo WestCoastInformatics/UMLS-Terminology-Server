@@ -346,7 +346,7 @@
               boundary-links="true" class="pagination-sm"
               previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
               last-text="&raquo;"
-              
+              ng-show="component.object.atoms.length > pageSizes.general"
               total-items="pagedAtoms.totalCount" ng-model="atomPaging.page"
               ng-change="getPagedAtoms()"></uib-pagination>
 
