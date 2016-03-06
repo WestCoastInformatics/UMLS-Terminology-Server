@@ -1015,7 +1015,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
         relationship.setPublished(true);
         relationship.setPublishable(true);
         relationship.setAssertedDirection(true);
-        
+
         // ensure additional relationship type has been added
         additionalRelTypes.add(relationship.getAdditionalRelationshipType());
 
@@ -1175,7 +1175,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
    * @throws Exception the exception
    */
   private void loadComplexMapRefSets() throws Exception {
-
+    // tbd
   }
 
   /**
@@ -1184,7 +1184,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
    * @throws Exception the exception
    */
   private void loadExtendedMapRefSets() throws Exception {
-  
+    // tbd
   }
 
   /**

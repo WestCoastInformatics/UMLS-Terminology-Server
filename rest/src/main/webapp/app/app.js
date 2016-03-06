@@ -77,8 +77,9 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
 } ]);
 
 // Tab controller
-tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', 'securityService', 'tabService',
-  function($scope, $interval, $timeout, securityService, tabService) {
+tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location',
+                              'securityService', 'tabService',
+  function($scope, $interval, $timeout, $location, securityService, tabService) {
     console.debug('configure TabCtrl');
 
     // Setup tabs
