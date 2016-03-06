@@ -155,8 +155,30 @@ tsApp.controller('ContentCtrl', [
 
     };
     
+    $scope.isDerivedLabelSetFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      return $scope.isDerivedLabelSet(tree);
+    }
+    
+    $scope.getDerivedLabelSetsValueFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      return $scope.getDerivedLabelSetsValue(tree);
+    }
+    
+    $scope.isLabelSetFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      return $scope.isLabelSet(tree)
+    }
+    
+    $scope.getLabelSetsValueFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      return $scope.getLabelSetsValue(tree);
+    }
+    
     $scope.getComponentFromTree = function(nodeScope) {
       var tree = nodeScope.$modelValue;
+      
+      console.debug('getting component from tree for ', tree, nodeScope);
     
       $scope.getComponent(tree.nodeTerminologyId, tree.terminology, tree.version);
   }
@@ -245,7 +267,7 @@ tsApp.controller('ContentCtrl', [
       }
 
       // if formally collapsed or less than sibling page size retrieved children, return plus sign
-      if (nodeScope.collapsed || tree.children.length < $scope.pageSizes.sibling) {
+      if (nodeScope.collapsed || (tree.children.length != tree.childCt && tree.children.length < $scope.pageSizes.sibling)) {
         return 'glyphicon-plus';
       }
 

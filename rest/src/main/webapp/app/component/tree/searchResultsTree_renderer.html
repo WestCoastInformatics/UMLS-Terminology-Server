@@ -2,42 +2,43 @@
 <div ui-tree-handle>
   <!-- Expand/collapse controls -->
   <a ng-if="tree.children && tree.childCt > 0" data-nodrag
-    ng-click="getChildTrees(tree, this)">
-    <span class="glyphicon" ng-class="getTreeNodeIcon(tree, collapsed)"></span>
+    ng-click="toggleTree(this)">
+    <span class="glyphicon" ng-class="getTreeNodeIcon(this)"></span>
   </a>
 
-  <!--  if a dummy node, only render the terminology and 'top' label -->
-  <span ng-show="tree.id == null">{{terminology.terminology}} Top</span>
 
-  <!-- if not a dummy node, render the full information -->
-  <span ng-show="tree.id">
-    <!-- if this node has no children reported by child count -->
-    <i class="glyphicon glyphicon-leaf" ng-show="tree.childCt == 0"></i>
-    <a
-      ng-click="getComponent(tree.nodeTerminologyId, tree.terminology, tree.version)">
-      <span ng-show="!showExtension || !isDerivedLabelSet(tree)"
-        ng-bind-html="tree.nodeTerminologyId | highlight:searchParams.query"></span>
-      <span ng-show="showExtension && isDerivedLabelSet(tree)"
-        ng-bind-html="tree.nodeTerminologyId | highlightLabelFor:tree.nodeTerminologyId"
-        uib-tooltip-html="getDerivedLabelSetsValue(tree)}}"></span>
-    </a>
+  <!-- if this node has no children reported by child count -->
+  <i class="glyphicon glyphicon-leaf" ng-show="tree.childCt == 0"></i>
+  
+  <a ng-click="getComponent(this)">
+    <span ng-show="!showExtension || !isDerivedLabelSetFromTree(this)"
+      ng-bind-html="tree.nodeTerminologyId | highlight:searchParams.query"></span>
+    <span ng-show="showExtension && isDerivedLabelSet(this)"
+      ng-bind-html="tree.nodeTerminologyId | highlightLabelFor:tree.nodeTerminologyId"
+      uib-tooltip-html="getDerivedLabelSetsValueFromTree(this)"></span>
+  </a>
+  <span ng-show="!showExtension || !isLabelSetFromTree(this)"
+    ng-bind-html="tree.nodeName | highlight:searchParams.query"></span>
+  <span ng-show="showExtension && isLabelSetFromTree(this)"
+    ng-bind-html="tree.nodeName | highlightLabel:tree.nodeName"
+    uib-tooltip-html="getLabelSetsValueFromTree(this)"></span>
 
-    <span ng-show="!showExtension || !isLabelSet(tree)"
-      ng-bind-html="tree.nodeName | highlight:searchParams.query"></span>
-    <span ng-show="showExtension && isLabelSet(tree)"
-      ng-bind-html="tree.nodeName | highlightLabel:tree.nodeName"
-      uib-tooltip-html="getLabelSetsValue(tree)"></span>
-  </span>
-
+  
+  <!-- recursive display of next level of tree -->
   <ol ui-tree-nodes="" ng-model="tree.children" ng-class="{hidden: collapsed}">
+  
+    <!--  render the children -->
     <li ng-repeat="tree in tree.children" ui-tree-node
       ng-include="'app/component/tree/searchResultsTree_renderer.html'"></li>
-
-    <!-- if not all children displayed, display a message -->
-    <li ng-show="hasHiddenSiblings(tree)"><i
-      class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <a
-        ng-click="getAndSetChildTrees(tree, tree.children.length)">...
-        {{tree.childCt - tree.children.length}} more</a></li>
-
+  </ol>
+  
+  <!-- if not all children displayed, display a message -->
+  <ol
+    ng-show="!collapsed && tree.children.length < tree.childCt
+        && tree.children.length >= pageSizes.sibling"
+    style="list-style-type: none;">
+    <li><i class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <a
+        ng-click="getTreeChildrenFromTree(this)">... {{tree.childCt -
+        tree.children.length}} more</a></li>
   </ol>
 </div>
