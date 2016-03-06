@@ -77,8 +77,7 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
 } ]);
 
 // Tab controller
-tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location',
-                              'securityService', 'tabService',
+tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location', 'securityService', 'tabService',
   function($scope, $interval, $timeout, $location, securityService, tabService) {
     console.debug('configure TabCtrl');
 
@@ -99,22 +98,22 @@ tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location',
       }
     }
 
-    // for ng-show
+    // tabs are only shown if logged in and not on the landing or login page
     $scope.isShowing = function() {
-      return securityService.isLoggedIn() && $location.url() !== '#/landing';
+       return securityService.isLoggedIn() && $location.url() !== '/' && $location.url() !== '/login';
     }
 
-    // for ng-show
+    // configure whether certain tabs require permissions here
     $scope.isTabShowing = function(tab) {
       return isAdmin() || tab.label == 'Directory' || userHasAnyRole;
     }
 
-    // for ng-show
+    // returns true if a user has a defined role on a project
     $scope.userHasAnyRole = function() {
       return userProjectsInfo.anyrole;
     }
 
-    // for ng-show
+    // returns true if user has administrator application role
     $scope.isAdmin = function() {
       return user.applicationRole == 'ADMIN';
     };

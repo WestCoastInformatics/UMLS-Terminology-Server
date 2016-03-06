@@ -3,9 +3,6 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService
   'utilService', function($scope, $http, $location, securityService, gpService, utilService) {
     console.debug('configure LoginCtrl');
 
-    // Clear user info
-    securityService.clearUser();
-
     // Declare the user
     $scope.user = securityService.getUser();
     

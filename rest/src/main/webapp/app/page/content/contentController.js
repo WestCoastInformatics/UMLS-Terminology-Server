@@ -4,6 +4,7 @@ tsApp.controller('ContentCtrl', [
   '$http',
   '$uibModal',
   '$location',
+  '$q',
   '$anchorScroll',
   '$sce',
   'gpService',
@@ -12,7 +13,7 @@ tsApp.controller('ContentCtrl', [
   'securityService',
   'metadataService',
   'contentService',
-  function($scope, $http, $uibModal, $location, $anchorScroll, $sce, gpService, utilService,
+  function($scope, $http, $uibModal, $location, $q, $anchorScroll, $sce, gpService, utilService,
     tabService, securityService, metadataService, contentService) {
     console.debug('configure ContentCtrl');
 
@@ -57,8 +58,7 @@ tsApp.controller('ContentCtrl', [
 
     // Watch for changes in metadata.terminologies
     $scope.$watch('metadata.terminology', function() {
-    	
-    	
+
       // clear the terminology-specific variables
       $scope.autoCompleteUrl = null;
 
@@ -66,9 +66,8 @@ tsApp.controller('ContentCtrl', [
       if ($scope.metadata.terminology == null) {
         return;
       }
-      
+
       console.log('Terminology changed', $scope.metadata.terminology);
-      
 
       // set the autocomplete url, with pattern:
       // /type/{terminology}/{version}/autocomplete/{searchTerm}
@@ -101,11 +100,15 @@ tsApp.controller('ContentCtrl', [
       return contentService.autocomplete(searchTerms, $scope.autocompleteUrl);
     };
 
-    // 
+    ////////////////////////////////////////////
     // Supporting trees
-    // 
+    // NOTE: Functions called from the DOM use
+    // the angular-ui-tree node scope, which
+    // contains the actual tree information in 
+    // nodeScope.$modelValue
+    ////////////////////////////////////////////
 
-    // Function to get a single (paged) hierarchical tree for the
+    // retrieves the specified tree position by index (top-level, scope-indifferent)
     // displayed
     $scope.getTree = function(startIndex) {
       // Call content service to retrieve the tree
@@ -144,18 +147,78 @@ tsApp.controller('ContentCtrl', [
           // replace the parent tree of the lowest level with
           // first page of
           // siblings computed
-          $scope.getAndSetChildTrees(parentTree, 0);
+          $scope.getTreeChildren(parentTree, 0).then(function(children) {
+            parentTree.children = parentTree.children.concat(children);
+          })
 
         });
 
     };
+    
+    $scope.isDerivedLabelSetFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      return $scope.isDerivedLabelSet(tree);
+    }
+    
+    $scope.getDerivedLabelSetsValueFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      return $scope.getDerivedLabelSetsValue(tree);
+    }
+    
+    $scope.isLabelSetFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      return $scope.isLabelSet(tree)
+    }
+    
+    $scope.getLabelSetsValueFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      return $scope.getLabelSetsValue(tree);
+    }
+    
+    $scope.getComponentFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      
+      console.debug('getting component from tree for ', tree, nodeScope);
+    
+      $scope.getComponent(tree.nodeTerminologyId, tree.terminology, tree.version);
+  }
+    
+    // retrieves the children for a node (from DOM)
+    $scope.getTreeChildrenFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      $scope.getTreeChildren(tree).then(function(children) {
+        console.debug('adding children', children);
+        tree.children = tree.children.concat(children);
+       });
+    }
 
-    // Helper function to get previous or next tree by offset
+    // retrieves children for a node (not from DOM)
+    $scope.getTreeChildren = function(tree) {
+
+      var deferred = $q.defer();
+
+      if (!tree) {
+        console.error('getChildren called with null node');
+        deferred.resolve([]);
+      }
+
+      // get the next page of children based on start index of current children length
+      contentService.getChildTrees(tree, tree.children.length).then(function(data) {
+        console.debug('retrieved children', data);
+        deferred.resolve(data.trees);
+      }, function(error) {
+        console.error('Unexpected error retrieving children');
+        deferred.resolve([]);
+      });
+
+      return deferred.promise;
+    }
+
+    // get tree by specified offset (circular index)
     $scope.getTreeByOffset = function(offset) {
 
       var treeViewed = $scope.treeViewed + offset;
 
-      // ensure number is in circular index
       if (!treeViewed)
         treeViewed = 0;
       if (treeViewed >= $scope.treeCount)
@@ -164,166 +227,54 @@ tsApp.controller('ContentCtrl', [
         treeViewed = treeViewed + $scope.treeCount;
 
       $scope.getTree(treeViewed);
-
     };
 
-    /** Fake "enum" for clarity. Could use freeze, but meh */
-    var TreeNodeExpansionState = {
-      'Undefined' : -1,
-      'Unloaded' : 0,
-      'ExpandableFromNode' : 1,
-      'ExpandableFromList' : 2,
-      'Loaded' : 3
-    };
+    // toggles a node (from DOM)
+    $scope.toggleTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      
+      console.debug('toggling tree', tree, nodeScope.collapsed);
 
-    // Helper function to determine what icon to show for a tree
-    // node Case
-    // 1: Has children, none loaded -> use right chevron Case 2: Has
-    // children, incompletely loaded (below pagesize) -> expandable
-    // (plus)
-    // Case 3: Has children, completely loaded (or above pagesize)
-    // -> not
-    // expandable (right/down))
-    $scope.getTreeNodeExpansionState = function(tree) {
-
-      if (!tree) {
-        return null;
+      // if not expanded, simply expand
+      if (nodeScope.collapsed) {
+       nodeScope.toggle();
       }
 
-      // case 1: no children loaded, but children exist
-      if (tree.childCt > 0 && tree.children.length == 0) {
-        return TreeNodeExpansionState.Unloaded;
+      // otherwise if a full page of siblings not already loaded, get first page
+      else if (tree.children.length != tree.childCt
+        && tree.children.length < $scope.pageSizes.sibling) {
+        console.debug('getting children')
+        $scope.getTreeChildren(tree).then(function(children) {
+          console.debug('adding children', children);
+          tree.children = tree.children.concat(children);
+         });
       }
 
-      // case 2: some children loaded, not by user, expandable
-      // from node
-      else if (tree.children.length < tree.childCt && tree.children.length < $scope.pageSizes.sibling) {
-        return TreeNodeExpansionState.ExpandableFromNode;
-      }
-
-      // case 3: some children loaded by user, expandable from
-      // list
-      else if (tree.children.length < tree.childCt && tree.children.length >= $scope.pageSizes.sibling) {
-        return TreeNodeExpansionState.ExpandableFromList;
-      }
-
-      // case 4: all children loaded
-      else if (tree.children.length == tree.childCt) {
-        return TreeNodeExpansionState.Loaded;
-      }
-
+      // otherwise, collapse
       else {
-        return TreeNodeExpansionState.Undefined;
+        console.debug('collapsing');
+        nodeScope.toggle();
       }
+    }
 
-    };
+    // returns the display icon for a node (from DOM)
+    $scope.getTreeNodeIcon = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
 
-    // Determine the icon to show (plus, right, down, or blank)
-    $scope.getTreeNodeIcon = function(tree, collapsed) {
-    	
-    	return null;/*
-
-      // if childCt is zero, return leaf
-      if (tree.childCt == 0)
+      // NOTE: This is redundant, leaf icon is set directly in html
+      if (tree.childCt == 0) {
         return 'glyphicon-leaf';
+      }
 
-      // otherwise, switch on expansion state
-      switch ($scope.getTreeNodeExpansionState(tree)) {
-      case TreeNodeExpansionState.Unloaded:
-        return 'glyphicon-chevron-right';
-      case TreeNodeExpansionState.ExpandableFromNode:
+      // if formally collapsed or less than sibling page size retrieved children, return plus sign
+      if (nodeScope.collapsed || (tree.children.length != tree.childCt && tree.children.length < $scope.pageSizes.sibling)) {
         return 'glyphicon-plus';
-      case TreeNodeExpansionState.ExpandableFromList:
-      case TreeNodeExpansionState.Loaded:
-        if (collapsed)
-          return 'glyphicon-chevron-right';
-        else
-          return 'glyphicon-chevron-down';
-      default:
-        return 'glyphicon-question-sign';
-      }*/
-    };
-
-    // Helper function to determine whether siblings are hidden on a
-    // user-expanded list
-    $scope.hasHiddenSiblings = function(tree) {
-   
-      // Skip things not set or without children
-      if (!tree || !tree.children)
-        return false;
-
-      switch ($scope.getTreeNodeExpansionState(tree)) {
-      case TreeNodeExpansionState.ExpandableFromList:
-        return true;
-      default:
-        return false;
-      }
-    };
-
-    // Helper function to determine whether to toggle children
-    // and/or
-    // retrieve children if necessary
-    $scope.getChildTrees = function(tree, treeHandleScope) {
-
-      switch ($scope.getTreeNodeExpansionState(tree)) {
-
-      // if fully loaded or expandable from list, simply toggle
-      case TreeNodeExpansionState.Loaded:
-      case TreeNodeExpansionState.ExpandableFromList:
-        treeHandleScope.toggle();
-        return;
-
-      default:
-        $scope.getAndSetChildTrees(tree, 0); // type
-        // prefix
-        // auto
-        // set
-
-      }
-    };
-
-    // Get a tree node's children and add to the parent
-    $scope.getAndSetChildTrees = function(tree, startIndex) {
-      if (!tree) {
-        return;
-      }
-      var lstartIndex = startIndex;
-      // set default for startIndex if not specified
-      if (!startIndex) {
-        lstartIndex = 0;
       }
 
-      // Get child trees
-      contentService.getChildTrees(tree, lstartIndex).then(function(data) {
-        // construct ancestor path (for sake of
-        // completeness, not filled
-        // in on server-side)
-        var ancestorPath = tree.ancestorPath + '~' + tree.nodeTerminologyId;
-
-        // cycle over children, and construct tree nodes
-        for (var i = 0; i < data.trees.length; i++) {
-
-          // check that child is not already present
-          // (don't override
-          // present data)
-          var childPresent = false;
-          for (var j = 0; j < tree.children.length; j++) {
-            if (tree.children[j].nodeTerminologyId === data.trees[i].nodeTerminologyId) {
-              childPresent = true;
-              break;
-            }
-          }
-
-          // if not present, add
-          if (!childPresent) {
-            tree.children.push(data.trees[i]);
-          }
-        }
-
-        tree.childrenRetrieved = true; // currently
-        // unused
-
-      });
+      // otherwise, return minus sign
+      else {
+        return 'glyphicon-minus';
+      }
 
     };
 
@@ -411,10 +362,9 @@ tsApp.controller('ContentCtrl', [
 
       // ensure query string has minimum length
       /*
-       * if ($scope.searchParams.query == null ||
-       * $scope.searchParams.query.length < 3) { alert("You must use at least
-       * one character to search"); return; }
-       */
+             * if ($scope.searchParams.query == null || $scope.searchParams.query.length < 3) {
+             * alert("You must use at least one character to search"); return; }
+             */
 
       var semanticType = null;
       if ($scope.semanticType) {
