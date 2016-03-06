@@ -11,7 +11,7 @@
   <i ng-show="tree.childCt == 0" class="glyphicon glyphicon-leaf"></i>
   <!-- if not the component viewed, render with hyperlink -->
   <span ng-show="tree.nodeTerminologyId != component.object.terminologyId">
-    <a ng-click="getComponent(this)"> {{tree.nodeTerminologyId}}</a>
+    <a ng-click="getComponentFromTree(this)"> {{tree.nodeTerminologyId}}</a>
     : {{tree.nodeName}}
   </span>
   <!-- if the component displayed, render in bold without hyperlink -->
@@ -26,12 +26,11 @@
       ng-include="'app/component/tree/componentTree_renderer.html'"></li>
   </ol>
   <!-- if not all children displayed, display a message -->
-  <ol style="list-style-type:none;">
-    <li
-      ng-show="tree.children.length < tree.childCt
-        && tree.children.length >= pageSizes.sibling"><i
+  <ol ng-show="!collapsed && tree.children.length < tree.childCt
+        && tree.children.length >= pageSizes.sibling"style="list-style-type:none;">
+    <li><i
       class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <a
-        ng-click="getTreeChildrenFromDOM(this)">... {{tree.childCt -
+        ng-click="getTreeChildrenFromTree(this)">... {{tree.childCt -
         tree.children.length}} more</a></li>
   </ol>
 </div>

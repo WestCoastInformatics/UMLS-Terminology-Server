@@ -155,8 +155,14 @@ tsApp.controller('ContentCtrl', [
 
     };
     
+    $scope.getComponentFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+    
+      $scope.getComponent(tree.nodeTerminologyId, tree.terminology, tree.version);
+  }
+    
     // retrieves the children for a node (from DOM)
-    $scope.getTreeChildrenFromDOM = function(nodeScope) {
+    $scope.getTreeChildrenFromTree = function(nodeScope) {
       var tree = nodeScope.$modelValue;
       $scope.getTreeChildren(tree).then(function(children) {
         console.debug('adding children', children);
