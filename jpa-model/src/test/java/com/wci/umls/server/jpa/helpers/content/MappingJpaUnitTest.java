@@ -221,10 +221,7 @@ public class MappingJpaUnitTest {
     tester.include("toTerminologyId");
     tester.include("fromIdType");
     tester.include("toIdType");
-    tester.include("rule");
-    tester.include("group");
-    tester.include("rank");
-    tester.include("advice");
+    
     assertTrue(tester.testNotNullFields());
   }
 
