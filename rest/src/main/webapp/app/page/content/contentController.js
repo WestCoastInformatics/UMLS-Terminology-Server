@@ -266,14 +266,12 @@ tsApp.controller('ContentCtrl', [
         return 'glyphicon-leaf';
       }
 
-     
-
       // if formally collapsed or less than sibling page size retrieved children, return plus sign
       else if (tree.children.length != tree.childCt
         && tree.children.length < $scope.pageSizes.sibling) {
         return 'glyphicon-plus';
       }
-      
+
       // if collapsed or unloaded
       else if (nodeScope.collapsed || (tree.childCt > 0 && tree.children.length == 0)) {
         return 'glyphicon-chevron-right'
@@ -283,7 +281,7 @@ tsApp.controller('ContentCtrl', [
       else if (!nodeScope.collapsed) {
         return 'glyphicon-chevron-down';
       }
-      
+
       // if no matches, return a ? because something is seriously wrong
       else {
         return 'glyphicon-question-sign';
@@ -699,8 +697,17 @@ tsApp.controller('ContentCtrl', [
 
     // Get paged atoms (assume all are loaded)
     $scope.getPagedAtoms = function() {
-      $scope.pagedAtoms = utilService.getPagedArray($scope.component.object.atoms,
-        $scope.atomPaging, $scope.pageSizes.general);
+      
+      // filter by suppressible/obsolete
+      var localAtoms = $scope.component.object.atoms.filter(function(object) {
+        return $scope.showSOElements || (!object.suppressible && !object.obsolete);
+      });
+
+      // want all filtered atoms to 
+      var localAtoms = utilService.getPagedArray(localAtoms, $scope.atomPaging,
+        $scope.pageSizes.general);
+      
+      $scope.pagedAtoms = localAtoms;
     };
 
     // Get paged definitions (assume all are loaded)

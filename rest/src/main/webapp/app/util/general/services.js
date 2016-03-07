@@ -235,13 +235,16 @@ tsApp
             newArray = this.getArrayByActiveStatus(newArray, paging.typeFilter);
           }
 
-          // get the page indices
-          var fromIndex = (paging.page - 1) * pageSize;
-          var toIndex = Math.min(fromIndex + pageSize, array.length);
+          // get the page indices (if supplied)
+          if (pageSize != -1) {
+            var fromIndex = (paging.page - 1) * pageSize;
+            var toIndex = Math.min(fromIndex + pageSize, array.length);
 
-          // slice the array
-          var results = newArray.slice(fromIndex, toIndex);
-
+            // slice the array
+            var results = newArray.slice(fromIndex, toIndex);
+          } else {
+            results = newArray;
+          }
           // add the total count before slicing
           results.totalCount = newArray.length;
 
