@@ -190,7 +190,7 @@ tsApp
           // check for full terminology object by comparing to
           // selected
           // terminology
-          if (terminology != metadata.terminology.terminology) {
+          if (!metadata || !metadata.terminology || terminology != metadata.terminology.terminology) {
 
             // cycle over available terminologies for match
             for (var i = 0; i < metadata.terminologies.length; i++) {

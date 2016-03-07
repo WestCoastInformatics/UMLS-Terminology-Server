@@ -830,24 +830,27 @@ tsApp.controller('ContentCtrl', [
           // Determine whether to set as default
           if (terminology.metathesaurus) {
             metadataService.setTerminology(terminology);
+            found = true;
             break;
           }
         }
 
         // if no metathesaurus found, default to ICD10CM
         // TODO: Used for ICD10 server, unhardcode this
-        if (!metadata.terminology) {
+        if (!found) {
           for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
             var terminology = $scope.metadata.terminologies[i];
-            if (terminology.terminology === "ICD10CM") {
+            console.debug(terminology.terminology, terminology.terminology === 'ICD10CM');
+            if (terminology.terminology === 'ICD10CM') {
               metadataService.setTerminology(terminology);
+              found = true;
               break;
             }
           }
         }
 
         // If nothing set, pick the first one
-        if (!metadataService.getTerminology()) {
+        if (!found) {
           if (!$scope.metadata.terminologies) {
             window.alert('No terminologies found, database may not be properly loaded.');
           } else {
