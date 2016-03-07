@@ -10,7 +10,7 @@
   <!-- if this node has no children reported by child count -->
   <i class="glyphicon glyphicon-leaf" ng-show="tree.childCt == 0"></i>
   
-  <a ng-click="getComponentFromTree(this)">
+  Collapsed: {{collapsed}}<a ng-click="getComponentFromTree(this)">
   
     <span ng-show="!showExtension || !isDerivedLabelSetFromTree(this)"
       ng-bind-html="tree.nodeTerminologyId | highlight:searchParams.query"></span>

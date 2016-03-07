@@ -266,12 +266,12 @@ tsApp.controller('ContentCtrl', [
         return 'glyphicon-leaf';
       }
       
-      else if (nodeScope.collapsed) {
+      else if (tree.childCt > 0 && tree.children.length == 0) {
         return 'glyphicon-chevron-right'
       }
 
       // if formally collapsed or less than sibling page size retrieved children, return plus sign
-      else if (!nodeScope.collapsed && (tree.children.length != tree.childCt && tree.children.length < $scope.pageSizes.sibling)) {
+      else if (tree.children.length != tree.childCt && tree.children.length < $scope.pageSizes.sibling) {
         return 'glyphicon-plus';
       }
 
