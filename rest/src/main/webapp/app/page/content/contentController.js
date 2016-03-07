@@ -154,42 +154,42 @@ tsApp.controller('ContentCtrl', [
         });
 
     };
-    
+
     $scope.isDerivedLabelSetFromTree = function(nodeScope) {
       var tree = nodeScope.$modelValue;
       return $scope.isDerivedLabelSet(tree);
     }
-    
+
     $scope.getDerivedLabelSetsValueFromTree = function(nodeScope) {
       var tree = nodeScope.$modelValue;
       return $scope.getDerivedLabelSetsValue(tree);
     }
-    
+
     $scope.isLabelSetFromTree = function(nodeScope) {
       var tree = nodeScope.$modelValue;
       return $scope.isLabelSet(tree);
     }
-    
+
     $scope.getLabelSetsValueFromTree = function(nodeScope) {
       var tree = nodeScope.$modelValue;
       return $scope.getLabelSetsValue(tree);
     }
-    
+
     $scope.getComponentFromTree = function(nodeScope) {
       var tree = nodeScope.$modelValue;
-      
+
       console.debug('getting component from tree for ', tree, nodeScope);
-    
+
       $scope.getComponent(tree.nodeTerminologyId, tree.terminology, tree.version);
-  }
-    
+    }
+
     // retrieves the children for a node (from DOM)
     $scope.getTreeChildrenFromTree = function(nodeScope) {
       var tree = nodeScope.$modelValue;
       $scope.getTreeChildren(tree).then(function(children) {
         console.debug('adding children', children);
         tree.children = tree.children.concat(children);
-       });
+      });
     }
 
     // retrieves children for a node (not from DOM)
@@ -232,12 +232,12 @@ tsApp.controller('ContentCtrl', [
     // toggles a node (from DOM)
     $scope.toggleTree = function(nodeScope) {
       var tree = nodeScope.$modelValue;
-      
+
       console.debug('toggling tree', tree, nodeScope.collapsed);
 
       // if not expanded, simply expand
       if (nodeScope.collapsed) {
-       nodeScope.toggle();
+        nodeScope.toggle();
       }
 
       // otherwise if a full page of siblings not already loaded, get first page
@@ -247,7 +247,7 @@ tsApp.controller('ContentCtrl', [
         $scope.getTreeChildren(tree).then(function(children) {
           console.debug('adding children', children);
           tree.children = tree.children.concat(children);
-         });
+        });
       }
 
       // otherwise, collapse
@@ -265,19 +265,28 @@ tsApp.controller('ContentCtrl', [
       if (tree.childCt == 0) {
         return 'glyphicon-leaf';
       }
+
+     
+
+      // if formally collapsed or less than sibling page size retrieved children, return plus sign
+      else if (tree.children.length != tree.childCt
+        && tree.children.length < $scope.pageSizes.sibling) {
+        return 'glyphicon-plus';
+      }
       
-      else if (tree.childCt > 0 && tree.children.length == 0) {
+      // if collapsed or unloaded
+      else if (nodeScope.collapsed || (tree.childCt > 0 && tree.children.length == 0)) {
         return 'glyphicon-chevron-right'
       }
 
-      // if formally collapsed or less than sibling page size retrieved children, return plus sign
-      else if (tree.children.length != tree.childCt && tree.children.length < $scope.pageSizes.sibling) {
-        return 'glyphicon-plus';
-      }
-
       // otherwise, return minus sign
-      else {
+      else if (!nodeScope.collapsed) {
         return 'glyphicon-chevron-down';
+      }
+      
+      // if no matches, return a ? because something is seriously wrong
+      else {
+        return 'glyphicon-question-sign';
       }
 
     };
@@ -821,21 +830,24 @@ tsApp.controller('ContentCtrl', [
           // Determine whether to set as default
           if (terminology.metathesaurus) {
             metadataService.setTerminology(terminology);
-            found = true;
-            break;
-          }
-
-          // For icd server
-          // TODO: unhardcode this
-          if (terminology.terminology === "ICD10CM") {
-            metadataService.setTerminology(terminology);
-            found = true;
             break;
           }
         }
 
+        // if no metathesaurus found, default to ICD10CM
+        // TODO: Used for ICD10 server, unhardcode this
+        if (!metadata.terminology) {
+          for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+            var terminology = $scope.metadata.terminologies[i];
+            if (terminology.terminology === "ICD10CM") {
+              metadataService.setTerminology(terminology);
+              break;
+            }
+          }
+        }
+
         // If nothing set, pick the first one
-        if (!found) {
+        if (!metadataService.getTerminology()) {
           if (!$scope.metadata.terminologies) {
             window.alert('No terminologies found, database may not be properly loaded.');
           } else {
