@@ -336,7 +336,7 @@
         
           <h4>{{metadata.atomsLabel}} ({{pagedAtoms.totalCount}})</h4>
           
-          <span style="margin-left: 15px" ng-show="!showSOElements && pagedAtoms.totalCount > 0 && atomPaging.filter">
+          <span class="alert alert-warning" style="margin-left: 15px" ng-show="!showSOElements && pagedAtoms.totalCount == 0">
           	Click button above to show Obsolete<span ng-show="metadata.terminology.metadatathesaurus">/Suppressible</span> content.
           </span>
 
