@@ -167,7 +167,7 @@ tsApp.controller('ContentCtrl', [
     
     $scope.isLabelSetFromTree = function(nodeScope) {
       var tree = nodeScope.$modelValue;
-      return $scope.isLabelSet(tree)
+      return $scope.isLabelSet(tree);
     }
     
     $scope.getLabelSetsValueFromTree = function(nodeScope) {
@@ -265,15 +265,19 @@ tsApp.controller('ContentCtrl', [
       if (tree.childCt == 0) {
         return 'glyphicon-leaf';
       }
+      
+      else if (nodeScope.collapsed) {
+        return 'glyphicon-chevron-right'
+      }
 
       // if formally collapsed or less than sibling page size retrieved children, return plus sign
-      if (nodeScope.collapsed || (tree.children.length != tree.childCt && tree.children.length < $scope.pageSizes.sibling)) {
+      else if (!nodeScope.collapsed && (tree.children.length != tree.childCt && tree.children.length < $scope.pageSizes.sibling)) {
         return 'glyphicon-plus';
       }
 
       // otherwise, return minus sign
       else {
-        return 'glyphicon-minus';
+        return 'glyphicon-chevron-down';
       }
 
     };
