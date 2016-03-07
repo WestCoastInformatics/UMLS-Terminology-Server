@@ -23,6 +23,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -39,6 +40,8 @@ import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
+import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
@@ -71,6 +74,8 @@ import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
+import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.Subset;
@@ -202,7 +207,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
   /** The lat code map. */
   private static Map<String, String> latCodeMap = new HashMap<>();
-
+  
+  /** The map set map. */
+  private Map<String, MapSet> mapSetMap = new HashMap<>();
+  
   static {
 
     // from http://www.nationsonline.org/oneworld/country_code_list.htm
@@ -372,6 +380,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // Attributes
       loadMrsat();
 
+      // Mappings
+      //loadMrmap();
+      
       // Need to reset MRSAT reader
       readers.closeReaders();
       readers.openOriginalReaders(prefix);
@@ -1241,6 +1252,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           descriptor.addAttribute(att);
           addAttribute(att, descriptor);
         }
+      } else if (isMapSetAttribute(fields[8])) {
+        processMapSetAttribute(fields[0], fields[8], fields[10], fields[7]);
       }
 
       // Update objects before commit
@@ -1295,6 +1308,43 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       // NOTE: there are no subset attributes in RRF
       //
 
+    }  // end while loop
+    
+    // add all of the mapsets
+    for (MapSet mapSet : mapSetMap.values()) {
+      if (mapSet.getName() == null) {
+        throw new LocalException("Mapsets must have a name set.");
+      }
+      if (mapSet.getFromTerminology() == null) {
+        throw new LocalException("Mapsets must have a from terminology set.");
+      }
+      if (mapSet.getToTerminology() == null) {
+        throw new LocalException("Mapsets must have a to terminology set.");
+      }
+      mapSet.setLastModifiedBy(loader);
+      mapSet.setLastModified(releaseVersionDate);
+      mapSet.setObsolete(false);
+      mapSet.setSuppressible(false);
+      mapSet.setPublished(true);
+      mapSet.setPublishable(true);
+      if (mapSet.getTerminology() == null) {
+        mapSet.setTerminology(terminology);
+      }
+      if (mapSet.getVersion() == null) {
+        mapSet.setVersion(version);
+      }
+      if (mapSet.getTerminologyId() == null) {
+        mapSet.setTerminologyId("");
+      }
+      if (mapSet.getTerminology() == null) {
+        throw new LocalException("Mapsets must have a terminology set.");
+      }
+      if (mapSet.getMapVersion() == null) {
+        throw new LocalException("Mapsets must have a map version set.");
+      }
+
+      mapSet.setTimestamp(releaseVersionDate);
+      addMapSet(mapSet);
     }
 
     // get final updates in
@@ -1323,7 +1373,286 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     commitClearBegin();
 
   }
+  
+  /**
+   * Checks if is map set attribute.
+   *
+   * @param atn the atn
+   * @return true, if is map set attribute
+   */
+  private boolean isMapSetAttribute(String atn) {
+    if (atn.equals("MAPSETNAME") ||
+        atn.equals("MAPSETVERSION") ||
+        atn.equals("TOVSAB") ||
+        atn.equals("TORSAB") ||
+        atn.equals("FROMRSAB") ||
+        atn.equals("FROMVSAB") ||
+        atn.equals("MAPSETGRAMMAR") ||
+        atn.equals("MAPSETRSAB") ||
+        atn.equals("MAPSETTYPE") ||
+        atn.equals("MAPSETVSAB") ||
+        atn.equals("MTH_MAPFROMEXHAUSTIVE") ||
+        atn.equals("MTH_MAPTOEXHAUSTIVE") ||
+        atn.equals("MTH_MAPSETCOMPLEXITY") ||
+        atn.equals("MTH_MAPFROMCOMPLEXITY") ||
+        atn.equals("MTH_MAPTOCOMPLEXITY") ||
+        atn.equals("MAPSETXRTARGETID") ||
+        atn.equals("MAPSETSID")) {
+      return true;
+    }
+    return false;    
+  }
 
+  /**
+   * Load mrmap.
+   *
+   * @throws Exception the exception
+   */
+  private void loadMrmap() throws Exception {
+    Logger.getLogger(getClass()).info("  Load MRMAP data");
+    String line = null;
+
+    int objectCt = 0;
+    final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRMAP);
+    
+    final String fields[] = new String[26];
+    while ((line = reader.readLine()) != null) {
+
+      line = line.replace("\r", "");
+      FieldedStringTokenizer.split(line, "|", 26, fields);
+
+      // Skip non-matching in single mode
+      if (singleMode && !fields[1].equals(terminology)
+          && !fields[1].equals("SAB")) {
+        continue;
+      }
+
+      // Field Description
+      // 0 MAPSETCUI 
+      // 1 MAPSETSAB 
+      // 2 MAPSUBSETID 
+      // 3 MAPRANK 
+      // 4 MAPID 
+      // 5 MAPSID 
+      // 6 FROMID 
+      // 7 FROMSID 
+      // 8 FROMEXPR 
+      // 9 FROMTYPE 
+      // 10 FROMRULE 
+      // 11 FROMRES 
+      // 12 REL 
+      // 13 RELA 
+      // 14 TOID 
+      // 15 TOSID 
+      // 16 TOEXPR 
+      // 17 TOTYPE 
+      // 18 TORULE 
+      // 19 TORES 
+      // 20 MAPRULE 
+      // 21 MAPRES 
+      // 22 MAPTYPE 
+      // 23 MAPATN 
+      // 24 MAPATV 
+      // 25 CVF
+      //
+      // e.g.
+      // C1306694|MTH|||AT28307260||C0155860||C0155860|CUI|||SY||4084||<Pneumonia> AND <Pseudomonas Infections>|BOOLEAN_EXPRESSION_STR|||||ATX||||
+      // C1306694|MTH|||AT28307305||C0027498||C0027498|CUI|||SY||3707||<Nausea> OR <Vomiting>|BOOLEAN_EXPRESSION_STR|||||ATX||||
+      // C1306694|MTH|||AT28307536||C0796038||C0796038|CUI|||RU||2560||<Facies>|BOOLEAN_EXPRESSION_STR|||||ATX||||
+      // C1306694|MTH|||AT28307551||C0795864||C0795864|CUI|||RU||1950||<Chromosome Deletion>|BOOLEAN_EXPRESSION_STR|||||ATX||||
+      // C1306694|MTH|||AT28308078||C0796279||C0796279|CUI|||RU||2112||<Cryptorchidism>|BOOLEAN_EXPRESSION_STR|||||ATX||||
+
+      final Mapping mapping = new MappingJpa();
+
+      // look up mapSet from MAPSETCUI
+      MapSet mapSet = mapSetMap.get(fields[0]);
+      mapping.setMapSet(mapSet);
+      mapping.setGroup(fields[2]); //MAPSUBSETID
+      mapping.setRank(fields[3]); //MAPRANK
+      if (fields[4] != null && fields[4].equals("")) {
+        mapping.addAttribute(makeAttribute(mapping, "MAPID", fields[4]));
+      }
+      if (fields[5] != null && fields[5].equals("")) {
+        mapping.addAttribute(makeAttribute(mapping, "MAPSID", fields[5]));
+      }
+      if (fields[6] != null && fields[6].equals("")) {
+        mapping.addAttribute(makeAttribute(mapping, "FROMID", fields[6]));
+      }
+      if (fields[7] != null && fields[7].equals("")) {
+        mapping.addAttribute(makeAttribute(mapping, "FROMSID", fields[7]));
+      }
+      mapping.setFromTerminologyId(fields[8]); // FROMEXPR
+      mapping.setFromIdType(IdType.getIdType(fields[9])); // FROMTYPE  // TODO use IdType with annotation to store as String  search enum
+      if (fields[10] != null && fields[10].equals("")) {
+        mapping.addAttribute(makeAttribute(mapping, "FROMRULE", fields[10]));
+      }
+      if (fields[11] != null && fields[11].equals("")) {
+        mapping.addAttribute(makeAttribute(mapping, "FROMRES", fields[11]));
+      }
+      // TODO: add jira ticket QA admin tool for referential integrity
+      mapping.setRelationshipType(fields[12]);
+      mapping.setAdditionalRelationshipType(fields[13]);
+      if (fields[14] != null && fields[14].equals("")) {
+        mapping.addAttribute(makeAttribute(mapping, "TOID", fields[14]));
+      }
+      if (fields[15] != null && fields[15].equals("")) {
+        mapping.addAttribute(makeAttribute(mapping, "TOSID", fields[15]));
+      }
+      mapping.setToTerminologyId(fields[16]); // TOEXPR
+      mapping.setToIdType(IdType.getIdType(fields[17])); // TOTYPE
+      if (fields[18] != null && fields[18].equals("")) {
+        mapping.addAttribute(makeAttribute(mapping, "TORULE", fields[18]));
+      }
+      if (fields[19] != null && fields[19].equals("")) {
+        mapping.addAttribute(makeAttribute(mapping, "TORES", fields[19]));
+      }
+      mapping.setRule(fields[20]); // MAPRULE
+      mapping.setAdvice(fields[21]); // MAPRES
+      //mapping.setMapType(fields[22]); // MAPTYPE 
+      //mapping.addAttribute(makeAttribute("MAPATN", fields[23]));
+      //mapping.addAttribute(makeAttribute("MAPATV", fields[24]));
+      
+      mapping.setTimestamp(releaseVersionDate);
+      mapping.setLastModified(releaseVersionDate);
+      mapping.setLastModifiedBy(loader);
+      //TODO MAPATN has ACTIVE (only for SNOMED) with nothing -> inactive, with 1 -> active
+      mapping.setObsolete(false);
+      mapping.setSuppressible(false);
+      // if fields[23] == ACTIVE, then obsolete and suppressible set to !fields[24].equals("1")
+      mapping.setPublished(true);
+      mapping.setPublishable(true);
+      mapping.setTerminology(terminology);
+      mapping.setVersion(version);
+      mapping.setTerminologyId(mapping.getFromTerminologyId() + mapping.getToTerminologyId());
+      
+      //mapSet.addMapping(mapping);
+      addMapping(mapping);
+      
+      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+    }
+
+    commitClearBegin();
+  }
+  
+  private Attribute makeAttribute(Mapping mapping, String name, String value) throws Exception {
+    Attribute att = new AttributeJpa();
+    att.setName(name);
+    att.setValue(value);
+    att.setTimestamp(releaseVersionDate);
+    att.setLastModified(releaseVersionDate);
+    att.setLastModifiedBy(loader);
+    att.setObsolete(false);
+    att.setSuppressible(false);
+    att.setPublished(true);
+    att.setPublishable(true);
+    att.setTerminology(terminology);
+    att.setVersion(version);
+    att.setTerminologyId("");
+    
+    addAttribute(att, mapping);
+    return att;
+  }
+  
+  /**
+   * Process map set attribute.
+   *
+   * @param cui the cui
+   * @param atn the atn
+   * @param atv the atv
+   */
+  private void processMapSetAttribute(String cui, String atn, String atv, String satui) throws Exception {
+    MapSet mapSet;
+    if(!mapSetMap.containsKey(cui)) {
+        mapSet = new MapSetJpa();
+        mapSetMap.put(cui, mapSet);
+    }
+      mapSet = mapSetMap.get(cui);
+      if (atn.equals("MAPSETNAME")) {
+        mapSet.setName(atv);
+      } else if (atn.equals("MAPSETVERSION")) {
+        mapSet.setMapVersion(atv);
+      } else if (atn.equals("TOVSAB")) {
+        if (mapSet.getToTerminology() != null) {
+          mapSet.setToVersion(atv.substring(mapSet.getToTerminology().length()));
+        } else {
+          mapSet.setToVersion(atv);
+        }
+      } else if (atn.equals("TORSAB")) {
+        mapSet.setToTerminology(atv);
+        if (mapSet.getToVersion() != null) {
+          mapSet.setToVersion(mapSet.getToVersion().substring(atv.length()));
+        }
+      } else if (atn.equals("FROMRSAB")) {
+        mapSet.setFromTerminology(atv);
+        if (mapSet.getFromVersion() != null) {
+          mapSet.setFromVersion(mapSet.getFromVersion().substring(atv.length()));
+        }
+      } else if (atn.equals("FROMVSAB")) {
+        if (mapSet.getFromTerminology() != null) {
+          mapSet.setFromVersion(atv.substring(mapSet.getFromTerminology().length()));
+        } else {
+          mapSet.setFromVersion(atv);
+        }        
+      } else if (atn.equals("MAPSETGRAMMAR")) {
+        Attribute att = new AttributeJpa();
+        att.setName("MAPSETGRAMMAR");
+        att.setValue(atv);
+        att.setTimestamp(releaseVersionDate);
+        att.setLastModified(releaseVersionDate);
+        att.setLastModifiedBy(loader);
+        att.setObsolete(false);
+        att.setSuppressible(false);
+        att.setPublished(true);
+        att.setPublishable(true);
+        att.setTerminology(terminology);
+        att.setVersion(version);
+        att.setTerminologyId(satui);
+        addAttribute(att, mapSet);
+        mapSet.addAttribute(att);
+      } else if (atn.equals("MAPSETXRTARGETID")) {
+        Attribute att = new AttributeJpa();
+        att.setName("MAPSETXRTARGETID");
+        att.setValue(atv);
+        att.setTimestamp(releaseVersionDate);
+        att.setLastModified(releaseVersionDate);
+        att.setLastModifiedBy(loader);
+        att.setObsolete(false);
+        att.setSuppressible(false);
+        att.setPublished(true);
+        att.setPublishable(true);
+        att.setTerminology(terminology);
+        att.setVersion(version);
+        att.setTerminologyId(satui);
+        addAttribute(att, mapSet);
+        mapSet.addAttribute(att); 
+      } else if (atn.equals("MAPSETRSAB")) {
+        mapSet.setTerminology(atv);
+        if (mapSet.getVersion() != null) {
+          mapSet.setVersion(mapSet.getVersion().substring(atv.length()));
+        }
+      } else if (atn.equals("MAPSETTYPE")) {
+        mapSet.setType(atv);
+      } else if (atn.equals("MAPSETVSAB")) {
+        if (mapSet.getTerminology() != null) {
+          mapSet.setVersion(atv.substring(mapSet.getTerminology().length()));
+        } else {
+          mapSet.setVersion(atv);
+        }
+      } else if (atn.equals("MTH_MAPFROMEXHAUSTIVE")) {
+        mapSet.setFromExhaustive(atv);
+      } else if (atn.equals("MTH_MAPTOEXHAUSTIVE")) {
+        mapSet.setToExhaustive(atv);
+      } else if (atn.equals("MTH_MAPSETCOMPLEXITY")) {
+        mapSet.setComplexity(atv);
+      } else if (atn.equals("MTH_MAPFROMCOMPLEXITY")) {
+        mapSet.setFromComplexity(atv);
+      } else if (atn.equals("MTH_MAPTOCOMPLEXITY")) {
+        mapSet.setToComplexity(atv);
+      } else if (atn.equals("MAPSETSID")) {
+        mapSet.setTerminologyId(atv);
+      }
+  }
+  
   /**
    * Load subset data from MRSAT. This is responsible for loading {@link Subset}
    * s and {@link SubsetMember}s.

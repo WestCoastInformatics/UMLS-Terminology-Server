@@ -4,6 +4,7 @@
 package com.wci.umls.server.model.content;
 
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.RelationshipType;
 
 /**
@@ -16,77 +17,77 @@ public interface Mapping extends ComponentHasAttributes {
    *
    * @return the from id type
    */
-  public String getFromIdType();
+  public IdType getFromIdType();
 
   /**
    * Sets the from id type.
    *
    * @param fromIdType the new from id type
    */
-  public void setFromIdType(String fromIdType);
+  public void setFromIdType(IdType fromIdType);
 
   /**
    * Gets the to id type.
    *
    * @return the to id type
    */
-  public String getToIdType();
+  public IdType getToIdType();
 
   /**
    * Sets the to id type.
    *
    * @param toIdType the new to id type
    */
-  public void setToIdType(String toIdType);
+  public void setToIdType(IdType toIdType);
 
   /**
    * Gets the from terminology id.
    *
    * @return the from terminology id
    */
-  public Long getFromTerminologyId();
+  public String getFromTerminologyId();
 
   /**
    * Sets the from terminology id.
    *
    * @param id the new from terminology id
    */
-  public void setFromTerminologyId(Long id);
+  public void setFromTerminologyId(String id);
 
   /**
    * Gets the to terminology id.
    *
    * @return the to terminology id
    */
-  public Long getToTerminologyId();
+  public String getToTerminologyId();
 
   /**
    * Sets the to terminology id.
    *
    * @param id the new to terminology id
    */
-  public void setToTerminologyId(Long id);
+  public void setToTerminologyId(String id);
 
   /**
    * Gets the relationship type.
    *
    * @return the relationship type
    */
-  public RelationshipType getRelationshipType();
+  public String getRelationshipType();
 
   /**
    * Sets the relationship type.
    *
    * @param relType the new relationship type
    */
-  public void setRelationshipType(RelationshipType relType);
+  public void setRelationshipType(String relType);
 
   /**
    * Gets the additional relationship type.
    *
    * @return the additional relationship type
    */
-  public AdditionalRelationshipType getAdditionalRelationshipType();
+  public String getAdditionalRelationshipType();
 
   /**
    * Sets the additional relationship type.
@@ -94,7 +95,7 @@ public interface Mapping extends ComponentHasAttributes {
    * @param addRelType the new additional relationship type
    */
   public void setAdditionalRelationshipType(
-    AdditionalRelationshipType addRelType);
+    String addRelType);
 
   /**
    * Returns the rank.
