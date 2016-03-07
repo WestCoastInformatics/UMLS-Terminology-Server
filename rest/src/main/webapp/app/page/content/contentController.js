@@ -662,7 +662,8 @@ tsApp.controller('ContentCtrl', [
     $scope.getPagedRelationships = function() {
 
       var filters = {
-        showSOElements : $scope.showSOElements,
+        showSuppressible : $scope.showSOElements,
+        showObsolete : $scope.showSOElements,
         showInferred : $scope.showInferred,
         text : $scope.relPaging.filter
       };

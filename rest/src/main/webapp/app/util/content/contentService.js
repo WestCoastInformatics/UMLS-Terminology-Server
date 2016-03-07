@@ -532,6 +532,8 @@ tsApp
           var deferred = $q.defer();
 
           var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
+          
+          if (filters)
 
           var pfs = {
             startIndex : (page - 1) * pageSizes.general,
