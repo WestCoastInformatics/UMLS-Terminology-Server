@@ -545,16 +545,16 @@ tsApp
           // Show only inferred rels for now
           // construct query restriction if needed
           var qr = '';
-          if (filters.showSuppressible == false) {
+          if (!filters.showSuppressible) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'suppressible:false';
           }
-          if (filters.showObsolete == false) {
+          if (!filters.showObsolete) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'obsolete:false';
           }
-          if (filters.showInferred == true) {
+          if (filters.showInferred) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'inferred:true';
           }
-          if (filters.showInferred == false) {
+          if (!filters.showInferred) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'stated:true';
           }
           pfs.queryRestriction = qr;
