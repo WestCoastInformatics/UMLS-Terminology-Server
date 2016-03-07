@@ -19,9 +19,8 @@ public class NewConceptMinRequirementsCheck extends AbstractValidationCheck {
   public ValidationResult validate(Concept c) {
     ValidationResult result = new ValidationResultJpa();
 
-    if (!c.isObsolete()) {
-      
-    }
+    // TBD
+
     return result;
   }
 

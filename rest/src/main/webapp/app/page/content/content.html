@@ -65,7 +65,7 @@
             Results
             <a ng-show="!metadata.terminology.metathesaurus"
               class="pull-right glyphicon glyphicon-tree-conifer"
-              ng-click="setTreeView()" uib-tooltip="Switch to tree view"></a>
+              ng-click="setTreeView()" uib-tooltip="Switch to tree view" tooltip-placement="right"></a>
           </div>
 
           <!--  Margin added to prevent crowding -->
@@ -127,7 +127,7 @@
                 ng-click="toggleExtension()"> </a>
               &nbsp;
               <a class="pull-right glyphicon glyphicon-th-list"
-                ng-click="setListView()" uib-tooltip="Switch to list view">
+                ng-click="setListView()" uib-tooltip="Switch to tree view" tooltip-placement="bottom"></a>
               </a>
             </span>
           </div>
@@ -227,8 +227,8 @@
 
         <button ng-show="!metadata.terminology.descriptionLogicTerminology"
           ng-click="toggleSODisplay()" class="btn btn-xs btn-primary">
-          <span ng-show="showSOElements">Hide Obsolete & Suppressible</span>
-          <span ng-show="!showSOElements">Show Obsolete & Suppressible</span>
+          <span ng-show="showSOElements">Hide Obsolete and Suppressible</span>
+          <span ng-show="!showSOElements">Show Obsolete and Suppressible</span>
         </button>
 
 
@@ -346,7 +346,7 @@
               boundary-links="true" class="pagination-sm"
               previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
               last-text="&raquo;"
-              
+              ng-show="component.object.atoms.length > pageSizes.general"
               total-items="pagedAtoms.totalCount" ng-model="atomPaging.page"
               ng-change="getPagedAtoms()"></uib-pagination>
 

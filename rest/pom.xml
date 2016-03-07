@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <!-- Module Metadata -->
   <parent>
-    <groupId>com.wci.umls.server</groupId>
+    <groupId>com.wcinformatics.umls.server</groupId>
     <artifactId>term-server-parent</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
@@ -18,7 +18,7 @@
 
   <properties>
     <!-- Specify the config artifact parameters -->
-    <config.groupId>com.wci.umls.server</config.groupId>
+    <config.groupId>com.wcinformatics.umls.server</config.groupId>
     <config.artifactId>term-server-config-dev-windows</config.artifactId>
     <config.version>${project.version}</config.version>
     <!-- Defaults for Eclipse dev -->
@@ -38,19 +38,19 @@
     </dependency>
     <!-- Model interfaces. -->
     <dependency>
-      <groupId>com.wci.umls.server</groupId>
+      <groupId>com.wcinformatics.umls.server</groupId>
       <artifactId>term-server-jpa-model</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.wci.umls.server</groupId>
+      <groupId>com.wcinformatics.umls.server</groupId>
       <artifactId>term-server-jpa-services</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.wci.umls.server</groupId>
+      <groupId>com.wcinformatics.umls.server</groupId>
       <artifactId>term-server-model</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.wci.umls.server</groupId>
+      <groupId>com.wcinformatics.umls.server</groupId>
       <artifactId>term-server-custom</artifactId>
     </dependency>
 

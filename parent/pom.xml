@@ -5,7 +5,7 @@
 
   <!-- Module Metadata -->
 
-  <groupId>com.wci.umls.server</groupId>
+  <groupId>com.wcinformatics.umls.server</groupId>
   <artifactId>term-server-parent</artifactId>
   <version>1.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -31,38 +31,38 @@
 
       <!-- Term server dependencies. -->
       <dependency>
-        <groupId>com.wci.umls.server</groupId>
+        <groupId>com.wcinformatics.umls.server</groupId>
         <artifactId>term-server-model</artifactId>
         <version>${releaseVersion}</version>
       </dependency>
       <dependency>
-        <groupId>com.wci.umls.server</groupId>
+        <groupId>com.wcinformatics.umls.server</groupId>
         <artifactId>term-server-services</artifactId>
         <version>${releaseVersion}</version>
       </dependency>
       <dependency>
-        <groupId>com.wci.umls.server</groupId>
+        <groupId>com.wcinformatics.umls.server</groupId>
         <artifactId>term-server-jpa-model</artifactId>
         <version>${releaseVersion}</version>
       </dependency>
       <dependency>
-        <groupId>com.wci.umls.server</groupId>
+        <groupId>com.wcinformatics.umls.server</groupId>
         <artifactId>term-server-jpa-services</artifactId>
         <version>${releaseVersion}</version>
       </dependency>
       <dependency>
-        <groupId>com.wci.umls.server</groupId>
+        <groupId>com.wcinformatics.umls.server</groupId>
         <artifactId>term-server-rest</artifactId>
         <version>${releaseVersion}</version>
         <classifier>classes</classifier>
       </dependency>
       <dependency>
-        <groupId>com.wci.umls.server</groupId>
+        <groupId>com.wcinformatics.umls.server</groupId>
         <artifactId>term-server-rest-client</artifactId>
         <version>${releaseVersion}</version>
       </dependency>
       <dependency>
-        <groupId>com.wci.umls.server</groupId>
+        <groupId>com.wcinformatics.umls.server</groupId>
         <artifactId>term-server-custom</artifactId>
         <version>${releaseVersion}</version>
       </dependency>
@@ -301,6 +301,12 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>3.3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-vfs2</artifactId>
+        <version>2.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

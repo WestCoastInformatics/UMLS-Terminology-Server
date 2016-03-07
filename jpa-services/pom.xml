@@ -4,7 +4,7 @@
 
   <!-- Module Metadata -->
   <parent>
-    <groupId>com.wci.umls.server</groupId>
+    <groupId>com.wcinformatics.umls.server</groupId>
     <artifactId>term-server-parent</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
@@ -19,15 +19,15 @@
 
     <!-- Model interfaces. -->
     <dependency>
-      <groupId>com.wci.umls.server</groupId>
+      <groupId>com.wcinformatics.umls.server</groupId>
       <artifactId>term-server-model</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.wci.umls.server</groupId>
+      <groupId>com.wcinformatics.umls.server</groupId>
       <artifactId>term-server-jpa-model</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.wci.umls.server</groupId>
+      <groupId>com.wcinformatics.umls.server</groupId>
       <artifactId>term-server-services</artifactId>
     </dependency>
 
@@ -108,6 +108,13 @@
       <artifactId>guava</artifactId>
     </dependency>
 
+    <!-- Apache -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-vfs2</artifactId>
+      <version>2.0</version>
+    </dependency>
+    
     <!-- Owl API -->
     <dependency>
       <groupId>net.sourceforge.owlapi</groupId>
