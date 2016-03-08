@@ -2019,7 +2019,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
     int objectsUpdated = 0;
 
     // Iterate through relationships reader
-    PushBackReader reader = readers.getReader(Rf2Readers.Keys.RELATIONSHIP);
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.ASSOCIATION_REFERENCE);
     while ((line = reader.readLine()) != null) {
 
       // Split line
