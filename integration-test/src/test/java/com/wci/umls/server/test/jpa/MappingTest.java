@@ -20,6 +20,7 @@ import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultComputePreferredNameHandler;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.ContentService;
 
 /**
@@ -77,8 +78,8 @@ public class MappingTest {
     assertEquals(mapSet.getName(), "Test MapSet");
     Mapping mapping = new MappingJpa();
     mapping.setAdvice("advice");
-    mapping.setFromIdType("CUI");
-    mapping.setToIdType("CUI");
+    mapping.setFromIdType(IdType.getIdType("CUI"));
+    mapping.setToIdType(IdType.getIdType("CUI"));
     mapping.setRank("rank");
     mapping.setGroup("subset/group");
     mapping.setRule("rule");

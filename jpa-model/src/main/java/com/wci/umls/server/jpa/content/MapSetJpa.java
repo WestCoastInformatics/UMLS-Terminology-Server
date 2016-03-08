@@ -29,8 +29,7 @@ import com.wci.umls.server.model.content.Mapping;
  */
 @Entity
 @Table(name = "mapsets", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "fromTerminology", "toTerminology", "fromVersion",
-    "toVersion", "id"
+    "terminologyId", "id"
 }) )
 @Audited
 @XmlRootElement(name = "mapSet")
@@ -46,27 +45,27 @@ public class MapSetJpa extends AbstractComponentHasAttributes
   private String name;
 
   /** The from complexity. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String fromComplexity;
 
   /** The to complexity. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String toComplexity;
 
   /** The complexity. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String complexity;
 
   /** The from exhaustive. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String fromExhaustive;
 
   /** The to exhaustive. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String toExhaustive;
 
   /** The type. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String type;
 
   /** The from terminology. */
@@ -78,11 +77,11 @@ public class MapSetJpa extends AbstractComponentHasAttributes
   private String toTerminology;
 
   /** The from version. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String fromVersion;
 
   /** The to version. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String toVersion;
 
   /** The map version. */

@@ -16,6 +16,32 @@ public enum IdType {
   CONCEPT,
 
   /** The sdui. */
-  DESCRIPTOR
+  DESCRIPTOR,
+  
+  /** The other. */
+  OTHER;
+  
+  /**
+   * Gets the id type.
+   *
+   * @param abbrev the abbrev
+   * @return the id type
+   */
+  public static IdType getIdType(String abbrev) {
+    if (abbrev.equals("CUI")) {
+      return CONCEPT;
+    } else if (abbrev.equals("SCUI")) {
+      return CONCEPT;
+    } else if (abbrev.equals("DUI")) {
+      return DESCRIPTOR;
+    } else if (abbrev.equals("CODE")) {
+      return CODE;
+    }
+    try {
+      return IdType.valueOf(abbrev);
+    } catch (Exception e) {
+      return OTHER;
+    }
+  }
 
 }

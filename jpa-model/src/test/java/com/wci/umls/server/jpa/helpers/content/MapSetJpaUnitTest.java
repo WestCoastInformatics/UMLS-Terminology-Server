@@ -175,16 +175,16 @@ public class MapSetJpaUnitTest {
     tester.include("version");
     tester.include("name");
     tester.include("mapVersion");
-    tester.include("fromComplexity");
-    tester.include("complexity");
-    tester.include("toComplexity");
-    tester.include("fromExhaustive");
-    tester.include("toExhaustive");
-    tester.include("type");
+    //tester.include("fromComplexity");
+    //tester.include("complexity");
+    //tester.include("toComplexity");
+    //tester.include("fromExhaustive");
+    //tester.include("toExhaustive");
+    //tester.include("type");
     tester.include("fromTerminology");
     tester.include("toTerminology");
-    tester.include("fromVersion");
-    tester.include("toVersion");
+    //tester.include("fromVersion");
+    //tester.include("toVersion");
 
     assertTrue(tester.testNotNullFields());
   }

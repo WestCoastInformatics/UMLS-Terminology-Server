@@ -3,34 +3,27 @@
  */
 package com.wci.umls.server.jpa.content;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
-import org.hibernate.search.bridge.builtin.LongBridge;
 
-import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
-import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
-import com.wci.umls.server.model.meta.AdditionalRelationshipType;
-import com.wci.umls.server.model.meta.RelationshipType;
+import com.wci.umls.server.model.meta.IdType;
 
 /**
  * JPA-enabled implementation of {@link Mapping}.
@@ -52,43 +45,45 @@ public class MappingJpa extends AbstractComponentHasAttributes
 
   /** The from terminology id. */
   @Column(nullable = false)
-  private Long fromTerminologyId;
+  private String fromTerminologyId;
 
   /** The to terminology id. */
   @Column(nullable = false)
-  private Long toTerminologyId;
+  private String toTerminologyId;
 
   /** The from id type. */
+  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private String fromIdType;
+  private IdType fromIdType;
 
   /** The to id type. */
+  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private String toIdType;
+  private IdType toIdType;
 
   /** The advice. */
-  @Column(nullable = false, length = 4000)
+  @Column(nullable = true, length = 4000)
   private String advice;
 
   /** The rule. */
-  @Column(nullable = false, length = 4000)
+  @Column(nullable = true, length = 4000)
   private String rule;
 
   /** The group. */
-  @Column(name = "mapGroup", nullable = false)
+  @Column(name = "mapGroup", nullable = true)
   private String group;
 
   /** The rank. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String rank;
 
   /** The relationship type. */
-  @OneToOne(targetEntity = RelationshipTypeJpa.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = true)
-  private RelationshipType relationshipType;
+  @Column(nullable = true)
+  private String relationshipType;
 
   /** The additional relationship type. */
-  @OneToOne(targetEntity = AdditionalRelationshipTypeJpa.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = true)
-  private AdditionalRelationshipType additionalRelationshipType;
+  @Column(nullable = true)
+  private String additionalRelationshipType;
 
   /**
    * Instantiates an empty {@link MappingJpa}.
@@ -120,80 +115,76 @@ public class MappingJpa extends AbstractComponentHasAttributes
 
   /* see superclass */
   @Override
-  public String getFromIdType() {
+  public IdType getFromIdType() {
     return fromIdType;
   }
 
   /* see superclass */
   @Override
-  public void setFromIdType(String fromIdType) {
+  public void setFromIdType(IdType fromIdType) {
     this.fromIdType = fromIdType;
   }
 
   /* see superclass */
   @Override
-  public String getToIdType() {
+  public IdType getToIdType() {
     return toIdType;
   }
 
   /* see superclass */
   @Override
-  public void setToIdType(String toIdType) {
+  public void setToIdType(IdType toIdType) {
     this.toIdType = toIdType;
   }
 
   /* see superclass */
-  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
-  public Long getFromTerminologyId() {
+  public String getFromTerminologyId() {
     return fromTerminologyId;
   }
 
   /* see superclass */
   @Override
-  public void setFromTerminologyId(Long id) {
+  public void setFromTerminologyId(String id) {
     this.fromTerminologyId = id;
   }
 
   /* see superclass */
-  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
-  public Long getToTerminologyId() {
+  public String getToTerminologyId() {
     return toTerminologyId;
   }
 
   /* see superclass */
   @Override
-  public void setToTerminologyId(Long id) {
+  public void setToTerminologyId(String id) {
     this.toTerminologyId = id;
   }
 
   /* see superclass */
-  @XmlElement(type = RelationshipTypeJpa.class)
   @Override
-  public RelationshipType getRelationshipType() {
+  public String getRelationshipType() {
     return relationshipType;
   }
 
   /* see superclass */
   @Override
-  public void setRelationshipType(RelationshipType relType) {
+  public void setRelationshipType(String relType) {
     this.relationshipType = relType;
   }
 
   /* see superclass */
-  @XmlElement(type = AdditionalRelationshipTypeJpa.class)
   @Override
-  public AdditionalRelationshipType getAdditionalRelationshipType() {
+  public String getAdditionalRelationshipType() {
     return additionalRelationshipType;
   }
 
   /* see superclass */
   @Override
   public void setAdditionalRelationshipType(
-    AdditionalRelationshipType addRelType) {
+    String addRelType) {
     this.additionalRelationshipType = addRelType;
   }
 
