@@ -6,8 +6,10 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
+import com.wci.umls.server.jpa.services.helper.StandardMetadataServiceJpaHelper;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
@@ -159,6 +161,7 @@ public class SnomedctGraphResolutionHandler extends
       if (relationship.getAlternateTerminologyIds() != null) {
         relationship.getAlternateTerminologyIds().keySet();
       }
+     
       if (prop.getProperty(relationship.getAdditionalRelationshipType()) != null) {
         relationship.setAdditionalRelationshipType(prop
             .getProperty(relationship.getAdditionalRelationshipType()));

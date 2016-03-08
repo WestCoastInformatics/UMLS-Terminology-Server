@@ -2009,24 +2009,25 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
    * @throws Exception the exception
    */
   private void loadAssociationReferenceRefSetMembers() throws Exception {
+
     Set<Concept> modifiedConcepts = new HashSet<>();
-    Set<Atom> modifiedAtoms = new HashSet<>();
 
     // Setup variables
     String line = "";
+    objectCt = 0;
     int objectsAdded = 0;
     int objectsUpdated = 0;
 
-    // Iterate through refset reader
-    PushBackReader reader =
-        readers.getReader(Rf2Readers.Keys.ASSOCIATION_REFERENCE);
+    // Iterate through relationships reader
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.RELATIONSHIP);
     while ((line = reader.readLine()) != null) {
 
-      // split line
+      // Split line
       String fields[] = FieldedStringTokenizer.split(line, "\t");
 
-      // if not header
+      // If not header
       if (!fields[0].equals("id")) {
+
         // Skip if the effective time is before the release version
         if (fields[1].compareTo(releaseVersion) < 0) {
           continue;
@@ -2038,123 +2039,139 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
           break;
         }
 
-        // Is the member a concept
-        boolean isConcept = getConcept(idMap.get(fields[5])) != null;
+        // Retrieve source concept
+        Concept associationConcept = null;
+        Concept sourceConcept = null;
+        Concept destinationConcept = null;
 
-        SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member =
-            null;
+        // retrieve association concept
+        if (idMap.containsKey(fields[4])) {
+          associationConcept = getConcept(idMap.get(fields[4]));
+        }
+        if (associationConcept == null) {
+          throw new Exception(
+              "Relationship " + fields[0] + " association refset concept "
+                  + fields[4] + " cannot be found");
+        }
+
+        // retrieve source concept
+        if (idMap.containsKey(fields[5])) {
+          sourceConcept = getConcept(idMap.get(fields[5]));
+        }
+        if (sourceConcept == null) {
+          throw new Exception("Relationship " + fields[0] + " source concept "
+              + fields[5] + " cannot be found");
+        }
+
+        // Retrieve destination concept
+        if (idMap.containsKey(fields[6])) {
+          destinationConcept = getConcept(idMap.get(fields[6]));
+        }
+        if (destinationConcept == null) {
+          throw new Exception("Relationship " + fields[0]
+              + " destination concept " + fields[6] + " cannot be found");
+        }
+
+        // Retrieve relationship if it exists
+        ConceptRelationship rel = null;
         if (idMap.containsKey(fields[0])) {
-          if (isConcept) {
-            member = getSubsetMember(idMap.get(fields[0]),
-                ConceptSubsetMemberJpa.class);
-          } else {
-            member = getSubsetMember(idMap.get(fields[0]),
-                AtomSubsetMemberJpa.class);
-          }
+          rel = (ConceptRelationship) getRelationship(idMap.get(fields[0]),
+              ConceptRelationshipJpa.class);
         }
 
-        // Setup delta simple entry (either new or based on existing
-        // one)
-        SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member2 =
-            null;
-        if (member == null) {
-          if (isConcept) {
-            member2 = new ConceptSubsetMemberJpa();
-          } else {
-            member2 = new AtomSubsetMemberJpa();
-          }
+        // Setup delta relationship (either new or based on existing one)
+        ConceptRelationship rel2 = null;
+        if (rel == null) {
+          rel2 = new ConceptRelationshipJpa();
         } else {
-          member.getAttributes().size();
-          member.getSubset().getName();
-          if (isConcept) {
-            member2 =
-                new ConceptSubsetMemberJpa((ConceptSubsetMember) member, true);
-          } else {
-            member2 = new AtomSubsetMemberJpa((AtomSubsetMember) member, true);
-          }
+          rel.getAttributes().size();
+          rel2 = new ConceptRelationshipJpa(rel, true);
         }
 
-        // Populate and handle subset aspects of member
-        refsetHelper(member2, fields);
-
-        // Add valueId attribute
+        // Set fields
         final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
+        rel2.setTerminologyId(fields[0]);
+        rel2.setTimestamp(date);
+        rel2.setLastModified(releaseVersionDate);
+        rel2.setObsolete(fields[2].equals("0")); // active
+        rel2.setSuppressible(rel2.isObsolete());
+        rel2.setRelationshipType("RO"); // typeId
+        rel2.setHierarchical(false);
+        rel2.setAdditionalRelationshipType(fields[4]); // typeId
+        rel2.setStated(false);
+        rel2.setInferred(true);
+        rel2.setTerminology(terminology);
+        rel2.setVersion(version);
+        rel2.setLastModifiedBy(loader);
+        rel2.setPublished(true);
+        rel2.setPublishable(true);
+        rel2.setAssertedDirection(true);
+
+        // ensure additional relationship type & general entry has been added
+        generalEntryValues.add(rel2.getAdditionalRelationshipType());
+        additionalRelTypes.add(rel2.getAdditionalRelationshipType());
+
+        // get concepts from cache, they just need to have ids
+        final Concept fromConcept = getConcept(idMap.get(fields[5]));
+        final Concept toConcept = getConcept(idMap.get(fields[6]));
+        if (fromConcept != null && toConcept != null) {
+          rel2.setFrom(fromConcept);
+          rel2.setTo(toConcept);
+        } else {
+          if (fromConcept == null) {
+            throw new Exception("Relationship " + rel2.getTerminologyId()
+                + " -existent source concept " + fields[4]);
+          }
+          if (toConcept == null) {
+            throw new Exception("Relationship" + rel2.getTerminologyId()
+                + " references non-existent destination concept " + fields[5]);
+          }
+        }
+        // Attributes
         Attribute attribute = null;
-        if (member != null) {
-          attribute = member.getAttributeByName("targetComponentId");
+        if (rel != null) {
+          attribute = rel.getAttributeByName("moduleId");
         } else {
           attribute = new AttributeJpa();
-          member2.addAttribute(attribute);
+          rel2.addAttribute(attribute);
         }
         setCommonFields(attribute, date);
-        attribute.setName("targetComponentId");
-        attribute.setValue(fields[6].intern());
+        attribute.setName("moduleId");
+        attribute.setValue(fields[3].intern());
+        cacheAttributeMetadata(attribute);
 
-        final Concept concept = getConcept(member2.getMember().getId());
-        final Atom atom = getAtom(member2.getMember().getId());
-
-        // If refset entry is new, add it
-        if (member == null) {
-          for (Attribute att : member2.getAttributes()) {
-            Logger.getLogger(getClass()).debug("      add attribute = " + att);
-            addAttribute(att, member2);
-          }
-
-          Logger.getLogger(getClass())
-              .debug("      add attribute value refset member = " + member2);
-          member2 = addSubsetMember(member2);
-          idMap.put(member2.getTerminologyId(), member2.getId());
-          if (isConcept) {
-            concept.addMember((ConceptSubsetMember) member2);
-            modifiedConcepts.add(concept);
-          } else {
-            atom.addMember((AtomSubsetMember) member2);
-            modifiedAtoms.add(atom);
-          }
+        // If atom is new, add it
+        if (rel == null) {
+          addAttribute(attribute, rel2);
+          Logger.getLogger(getClass()).debug("      add rel - " + rel2);
+          rel2 = (ConceptRelationship) addRelationship(rel2);
+          idMap.put(rel2.getTerminologyId(), rel2.getId());
+          sourceConcept.addRelationship(rel2);
+          modifiedConcepts.add(sourceConcept);
           objectsAdded++;
         }
 
-        // If refset entry is changed, update it
-        else if (!member2.equals(member) || !Rf2EqualityUtility
-            .compareAttributes(member2, member, new String[] {
-                "moduleId", "targetComponentId"
-        })) {
-          Logger.getLogger(getClass()).debug("  update simple - " + member2);
-          if (!member.equals(member2)) {
-            Logger.getLogger(getClass())
-                .debug("      update association reference refset member - "
-                    + member2);
-            updateSubsetMember(member2);
-            if (isConcept) {
-              concept.removeMember((ConceptSubsetMember) member);
-              concept.addMember((ConceptSubsetMember) member2);
-              modifiedConcepts.add(concept);
-            } else {
-              atom.removeMember((AtomSubsetMember) member);
-              atom.addMember((AtomSubsetMember) member2);
-              modifiedAtoms.add(atom);
-            }
+        // If atom has changed, update it
+        else if (!Rf2EqualityUtility.equals(rel2, rel)) {
+          if (!rel.equals(rel2)) {
+            Logger.getLogger(getClass()).debug("      update rel - " + rel2);
+            updateRelationship(rel2);
+            sourceConcept.removeRelationship(rel);
+            sourceConcept.addRelationship(rel);
+            modifiedConcepts.add(sourceConcept);
           }
-          updateAttributes(member2, member);
+          updateAttributes(rel2, rel);
           objectsUpdated++;
-
         }
 
-        // Periodic commit
         if ((objectsAdded + objectsUpdated) % logCt == 0) {
+          logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
+              RootService.commitCt);
           for (Concept modifiedConcept : modifiedConcepts) {
             Logger.getLogger(getClass())
                 .debug("      update concept - " + modifiedConcept);
             updateConcept(modifiedConcept);
           }
-          for (Atom modifiedAtom : modifiedAtoms) {
-            Logger.getLogger(getClass())
-                .debug("      update atom - " + modifiedAtom);
-            updateAtom(modifiedAtom);
-          }
-          logAndCommit(objectsAdded + objectsUpdated, RootService.logCt,
-              RootService.commitCt);
-          modifiedAtoms.clear();
           modifiedConcepts.clear();
         }
 
@@ -2167,14 +2184,9 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
           .debug("      update concept - " + modifiedConcept);
       updateConcept(modifiedConcept);
     }
-    for (Atom modifiedAtom : modifiedAtoms) {
-      Logger.getLogger(getClass())
-          .debug("      update concept - " + modifiedAtom);
-      updateAtom(modifiedAtom);
-    }
+
     commitClearBegin();
     modifiedConcepts.clear();
-    modifiedAtoms.clear();
 
     Logger.getLogger(getClass()).info("      new = " + objectsAdded);
     Logger.getLogger(getClass()).info("      updated = " + objectsUpdated);

@@ -916,6 +916,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
     while ((line = reader.readLine()) != null) {
       line = line.replace("\r", "");
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
+      
+     
+          
 
       if (!fields[0].equals(id)) { // header
 
@@ -977,6 +980,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
 
       if (!fields[0].equals(id)) { // header
+        
+        Logger.getLogger(getClass()).info("Line: " + fields);
 
         // Stop if the effective time is past the release version
         if (fields[1].compareTo(releaseVersion) > 0) {
@@ -1007,7 +1012,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
         relationship.setHierarchical(false);
         relationship.setAdditionalRelationshipType(fields[4]);
         relationship.setStated(false);
-        relationship.setInferred(false);
+        relationship.setInferred(true);
         relationship.setTerminology(terminology);
         relationship.setVersion(version);
         relationship.setLastModified(releaseVersionDate);
@@ -1018,6 +1023,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
 
         // ensure additional relationship type has been added
         additionalRelTypes.add(relationship.getAdditionalRelationshipType());
+        generalEntryValues.add(relationship.getAdditionalRelationshipType());
 
         // Module Id Attribute
         Attribute attribute = new AttributeJpa();
@@ -1028,22 +1034,34 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
         addAttribute(attribute, relationship);
 
         // get concepts from cache, they just need to have ids
-        final Concept fromConcept = getConcept(conceptIdMap.get(fields[4]));
-        final Concept toConcept = getConcept(conceptIdMap.get(fields[5]));
+        final Concept fromConcept = getConcept(conceptIdMap.get(fields[5]));
+        final Concept toConcept = getConcept(conceptIdMap.get(fields[6]));
+        
+ 
         if (fromConcept != null && toConcept != null) {
           relationship.setFrom(fromConcept);
           relationship.setTo(toConcept);
           addRelationship(relationship);
+          
+          Logger.getLogger(getClass()).info("adding RO rel " + (objectCt + 1) + ", "
+              + relationship.getTerminologyId() + ", "
+              + relationship.getFrom().getName() + ", "
+              + getConcept(conceptIdMap
+                  .get(relationship.getAdditionalRelationshipType()))
+              + ", " + relationship.getTo().getName());
+          
+
+          
 
         } else {
           if (fromConcept == null) {
             throw new Exception(
                 "Relationship " + relationship.getTerminologyId()
-                    + " -existent source concept " + fields[4]);
+                    + " references non-existent source concept " + fields[5]);
           }
           if (toConcept == null) {
             throw new Exception("Relationship" + relationship.getTerminologyId()
-                + " references non-existent destination concept " + fields[5]);
+                + " references non-existent destination concept " + fields[6]);
           }
         }
 
@@ -1063,27 +1081,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
        * beginning, "POSSIBLY EQUIVALENT TO") make sure to not add it more than
        * once.
        */
-
-      /*
-       * SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>
-       * member = null; if (conceptIdMap.get(fields[5]) != null) { member = new
-       * ConceptSubsetMemberJpa(); } else if (atomIdMap.get(fields[5]) != null)
-       * { member = new AtomSubsetMemberJpa(); } else { throw new Exception(
-       * "Attribute value member connected to nonexistent object"); }
-       * refsetHelper(member, fields);
-       * 
-       * // Attributes final Attribute attribute = new AttributeJpa();
-       * setCommonFields(attribute, date);
-       * attribute.setName("targetComponentId");
-       * attribute.setValue(fields[6].intern());
-       * attributeNames.add(attribute.getName());
-       * member.addAttribute(attribute); addAttribute(attribute, member);
-       * 
-       * // Add member addSubsetMember(member);
-       */
-
-      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
-
     }
   }
 
