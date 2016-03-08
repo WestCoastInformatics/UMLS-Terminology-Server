@@ -381,7 +381,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       loadMrsat();
 
       // Mappings
-      //loadMrmap();
+      loadMrmap();
       
       // Need to reset MRSAT reader
       readers.closeReaders();
@@ -1252,9 +1252,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           descriptor.addAttribute(att);
           addAttribute(att, descriptor);
         }
-      } /*else if (isMapSetAttribute(fields[8])) {
+      } 
+      if (isMapSetAttribute(fields[8])) {
         processMapSetAttribute(fields[0], fields[8], fields[10], fields[7]);
-      }*/
+      }
 
       // Update objects before commit
       if (++objectCt % commitCt == 0) {
@@ -1515,10 +1516,13 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       mapping.setTimestamp(releaseVersionDate);
       mapping.setLastModified(releaseVersionDate);
       mapping.setLastModifiedBy(loader);
-      //TODO MAPATN has ACTIVE (only for SNOMED) with nothing -> inactive, with 1 -> active
+      //if MAPATN is "ACTIVE" with nothing -> inactive, with 1 -> active
       mapping.setObsolete(false);
       mapping.setSuppressible(false);
-      // if fields[23] == ACTIVE, then obsolete and suppressible set to !fields[24].equals("1")
+      if (fields[23].equals("ACTIVE")) {
+        mapping.setObsolete(!fields[24].equals("1"));
+        mapping.setSuppressible(!fields[24].equals("1"));
+      }
       mapping.setPublished(true);
       mapping.setPublishable(true);
       mapping.setTerminology(terminology);
