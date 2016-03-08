@@ -1252,9 +1252,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           descriptor.addAttribute(att);
           addAttribute(att, descriptor);
         }
-      } else if (isMapSetAttribute(fields[8])) {
+      } /*else if (isMapSetAttribute(fields[8])) {
         processMapSetAttribute(fields[0], fields[8], fields[10], fields[7]);
-      }
+      }*/
 
       // Update objects before commit
       if (++objectCt % commitCt == 0) {
@@ -1482,7 +1482,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         mapping.addAttribute(makeAttribute(mapping, "FROMSID", fields[7]));
       }
       mapping.setFromTerminologyId(fields[8]); // FROMEXPR
-      mapping.setFromIdType(IdType.getIdType(fields[9])); // FROMTYPE  // TODO use IdType with annotation to store as String  search enum
+      mapping.setFromIdType(IdType.getIdType(fields[9])); // FROMTYPE  
       if (fields[10] != null && fields[10].equals("")) {
         mapping.addAttribute(makeAttribute(mapping, "FROMRULE", fields[10]));
       }
