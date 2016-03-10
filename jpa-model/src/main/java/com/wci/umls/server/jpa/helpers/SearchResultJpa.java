@@ -23,7 +23,7 @@ public class SearchResultJpa implements SearchResult {
   /** The terminology. */
   private String terminology;
 
-  /** The terminology version. */
+  /** The version. */
   private String version;
 
   /** The value. */

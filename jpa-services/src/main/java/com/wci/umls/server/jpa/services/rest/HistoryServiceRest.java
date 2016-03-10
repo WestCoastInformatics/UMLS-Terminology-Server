@@ -103,7 +103,7 @@ public interface HistoryServiceRest {
    *
    * @param releaseVersion the release version
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param authToken the auth token
    * @throws Exception the exception
    */

@@ -75,7 +75,7 @@ public class ReleaseInfoJpa implements ReleaseInfo {
   @Column(nullable = false)
   private String terminology;
 
-  /** The terminology version. */
+  /** The version. */
   @Column(nullable = false)
   private String version;
 

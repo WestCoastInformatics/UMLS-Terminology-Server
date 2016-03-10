@@ -38,7 +38,7 @@ public class TerminologyRemoverMojo extends AbstractMojo {
   private String terminology;
 
   /**
-   * Terminology version to remove.
+   * version to remove.
    * @parameter
    * @required
    */

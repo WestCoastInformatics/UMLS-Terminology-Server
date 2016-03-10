@@ -34,7 +34,7 @@ public interface ContentServiceRest {
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param authToken the auth token
    * @return the concept
    * @throws Exception the exception
@@ -120,7 +120,7 @@ public interface ContentServiceRest {
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param authToken the auth token
    * @return the descriptor
    * @throws Exception the exception
@@ -298,7 +298,7 @@ public interface ContentServiceRest {
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param authToken the auth token
    * @return the code
    * @throws Exception the exception
@@ -383,7 +383,7 @@ public interface ContentServiceRest {
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param authToken the auth token
    * @return the lexical class
    * @throws Exception the exception
@@ -396,7 +396,7 @@ public interface ContentServiceRest {
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param authToken the auth token
    * @return the string class
    * @throws Exception the exception
@@ -441,7 +441,7 @@ public interface ContentServiceRest {
    * Load all terminologies from an RRF directory.
    *
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param singleMode the single mode
    * @param codeFlag the code flag
    * @param prefix the prefix
@@ -457,7 +457,7 @@ public interface ContentServiceRest {
    * Load terminology snapshot from RF2 directory.
    *
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param inputDir the input dir
    * @param authToken the auth token
    * @throws Exception the exception
@@ -492,7 +492,7 @@ public interface ContentServiceRest {
    * Load terminology from ClaML file.
    *
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param inputFile the input file
    * @param authToken the auth token
    * @throws Exception the exception
@@ -516,7 +516,7 @@ public interface ContentServiceRest {
    * Removes the terminology.
    *
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param authToken the auth token
    * @return true or false
    * @throws Exception the exception

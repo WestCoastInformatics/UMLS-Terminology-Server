@@ -69,7 +69,7 @@ public class ProjectLoaderMojo extends AbstractMojo {
   private String terminology = null;
 
   /**
-   * The terminology version.
+   * The version.
    *
    * @parameter
    * @required

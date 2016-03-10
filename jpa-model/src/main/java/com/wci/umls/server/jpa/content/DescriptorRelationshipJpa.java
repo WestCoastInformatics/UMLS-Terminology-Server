@@ -287,9 +287,9 @@ public class DescriptorRelationshipJpa extends
   }
 
   /**
-   * Returns the to terminology version.
+   * Returns the to version.
    *
-   * @return the to terminology version
+   * @return the to version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToVersion() {
@@ -297,9 +297,9 @@ public class DescriptorRelationshipJpa extends
   }
 
   /**
-   * Sets the to terminology version.
+   * Sets the to version.
    *
-   * @param version the to terminology version
+   * @param version the to version
    */
   public void setToVersion(String version) {
     if (to == null) {

@@ -88,7 +88,7 @@ public interface ContentService extends MetadataService {
    *
    * @param terminologyId the id
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param branch the branch to lookup
    * @return the single concept
    * @throws Exception if there are more than one matching concepts.
@@ -301,7 +301,7 @@ public interface ContentService extends MetadataService {
    *
    * @param terminologyId the id
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param branch the branch to lookup
    * @return the single descriptor
    * @throws Exception if there are more than one matching descriptors.
@@ -338,7 +338,7 @@ public interface ContentService extends MetadataService {
    *
    * @param terminologyId the id
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param branch the branch to lookup
    * @return the single code
    * @throws Exception if there are more than one matching codes.
@@ -375,7 +375,7 @@ public interface ContentService extends MetadataService {
    *
    * @param terminologyId the id
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param branch the branch to lookup
    * @return the lexical class
    * @throws Exception if there are more than one matching lexicalClasss.
@@ -412,7 +412,7 @@ public interface ContentService extends MetadataService {
    *
    * @param terminologyId the id
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param branch the branch to lookup
    * @return the string class
    * @throws Exception if there are more than one matching stringClasss.
@@ -1056,7 +1056,7 @@ public interface ContentService extends MetadataService {
    * Gets the all concepts.
    *
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param branch the branch
    * @return the all concepts
    */
@@ -1101,7 +1101,7 @@ public interface ContentService extends MetadataService {
    * Clear transitive closure.
    *
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @throws Exception the exception
    */
   public void clearTransitiveClosure(String terminology, String version)

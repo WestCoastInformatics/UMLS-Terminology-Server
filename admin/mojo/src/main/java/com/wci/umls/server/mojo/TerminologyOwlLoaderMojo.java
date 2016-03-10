@@ -43,7 +43,7 @@ public class TerminologyOwlLoaderMojo extends AbstractMojo {
   String terminology;
 
   /**
-   * Terminology version.
+   * version.
    *
    * @parameter
    * @required

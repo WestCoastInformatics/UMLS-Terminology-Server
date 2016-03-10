@@ -34,7 +34,7 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
   private String terminology;
 
   /**
-   * The terminology version.
+   * The version.
    * @parameter
    * @required
    */
@@ -75,7 +75,7 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
     try {
       getLog().info("RF2 Full Terminology Loader called via mojo.");
       getLog().info("  Terminology        : " + terminology);
-      getLog().info("  Terminology Version: " + version);
+      getLog().info("  version: " + version);
       getLog().info("  Input directory    : " + inputDir);
       getLog().info("  Expect server up   : " + server);
       getLog().info("  Mode               : " + mode);

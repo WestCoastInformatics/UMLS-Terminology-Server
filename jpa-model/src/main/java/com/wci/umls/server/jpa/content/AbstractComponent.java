@@ -77,7 +77,7 @@ public abstract class AbstractComponent implements Component {
   @Column(nullable = false)
   private String terminologyId;
 
-  /** The terminology version. */
+  /** The version. */
   @Column(nullable = false)
   private String version;
 

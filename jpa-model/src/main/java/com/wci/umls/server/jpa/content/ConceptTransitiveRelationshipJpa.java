@@ -149,9 +149,9 @@ public class ConceptTransitiveRelationshipJpa extends
   }
 
   /**
-   * Sets the super type terminology version.
+   * Sets the super type version.
    *
-   * @param version the super type terminology version
+   * @param version the super type version
    */
   public void setSuperTypeVersion(String version) {
     if (superType == null) {
@@ -245,9 +245,9 @@ public class ConceptTransitiveRelationshipJpa extends
   }
 
   /**
-   * Sets the sub type terminology version.
+   * Sets the sub type version.
    *
-   * @param version the sub type terminology version
+   * @param version the sub type version
    */
   public void setSubTypeVersion(String version) {
     if (subType == null) {

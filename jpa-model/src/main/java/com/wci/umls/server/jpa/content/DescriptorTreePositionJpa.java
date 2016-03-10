@@ -166,9 +166,9 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
   }
 
   /**
-   * Returns the node terminology version. For JAXB.
+   * Returns the node version. For JAXB.
    *
-   * @return the node terminology version
+   * @return the node version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getNodeVersion() {
@@ -176,9 +176,9 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
   }
 
   /**
-   * Sets the node terminology version. For JAXB.
+   * Sets the node version. For JAXB.
    *
-   * @param version the node terminology version
+   * @param version the node version
    */
   public void setNodeVersion(String version) {
     if (node == null) {

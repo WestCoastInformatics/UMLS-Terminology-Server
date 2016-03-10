@@ -113,7 +113,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
   /** The terminology. */
   private String terminology;
 
-  /** The terminology version. */
+  /** The version. */
   private String version;
 
   /** The release version. */
@@ -194,9 +194,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
   }
 
   /**
-   * Sets the terminology version.
+   * Sets the version.
    *
-   * @param version the terminology version
+   * @param version the version
    */
   public void setVersion(String version) {
     this.version = version;

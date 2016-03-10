@@ -150,9 +150,9 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
   }
 
   /**
-   * Returns the member terminology version. For JAXB.
+   * Returns the member version. For JAXB.
    *
-   * @return the member terminology version
+   * @return the member version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getMemberVersion() {
@@ -160,9 +160,9 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
   }
 
   /**
-   * Sets the member terminology version. For JAXB.
+   * Sets the member version. For JAXB.
    *
-   * @param version the member terminology version
+   * @param version the member version
    */
   public void setMemberVersion(String version) {
     if (member == null) {
@@ -277,9 +277,9 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
   }
 
   /**
-   * Returns the subset terminology version. For JAXB.
+   * Returns the subset version. For JAXB.
    *
-   * @return the subset terminology version
+   * @return the subset version
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getSubsetVersion() {
@@ -287,9 +287,9 @@ public class AtomSubsetMemberJpa extends AbstractSubsetMember<Atom, AtomSubset>
   }
 
   /**
-   * Sets the subset terminology version. For JAXB.
+   * Sets the subset version. For JAXB.
    *
-   * @param version the subset terminology version
+   * @param version the subset version
    */
   public void setSubsetVersion(String version) {
     if (subset == null) {

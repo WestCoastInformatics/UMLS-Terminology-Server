@@ -51,7 +51,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
   /** The terminology. */
   private String terminology;
 
-  /** The terminology version. */
+  /** The version. */
   private String version;
 
   /** The descendants map. */
@@ -84,9 +84,9 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
   }
 
   /**
-   * Sets the terminology version.
+   * Sets the version.
    *
-   * @param version the terminology version
+   * @param version the version
    */
   public void setVersion(String version) {
     this.version = version;
@@ -149,7 +149,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
    * Compute transitive closure.
    *
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param idType the id type
    * @throws Exception the exception
    */

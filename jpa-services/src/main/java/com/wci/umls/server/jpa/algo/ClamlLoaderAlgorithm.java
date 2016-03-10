@@ -89,7 +89,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
   /** The terminology. */
   String terminology;
 
-  /** The terminology version. */
+  /** The version. */
   String version;
 
   /** release version. */
@@ -137,9 +137,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
   }
 
   /**
-   * Sets the terminology version.
+   * Sets the version.
    *
-   * @param version the terminology version
+   * @param version the version
    */
   public void setVersion(String version) {
     this.version = version;
@@ -1795,9 +1795,9 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
       }
     }
     br.close();
-    // Override terminology version with parameter
+    // Override version with parameter
     releaseVersionDate = ConfigUtility.DATE_FORMAT3.parse(releaseVersion);
-    Logger.getLogger(getClass()).info("terminologyVersion: " + releaseVersion);
+    Logger.getLogger(getClass()).info("version: " + releaseVersion);
   }
 
   /**

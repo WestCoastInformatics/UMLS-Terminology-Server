@@ -51,14 +51,14 @@ public interface SearchResult {
   public void setTerminology(String terminology);
 
   /**
-   * Returns the terminology version.
+   * Returns the version.
    *
    * @return the version
    */
   public String getVersion();
 
   /**
-   * Sets the terminology version.
+   * Sets the version.
    *
    * @param version the version to set
    */
