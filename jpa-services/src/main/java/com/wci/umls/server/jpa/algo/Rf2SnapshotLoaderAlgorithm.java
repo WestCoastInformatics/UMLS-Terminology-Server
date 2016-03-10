@@ -985,6 +985,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
 
         // Stop if the effective time is past the release version
         if (fields[1].compareTo(releaseVersion) > 0) {
+          Logger.getLogger(getClass()).debug("Found effective time past release version at line " + line);
           reader.push(line);
           break;
         }
@@ -1068,19 +1069,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
-
-      /**
-       * Make a ConceptRelationshipJpa id = terminologyId timestamp/lastModified
-       * = effectiveTime !active = obsolete published = true, publishable =
-       * true, ... moduleId = becomes an attribute, see how it works in
-       * loadRelationships referencedComponentId, look up the concept -> setFrom
-       * targetComponentId, look up the concept -> setTo relationshipType = "RO"
-       * additionalRelationshipType = refsetId Need to make sure a metadata
-       * additionalRelationshipType gets added abbreviation = refsetId,
-       * expandedForm = name of that concept (e.g. the part in capitals at the
-       * beginning, "POSSIBLY EQUIVALENT TO") make sure to not add it more than
-       * once.
-       */
     }
   }
 

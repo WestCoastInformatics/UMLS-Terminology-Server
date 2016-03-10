@@ -22,6 +22,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
+import com.wci.umls.server.jpa.algo.Rf2Readers.Keys;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
@@ -176,6 +177,9 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
    */
   public void setReaders(Rf2Readers readers) {
     this.readers = readers;
+    
+    readers.getReader(Keys.ASSOCIATION_REFERENCE);
+    
   }
 
   /* see superclass */
@@ -2020,6 +2024,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
 
     // Iterate through relationships reader
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.ASSOCIATION_REFERENCE);
+
     while ((line = reader.readLine()) != null) {
 
       // Split line
@@ -2032,7 +2037,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
         if (fields[1].compareTo(releaseVersion) < 0) {
           continue;
         }
-
+      
         // Stop if the effective time is past the release version
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
@@ -2120,11 +2125,11 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
         } else {
           if (fromConcept == null) {
             throw new Exception("Relationship " + rel2.getTerminologyId()
-                + " -existent source concept " + fields[4]);
+                + " references non-existent source concept " + fields[5]);
           }
           if (toConcept == null) {
             throw new Exception("Relationship" + rel2.getTerminologyId()
-                + " references non-existent destination concept " + fields[5]);
+                + " references non-existent destination concept " + fields[6]);
           }
         }
         // Attributes
@@ -2162,6 +2167,11 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
           }
           updateAttributes(rel2, rel);
           objectsUpdated++;
+        }
+        
+        // if unchanged, log for debug
+        else {
+          Logger.getLogger(getClass()).debug("      unchanged rel - " + rel2);
         }
 
         if ((objectsAdded + objectsUpdated) % logCt == 0) {
