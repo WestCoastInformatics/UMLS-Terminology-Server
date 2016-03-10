@@ -112,9 +112,8 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-vfs2</artifactId>
-      <version>2.0</version>
     </dependency>
-    
+
     <!-- Owl API -->
     <dependency>
       <groupId>net.sourceforge.owlapi</groupId>
