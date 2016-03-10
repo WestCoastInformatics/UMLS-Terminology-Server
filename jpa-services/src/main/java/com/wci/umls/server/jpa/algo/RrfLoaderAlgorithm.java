@@ -1490,7 +1490,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (fields[11] != null && fields[11].equals("")) {
         mapping.addAttribute(makeAttribute(mapping, "FROMRES", fields[11]));
       }
-      // TODO: add jira ticket QA admin tool for referential integrity
+     
       mapping.setRelationshipType(fields[12]);
       mapping.setAdditionalRelationshipType(fields[13]);
       if (fields[14] != null && fields[14].equals("")) {
