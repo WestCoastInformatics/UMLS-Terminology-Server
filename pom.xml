@@ -128,10 +128,6 @@
   <!-- configure Maven to deploy to the OSSRH Nexus Repository Manager with the Nexus 
     Staging Maven plugin (see plugins) -->
   <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
     <repository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
