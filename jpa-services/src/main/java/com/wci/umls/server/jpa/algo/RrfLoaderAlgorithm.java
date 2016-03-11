@@ -1585,6 +1585,13 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     if (!mapSetMap.containsKey(cui)) {
       mapSet = new MapSetJpa();
       mapSetMap.put(cui, mapSet);
+      
+      if (!mapSetMap.containsKey(cui)) {
+        mapSet = new MapSetJpa();
+        mapSetMap.put(cui, mapSet);
+        // Set map set name to preferred name of the cui
+        mapSet.setName(getConcept(conceptIdMap.get(terminology + cui)).getName());
+      }
     }
     mapSet = mapSetMap.get(cui);
     if (atn.equals("MAPSETNAME")) {
