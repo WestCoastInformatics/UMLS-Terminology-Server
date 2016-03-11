@@ -1319,13 +1319,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // add all of the mapsets
     for (MapSet mapSet : mapSetMap.values()) {
       if (mapSet.getName() == null) {
-
+        Logger.getLogger(getClass()).warn("Mapset has no name set: " + mapSet.toString());
         throw new LocalException("Mapsets must have a name set.");
       }
       if (mapSet.getFromTerminology() == null) {
+        Logger.getLogger(getClass()).warn("Mapset has no from terminology set: " + mapSet.toString());
         throw new LocalException("Mapsets must have a from terminology set.");
       }
       if (mapSet.getToTerminology() == null) {
+        Logger.getLogger(getClass()).warn("Mapset has no to terminology set: " + mapSet.toString());
         throw new LocalException("Mapsets must have a to terminology set.");
       }
       mapSet.setLastModifiedBy(loader);
@@ -1344,9 +1346,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         mapSet.setTerminologyId("");
       }
       if (mapSet.getTerminology() == null) {
-        throw new LocalException("Mapsets must have a terminology set.");
+        throw new LocalException("Mapsets has no terminology set.");
       }
       if (mapSet.getMapVersion() == null) {
+        Logger.getLogger(getClass()).warn("Mapset has no version set: " + mapSet.toString());
         throw new LocalException("Mapsets must have a map version set.");
       }
 
