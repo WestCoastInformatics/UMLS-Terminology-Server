@@ -247,7 +247,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
    * @return the pfs comparator
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
+  @Override
   protected <T> Comparator<T> getPfsComparator(Class<T> clazz, PfsParameter pfs)
     throws Exception {
     if (pfs != null

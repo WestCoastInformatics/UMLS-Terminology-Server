@@ -4,9 +4,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <!-- Module Metadata -->
-  <groupId>com.wcinformatics.umls.server</groupId>
+  <parent>
+    <groupId>com.wcinformatics.umls.server</groupId>
+    <artifactId>term-server-parent</artifactId>
+    <version>1.3.0-SNAPSHOT</version>
+    <relativePath>parent</relativePath>
+  </parent>
+
   <artifactId>term-server-aggregator</artifactId>
-  <version>1.2.0</version>
   <packaging>pom</packaging>
   <name>Terminology Server</name>
   <description>Terminology Server aggregator project.</description>
@@ -27,13 +32,13 @@
     <module>integration-test</module>
     <module>examples</module>
   </modules>
-  
+
   <distributionManagement>
     <repository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-  
+
 
 </project>
