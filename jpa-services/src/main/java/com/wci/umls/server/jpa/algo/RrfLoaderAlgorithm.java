@@ -1319,6 +1319,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // add all of the mapsets
     for (MapSet mapSet : mapSetMap.values()) {
       if (mapSet.getName() == null) {
+
         throw new LocalException("Mapsets must have a name set.");
       }
       if (mapSet.getFromTerminology() == null) {
