@@ -145,10 +145,12 @@ tsApp.controller('ContentCtrl', [
           }
 
           // replace the parent tree of the lowest level with
-          // first page of
-          // siblings computed
+          // first page of siblings computed
           $scope.getTreeChildren(parentTree, 0).then(function(children) {
-            parentTree.children = parentTree.children.concat(children);
+            parentTree.children = parentTree.children.concat(children.filter(function(child) {
+              // do not re-add the already-shown component for this tree
+              return $scope.component.object.terminologyId !== child.nodeTerminologyId;
+            }));
           })
 
         });
@@ -698,7 +700,7 @@ tsApp.controller('ContentCtrl', [
 
     // Get paged atoms (assume all are loaded)
     $scope.getPagedAtoms = function() {
-      
+
       // filter by suppressible/obsolete
       var localAtoms = $scope.component.object.atoms.filter(function(object) {
         return $scope.showSOElements || (!object.suppressible && !object.obsolete);
@@ -707,7 +709,7 @@ tsApp.controller('ContentCtrl', [
       // want all filtered atoms to 
       var localAtoms = utilService.getPagedArray(localAtoms, $scope.atomPaging,
         $scope.pageSizes.general);
-      
+
       $scope.pagedAtoms = localAtoms;
     };
 
