@@ -15,7 +15,7 @@ public interface NormalizedStringHandler extends Configurable {
    *
    * @param string the string
    * @return the normalized string
-   * @throws Exception
+   * @throws Exception the exception
    */
   public String getNormalizedString(String string) throws Exception;
 

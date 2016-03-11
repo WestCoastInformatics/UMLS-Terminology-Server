@@ -24,7 +24,7 @@
     <!-- the release info names to remove -->
     <release.info.names></release.info.names>
     <!-- whether the server is expected to be up (Default: false) -->
-  	<server>false</server>
+    <server>false</server>
   </properties>
 
   <profiles>

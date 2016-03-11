@@ -884,7 +884,7 @@ public interface ContentService extends MetadataService {
    * Adds the tree position.
    *
    * @param treepos the treepos
-   * @return the tree position<? extends component has attributes and name>
+   * @return the tree position
    * @throws Exception the exception
    */
   public TreePosition<? extends ComponentHasAttributesAndName> addTreePosition(

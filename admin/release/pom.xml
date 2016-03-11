@@ -89,7 +89,7 @@
         </plugins>
       </build>
     </profile>
-    
+
     <!-- Begin an RF2 release -->
     <profile>
       <id>ReleaseRf2Perform</id>
@@ -118,8 +118,8 @@
         </plugins>
       </build>
     </profile>
-    
-        <!-- Begin an RF2 release -->
+
+    <!-- Begin an RF2 release -->
     <profile>
       <id>ReleaseRf2Finish</id>
       <build>
