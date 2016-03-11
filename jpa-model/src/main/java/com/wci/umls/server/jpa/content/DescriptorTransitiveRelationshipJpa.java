@@ -109,9 +109,6 @@ public class DescriptorTransitiveRelationshipJpa extends
    *
    * @param terminologyId the super type terminology id
    */
-  /**
-   * @param terminologyId
-   */
   public void setSuperTypeTerminologyId(String terminologyId) {
     if (superType == null) {
       superType = new DescriptorJpa();
@@ -229,9 +226,6 @@ public class DescriptorTransitiveRelationshipJpa extends
    * Sets the sub type terminology id.
    *
    * @param terminologyId the sub type terminology id
-   */
-  /**
-   * @param terminologyId
    */
   public void setSubTypeTerminologyId(String terminologyId) {
     if (subType == null) {

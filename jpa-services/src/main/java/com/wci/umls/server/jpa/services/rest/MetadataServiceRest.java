@@ -14,11 +14,11 @@ import com.wci.umls.server.model.meta.Terminology;
 public interface MetadataServiceRest {
 
   /**
-   * Returns all metadata for a terminology and version
-   * 
+   * Returns all metadata for a terminology and version.
+   *
    * @param terminology the terminology
    * @param version the version
-   * @param authToken
+   * @param authToken the auth token
    * @return the all metadata
    * @throws Exception if anything goes wrong
    */
@@ -26,8 +26,9 @@ public interface MetadataServiceRest {
     String authToken) throws Exception;
 
   /**
-   * Returns all terminologies with only their latest version
-   * @param authToken
+   * Returns all terminologies with only their latest version.
+   *
+   * @param authToken the auth token
    * @return the all terminologies latest versions
    * @throws Exception if anything goes wrong
    */
@@ -35,8 +36,9 @@ public interface MetadataServiceRest {
     throws Exception;
 
   /**
-   * Returns all terminologies and all versions
-   * @param authToken
+   * Returns all terminologies and all versions.
+   *
+   * @param authToken the auth token
    * @return all terminologies and versions
    * @throws Exception if anything goes wrong
    */
@@ -44,7 +46,7 @@ public interface MetadataServiceRest {
   public TerminologyList getTerminologies(String authToken) throws Exception;
 
   /**
-   * Gets the terminology information for a terminology
+   * Gets the terminology information for a terminology.
    *
    * @param terminology the terminology
    * @param version the version

@@ -60,6 +60,9 @@ public class CodeTransitiveRelationshipJpa extends
     subType = relationship.getSubType();
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.TransitiveRelationship#getSuperType()
+   */
   /* see superclass */
   @XmlTransient
   @Override
@@ -67,6 +70,9 @@ public class CodeTransitiveRelationshipJpa extends
     return superType;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.TransitiveRelationship#setSuperType(com.wci.umls.server.model.content.AtomClass)
+   */
   /* see superclass */
   @Override
   public void setSuperType(Code ancestor) {
@@ -107,9 +113,6 @@ public class CodeTransitiveRelationshipJpa extends
    * Sets the super type terminology id.
    *
    * @param terminologyId the super type terminology id
-   */
-  /**
-   * @param terminologyId
    */
   public void setSuperTypeTerminologyId(String terminologyId) {
     if (superType == null) {
@@ -181,6 +184,9 @@ public class CodeTransitiveRelationshipJpa extends
     superType.setName(term);
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.TransitiveRelationship#getSubType()
+   */
   /* see superclass */
   @XmlTransient
   @Override
@@ -188,6 +194,9 @@ public class CodeTransitiveRelationshipJpa extends
     return subType;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.model.content.TransitiveRelationship#setSubType(com.wci.umls.server.model.content.AtomClass)
+   */
   /* see superclass */
   @Override
   public void setSubType(Code descendant) {
@@ -299,6 +308,9 @@ public class CodeTransitiveRelationshipJpa extends
     subType.setName(term);
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
+   */
   /* see superclass */
   @Override
   public int hashCode() {
@@ -309,6 +321,9 @@ public class CodeTransitiveRelationshipJpa extends
     return result;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
+   */
   /* see superclass */
   @Override
   public boolean equals(Object obj) {

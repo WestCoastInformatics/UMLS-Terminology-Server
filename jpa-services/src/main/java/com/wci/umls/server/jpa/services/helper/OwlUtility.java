@@ -65,7 +65,9 @@ public class OwlUtility {
    * - NOTE: (not supported) keys (HasKey)
    * </pre>
    * 
-   * * @param directOntology the direct ontology
+   *
+   *
+   * @param directOntology the direct ontology
    * @throws Exception the exception
    */
   public static void checkOWL2ELProfile(OWLOntology directOntology)

@@ -106,10 +106,7 @@ public class ConceptTransitiveRelationshipJpa extends
   /**
    * Sets the super type terminology id.
    *
-   * @param id the super type terminology id
-   */
-  /**
-   * @param terminologyId
+   * @param terminologyId the new super type terminology id
    */
   public void setSuperTypeTerminologyId(String terminologyId) {
     if (superType == null) {

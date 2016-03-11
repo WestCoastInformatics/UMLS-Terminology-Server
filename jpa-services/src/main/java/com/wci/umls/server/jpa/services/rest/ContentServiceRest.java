@@ -717,7 +717,7 @@ public interface ContentServiceRest {
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the tree list
-   * @throws Exception
+   * @throws Exception the exception
    */
   public Tree findConceptTreeRoots(String terminology, String version,
     PfsParameterJpa pfs, String authToken) throws Exception;
@@ -730,7 +730,7 @@ public interface ContentServiceRest {
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the tree list
-   * @throws Exception
+   * @throws Exception the exception
    */
   public Tree findCodeTreeRoots(String terminology, String version,
     PfsParameterJpa pfs, String authToken) throws Exception;
@@ -743,7 +743,7 @@ public interface ContentServiceRest {
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the tree list
-   * @throws Exception
+   * @throws Exception the exception
    */
   public Tree findDescriptorTreeRoots(String terminology, String version,
     PfsParameterJpa pfs, String authToken) throws Exception;
