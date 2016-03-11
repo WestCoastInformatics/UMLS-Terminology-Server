@@ -2054,9 +2054,12 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
           associationConcept = getConcept(idMap.get(fields[4]));
         }
         if (associationConcept == null) {
-          throw new Exception(
+          Logger.getLogger(getClass()).warn("Association reference member connected to nonexistent refset with terminology id " + fields[5]);
+          Logger.getLogger(getClass()).warn("  Line: " + line);
+          continue;
+          /*throw new Exception(
               "Relationship " + fields[0] + " association refset concept "
-                  + fields[4] + " cannot be found");
+                  + fields[4] + " cannot be found");*/
         }
 
         // retrieve source concept
@@ -2064,8 +2067,11 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
           sourceConcept = getConcept(idMap.get(fields[5]));
         }
         if (sourceConcept == null) {
-          throw new Exception("Relationship " + fields[0] + " source concept "
-              + fields[5] + " cannot be found");
+          Logger.getLogger(getClass()).warn("Association reference member connected to nonexistent source object with terminology id " + fields[5]);
+          Logger.getLogger(getClass()).warn("  Line: " + line);
+          continue;
+         /* throw new Exception("Relationship " + fields[0] + " source concept "
+              + fields[5] + " cannot be found");*/
         }
 
         // Retrieve destination concept
@@ -2073,8 +2079,11 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
           destinationConcept = getConcept(idMap.get(fields[6]));
         }
         if (destinationConcept == null) {
-          throw new Exception("Relationship " + fields[0]
-              + " destination concept " + fields[6] + " cannot be found");
+          Logger.getLogger(getClass()).warn("Association reference member connected to nonexistent target object with terminology id " + fields[6]);
+          Logger.getLogger(getClass()).warn("  Line: " + line);
+          continue;
+          /*throw new Exception("Relationship " + fields[0]
+              + " destination concept " + fields[6] + " cannot be found");*/
         }
 
         // Retrieve relationship if it exists

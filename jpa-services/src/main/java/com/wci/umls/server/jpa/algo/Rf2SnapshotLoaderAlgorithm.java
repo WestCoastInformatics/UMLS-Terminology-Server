@@ -916,9 +916,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
     while ((line = reader.readLine()) != null) {
       line = line.replace("\r", "");
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
-      
-     
-          
 
       if (!fields[0].equals(id)) { // header
 
@@ -980,25 +977,53 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
 
       if (!fields[0].equals(id)) { // header
-        
+
         // Stop if the effective time is past the release version
         if (fields[1].compareTo(releaseVersion) > 0) {
-          Logger.getLogger(getClass()).debug("Found effective time past release version at line " + line);
+          Logger.getLogger(getClass()).debug(
+              "Found effective time past release version at line " + line);
           reader.push(line);
           break;
         }
 
-        ConceptRelationship relationship = null;
+        if (conceptIdMap.get(fields[4]) == null) {
 
-        if (conceptIdMap.get(fields[5]) != null) {
-          relationship = new ConceptRelationshipJpa();
-        } else {
-          Logger.getLogger(getClass()).warn("Association reference member connected to nonexistent object with terminology id " + fields[5]);
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent refset with terminology id "
+                  + fields[4]);
+          Logger.getLogger(getClass()).warn("  Line: " + line);
           continue;
-          /*throw new Exception(
-              "Association reference member connected to nonexistent object");*/
+          /*
+           * throw new Exception(
+           * "Association reference member connected to nonexistent object");
+           */
         }
 
+        if (conceptIdMap.get(fields[5]) == null) {
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent source object with terminology id "
+                  + fields[5]);
+          Logger.getLogger(getClass()).warn("  Line: " + line);
+          continue;
+          /*
+           * throw new Exception(
+           * "Association reference member connected to nonexistent object");
+           */
+        }
+
+        if (conceptIdMap.get(fields[6]) == null) {
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent target object with terminology id "
+                  + fields[5]);
+          Logger.getLogger(getClass()).warn("  Line: " + line);
+          continue;
+          /*
+           * throw new Exception(
+           * "Association reference member connected to nonexistent object");
+           */
+        }
+
+        ConceptRelationship relationship = new ConceptRelationshipJpa();
         final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
 
         // set the fields
@@ -1037,22 +1062,19 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
         // get concepts from cache, they just need to have ids
         final Concept fromConcept = getConcept(conceptIdMap.get(fields[5]));
         final Concept toConcept = getConcept(conceptIdMap.get(fields[6]));
-        
- 
+
         if (fromConcept != null && toConcept != null) {
           relationship.setFrom(fromConcept);
           relationship.setTo(toConcept);
           addRelationship(relationship);
-          
-          Logger.getLogger(getClass()).debug("adding RO rel " + (objectCt + 1) + ", "
-              + relationship.getTerminologyId() + ", "
-              + relationship.getFrom().getName() + ", "
-              + getConcept(conceptIdMap
-                  .get(relationship.getAdditionalRelationshipType()))
-              + ", " + relationship.getTo().getName());
-          
 
-          
+          Logger.getLogger(getClass())
+              .debug("adding RO rel " + (objectCt + 1) + ", "
+                  + relationship.getTerminologyId() + ", "
+                  + relationship.getFrom().getName() + ", "
+                  + getConcept(conceptIdMap
+                      .get(relationship.getAdditionalRelationshipType()))
+                  + ", " + relationship.getTo().getName());
 
         } else {
           if (fromConcept == null) {
