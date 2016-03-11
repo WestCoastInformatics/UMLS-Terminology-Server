@@ -981,8 +981,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
 
       if (!fields[0].equals(id)) { // header
         
-        Logger.getLogger(getClass()).info("Line: " + fields);
-
         // Stop if the effective time is past the release version
         if (fields[1].compareTo(releaseVersion) > 0) {
           Logger.getLogger(getClass()).debug("Found effective time past release version at line " + line);
@@ -995,8 +993,10 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
         if (conceptIdMap.get(fields[5]) != null) {
           relationship = new ConceptRelationshipJpa();
         } else {
-          throw new Exception(
-              "Association reference member connected to nonexistent object");
+          Logger.getLogger(getClass()).warn("Association reference member connected to nonexistent object with terminology id " + fields[5]);
+          continue;
+          /*throw new Exception(
+              "Association reference member connected to nonexistent object");*/
         }
 
         final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
@@ -1044,7 +1044,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
           relationship.setTo(toConcept);
           addRelationship(relationship);
           
-          Logger.getLogger(getClass()).info("adding RO rel " + (objectCt + 1) + ", "
+          Logger.getLogger(getClass()).debug("adding RO rel " + (objectCt + 1) + ", "
               + relationship.getTerminologyId() + ", "
               + relationship.getFrom().getName() + ", "
               + getConcept(conceptIdMap
