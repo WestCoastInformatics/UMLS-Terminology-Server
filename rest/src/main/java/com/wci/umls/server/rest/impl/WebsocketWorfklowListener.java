@@ -9,7 +9,6 @@ package com.wci.umls.server.rest.impl;
  * the websocketWorfklow event occurs, that object's appropriate
  * method is invoked.
  *
- * @see WebsocketWorfklowEvent
  */
 //@ServiceEndpoint
 @SuppressWarnings("javadoc")
