@@ -33,7 +33,7 @@ public class SearchResultJpa implements SearchResult {
   private boolean obsolete;
 
   /** The score. */
-  private float score;
+  private Long score;
 
   /**
    * Default constructor.

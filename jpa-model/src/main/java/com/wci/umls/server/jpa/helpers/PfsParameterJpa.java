@@ -142,15 +142,6 @@ public class PfsParameterJpa implements PfsParameter {
     this.sortField = sortField;
   }
 
-  @Override
-  public float getScore() {
-    return score;
-  }
-
-  @Override
-  public void setScore(float score) {
-    this.score = score;
-  }
 
   @Override
   public int hashCode() {
