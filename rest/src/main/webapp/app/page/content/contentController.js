@@ -52,6 +52,8 @@ tsApp.controller('ContentCtrl', [
     $scope.treeViewed = null;
     $scope.componentTree = null;
 
+    // input filters
+
     //
     // Watch expressions
     //
@@ -331,6 +333,7 @@ tsApp.controller('ContentCtrl', [
         $scope.setActiveRow($scope.component.object.terminologyId);
         $scope.getTree(0);
         $scope.setComponentLocalHistory($scope.component.historyIndex);
+        $scope.resetPaging();
         applyPaging();
       });
     };
@@ -338,11 +341,13 @@ tsApp.controller('ContentCtrl', [
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a link in a report
     $scope.getComponentFromType = function(terminologyId, terminology, version, type) {
+      
       contentService.getComponentFromType(terminologyId, terminology, version, type).then(
         function() {
           $scope.setActiveRow($scope.component.object.terminologyId);
           $scope.setComponentLocalHistory($scope.component.historyIndex);
           $scope.getTree(0);
+          $scope.resetPaging();
           applyPaging();
         });
     };
@@ -615,36 +620,42 @@ tsApp.controller('ContentCtrl', [
     $scope.pagedRelationships = null;
     $scope.pagedAtoms = null;
 
-    // variable page numbers
-    $scope.atomPaging = {
-      page : 1,
-      filter : ""
-    };
+    $scope.resetPaging = function() {
 
-    $scope.styPaging = {
-      page : 1,
-      filter : ""
-    };
+      // variable page numbers
+      $scope.atomPaging = {
+        page : 1,
+        filter : ""
+      };
 
-    $scope.defPaging = {
-      page : 1,
-      filter : ""
-    };
+      $scope.styPaging = {
+        page : 1,
+        filter : ""
+      };
 
-    $scope.attributePaging = {
-      page : 1,
-      filter : ""
-    };
+      $scope.defPaging = {
+        page : 1,
+        filter : ""
+      };
 
-    $scope.memberPaging = {
-      page : 1,
-      filter : ""
-    };
+      $scope.attributePaging = {
+        page : 1,
+        filter : ""
+      };
 
-    $scope.relPaging = {
-      page : 1,
-      filter : ""
-    };
+      $scope.memberPaging = {
+        page : 1,
+        filter : ""
+      };
+
+      $scope.relPaging = {
+        page : 1,
+        filter : ""
+      };
+    }
+    
+    // on load, instantiate paging
+    $scope.resetPaging();
 
     // apply paging to all elements
     function applyPaging() {
