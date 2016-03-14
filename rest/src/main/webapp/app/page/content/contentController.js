@@ -341,7 +341,7 @@ tsApp.controller('ContentCtrl', [
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a link in a report
     $scope.getComponentFromType = function(terminologyId, terminology, version, type) {
-      
+
       contentService.getComponentFromType(terminologyId, terminology, version, type).then(
         function() {
           $scope.setActiveRow($scope.component.object.terminologyId);
@@ -384,7 +384,6 @@ tsApp.controller('ContentCtrl', [
              * alert("You must use at least one character to search"); return; }
              */
 
-     
       // TODO Move Semantic type formally into search parameters
       if ($scope.semanticType) {
         $scope.searchParams.semanticType = $scope.semanticType.value;
@@ -650,17 +649,23 @@ tsApp.controller('ContentCtrl', [
       };
 
       $scope.relPaging = {
-        page: 1,
-        filter: "",
-        advancedMode: false,
-        termType : null,
-        matchTerminology : null,
-        language : null,
-        sortOptions : ['relationshipType', 'additionalRelationshipType', 'toTerminologyId']
-        
+        page : 1,
+        filter : "",
+        sortField : 'relationshipType', // default
+        sortAscending : true, // default
+        sortOptions : [ {
+          key : 'Type',
+          value : 'relationshipType'
+        }, {
+          key : 'Additional Type',
+          value : 'additionalRelationshipType'
+        }, {
+          key : 'Target Id',
+          value : 'toTerminologyId'
+        } ]
       };
     };
-    
+
     // on load, instantiate paging
     $scope.resetPaging();
 
@@ -685,7 +690,9 @@ tsApp.controller('ContentCtrl', [
         showSuppressible : $scope.showSOElements,
         showObsolete : $scope.showSOElements,
         showInferred : $scope.showInferred,
-        text : $scope.relPaging.filter
+        text : $scope.relPaging.filter,
+        sortField : $scope.relPaging.sortField,
+        sortAscending : $scope.relPaging.sortAscending
       };
 
       // Request from service

@@ -455,13 +455,15 @@ tsApp
 
           // check semantic type for additional query restrictions
           if (parameters.semanticType) {
-            pfs.queryRestriction += " AND semanticTypes.semanticType:\"" + parameters.semanticType + "\"";
+            pfs.queryRestriction += " AND semanticTypes.semanticType:\"" + parameters.semanticType
+              + "\"";
           }
-          
+
           // check parameters for advanced mode
           if (searchParams.advancedMode) {
             if (searchParams.matchTerminology) {
-              pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology + "\"";
+              pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
+                + "\"";
             }
             if (searchParams.termType) {
               pfs.queryRestriction += " AND atoms.termType:\"" + searchParams.termType + "\"";
@@ -550,15 +552,17 @@ tsApp
           var deferred = $q.defer();
 
           var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
-          
+
           if (parameters)
 
-          var pfs = {
-            startIndex : (page - 1) * pageSizes.general,
-            maxResults : pageSizes.general,
-            sortField : parameters.sortField ? parameters.sortField : 'relationshipType',
-            queryRestriction : null // constructed from filters
-          };
+            var pfs = {
+              startIndex : (page - 1) * pageSizes.general,
+              maxResults : pageSizes.general,
+              sortField : parameters.sortField ? parameters.sortField : 'relationshipType',
+              ascending : parameters.sortAscending,
+              queryRestriction : null
+            // constructed from filters
+            };
 
           // Show only inferred rels for now
           // construct query restriction if needed
@@ -576,7 +580,6 @@ tsApp
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'stated:true';
           }
           pfs.queryRestriction = qr;
-
 
           // For description logic sources, simply read all rels.
           // That way we ensure all "groups" are represented.

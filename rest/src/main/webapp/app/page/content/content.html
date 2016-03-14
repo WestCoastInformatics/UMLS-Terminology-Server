@@ -567,7 +567,15 @@
               ng-show="pagedRelationships.totalCount > pageSizes.rels || relPaging.filter"
               total-items="pagedRelationships.totalCount"
               ng-model="relPaging.page" ng-change="getPagedRelationships()"></uib-pagination>
-            <input class="input-filter" placeholder="Enter filter text"
+            <span ng-click="relPaging.sortAscending = !relPaging.sortAscending; getPagedRelationships();"
+              ng-show="pagedRelationships.totalCount > pageSizes.rels"
+              class="glyphicon"
+              ng-class="[{'glyphicon-sort-by-attributes': relPaging.sortAscending}, {'glyphicon-sort-by-attributes-alt': !relPaging.sortAscending}]"></span>
+            <select ng-show="pagedRelationships.totalCount > pageSizes.rels"
+              class="input-filter" ng-model="relPaging.sortField"
+              ng-options="o.value as o.key for o in relPaging.sortOptions"
+              ng-change="getPagedRelationships()">
+            </select> <input class="input-filter" placeholder="Enter filter text"
               ng-show="pagedRelationships.totalCount > pageSizes.rels || relPaging.filter"
               type="text" ng-model="relPaging.filter"
               ng-model-options="{ debounce: 300 }"

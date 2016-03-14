@@ -37,6 +37,8 @@ public class PfsParameterJpa implements PfsParameter {
   /** The inactive only. */
   private boolean inactiveOnly;
 
+  private float score = -1.0f;
+
   /**
    * The default constructor.
    */
@@ -141,6 +143,16 @@ public class PfsParameterJpa implements PfsParameter {
   }
 
   @Override
+  public float getScore() {
+    return score;
+  }
+
+  @Override
+  public void setScore(float score) {
+    this.score = score;
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -149,9 +161,8 @@ public class PfsParameterJpa implements PfsParameter {
     result = prime * result + (inactiveOnly ? 1231 : 1237);
     result = prime * result + ((branch == null) ? 0 : branch.hashCode());
     result = prime * result + maxResults;
-    result =
-        prime * result
-            + ((queryRestriction == null) ? 0 : queryRestriction.hashCode());
+    result = prime * result
+        + ((queryRestriction == null) ? 0 : queryRestriction.hashCode());
     result = prime * result + ((sortField == null) ? 0 : sortField.hashCode());
     result = prime * result + startIndex;
     return result;

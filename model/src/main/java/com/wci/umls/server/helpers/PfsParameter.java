@@ -132,5 +132,19 @@ public interface PfsParameter {
    * @param branch the branch
    */
   public void setBranch(String branch);
+  
+  /**
+   * Gets the score.
+   *
+   * @return the score
+   */
+  public float getScore();
+  
+  /**
+   * Sets the score.
+   *
+   * @param Score the new score
+   */
+  public void setScore(float Score);
 
 }
