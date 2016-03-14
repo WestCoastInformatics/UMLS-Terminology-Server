@@ -384,13 +384,14 @@ tsApp.controller('ContentCtrl', [
              * alert("You must use at least one character to search"); return; }
              */
 
-      var semanticType = null;
+     
+      // TODO Move Semantic type formally into search parameters
       if ($scope.semanticType) {
-        semanticType = $scope.semanticType.value;
+        $scope.searchParams.semanticType = $scope.semanticType.value;
       }
       contentService.findComponentsAsList($scope.searchParams.query,
         $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
-        $scope.searchParams.page, semanticType).then(
+        $scope.searchParams.page, $scope.searchParams).then(
         function(data) {
           $scope.searchResults.list = data.results;
           $scope.searchResults.list.totalCount = data.totalCount;
@@ -649,10 +650,16 @@ tsApp.controller('ContentCtrl', [
       };
 
       $scope.relPaging = {
-        page : 1,
-        filter : ""
+        page: 1,
+        filter: "",
+        advancedMode: false,
+        termType : null,
+        matchTerminology : null,
+        language : null,
+        sortOptions : ['relationshipType', 'additionalRelationshipType', 'toTerminologyId']
+        
       };
-    }
+    };
     
     // on load, instantiate paging
     $scope.resetPaging();
@@ -674,7 +681,7 @@ tsApp.controller('ContentCtrl', [
     // call).
     $scope.getPagedRelationships = function() {
 
-      var filters = {
+      var parameters = {
         showSuppressible : $scope.showSOElements,
         showObsolete : $scope.showSOElements,
         showInferred : $scope.showInferred,
@@ -684,7 +691,7 @@ tsApp.controller('ContentCtrl', [
       // Request from service
       contentService.findRelationships($scope.component.object.terminologyId,
         $scope.component.object.terminology, $scope.component.object.version,
-        $scope.relPaging.page, filters).then(function(data) {
+        $scope.relPaging.page, parameters).then(function(data) {
 
         // if description logic terminology, sort
         // relationships also by

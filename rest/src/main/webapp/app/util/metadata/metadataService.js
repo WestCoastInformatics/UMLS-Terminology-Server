@@ -15,6 +15,7 @@ tsApp
           terminology : null,
           precedenceList : null,
           entries : null,
+          languages : null,
           relationshipTypes : null,
           attributeNames : null,
           termTypes : null,
@@ -52,6 +53,7 @@ tsApp
           metadata.subsetsLabel = "Subsets";
           metadata.relationshipsLabel = "Relationships";
           metadata.semanticTypesLabel = "Semantic Types";
+          metadata.languageNames = "Languages";
           metadata.atomRelationshipsLabel = "Relationships";
           metadata.extensionsLabel = "Extensions";
           metadata.obsoleteLabel = "Obsolete";
@@ -97,6 +99,9 @@ tsApp
                   if (metadata.entries[i].name === 'Relationship_Types') {
                     metadata.relationshipTypes = metadata.entries[i].keyValuePair;
                   }
+                  if (metadata.entries[i].name === 'Languages') {
+                    metadata.languages = metadata.entries[i].keyValuePair;
+                  }
                   if (metadata.entries[i].name === 'Attribute_Names') {
                     metadata.attributeNames = metadata.entries[i].keyValuePair;
                   }
@@ -121,6 +126,9 @@ tsApp
                       }
                       if (metadata.generalEntries[j].key === "Definitions_Label") {
                         metadata.definitionsLabel = metadata.generalEntries[j].value;
+                      }
+                      if (metadata.generalEntries[j].key === "Languages_Label") {
+                        metadata.languagesLabel = metadata.generalEntries[j].value;
                       }
                       if (metadata.generalEntries[j].key === "Attributes_Label") {
                         metadata.attributesLabel = metadata.generalEntries[j].value;
