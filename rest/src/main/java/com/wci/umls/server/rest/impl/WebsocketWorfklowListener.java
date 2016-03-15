@@ -10,8 +10,6 @@ package com.wci.umls.server.rest.impl;
  * method is invoked.
  *
  */
-//@ServiceEndpoint
-@SuppressWarnings("javadoc")
 public class WebsocketWorfklowListener {
   // still working on this. - may need Jetty instead of Tomcat.
 }
