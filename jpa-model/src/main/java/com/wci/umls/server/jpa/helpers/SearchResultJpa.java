@@ -33,7 +33,7 @@ public class SearchResultJpa implements SearchResult {
   private boolean obsolete;
 
   /** The score. */
-  private Long score;
+  private Float score = null;
 
   /**
    * Default constructor.
@@ -152,13 +152,13 @@ public class SearchResultJpa implements SearchResult {
 
   /* see superclass */
   @Override
-  public float getScore() {
+  public Float getScore() {
     return score;
   }
 
   /* see superclass */
   @Override
-  public void setScore(float score) {
+  public void setScore(Float score) {
     this.score = score;
   }
 

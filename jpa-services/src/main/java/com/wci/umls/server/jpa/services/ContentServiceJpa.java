@@ -2442,13 +2442,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
     SearchResultList results = new SearchResultListJpa();
     List<T> classes = null;
     int totalCt[] = new int[1];
+    
+    // declare search handler
+    SearchHandler searchHandler = null;
 
     // Perform Lucene search (if there is anything to search for)
     List<T> queryClasses = new ArrayList<>();
     boolean queryFlag = false;
     if (isLuceneQueryInfo(query, pfsc)) {
       queryFlag = true;
-      SearchHandler searchHandler = getSearchHandler(terminology);
+      searchHandler = getSearchHandler(terminology);
       queryClasses =
           searchHandler.getQueryResults(terminology, version, branch, query,
               "atoms.nameSort", fieldNamesKey, clazz, pfsc, totalCt, manager);
@@ -2532,6 +2535,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
       results.setTotalCount(0);
       return results;
     }
+    
+    
+    Map<Long, Float> scoreMap = new HashMap<>();
+    if (searchHandler != null) {
+      scoreMap = searchHandler.getScoreMap();
+    }
 
     // construct the search results
     for (AtomClass atomClass : classes) {
@@ -2542,6 +2551,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
       sr.setVersion(atomClass.getVersion());
       sr.setValue(atomClass.getName());
       sr.setObsolete(atomClass.isObsolete());
+      
+      
+      // normalize results to a "good match" (lucene score of 5.0+)
+      //Double normScore = Math.log10(Math.max(5, scoreMap.get(sr.getId())) / Math.log(5));
+      sr.setScore(scoreMap.get(sr.getId()));
       results.addObject(sr);
     }
 

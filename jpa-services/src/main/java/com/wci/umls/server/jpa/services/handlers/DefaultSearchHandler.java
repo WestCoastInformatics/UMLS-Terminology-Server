@@ -101,6 +101,8 @@ public class DefaultSearchHandler implements SearchHandler {
     
     
     // if the literal field specified is a sort field, also search normalized field
+    // TODO This currently does not work for tree positions -- do we want to index those as well?
+    // probably yes, but space considerations...
     String normalizedField = null;
     if (literalField != null && literalField.endsWith("Sort")) {
       normalizedField = literalField.substring(0,  literalField.length() - 4) + "Norm";
@@ -340,7 +342,7 @@ public class DefaultSearchHandler implements SearchHandler {
       @SuppressWarnings("unchecked")
       T t = (T) result[1];
       classes.add(t);
-      scoreMap.put(t.getId(), Float.parseFloat(score.toString()));
+       scoreMap.put(t.getId(), Float.valueOf(score.toString()));
     }
     Logger.getLogger(getClass()).debug("  scoreMap = " + scoreMap);
 

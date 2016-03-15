@@ -22,6 +22,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Boost;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
@@ -322,7 +323,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   @Fields({
       @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord") ),
-      @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+      @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO, boost = @Boost(200f)),
       @Field(name = "edgeNGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteEdgeAnalyzer") ),
       @Field(name = "nGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteNGramAnalyzer") )
   })
@@ -336,7 +337,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @return the name norm
    */
   @XmlTransient
-  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.NO)
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.NO, boost = @Boost(100f))
   public String getNameNorm() {
     return ConfigUtility.normalize(name);
   }

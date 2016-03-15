@@ -31,7 +31,6 @@ tsApp.controller('ContentCtrl', [
     $scope.metadata = metadataService.getModel();
     $scope.component = contentService.getModel();
     $scope.pageSizes = contentService.getPageSizes();
-    $scope.semanticType = null;
 
     // Search parameters
     $scope.searchParams = contentService.getSearchParams();
@@ -52,7 +51,24 @@ tsApp.controller('ContentCtrl', [
     $scope.treeViewed = null;
     $scope.componentTree = null;
 
-    // input filters
+    // component scoring
+    $scope.scoreExcellent = 1.0;
+    $scope.scoreGood = 0.5;
+    $scope.scorePoor = 0.25;
+
+    $scope.getColorForScore = function(score) {
+      if (score > $scope.scoreExcellent) {
+        return 'green'
+      }
+      ;
+      if (score > $scope.scoreGood) {
+        return 'yellow';
+      }
+      if (score > $scope.scorePoor) {
+        return 'orange';
+      } else
+        return null;
+    }
 
     //
     // Watch expressions
@@ -302,8 +318,9 @@ tsApp.controller('ContentCtrl', [
     $scope.clearQuery = function() {
       $scope.searchParams.query = null;
       $scope.semanticType = null;
-      // $scope.searchResults.list = [];
-      // $scope.searchResults.tree = [];
+      $scope.termType = null;
+      $scope.matchTerminology = null;
+      $scope.language = null;
     };
 
     // Perform a search for the tree view
@@ -362,12 +379,14 @@ tsApp.controller('ContentCtrl', [
     // Find concepts based on current search
     // - loadFirst indicates whether to auto-load result[0]
     $scope.findComponents = function(loadFirst) {
+      console.debug('Finding components (list, loadFirst)', $scope.queryForList, loadFirst);
       $scope.searchOrBrowse = "SEARCH";
-      if ($scope.queryForList)
+      if ($scope.queryForList) {
         $scope.findComponentsAsList(loadFirst);
-      if ($scope.queryForTree)
+      }
+      if ($scope.queryForTree) {
         $scope.findComponentsAsTree(loadFirst);
-
+      }
       $location.hash('top');
       $anchorScroll();
 
@@ -384,10 +403,6 @@ tsApp.controller('ContentCtrl', [
              * alert("You must use at least one character to search"); return; }
              */
 
-      // TODO Move Semantic type formally into search parameters
-      if ($scope.semanticType) {
-        $scope.searchParams.semanticType = $scope.semanticType.value;
-      }
       contentService.findComponentsAsList($scope.searchParams.query,
         $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
         $scope.searchParams.page, $scope.searchParams).then(
@@ -413,13 +428,10 @@ tsApp.controller('ContentCtrl', [
         alert("You must use at least one character to search");
         return;
       }
-      var semanticType = null;
-      if ($scope.semanticType) {
-        semanticType = $scope.semanticType.key;
-      }
+
       contentService.findComponentsAsTree($scope.searchParams.query,
         $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
-        $scope.searchParams.page, semanticType).then(function(data) {
+        $scope.searchParams.page, $scope.searchParams).then(function(data) {
 
         // for ease and consistency of use of the ui tree
         // directive
@@ -443,6 +455,7 @@ tsApp.controller('ContentCtrl', [
 
     // Load hierarchy into tree view
     $scope.browseHierarchy = function() {
+      console.debug('Browsing request detected');
       $scope.searchOrBrowse = "BROWSE";
       $scope.queryForTree = true;
       $scope.queryForList = false;

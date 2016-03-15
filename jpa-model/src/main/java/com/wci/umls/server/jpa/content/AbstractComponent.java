@@ -17,6 +17,7 @@ import javax.xml.bind.annotation.XmlID;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Boost;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
@@ -297,7 +298,7 @@ public abstract class AbstractComponent implements Component {
   /* see superclass */
   @Override
   @XmlID
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO, boost = @Boost(200f))
   public String getTerminologyId() {
     return terminologyId;
   }

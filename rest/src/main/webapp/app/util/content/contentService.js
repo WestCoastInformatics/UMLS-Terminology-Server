@@ -39,6 +39,7 @@ tsApp
           page : 1,
           query : null,
           advancedMode : false,
+          semanticType : null,
           termType : null,
           matchTerminology : null,
           language : null
@@ -46,8 +47,8 @@ tsApp
 
         // Search results
         var searchResults = {
-          list : [],
-          tree : []
+          list : null,
+          tree : null
         };
 
         // Accessor function for component
@@ -440,8 +441,8 @@ tsApp
         };
 
         // Finds components as a list
-        this.findComponentsAsList = function(queryStr, terminology, version, page, parameters) {
-          console.debug("findComponentsAsList", queryStr, terminology, version, page, parameters);
+        this.findComponentsAsList = function(queryStr, terminology, version, page, searchParams) {
+          console.debug("findComponentsAsList", queryStr, terminology, version, page, searchParams);
           // Setup deferred
           var deferred = $q.defer();
 
@@ -453,14 +454,13 @@ tsApp
             queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
           };
 
-          // check semantic type for additional query restrictions
-          if (parameters.semanticType) {
-            pfs.queryRestriction += " AND semanticTypes.semanticType:\"" + parameters.semanticType
-              + "\"";
-          }
-
           // check parameters for advanced mode
           if (searchParams.advancedMode) {
+            if (searchParams.semanticType) {
+              pfs.queryRestriction += " AND semanticTypes.semanticType:\"" + searchParams.semanticType
+                + "\"";
+            }
+            
             if (searchParams.matchTerminology) {
               pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
                 + "\"";
@@ -518,8 +518,29 @@ tsApp
             queryRestriction : null
           };
 
-          if (semanticType) {
-            pfs.queryRestriction = "ancestorPath:" + semanticType.replace("~", "\\~") + "*";
+          
+          
+          // check parameters for advanced mode
+          if (searchParams.advancedMode) {
+            
+            if (semanticType) {
+              pfs.queryRestriction = "ancestorPath:" + semanticType.replace("~", "\\~") + "*";
+            }/*
+            if (searchParams.semanticType) {
+              pfs.queryRestriction += " AND semanticTypes.semanticType:\"" + searchParams.semanticType
+                + "\"";
+            }*/
+            
+            if (searchParams.matchTerminology) {
+              pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
+                + "\"";
+            }
+            if (searchParams.termType) {
+              pfs.queryRestriction += " AND atoms.termType:\"" + searchParams.termType + "\"";
+            }
+            if (searchParams.language) {
+              pfs.queryRestriction += " AND atoms.language:\"" + searchParams.language + "\"";
+            }
           }
 
           var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
