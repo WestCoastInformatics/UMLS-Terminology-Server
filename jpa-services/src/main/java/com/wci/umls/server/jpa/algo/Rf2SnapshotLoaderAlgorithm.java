@@ -30,6 +30,8 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
+import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.GeneralMetadataEntryJpa;
@@ -50,6 +52,8 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
+import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
@@ -146,6 +150,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
   /** The concept subset map. */
   private Map<String, ConceptSubset> conceptSubsetMap = new HashMap<>();
 
+  /** The concept mapset map. */
+  private Map<String, MapSet> conceptMapSetMap = new HashMap<>();
+  
   /** The term types. */
   private Set<String> termTypes = new HashSet<>();
 
@@ -1172,16 +1179,187 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
    * @throws Exception the exception
    */
   private void loadComplexMapRefSets() throws Exception {
-    // tbd
+    String line = "";
+    objectCt = 0;
+
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
+    // Iterate over mappings
+    while ((line = reader.readLine()) != null) {
+
+      // Split line
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
+      // Skip header
+      if (!fields[0].equals(id)) {
+
+        // Stop if the effective time is past the release version
+        if (fields[1].compareTo(releaseVersion) > 0) {
+          reader.push(line);
+          break;
+        }
+
+        // Configure mapping
+        final Mapping mapping = new MappingJpa();
+        final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
+        mapping.setTerminologyId(fields[0]);
+        mapping.setTimestamp(date);
+        mapping.setLastModified(date);
+        mapping.setObsolete(fields[2].equals("0")); // active
+        mapping.setSuppressible(mapping.isObsolete());
+        mapping.setGroup(fields[6].intern()); // relationshipGroup
+        mapping.setRelationshipType(
+            fields[7].equals(isaTypeRel) ? "Is a" : "other"); // typeId
+        mapping.setAdditionalRelationshipType(fields[7]); // typeId
+        
+        generalEntryValues.add(mapping.getAdditionalRelationshipType());
+        additionalRelTypes.add(mapping.getAdditionalRelationshipType());
+        mapping.setTerminology(terminology);
+        mapping.setVersion(version);
+        mapping.setLastModified(releaseVersionDate);
+        mapping.setLastModifiedBy(loader);
+        mapping.setPublished(true);
+        // makes mapSet if it isn't in cache
+        mapSetHelper(mapping, fields);
+        mapping.setGroup(fields[6]);
+        mapping.setRank(fields[7]);
+        mapping.setRule(fields[8]);
+        mapping.setAdvice(fields[9]);
+        /*mapping.setCorrelationId(fields[11]);*/
+
+        // Attributes
+        Attribute attribute = new AttributeJpa();
+        setCommonFields(attribute, date);
+        attribute.setName("moduleId");
+        attribute.setValue(fields[3].intern());
+        mapping.addAttribute(attribute);
+        addAttribute(attribute, mapping);
+
+        // get concepts from cache, they just need to have ids
+        final Concept fromConcept = getConcept(conceptIdMap.get(fields[4]));
+        if (fromConcept != null) {
+          mapping.setFromTerminologyId(fromConcept.getTerminologyId());
+          mapping.setFromIdType(IdType.CONCEPT);
+          mapping.setToTerminologyId(fields[10]);
+          mapping.setToIdType(IdType.OTHER);
+          addMapping(mapping);
+
+        } else {
+          if (fromConcept == null) {
+            throw new Exception(
+                "mapping " + mapping.getTerminologyId()
+                    + " -existent source concept " + fields[4]);
+          }
+          
+        }
+
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+
+      }
+    }
+
+    // Final commit
+    commitClearBegin();
   }
 
   /**
    * Load extended map ref sets.
+   * 
+   * 0 id 
+   * 1 effectiveTime   
+   * 2 active  
+   * 3 moduleId    
+   * 4 refSetId    
+   * 5 referencedComponentId   
+   * 6 mapGroup    
+   * 7 mapPriority 
+   * 8 mapRule 
+   * 9 mapAdvice   
+   * 10 mapTarget   
+   * 11 correlationId   
+   * 12 mapCategoryId
    *
    * @throws Exception the exception
    */
   private void loadExtendedMapRefSets() throws Exception {
-    // tbd
+    String line = "";
+    objectCt = 0;
+
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
+    // Iterate over mappings
+    while ((line = reader.readLine()) != null) {
+
+      // Split line
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
+      // Skip header
+      if (!fields[0].equals(id)) {
+
+        // Stop if the effective time is past the release version
+        if (fields[1].compareTo(releaseVersion) > 0) {
+          reader.push(line);
+          break;
+        }
+
+        // Configure mapping
+        final Mapping mapping = new MappingJpa();
+        final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
+        mapping.setTerminologyId(fields[0]);
+        mapping.setTimestamp(date);
+        mapping.setLastModified(date);
+        mapping.setObsolete(fields[2].equals("0")); // active
+        mapping.setSuppressible(mapping.isObsolete());
+        mapping.setGroup(fields[6].intern()); // relationshipGroup
+        mapping.setRelationshipType(
+            fields[7].equals(isaTypeRel) ? "Is a" : "other"); // typeId
+        mapping.setAdditionalRelationshipType(fields[7]); // typeId
+        
+        generalEntryValues.add(mapping.getAdditionalRelationshipType());
+        additionalRelTypes.add(mapping.getAdditionalRelationshipType());
+        mapping.setTerminology(terminology);
+        mapping.setVersion(version);
+        mapping.setLastModified(releaseVersionDate);
+        mapping.setLastModifiedBy(loader);
+        mapping.setPublished(true);
+        // makes mapSet if it isn't in cache
+        mapSetHelper(mapping, fields);
+        mapping.setGroup(fields[6]);
+        mapping.setRank(fields[7]);
+        mapping.setRule(fields[8]);
+        mapping.setAdvice(fields[9]);
+        /*mapping.setCorrelationId(fields[11]);
+        mapping.setMapCategoryId(fields[12]);*/
+
+        // Attributes
+        Attribute attribute = new AttributeJpa();
+        setCommonFields(attribute, date);
+        attribute.setName("moduleId");
+        attribute.setValue(fields[3].intern());
+        mapping.addAttribute(attribute);
+        addAttribute(attribute, mapping);
+
+        // get concepts from cache, they just need to have ids
+        final Concept fromConcept = getConcept(conceptIdMap.get(fields[4]));
+        if (fromConcept != null) {
+          mapping.setFromTerminologyId(fromConcept.getTerminologyId());
+          mapping.setFromIdType(IdType.CONCEPT);
+          mapping.setToTerminologyId(fields[10]);
+          mapping.setToIdType(IdType.OTHER);
+          addMapping(mapping);
+
+        } else {
+          if (fromConcept == null) {
+            throw new Exception(
+                "mapping " + mapping.getTerminologyId()
+                    + " -existent source concept " + fields[4]);
+          }
+          
+        }
+
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+
+      }
+    }
+
+    // Final commit
+    commitClearBegin();
   }
 
   /**
@@ -1458,6 +1636,71 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
 
   }
 
+  private void mapSetHelper(Mapping mapping, String[] fields) throws Exception {
+
+    if (conceptIdMap.get(fields[5]) != null) {
+      mapping.setTerminologyId(fields[5]);  
+    } else {
+      throw new Exception(
+          "Attribute value member connected to nonexistent object");
+    }
+
+    // Universal RefSet attributes
+    final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
+    mapping.setTerminology(terminology);
+    mapping.setVersion(version);
+    mapping.setTerminologyId(fields[0]);
+    mapping.setTimestamp(date);
+    mapping.setLastModified(date);
+    mapping.setLastModifiedBy(loader);
+    mapping.setObsolete(fields[2].equals("0"));
+    mapping.setSuppressible(mapping.isObsolete());
+    mapping.setPublished(true);
+    mapping.setPublishable(true);
+
+    if (conceptMapSetMap.containsKey(fields[4])) {
+      final MapSet subset = conceptMapSetMap.get(fields[4]);
+      mapping.setMapSet(subset);
+
+    } else if (!conceptMapSetMap.containsKey(fields[4])) {
+
+      final MapSet mapSet = new MapSetJpa();
+      setCommonFields(mapSet, date);
+      mapSet.setTerminologyId(fields[4].intern());
+      mapSet.setName(getConcept(conceptIdMap.get(fields[4])).getName());
+      mapSet.setFromTerminology(terminology);
+      mapSet.setToTerminology(terminology); // TODO how to get this?
+      mapSet.setFromVersion(version);
+      mapSet.setToVersion(version);
+      mapSet.setMapVersion(version);
+
+      final Attribute attribute2 = new AttributeJpa();
+      setCommonFields(attribute2, date);
+      attribute2.setName("moduleId");
+      attribute2.setValue(fields[3].intern());
+      mapSet.addAttribute(attribute2);
+      addAttribute(attribute2, mapSet);
+      addMapSet(mapSet);
+      conceptMapSetMap.put(fields[4], mapSet);
+      commitClearBegin();
+
+      mapping.setMapSet(mapSet);
+
+    } else {
+      throw new Exception("Unable to determine mapset type.");
+    }
+
+    // Add moduleId attribute
+    final Attribute attribute = new AttributeJpa();
+    setCommonFields(attribute, date);
+    attribute.setName("moduleId");
+    attribute.setValue(fields[3].intern());
+    cacheAttributeMetadata(attribute);
+    mapping.addAttribute(attribute);
+    addAttribute(attribute, mapping);
+
+  }
+  
   /**
    * Load metadata.
    *

@@ -22,6 +22,8 @@ import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
@@ -312,6 +314,36 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
     } else if (subset == null) {
       throw new Exception("Cannot resolve a null subset.");
+    }
+  }
+  
+  /* see superclass */
+  @Override
+  public void resolve(MapSet mapSet) throws Exception {
+    if (mapSet != null) {
+      boolean nullId = mapSet.getId() == null;
+      mapSet.getName();
+      // Attributes
+      resolveAttributes(mapSet, nullId);
+
+      // skip mappings
+      mapSet.clearMappings();
+
+    } else if (mapSet == null) {
+      throw new Exception("Cannot resolve a null mapSet.");
+    }
+  }
+  
+  /* see superclass */
+  @Override
+  public void resolve(Mapping mapping) throws Exception {
+    if (mapping != null) {
+      boolean nullId = mapping.getId() == null;
+      // Attributes
+      resolveAttributes(mapping, nullId);
+
+    } else if (mapping == null) {
+      throw new Exception("Cannot resolve a null mapping.");
     }
   }
 

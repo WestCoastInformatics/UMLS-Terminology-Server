@@ -22,6 +22,8 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.MapSetList;
+import com.wci.umls.server.helpers.content.MappingList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
@@ -38,6 +40,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.test.helpers.PfsParameterForComponentTest;
@@ -2372,7 +2375,90 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("Start test");
 
   }
-
+  
+  /**
+   * Test get mapset.
+   * @throws Exception
+   */
+  @Test
+  public void testNormalUseRestContent033() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+    
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "447562003, SNOMEDCT_US, _2014_09_01, " + authToken);
+    MapSet c =
+        contentService.getMapSet("447562003", "SNOMEDCT_US", "_2014_09_01",
+            authToken);
+    // Validate the concept returned
+    assertNotNull(c);
+    assertEquals(c.getName(), "ICD-10 complex map reference set");
+    assertTrue(c.isPublishable());
+    assertTrue(c.isPublished());
+    assertFalse(c.isObsolete());
+    assertFalse(c.isSuppressible());   
+    assertEquals(1, c.getAttributes().size());   
+    assertEquals("SNOMEDCT_US", c.getTerminology());
+    assertEquals("_2014_09_01", c.getVersion());
+    assertEquals("447562003", c.getTerminologyId());
+    assertEquals("loader", c.getLastModifiedBy());
+  }
+  
+  /**
+   * Test get mapsets.
+   * @throws Exception
+   */
+  @Test
+  public void testNormalUseRestContent034() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+    
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "SNOMEDCT_US, _2014_09_01, " + authToken);
+    MapSetList c =
+        contentService.getMapSets("SNOMEDCT_US", "_2014_09_01",
+            authToken);
+    // Validate the concept returned
+    assertNotNull(c);
+    assertEquals(c.getObjects().size(), 1);
+  }
+  
+  /**
+   * Test find mappings for mapset
+   * @throws Exception
+   */
+  @Test
+  public void testNormalUseRestContent035() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+    
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "SNOMEDCT_US, _2014_09_01, " + authToken);
+    MappingList c =
+        contentService.findMappingsForMapSet("447562003", "SNOMEDCT_US", "_2014_09_01",
+            "", new PfsParameterJpa(), authToken);
+    
+    // Validate the concept returned
+    assertNotNull(c);
+    assertEquals(c.getObjects().size(), 334);
+  }
+  
+  /**
+   * Test find mappings for concept
+   * @throws Exception
+   */
+  @Test
+  public void testNormalUseRestContent036() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+    
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "C0155860, UMLS, latest" + authToken);
+    MappingList c =
+        contentService.findMappingsForConcept("C0155860", "UMLS", "latest",
+            "", new PfsParameterJpa(), authToken);
+    
+    // Validate the concept returned
+    assertNotNull(c);
+    assertEquals(c.getObjects().size(), 1);
+  }
+  
   /**
    * Teardown.
    *

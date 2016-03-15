@@ -36,6 +36,8 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.MapSetList;
+import com.wci.umls.server.helpers.content.MappingList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
@@ -61,6 +63,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
@@ -68,6 +71,8 @@ import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
 import com.wci.umls.server.jpa.helpers.content.DescriptorListJpa;
+import com.wci.umls.server.jpa.helpers.content.MapSetListJpa;
+import com.wci.umls.server.jpa.helpers.content.MappingListJpa;
 import com.wci.umls.server.jpa.helpers.content.RelationshipListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
@@ -87,6 +92,8 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
@@ -1056,7 +1063,76 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
 
   }
+  
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/mapset/{terminology}/{version}/{terminologyId}")
+  @ApiOperation(value = "Get mapset by id, terminology, and version", notes = "Get the root branch mapset matching the specified parameters", response = MapSetJpa.class)
+  public MapSet getMapSet(
+    @ApiParam(value = "mapSet terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "mapSet terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "mapSet terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
 
+    Logger.getLogger(getClass()).info("RESTful call (Content): /mapset/"
+        + terminology + "/" + version + "/" + terminologyId);
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "retrieve the mapSet",
+          UserRole.VIEWER);
+
+      final MapSet mapSet = contentService.getMapSet(terminologyId,
+          terminology, version, Branch.ROOT);
+
+      if (mapSet != null) {
+        contentService.getGraphResolutionHandler(terminology).resolve(mapSet);
+        
+      }
+      return mapSet;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve a mapSet");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/mapset/all/{terminology}/{version}")
+  @ApiOperation(value = "Get mapsets", notes = "Get the mapsets", response = MapSetListJpa.class)
+  public MapSetList getMapSets(
+    @ApiParam(value = "MapSet terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "MapSet terminology version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+
+    Logger.getLogger(getClass()).info("RESTful call (Content): /mapset/all/"
+        + terminology + "/" + version );
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "retrieve mapsets",
+          UserRole.VIEWER);
+      final MapSetList list =
+          contentService.getMapSets(terminology, version, Branch.ROOT);
+      for (int i = 0; i < list.getCount(); i++) {
+        contentService.getGraphResolutionHandler(terminology)
+            .resolve(list.getObjects().get(i));
+      }
+      return list;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve mapsets");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
   /* see superclass */
   @Override
   @POST
@@ -2944,4 +3020,179 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+  @Produces({
+      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+  })
+  @Override
+  @POST
+  @Path("/mapset/{mapSetId}/{terminology}/{version}/mappings")
+  @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated mapset", response = MappingListJpa.class)
+  public MappingList findMappingsForMapSet(
+    @ApiParam(value = "MapSet terminology id, e.g. 341823003", required = true) @PathParam("mapSetId") String mapSetId,
+    @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+
+    // Fix query
+    final String queryStr = query == null ? "" : query;
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /mapset/" + mapSetId + "/"
+            + terminology + "/" + version + "/mappings" + queryStr);
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "find mappings",
+          UserRole.VIEWER);
+
+      final MapSet mapSet = contentService.getMapSet(
+          mapSetId, terminology, version, Branch.ROOT);
+      final MappingList mappingList = contentService.findMappingsForMapSet(mapSet.getId(), query, pfs);
+      for (final Mapping member : mappingList.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(member);
+      }
+      return mappingList;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve mappings from mapset");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+  
+  /* see superclass */
+  @Produces({
+      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+  })
+  @Override
+  @POST
+  @Path("/cui/{terminologyId}/{terminology}/{version}/mappings")
+  @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated concept", response = MappingListJpa.class)
+  public MappingList findMappingsForConcept(
+    @ApiParam(value = "Concept terminology id, e.g. 341823003", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+
+    // Fix query
+    final String queryStr = query == null ? "" : query;
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /cui/" + terminologyId + "/"
+            + terminology + "/" + version + "/mappings" + queryStr);
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "find mappings",
+          UserRole.VIEWER);
+
+      
+      final MappingList mappingList = contentService.findMappingsForConcept(
+          terminologyId, terminology, version, Branch.ROOT, query, pfs);
+      for (final Mapping member : mappingList.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(member);
+      }
+      return mappingList;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve mappings from concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+  
+  /* see superclass */
+  @Produces({
+      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+  })
+  @Override
+  @POST
+  @Path("/code/{terminologyId}/{terminology}/{version}/mappings")
+  @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated code", response = MappingListJpa.class)
+  public MappingList findMappingsForCode(
+    @ApiParam(value = "Code terminology id, e.g. 341823003", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+
+    // Fix query
+    final String queryStr = query == null ? "" : query;
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /code/" + terminologyId + "/"
+            + terminology + "/" + version + "/mappings" + queryStr);
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "find mappings",
+          UserRole.VIEWER);
+
+      
+      final MappingList mappingList = contentService.findMappingsForCode(
+          terminologyId, terminology, version, Branch.ROOT, query, pfs);
+      for (final Mapping member : mappingList.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(member);
+      }
+      return mappingList;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve mappings from code");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+  
+  /* see superclass */
+  @Produces({
+      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+  })
+  @Override
+  @POST
+  @Path("/dui/{terminologyId}/{terminology}/{version}/mappings")
+  @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated descriptor", response = MappingListJpa.class)
+  public MappingList findMappingsForDescriptor(
+    @ApiParam(value = "Descriptor terminology id, e.g. 341823003", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Query, e.g. 'iron'", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+
+    // Fix query
+    final String queryStr = query == null ? "" : query;
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /dui/" + terminologyId + "/"
+            + terminology + "/" + version + "/mappings" + queryStr);
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "find mappings",
+          UserRole.VIEWER);
+
+      
+      final MappingList mappingList = contentService.findMappingsForDescriptor(
+          terminologyId, terminology, version, Branch.ROOT, query, pfs);
+      for (final Mapping member : mappingList.getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(member);
+      }
+      return mappingList;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve mappings from descriptor");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
 }

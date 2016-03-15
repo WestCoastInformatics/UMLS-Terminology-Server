@@ -17,9 +17,11 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
@@ -254,6 +256,8 @@ public class MappingJpa extends AbstractComponentHasAttributes
    *
    * @return the map set id
    */
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO) 
   public Long getMapSetId() {
     return mapSet == null ? null : mapSet.getId();
   }
@@ -387,7 +391,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
   /* see superclass */
   @Override
   public String toString() {
-    return "MappingJpa [mapSet=" + mapSet + ", fromTerminologyId="
+    return "MappingJpa [mapSet=" + mapSet.getTerminologyId() + ", fromTerminologyId="
         + fromTerminologyId + ", toTerminologyId=" + toTerminologyId
         + ", fromIdType=" + fromIdType + ", toIdType=" + toIdType + ", advice="
         + advice + ", rule=" + rule + ", group=" + group + ", rank=" + rank

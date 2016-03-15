@@ -48,6 +48,7 @@ import com.wci.umls.server.helpers.content.DefinitionList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.GeneralConceptAxiomList;
 import com.wci.umls.server.helpers.content.LexicalClassList;
+import com.wci.umls.server.helpers.content.MapSetList;
 import com.wci.umls.server.helpers.content.MappingList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.StringClassList;
@@ -93,6 +94,7 @@ import com.wci.umls.server.jpa.helpers.content.DefinitionListJpa;
 import com.wci.umls.server.jpa.helpers.content.DescriptorListJpa;
 import com.wci.umls.server.jpa.helpers.content.GeneralConceptAxiomListJpa;
 import com.wci.umls.server.jpa.helpers.content.LexicalClassListJpa;
+import com.wci.umls.server.jpa.helpers.content.MapSetListJpa;
 import com.wci.umls.server.jpa.helpers.content.MappingListJpa;
 import com.wci.umls.server.jpa.helpers.content.RelationshipListJpa;
 import com.wci.umls.server.jpa.helpers.content.StringClassListJpa;
@@ -3570,6 +3572,47 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
+@SuppressWarnings({
+    "unchecked", "rawtypes"
+})
+private MappingList findMappingsForComponentHelper(
+  String terminologyId, String terminology, String version, String branch,
+  String query, PfsParameter pfs) throws Exception {
+
+  if (terminologyId == null || terminologyId.isEmpty()) {
+    throw new Exception("Terminology id is required");
+  }
+
+  MappingList results = new MappingListJpa();
+
+  // Prepare the query string
+  StringBuilder finalQuery = new StringBuilder();
+  finalQuery.append(query == null ? "" : query);
+  if (!finalQuery.toString().isEmpty()) {
+    finalQuery.append(" AND ");
+  }
+
+  finalQuery
+        .append("fromTerminologyId:" + terminologyId + " AND terminology:"
+            + terminology + " AND version:" + version);
+  
+
+  SearchHandler searchHandler = getSearchHandler(terminology);
+  int[] totalCt = new int[1];
+  // pass empty terminology/version because it's handled above
+  // TODO: nameSort? no name on Mapping - what does query work against?
+  results.setObjects((List) searchHandler.getQueryResults("", "", branch,
+      finalQuery.toString(), "nameSort", MappingJpa.class,
+      MappingJpa.class, pfs, totalCt, manager));
+  results.setTotalCount(totalCt[0]);
+
+  for (Mapping mapping : results.getObjects()) {
+    getGraphResolutionHandler(terminology).resolve(mapping);
+  }
+  return results;
+
+}
+
   /* see superclass */
   @Override
   public TreePositionList findTreePositionsForConcept(String terminologyId,
@@ -4318,6 +4361,43 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
+  public MapSet getMapSet(String terminologyId, String terminology,
+    String version, String branch) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get mapset "
+        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
+    return getComponent(terminologyId, terminology, version, branch,
+        MapSetJpa.class);
+  }
+  
+  /* see superclass */
+  @Override
+  public MapSetList getMapSets(String terminology, String version,
+    String branch) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Service - get mapsets " + terminology + "/" + version);
+    javax.persistence.Query query =
+        manager.createQuery("select a from MapSetJpa a where "
+            + "version = :version and terminology = :terminology");
+    // Try to retrieve the single expected result If zero or more than one
+    // result are returned, log error and set result to null
+    try {
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      @SuppressWarnings("unchecked")
+      List<MapSet> m = query.getResultList();
+      MapSetListJpa mapSetList = new MapSetListJpa();
+      mapSetList.setObjects(m);
+      mapSetList.setTotalCount(m.size());
+
+      return mapSetList;
+
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+  
+  /* see superclass */
+  @Override
   public Mapping getMapping(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get mapping " + id);
     return getComponent(id, MappingJpa.class);
@@ -4362,6 +4442,45 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return result;
   }
 
+  /* see superclass */
+  @Override
+  public MappingList findMappingsForConcept(String conceptId,
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - find mappings for concept " + conceptId
+            + "/" + terminology + "/" + version + "/" + branch + "/" + query);
+
+    return findMappingsForComponentHelper(conceptId, terminology, version,
+        branch, query, pfs);
+  }
+  
+  /* see superclass */
+  @Override
+  public MappingList findMappingsForCode(String codeId,
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - find mappings for code " + codeId
+            + "/" + terminology + "/" + version + "/" + branch + "/" + query);
+
+    return findMappingsForComponentHelper(codeId, terminology, version,
+        branch, query, pfs);
+  }
+  
+  /* see superclass */
+  @Override
+  public MappingList findMappingsForDescriptor(String descriptorId,
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - find mappings for descriptor " + descriptorId
+            + "/" + terminology + "/" + version + "/" + branch + "/" + query);
+
+    return findMappingsForComponentHelper(descriptorId, terminology, version,
+        branch, query, pfs);
+  }
+  
   /* see superclass */
   @Override
   public MapSet addMapSet(MapSet mapSet) throws Exception {
@@ -4437,4 +4556,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
       }
     }
   }
+  
+  
 }

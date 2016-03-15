@@ -5,6 +5,7 @@ package com.wci.umls.server.helpers;
 
 import java.util.Properties;
 
+
 /**
  * Represents something configurable.
  */
@@ -24,4 +25,5 @@ public interface Configurable {
    * @throws Exception
    */
   public void setProperties(Properties p) throws Exception;
+
 }

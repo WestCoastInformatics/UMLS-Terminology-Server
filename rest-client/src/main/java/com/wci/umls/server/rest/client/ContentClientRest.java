@@ -22,6 +22,8 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.MapSetList;
+import com.wci.umls.server.helpers.content.MappingList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
@@ -31,6 +33,7 @@ import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
@@ -38,6 +41,8 @@ import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.helpers.content.CodeListJpa;
 import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
 import com.wci.umls.server.jpa.helpers.content.DescriptorListJpa;
+import com.wci.umls.server.jpa.helpers.content.MapSetListJpa;
+import com.wci.umls.server.jpa.helpers.content.MappingListJpa;
 import com.wci.umls.server.jpa.helpers.content.RelationshipListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
@@ -48,6 +53,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.StringClass;
 
 /**
@@ -1265,6 +1271,107 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
+  public MappingList findMappingsForConcept(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for concept "
+            + terminologyId + ", " + terminology + ", " + version);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for concept "
+            + terminologyId + ", " + terminology + ", " + version + ", " + pfs
+            + ", " + query);
+    return findMappingsHelper("cui", terminologyId, terminology, version,
+        query, pfs, authToken);
+  }
+  
+  /* see superclass */
+  @Override
+  public MappingList findMappingsForCode(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for code "
+            + terminologyId + ", " + terminology + ", " + version);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for code "
+            + terminologyId + ", " + terminology + ", " + version + ", " + pfs
+            + ", " + query);
+    return findMappingsHelper("code", terminologyId, terminology, version,
+        query, pfs, authToken);
+  }
+  
+  /* see superclass */
+  @Override
+  public MappingList findMappingsForDescriptor(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for descriptor "
+            + terminologyId + ", " + terminology + ", " + version);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for descriptor "
+            + terminologyId + ", " + terminology + ", " + version + ", " + pfs
+            + ", " + query);
+    return findMappingsHelper("dui", terminologyId, terminology, version,
+        query, pfs, authToken);
+  }
+  
+  /**
+   * Find mappings helper.
+   *
+   * @param type the type
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the mapping list
+   * @throws Exception the exception
+   */
+  private MappingList findMappingsHelper(String type,
+    String terminologyId, String terminology, String version, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/" + type + "/" + terminologyId
+            + "/" + terminology + "/" + version + "/mappings" + "?query="
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
+
+    String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    MappingListJpa list = ConfigUtility.getGraphForString(resultString,
+        MappingListJpa.class);
+    return list;
+  }
+  
+  /* see superclass */
+  @Override
   public TreeList findConceptTrees(String terminologyId, String terminology,
     String version, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass())
@@ -1582,5 +1689,95 @@ public class ContentClientRest extends RootClientRest
     TreeJpa tree = ConfigUtility.getGraphForString(resultString, TreeJpa.class);
     return tree;
   }
+
+  @Override
+  public MapSet getMapSet(String terminologyId, String terminology,
+    String version, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Client - get mapSet "
+        + terminologyId + ", " + terminology + ", " + version);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/mapset/" + terminology + "/" + version + "/" + terminologyId);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    MapSetJpa concept =
+        ConfigUtility.getGraphForString(resultString, MapSetJpa.class);
+    return concept;
+  }
+
+  @Override
+  public MapSetList getMapSets(String terminology, String version,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get mapsets " + terminology + ", " + version);
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/mapset/all/" + terminology + "/" + version);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    MapSetListJpa list =
+        ConfigUtility.getGraphForString(resultString, MapSetListJpa.class);
+    return list;
+  }
+
+  @Override
+  public MappingList findMappingsForMapSet(String mapSetId, String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for mapset " + terminology + ", "
+            + version);
+    validateNotEmpty(mapSetId, "subsetId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/content/mapset/"
+            + mapSetId + "/" + terminology + "/" + version + "/mappings"
+            + "?query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
+    String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    // converting to object
+    MappingListJpa list = ConfigUtility.getGraphForString(resultString,
+        MappingListJpa.class);
+    return list;
+  }
+
+
 
 }
