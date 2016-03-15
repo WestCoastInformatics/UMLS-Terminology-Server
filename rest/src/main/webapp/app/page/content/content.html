@@ -17,9 +17,9 @@
         <tr>
           <td style="width: 175px;">
             Query
-            <a class="glyphicon glyphicon-cog noul pull-right"
+            <i class="glyphicon glyphicon-cog noul pull-right"
               uib-tooltip="Advanced Search Options"
-              ng-click="searchParams.advancedMode = !searchParams.advancedMode"></a>
+              ng-click="searchParams.advancedMode = !searchParams.advancedMode"></i>
           </td>
           <td>
             <input style="margin-bottom: 5px; width: 75%;" type="text"
@@ -135,14 +135,15 @@
           <tr ng-class="{active: searchResult.active}"
             ng-repeat="searchResult in searchResults.list"
             ng-click="getComponent(searchResult.terminologyId, searchResult.terminology, searchResult.version)">
-            <td style="width:25%;">
+            <td>
+              <span class="nobreak">
               <i
                 ng-class="getColorForScore(searchResult.score)">&#9679;</i>
               <span
                 ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>
-              {{searchResult.terminologyId}}
+              <span class="breakword">{{searchResult.terminologyId}}</span></span>
             </td>
-            <td style="word-break: break-word;">
+            <td>
               {{searchResult.value}}
               <span class="label label-default" ng-show="searchResult.obsolete"
                 uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>

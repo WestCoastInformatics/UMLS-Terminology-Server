@@ -457,10 +457,10 @@ tsApp
           // check parameters for advanced mode
           if (searchParams.advancedMode) {
             if (searchParams.semanticType) {
-              pfs.queryRestriction += " AND semanticTypes.semanticType:\"" + searchParams.semanticType
-                + "\"";
+              pfs.queryRestriction += " AND semanticTypes.semanticType:\""
+                + searchParams.semanticType + "\"";
             }
-            
+
             if (searchParams.matchTerminology) {
               pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
                 + "\"";
@@ -518,19 +518,16 @@ tsApp
             queryRestriction : null
           };
 
-          
-          
           // check parameters for advanced mode
           if (searchParams.advancedMode) {
-            
+
             if (semanticType) {
               pfs.queryRestriction = "ancestorPath:" + semanticType.replace("~", "\\~") + "*";
             }/*
-            if (searchParams.semanticType) {
-              pfs.queryRestriction += " AND semanticTypes.semanticType:\"" + searchParams.semanticType
-                + "\"";
-            }*/
-            
+                           * if (searchParams.semanticType) { pfs.queryRestriction += " AND
+                           * semanticTypes.semanticType:\"" + searchParams.semanticType + "\""; }
+                           */
+
             if (searchParams.matchTerminology) {
               pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
                 + "\"";
@@ -612,6 +609,11 @@ tsApp
           }
 
           var query = parameters.text;
+
+          // TODO Add to the end of the query
+          if (query && !query.endsWith('*')) {
+            query += '*';
+          }
           gpService.increment();
           $http.post(
             contentUrl + prefix + "/" + component.object.terminology + "/"
