@@ -25,6 +25,7 @@ tsApp
           hierarchiesLabel : "Hierarchies",
           attributesLabel : "Attributes",
           definitionsLabel : "Definitions",
+          mappingLabel : "Mappings", 
           subsetsLabel : "Subsets",
           relationshipsLabel : "Relationships",
           semanticTypesLabel : "Semantic Types",

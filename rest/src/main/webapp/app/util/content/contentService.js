@@ -630,6 +630,69 @@ tsApp
           return deferred.promise;
         };
 
+        // Handle paging of mappings (requires content service
+        // call).
+        this.findMappings = function(terminologyId, terminology, version, page, parameters) {
+          console.debug("findMappings", terminologyId, terminology, version, page, parameters);
+          var deferred = $q.defer();
+
+          var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
+
+          if (parameters)
+
+            var pfs = {
+              startIndex : (page - 1) * pageSizes.general,
+              maxResults : pageSizes.general,
+              sortField : parameters.sortField ? parameters.sortField : 'fromTerminologyId',
+              ascending : parameters.sortAscending,
+              queryRestriction : null
+            // constructed from filters
+            };
+
+          // Show only inferred rels for now
+          // construct query restriction if needed
+          var qr = '';
+          if (!parameters.showSuppressible) {
+            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'suppressible:false';
+          }
+          if (!parameters.showObsolete) {
+            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'obsolete:false';
+          }
+          if (parameters.showInferred) {
+            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'inferred:true';
+          }
+          if (!parameters.showInferred) {
+            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'stated:true';
+          }
+          pfs.queryRestriction = qr;
+
+          // For description logic sources, simply read all rels.
+          // That way we ensure all "groups" are represented.
+          if (metadata.terminology.descriptionLogicTerminology) {
+            pfs.startIndex = -1;
+            pfs.maxResults = 1000000;
+          } else {
+            pfs.maxResults = pageSizes.general;
+          }
+
+          var query = parameters.text;
+          gpService.increment();
+          $http.post(
+            contentUrl + prefix + "/" + component.object.terminology + "/"
+              + component.object.version + "/" + component.object.terminologyId
+              + "/mappings?query=" + encodeURIComponent(utilService.cleanQuery(query)), pfs)
+            .then(function(response) {
+              console.debug("  mappings =", response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            }, function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+
+          return deferred.promise;
+        };
         // end
 
       } ]);
