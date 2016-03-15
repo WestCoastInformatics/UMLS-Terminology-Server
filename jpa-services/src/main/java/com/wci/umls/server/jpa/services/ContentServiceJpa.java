@@ -244,6 +244,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
         throw new Exception("search.handler." + ConfigUtility.DEFAULT
             + " expected and does not exist.");
       }
+     /* if (!searchHandlerNames.contains(ConfigUtility.ATOMCLASS)) {
+        throw new Exception("search.handler." + ConfigUtility.ATOMCLASS
+            + " expected and does not exist.");
+      }*/
     } catch (Exception e) {
       e.printStackTrace();
       searchHandlerNames = null;
@@ -2551,10 +2555,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
       sr.setVersion(atomClass.getVersion());
       sr.setValue(atomClass.getName());
       sr.setObsolete(atomClass.isObsolete());
-      
-      
-      // normalize results to a "good match" (lucene score of 5.0+)
-      //Double normScore = Math.log10(Math.max(5, scoreMap.get(sr.getId())) / Math.log(5));
       sr.setScore(scoreMap.get(sr.getId()));
       results.addObject(sr);
     }

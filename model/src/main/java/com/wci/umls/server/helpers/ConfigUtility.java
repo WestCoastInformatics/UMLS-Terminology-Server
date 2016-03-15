@@ -70,6 +70,9 @@ public class ConfigUtility {
 
   /** The Constant DEFAULT. */
   public final static String DEFAULT = "DEFAULT";
+  
+  /** The Constant ATOMCLASS (search handler for atoms) */
+  public final static String ATOMCLASS = "ATOMCLASS";
 
   /** The date format. */
   public final static FastDateFormat DATE_FORMAT =

@@ -323,7 +323,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Override
   @Fields({
       @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord") ),
-      @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO, boost = @Boost(200f)),
+      @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
       @Field(name = "edgeNGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteEdgeAnalyzer") ),
       @Field(name = "nGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteNGramAnalyzer") )
   })
@@ -337,7 +337,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * @return the name norm
    */
   @XmlTransient
-  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.NO, boost = @Boost(100f))
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.NO)
   public String getNameNorm() {
     return ConfigUtility.normalize(name);
   }

@@ -52,9 +52,9 @@ tsApp.controller('ContentCtrl', [
     $scope.componentTree = null;
 
     // component scoring
-    $scope.scoreExcellent = 1.0;
-    $scope.scoreGood = 0.5;
-    $scope.scorePoor = 0.25;
+    $scope.scoreExcellent = 0.8;
+    $scope.scoreGood = 0.6;
+    $scope.scorePoor = 0.4;
 
     $scope.getColorForScore = function(score) {
       if (score > $scope.scoreExcellent) {
@@ -67,7 +67,7 @@ tsApp.controller('ContentCtrl', [
       if (score > $scope.scorePoor) {
         return 'orange';
       } else
-        return null;
+        return 'red';
     }
 
     //

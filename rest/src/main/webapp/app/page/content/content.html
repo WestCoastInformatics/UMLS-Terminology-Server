@@ -135,10 +135,9 @@
           <tr ng-class="{active: searchResult.active}"
             ng-repeat="searchResult in searchResults.list"
             ng-click="getComponent(searchResult.terminologyId, searchResult.terminology, searchResult.version)">
-            <td>
-              <i class="glyphicon glyphicon-star"
-                ng-show="searchResult.score >= scorePoor"
-                ng-class="getColorForScore(searchResult.score)"></i>
+            <td style="width:25%;">
+              <i
+                ng-class="getColorForScore(searchResult.score)">&#9679;</i>
               <span
                 ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>
               {{searchResult.terminologyId}}

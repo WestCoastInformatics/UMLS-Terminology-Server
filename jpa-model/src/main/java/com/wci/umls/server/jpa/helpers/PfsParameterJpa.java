@@ -37,8 +37,6 @@ public class PfsParameterJpa implements PfsParameter {
   /** The inactive only. */
   private boolean inactiveOnly;
 
-  private float score = -1.0f;
-
   /**
    * The default constructor.
    */

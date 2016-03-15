@@ -96,16 +96,19 @@ public class DefaultSearchHandler implements SearchHandler {
   /* see superclass */
   @Override
   public <T extends HasId> List<T> getQueryResults(String terminology,
-    String version, String branch, String query, String literalField, Class<?> fieldNamesKey, Class<T> clazz,
-    PfsParameter pfs, int[] totalCt, EntityManager manager) throws Exception {
-    
-    
-    // if the literal field specified is a sort field, also search normalized field
-    // TODO This currently does not work for tree positions -- do we want to index those as well?
+    String version, String branch, String query, String literalField,
+    Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt,
+    EntityManager manager) throws Exception {
+
+    // if the literal field specified is a sort field, also search normalized
+    // field
+    // TODO This currently does not work for tree positions -- do we want to
+    // index those as well?
     // probably yes, but space considerations...
     String normalizedField = null;
     if (literalField != null && literalField.endsWith("Sort")) {
-      normalizedField = literalField.substring(0,  literalField.length() - 4) + "Norm";
+      normalizedField =
+          literalField.substring(0, literalField.length() - 4) + "Norm";
     }
 
     // Build an escaped form of the query with wrapped quotes removed
@@ -131,23 +134,26 @@ public class DefaultSearchHandler implements SearchHandler {
     } else {
       combinedQuery = fixedQuery.isEmpty() ? "" : fixedQuery;
       if (normalizedField != null && !normalizedField.isEmpty()) {
-        combinedQuery += " OR " + normalizedField + ":\"" + ConfigUtility.normalize(fixedQuery) + "\"" + "^10.0";
+        combinedQuery += " OR " + normalizedField + ":\""
+            + ConfigUtility.normalize(fixedQuery) + "\"" + "^10.0";
       }
       if (literalField != null && !literalField.isEmpty()) {
         combinedQuery += " OR " + literalField + ":" + escapedQuery + "^20.0";
       }
-      
+
       // create an exact expansion entry. i.e. if the search term exactly
       // matches something in the acronyms file, then use additional "OR"
       // clauses
       if (acronymExpansionMap.containsKey(fixedQuery)) {
         for (String expansion : acronymExpansionMap.get(fixedQuery)) {
-          
+
           if (normalizedField != null && !normalizedField.isEmpty()) {
-            combinedQuery += " OR " + normalizedField + ":\"" + ConfigUtility.normalize(expansion) + "\"" + "^10.0";
+            combinedQuery += " OR " + normalizedField + ":\""
+                + ConfigUtility.normalize(expansion) + "\"" + "^10.0";
           }
           if (literalField != null && !literalField.isEmpty()) {
-            combinedQuery += " OR " + literalField + ":\"" + expansion + "\"" + "^20.0";
+            combinedQuery +=
+                " OR " + literalField + ":\"" + expansion + "\"" + "^20.0";
           }
         }
       }
@@ -342,7 +348,17 @@ public class DefaultSearchHandler implements SearchHandler {
       @SuppressWarnings("unchecked")
       T t = (T) result[1];
       classes.add(t);
-       scoreMap.put(t.getId(), Float.valueOf(score.toString()));
+
+      // normalize results to a "good match" (lucene score of 5.0+)
+      // Double normScore = Math.log(Math.max(5, scoreMap.get(sr.getId())) /
+      // Math.log(5));
+
+      // cap the score to a maximum of 5.0 and normalize to the range [0,1]
+
+      Float normScore = Math.min(5, Float.valueOf(score.toString())) / 5;
+
+      // store the score
+      scoreMap.put(t.getId(), normScore.floatValue());
     }
     Logger.getLogger(getClass()).debug("  scoreMap = " + scoreMap);
 

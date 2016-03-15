@@ -298,7 +298,7 @@ public abstract class AbstractComponent implements Component {
   /* see superclass */
   @Override
   @XmlID
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO, boost = @Boost(200f))
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminologyId() {
     return terminologyId;
   }
