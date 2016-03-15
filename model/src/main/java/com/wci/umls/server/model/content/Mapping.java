@@ -165,4 +165,32 @@ public interface Mapping extends ComponentHasAttributes {
    */
   public void setMapSet(MapSet mapSet);
 
+  /**
+   * Gets the from name.
+   *
+   * @return the from name
+   */
+  public String getFromName();
+
+  /**
+   * Sets the from name.
+   *
+   * @param term the new from name
+   */
+  public void setFromName(String term);
+
+  /**
+   * Gets the to name.
+   *
+   * @return the to name
+   */
+  public String getToName();
+
+  /**
+   * Sets the to name.
+   *
+   * @param term the new to name
+   */
+  public void setToName(String term);
+
 }
