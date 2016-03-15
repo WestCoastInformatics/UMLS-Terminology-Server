@@ -12,9 +12,11 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
+import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -38,8 +40,9 @@ import com.wci.umls.server.helpers.PrecedenceList;
 public class PrecedenceListJpa implements PrecedenceList {
 
   /** The id. */
+  @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
   private Long id;
 
   /** the timestamp. */

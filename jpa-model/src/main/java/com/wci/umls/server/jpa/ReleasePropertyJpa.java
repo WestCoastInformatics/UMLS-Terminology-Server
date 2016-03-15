@@ -6,8 +6,10 @@ package com.wci.umls.server.jpa;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.TableGenerator;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
@@ -24,8 +26,9 @@ import com.wci.umls.server.ReleaseProperty;
 public class ReleasePropertyJpa implements ReleaseProperty {
 
   /** The id. */
+  @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
   private Long id;
 
   /** The name. */
