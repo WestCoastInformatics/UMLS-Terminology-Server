@@ -35,7 +35,9 @@ import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import org.reflections.Reflections;
+import org.reflections.util.ConfigurationBuilder;
 
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PfsParameter;
 
 /**
@@ -57,7 +59,14 @@ public class IndexUtility {
   static {
     try {
       final Map<String, Class<?>> reindexMap = new HashMap<>();
-      final Reflections reflections = new Reflections();
+      final String indexProp =
+          ConfigUtility.getConfigProperties().getProperty("index.packages");
+      final String[] packages =
+          indexProp != null ? indexProp.split(";") : new String[] {
+              "com.wci.umls.server"
+      };
+      final Reflections reflections =
+          new Reflections(new ConfigurationBuilder().forPackages(packages));
       for (final Class<?> clazz : reflections
           .getTypesAnnotatedWith(Indexed.class)) {
         reindexMap.put(clazz.getSimpleName(), clazz);
@@ -456,7 +465,7 @@ public class IndexUtility {
         } else {
           sort = new Sort(new SortField(sortField, SortField.Type.STRING,
               !pfs.isAscending()));
-          
+
         }
         fullTextQuery.setSort(sort);
       }

@@ -17,6 +17,7 @@ import javax.xml.bind.annotation.XmlID;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Boost;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
@@ -77,7 +78,7 @@ public abstract class AbstractComponent implements Component {
   @Column(nullable = false)
   private String terminologyId;
 
-  /** The terminology version. */
+  /** The version. */
   @Column(nullable = false)
   private String version;
 

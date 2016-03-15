@@ -70,7 +70,7 @@ public class OwlApiClassifier implements Classifier {
   @SuppressWarnings("unused")
   private Project project;
 
-  /** The terminology version. */
+  /** The version. */
   private String version;
 
   /** The pre classify run. */
@@ -724,9 +724,7 @@ public class OwlApiClassifier implements Classifier {
         break;
       }
     }
-    // System.out.println(" " + a + " " + b + " " + c + " " + d + " " + e + " "
-    // + f + " " + g + " " + g);
-
+    
     // concept1 is more specific than concept2 if
     if ((a || c) && !d && !e && !h) {
       return -1;

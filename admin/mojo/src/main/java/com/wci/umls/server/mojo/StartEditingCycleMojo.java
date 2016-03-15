@@ -40,7 +40,7 @@ public class StartEditingCycleMojo extends AbstractMojo {
   private String terminology = null;
 
   /**
-   * The terminology version
+   * The version
    * 
    * @parameter version
    */
@@ -72,7 +72,7 @@ public class StartEditingCycleMojo extends AbstractMojo {
       }
 
       if (version == null) {
-        throw new Exception("A terminology version must be specified.");
+        throw new Exception("A version must be specified.");
       }
 
       Properties properties = ConfigUtility.getConfigProperties();

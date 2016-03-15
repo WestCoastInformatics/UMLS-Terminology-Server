@@ -62,7 +62,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
   /** The terminology. */
   private String terminology;
 
-  /** The terminology version. */
+  /** The version. */
   private String version;
 
   /** The id type. */
@@ -92,9 +92,9 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
   }
 
   /**
-   * Sets the terminology version.
+   * Sets the version.
    *
-   * @param version the terminology version
+   * @param version the version
    */
   public void setVersion(String version) {
     this.version = version;
@@ -149,7 +149,7 @@ public class RemoveTerminologyAlgorithm extends HistoryServiceJpa
    * Remove a terminology of a given version.
    *
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @param idType the id type
    * @throws Exception the exception
    */

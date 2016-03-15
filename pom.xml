@@ -3,16 +3,15 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <!-- Module Metadata -->
   <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>9</version>
+    <groupId>com.wcinformatics.umls.server</groupId>
+    <artifactId>term-server-parent</artifactId>
+    <version>1.3.0-SNAPSHOT</version>
+    <relativePath>parent</relativePath>
   </parent>
 
-  <!-- Module Metadata -->
-  <groupId>com.wcinformatics.umls.server</groupId>
   <artifactId>term-server-aggregator</artifactId>
-  <version>1.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Terminology Server</name>
   <description>Terminology Server aggregator project.</description>
@@ -33,127 +32,13 @@
     <module>integration-test</module>
     <module>examples</module>
   </modules>
-  
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-    </license>
-  </licenses>
 
-  <developers>
-    <developer>
-      <name>Brian Carlsen</name>
-      <email>bcarlsen@westcoastinformatics.com</email>
-      <organization>West Coast Informatics, LLC</organization>
-      <organizationUrl>http://www.westcoastinformatics.com</organizationUrl>
-    </developer>
-    <developer>
-      <name>Deborah Shapiro</name>
-      <email>dshapiro@westcoastinformatics.com</email>
-      <organization>West Coast Informatics, LLC</organization>
-      <organizationUrl>http://www.westcoastinformatics.com</organizationUrl>
-    </developer>
-    <developer>
-      <name>Patrick Granvold</name>
-      <email>pgranvold@westcoastinformatics.com</email>
-      <organization>West Coast Informatics, LLC</organization>
-      <organizationUrl>http://www.westcoastinformatics.com</organizationUrl>
-    </developer>
-  </developers>
-  
-  <!-- Git SCM connection -->
-  <scm>
-    <connection>scm:git:git@github.com:WestCoastInformatics/UMLS-Terminology-Server.git</connection>
-    <developerConnection>scm:git:git@github.com:WestCoastInformatics/UMLS-Terminology-Server.git</developerConnection>
-    <url>git@github.com:WestCoastInformatics/UMLS-Terminology-Server</url>
-  </scm>
-  
-  <!-- Profiles -->
-  <profiles>
-  
-    <!-- Isolate release process from normal build configuration -->
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <!-- Javadoc and Source jar file generation -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <version>3.0.0</version>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.10.3</version>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          
-          <!-- Maven GPG plugin is used to sign the components -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-  
-  <!-- configure Maven to deploy to the OSSRH Nexus Repository Manager with the Nexus 
-    Staging Maven plugin (see plugins) -->
   <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
     <repository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
 
-  <!-- standard build -->
-  <build>
-    <plugins>
-      <!-- the Staging Maven plugin (see distributionManagement) -->
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.6</version>
-        <extensions>true</extensions>
-        <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>true</autoReleaseAfterClose>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

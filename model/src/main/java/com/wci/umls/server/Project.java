@@ -193,16 +193,16 @@ public interface Project {
   public void setTerminology(String terminology);
 
   /**
-   * Returns the terminology version.
+   * Returns the version.
    * 
-   * @return the terminology version
+   * @return the version
    */
   public String getVersion();
 
   /**
-   * Sets the terminology version.
+   * Sets the version.
    * 
-   * @param version the terminology version
+   * @param version the version
    */
   public void setVersion(String version);
 

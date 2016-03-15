@@ -80,7 +80,7 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   @ElementCollection
   private List<String> synonymousNames = new ArrayList<>();
 
-  /** The terminology version. */
+  /** The version. */
   @Column(nullable = false)
   private String version;
 

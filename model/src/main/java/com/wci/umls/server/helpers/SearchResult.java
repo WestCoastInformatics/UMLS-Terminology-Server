@@ -51,14 +51,14 @@ public interface SearchResult {
   public void setTerminology(String terminology);
 
   /**
-   * Returns the terminology version.
+   * Returns the version.
    *
    * @return the version
    */
   public String getVersion();
 
   /**
-   * Sets the terminology version.
+   * Sets the version.
    *
    * @param version the version to set
    */
@@ -97,12 +97,12 @@ public interface SearchResult {
    *
    * @return the score
    */
-  public float getScore();
+  public Float getScore();
 
   /**
    * Sets the score.
    *
    * @param score the score
    */
-  public void setScore(float score);
+  public void setScore(Float score);
 }

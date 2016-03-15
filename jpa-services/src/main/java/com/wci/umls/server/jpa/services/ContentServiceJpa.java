@@ -246,6 +246,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
         throw new Exception("search.handler." + ConfigUtility.DEFAULT
             + " expected and does not exist.");
       }
+     /* if (!searchHandlerNames.contains(ConfigUtility.ATOMCLASS)) {
+        throw new Exception("search.handler." + ConfigUtility.ATOMCLASS
+            + " expected and does not exist.");
+      }*/
     } catch (Exception e) {
       e.printStackTrace();
       searchHandlerNames = null;
@@ -2444,13 +2448,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
     SearchResultList results = new SearchResultListJpa();
     List<T> classes = null;
     int totalCt[] = new int[1];
+    
+    // declare search handler
+    SearchHandler searchHandler = null;
 
     // Perform Lucene search (if there is anything to search for)
     List<T> queryClasses = new ArrayList<>();
     boolean queryFlag = false;
     if (isLuceneQueryInfo(query, pfsc)) {
       queryFlag = true;
-      SearchHandler searchHandler = getSearchHandler(terminology);
+      searchHandler = getSearchHandler(terminology);
       queryClasses =
           searchHandler.getQueryResults(terminology, version, branch, query,
               "atoms.nameSort", fieldNamesKey, clazz, pfsc, totalCt, manager);
@@ -2534,6 +2541,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
       results.setTotalCount(0);
       return results;
     }
+    
+    
+    Map<Long, Float> scoreMap = new HashMap<>();
+    if (searchHandler != null) {
+      scoreMap = searchHandler.getScoreMap();
+    }
 
     // construct the search results
     for (AtomClass atomClass : classes) {
@@ -2544,6 +2557,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       sr.setVersion(atomClass.getVersion());
       sr.setValue(atomClass.getName());
       sr.setObsolete(atomClass.isObsolete());
+      sr.setScore(scoreMap.get(sr.getId()));
       results.addObject(sr);
     }
 

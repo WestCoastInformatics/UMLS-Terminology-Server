@@ -34,14 +34,14 @@ public class TerminologyRrfSingleLoaderMojo extends AbstractMojo {
   private String terminology;
 
   /**
-   * The terminology version.
+   * The version.
    * @parameter
    * @required
    */
   private String version;
 
   /**
-   * The terminology version.
+   * The version.
    * @parameter
    */
   private String prefix;
@@ -82,7 +82,7 @@ public class TerminologyRrfSingleLoaderMojo extends AbstractMojo {
     try {
       getLog().info("RRF Single Terminology Loader called via mojo.");
       getLog().info("  Terminology        : " + terminology);
-      getLog().info("  Terminology Version: " + version);
+      getLog().info("  version: " + version);
       getLog().info("  Input directory    : " + inputDir);
       getLog().info("  Expect server up   : " + server);
       getLog().info("  Mode               : " + mode);

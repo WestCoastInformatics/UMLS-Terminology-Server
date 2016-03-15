@@ -17,7 +17,7 @@ public interface SecurityServiceHandler extends Configurable {
    * @param user the user
    * @param password the password
    * @return the user
-   * @throws Exception
+   * @throws Exception the exception
    */
   public User authenticate(String user, String password) throws Exception;
 

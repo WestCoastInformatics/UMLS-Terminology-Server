@@ -117,7 +117,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
   /** The terminology. */
   private String terminology;
 
-  /** The terminology version. */
+  /** The version. */
   private String version;
 
   /** The release version. */
@@ -201,9 +201,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
   }
 
   /**
-   * Sets the terminology version.
+   * Sets the version.
    *
-   * @param version the terminology version
+   * @param version the version
    */
   public void setVersion(String version) {
     this.version = version;
@@ -923,9 +923,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
     while ((line = reader.readLine()) != null) {
       line = line.replace("\r", "");
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
-      
-     
-          
 
       if (!fields[0].equals(id)) { // header
 
@@ -987,24 +984,53 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
 
       if (!fields[0].equals(id)) { // header
-        
-        Logger.getLogger(getClass()).info("Line: " + fields);
 
         // Stop if the effective time is past the release version
         if (fields[1].compareTo(releaseVersion) > 0) {
+          Logger.getLogger(getClass()).debug(
+              "Found effective time past release version at line " + line);
           reader.push(line);
           break;
         }
 
-        ConceptRelationship relationship = null;
+        if (conceptIdMap.get(fields[4]) == null) {
 
-        if (conceptIdMap.get(fields[5]) != null) {
-          relationship = new ConceptRelationshipJpa();
-        } else {
-          throw new Exception(
-              "Association reference member connected to nonexistent object");
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent refset with terminology id "
+                  + fields[4]);
+          Logger.getLogger(getClass()).warn("  Line: " + line);
+          continue;
+          /*
+           * throw new Exception(
+           * "Association reference member connected to nonexistent object");
+           */
         }
 
+        if (conceptIdMap.get(fields[5]) == null) {
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent source object with terminology id "
+                  + fields[5]);
+          Logger.getLogger(getClass()).warn("  Line: " + line);
+          continue;
+          /*
+           * throw new Exception(
+           * "Association reference member connected to nonexistent object");
+           */
+        }
+
+        if (conceptIdMap.get(fields[6]) == null) {
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent target object with terminology id "
+                  + fields[5]);
+          Logger.getLogger(getClass()).warn("  Line: " + line);
+          continue;
+          /*
+           * throw new Exception(
+           * "Association reference member connected to nonexistent object");
+           */
+        }
+
+        ConceptRelationship relationship = new ConceptRelationshipJpa();
         final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
 
         // set the fields
@@ -1043,22 +1069,19 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
         // get concepts from cache, they just need to have ids
         final Concept fromConcept = getConcept(conceptIdMap.get(fields[5]));
         final Concept toConcept = getConcept(conceptIdMap.get(fields[6]));
-        
- 
+
         if (fromConcept != null && toConcept != null) {
           relationship.setFrom(fromConcept);
           relationship.setTo(toConcept);
           addRelationship(relationship);
-          
-          Logger.getLogger(getClass()).info("adding RO rel " + (objectCt + 1) + ", "
-              + relationship.getTerminologyId() + ", "
-              + relationship.getFrom().getName() + ", "
-              + getConcept(conceptIdMap
-                  .get(relationship.getAdditionalRelationshipType()))
-              + ", " + relationship.getTo().getName());
-          
 
-          
+          Logger.getLogger(getClass())
+              .debug("adding RO rel " + (objectCt + 1) + ", "
+                  + relationship.getTerminologyId() + ", "
+                  + relationship.getFrom().getName() + ", "
+                  + getConcept(conceptIdMap
+                      .get(relationship.getAdditionalRelationshipType()))
+                  + ", " + relationship.getTo().getName());
 
         } else {
           if (fromConcept == null) {
@@ -1075,19 +1098,6 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
-
-      /**
-       * Make a ConceptRelationshipJpa id = terminologyId timestamp/lastModified
-       * = effectiveTime !active = obsolete published = true, publishable =
-       * true, ... moduleId = becomes an attribute, see how it works in
-       * loadRelationships referencedComponentId, look up the concept -> setFrom
-       * targetComponentId, look up the concept -> setTo relationshipType = "RO"
-       * additionalRelationshipType = refsetId Need to make sure a metadata
-       * additionalRelationshipType gets added abbreviation = refsetId,
-       * expandedForm = name of that concept (e.g. the part in capitals at the
-       * beginning, "POSSIBLY EQUIVALENT TO") make sure to not add it more than
-       * once.
-       */
     }
   }
 

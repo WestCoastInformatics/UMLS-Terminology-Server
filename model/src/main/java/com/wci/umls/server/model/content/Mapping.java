@@ -3,9 +3,7 @@
  */
 package com.wci.umls.server.model.content;
 
-import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.IdType;
-import com.wci.umls.server.model.meta.RelationshipType;
 
 /**
  * Represents a mapping between a from object and a to object.

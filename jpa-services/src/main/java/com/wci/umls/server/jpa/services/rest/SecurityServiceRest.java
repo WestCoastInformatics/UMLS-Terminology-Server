@@ -56,7 +56,7 @@ public interface SecurityServiceRest {
    *
    * @param authToken the auth token
    * @return the users
-   * @throws Exception
+   * @throws Exception the exception
    */
   public UserList getUsers(String authToken) throws Exception;
 

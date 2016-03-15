@@ -124,7 +124,7 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   /** The terminology. */
   private String terminology;
 
-  /** The terminology version. */
+  /** The version. */
   private String version;
 
   /** release version. */
@@ -213,9 +213,9 @@ public class OwlLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   }
 
   /**
-   * Sets the terminology version.
+   * Sets the version.
    *
-   * @param version the terminology version
+   * @param version the version
    */
   public void setVersion(String version) {
     this.version = version;

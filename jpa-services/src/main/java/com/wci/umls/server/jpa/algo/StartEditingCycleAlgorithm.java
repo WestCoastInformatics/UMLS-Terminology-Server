@@ -32,7 +32,7 @@ public class StartEditingCycleAlgorithm extends ContentServiceJpa implements
   /** The terminology. */
   private String terminology = null;
 
-  /** The terminology version. */
+  /** The version. */
   private String version = null;
 
   /** Listeners. */
@@ -49,7 +49,7 @@ public class StartEditingCycleAlgorithm extends ContentServiceJpa implements
    *
    * @param releaseVersion the release version
    * @param terminology the terminology
-   * @param version the terminology version
+   * @param version the version
    * @throws Exception if anything goes wrong
    */
   public StartEditingCycleAlgorithm(String releaseVersion, String terminology,

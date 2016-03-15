@@ -86,7 +86,7 @@ public class MetadataServiceRestDegenerateUseTest extends
       // do nothing
     }
 
-    // test bad terminology version
+    // test bad version
     try {
       metadataService.getAllMetadata("SNOMEDCT", "InvalidVersion", authToken);
       fail("Getting metadata for existing terminology with invalid version did not throw expected exception");

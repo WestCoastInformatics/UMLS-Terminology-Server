@@ -70,6 +70,9 @@ public class ConfigUtility {
 
   /** The Constant DEFAULT. */
   public final static String DEFAULT = "DEFAULT";
+  
+  /** The Constant ATOMCLASS (search handler for atoms) */
+  public final static String ATOMCLASS = "ATOMCLASS";
 
   /** The date format. */
   public final static FastDateFormat DATE_FORMAT =
@@ -304,6 +307,7 @@ public class ConfigUtility {
   /**
    * Returns the graph for string.
    *
+   * @param <T> the generic type
    * @param xml the xml
    * @param graphClass the graph class
    * @return the graph for string
@@ -320,6 +324,7 @@ public class ConfigUtility {
   /**
    * Returns the graph for json.
    *
+   * @param <T> the generic type
    * @param json the json
    * @param graphClass the graph class
    * @return the graph for json
@@ -340,6 +345,7 @@ public class ConfigUtility {
   /**
    * Returns the graph for file.
    *
+   * @param <T> the generic type
    * @param file the file
    * @param graphClass the graph class
    * @return the graph for file
@@ -356,6 +362,7 @@ public class ConfigUtility {
   /**
    * Returns the graph for stream.
    *
+   * @param <T> the generic type
    * @param in the in
    * @param graphClass the graph class
    * @return the graph for stream
@@ -790,8 +797,8 @@ public class ConfigUtility {
 
   /**
    * Converts string field to case-insensitive string of tokens with punctuation
-   * removed For example, "HIV Infection" -> "hiv infection", "1,2-hydroxy" ->
-   * "1 2 hydroxy".
+   * removed For example, "HIV Infection" becomes "hiv infection", while
+   * "1,2-hydroxy" becomes "1 2 hydroxy".
    *
    * @param value the value
    * @return the string

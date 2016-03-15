@@ -31,7 +31,6 @@ tsApp.controller('ContentCtrl', [
     $scope.metadata = metadataService.getModel();
     $scope.component = contentService.getModel();
     $scope.pageSizes = contentService.getPageSizes();
-    $scope.semanticType = null;
 
     // Search parameters
     $scope.searchParams = contentService.getSearchParams();
@@ -51,6 +50,25 @@ tsApp.controller('ContentCtrl', [
     $scope.treeCount = null;
     $scope.treeViewed = null;
     $scope.componentTree = null;
+
+    // component scoring
+    $scope.scoreExcellent = 0.8;
+    $scope.scoreGood = 0.6;
+    $scope.scorePoor = 0.4;
+
+    $scope.getColorForScore = function(score) {
+      if (score > $scope.scoreExcellent) {
+        return 'green'
+      }
+      ;
+      if (score > $scope.scoreGood) {
+        return 'yellow';
+      }
+      if (score > $scope.scorePoor) {
+        return 'orange';
+      } else
+        return 'red';
+    }
 
     //
     // Watch expressions
@@ -145,10 +163,12 @@ tsApp.controller('ContentCtrl', [
           }
 
           // replace the parent tree of the lowest level with
-          // first page of
-          // siblings computed
+          // first page of siblings computed
           $scope.getTreeChildren(parentTree, 0).then(function(children) {
-            parentTree.children = parentTree.children.concat(children);
+            parentTree.children = parentTree.children.concat(children.filter(function(child) {
+              // do not re-add the already-shown component for this tree
+              return $scope.component.object.terminologyId !== child.nodeTerminologyId;
+            }));
           })
 
         });
@@ -298,8 +318,9 @@ tsApp.controller('ContentCtrl', [
     $scope.clearQuery = function() {
       $scope.searchParams.query = null;
       $scope.semanticType = null;
-      // $scope.searchResults.list = [];
-      // $scope.searchResults.tree = [];
+      $scope.termType = null;
+      $scope.matchTerminology = null;
+      $scope.language = null;
     };
 
     // Perform a search for the tree view
@@ -329,6 +350,7 @@ tsApp.controller('ContentCtrl', [
         $scope.setActiveRow($scope.component.object.terminologyId);
         $scope.getTree(0);
         $scope.setComponentLocalHistory($scope.component.historyIndex);
+        $scope.resetPaging();
         applyPaging();
       });
     };
@@ -336,11 +358,13 @@ tsApp.controller('ContentCtrl', [
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a link in a report
     $scope.getComponentFromType = function(terminologyId, terminology, version, type) {
+
       contentService.getComponentFromType(terminologyId, terminology, version, type).then(
         function() {
           $scope.setActiveRow($scope.component.object.terminologyId);
           $scope.setComponentLocalHistory($scope.component.historyIndex);
           $scope.getTree(0);
+          $scope.resetPaging();
           applyPaging();
         });
     };
@@ -355,12 +379,14 @@ tsApp.controller('ContentCtrl', [
     // Find concepts based on current search
     // - loadFirst indicates whether to auto-load result[0]
     $scope.findComponents = function(loadFirst) {
+      console.debug('Finding components (list, loadFirst)', $scope.queryForList, loadFirst);
       $scope.searchOrBrowse = "SEARCH";
-      if ($scope.queryForList)
+      if ($scope.queryForList) {
         $scope.findComponentsAsList(loadFirst);
-      if ($scope.queryForTree)
+      }
+      if ($scope.queryForTree) {
         $scope.findComponentsAsTree(loadFirst);
-
+      }
       $location.hash('top');
       $anchorScroll();
 
@@ -377,13 +403,9 @@ tsApp.controller('ContentCtrl', [
              * alert("You must use at least one character to search"); return; }
              */
 
-      var semanticType = null;
-      if ($scope.semanticType) {
-        semanticType = $scope.semanticType.value;
-      }
       contentService.findComponentsAsList($scope.searchParams.query,
         $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
-        $scope.searchParams.page, semanticType).then(
+        $scope.searchParams.page, $scope.searchParams).then(
         function(data) {
           $scope.searchResults.list = data.results;
           $scope.searchResults.list.totalCount = data.totalCount;
@@ -406,13 +428,10 @@ tsApp.controller('ContentCtrl', [
         alert("You must use at least one character to search");
         return;
       }
-      var semanticType = null;
-      if ($scope.semanticType) {
-        semanticType = $scope.semanticType.key;
-      }
+
       contentService.findComponentsAsTree($scope.searchParams.query,
         $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
-        $scope.searchParams.page, semanticType).then(function(data) {
+        $scope.searchParams.page, $scope.searchParams).then(function(data) {
 
         // for ease and consistency of use of the ui tree
         // directive
@@ -436,6 +455,7 @@ tsApp.controller('ContentCtrl', [
 
     // Load hierarchy into tree view
     $scope.browseHierarchy = function() {
+      console.debug('Browsing request detected');
       $scope.searchOrBrowse = "BROWSE";
       $scope.queryForTree = true;
       $scope.queryForList = false;
@@ -613,36 +633,54 @@ tsApp.controller('ContentCtrl', [
     $scope.pagedRelationships = null;
     $scope.pagedAtoms = null;
 
-    // variable page numbers
-    $scope.atomPaging = {
-      page : 1,
-      filter : ""
+    $scope.resetPaging = function() {
+
+      // variable page numbers
+      $scope.atomPaging = {
+        page : 1,
+        filter : ""
+      };
+
+      $scope.styPaging = {
+        page : 1,
+        filter : ""
+      };
+
+      $scope.defPaging = {
+        page : 1,
+        filter : ""
+      };
+
+      $scope.attributePaging = {
+        page : 1,
+        filter : ""
+      };
+
+      $scope.memberPaging = {
+        page : 1,
+        filter : ""
+      };
+
+      $scope.relPaging = {
+        page : 1,
+        filter : "",
+        sortField : 'relationshipType', // default
+        sortAscending : true, // default
+        sortOptions : [ {
+          key : 'Type',
+          value : 'relationshipType'
+        }, {
+          key : 'Additional Type',
+          value : 'additionalRelationshipType'
+        }, {
+          key : 'Target Id',
+          value : 'toTerminologyId'
+        } ]
+      };
     };
 
-    $scope.styPaging = {
-      page : 1,
-      filter : ""
-    };
-
-    $scope.defPaging = {
-      page : 1,
-      filter : ""
-    };
-
-    $scope.attributePaging = {
-      page : 1,
-      filter : ""
-    };
-
-    $scope.memberPaging = {
-      page : 1,
-      filter : ""
-    };
-
-    $scope.relPaging = {
-      page : 1,
-      filter : ""
-    };
+    // on load, instantiate paging
+    $scope.resetPaging();
 
     // apply paging to all elements
     function applyPaging() {
@@ -661,17 +699,19 @@ tsApp.controller('ContentCtrl', [
     // call).
     $scope.getPagedRelationships = function() {
 
-      var filters = {
+      var parameters = {
         showSuppressible : $scope.showSOElements,
         showObsolete : $scope.showSOElements,
         showInferred : $scope.showInferred,
-        text : $scope.relPaging.filter
+        text : $scope.relPaging.filter,
+        sortField : $scope.relPaging.sortField,
+        sortAscending : $scope.relPaging.sortAscending
       };
 
       // Request from service
       contentService.findRelationships($scope.component.object.terminologyId,
         $scope.component.object.terminology, $scope.component.object.version,
-        $scope.relPaging.page, filters).then(function(data) {
+        $scope.relPaging.page, parameters).then(function(data) {
 
         // if description logic terminology, sort
         // relationships also by
@@ -698,7 +738,7 @@ tsApp.controller('ContentCtrl', [
 
     // Get paged atoms (assume all are loaded)
     $scope.getPagedAtoms = function() {
-      
+
       // filter by suppressible/obsolete
       var localAtoms = $scope.component.object.atoms.filter(function(object) {
         return $scope.showSOElements || (!object.suppressible && !object.obsolete);
@@ -707,7 +747,7 @@ tsApp.controller('ContentCtrl', [
       // want all filtered atoms to 
       var localAtoms = utilService.getPagedArray(localAtoms, $scope.atomPaging,
         $scope.pageSizes.general);
-      
+
       $scope.pagedAtoms = localAtoms;
     };
 

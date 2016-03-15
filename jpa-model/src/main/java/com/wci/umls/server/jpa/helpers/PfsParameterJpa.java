@@ -140,6 +140,7 @@ public class PfsParameterJpa implements PfsParameter {
     this.sortField = sortField;
   }
 
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -149,9 +150,8 @@ public class PfsParameterJpa implements PfsParameter {
     result = prime * result + (inactiveOnly ? 1231 : 1237);
     result = prime * result + ((branch == null) ? 0 : branch.hashCode());
     result = prime * result + maxResults;
-    result =
-        prime * result
-            + ((queryRestriction == null) ? 0 : queryRestriction.hashCode());
+    result = prime * result
+        + ((queryRestriction == null) ? 0 : queryRestriction.hashCode());
     result = prime * result + ((sortField == null) ? 0 : sortField.hashCode());
     result = prime * result + startIndex;
     return result;

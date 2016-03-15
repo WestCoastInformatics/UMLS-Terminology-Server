@@ -11,7 +11,8 @@ import com.wci.umls.server.model.content.SubsetMember;
 
 /**
  * Represents a thing that has definitions.
- * @param <T>
+ *
+ * @param <T> the generic type
  */
 public interface HasMembers<T extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> {
 

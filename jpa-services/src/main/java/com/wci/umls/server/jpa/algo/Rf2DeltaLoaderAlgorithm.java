@@ -22,6 +22,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
+import com.wci.umls.server.jpa.algo.Rf2Readers.Keys;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
@@ -84,7 +85,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
   /** The terminology. */
   private String terminology;
 
-  /** The terminology version. */
+  /** The version. */
   private String version;
 
   /** The release version. */
@@ -160,9 +161,9 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
   }
 
   /**
-   * Sets the terminology version.
+   * Sets the version.
    *
-   * @param version the terminology version
+   * @param version the version
    */
   public void setVersion(String version) {
     this.version = version;
@@ -184,6 +185,9 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
    */
   public void setReaders(Rf2Readers readers) {
     this.readers = readers;
+    
+    readers.getReader(Keys.ASSOCIATION_REFERENCE);
+    
   }
 
   /* see superclass */
@@ -2397,6 +2401,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
 
     // Iterate through relationships reader
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.ASSOCIATION_REFERENCE);
+
     while ((line = reader.readLine()) != null) {
 
       // Split line
@@ -2409,7 +2414,7 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
         if (fields[1].compareTo(releaseVersion) < 0) {
           continue;
         }
-
+      
         // Stop if the effective time is past the release version
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
@@ -2426,9 +2431,12 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
           associationConcept = getConcept(idMap.get(fields[4]));
         }
         if (associationConcept == null) {
-          throw new Exception(
+          Logger.getLogger(getClass()).warn("Association reference member connected to nonexistent refset with terminology id " + fields[5]);
+          Logger.getLogger(getClass()).warn("  Line: " + line);
+          continue;
+          /*throw new Exception(
               "Relationship " + fields[0] + " association refset concept "
-                  + fields[4] + " cannot be found");
+                  + fields[4] + " cannot be found");*/
         }
 
         // retrieve source concept
@@ -2436,8 +2444,11 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
           sourceConcept = getConcept(idMap.get(fields[5]));
         }
         if (sourceConcept == null) {
-          throw new Exception("Relationship " + fields[0] + " source concept "
-              + fields[5] + " cannot be found");
+          Logger.getLogger(getClass()).warn("Association reference member connected to nonexistent source object with terminology id " + fields[5]);
+          Logger.getLogger(getClass()).warn("  Line: " + line);
+          continue;
+         /* throw new Exception("Relationship " + fields[0] + " source concept "
+              + fields[5] + " cannot be found");*/
         }
 
         // Retrieve destination concept
@@ -2445,8 +2456,11 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
           destinationConcept = getConcept(idMap.get(fields[6]));
         }
         if (destinationConcept == null) {
-          throw new Exception("Relationship " + fields[0]
-              + " destination concept " + fields[6] + " cannot be found");
+          Logger.getLogger(getClass()).warn("Association reference member connected to nonexistent target object with terminology id " + fields[6]);
+          Logger.getLogger(getClass()).warn("  Line: " + line);
+          continue;
+          /*throw new Exception("Relationship " + fields[0]
+              + " destination concept " + fields[6] + " cannot be found");*/
         }
 
         // Retrieve relationship if it exists
@@ -2497,11 +2511,11 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
         } else {
           if (fromConcept == null) {
             throw new Exception("Relationship " + rel2.getTerminologyId()
-                + " -existent source concept " + fields[4]);
+                + " references non-existent source concept " + fields[5]);
           }
           if (toConcept == null) {
             throw new Exception("Relationship" + rel2.getTerminologyId()
-                + " references non-existent destination concept " + fields[5]);
+                + " references non-existent destination concept " + fields[6]);
           }
         }
         // Attributes
@@ -2539,6 +2553,11 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
           }
           updateAttributes(rel2, rel);
           objectsUpdated++;
+        }
+        
+        // if unchanged, log for debug
+        else {
+          Logger.getLogger(getClass()).debug("      unchanged rel - " + rel2);
         }
 
         if ((objectsAdded + objectsUpdated) % logCt == 0) {

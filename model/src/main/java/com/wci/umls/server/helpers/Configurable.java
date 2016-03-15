@@ -22,7 +22,7 @@ public interface Configurable {
    * Sets the properties.
    *
    * @param p the properties
-   * @throws Exception
+   * @throws Exception the exception
    */
   public void setProperties(Properties p) throws Exception;
 
