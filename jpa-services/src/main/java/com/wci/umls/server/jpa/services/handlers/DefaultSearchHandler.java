@@ -48,7 +48,7 @@ public class DefaultSearchHandler implements SearchHandler {
   private Map<String, Set<String>> acronymExpansionMap = new HashMap<>();
 
   /** The spell checker. */
-  private SpellChecker spellChecker = null;
+  private static SpellChecker spellChecker = null;
 
   /** The score map. */
   private Map<Long, Float> scoreMap = new HashMap<>();
@@ -59,8 +59,9 @@ public class DefaultSearchHandler implements SearchHandler {
 
     // Initialize acronyms map
     if (p.containsKey("acronymsFile")) {
-      BufferedReader in = new BufferedReader(
-          new FileReader(new File(p.getProperty("acronymsFile"))));
+      BufferedReader in =
+          new BufferedReader(new FileReader(new File(
+              p.getProperty("acronymsFile"))));
       String line;
       while ((line = in.readLine()) != null) {
         String[] tokens = FieldedStringTokenizer.split(line, "\t");
@@ -77,16 +78,17 @@ public class DefaultSearchHandler implements SearchHandler {
     // Initialize spell checker
     if (p.containsKey("spellingFile") && p.containsKey("spellingIndex")) {
       // expect properties to have "spellingFile" and "spellingIndex"
-      File dir = new File(p.getProperty("spellingIndex"));
-      Directory directory = FSDirectory.open(dir);
-      spellChecker =
-          new SpellChecker(directory, new LuceneLevenshteinDistance());
-      IndexWriterConfig indexWriterConfig =
-          new IndexWriterConfig(Version.LATEST, new WhitespaceAnalyzer());
-      spellChecker.indexDictionary(
-          new PlainTextDictionary(new File(p.getProperty("spellingFile"))),
-          indexWriterConfig, false);
-
+      if (spellChecker == null) {
+        File dir = new File(p.getProperty("spellingIndex"));
+        Directory directory = FSDirectory.open(dir);
+        spellChecker =
+            new SpellChecker(directory, new LuceneLevenshteinDistance());
+        IndexWriterConfig indexWriterConfig =
+            new IndexWriterConfig(Version.LATEST, new WhitespaceAnalyzer());
+        spellChecker.indexDictionary(
+            new PlainTextDictionary(new File(p.getProperty("spellingFile"))),
+            indexWriterConfig, false);
+      }
     } else {
       throw new Exception(
           "Required property spellingFile or spellingIndex not present.");
@@ -96,14 +98,16 @@ public class DefaultSearchHandler implements SearchHandler {
   /* see superclass */
   @Override
   public <T extends HasId> List<T> getQueryResults(String terminology,
-    String version, String branch, String query, String literalField, Class<?> fieldNamesKey, Class<T> clazz,
-    PfsParameter pfs, int[] totalCt, EntityManager manager) throws Exception {
-    
-    
-    // if the literal field specified is a sort field, also search normalized field
+    String version, String branch, String query, String literalField,
+    Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt,
+    EntityManager manager) throws Exception {
+
+    // if the literal field specified is a sort field, also search normalized
+    // field
     String normalizedField = null;
     if (literalField != null && literalField.endsWith("Sort")) {
-      normalizedField = literalField.substring(0,  literalField.length() - 4) + "Norm";
+      normalizedField =
+          literalField.substring(0, literalField.length() - 4) + "Norm";
     }
 
     // Build an escaped form of the query with wrapped quotes removed
@@ -129,23 +133,28 @@ public class DefaultSearchHandler implements SearchHandler {
     } else {
       combinedQuery = fixedQuery.isEmpty() ? "" : fixedQuery;
       if (normalizedField != null && !normalizedField.isEmpty()) {
-        combinedQuery += " OR " + normalizedField + ":\"" + ConfigUtility.normalize(fixedQuery) + "\"" + "^10.0";
+        combinedQuery +=
+            " OR " + normalizedField + ":\""
+                + ConfigUtility.normalize(fixedQuery) + "\"" + "^10.0";
       }
       if (literalField != null && !literalField.isEmpty()) {
         combinedQuery += " OR " + literalField + ":" + escapedQuery + "^20.0";
       }
-      
+
       // create an exact expansion entry. i.e. if the search term exactly
       // matches something in the acronyms file, then use additional "OR"
       // clauses
       if (acronymExpansionMap.containsKey(fixedQuery)) {
         for (String expansion : acronymExpansionMap.get(fixedQuery)) {
-          
+
           if (normalizedField != null && !normalizedField.isEmpty()) {
-            combinedQuery += " OR " + normalizedField + ":\"" + ConfigUtility.normalize(expansion) + "\"" + "^10.0";
+            combinedQuery +=
+                " OR " + normalizedField + ":\""
+                    + ConfigUtility.normalize(expansion) + "\"" + "^10.0";
           }
           if (literalField != null && !literalField.isEmpty()) {
-            combinedQuery += " OR " + literalField + ":\"" + expansion + "\"" + "^20.0";
+            combinedQuery +=
+                " OR " + literalField + ":\"" + expansion + "\"" + "^20.0";
           }
         }
       }
@@ -188,8 +197,8 @@ public class DefaultSearchHandler implements SearchHandler {
     StringBuilder terminologyClause = new StringBuilder();
     if (terminology != null && !terminology.equals("") && version != null
         && !version.equals("")) {
-      terminologyClause.append(
-          " AND terminology:" + terminology + " AND version:" + version);
+      terminologyClause.append(" AND terminology:" + terminology
+          + " AND version:" + version);
     }
 
     // Assemble query
@@ -209,14 +218,16 @@ public class DefaultSearchHandler implements SearchHandler {
     FullTextQuery fullTextQuery = null;
     try {
       Logger.getLogger(getClass()).debug("query = " + finalQuery);
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-          finalQuery.toString(), pfs, manager);
+      fullTextQuery =
+          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+              finalQuery.toString(), pfs, manager);
     } catch (ParseException | IllegalArgumentException e) {
       e.printStackTrace();
       // If there's a parse exception, try the literal query
       Logger.getLogger(getClass()).debug("query = " + finalQuery);
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-          escapedQuery + terminologyClause, pfs, manager);
+      fullTextQuery =
+          IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey, escapedQuery
+              + terminologyClause, pfs, manager);
     }
 
     // Apply paging and sorting parameters for the PFSC case
@@ -243,8 +254,9 @@ public class DefaultSearchHandler implements SearchHandler {
       // Run the query through acronym expansion
       if (totalCt[0] == 0) {
         // use wordInd tokenization
-        String[] tokens = FieldedStringTokenizer.split(fixedQuery,
-            " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+        String[] tokens =
+            FieldedStringTokenizer.split(fixedQuery,
+                " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         boolean found = false;
         for (String token : tokens) {
@@ -255,8 +267,8 @@ public class DefaultSearchHandler implements SearchHandler {
           if (acronymExpansionMap.containsKey(token.toUpperCase())) {
             found = true;
             List<String> tempList = new ArrayList<>();
-            tempList.add(
-                "\"" + acronymExpansionMap.get(token.toUpperCase()) + "\"");
+            tempList.add("\"" + acronymExpansionMap.get(token.toUpperCase())
+                + "\"");
             newQuery.append(FieldedStringTokenizer.join(tempList, " "));
           } else {
             newQuery.append(token);
@@ -275,8 +287,9 @@ public class DefaultSearchHandler implements SearchHandler {
       // Run the query through spelling correction
       if (totalCt[0] == 0) {
         // use wordInd tokenization
-        String[] tokens = FieldedStringTokenizer.split(fixedQuery,
-            " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+        String[] tokens =
+            FieldedStringTokenizer.split(fixedQuery,
+                " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         newQuery.append("(");
         boolean found = false;
@@ -309,8 +322,9 @@ public class DefaultSearchHandler implements SearchHandler {
       // e.g. a* b* c*
       if (totalCt[0] == 0) {
         // use wordInd tokenization
-        String[] tokens = FieldedStringTokenizer.split(fixedQuery,
-            " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
+        String[] tokens =
+            FieldedStringTokenizer.split(fixedQuery,
+                " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
         for (String token : tokens) {
           if (newQuery.length() != 0) {
@@ -321,8 +335,9 @@ public class DefaultSearchHandler implements SearchHandler {
           }
         }
         // Try the query again
-        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-            newQuery.toString() + terminologyClause, pfs, manager);
+        fullTextQuery =
+            IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+                newQuery.toString() + terminologyClause, pfs, manager);
         totalCt[0] = fullTextQuery.getResultSize();
 
       }
