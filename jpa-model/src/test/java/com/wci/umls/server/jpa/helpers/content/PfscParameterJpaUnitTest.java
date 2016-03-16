@@ -97,6 +97,8 @@ public class PfscParameterJpaUnitTest {
     tester.include("startIndex");
     tester.include("queryRestriction");
     tester.include("sortField");
+    // TODO Need to test sortFields
+    // tester.include("sortFields");
     tester.include("ascending");
     tester.include("branch");
     tester.include("searchCriteria");

@@ -60,6 +60,7 @@ public class PfsParameterJpa implements PfsParameter {
     queryRestriction = pfs.getQueryRestriction();
     branch = pfs.getBranch();
     sortField = pfs.getSortField();
+    sortFields = pfs.getSortFields();
     ascending = pfs.isAscending();
     activeOnly = pfs.getActiveOnly();
     inactiveOnly = pfs.getInactiveOnly();
@@ -160,14 +161,16 @@ public class PfsParameterJpa implements PfsParameter {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (ascending ? 1231 : 1237);
     result = prime * result + (activeOnly ? 1231 : 1237);
-    result = prime * result + (inactiveOnly ? 1231 : 1237);
+    result = prime * result + (ascending ? 1231 : 1237);
     result = prime * result + ((branch == null) ? 0 : branch.hashCode());
+    result = prime * result + (inactiveOnly ? 1231 : 1237);
     result = prime * result + maxResults;
     result = prime * result
         + ((queryRestriction == null) ? 0 : queryRestriction.hashCode());
     result = prime * result + ((sortField == null) ? 0 : sortField.hashCode());
+    result =
+        prime * result + ((sortFields == null) ? 0 : sortFields.hashCode());
     result = prime * result + startIndex;
     return result;
   }
@@ -181,16 +184,16 @@ public class PfsParameterJpa implements PfsParameter {
     if (getClass() != obj.getClass())
       return false;
     PfsParameterJpa other = (PfsParameterJpa) obj;
-    if (ascending != other.ascending)
-      return false;
     if (activeOnly != other.activeOnly)
       return false;
-    if (inactiveOnly != other.inactiveOnly)
+    if (ascending != other.ascending)
       return false;
     if (branch == null) {
       if (other.branch != null)
         return false;
     } else if (!branch.equals(other.branch))
+      return false;
+    if (inactiveOnly != other.inactiveOnly)
       return false;
     if (maxResults != other.maxResults)
       return false;
@@ -203,6 +206,11 @@ public class PfsParameterJpa implements PfsParameter {
       if (other.sortField != null)
         return false;
     } else if (!sortField.equals(other.sortField))
+      return false;
+    if (sortFields == null) {
+      if (other.sortFields != null)
+        return false;
+    } else if (!sortFields.equals(other.sortFields))
       return false;
     if (startIndex != other.startIndex)
       return false;
@@ -219,8 +227,9 @@ public class PfsParameterJpa implements PfsParameter {
   public String toString() {
     return "PfsParameterJpa [maxResults=" + maxResults + ", startIndex="
         + startIndex + ", queryRestriction=" + queryRestriction + ", branch="
-        + branch + ", sortField=" + sortField + ", ascending=" + ascending
-        + ", activeOnly=" + activeOnly + ", inactiveOnly=" + inactiveOnly + "]";
+        + branch + ", sortField=" + sortField + ", sortFields=" + sortFields
+        + ", ascending=" + ascending + ", activeOnly=" + activeOnly
+        + ", inactiveOnly=" + inactiveOnly + "]";
   }
 
 }

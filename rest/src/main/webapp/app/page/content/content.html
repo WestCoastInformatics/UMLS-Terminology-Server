@@ -595,8 +595,8 @@
         </select> <input class="input-filter" placeholder="Enter filter text"
           ng-show="pagedRelationships.totalCount > pageSizes.rels || relPaging.filter"
           type="text" ng-model="relPaging.filter"
-          ng-model-options="{ debounce: 300 }"
-          ng-change="getPagedRelationships()">
+          ng-model-options="{ debounce: 500 }"
+          ng-change="relPaging.page = 1; getPagedRelationships()">
         <button class="btn btn-xs btn-warning" ng-show="relPaging.filter"
           ng-click="relPaging.filter = ''; getPagedRelationships()"
           uib-tooltip="Click to clear filter text">Clear</button>
