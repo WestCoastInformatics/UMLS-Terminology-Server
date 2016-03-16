@@ -52,23 +52,19 @@ tsApp.controller('ContentCtrl', [
     $scope.componentTree = null;
 
     // component scoring
-    $scope.scoreExcellent = 0.8;
-    $scope.scoreGood = 0.6;
-    $scope.scorePoor = 0.4;
+    $scope.scoreExcellent = 0.7;
+    $scope.scoreGood = 0.3;
 
     $scope.getColorForScore = function(score) {
       if (score > $scope.scoreExcellent) {
         return 'green'
       }
-      ;
-      if (score > $scope.scoreGood) {
+      else if (score > $scope.scoreGood) {
         return 'yellow';
-      }
-      if (score > $scope.scorePoor) {
+      } else {
         return 'orange';
-      } else
-        return 'red';
-    }
+      }
+    };
 
     //
     // Watch expressions
@@ -664,11 +660,15 @@ tsApp.controller('ContentCtrl', [
       $scope.relPaging = {
         page : 1,
         filter : "",
-        sortField : 'group', // default
-        sortAscending : true, // default
+        sortField : 'group', 
+        sortAscending : true,
+        
+        // Default is Group/Type, where in getPagedRelationships
+        // relationshipType is automatically appended as a multi-
+        // sort search
         sortOptions : [ {
-          key : 'Group',
-          value : 'group'
+          key : 'Group, Type', 
+          value : 'group' 
         }, {
           key : 'Type',
           value : 'relationshipType'
@@ -676,8 +676,8 @@ tsApp.controller('ContentCtrl', [
           key : 'Additional Type',
           value : 'additionalRelationshipType'
         }, {
-          key : 'Target Id',
-          value : 'toTerminologyId'
+          key : 'Name',
+          value : 'toName'
         } ]
       };
     };
@@ -701,15 +701,15 @@ tsApp.controller('ContentCtrl', [
     // Handle paging of relationships (requires content service
     // call).
     $scope.getPagedRelationships = function() {
-      
+
       // compute the sort order
       // if group sort specified, sort additionally by relationship type
       // otherwise, sort by specified field and additionally by group
       var sortFields = [];
       if ($scope.relPaging.sortField === 'group') {
-        sortFields = ['group', 'relationshipType']
+        sortFields = [ 'group', 'relationshipType' ]
       } else {
-        sortFields = [$scope.relPaging.sortField, 'group'];
+        sortFields = [ $scope.relPaging.sortField, 'group' ];
       }
 
       var parameters = {

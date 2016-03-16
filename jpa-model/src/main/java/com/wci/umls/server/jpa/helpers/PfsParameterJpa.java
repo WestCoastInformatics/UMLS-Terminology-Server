@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.helpers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -31,8 +32,8 @@ public class PfsParameterJpa implements PfsParameter {
   private String sortField = null;
   
   /** The backwards-compatible multiple sort field */
-  private List<String> sortFields = null;
-  
+  private List<String> sortFields = new ArrayList<>();
+      
   /** The ascending flag. */
   private boolean ascending = true;
 

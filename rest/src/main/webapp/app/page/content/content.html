@@ -135,6 +135,7 @@
           <tr ng-class="{active: searchResult.active}"
             ng-repeat="searchResult in searchResults.list"
             ng-click="getComponent(searchResult.terminologyId, searchResult.terminology, searchResult.version)">
+            <td>{{searchResult.score}}</td>
             <td>
               <span class="nobreak">
               <i
