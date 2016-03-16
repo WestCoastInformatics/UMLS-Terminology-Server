@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.jpa.helpers;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.PfsParameter;
@@ -27,7 +29,10 @@ public class PfsParameterJpa implements PfsParameter {
 
   /** The comparator for sorting. */
   private String sortField = null;
-
+  
+  /** The backwards-compatible multiple sort field */
+  private List<String> sortFields = null;
+  
   /** The ascending flag. */
   private boolean ascending = true;
 
@@ -138,6 +143,16 @@ public class PfsParameterJpa implements PfsParameter {
   @Override
   public void setSortField(String sortField) {
     this.sortField = sortField;
+  }
+  
+  @Override
+  public void setSortFields(List<String> sortFields) {
+    this.sortFields = sortFields;
+  }
+  
+  @Override
+  public List<String> getSortFields() {
+    return this.sortFields;
   }
 
 

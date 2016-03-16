@@ -664,9 +664,12 @@ tsApp.controller('ContentCtrl', [
       $scope.relPaging = {
         page : 1,
         filter : "",
-        sortField : 'relationshipType', // default
+        sortField : 'group', // default
         sortAscending : true, // default
         sortOptions : [ {
+          key : 'Group',
+          value : 'group'
+        }, {
           key : 'Type',
           value : 'relationshipType'
         }, {
@@ -698,13 +701,23 @@ tsApp.controller('ContentCtrl', [
     // Handle paging of relationships (requires content service
     // call).
     $scope.getPagedRelationships = function() {
+      
+      // compute the sort order
+      // if group sort specified, sort additionally by relationship type
+      // otherwise, sort by specified field and additionally by group
+      var sortFields = [];
+      if ($scope.relPaging.sortField === 'group') {
+        sortFields = ['group', 'relationshipType']
+      } else {
+        sortFields = [$scope.relPaging.sortField, 'group'];
+      }
 
       var parameters = {
         showSuppressible : $scope.showSOElements,
         showObsolete : $scope.showSOElements,
         showInferred : $scope.showInferred,
         text : $scope.relPaging.filter,
-        sortField : $scope.relPaging.sortField,
+        sortFields : sortFields,
         sortAscending : $scope.relPaging.sortAscending
       };
 

@@ -4,8 +4,10 @@
 package com.wci.umls.server.jpa.services.helper;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -425,50 +427,87 @@ public class IndexUtility {
         fullTextQuery.setMaxResults(pfs.getMaxResults());
       }
 
-      // if sort field is specified, set sort key
-      if (pfs.getSortField() != null && !pfs.getSortField().isEmpty()) {
-        Map<String, Boolean> nameToAnalyzedMap = IndexUtility
-            .getNameAnalyzedPairsFromAnnotation(clazz, pfs.getSortField());
-        String sortField = null;
+      // if sort specified (single or multi-field sort), set sorting
+      if ((pfs.getSortFields() != null && !pfs.getSortFields().isEmpty())
+          || (pfs.getSortField() != null && !pfs.getSortField().isEmpty())) {
 
-        if (nameToAnalyzedMap.size() == 0) {
-          throw new Exception(clazz.getName()
-              + " does not have declared, annotated method for field "
-              + pfs.getSortField());
-        }
+        // convenience container for sort field names (from either method)
+        List<String> sortFieldNames = null;
 
-        // first check the default name (rendered as ""), if not analyzed, use
-        // this as sort
-        if (nameToAnalyzedMap.get("") != null
-            && nameToAnalyzedMap.get("").equals(false)) {
-          sortField = pfs.getSortField();
-        }
-
-        // otherwise check explicit [name]Sort index
-        else if (nameToAnalyzedMap.get(pfs.getSortField() + "Sort") != null
-            && nameToAnalyzedMap.get(pfs.getSortField() + "Sort")
-                .equals(false)) {
-          sortField = pfs.getSortField() + "Sort";
-        }
-
-        // if none, throw exception
-        if (sortField == null) {
-          throw new Exception(
-              "Could not retrieve a non-analyzed Field annotation for get method for variable name "
-                  + pfs.getSortField());
-        }
-
-        Sort sort = null;
-        if (sortField.equals("lastModified") || sortField.equals("timestamp")) {
-          sort = new Sort(new SortField(sortField, SortField.Type.LONG,
-              !pfs.isAscending()));
+        // use multiple-field sort before backwards-compatible single-field sort
+        if (pfs.getSortFields() != null) {
+          sortFieldNames = pfs.getSortFields();
         } else {
-          sort = new Sort(new SortField(sortField, SortField.Type.STRING,
-              !pfs.isAscending()));
-
+          sortFieldNames = new ArrayList<>();
+          sortFieldNames.add(pfs.getSortField());
         }
-        fullTextQuery.setSort(sort);
+
+        // the constructed sort fields to sort on
+        List<SortField> sortFields = new ArrayList<>();
+
+        for (String sortFieldName : sortFieldNames) {
+          Map<String, Boolean> nameToAnalyzedMap = IndexUtility
+              .getNameAnalyzedPairsFromAnnotation(clazz, sortFieldName);
+
+          // the computed string name of the indexed field to sort by
+          String sortFieldStr = null;
+
+          // check existence of the annotated get[SortFieldName]() method
+          if (nameToAnalyzedMap.size() == 0) {
+            throw new Exception(clazz.getName()
+                + " does not have declared, annotated method for field "
+                + sortFieldName);
+          }
+
+          // first check the default name (rendered as ""), if not analyzed, use
+          // this as sort
+          if (nameToAnalyzedMap.get("") != null
+              && nameToAnalyzedMap.get("").equals(false)) {
+            sortFieldStr = sortFieldName;
+          }
+
+          // otherwise check explicit [SortFieldName]Sort index
+          else if (nameToAnalyzedMap.get(sortFieldName + "Sort") != null
+              && nameToAnalyzedMap.get(sortFieldName + "Sort")
+                  .equals(false)) {
+            sortFieldStr = sortFieldName + "Sort";
+          }
+
+          // if an indexed sort field could not be found, throw exception
+          if (sortFieldStr == null) {
+            throw new Exception(
+                "Could not retrieve a non-analyzed Field annotation for get method for variable name "
+                    + sortFieldName);
+          }
+
+          // construct the sort field object
+          SortField sortField = null;
+
+          // check for LONG fields
+          if (sortFieldStr.equals("lastModified") || sortFieldStr.equals("timestamp")
+              || sortFieldStr.equals("id")) {
+            sortField = new SortField(sortFieldStr, SortField.Type.LONG,
+                !pfs.isAscending());
+          }
+
+          // otherwise, sort by STRING value
+          else {
+            sortField = new SortField(sortFieldStr, SortField.Type.STRING,
+                !pfs.isAscending());
+          }
+
+          // add the field
+          sortFields.add(sortField);
+        }
+        
+        SortField[] sfs = new SortField[sortFields.size()];
+        for (int i = 0; i < sortFields.size(); i++) {
+          sfs[i] = sortFields.get(i);
+        }
+        fullTextQuery.setSort(new Sort(sfs));
+
       }
+
     }
     return fullTextQuery;
   }

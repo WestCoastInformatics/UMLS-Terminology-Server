@@ -583,7 +583,8 @@
           total-items="pagedRelationships.totalCount" ng-model="relPaging.page"
           ng-change="getPagedRelationships()"></uib-pagination>
         <span
-          ng-click="relPaging.sortAscending = !relPaging.sortAscending; getPagedRelationships();"
+          uib-tooltip="Sort - {{relPaging.sortAscending ? 'Ascending' : 'Descending'}}"
+          ng-click="relPaging.page = 1; relPaging.sortAscending = !relPaging.sortAscending; getPagedRelationships();"
           ng-show="pagedRelationships.totalCount > pageSizes.rels"
           class="glyphicon"
           ng-class="[{'glyphicon-sort-by-attributes': relPaging.sortAscending}, {'glyphicon-sort-by-attributes-alt': !relPaging.sortAscending}]"></span>

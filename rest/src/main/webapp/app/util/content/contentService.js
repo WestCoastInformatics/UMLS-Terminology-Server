@@ -576,7 +576,7 @@ tsApp
             var pfs = {
               startIndex : (page - 1) * pageSizes.general,
               maxResults : pageSizes.general,
-              sortField : parameters.sortField ? parameters.sortField : 'relationshipType',
+              sortFields : parameters.sortFields ? parameters.sortFields : ['group', 'relationshipType'],
               ascending : parameters.sortAscending,
               queryRestriction : null
             // constructed from filters
