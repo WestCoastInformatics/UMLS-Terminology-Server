@@ -435,7 +435,7 @@ public class IndexUtility {
         List<String> sortFieldNames = null;
 
         // use multiple-field sort before backwards-compatible single-field sort
-        if (pfs.getSortFields() != null) {
+        if (pfs.getSortFields() != null && !pfs.getSortFields().isEmpty()) {
           sortFieldNames = pfs.getSortFields();
         } else {
           sortFieldNames = new ArrayList<>();

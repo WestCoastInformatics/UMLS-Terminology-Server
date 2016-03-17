@@ -610,8 +610,10 @@ tsApp
 
           var query = parameters.text;
 
-          // TODO Add to the end of the query
-          if (query && !query.endsWith('*')) {
+          // Add wildcard to allow better matching from basic search
+          // NOTE: searching for "a"* is interpreted by lucene as a 
+          // leading wildcard search (i.e. "a" *)
+          if (query && !query.endsWith('*') && !query.endsWith('"')) {
             query += '*';
           }
           gpService.increment();

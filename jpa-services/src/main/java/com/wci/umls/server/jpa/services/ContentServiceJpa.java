@@ -3582,7 +3582,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     int[] totalCt = new int[1];
     // pass empty terminology/version because it's handled above
     results.setObjects((List) searchHandler.getQueryResults("", "", branch,
-        finalQuery.toString(), "fromNameSort", ConceptRelationshipJpa.class,
+        finalQuery.toString(), "toNameSort", ConceptRelationshipJpa.class,
         clazz, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
