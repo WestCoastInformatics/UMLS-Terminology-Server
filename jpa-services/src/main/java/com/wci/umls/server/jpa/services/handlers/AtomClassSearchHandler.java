@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 
@@ -36,6 +38,7 @@ import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PfscParameter;
 import com.wci.umls.server.jpa.content.AbstractAtomClass;
+import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
@@ -116,110 +119,19 @@ public class AtomClassSearchHandler implements SearchHandler {
           literalField.substring(0, literalField.length() - 4) + "Norm";
     }
 
-    // Build an escaped form of the query with wrapped quotes removed
-    // This will be used for literal/exact searching
-    String escapedQuery = query;
+    // Build a quote-stripped query for use in literal and norm fields
+    String literalQuery = query;
     if (query.startsWith("\"") && query.endsWith("\"")) {
-      escapedQuery = escapedQuery.substring(1);
-      escapedQuery = escapedQuery.substring(0, query.length() - 1);
+      literalQuery = query.substring(1, query.length() - 1);
     }
-    escapedQuery = "\"" + QueryParserBase.escape(escapedQuery) + "\"";
+
+    // Build an escaped, quoted query for use in exact searching
+    String escapedQuery = "\"" + QueryParserBase.escape(literalQuery) + "\"";
 
     // A slash character indicats a regex in lucene, fix that
     final String fixedQuery = query == null ? "" : query.replaceAll("\\/", " ");
 
-    // Build a combined query with an OR between query typed and exact match
-    String combinedQuery = null;
-    // For a fielded query search, simply perform the search as written
-    // no need for modifications. Also if no literal or normalized search field
-    // is supplied
-    if (fixedQuery.isEmpty() || query.contains(":")
-        || (literalField == null && normalizedField == null)) {
-      combinedQuery = fixedQuery;
-    } else {
-
-      combinedQuery = "";
-      String modQuery = fixedQuery; // fixed query less quotations
-
-      // if quoted query, strip the quotation marks and do not
-      // TODO Duplicated escapedQuery without realizing it
-      if (fixedQuery.startsWith("\"") && fixedQuery.endsWith("\"")) {
-        modQuery = fixedQuery.substring(1, fixedQuery.length() - 1);
-      } else {
-
-        // split tokens on white space
-        // TODO Want to capture/parse quoted subterms?
-        String[] tokens = modQuery.split("\\s+");
-
-        // search (unboosted) each term in name
-        combinedQuery += "(";
-        for (String token : tokens) {
-          combinedQuery += "atoms.name:" + token + " ";
-        }
-        combinedQuery += ")";
-      }
-
-      // check for exact acronym expansion
-      if (acronymExpansionMap.containsKey(fixedQuery)) {
-        for (String expansion : acronymExpansionMap.get(modQuery)) {
-          combinedQuery +=
-              (combinedQuery.length() == 0 ? "" : " OR ") + "atoms.nameNorm:\""
-                  + ConfigUtility.normalize(expansion) + "\"^2.0";
-          combinedQuery += " OR atoms.nameSort:\"" + expansion + "\"^4.0";
-        }
-      }
-
-      // add name norm and name sort with appropriate weightings
-      combinedQuery += " OR atoms.nameNorm:\""
-          + ConfigUtility.normalize(modQuery) + "\"^2.0";
-      combinedQuery += " OR atoms.nameSort:\"" + modQuery + "\"^4.0";
-
-      // check if term does not contain white space, and could be an id
-      if (fixedQuery.split("\\s+").length == 1) {
-        combinedQuery += " OR (terminologyId:" + modQuery;
-        combinedQuery += " OR atoms.terminologyId:" + modQuery;
-        combinedQuery += " OR atoms.codeId:" + modQuery;
-        combinedQuery += " OR atoms.conceptId:" + modQuery;
-        combinedQuery += " OR atoms.descriptorId:" + modQuery + ")^4.0";
-      }
-    }
-
-    // Check for spelling mistakes (if not a fielded search)
-    if (!fixedQuery.contains(":") && !fixedQuery.isEmpty()) {
-      boolean flag = false;
-      StringBuilder correctedQuery = new StringBuilder();
-      for (String token : FieldedStringTokenizer.split(fixedQuery,
-          " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^")) {
-        if (token.length() == 0) {
-          continue;
-        }
-        if (spellChecker.exist(token.toLowerCase())) {
-          if (correctedQuery.length() != 0) {
-            correctedQuery.append(" ");
-          }
-          correctedQuery.append(token);
-        } else {
-          String[] suggestions =
-              spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
-          if (suggestions.length > 0) {
-            flag = true;
-            if (correctedQuery.length() != 0) {
-              correctedQuery.append(" ");
-            }
-            correctedQuery
-                .append(FieldedStringTokenizer.join(suggestions, " "));
-          }
-        }
-      }
-      if (flag) {
-        // add name norm and name sort with appropriate weightings
-        combinedQuery += " OR atoms.nameNorm:\""
-            + ConfigUtility.normalize(correctedQuery.toString()) + "\"^2.0";
-        combinedQuery += " OR atoms.nameSort:\"" + correctedQuery + "\"^4.0";
-      }
-    }
-
-    // Add terminology conditions
+    // Construct the universal terminology conditions
     StringBuilder terminologyClause = new StringBuilder();
     if (terminology != null && !terminology.equals("") && version != null
         && !version.equals("")) {
@@ -227,31 +139,162 @@ public class AtomClassSearchHandler implements SearchHandler {
           " AND terminology:" + terminology + " AND version:" + version);
     }
 
-    // Assemble query
+    // Build a combined query with an OR between parsed tokens and exact match
+    String parsedQuery = "";
+
+    if (!fixedQuery.isEmpty()) {
+
+      // split original query on white space and quoted material
+      // NOTE: Preserve the original quotation marks for use in name search
+      List<String> tokens = new ArrayList<String>();
+      Pattern regex = Pattern.compile("[^\\s\"]+|\"[^\"]*\"");
+      Matcher regexMatcher = regex.matcher(fixedQuery);
+      while (regexMatcher.find()) {
+        tokens.add(regexMatcher.group());
+      }
+
+      // add each term (in quotes) to the name field
+      if (tokens.size() > 0) {
+        for (String token : tokens) {
+          parsedQuery += " OR atoms.name:" + token;
+        }
+      }
+
+      // search the normalized and literal fields with the quoted literal
+      // (unescaped) query
+      if (normalizedField != null) {
+        parsedQuery += " OR " + normalizedField + ":\""
+            + ConfigUtility.normalize(literalQuery) + "\"^2.0";
+      }
+      if (literalField != null) {
+        parsedQuery += " OR " + literalField + ":\"" + literalQuery + "\"^4.0";
+      }
+
+      // check for a single term containing numbers, which may be an id
+      if (literalQuery.matches(".*[0-9]+.*")
+          && literalQuery.split("\\s").length == 1) {
+        parsedQuery += " OR (terminologyId:" + literalQuery;
+        parsedQuery += " OR atoms.terminologyId:" + literalQuery;
+        parsedQuery += " OR atoms.codeId:" + literalQuery;
+        parsedQuery += " OR atoms.conceptId:" + literalQuery;
+        parsedQuery += " OR atoms.descriptorId:" + literalQuery + ")^4.0";
+      }
+
+      // check for exact acronym expansion
+      if (acronymExpansionMap.containsKey(fixedQuery)) {
+        for (String expansion : acronymExpansionMap.get(fixedQuery)) {
+          if (normalizedField != null) {
+            parsedQuery += " OR " + normalizedField + ":\""
+                + ConfigUtility.normalize(expansion) + "\"^2.0";
+          }
+          if (literalField != null) {
+            parsedQuery += " OR " + literalField + ":\"" + expansion + "\"^4.0";
+          }
+        }
+      }
+
+      // Check for spelling mistakes (if not a fielded search)
+      if (!fixedQuery.contains(":") && !fixedQuery.isEmpty()) {
+        boolean flag = false;
+        StringBuilder correctedQuery = new StringBuilder();
+        for (String token : FieldedStringTokenizer.split(fixedQuery,
+            " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^")) {
+          if (token.length() == 0) {
+            continue;
+          }
+          if (spellChecker.exist(token.toLowerCase())) {
+            if (correctedQuery.length() != 0) {
+              correctedQuery.append(" ");
+            }
+            correctedQuery.append(token);
+          } else {
+            String[] suggestions =
+                spellChecker.suggestSimilar(token.toLowerCase(), 5, .8f);
+            if (suggestions.length > 0) {
+              flag = true;
+              if (correctedQuery.length() != 0) {
+                correctedQuery.append(" ");
+              }
+              correctedQuery
+                  .append(FieldedStringTokenizer.join(suggestions, " "));
+            }
+          }
+        }
+        if (flag) {
+          // add name norm and name sort with appropriate weightings
+          if (normalizedField != null) {
+            parsedQuery += " OR " + normalizedField + ":\""
+                + correctedQuery.toString() + "\"^2.0";
+          }
+          if (literalField != null) {
+            parsedQuery += " OR " + literalField + ":\""
+                + correctedQuery.toString() + "\"^4.0";
+          }
+        }
+      }
+
+      // check for leading OR in parsed query
+      if (parsedQuery.startsWith(" OR ")) {
+        parsedQuery = parsedQuery.substring(4);
+      }
+    }
+
+    // Assemble final parsed query
     StringBuilder finalQuery = new StringBuilder();
     if (fixedQuery.isEmpty()) {
       // Just use PFS and skip the leading "AND"
       finalQuery.append(terminologyClause.substring(5));
-    } else if (combinedQuery.contains(" OR ")) {
+    } else if (parsedQuery.contains(" OR ")) {
       // Use parens
-      finalQuery.append("(").append(combinedQuery).append(")")
+      finalQuery.append("(").append(parsedQuery).append(")")
           .append(terminologyClause);
     } else {
       // Don't use parens
-      finalQuery.append(combinedQuery).append(terminologyClause);
+      finalQuery.append(parsedQuery).append(terminologyClause);
 
     }
+
+    // Assemble the fielded query (if appropriate)
+    StringBuilder fieldedQuery = null;
+    if (fixedQuery.contains(":")) {
+      fieldedQuery = new StringBuilder();
+      fieldedQuery.append("(").append(fixedQuery).append(")")
+          .append(terminologyClause);
+    }
+
+    // Construct the full text query and perform the search
     FullTextQuery fullTextQuery = null;
+
+    // if fielded, try literal query first
     try {
-      Logger.getLogger(getClass()).debug("query = " + finalQuery);
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-          finalQuery.toString(), pfs, manager);
+      if (fieldedQuery != null) {
+        Logger.getLogger(getClass()).debug("fielded query = " + fieldedQuery);
+        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+            fieldedQuery.toString(), pfs, manager);
+      }
     } catch (ParseException | IllegalArgumentException e) {
       e.printStackTrace();
+      fullTextQuery = null;
+    }
+
+    // if not a fielded search or fielded search returned no results
+    if (fullTextQuery == null || fullTextQuery.getResultSize() == 0) {
+
+      // try the parsed query
+      try {
+        Logger.getLogger(getClass()).debug("query = " + finalQuery);
+        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+            finalQuery.toString(), pfs, manager);
+      }
+
       // If there's a parse exception, try the literal query
-      Logger.getLogger(getClass()).debug("query = " + finalQuery);
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-          escapedQuery + terminologyClause, pfs, manager);
+      catch (ParseException | IllegalArgumentException e) {
+        e.printStackTrace();
+
+        Logger.getLogger(getClass()).debug("query = " + finalQuery);
+        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+            escapedQuery + terminologyClause, pfs, manager);
+      }
     }
 
     // Apply paging and sorting parameters for the PFSC case
@@ -269,7 +312,7 @@ public class AtomClassSearchHandler implements SearchHandler {
       totalCt[0] = fullTextQuery.getResultSize();
     }
 
-    // Only look to other algorithms if this is NOT a fielded query
+    // Only look to other algorithms if this is NOT a potential fielded query
     // and the query exists
     if (fixedQuery != null && !fixedQuery.isEmpty()
         && !fixedQuery.contains(":")) {
@@ -364,7 +407,7 @@ public class AtomClassSearchHandler implements SearchHandler {
 
     }
 
-    // Use this code to see the actual score values
+    // Retrieve the scores for the returned objects
     fullTextQuery.setProjection(ProjectionConstants.SCORE,
         ProjectionConstants.THIS);
     final List<T> classes = new ArrayList<>();
@@ -376,15 +419,15 @@ public class AtomClassSearchHandler implements SearchHandler {
       T t = (T) result[1];
       classes.add(t);
 
-      // normalize results to a "good match" (lucene score of 5.0+)
-      // Double normScore = Math.log(Math.max(5, scoreMap.get(sr.getId())) /
-      // Math.log(5));
-
-      // cap the score to a maximum of 5.0 and normalize to the range [0,1]
-
+      // cap the score to a maximum of 1.0
       Float normScore = Math.min(1, Float.valueOf(score.toString()));
+      
+      // bump up relevance of exact match on terminology id
+      if (((AbstractComponent) t).getTerminologyId().equals(literalQuery)) {
+        normScore = 1.0f;
+      }
 
-      // store the score
+      // store the score for later retrieval
       scoreMap.put(t.getId(), normScore.floatValue());
     }
     Logger.getLogger(getClass()).debug("  scoreMap = " + scoreMap);
@@ -396,7 +439,7 @@ public class AtomClassSearchHandler implements SearchHandler {
   /* see superclass */
   @Override
   public String getName() {
-    return "Default Search Handler";
+    return "Atom Class Search Handler";
   }
 
   /* see superclass */
