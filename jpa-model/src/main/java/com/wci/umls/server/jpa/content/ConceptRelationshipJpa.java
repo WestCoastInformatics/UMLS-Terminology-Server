@@ -313,8 +313,10 @@ public class ConceptRelationshipJpa extends
    *
    * @return the to term
    */
-  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-  // TODO Need toNameSort for Code, Concept, and Descriptor
+  @Fields({
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
+    @Field(name = "toNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+})
   public String getToName() {
     return to == null ? null : to.getName();
   }

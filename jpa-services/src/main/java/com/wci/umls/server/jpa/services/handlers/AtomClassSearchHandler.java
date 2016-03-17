@@ -35,14 +35,15 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PfscParameter;
+import com.wci.umls.server.jpa.content.AbstractAtomClass;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Default implementation of {@link SearchHandler}. This provides an algorithm
- * to aide in lucene searches.
+ * to aide in lucene searches of atom classes (Concept, Descriptor, Code)
  */
-public class DefaultSearchHandler implements SearchHandler {
+public class AtomClassSearchHandler implements SearchHandler {
 
   /** The acronym expansion map. */
   private Map<String, Set<String>> acronymExpansionMap = new HashMap<>();
@@ -100,14 +101,15 @@ public class DefaultSearchHandler implements SearchHandler {
     Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt,
     EntityManager manager) throws Exception {
 
+    // check assumption: class queried must extend AbstractAtomClass
+    if (!AbstractAtomClass.class.isAssignableFrom(clazz)) {
+      throw new Exception(
+          "AtomClassSearchHandler can only be invoked on AbstractAtomClass objects");
+    }
+
     // if the literal field specified is a sort field, also search normalized
     // field
-    // TODO This currently does not work for tree positions -- do we want to
-    // index those as well?
-    // probably yes, but space considerations... DECISION: NOt doing this
-    // TODO Scale DefaultSearchHandler down, don't care about spelling or acronyms
-    // those functions are handled in the AtomClassSearchHandler for use cases
-    // where we care
+    // TODO Once confirmed working, move this into the queries
     String normalizedField = null;
     if (literalField != null && literalField.endsWith("Sort")) {
       normalizedField =
@@ -119,7 +121,7 @@ public class DefaultSearchHandler implements SearchHandler {
     String escapedQuery = query;
     if (query.startsWith("\"") && query.endsWith("\"")) {
       escapedQuery = escapedQuery.substring(1);
-      escapedQuery = escapedQuery.substring(0, query.length() - 2);
+      escapedQuery = escapedQuery.substring(0, query.length() - 1);
     }
     escapedQuery = "\"" + QueryParserBase.escape(escapedQuery) + "\"";
 
@@ -135,30 +137,50 @@ public class DefaultSearchHandler implements SearchHandler {
         || (literalField == null && normalizedField == null)) {
       combinedQuery = fixedQuery;
     } else {
-      combinedQuery = fixedQuery.isEmpty() ? "" : fixedQuery;
-      if (normalizedField != null && !normalizedField.isEmpty()) {
-        combinedQuery += " OR " + normalizedField + ":\""
-            + ConfigUtility.normalize(fixedQuery) + "\"" + "^10.0";
-      }
-      if (literalField != null && !literalField.isEmpty()) {
-        combinedQuery += " OR " + literalField + ":" + escapedQuery + "^20.0";
-      }
 
-      // create an exact expansion entry. i.e. if the search term exactly
-      // matches something in the acronyms file, then use additional "OR"
-      // clauses
-      if (acronymExpansionMap.containsKey(fixedQuery)) {
-        for (String expansion : acronymExpansionMap.get(fixedQuery)) {
+      combinedQuery = "";
+      String modQuery = fixedQuery; // fixed query less quotations
 
-          if (normalizedField != null && !normalizedField.isEmpty()) {
-            combinedQuery += " OR " + normalizedField + ":\""
-                + ConfigUtility.normalize(expansion) + "\"" + "^10.0";
-          }
-          if (literalField != null && !literalField.isEmpty()) {
-            combinedQuery +=
-                " OR " + literalField + ":\"" + expansion + "\"" + "^20.0";
-          }
+      // if quoted query, strip the quotation marks and do not
+      // TODO Duplicated escapedQuery without realizing it
+      if (fixedQuery.startsWith("\"") && fixedQuery.endsWith("\"")) {
+        modQuery = fixedQuery.substring(1, fixedQuery.length() - 1);
+      } else {
+
+        // split tokens on white space
+        // TODO Want to capture/parse quoted subterms?
+        String[] tokens = modQuery.split("\\s+");
+
+        // search (unboosted) each term in name
+        combinedQuery += "(";
+        for (String token : tokens) {
+          combinedQuery += "atoms.name:" + token + " ";
         }
+        combinedQuery += ")";
+      }
+
+      // check for exact acronym expansion
+      if (acronymExpansionMap.containsKey(fixedQuery)) {
+        for (String expansion : acronymExpansionMap.get(modQuery)) {
+          combinedQuery +=
+              (combinedQuery.length() == 0 ? "" : " OR ") + "atoms.nameNorm:\""
+                  + ConfigUtility.normalize(expansion) + "\"^2.0";
+          combinedQuery += " OR atoms.nameSort:\"" + expansion + "\"^4.0";
+        }
+      }
+
+      // add name norm and name sort with appropriate weightings
+      combinedQuery += " OR atoms.nameNorm:\""
+          + ConfigUtility.normalize(modQuery) + "\"^2.0";
+      combinedQuery += " OR atoms.nameSort:\"" + modQuery + "\"^4.0";
+
+      // check if term does not contain white space, and could be an id
+      if (fixedQuery.split("\\s+").length == 1) {
+        combinedQuery += " OR (terminologyId:" + modQuery;
+        combinedQuery += " OR atoms.terminologyId:" + modQuery;
+        combinedQuery += " OR atoms.codeId:" + modQuery;
+        combinedQuery += " OR atoms.conceptId:" + modQuery;
+        combinedQuery += " OR atoms.descriptorId:" + modQuery + ")^4.0";
       }
     }
 
@@ -190,8 +212,10 @@ public class DefaultSearchHandler implements SearchHandler {
         }
       }
       if (flag) {
-        combinedQuery +=
-            " OR " + literalField + ":\"" + correctedQuery + "\"" + "^10.0";
+        // add name norm and name sort with appropriate weightings
+        combinedQuery += " OR atoms.nameNorm:\""
+            + ConfigUtility.normalize(correctedQuery.toString()) + "\"^2.0";
+        combinedQuery += " OR atoms.nameSort:\"" + correctedQuery + "\"^4.0";
       }
     }
 
@@ -358,7 +382,7 @@ public class DefaultSearchHandler implements SearchHandler {
 
       // cap the score to a maximum of 5.0 and normalize to the range [0,1]
 
-      Float normScore = Math.min(5, Float.valueOf(score.toString())) / 5;
+      Float normScore = Math.min(1, Float.valueOf(score.toString()));
 
       // store the score
       scoreMap.put(t.getId(), normScore.floatValue());
