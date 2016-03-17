@@ -164,10 +164,10 @@ public class AtomClassSearchHandler implements SearchHandler {
       // (unescaped) query
       if (normalizedField != null) {
         parsedQuery += " OR " + normalizedField + ":\""
-            + ConfigUtility.normalize(literalQuery) + "\"^2.0";
+            + ConfigUtility.normalize(literalQuery) + "\"^5.0";
       }
       if (literalField != null) {
-        parsedQuery += " OR " + literalField + ":\"" + literalQuery + "\"^4.0";
+        parsedQuery += " OR " + literalField + ":\"" + literalQuery + "\"^5.0";
       }
 
       // check for a single term containing numbers, which may be an id
@@ -177,7 +177,7 @@ public class AtomClassSearchHandler implements SearchHandler {
         parsedQuery += " OR atoms.terminologyId:" + literalQuery;
         parsedQuery += " OR atoms.codeId:" + literalQuery;
         parsedQuery += " OR atoms.conceptId:" + literalQuery;
-        parsedQuery += " OR atoms.descriptorId:" + literalQuery + ")^4.0";
+        parsedQuery += " OR atoms.descriptorId:" + literalQuery + ")^5.0";
       }
 
       // check for exact acronym expansion
@@ -185,10 +185,10 @@ public class AtomClassSearchHandler implements SearchHandler {
         for (String expansion : acronymExpansionMap.get(fixedQuery)) {
           if (normalizedField != null) {
             parsedQuery += " OR " + normalizedField + ":\""
-                + ConfigUtility.normalize(expansion) + "\"^2.0";
+                + ConfigUtility.normalize(expansion) + "\"^5.0";
           }
           if (literalField != null) {
-            parsedQuery += " OR " + literalField + ":\"" + expansion + "\"^4.0";
+            parsedQuery += " OR " + literalField + ":\"" + expansion + "\"^5.0";
           }
         }
       }
@@ -224,11 +224,11 @@ public class AtomClassSearchHandler implements SearchHandler {
           // add name norm and name sort with appropriate weightings
           if (normalizedField != null) {
             parsedQuery += " OR " + normalizedField + ":\""
-                + correctedQuery.toString() + "\"^2.0";
+                + correctedQuery.toString() + "\"^5.0";
           }
           if (literalField != null) {
             parsedQuery += " OR " + literalField + ":\""
-                + correctedQuery.toString() + "\"^4.0";
+                + correctedQuery.toString() + "\"^5.0";
           }
         }
       }
