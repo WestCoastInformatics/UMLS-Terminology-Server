@@ -22,7 +22,7 @@
               ng-click="searchParams.advancedMode = !searchParams.advancedMode"></i>
           </td>
           <td>
-            <input style="margin-bottom: 5px; width: 75%;" type="text"
+            <input autofocus style="margin-bottom: 5px; width: 75%;" type="text"
               ng-model="searchParams.query" placeholder="Enter search terms"
               typeahead="suggestion for suggestion in autocomplete($viewValue)"
               typeahead-loading="loadingSuggestions"
