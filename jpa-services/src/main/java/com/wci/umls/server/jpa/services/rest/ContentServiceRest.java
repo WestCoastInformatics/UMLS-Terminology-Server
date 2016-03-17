@@ -11,6 +11,8 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.MapSetList;
+import com.wci.umls.server.helpers.content.MappingList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
@@ -23,6 +25,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.StringClass;
 
 /**
@@ -747,5 +750,94 @@ public interface ContentServiceRest {
    */
   public Tree findDescriptorTreeRoots(String terminology, String version,
     PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Gets the map set.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the map set
+   * @throws Exception the exception
+   */
+  public MapSet getMapSet(String terminologyId, String terminology, String version,
+    String authToken) throws Exception;
+
+  /**
+   * Gets the map sets.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the map sets
+   * @throws Exception the exception
+   */
+  public MapSetList getMapSets(String terminology, String version, String authToken)
+    throws Exception;
+
+  /**
+   * Find mappings for map set.
+   *
+   * @param mapSetId the map set id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the mapping list
+   * @throws Exception the exception
+   */
+  public MappingList findMappingsForMapSet(String mapSetId, String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Find mappings for concept.
+   *
+   * @param mapSetId the map set id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the mapping list
+   * @throws Exception the exception
+   */
+  public MappingList findMappingsForConcept(String mapSetId, String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Find mappings for code.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the mapping list
+   * @throws Exception the exception
+   */
+  public MappingList findMappingsForCode(String terminologyId, String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Find mappings for descriptor.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the mapping list
+   * @throws Exception the exception
+   */
+  public MappingList findMappingsForDescriptor(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
 }

@@ -16,10 +16,14 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
@@ -76,6 +80,14 @@ public class MappingJpa extends AbstractComponentHasAttributes
   /** The rank. */
   @Column(nullable = true)
   private String rank;
+  
+  /** The from name. */
+  @Column(nullable = true)
+  private String fromName;
+  
+  /** The to name. */
+  @Column(nullable = true)
+  private String toName;
 
   /** The relationship type. */
   @Column(nullable = true)
@@ -115,6 +127,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public IdType getFromIdType() {
     return fromIdType;
   }
@@ -126,6 +139,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
   }
 
   /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public IdType getToIdType() {
     return toIdType;
@@ -137,6 +151,54 @@ public class MappingJpa extends AbstractComponentHasAttributes
     this.toIdType = toIdType;
   }
 
+  /**
+   * Returns the from term. For JAXB.
+   *
+   * @return the from term
+   */
+  @Fields({
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(name = "fromNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  })
+  @Override
+  public String getFromName() {
+    return fromName;
+  }
+
+  /**
+   * Sets the from term.
+   *
+   * @param term the from term
+   */
+  @Override
+  public void setFromName(String term) {
+    this.fromName = term;
+  }
+
+  /**
+   * Returns the to term. For JAXB.
+   *
+   * @return the to term
+   */
+  @Fields({
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(name = "toNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  })
+  @Override
+  public String getToName() {
+    return toName;
+  }
+
+  /**
+   * Sets the to term.
+   *
+   * @param term the to term
+   */
+  @Override
+  public void setToName(String term) {
+    this.toName = term;
+  }
+  
   /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
@@ -254,6 +316,8 @@ public class MappingJpa extends AbstractComponentHasAttributes
    *
    * @return the map set id
    */
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO) 
   public Long getMapSetId() {
     return mapSet == null ? null : mapSet.getId();
   }
@@ -263,6 +327,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
    *
    * @return the map set terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getMapSetTerminologyId() {
     return mapSet == null ? null : mapSet.getTerminologyId();
   }
@@ -291,7 +356,6 @@ public class MappingJpa extends AbstractComponentHasAttributes
     mapSet.setTerminologyId(id);
   }
 
-  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -301,6 +365,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
     result = prime * result + ((advice == null) ? 0 : advice.hashCode());
     result =
         prime * result + ((fromIdType == null) ? 0 : fromIdType.hashCode());
+    result = prime * result + ((fromName == null) ? 0 : fromName.hashCode());
     result = prime * result
         + ((fromTerminologyId == null) ? 0 : fromTerminologyId.hashCode());
     result = prime * result + ((group == null) ? 0 : group.hashCode());
@@ -310,12 +375,12 @@ public class MappingJpa extends AbstractComponentHasAttributes
         + ((relationshipType == null) ? 0 : relationshipType.hashCode());
     result = prime * result + ((rule == null) ? 0 : rule.hashCode());
     result = prime * result + ((toIdType == null) ? 0 : toIdType.hashCode());
+    result = prime * result + ((toName == null) ? 0 : toName.hashCode());
     result = prime * result
         + ((toTerminologyId == null) ? 0 : toTerminologyId.hashCode());
     return result;
   }
 
-  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -336,10 +401,12 @@ public class MappingJpa extends AbstractComponentHasAttributes
         return false;
     } else if (!advice.equals(other.advice))
       return false;
-    if (fromIdType == null) {
-      if (other.fromIdType != null)
+    if (fromIdType != other.fromIdType)
+      return false;
+    if (fromName == null) {
+      if (other.fromName != null)
         return false;
-    } else if (!fromIdType.equals(other.fromIdType))
+    } else if (!fromName.equals(other.fromName))
       return false;
     if (fromTerminologyId == null) {
       if (other.fromTerminologyId != null)
@@ -371,10 +438,12 @@ public class MappingJpa extends AbstractComponentHasAttributes
         return false;
     } else if (!rule.equals(other.rule))
       return false;
-    if (toIdType == null) {
-      if (other.toIdType != null)
+    if (toIdType != other.toIdType)
+      return false;
+    if (toName == null) {
+      if (other.toName != null)
         return false;
-    } else if (!toIdType.equals(other.toIdType))
+    } else if (!toName.equals(other.toName))
       return false;
     if (toTerminologyId == null) {
       if (other.toTerminologyId != null)
@@ -387,11 +456,12 @@ public class MappingJpa extends AbstractComponentHasAttributes
   /* see superclass */
   @Override
   public String toString() {
-    return "MappingJpa [mapSet=" + mapSet + ", fromTerminologyId="
+    return "MappingJpa [mapSet=" + mapSet.getTerminologyId() + ", fromTerminologyId="
         + fromTerminologyId + ", toTerminologyId=" + toTerminologyId
         + ", fromIdType=" + fromIdType + ", toIdType=" + toIdType + ", advice="
         + advice + ", rule=" + rule + ", group=" + group + ", rank=" + rank
         + ", relationshipType=" + relationshipType
+        + ", fromName=" + fromName + ", toName=" + toName
         + ", additionalRelationshipType=" + additionalRelationshipType + "]";
   }
 

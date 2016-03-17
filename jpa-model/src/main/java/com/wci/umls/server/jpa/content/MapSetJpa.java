@@ -19,6 +19,7 @@ import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.MapSet;
@@ -32,6 +33,7 @@ import com.wci.umls.server.model.content.Mapping;
     "terminologyId", "id"
 }) )
 @Audited
+@Indexed
 @XmlRootElement(name = "mapSet")
 public class MapSetJpa extends AbstractComponentHasAttributes
     implements MapSet {
@@ -421,6 +423,12 @@ public class MapSetJpa extends AbstractComponentHasAttributes
     this.mapVersion = mapVersion;
   }
 
+  /* see superclass */
+  @Override
+  public void clearMappings() {
+    mappings = new ArrayList<>();
+  }
+  
   /* see superclass */
   @Override
   public int hashCode() {
