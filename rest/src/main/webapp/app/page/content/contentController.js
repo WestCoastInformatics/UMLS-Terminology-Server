@@ -578,17 +578,10 @@ tsApp.controller('ContentCtrl', [
       return true;
     };
 
-    // Function to toggle suppressible and obsolete flag and apply paging
-    $scope.toggleSODisplay = function() {
-      if ($scope.showSOElements == null || $scope.showSOElements == undefined) {
-        $scope.showSOElements = false;
-      } else {
-        $scope.showSOElements = !$scope.showSOElements;
-      }
-
-    };
+   
 
     // Function to toggle atom element flag and apply paging
+    // TODO Is this still used?
     $scope.toggleAtomElement = function() {
       if ($scope.showAtomElement == null || $scope.showAtomElement == undefined) {
         $scope.showAtomElement = false;
@@ -599,6 +592,7 @@ tsApp.controller('ContentCtrl', [
     };
 
     // Function to toggle inferred flag and apply paging
+    // TODO This should only be used by relationships
     $scope.toggleInferred = function() {
       if ($scope.showInferred == null || $scope.showInferred == undefined) {
         $scope.showInferred = false;

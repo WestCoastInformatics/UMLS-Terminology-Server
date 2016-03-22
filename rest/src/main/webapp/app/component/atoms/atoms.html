@@ -118,7 +118,7 @@
                     uib-tooltip="{{callbacks.getRelationshipTypeName(relationship.relationshipType)}}">{{relationship.relationshipType}}</span>
                   {{relationship.additionalRelationshipType}} <a
                     ng-click="callbacks.findComponentsForQuery(relationship.toName)"
-                    uib-tooltip="Search for {{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toName}}</a>
+                    uib-tooltip="Search in {{relationship.terminology}} {{terminology.organizingClassType | lowercase}}">{{relationship.toName}}</a>
                 </li>
               </ul>
             </div>
