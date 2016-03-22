@@ -193,6 +193,14 @@ tsApp
           // Return all deferred promises
           return $q.all([ deferred.promise, deferred2.promise ]);
         };
+        
+        this.getTerminologyVersion = function(terminology) {
+          for (var i = 0; i < metadata.terminologies.length; i++) {
+            if (terminology === metadata.terminologies[i].terminology) {
+              return metadata.terminologies[i].version;
+            }
+          }
+        };
 
         // Returns the terminology object for the terminology name
         this.getTerminology = function(terminology, version) {

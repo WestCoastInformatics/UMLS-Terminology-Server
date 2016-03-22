@@ -365,7 +365,9 @@ tsApp.controller('ContentCtrl', [
     $scope.componentReportCallbacks = {
       getComponent : $scope.getComponent,
       getComponentFromType : $scope.getComponentFromType,
-      getTerminologyVersion : $scope.getTerminologyVersion,
+      getTerminologyVersion : function(terminology) {
+        return metadataService.getTerminologyVersion(terminology);
+      },
     
       // get relationship type name from its abbreviation
       getRelationshipTypeName : function(abbr) {
