@@ -509,76 +509,7 @@ tsApp.controller('ContentCtrl', [
     // 
 
     // variables for showing/hiding elements based on boolean fields
-    $scope.showSOElements = false;
-    $scope.showAtomElement = true;
-    $scope.showInferred = true;
     $scope.showExtension = false;
-
-    // Helper function to determine if an item has boolean fields
-    // set to true in its child arrays
-    $scope.hasBooleanFieldTrue = function(item, fieldToCheck) {
-
-      // check for proper arguments
-      if (item == null || item == undefined)
-        return false;
-
-      // cycle over all properties
-      for ( var prop in item) {
-        var value = item[prop];
-
-        // if null or undefined, skip
-        if (value == null || value == undefined) {
-          // do nothing
-        }
-
-        // if an array, check the array's items
-        else if (Array.isArray(value)) {
-          for (var i = 0; i < value.length; i++) {
-            if (value[i][fieldToCheck]) {
-              return true;
-            }
-          }
-        }
-
-        // if not an array, check the item itself
-        else if (value.hasOwnProperty(fieldToCheck) && value[fieldToCheck]) {
-          return true;
-        }
-
-      }
-
-      // default is false
-      return false;
-    };
-
-    // Helper function to determine whether an item should be shown
-    // based on
-    // obsolete/suppressible
-    $scope.showItem = function(item) {
-
-      // trigger on suppressible and obsolete(model data)
-      if (!$scope.showSOElements && (item.suppressible || item.obsolete)) {
-        return false;
-      }
-
-      // trigger on applied showAtomElement flag
-      if (!$scope.showAtomElement && item.atomElement) {
-        return false;
-      }
-
-      // trigger on inferred flag
-      if ($scope.metadata.terminology.descriptionLogicTerminology && item.hasOwnProperty('stated')
-        && $scope.showInferred && item.stated) {
-        return false;
-      }
-      if ($scope.metadata.terminology.descriptionLogicTerminology
-        && item.hasOwnProperty('inferred') && !$scope.showInferred && item.inferred) {
-        return false;
-      }
-      return true;
-    };
-
-   
 
     // Function to toggle atom element flag and apply paging
     // TODO Is this still used?
@@ -592,7 +523,7 @@ tsApp.controller('ContentCtrl', [
     };
 
     // Function to toggle inferred flag and apply paging
-    // TODO This should only be used by relationships
+    // TODO This should only be used by relationships directive
     $scope.toggleInferred = function() {
       if ($scope.showInferred == null || $scope.showInferred == undefined) {
         $scope.showInferred = false;
@@ -612,6 +543,7 @@ tsApp.controller('ContentCtrl', [
       }
     };
 
+    // TODO Move this to relationships directive
     $scope.relPaging = {
       page : 1,
       filter : "",
@@ -638,6 +570,7 @@ tsApp.controller('ContentCtrl', [
 
     // Handle paging of relationships (requires content service
     // call).
+    // TODO Move this to relationships directive, or at least reports directive
     $scope.getPagedRelationships = function() {
 
       // compute the sort order

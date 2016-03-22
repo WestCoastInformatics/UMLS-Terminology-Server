@@ -7,8 +7,7 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
       component : '=',
       metadata : '=',
       showHidden : '=',
-      callbacks : '=?',
-      testCallbacks : '=?'
+      callbacks : '=?'
     },
     templateUrl : 'app/component/atoms/atoms.html',
     link : function(scope, element, attrs) {
