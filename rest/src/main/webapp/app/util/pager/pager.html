@@ -1,0 +1,16 @@
+<span style="display: block;" ng-show="count > paging.pageSize || paging.filter">
+  <!-- UIB Pagination -->
+  <uib-pagination items-per-page="paging.pageSize" max-size="5"
+    boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
+    next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+    total-items="count" ng-model="paging.page"
+    ng-change="callback.getPagedList()"></uib-pagination>
+  <!--  Filters -->
+  <input class="input-filter" placeholder="Enter filter text" type="text"
+    ng-model="paging.filter" ng-model-options="{ debounce: 500 }"
+    ng-change="callback.getPagedList()">
+  <button class="btn btn-xs btn-warning" ng-show="paging.filter"
+    ng-click="paging.filter = ''; callback.getPagedList(); "
+    uib-tooltip="Click to clear filter text">Clear</button>
+  <!-- TODO FOR RELATIONSHIPS Sort Order -->
+</span>

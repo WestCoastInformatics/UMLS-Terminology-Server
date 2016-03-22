@@ -58,8 +58,7 @@ tsApp.controller('ContentCtrl', [
     $scope.getColorForScore = function(score) {
       if (score > $scope.scoreExcellent) {
         return 'green'
-      }
-      else if (score > $scope.scoreGood) {
+      } else if (score > $scope.scoreGood) {
         return 'yellow';
       } else {
         return 'orange';
@@ -342,28 +341,57 @@ tsApp.controller('ContentCtrl', [
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a search result
     $scope.getComponent = function(terminologyId, terminology, version) {
+      console.debug('getComponent');
       contentService.getComponent(terminologyId, terminology, version).then(function() {
         $scope.setActiveRow($scope.component.object.terminologyId);
         $scope.getTree(0);
         $scope.setComponentLocalHistory($scope.component.historyIndex);
-        $scope.resetPaging();
-        applyPaging();
       });
     };
 
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a link in a report
     $scope.getComponentFromType = function(terminologyId, terminology, version, type) {
-
+      console.debug('getComponentFromType', terminologyId, terminology, version, type);
       contentService.getComponentFromType(terminologyId, terminology, version, type).then(
         function() {
           $scope.setActiveRow($scope.component.object.terminologyId);
           $scope.setComponentLocalHistory($scope.component.historyIndex);
           $scope.getTree(0);
-          $scope.resetPaging();
-          applyPaging();
+
         });
     };
+
+    $scope.componentReportCallbacks = {
+      getComponent : $scope.getComponent,
+      getComponentFromType : $scope.getComponentFromType,
+      getTerminologyVersion : $scope.getTerminologyVersion,
+    
+      // get relationship type name from its abbreviation
+      getRelationshipTypeName : function(abbr) {
+        return metadataService.getRelationshipTypeName(abbr);
+      },
+
+      // get attribute name name from its abbreviation
+      getAttributeNameName : function(abbr) {
+        return metadataService.getAttributeNameName(abbr);
+      },
+
+      // get term type name from its abbreviation
+      getTermTypeName : function(abbr) {
+        return metadataService.getTermTypeName(abbr);
+      },
+
+      // get general entry name from its abbreviation
+      getGeneralEntryValue : function(abbr) {
+        return metadataService.getGeneralEntryValue(abbr);
+      },
+
+      // Gets the label set name
+      getLabelSetName : function(abbr) {
+        return metadataService.getLabelSetName(abbr);
+      }
+    }
 
     // Find components for a programmatic query
     $scope.findComponentsForQuery = function(queryStr) {
@@ -556,7 +584,6 @@ tsApp.controller('ContentCtrl', [
         $scope.showSOElements = !$scope.showSOElements;
       }
 
-      applyPaging();
     };
 
     // Function to toggle atom element flag and apply paging
@@ -567,7 +594,6 @@ tsApp.controller('ContentCtrl', [
         $scope.showAtomElement = !$scope.showAtomElement;
       }
 
-      applyPaging();
     };
 
     // Function to toggle inferred flag and apply paging
@@ -590,113 +616,29 @@ tsApp.controller('ContentCtrl', [
       }
     };
 
-    // 
-    // Expand/Collapse functions
-    // 
+    $scope.relPaging = {
+      page : 1,
+      filter : "",
+      sortField : 'group',
+      sortAscending : true,
 
-    // Toggle collapse state
-    $scope.toggleItemCollapse = function(item) {
-      item.expanded = !item.expanded;
+      // Default is Group/Type, where in getPagedRelationships
+      // relationshipType is automatically appended as a multi-
+      // sort search
+      sortOptions : [ {
+        key : 'Group, Type',
+        value : 'group'
+      }, {
+        key : 'Type',
+        value : 'relationshipType'
+      }, {
+        key : 'Additional Type',
+        value : 'additionalRelationshipType'
+      }, {
+        key : 'Name',
+        value : 'toName'
+      } ]
     };
-
-    // Returns the css class for an item's collapsible control
-    $scope.getCollapseIcon = function(item) {
-
-      // if no expandable content detected, return blank glyphicon
-      // (see
-      // tsApp.css)
-      if (!item.hasContent)
-        return 'glyphicon glyphicon-plus glyphicon-none';
-
-      // return plus/minus based on current expanded status
-      if (item.expanded)
-        return 'glyphicon glyphicon-minus';
-      else
-        return 'glyphicon glyphicon-plus';
-    };
-
-    //
-    // Paging functions
-    //
-
-    // paged variable lists
-    // NOTE: Each list must have a totalCount variable
-    // either from ResultList object or calculated
-    $scope.pagedAttributes = null;
-    $scope.pagedMembers = null;
-    $scope.pagedSemanticTypes = null;
-    $scope.pagedDescriptions = null;
-    $scope.pagedRelationships = null;
-    $scope.pagedAtoms = null;
-
-    $scope.resetPaging = function() {
-
-      // variable page numbers
-      $scope.atomPaging = {
-        page : 1,
-        filter : ""
-      };
-
-      $scope.styPaging = {
-        page : 1,
-        filter : ""
-      };
-
-      $scope.defPaging = {
-        page : 1,
-        filter : ""
-      };
-
-      $scope.attributePaging = {
-        page : 1,
-        filter : ""
-      };
-
-      $scope.memberPaging = {
-        page : 1,
-        filter : ""
-      };
-
-      $scope.relPaging = {
-        page : 1,
-        filter : "",
-        sortField : 'group', 
-        sortAscending : true,
-        
-        // Default is Group/Type, where in getPagedRelationships
-        // relationshipType is automatically appended as a multi-
-        // sort search
-        sortOptions : [ {
-          key : 'Group, Type', 
-          value : 'group' 
-        }, {
-          key : 'Type',
-          value : 'relationshipType'
-        }, {
-          key : 'Additional Type',
-          value : 'additionalRelationshipType'
-        }, {
-          key : 'Name',
-          value : 'toName'
-        } ]
-      };
-    };
-
-    // on load, instantiate paging
-    $scope.resetPaging();
-
-    // apply paging to all elements
-    function applyPaging() {
-      // call each get function without paging (use current paging
-      // info)
-      $scope.getPagedAtoms();
-      $scope.getPagedRelationships();
-      $scope.getPagedDefinitions();
-      $scope.getPagedAttributes();
-      $scope.getPagedMembers();
-      $scope.getPagedSemanticTypes();
-
-    }
 
     // Handle paging of relationships (requires content service
     // call).
@@ -749,49 +691,6 @@ tsApp.controller('ContentCtrl', [
       });
     };
 
-    // Get paged atoms (assume all are loaded)
-    $scope.getPagedAtoms = function() {
-
-      // filter by suppressible/obsolete
-      var localAtoms = $scope.component.object.atoms.filter(function(object) {
-        return $scope.showSOElements || (!object.suppressible && !object.obsolete);
-      });
-
-      // want all filtered atoms to 
-      var localAtoms = utilService.getPagedArray(localAtoms, $scope.atomPaging,
-        $scope.pageSizes.general);
-
-      $scope.pagedAtoms = localAtoms;
-    };
-
-    // Get paged definitions (assume all are loaded)
-    $scope.getPagedDefinitions = function() {
-      // get the paged array, with flags and filter
-      $scope.pagedDefinitions = utilService.getPagedArray($scope.component.object.definitions,
-        $scope.defPaging, $scope.pageSizes.general);
-    };
-
-    // Get paged attributes (assume all are loaded)
-    $scope.getPagedAttributes = function() {
-      // get the paged array, with flags and filter
-      $scope.pagedAttributes = utilService.getPagedArray($scope.component.object.attributes,
-        $scope.attributePaging, $scope.pageSizes.general);
-    };
-
-    // Get paged members (assume all are loaded)
-    $scope.getPagedMembers = function() {
-      // get the paged array, with flags and filter
-      $scope.pagedMembers = utilService.getPagedArray($scope.component.object.members,
-        $scope.memberPaging, $scope.pageSizes.general);
-    };
-
-    // Get paged STYs (assume all are loaded)
-    $scope.getPagedSemanticTypes = function() {
-      // get the paged array, with flags and filter
-      $scope.pagedSemanticTypes = utilService.getPagedArray($scope.component.object.semanticTypes,
-        $scope.styPaging, $scope.pageSizes.general);
-    };
-
     // 
     // Misc helper functions
     // 
@@ -834,31 +733,6 @@ tsApp.controller('ContentCtrl', [
           viewableTerminologies.push($scope.metadata.terminologies[i]);
       }
       return viewableTerminologies;
-    };
-
-    // get relationship type name from its abbreviation
-    $scope.getRelationshipTypeName = function(abbr) {
-      return metadataService.getRelationshipTypeName(abbr);
-    };
-
-    // get attribute name name from its abbreviation
-    $scope.getAttributeNameName = function(abbr) {
-      return metadataService.getAttributeNameName(abbr);
-    };
-
-    // get term type name from its abbreviation
-    $scope.getTermTypeName = function(abbr) {
-      return metadataService.getTermTypeName(abbr);
-    };
-
-    // get general entry name from its abbreviation
-    $scope.getGeneralEntryValue = function(abbr) {
-      return metadataService.getGeneralEntryValue(abbr);
-    };
-
-    // Gets the label set name
-    $scope.getLabelSetName = function(abbr) {
-      return metadataService.getLabelSetName(abbr);
     };
 
     // Label functions
@@ -942,7 +816,6 @@ tsApp.controller('ContentCtrl', [
         // manage local history
         $scope.setComponentLocalHistory(index);
         $scope.getTree(0);
-        applyPaging();
       });
     };
 
@@ -986,11 +859,6 @@ tsApp.controller('ContentCtrl', [
       // return the local history
       $scope.localHistory = $scope.component.history.slice(lowerBound, upperBound);
     };
-
-    // when navigating back, apply paging if there is a component
-    if ($scope.component.object) {
-      applyPaging();
-    }
 
   }
 
