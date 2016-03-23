@@ -457,10 +457,10 @@ tsApp
           // check parameters for advanced mode
           if (searchParams.advancedMode) {
             if (searchParams.semanticType) {
-              pfs.queryRestriction += " AND semanticTypes.semanticType:\"" + searchParams.semanticType
-                + "\"";
+              pfs.queryRestriction += " AND semanticTypes.semanticType:\""
+                + searchParams.semanticType + "\"";
             }
-            
+
             if (searchParams.matchTerminology) {
               pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
                 + "\"";
@@ -518,19 +518,16 @@ tsApp
             queryRestriction : null
           };
 
-          
-          
           // check parameters for advanced mode
           if (searchParams.advancedMode) {
-            
+
             if (semanticType) {
               pfs.queryRestriction = "ancestorPath:" + semanticType.replace("~", "\\~") + "*";
             }/*
-            if (searchParams.semanticType) {
-              pfs.queryRestriction += " AND semanticTypes.semanticType:\"" + searchParams.semanticType
-                + "\"";
-            }*/
-            
+                           * if (searchParams.semanticType) { pfs.queryRestriction += " AND
+                           * semanticTypes.semanticType:\"" + searchParams.semanticType + "\""; }
+                           */
+
             if (searchParams.matchTerminology) {
               pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
                 + "\"";
@@ -579,7 +576,7 @@ tsApp
             var pfs = {
               startIndex : (page - 1) * pageSizes.general,
               maxResults : pageSizes.general,
-              sortField : parameters.sortField ? parameters.sortField : 'relationshipType',
+              sortFields : parameters.sortFields ? parameters.sortFields : ['group', 'relationshipType'],
               ascending : parameters.sortAscending,
               queryRestriction : null
             // constructed from filters
@@ -612,6 +609,13 @@ tsApp
           }
 
           var query = parameters.text;
+
+          // Add wildcard to allow better matching from basic search
+          // NOTE: searching for "a"* is interpreted by lucene as a 
+          // leading wildcard search (i.e. "a" *)
+          if (query && !query.endsWith('*') && !query.endsWith('"')) {
+            query += '*';
+          }
           gpService.increment();
           $http.post(
             contentUrl + prefix + "/" + component.object.terminology + "/"

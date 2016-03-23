@@ -56,6 +56,7 @@ import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreePositionList;
+import com.wci.umls.server.jpa.content.AbstractAtomClass;
 import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
@@ -246,10 +247,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
         throw new Exception("search.handler." + ConfigUtility.DEFAULT
             + " expected and does not exist.");
       }
-     /* if (!searchHandlerNames.contains(ConfigUtility.ATOMCLASS)) {
+      if (!searchHandlerNames.contains(ConfigUtility.ATOMCLASS)) {
         throw new Exception("search.handler." + ConfigUtility.ATOMCLASS
             + " expected and does not exist.");
-      }*/
+      }
     } catch (Exception e) {
       e.printStackTrace();
       searchHandlerNames = null;
@@ -2457,7 +2458,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
     boolean queryFlag = false;
     if (isLuceneQueryInfo(query, pfsc)) {
       queryFlag = true;
-      searchHandler = getSearchHandler(terminology);
+      
+      // if an atom class, use atom class
+      if (AbstractAtomClass.class.isAssignableFrom(clazz)) {
+        searchHandler = getSearchHandler(ConfigUtility.ATOMCLASS);
+      }
+      
+      // otherwise look for terminology specific handlers
+      else {
+        searchHandler = getSearchHandler(terminology);
+      }
       queryClasses =
           searchHandler.getQueryResults(terminology, version, branch, query,
               "atoms.nameSort", fieldNamesKey, clazz, pfsc, totalCt, manager);
@@ -3574,7 +3584,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     int[] totalCt = new int[1];
     // pass empty terminology/version because it's handled above
     results.setObjects((List) searchHandler.getQueryResults("", "", branch,
-        finalQuery.toString(), "fromNameSort", ConceptRelationshipJpa.class,
+        finalQuery.toString(), "toNameSort", ConceptRelationshipJpa.class,
         clazz, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
