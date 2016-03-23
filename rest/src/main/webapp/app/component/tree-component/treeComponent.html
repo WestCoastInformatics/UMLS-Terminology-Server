@@ -1,0 +1,18 @@
+<!-- NOTE: Two types of trees consolidated to take advantage of common tree functions -->
+<!-- Hierarchical Tree -->
+<div ng-if="treeCount > 0">
+  <h4>
+    {{metadata.hierarchiesLabel}} (
+    <a class="glyphicon glyphicon-step-backward" ng-click="getTreeByOffset(-1)"></a>
+    {{treeViewed+1}} of {{treeCount}}
+    <a class="glyphicon glyphicon-step-forward" ng-click="getTreeByOffset(1)"></a>
+    )
+  </h4>
+  <div ui-tree>
+    <ol ui-tree-nodes="" ng-model="componentTree" id="tree-root"
+      data-nodrop-enabled="true">
+      <li ng-repeat="tree in componentTree" ui-tree-node data-nodrag
+        ng-include="'app/component/tree-component/componentTree_renderer.html'"></li>
+    </ol>
+  </div>
+</div>

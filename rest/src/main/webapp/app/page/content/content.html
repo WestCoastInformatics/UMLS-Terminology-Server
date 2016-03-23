@@ -181,14 +181,8 @@
         ng-show="searchResults.tree.totalCount > pageSizes.trees"
         total-items="searchResults.tree.totalCount" ng-model="searchParams.page"
         ng-change="findComponents(false)"></uib-pagination>
-      <div ng-if="searchResults.tree && searchResults.tree.totalCount > 0"
-        style="display: block;" ui-tree>
-        <ol ui-tree-nodes="" ng-model="searchResults.tree" id="tree-root"
-          data-nodrop-enabled="true">
-          <li ng-repeat="tree in searchResults.tree" ui-tree-node data-nodrag
-            ng-include="'app/component/tree/searchResultsTree_renderer.html'"></li>
-        </ol>
-      </div>
+      
+      <div tree-search-result search-results="searchResults" parameters = "srtParams" callbacks="srtCallbacks"><</div>
       <p style="display: block;">&nbsp;</p>
     </div>
   </div>

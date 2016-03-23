@@ -12,5 +12,15 @@
   <button class="btn btn-xs btn-warning" ng-show="paging.filter"
     ng-click="paging.filter = ''; callback.getPagedList(); "
     uib-tooltip="Click to clear filter text">Clear</button>
-  <!-- TODO FOR RELATIONSHIPS Sort Order -->
+  <!-- Field sort order -->
+  <span
+    uib-tooltip="Sort - {{paging.sortAscending ? 'Ascending' : 'Descending'}}"
+    ng-click="paging.page = 1; paging.sortAscending = !paging.sortAscending; getPagedList();"
+    ng-show="pagedData.totalCount > pageSizes.rels" class="glyphicon"
+    ng-class="[{'glyphicon-sort-by-attributes': paging.sortAscending}, {'glyphicon-sort-by-attributes-alt': !paging.sortAscending}]"></span>
+  <select ng-show="pagedData.totalCount > paging.pageSize" class="input-filter"
+    ng-model="paging.sortField"
+    ng-options="o.value as o.key for o in paging.sortOptions"
+    ng-change="getPagedList()">
+  </select>
 </span>

@@ -8,10 +8,6 @@ tsApp.directive('pager', [ function() {
       count : '=',
       callback : '='
     },
-    templateUrl : 'app/util/pager/pager.html',
-    link : function(scope) {
-
-      console.debug('pager', scope.count, scope.paging, scope.callback);
-    }
+    templateUrl : 'app/util/pager/pager.html'
   }
 } ]);

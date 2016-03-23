@@ -1,0 +1,11 @@
+
+<!-- Labels -->
+<div ng-show="countLabels(component) > 0">
+  <h4>{{metadata.extensionsLabel}} ({{countLabels(component)}})&nbsp;&nbsp;</h4>
+  <ul class="icon-list">
+    <li class="cr-list" ng-repeat="item in component.object.labels"
+      ng-show="!item.startsWith('LABELFOR')">{{getLabelSetName(item)}}
+      ({{item}})</li>
+  </ul>
+</div>
+<!-- end Labels -->

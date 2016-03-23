@@ -113,197 +113,6 @@ tsApp.controller('ContentCtrl', [
       return contentService.autocomplete(searchTerms, $scope.autocompleteUrl);
     };
 
-    ////////////////////////////////////////////
-    // Supporting trees
-    // NOTE: Functions called from the DOM use
-    // the angular-ui-tree node scope, which
-    // contains the actual tree information in 
-    // nodeScope.$modelValue
-    ////////////////////////////////////////////
-
-    // retrieves the specified tree position by index (top-level, scope-indifferent)
-    // displayed
-    $scope.getTree = function(startIndex) {
-      // Call content service to retrieve the tree
-      contentService.getTree($scope.component.object.terminologyId,
-        $scope.component.object.terminology, $scope.component.object.version, startIndex).then(
-        function(data) {
-
-          $scope.componentTree = data.trees;
-
-          // set the count and position variables
-          $scope.treeCount = data.totalCount;
-          if (data.count > 0)
-            $scope.treeViewed = startIndex;
-          else
-            $scope.treeViewed = 0;
-
-          // if parent tree cannot be read, clear the component
-          // tree
-          // (indicates no hierarchy present)
-          if ($scope.componentTree.length == 0) {
-            $scope.componentTree = null;
-            return;
-          }
-
-          // get the ancestor path of the bottom element (the
-          // component)
-          // ASSUMES: unilinear path (e.g. A~B~C~D, no siblings)
-          var parentTree = $scope.componentTree[0];
-          while (parentTree.children.length > 0) {
-            // check if child has no children
-            if (parentTree.children[0].children.length == 0)
-              break;
-            parentTree = parentTree.children[0];
-          }
-
-          // replace the parent tree of the lowest level with
-          // first page of siblings computed
-          $scope.getTreeChildren(parentTree, 0).then(function(children) {
-            parentTree.children = parentTree.children.concat(children.filter(function(child) {
-              // do not re-add the already-shown component for this tree
-              return $scope.component.object.terminologyId !== child.nodeTerminologyId;
-            }));
-          })
-
-        });
-
-    };
-
-    $scope.isDerivedLabelSetFromTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-      return $scope.isDerivedLabelSet(tree);
-    }
-
-    $scope.getDerivedLabelSetsValueFromTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-      return $scope.getDerivedLabelSetsValue(tree);
-    }
-
-    $scope.isLabelSetFromTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-      return $scope.isLabelSet(tree);
-    }
-
-    $scope.getLabelSetsValueFromTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-      return $scope.getLabelSetsValue(tree);
-    }
-
-    $scope.getComponentFromTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-
-      console.debug('getting component from tree for ', tree, nodeScope);
-
-      $scope.getComponent(tree.nodeTerminologyId, tree.terminology, tree.version);
-    }
-
-    // retrieves the children for a node (from DOM)
-    $scope.getTreeChildrenFromTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-      $scope.getTreeChildren(tree).then(function(children) {
-        console.debug('adding children', children);
-        tree.children = tree.children.concat(children);
-      });
-    }
-
-    // retrieves children for a node (not from DOM)
-    $scope.getTreeChildren = function(tree) {
-
-      var deferred = $q.defer();
-
-      if (!tree) {
-        console.error('getChildren called with null node');
-        deferred.resolve([]);
-      }
-
-      // get the next page of children based on start index of current children length
-      contentService.getChildTrees(tree, tree.children.length).then(function(data) {
-        console.debug('retrieved children', data);
-        deferred.resolve(data.trees);
-      }, function(error) {
-        console.error('Unexpected error retrieving children');
-        deferred.resolve([]);
-      });
-
-      return deferred.promise;
-    }
-
-    // get tree by specified offset (circular index)
-    $scope.getTreeByOffset = function(offset) {
-
-      var treeViewed = $scope.treeViewed + offset;
-
-      if (!treeViewed)
-        treeViewed = 0;
-      if (treeViewed >= $scope.treeCount)
-        treeViewed = treeViewed - $scope.treeCount;
-      if (treeViewed < 0)
-        treeViewed = treeViewed + $scope.treeCount;
-
-      $scope.getTree(treeViewed);
-    };
-
-    // toggles a node (from DOM)
-    $scope.toggleTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-
-      console.debug('toggling tree', tree, nodeScope.collapsed);
-
-      // if not expanded, simply expand
-      if (nodeScope.collapsed) {
-        nodeScope.toggle();
-      }
-
-      // otherwise if a full page of siblings not already loaded, get first page
-      else if (tree.children.length != tree.childCt
-        && tree.children.length < $scope.pageSizes.sibling) {
-        console.debug('getting children')
-        $scope.getTreeChildren(tree).then(function(children) {
-          console.debug('adding children', children);
-          tree.children = tree.children.concat(children);
-        });
-      }
-
-      // otherwise, collapse
-      else {
-        console.debug('collapsing');
-        nodeScope.toggle();
-      }
-    }
-
-    // returns the display icon for a node (from DOM)
-    $scope.getTreeNodeIcon = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-
-      // NOTE: This is redundant, leaf icon is set directly in html
-      if (tree.childCt == 0) {
-        return 'glyphicon-leaf';
-      }
-
-      // if formally collapsed or less than sibling page size retrieved children, return plus sign
-      else if (tree.children.length != tree.childCt
-        && tree.children.length < $scope.pageSizes.sibling) {
-        return 'glyphicon-plus';
-      }
-
-      // if collapsed or unloaded
-      else if (nodeScope.collapsed || (tree.childCt > 0 && tree.children.length == 0)) {
-        return 'glyphicon-chevron-right'
-      }
-
-      // otherwise, return minus sign
-      else if (!nodeScope.collapsed) {
-        return 'glyphicon-chevron-down';
-      }
-
-      // if no matches, return a ? because something is seriously wrong
-      else {
-        return 'glyphicon-question-sign';
-      }
-
-    };
-
     // 
     // Search functions
     // 
@@ -344,7 +153,6 @@ tsApp.controller('ContentCtrl', [
       console.debug('getComponent');
       contentService.getComponent(terminologyId, terminology, version).then(function() {
         $scope.setActiveRow($scope.component.object.terminologyId);
-        $scope.getTree(0);
         $scope.setComponentLocalHistory($scope.component.historyIndex);
       });
     };
@@ -357,8 +165,6 @@ tsApp.controller('ContentCtrl', [
         function() {
           $scope.setActiveRow($scope.component.object.terminologyId);
           $scope.setComponentLocalHistory($scope.component.historyIndex);
-          $scope.getTree(0);
-
         });
     };
 
@@ -368,7 +174,7 @@ tsApp.controller('ContentCtrl', [
       getTerminologyVersion : function(terminology) {
         return metadataService.getTerminologyVersion(terminology);
       },
-    
+
       // get relationship type name from its abbreviation
       getRelationshipTypeName : function(abbr) {
         return metadataService.getRelationshipTypeName(abbr);
@@ -392,7 +198,8 @@ tsApp.controller('ContentCtrl', [
       // Gets the label set name
       getLabelSetName : function(abbr) {
         return metadataService.getLabelSetName(abbr);
-      }
+      },
+      countLabels : metadataService.countLabels
     }
 
     // Find components for a programmatic query
@@ -504,15 +311,6 @@ tsApp.controller('ContentCtrl', [
       });
     };
 
-    // 
-    // Show/Hide List Elements
-    // 
-
-    // variables for showing/hiding elements based on boolean fields
-    $scope.showExtension = false;
-
-    // Function to toggle atom element flag and apply paging
-    // TODO Is this still used?
     $scope.toggleAtomElement = function() {
       if ($scope.showAtomElement == null || $scope.showAtomElement == undefined) {
         $scope.showAtomElement = false;
@@ -534,91 +332,40 @@ tsApp.controller('ContentCtrl', [
       $scope.getPagedRelationships();
     };
 
+    ////////////////////////////////////////////
+    // Supporting search result trees
+    ////////////////////////////////////////////
+
+    // Search Result Tree Parameters
+    $scope.srtParams = {
+      showExtension : false
+    };
+
+    // set the top level component from a tree node
+    $scope.getComponentFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      $scope.getComponent(tree.nodeTerminologyId, tree.terminology, tree.version);
+    };
+
     // Function to toggle showing of extension info
     $scope.toggleExtension = function() {
-      if ($scope.showExtension == null || $scope.showExtension == undefined) {
-        $scope.showExtension = false;
+      if ($scope.srtParams.showExtension == null || $scope.srtParams.showExtension == undefined) {
+        $scope.srtParams.showExtension = false;
       } else {
-        $scope.showExtension = !$scope.showExtension;
+        $scope.srtParams.showExtension = !$scope.srtParams.showExtension;
       }
     };
 
-    // TODO Move this to relationships directive
-    $scope.relPaging = {
-      page : 1,
-      filter : "",
-      sortField : 'group',
-      sortAscending : true,
+    // search result tree callbacks
+    $scope.srtCallbacks = {
+      // set top level component from tree node
+      getComponentFromTree : $scope.getComponentFromTree
+    }
 
-      // Default is Group/Type, where in getPagedRelationships
-      // relationshipType is automatically appended as a multi-
-      // sort search
-      sortOptions : [ {
-        key : 'Group, Type',
-        value : 'group'
-      }, {
-        key : 'Type',
-        value : 'relationshipType'
-      }, {
-        key : 'Additional Type',
-        value : 'additionalRelationshipType'
-      }, {
-        key : 'Name',
-        value : 'toName'
-      } ]
-    };
-
+   
     // Handle paging of relationships (requires content service
     // call).
     // TODO Move this to relationships directive, or at least reports directive
-    $scope.getPagedRelationships = function() {
-
-      // compute the sort order
-      // if group sort specified, sort additionally by relationship type
-      // otherwise, sort by specified field and additionally by group
-      var sortFields = [];
-      if ($scope.relPaging.sortField === 'group') {
-        sortFields = [ 'group', 'relationshipType' ]
-      } else {
-        sortFields = [ $scope.relPaging.sortField, 'group' ];
-      }
-
-      var parameters = {
-        showSuppressible : $scope.showSOElements,
-        showObsolete : $scope.showSOElements,
-        showInferred : $scope.showInferred,
-        text : $scope.relPaging.filter,
-        sortFields : sortFields,
-        sortAscending : $scope.relPaging.sortAscending
-      };
-
-      // Request from service
-      contentService.findRelationships($scope.component.object.terminologyId,
-        $scope.component.object.terminology, $scope.component.object.version,
-        $scope.relPaging.page, parameters).then(function(data) {
-
-        // if description logic terminology, sort
-        // relationships also by
-        // group
-        if ($scope.metadata.terminology.descriptionLogicTerminology) {
-          data.relationships.sort(function(a, b) {
-            if (a.relationshipType < b.relationshipType)
-              return -1;
-            if (a.relationshipType > b.relationshipType)
-              return 1;
-            if (a.group < b.group)
-              return -1;
-            if (a.group > b.group)
-              return 1;
-            return 0;
-          });
-        }
-
-        $scope.pagedRelationships = data.relationships;
-        $scope.pagedRelationships.totalCount = data.totalCount;
-
-      });
-    };
 
     // 
     // Misc helper functions
@@ -663,23 +410,6 @@ tsApp.controller('ContentCtrl', [
       }
       return viewableTerminologies;
     };
-
-    // Label functions
-    $scope.isDerivedLabelSet = metadataService.isDerivedLabelSet;
-    $scope.isLabelSet = metadataService.isLabelSet;
-
-    $scope.getDerivedLabelSetsValue = function() {
-      return $sce.trustAsHtml('<div style="text-align:left;">'
-        + metadataService.getDerivedLabelSetsValue() + '</div>');
-
-    };
-
-    $scope.getLabelSetsValue = function() {
-      return $sce.trustAsHtml('<div style="text-align:left;">' + metadataService.getLabelSetsValue
-        + '</div>');
-    };
-
-    $scope.countLabels = metadataService.countLabels;
 
     // Load all terminologies upon controller load (unless already
     // loaded)
@@ -744,7 +474,6 @@ tsApp.controller('ContentCtrl', [
       contentService.getComponentFromHistory(index).then(function(data) {
         // manage local history
         $scope.setComponentLocalHistory(index);
-        $scope.getTree(0);
       });
     };
 

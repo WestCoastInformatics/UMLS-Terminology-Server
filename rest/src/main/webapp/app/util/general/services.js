@@ -213,7 +213,6 @@ tsApp
           return {
             page : 1,
             pageSize: 10,
-            showSO : false,
             filter : null,
             sortField : null, 
             sortAscending : true,

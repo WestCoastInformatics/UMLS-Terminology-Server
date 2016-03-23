@@ -49,6 +49,10 @@ tsApp.directive('report', [
               return 'glyphicon glyphicon-plus';
           }
         }
+        
+        scope.testCallback = function() {
+          console.debug('TEST CALLBACK');
+        }
 
         // append the navigation and editing callbacks if specified
         for ( var key in scope.callbacks) {

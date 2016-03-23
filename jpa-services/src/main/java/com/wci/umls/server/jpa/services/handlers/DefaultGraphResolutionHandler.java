@@ -79,6 +79,9 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         }
         resolve(atom);
       }
+      
+      // TODO Check Subsets lazy initialization, etc.
+      // DO this for descriptors and codes as well
 
       // Relationships
       // default behavior -- require paging of relationships
