@@ -123,7 +123,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   private boolean singleMode = false;
 
   /** The codes flag. */
-  private boolean codesFlag = false;
+  private boolean codesFlag = true;
 
   /** The release version. */
   private String releaseVersion;
@@ -540,7 +540,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     int objectCt = 0;
     final String fields[] = new String[4];
     while ((line = reader.readLine()) != null) {
-
       line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 4, fields);
 
@@ -1114,7 +1113,6 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     final Set<Concept> modifiedConcepts = new HashSet<>();
     final String fields[] = new String[13];
     while ((line = reader.readLine()) != null) {
-
       line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 13, fields);
 
@@ -1319,15 +1317,18 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // add all of the mapsets
     for (MapSet mapSet : mapSetMap.values()) {
       if (mapSet.getName() == null) {
-        Logger.getLogger(getClass()).warn("Mapset has no name set: " + mapSet.toString());
+        Logger.getLogger(getClass())
+            .warn("Mapset has no name set: " + mapSet.toString());
         throw new LocalException("Mapsets must have a name set.");
       }
       if (mapSet.getFromTerminology() == null) {
-        Logger.getLogger(getClass()).warn("Mapset has no from terminology set: " + mapSet.toString());
+        Logger.getLogger(getClass())
+            .warn("Mapset has no from terminology set: " + mapSet.toString());
         throw new LocalException("Mapsets must have a from terminology set.");
       }
       if (mapSet.getToTerminology() == null) {
-        Logger.getLogger(getClass()).warn("Mapset has no to terminology set: " + mapSet.toString());
+        Logger.getLogger(getClass())
+            .warn("Mapset has no to terminology set: " + mapSet.toString());
         throw new LocalException("Mapsets must have a to terminology set.");
       }
       mapSet.setLastModifiedBy(loader);
@@ -1349,7 +1350,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         throw new LocalException("Mapsets has no terminology set.");
       }
       if (mapSet.getMapVersion() == null) {
-        Logger.getLogger(getClass()).warn("Mapset has no version set: " + mapSet.toString());
+        Logger.getLogger(getClass())
+            .warn("Mapset has no version set: " + mapSet.toString());
         throw new LocalException("Mapsets must have a map version set.");
       }
 
@@ -2127,7 +2129,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    */
   private void setRelationshipFields(final String[] fields,
     final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
-      throws Exception {
+    throws Exception {
     relationship.setTimestamp(releaseVersionDate);
     relationship.setLastModified(releaseVersionDate);
     relationship.setLastModifiedBy(loader);
