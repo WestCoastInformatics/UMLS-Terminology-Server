@@ -9,5 +9,8 @@ tsApp.directive('pager', [ function() {
       callback : '='
     },
     templateUrl : 'app/util/pager/pager.html',
+    link : function(scope, element, attrs) {
+      console.debug('PAGER', paging);
+    }
   }
 } ]);
