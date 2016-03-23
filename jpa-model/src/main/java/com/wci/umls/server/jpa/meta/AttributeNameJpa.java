@@ -20,7 +20,10 @@ import com.wci.umls.server.model.meta.AttributeName;
  */
 @Entity
 @Table(name = "attribute_names", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "abbreviation", "terminology"
+    // "id" needed here because ATN sometimes has multiple abbreviations
+    // that are the same in a case-insensitive way, which is how the 
+    // constraint works in MySQL when using standard utf8 collation/charset
+    "abbreviation", "terminology", "id"
 }))
 @Audited
 @XmlRootElement(name = "attributeName")
