@@ -7,8 +7,7 @@ tsApp.directive('attributes', [ 'utilService', function(utilService) {
       component : '=',
       metadata : '=',
       showHidden : '=',
-      callbacks : '=',
-      testCallback: '&?'
+      callbacks : '='
      
     },
     templateUrl : 'app/component/attributes/attributes.html',

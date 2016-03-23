@@ -7,7 +7,7 @@ tsApp.directive('semanticTypes', [ 'utilService', function(utilService) {
       component : '=',
       metadata : '=',
       showHidden : '=',
-      callbacks : '=?'
+      callbacks : '='
     },
     templateUrl : 'app/component/semantic-types/semanticTypes.html',
     link : function(scope, element, attrs) {
@@ -19,7 +19,7 @@ tsApp.directive('semanticTypes', [ 'utilService', function(utilService) {
       // instantiate paging and paging callback function
       scope.pagedData = [];
       scope.paging = utilService.getPaging();
-      scope.callbacks = {
+      scope.pageCallback = {
         getPagedList : getPagedList
       }
 

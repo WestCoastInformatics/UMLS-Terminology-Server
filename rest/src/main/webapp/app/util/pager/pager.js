@@ -8,6 +8,6 @@ tsApp.directive('pager', [ function() {
       count : '=',
       callback : '='
     },
-    templateUrl : 'app/util/pager/pager.html'
+    templateUrl : 'app/util/pager/pager.html',
   }
 } ]);

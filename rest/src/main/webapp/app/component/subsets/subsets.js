@@ -7,7 +7,7 @@ tsApp.directive('subsets', [ 'utilService', function(utilService) {
       component : '=',
       metadata : '=',
       showHidden : '=',
-      callbacks : '=?'
+      callbacks : '='
     },
     templateUrl : 'app/component/subsets/subsets.html',
     link : function(scope, element, attrs) {
@@ -19,7 +19,7 @@ tsApp.directive('subsets', [ 'utilService', function(utilService) {
       // instantiate paging and paging callback function
       scope.pagedData = [];
       scope.paging = utilService.getPaging();
-      scope.callbacks = {
+      scope.pageCallback = {
         getPagedList : getPagedList
       }
 

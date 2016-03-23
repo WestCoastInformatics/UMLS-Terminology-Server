@@ -7,7 +7,7 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
       component : '=',
       metadata : '=',
       showHidden : '=',
-      callbacks : '=?'
+      callbacks : '='
     },
     templateUrl : 'app/component/atoms/atoms.html',
     link : function(scope, element, attrs) {
@@ -24,8 +24,14 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
         getPagedList : getPagedList
       };
 
-      console.debug('atom callbacks', scope.callbacks);
+      scope.test = function() {
+        console.debug('CALLBACKS', scope.callbacks)
+        scope.callbacks.getComponentFromType(1, 2, 3, 4);
 
+      }
+      console.debug('atom callbacks', scope.callbacks);
+      
+      
       // watch show hidden flag
       scope.$watch('showHidden', function() {
         console.debug('showHidden changed', scope.showHidden)

@@ -50,8 +50,9 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
     controller : 'MetadataCtrl',
     reloadOnSearch : false
   })
-  .when('/content/:terminology/:version/:terminologyId', {
-    templateUrl : 'app/page/content/content.html',
+  .when('/content/simple/:terminology/:version/:terminologyId', {
+    // TODO Rename this to something better
+    templateUrl : 'app/page/content/simple.html',
     controller : 'ContentCtrl',
     reloadOnSearch: false
   })

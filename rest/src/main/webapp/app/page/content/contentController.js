@@ -149,7 +149,6 @@ tsApp.controller('ContentCtrl', [
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a search result
     $scope.getComponent = function(terminologyId, terminology, version) {
-      console.debug('getComponent');
       contentService.getComponent(terminologyId, terminology, version).then(function() {
         $scope.setActiveRow($scope.component.object.terminologyId);
         $scope.setComponentLocalHistory($scope.component.historyIndex);
@@ -159,7 +158,7 @@ tsApp.controller('ContentCtrl', [
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a link in a report
     $scope.getComponentFromType = function(terminologyId, terminology, version, type) {
-      console.debug('getComponentFromType', terminologyId, terminology, version, type);
+      console.debug('AAAAAAAAAAAARRRRRRRRRGH!')
       contentService.getComponentFromType(terminologyId, terminology, version, type).then(
         function() {
           $scope.setActiveRow($scope.component.object.terminologyId);
@@ -349,7 +348,6 @@ tsApp.controller('ContentCtrl', [
     };
 
     // Component Report Callbacks
-
     $scope.componentReportCallbacks = {
       getComponent : $scope.getComponent,
       getComponentFromType : $scope.getComponentFromType,
@@ -417,12 +415,14 @@ tsApp.controller('ContentCtrl', [
               utilService.setError('Terminology specified in URL not found');
             } else {
 
+              // set the terminology
               metadataService.setTerminology(termToSet).then(
                 function() {
-                  console.debug('metadata.terminology', metadataService.getTerminoology);
+                  
+                  // get the component
                   $scope.getComponent($routeParams.terminologyId, $routeParams.terminology,
                     $routeParams.version);
-                })
+                });
             }
           }
 

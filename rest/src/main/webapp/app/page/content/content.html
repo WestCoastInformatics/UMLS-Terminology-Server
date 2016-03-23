@@ -1,4 +1,4 @@
-<!-- Controlled by ContentCtrl (in contentController.js)  -->
+<!-- Full-function content page, with search and report  -->
 <div class="row">
   <div class="col-md-6 col-xs-12">
     <form style="margin-bottom: 0px;">
@@ -182,7 +182,7 @@
         total-items="searchResults.tree.totalCount" ng-model="searchParams.page"
         ng-change="findComponents(false)"></uib-pagination>
       
-      <div tree-search-result search-results="searchResults" parameters = "srtParams" callbacks="srtCallbacks"><</div>
+      <div tree-search-result search-results="searchResults" parameters="srtParams" callbacks="srtCallbacks"></div>
       <p style="display: block;">&nbsp;</p>
     </div>
   </div>

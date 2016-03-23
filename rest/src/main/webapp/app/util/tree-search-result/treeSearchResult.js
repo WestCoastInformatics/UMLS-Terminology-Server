@@ -17,7 +17,7 @@ tsApp.directive('treeSearchResult', [
         parameters : '=',
 
         // callback functions from parent scope
-        callbacks : '=?'
+        callbacks : '='
       },
       templateUrl : 'app/util/tree-search-result/treeSearchResult.html',
       link : function(scope, element, attrs) {

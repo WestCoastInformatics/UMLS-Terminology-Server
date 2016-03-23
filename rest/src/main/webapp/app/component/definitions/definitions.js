@@ -7,7 +7,7 @@ tsApp.directive('definitions', [ 'utilService', function(utilService) {
       component : '=',
       metadata : '=',
       showHidden : '=',
-      callbacks : '=?'
+      callbacks : '='
     },
     templateUrl : 'app/component/definitions/definitions.html',
     link : function(scope, element, attrs) {
@@ -21,7 +21,7 @@ tsApp.directive('definitions', [ 'utilService', function(utilService) {
       // instantiate paging and paging callback function
       scope.pagedData = [];
       scope.paging = utilService.getPaging();
-      scope.callbacks = {
+      scope.pageCallback = {
         getPagedList : getPagedList
       }
 

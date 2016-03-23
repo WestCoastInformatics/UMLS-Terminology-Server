@@ -1,5 +1,8 @@
 <!-- Atoms -->
  <div ng-if="pagedData.totalCount > 0">
+    
+          <button ng-click="test()">TEST</button>
+        
   <h4>{{metadata.atomsLabel}} ({{pagedData.totalCount}})</h4>
   <span class="alert alert-warning" style="margin-left: 15px"
     ng-show="!showHidden && pagedData.totalCount == 0">
@@ -49,7 +52,7 @@
             <a
               ng-click="callbacks.getComponentFromType(item.conceptId, item.terminology, item.version,'CONCEPT')">{{item.conceptId}}</a>
           </span>
-        
+       
           <!-- For descriptor id, do not show if identical to component id -->
           <span
             ng-show="item.terminology != component.object.terminology || item.descriptorId != component.object.terminologyId"

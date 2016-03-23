@@ -9,7 +9,7 @@ tsApp.directive('relationships', [
         component : '=',
         metadata : '=',
         showHidden : '=',
-        callbacks : '=?'
+        callbacks : '='
       },
       templateUrl : 'app/component/relationships/relationships.html',
       link : function(scope, element, attrs) {
@@ -17,7 +17,7 @@ tsApp.directive('relationships', [
         // instantiate paging and paging callback function
         scope.pagedData = [];
         scope.paging = utilService.getPaging();
-        scope.callbacks = {
+        scope.pageCallback = {
           getPagedList : getPagedList
         }
 

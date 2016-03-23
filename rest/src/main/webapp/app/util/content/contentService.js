@@ -129,8 +129,7 @@ tsApp
 
         // Helper function to get a type prefix for the terminology
         this.getPrefixForTerminologyAndVersion = function(terminology, version) {
-          console.debug('getPrefix', terminology, version, metadataService.getTerminology(terminology, version));
-          return this
+           return this
             .getPrefixForType(metadataService.getTerminology(terminology, version).organizingClassType);
         };
 
@@ -178,7 +177,6 @@ tsApp
         // component
         // data fields
         this.getComponentHelper = function(terminologyId, terminology, version, prefix) {
-          console.debug("getComponentHelper", terminologyId, terminology, version, prefix);
           var deferred = $q.defer();
 
           // Here the prefix is passed in because of terminologies
