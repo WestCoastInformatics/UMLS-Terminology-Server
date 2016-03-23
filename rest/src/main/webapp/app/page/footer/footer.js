@@ -7,6 +7,15 @@ tsApp.directive('footer', [ '$rootScope', 'gpService', 'securityService',
       scope : {},
       templateUrl : 'app/page/footer/footer.html',
       link : function(scope, element, attrs) {
+        
+        var isShowing = false;
+        switch ($routeParams.mode) {
+        case 'simple':
+          return false;
+        default:
+          return true;
+        }
+        
         // Declare user
         scope.user = securityService.getUser();
 

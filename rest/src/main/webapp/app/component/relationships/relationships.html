@@ -25,15 +25,16 @@
       <span class="label label-default" ng-show="item.obsolete"
         uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
       <span class="label label-info"
+      
         uib-tooltip="{{callbacks.getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
       {{item.additionalRelationshipType}} <!-- Mobile friendly switch --> <span
         class="hidden-xs">
-        <a
+        <a ng-class="{'nolink' : !callbacks.getComponent}"
           ng-click="callbacks.getComponent(item.toTerminologyId, component.object.terminology, component.object.version)"
           uib-tooltip="{{item.terminology}} {{componentType | lowercase}}">{{item.toTerminologyId}}</a>
         {{item.toName}}
       </span> <span class="visible-xs-inline">
-        <a
+        <a ng-class="{'nolink' : !callbacks.getComponent}"
           ng-click="callbacks.getComponent(item.toTerminologyId, component.object.terminology, component.object.version)"
           uib-tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
       </span></li>

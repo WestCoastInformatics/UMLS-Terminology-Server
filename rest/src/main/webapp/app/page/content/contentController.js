@@ -347,18 +347,39 @@ tsApp.controller('ContentCtrl', [
       }
     };
 
+    //
     // Component Report Callbacks
-    $scope.componentReportCallbacks = {
-      getComponent : $scope.getComponent,
-      getComponentFromType : $scope.getComponentFromType,
-      getComponentFromTree : $scope.getComponentFromTree,
-      getTerminologyVersion : metadataService.getTerminologyVersion,
-      getRelationshipTypeName : metadataService.getRelationshipTypeName,
-      getAttributeNameName : metadataService.getAttributeNameName,
-      getTermTypeName : metadataService.getTermTypeName,
-      getGeneralEntryValue : metadataService.getGeneralEntryValue,
-      getLabelSetName : metadataService.getLabelSetName,
-      countLabels : metadataService.countLabels
+    //
+    
+    // if in simple mode, disable navigation functionality
+    if ($routeParams.mode === 'simple') {
+      console.debug('Enabling component report callbacks for mode: ' + $routeParams.mode);
+      $scope.componentReportCallbacks = {
+        getTerminologyVersion : metadataService.getTerminologyVersion,
+        getRelationshipTypeName : metadataService.getRelationshipTypeName,
+        getAttributeNameName : metadataService.getAttributeNameName,
+        getTermTypeName : metadataService.getTermTypeName,
+        getGeneralEntryValue : metadataService.getGeneralEntryValue,
+        getLabelSetName : metadataService.getLabelSetName,
+        countLabels : metadataService.countLabels
+      }
+    } 
+    
+    // otherwise, enable full functionality
+    else {
+      console.debug('Enabling component report callbacks for mode: FULL');
+      $scope.componentReportCallbacks = {
+        getComponent : $scope.getComponent,
+        getComponentFromType : $scope.getComponentFromType,
+        getComponentFromTree : $scope.getComponentFromTree,
+        getTerminologyVersion : metadataService.getTerminologyVersion,
+        getRelationshipTypeName : metadataService.getRelationshipTypeName,
+        getAttributeNameName : metadataService.getAttributeNameName,
+        getTermTypeName : metadataService.getTermTypeName,
+        getGeneralEntryValue : metadataService.getGeneralEntryValue,
+        getLabelSetName : metadataService.getLabelSetName,
+        countLabels : metadataService.countLabels
+      }
     }
 
     //
@@ -418,7 +439,7 @@ tsApp.controller('ContentCtrl', [
               // set the terminology
               metadataService.setTerminology(termToSet).then(
                 function() {
-                  
+
                   // get the component
                   $scope.getComponent($routeParams.terminologyId, $routeParams.terminology,
                     $routeParams.version);

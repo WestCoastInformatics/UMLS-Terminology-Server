@@ -35,11 +35,13 @@
             {{item.terminology}} /</span>
           <span uib-tooltip="{{callbacks.getTermTypeName(item.termType)}}">{{item.termType}}</span>
           , {{item.language}} ]
+          TEST: {{callbacks.getComponentFromType}}
           <!-- For code id, do not show if NOCODE, or if identical to component, concept, or descriptor id -->
           <span
             ng-show="item.codeId != component.object.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
             uib-tooltip="{{item.terminology}} code">
             <a ng-show="item.codeId != 'NOCODE'"
+            ng-class="{'nolink' : !callbacks.getComponentFromType}"
               ng-click="callbacks.getComponentFromType(item.codeId, item.terminology, item.version,'CODE')">{{item.codeId}}</a>
             <span ng-show="item.codeId==='NOCODE'">NOCODE</span>
           </span>
@@ -47,7 +49,7 @@
           <span
             ng-show="item.terminology != component.object.terminology || item.conceptId != component.object.terminologyId"
             uib-tooltip="{{item.terminology}} concept">
-            <a
+            <a ng-class="{'nolink' : !callbacks.getComponentFromType}"
               ng-click="callbacks.getComponentFromType(item.conceptId, item.terminology, item.version,'CONCEPT')">{{item.conceptId}}</a>
           </span>
        
@@ -55,12 +57,12 @@
           <span
             ng-show="item.terminology != component.object.terminology || item.descriptorId != component.object.terminologyId"
             uib-tooltip="{{item.terminology}} descriptor">
-            <a
+            <a ng-class="{'nolink' : !callbacks.getComponentFromType}"
               ng-click="callbacks.getComponentFromType(item.descriptorId, item.terminology, item.version,'DESCRIPTOR')">{{item.descriptorId}}</a>
           </span>
           <!-- Show any referenced components in the concept terminology id list -->
           <span ng-repeat="(key, value) in item.conceptTerminologyIds">
-            <a
+            <a ng-class="{'nolink' : !callbacks.getComponentFromType}"
               ng-show="key != component.object.terminology || value != component.object.terminologyId"
               uib-tooltip="{{key}} concept"
               ng-click="callbacks.getComponentFromType(value, key, callbacks.getTerminologyVersion(key),'CONCEPT')">{{value}}</a>

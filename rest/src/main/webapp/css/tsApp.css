@@ -3,10 +3,6 @@ body {
 	padding-bottom: 100px;
 }
 
-a {
-	cursor: pointer;
-}
-
 .loginField {
 	margin: 5px;
 }
@@ -126,6 +122,12 @@ a {
 .nobreak {
 	display: inline-block;
 	white-space: nowrap;
+}
+
+.nolink {
+	color: black;
+	cursor: pointer;
+	text-decoration: none;
 }
 
 .breakword {

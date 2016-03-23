@@ -50,9 +50,10 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
     controller : 'MetadataCtrl',
     reloadOnSearch : false
   })
-  .when('/content/simple/:terminology/:version/:terminologyId', {
-    // TODO Rename this to something better
-    templateUrl : 'app/page/content/simple.html',
+  .when('/content/:mode/:terminology/:version/:terminologyId', {
+    templateUrl: function(urlAttr){
+      return 'app/page/content/' + urlAttr.mode + '.html';
+    },
     controller : 'ContentCtrl',
     reloadOnSearch: false
   })
@@ -86,8 +87,8 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
 } ]);
 
 // Tab controller
-tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location', 'securityService', 'tabService',
-  function($scope, $interval, $timeout, $location, securityService, tabService) {
+tsApp.controller('TabCtrl', [ '$scope', '$routeParams', '$interval', '$timeout', '$location', 'securityService', 'tabService',
+  function($scope, $routeParams, $interval, $timeout, $location, securityService, tabService) {
     console.debug('configure TabCtrl');
 
     // Setup tabs
@@ -96,7 +97,7 @@ tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location', 's
     // Set selected tab (change the view)
     $scope.setSelectedTab = function(tab) {
       tabService.setSelectedTab(tab);
-    }
+    };
 
     // Set "active" or not
     $scope.tabClass = function(tab) {
@@ -105,22 +106,28 @@ tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location', 's
       } else {
         return "";
       }
-    }
+    };
 
     // tabs are only shown if logged in and not on the landing or login page
     $scope.isShowing = function() {
-       return securityService.isLoggedIn() && $location.url() !== '/' && $location.url() !== '/login';
-    }
-
+      switch ($routeParams.mode) {
+      case 'simple':
+        return false;
+      default:
+        return securityService.isLoggedIn() && $location.url() !== '/' && $location.url() !== '/login';
+      
+      }
+    };
+    
     // configure whether certain tabs require permissions here
     $scope.isTabShowing = function(tab) {
       return isAdmin() || tab.label == 'Directory' || userHasAnyRole;
-    }
+    };
 
     // returns true if a user has a defined role on a project
     $scope.userHasAnyRole = function() {
       return userProjectsInfo.anyrole;
-    }
+    };
 
     // returns true if user has administrator application role
     $scope.isAdmin = function() {
