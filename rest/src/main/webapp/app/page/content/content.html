@@ -17,12 +17,12 @@
         <tr>
           <td style="width: 175px;">
             Query
-            <a class="glyphicon glyphicon-cog noul pull-right"
+            <i class="glyphicon glyphicon-cog noul pull-right"
               uib-tooltip="Advanced Search Options"
-              ng-click="searchParams.advancedMode = !searchParams.advancedMode"></a>
+              ng-click="searchParams.advancedMode = !searchParams.advancedMode"></i>
           </td>
           <td>
-            <input style="margin-bottom: 5px; width: 75%;" type="text"
+            <input autofocus style="margin-bottom: 5px; width: 75%;" type="text"
               ng-model="searchParams.query" placeholder="Enter search terms"
               typeahead="suggestion for suggestion in autocomplete($viewValue)"
               typeahead-loading="loadingSuggestions"
@@ -135,14 +135,16 @@
           <tr ng-class="{active: searchResult.active}"
             ng-repeat="searchResult in searchResults.list"
             ng-click="getComponent(searchResult.terminologyId, searchResult.terminology, searchResult.version)">
-            <td style="width:25%;">
+            <td>{{searchResult.score}}</td>
+            <td>
+              <span class="nobreak">
               <i
                 ng-class="getColorForScore(searchResult.score)">&#9679;</i>
               <span
                 ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>
-              {{searchResult.terminologyId}}
+              <span class="breakword">{{searchResult.terminologyId}}</span></span>
             </td>
-            <td style="word-break: break-word;">
+            <td>
               {{searchResult.value}}
               <span class="label label-default" ng-show="searchResult.obsolete"
                 uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
@@ -204,7 +206,7 @@
         ng-click="getConceptFromHistory(component.historyIndex - 1)"
         uib-tooltip="{{getComponentStr(component.history[component.historyIndex - 1])}}">Back</button>
     </div>
-    <div class="nobreak alert alert-info">
+    <div class="nobreak alert alert-info" style="width: 100%;">
       <div style="display: inline" uib-dropdown dropdown-append-to-body>
         <a uib-tooltip="View All History" ng-show="component.history.length > 2"
           class="glyphicon glyphicon-time dropdown-toggle" uib-dropdown-toggle
@@ -582,7 +584,8 @@
           total-items="pagedRelationships.totalCount" ng-model="relPaging.page"
           ng-change="getPagedRelationships()"></uib-pagination>
         <span
-          ng-click="relPaging.sortAscending = !relPaging.sortAscending; getPagedRelationships();"
+          uib-tooltip="Sort - {{relPaging.sortAscending ? 'Ascending' : 'Descending'}}"
+          ng-click="relPaging.page = 1; relPaging.sortAscending = !relPaging.sortAscending; getPagedRelationships();"
           ng-show="pagedRelationships.totalCount > pageSizes.rels"
           class="glyphicon"
           ng-class="[{'glyphicon-sort-by-attributes': relPaging.sortAscending}, {'glyphicon-sort-by-attributes-alt': !relPaging.sortAscending}]"></span>
@@ -593,8 +596,8 @@
         </select> <input class="input-filter" placeholder="Enter filter text"
           ng-show="pagedRelationships.totalCount > pageSizes.rels || relPaging.filter"
           type="text" ng-model="relPaging.filter"
-          ng-model-options="{ debounce: 300 }"
-          ng-change="getPagedRelationships()">
+          ng-model-options="{ debounce: 500 }"
+          ng-change="relPaging.page = 1; getPagedRelationships()">
         <button class="btn btn-xs btn-warning" ng-show="relPaging.filter"
           ng-click="relPaging.filter = ''; getPagedRelationships()"
           uib-tooltip="Click to clear filter text">Clear</button>

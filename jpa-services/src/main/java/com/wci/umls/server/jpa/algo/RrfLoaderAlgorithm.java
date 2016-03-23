@@ -2156,7 +2156,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     if (fields[13].equals("Y")) {
       loadedTerminologies.get(fields[10]).setAssertsRelDirection(true);
     }
-    relationship.setGroup(fields[12]);
+    
+    // zero groups should be represented as blank values    
+    relationship.setGroup(fields[12] == "0" ? "" : fields[12]);
 
     // Since we don't know, have the rels count as "both"
     relationship.setInferred(true);

@@ -3004,6 +3004,14 @@ public class Rf2DeltaLoaderAlgorithm extends HistoryServiceJpa
     }
   }
 
+  /**
+   * Manage map set.
+   *
+   * @param mapping the mapping
+   * @param fields the fields
+   * @param date the date
+   * @throws Exception the exception
+   */
   @SuppressWarnings("rawtypes")
   public void manageMapSet(Mapping mapping, String[] fields, Date date)
     throws Exception {

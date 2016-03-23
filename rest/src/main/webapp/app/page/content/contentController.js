@@ -52,23 +52,19 @@ tsApp.controller('ContentCtrl', [
     $scope.componentTree = null;
 
     // component scoring
-    $scope.scoreExcellent = 0.8;
-    $scope.scoreGood = 0.6;
-    $scope.scorePoor = 0.4;
+    $scope.scoreExcellent = 0.7;
+    $scope.scoreGood = 0.3;
 
     $scope.getColorForScore = function(score) {
       if (score > $scope.scoreExcellent) {
         return 'green'
       }
-      ;
-      if (score > $scope.scoreGood) {
+      else if (score > $scope.scoreGood) {
         return 'yellow';
-      }
-      if (score > $scope.scorePoor) {
+      } else {
         return 'orange';
-      } else
-        return 'red';
-    }
+      }
+    };
 
     //
     // Watch expressions
@@ -670,17 +666,24 @@ tsApp.controller('ContentCtrl', [
       $scope.relPaging = {
         page : 1,
         filter : "",
-        sortField : 'relationshipType', // default
-        sortAscending : true, // default
+        sortField : 'group', 
+        sortAscending : true,
+        
+        // Default is Group/Type, where in getPagedRelationships
+        // relationshipType is automatically appended as a multi-
+        // sort search
         sortOptions : [ {
+          key : 'Group, Type', 
+          value : 'group' 
+        }, {
           key : 'Type',
           value : 'relationshipType'
         }, {
           key : 'Additional Type',
           value : 'additionalRelationshipType'
         }, {
-          key : 'Target Id',
-          value : 'toTerminologyId'
+          key : 'Name',
+          value : 'toName'
         } ]
       };
     };
@@ -705,12 +708,22 @@ tsApp.controller('ContentCtrl', [
     // call).
     $scope.getPagedRelationships = function() {
 
+      // compute the sort order
+      // if group sort specified, sort additionally by relationship type
+      // otherwise, sort by specified field and additionally by group
+      var sortFields = [];
+      if ($scope.relPaging.sortField === 'group') {
+        sortFields = [ 'group', 'relationshipType' ]
+      } else {
+        sortFields = [ $scope.relPaging.sortField, 'group' ];
+      }
+
       var parameters = {
         showSuppressible : $scope.showSOElements,
         showObsolete : $scope.showSOElements,
         showInferred : $scope.showInferred,
         text : $scope.relPaging.filter,
-        sortField : $scope.relPaging.sortField,
+        sortFields : sortFields,
         sortAscending : $scope.relPaging.sortAscending
       };
 
