@@ -1,40 +1,32 @@
 
 <div ui-tree-handle>
- 
   <!--  Link tree control icon for expansion and contraction -->
   <a ng-if="tree.childCt > 0" data-nodrag ng-click="toggleTree(this)">
     <span class="glyphicon" ng-class="getTreeNodeIcon(this)"></span>
   </a>
-  
   <!-- Unlinked leaf icon for leaf node -->
   <i ng-show="tree.childCt == 0" class="glyphicon glyphicon-leaf"></i>
-  
   <!-- if not the component viewed, render with hyperlink -->
   <span ng-show="tree.nodeTerminologyId != component.object.terminologyId">
     <a ng-click="getComponentFromTree(this)"> {{tree.nodeTerminologyId}}</a>
     : {{tree.nodeName}}
   </span>
-  
   <!-- if the component displayed, render in bold without hyperlink -->
   <span ng-show="tree.nodeTerminologyId === component.object.terminologyId">
     <span class="highlighted">{{tree.nodeTerminologyId}}:
       {{tree.nodeName}}</span>
   </span>
-  
   <!-- recursive display of next level of tree -->
   <ol ui-tree-nodes="" ng-model="tree.children" ng-class="{hidden: collapsed}">
-  
     <!--  render the children -->
     <li ng-repeat="tree in tree.children" ui-tree-node
       ng-include="'app/component/tree-component/componentTree_renderer.html'"></li>
   </ol>
-  
   <!-- if not all children displayed, display a message -->
   <ol
     ng-show="!collapsed && tree.children.length < tree.childCt
-        && tree.children.length >= pageSizes.sibling"
+        && tree.children.length >= pageSizeSibling"
     style="list-style-type: none;">
-    
     <li><i class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <a
         ng-click="getTreeChildrenFromTree(this)">... {{tree.childCt -
         tree.children.length}} more</a></li>

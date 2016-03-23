@@ -171,34 +171,13 @@ tsApp.controller('ContentCtrl', [
     $scope.componentReportCallbacks = {
       getComponent : $scope.getComponent,
       getComponentFromType : $scope.getComponentFromType,
-      getTerminologyVersion : function(terminology) {
-        return metadataService.getTerminologyVersion(terminology);
-      },
-
-      // get relationship type name from its abbreviation
-      getRelationshipTypeName : function(abbr) {
-        return metadataService.getRelationshipTypeName(abbr);
-      },
-
-      // get attribute name name from its abbreviation
-      getAttributeNameName : function(abbr) {
-        return metadataService.getAttributeNameName(abbr);
-      },
-
-      // get term type name from its abbreviation
-      getTermTypeName : function(abbr) {
-        return metadataService.getTermTypeName(abbr);
-      },
-
-      // get general entry name from its abbreviation
-      getGeneralEntryValue : function(abbr) {
-        return metadataService.getGeneralEntryValue(abbr);
-      },
-
-      // Gets the label set name
-      getLabelSetName : function(abbr) {
-        return metadataService.getLabelSetName(abbr);
-      },
+      getComponentFromTree : $scope.getComponentFromTree,
+      getTerminologyVersion : metadataService.getTerminologyVersion,
+      getRelationshipTypeName : metadataService.getRelationshipTypeName,
+      getAttributeNameName : metadataService.getAttributeNameName,
+      getTermTypeName : metadataService.getTermTypeName,
+      getGeneralEntryValue : metadataService.getGeneralEntryValue,
+      getLabelSetName : metadataService.getLabelSetName,
       countLabels : metadataService.countLabels
     }
 
@@ -286,6 +265,12 @@ tsApp.controller('ContentCtrl', [
       });
     };
 
+    // set the top level component from a tree node
+    $scope.getComponentFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      $scope.getComponent(tree.nodeTerminologyId, tree.terminology, tree.version);
+    };
+
     // Load hierarchy into tree view
     $scope.browseHierarchy = function() {
       console.debug('Browsing request detected');
@@ -341,11 +326,11 @@ tsApp.controller('ContentCtrl', [
       showExtension : false
     };
 
-    // set the top level component from a tree node
-    $scope.getComponentFromTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-      $scope.getComponent(tree.nodeTerminologyId, tree.terminology, tree.version);
-    };
+    // search result tree callbacks
+    $scope.srtCallbacks = {
+      // set top level component from tree node
+      getComponentFromTree : $scope.getComponentFromTree
+    }
 
     // Function to toggle showing of extension info
     $scope.toggleExtension = function() {
@@ -356,13 +341,6 @@ tsApp.controller('ContentCtrl', [
       }
     };
 
-    // search result tree callbacks
-    $scope.srtCallbacks = {
-      // set top level component from tree node
-      getComponentFromTree : $scope.getComponentFromTree
-    }
-
-   
     // Handle paging of relationships (requires content service
     // call).
     // TODO Move this to relationships directive, or at least reports directive

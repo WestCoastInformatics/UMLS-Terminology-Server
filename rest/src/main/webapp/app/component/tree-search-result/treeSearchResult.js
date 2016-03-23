@@ -22,7 +22,7 @@ tsApp.directive('treeSearchResult', [
       link : function(scope, element, attrs) {
 
         console.debug('treeSearchResult', scope.searchResults, scope.parameters, scope.callbacks);
-        ;
+        
 
         // page sizes
         scope.pageSizeSibling = 10;

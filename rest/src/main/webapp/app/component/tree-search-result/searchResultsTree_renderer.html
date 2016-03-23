@@ -10,7 +10,7 @@
   <!-- if this node has no children reported by child count -->
   <i class="glyphicon glyphicon-leaf" ng-show="tree.childCt == 0"></i>
   
-   <a ng-click="getComponentFromTree(this)">
+   <a ng-click="callbacks.getComponentFromTree(this)">
   
     <span ng-show="!parameters.showExtension || !isDerivedLabelSetFromTree(this)"
       ng-bind-html="tree.nodeTerminologyId | highlight:searchParams.query"></span>
@@ -37,7 +37,7 @@
   <!-- if not all children displayed, display a message -->
   <ol
     ng-show="!collapsed && tree.children.length < tree.childCt
-        && tree.children.length >= pageSizes.sibling"
+        && tree.children.length >= pageSizeSibling"
     style="list-style-type: none;">
     <li><i class="glyphicon glyphicon-leaf" style="opacity: 0"></i> <a
         ng-click="getTreeChildrenFromTree(this)">... {{tree.childCt -

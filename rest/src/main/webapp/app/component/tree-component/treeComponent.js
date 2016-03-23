@@ -1,58 +1,59 @@
 // Content controller
-tsApp.directive('treeComponent', [
+tsApp.directive('treeComponent', [ '$q', 'contentService',
   'utilService',
-  function(utilService) {
+  function($q, contentService, utilService) {
     console.debug('configure trees directive');
     return {
       restrict : 'A',
       scope : {
         // set component if viewing trees for component
-        component : '=?',
-        // set search results if viewing trees for search
-        searchResults : '=?',
+        component : '=',
         callbacks : '=?'
       },
       templateUrl : 'app/component/tree-component/treeComponent.html',
       link : function(scope, element, attrs) {
         
-        if (!component && !searchResults) {
-          console.error('Attempted to use trees directive without either component or search results');
-        }
+        // total trees for this component
+        scope.treeCount = null;
         
-        // component tree scope variables
-        $scope.treeViewed = 0;
-        $scope.componentTree = null;
+        // the currently viewed tree index
+        scope.treeViewed = null;
         
+        // the currently viewed tree data
+        scope.componentTree = null;
+        
+        // the cutoff length for siblings
+        scope.pageSizeSibling = 10;
 
         // retrieves the specified tree position by index (top-level, scope-indifferent)
         // displayed
-        $scope.getTree = function(startIndex) {
+        scope.getTree = function(startIndex) {
           // Call content service to retrieve the tree
-          contentService.getTree($scope.component.object.terminologyId,
-            $scope.component.object.terminology, $scope.component.object.version, startIndex).then(
+          contentService.getTree(scope.component.object.terminologyId,
+            scope.component.object.terminology, scope.component.object.version, startIndex).then(
             function(data) {
 
-              $scope.componentTree = data.trees;
+              scope.componentTree = data.trees;
 
               // set the count and position variables
-              $scope.treeCount = data.totalCount;
+              scope.treeCount = data.totalCount;
               if (data.count > 0)
-                $scope.treeViewed = startIndex;
+                scope.treeViewed = startIndex;
               else
-                $scope.treeViewed = 0;
+                scope.treeViewed = 0;
 
               // if parent tree cannot be read, clear the component
               // tree
               // (indicates no hierarchy present)
-              if ($scope.componentTree.length == 0) {
-                $scope.componentTree = null;
+              if (scope.componentTree.length == 0) {
+                scope.componentTree = null;
                 return;
               }
 
               // get the ancestor path of the bottom element (the
               // component)
               // ASSUMES: unilinear path (e.g. A~B~C~D, no siblings)
-              var parentTree = $scope.componentTree[0];
+              var parentTree = scope.componentTree[0];
               while (parentTree.children.length > 0) {
                 // check if child has no children
                 if (parentTree.children[0].children.length == 0)
@@ -62,48 +63,51 @@ tsApp.directive('treeComponent', [
 
               // replace the parent tree of the lowest level with
               // first page of siblings computed
-              $scope.getTreeChildren(parentTree, 0).then(function(children) {
+              scope.getTreeChildren(parentTree, 0).then(function(children) {
                 parentTree.children = parentTree.children.concat(children.filter(function(child) {
                   // do not re-add the already-shown component for this tree
-                  return $scope.component.object.terminologyId !== child.nodeTerminologyId;
+                  return scope.component.object.terminologyId !== child.nodeTerminologyId;
                 }));
               })
 
             });
 
         };
+        
+        // on load, get the first tree
+        scope.getTree(0);
 
-        $scope.isDerivedLabelSetFromTree = function(nodeScope) {
+        scope.isDerivedLabelSetFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
-          return $scope.isDerivedLabelSet(tree);
+          return scope.isDerivedLabelSet(tree);
         }
 
-        $scope.getDerivedLabelSetsValueFromTree = function(nodeScope) {
+        scope.getDerivedLabelSetsValueFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
-          return $scope.getDerivedLabelSetsValue(tree);
+          return scope.getDerivedLabelSetsValue(tree);
         }
 
-        $scope.isLabelSetFromTree = function(nodeScope) {
+        scope.isLabelSetFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
-          return $scope.isLabelSet(tree);
+          return scope.isLabelSet(tree);
         }
 
-        $scope.getLabelSetsValueFromTree = function(nodeScope) {
+        scope.getLabelSetsValueFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
-          return $scope.getLabelSetsValue(tree);
+          return scope.getLabelSetsValue(tree);
         }
 
         // retrieves the children for a node (from DOM)
-        $scope.getTreeChildrenFromTree = function(nodeScope) {
+        scope.getTreeChildrenFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
-          $scope.getTreeChildren(tree).then(function(children) {
+          scope.getTreeChildren(tree).then(function(children) {
             console.debug('adding children', children);
             tree.children = tree.children.concat(children);
           });
         }
 
         // retrieves children for a node (not from DOM)
-        $scope.getTreeChildren = function(tree) {
+        scope.getTreeChildren = function(tree) {
 
           var deferred = $q.defer();
 
@@ -125,7 +129,7 @@ tsApp.directive('treeComponent', [
         }
 
         // toggles a node (from DOM)
-        $scope.toggleTree = function(nodeScope) {
+        scope.toggleTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
 
           console.debug('toggling tree', tree, nodeScope.collapsed);
@@ -137,9 +141,9 @@ tsApp.directive('treeComponent', [
 
           // otherwise if a full page of siblings not already loaded, get first page
           else if (tree.children.length != tree.childCt
-            && tree.children.length < $scope.pageSizes.sibling) {
+            && tree.children.length < scope.pageSizeSibling) {
             console.debug('getting children')
-            $scope.getTreeChildren(tree).then(function(children) {
+            scope.getTreeChildren(tree).then(function(children) {
               console.debug('adding children', children);
               tree.children = tree.children.concat(children);
             });
@@ -153,7 +157,7 @@ tsApp.directive('treeComponent', [
         }
 
         // returns the display icon for a node (from DOM)
-        $scope.getTreeNodeIcon = function(nodeScope) {
+        scope.getTreeNodeIcon = function(nodeScope) {
           var tree = nodeScope.$modelValue;
 
           // NOTE: This is redundant, leaf icon is set directly in html
@@ -163,7 +167,7 @@ tsApp.directive('treeComponent', [
 
           // if formally collapsed or less than sibling page size retrieved children, return plus sign
           else if (tree.children.length != tree.childCt
-            && tree.children.length < $scope.pageSizes.sibling) {
+            && tree.children.length < scope.pageSizeSibling) {
             return 'glyphicon-plus';
           }
 
@@ -185,26 +189,19 @@ tsApp.directive('treeComponent', [
         };
 
         // get tree by specified offset (circular index)
-        $scope.getTreeByOffset = function(offset) {
+        scope.getTreeByOffset = function(offset) {
 
-          var treeViewed = $scope.treeViewed + offset;
+          var treeViewed = scope.treeViewed + offset;
 
           if (!treeViewed)
             treeViewed = 0;
-          if (treeViewed >= $scope.treeCount)
-            treeViewed = treeViewed - $scope.treeCount;
+          if (treeViewed >= scope.treeCount)
+            treeViewed = treeViewed - scope.treeCount;
           if (treeViewed < 0)
-            treeViewed = treeViewed + $scope.treeCount;
+            treeViewed = treeViewed + scope.treeCount;
 
-          $scope.getTree(treeViewed);
+          scope.getTree(treeViewed);
         };
-
-        // instantiate paging and paging callback function
-        scope.pagedData = [];
-        scope.paging = utilService.getPaging();
-        scope.callbacks = {
-          getPagedList : getPagedList
-        }
 
       }
     };
