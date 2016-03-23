@@ -50,6 +50,11 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
     controller : 'MetadataCtrl',
     reloadOnSearch : false
   })
+  .when('/content/:terminology/:version/:terminologyId', {
+    templateUrl : 'app/page/content/content.html',
+    controller : 'ContentCtrl',
+    reloadOnSearch: false
+  })
   .otherwise({
     redirectTo : '/content' 
   });

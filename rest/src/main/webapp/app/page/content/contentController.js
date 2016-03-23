@@ -1,6 +1,7 @@
 // Content controller
 tsApp.controller('ContentCtrl', [
   '$scope',
+  '$routeParams',
   '$http',
   '$uibModal',
   '$location',
@@ -13,8 +14,8 @@ tsApp.controller('ContentCtrl', [
   'securityService',
   'metadataService',
   'contentService',
-  function($scope, $http, $uibModal, $location, $q, $anchorScroll, $sce, gpService, utilService,
-    tabService, securityService, metadataService, contentService) {
+  function($scope, $routeParams, $http, $uibModal, $location, $q, $anchorScroll, $sce, gpService,
+    utilService, tabService, securityService, metadataService, contentService) {
     console.debug('configure ContentCtrl');
 
     // Handle resetting tabs on "back" button
@@ -69,7 +70,7 @@ tsApp.controller('ContentCtrl', [
     // Watch expressions
     //
 
-    // Watch for changes in metadata.terminologies
+    // Watch for changes in metadata.terminologies (indicates application readiness)
     $scope.$watch('metadata.terminology', function() {
 
       // clear the terminology-specific variables
@@ -88,9 +89,6 @@ tsApp.controller('ContentCtrl', [
         + contentService.getPrefixForType($scope.metadata.terminology.organizingClassType) + '/'
         + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
         + "/autocomplete/";
-
-      // metadataService.setTerminology($scope.metadata.terminologies);
-
     });
 
     //
@@ -99,9 +97,10 @@ tsApp.controller('ContentCtrl', [
 
     // Sets the terminololgy
     $scope.setTerminology = function(terminology) {
-      metadataService.setTerminology(terminology);
-      // clear the STY
-      $scope.semanticType = null;
+
+      metadataService.setTerminology(terminology).then(function() {
+        // do nothing
+      })
     };
 
     // Autocomplete function
@@ -167,8 +166,6 @@ tsApp.controller('ContentCtrl', [
           $scope.setComponentLocalHistory($scope.component.historyIndex);
         });
     };
-
-    
 
     // Find components for a programmatic query
     $scope.findComponentsForQuery = function(queryStr) {
@@ -350,9 +347,9 @@ tsApp.controller('ContentCtrl', [
         }
       }
     };
-    
+
     // Component Report Callbacks
-    
+
     $scope.componentReportCallbacks = {
       getComponent : $scope.getComponent,
       getComponentFromType : $scope.getComponentFromType,
@@ -397,43 +394,77 @@ tsApp.controller('ContentCtrl', [
     // loaded)
     if (!$scope.metadata.terminologies) {
       metadataService.initTerminologies().then(
-      // success
-      function(data) {
+        // success
+        function(data) {
 
-        var found = false;
-        for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-          var terminology = $scope.metadata.terminologies[i];
-          // Determine whether to set as default
-          if (terminology.metathesaurus) {
-            metadataService.setTerminology(terminology);
-            found = true;
-            break;
-          }
-        }
+          // if route parameters are specified, set the terminology and retrieve the specified concept
+          if ($routeParams.terminology && $routeParams.version) {
+            console.debug('Route parameters set', $routeParams);
 
-        // if no metathesaurus found, default to ICD10CM
-        // TODO: Used for ICD10 server, unhardcode this
-        if (!found) {
-          for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-            var terminology = $scope.metadata.terminologies[i];
-            console.debug(terminology.terminology, terminology.terminology === 'ICD10CM');
-            if (terminology.terminology === 'ICD10CM') {
-              metadataService.setTerminology(terminology);
-              found = true;
-              break;
+            var termToSet = null;
+            for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+              var terminology = $scope.metadata.terminologies[i];
+              // Determine whether to set as default
+              if (terminology.terminology === $routeParams.terminology
+                && terminology.version === $routeParams.version) {
+
+                termToSet = terminology;
+                break;
+              }
+            }
+
+            if (!termToSet) {
+              utilService.setError('Terminology specified in URL not found');
+            } else {
+
+              metadataService.setTerminology(termToSet).then(
+                function() {
+                  console.debug('metadata.terminology', metadataService.getTerminoology);
+                  $scope.getComponent($routeParams.terminologyId, $routeParams.terminology,
+                    $routeParams.version);
+                })
             }
           }
-        }
 
-        // If nothing set, pick the first one
-        if (!found) {
-          if (!$scope.metadata.terminologies) {
-            window.alert('No terminologies found, database may not be properly loaded.');
-          } else {
-            metadataService.setTerminology($scope.metadata.terminologies[0]);
+          // otherwise, specify the default terminology
+          else {
+            console.debug('No route parameters');
+
+            var found = false;
+            for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+              var terminology = $scope.metadata.terminologies[i];
+              // Determine whether to set as default
+              if (terminology.metathesaurus) {
+                metadataService.setTerminology(terminology);
+                found = true;
+                break;
+              }
+            }
+
+            // if no metathesaurus found, default to ICD10CM
+            // TODO: Used for ICD10 server, unhardcode this
+            if (!found) {
+              for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+                var terminology = $scope.metadata.terminologies[i];
+                console.debug(terminology.terminology, terminology.terminology === 'ICD10CM');
+                if (terminology.terminology === 'ICD10CM') {
+                  metadataService.setTerminology(terminology);
+                  found = true;
+                  break;
+                }
+              }
+            }
+
+            // If nothing set, pick the first one
+            if (!found) {
+              if (!$scope.metadata.terminologies) {
+                window.alert('No terminologies found, database may not be properly loaded.');
+              } else {
+                metadataService.setTerminology($scope.metadata.terminologies[0]);
+              }
+            }
           }
-        }
-      });
+        });
     }
 
     // 

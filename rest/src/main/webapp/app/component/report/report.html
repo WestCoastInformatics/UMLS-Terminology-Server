@@ -16,6 +16,7 @@
     <span style="padding-bottom: 2px;"
       ng-show="metadata.terminology.descriptionLogicTerminology && component.object.fullyDefined"
       class="label label-info" uib-tooltip="Necessary and sufficient definition">D</span>
+    
   </h3>
   
   <!-- Buttons for suppressible/obsolete -->
@@ -24,6 +25,7 @@
     <span ng-show="showHidden">Hide Obsolete and Suppressible</span>
     <span ng-show="!showHidden">Show Obsolete and Suppressible</span>
   </button>
+  <a uib-tooltip="Open concept in new window" ng-click="popout()" class="glyphicon glyphicon-share noul"></a>
   
   <!-- Hierarchical tree -->
   <div tree-component component="component" callbacks="reportCallbacks"></div>

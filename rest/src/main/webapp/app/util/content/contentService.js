@@ -129,6 +129,7 @@ tsApp
 
         // Helper function to get a type prefix for the terminology
         this.getPrefixForTerminologyAndVersion = function(terminology, version) {
+          console.debug('getPrefix', terminology, version, metadataService.getTerminology(terminology, version));
           return this
             .getPrefixForType(metadataService.getTerminology(terminology, version).organizingClassType);
         };
