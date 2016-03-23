@@ -122,36 +122,6 @@ tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location', 's
     };
 } ]);
 
-// Header controller
-tsApp.controller('HeaderCtrl', [ '$scope', 'securityService', function($scope, securityService) {
-  console.debug('configure HeaderCtrl');
-
- 
-} ]);
-
-// Footer controller
-tsApp.controller('FooterCtrl', [ '$scope', 'gpService', 'securityService',
-  function($scope, gpService, securityService) {
-    console.debug('configure FooterCtrl');
-    // Declare user
-    $scope.user = securityService.getUser();
-
-    // Logout method
-    $scope.logout = securityService.logout;
-
-    // Check gp status
-    $scope.isGlassPaneNegative = function() {
-      return gpService.isGlassPaneNegative();
-    }
-
-    // Get gp counter
-    $scope.getGlassPaneCounter = function() {
-      return gpService.glassPane.counter;
-    }
-}
-
-]);
-
 // Confirm dialog conroller and directive
 tsApp.controller('ConfirmModalCtrl', function($scope, $uibModalInstance, data) {
   // Local data for scope
