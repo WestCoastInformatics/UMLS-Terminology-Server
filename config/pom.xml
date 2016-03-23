@@ -46,6 +46,7 @@
   <modules>
     <module>dev-windows</module>
     <module>prod</module>
+    <module>prod-nci-meta</module>
     <module>prod-snomedct</module>
     <module>prod-claml</module>
     <module>prod-owl</module>
