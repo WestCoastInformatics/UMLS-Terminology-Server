@@ -3,36 +3,20 @@
  */
 package com.wci.umls.server.jpa.services.handlers;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
-import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParserBase;
-import org.apache.lucene.search.spell.LuceneLevenshteinDistance;
-import org.apache.lucene.search.spell.PlainTextDictionary;
-import org.apache.lucene.search.spell.SpellChecker;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.hibernate.search.engine.ProjectionConstants;
 import org.hibernate.search.jpa.FullTextQuery;
 
-import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PfscParameter;
@@ -45,55 +29,13 @@ import com.wci.umls.server.services.handlers.SearchHandler;
  */
 public class DefaultSearchHandler implements SearchHandler {
 
-  /** The acronym expansion map. */
-  private Map<String, Set<String>> acronymExpansionMap = new HashMap<>();
-
-  /** The spell checker. */
-  private static SpellChecker spellChecker = null;
-
   /** The score map. */
   private Map<Long, Float> scoreMap = new HashMap<>();
 
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-
-    // Initialize acronyms map
-    if (p.containsKey("acronymsFile")) {
-      BufferedReader in =
-          new BufferedReader(new FileReader(new File(
-              p.getProperty("acronymsFile"))));
-      String line;
-      while ((line = in.readLine()) != null) {
-        String[] tokens = FieldedStringTokenizer.split(line, "\t");
-        if (!acronymExpansionMap.containsKey(tokens[0])) {
-          acronymExpansionMap.put(tokens[0], new HashSet<String>(2));
-        }
-        acronymExpansionMap.get(tokens[0]).add(tokens[1]);
-      }
-      in.close();
-    } else {
-      throw new Exception("Required property acronymsFile not present.");
-    }
-
-    // Initialize spell checker
-    if (p.containsKey("spellingFile") && p.containsKey("spellingIndex")) {
-      // expect properties to have "spellingFile" and "spellingIndex"
-      if (spellChecker == null) {
-      File dir = new File(p.getProperty("spellingIndex"));
-      Directory directory = FSDirectory.open(dir);
-      spellChecker =
-          new SpellChecker(directory, new LuceneLevenshteinDistance());
-      IndexWriterConfig indexWriterConfig =
-          new IndexWriterConfig(Version.LATEST, new WhitespaceAnalyzer());
-      spellChecker.indexDictionary(
-          new PlainTextDictionary(new File(p.getProperty("spellingFile"))),
-          indexWriterConfig, false);
-      }
-    } else {
-      throw new Exception(
-          "Required property spellingFile or spellingIndex not present.");
-    }
+    // na/
   }
 
   /* see superclass */
@@ -130,10 +72,10 @@ public class DefaultSearchHandler implements SearchHandler {
     } else {
       combinedQuery = fixedQuery.isEmpty() ? "" : fixedQuery;
 
-          if (literalField != null && !literalField.isEmpty()) {
+      if (literalField != null && !literalField.isEmpty()) {
         combinedQuery += " OR " + literalField + ":" + escapedQuery + "^10.0";
-          }
-        }
+      }
+    }
 
     // Add terminology conditions if supplied
     StringBuilder terminologyClause = new StringBuilder();
@@ -162,7 +104,7 @@ public class DefaultSearchHandler implements SearchHandler {
       Logger.getLogger(getClass()).debug("query = " + finalQuery);
       fullTextQuery =
           IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-          finalQuery.toString(), pfs, manager);
+              finalQuery.toString(), pfs, manager);
     } catch (ParseException | IllegalArgumentException e) {
       e.printStackTrace();
       // If there's a parse exception, try the literal query
