@@ -10,10 +10,10 @@
     <relativePath>../../parent</relativePath>
   </parent>
 
-  <artifactId>term-server-config-prod</artifactId>
+  <artifactId>term-server-config-prod-nci-meta</artifactId>
   <packaging>pom</packaging>
-  <name>Terminology server configuration project for the demo prod environment</name>
-  <description>Template configuration files for the demo prod environment.</description>
+  <name>Terminology server configuration project for the NCI-META prod environment</name>
+  <description>Template configuration files for the NCI-META prod environment.</description>
 
   <!-- Package as .zip -->
   <build>
