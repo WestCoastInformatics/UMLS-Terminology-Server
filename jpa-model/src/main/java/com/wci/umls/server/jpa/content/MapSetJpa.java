@@ -75,7 +75,7 @@ public class MapSetJpa extends AbstractComponentHasAttributes
   private String fromTerminology;
 
   /** The to terminology. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private String toTerminology;
 
   /** The from version. */

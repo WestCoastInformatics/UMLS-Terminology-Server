@@ -86,7 +86,8 @@ public class DefaultSearchHandler implements SearchHandler {
       spellChecker.indexDictionary(
           new PlainTextDictionary(new File(p.getProperty("spellingFile"))),
           indexWriterConfig, false);
-
+      directory.close();
+      
     } else {
       throw new Exception(
           "Required property spellingFile or spellingIndex not present.");

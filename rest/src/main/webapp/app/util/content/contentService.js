@@ -658,12 +658,7 @@ tsApp
           if (!parameters.showObsolete) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'obsolete:false';
           }
-          if (parameters.showInferred) {
-            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'inferred:true';
-          }
-          if (!parameters.showInferred) {
-            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'stated:true';
-          }
+          
           pfs.queryRestriction = qr;
 
           // For description logic sources, simply read all rels.
@@ -678,8 +673,8 @@ tsApp
           var query = parameters.text;
           gpService.increment();
           $http.post(
-            contentUrl + prefix + "/" + component.object.terminology + "/"
-              + component.object.version + "/" + component.object.terminologyId
+            contentUrl + prefix + "/" + component.object.terminologyId + "/"
+              + component.object.terminology + "/" + component.object.version
               + "/mappings?query=" + encodeURIComponent(utilService.cleanQuery(query)), pfs)
             .then(function(response) {
               console.debug("  mappings =", response.data);

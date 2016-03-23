@@ -631,6 +631,7 @@ tsApp.controller('ContentCtrl', [
     $scope.pagedSemanticTypes = null;
     $scope.pagedDescriptions = null;
     $scope.pagedRelationships = null;
+    $scope.pagedMappings = null;
     $scope.pagedAtoms = null;
 
     $scope.resetPaging = function() {
@@ -657,6 +658,11 @@ tsApp.controller('ContentCtrl', [
       };
 
       $scope.memberPaging = {
+        page : 1,
+        filter : ""
+      };
+      
+      $scope.mappingPaging = {
         page : 1,
         filter : ""
       };
@@ -692,7 +698,7 @@ tsApp.controller('ContentCtrl', [
       $scope.getPagedAttributes();
       $scope.getPagedMembers();
       $scope.getPagedSemanticTypes();
-
+      $scope.getPagedMappings();
     }
 
     // Handle paging of relationships (requires content service
@@ -736,6 +742,29 @@ tsApp.controller('ContentCtrl', [
       });
     };
 
+    // Handle paging of mappings (requires content service
+    // call).
+    $scope.getPagedMappings = function() {
+
+      var parameters = {
+        showSuppressible : $scope.showSOElements,
+        showObsolete : $scope.showSOElements,
+        text : $scope.mappingPaging.filter,
+        sortField : $scope.mappingPaging.sortField,
+        sortAscending : $scope.mappingPaging.sortAscending
+      };
+
+      // Request from service
+      contentService.findMappings($scope.component.object.terminologyId,
+        $scope.component.object.terminology, $scope.component.object.version,
+        $scope.mappingPaging.page, parameters).then(function(data) {
+
+        $scope.pagedMappings = data.mapping;
+        $scope.pagedMappings.totalCount = data.totalCount;
+
+      });
+    };
+    
     // Get paged atoms (assume all are loaded)
     $scope.getPagedAtoms = function() {
 
