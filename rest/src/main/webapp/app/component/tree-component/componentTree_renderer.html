@@ -8,7 +8,7 @@
   <i ng-show="tree.childCt == 0" class="glyphicon glyphicon-leaf"></i>
   <!-- if not the component viewed, render with hyperlink -->
   <span ng-show="tree.nodeTerminologyId != component.object.terminologyId">
-    <a ng-click="getComponentFromTree(this)"> {{tree.nodeTerminologyId}}</a>
+    <a ng-click="callbacks.getComponentFromTree(this)"> {{tree.nodeTerminologyId}}</a>
     : {{tree.nodeName}}
   </span>
   <!-- if the component displayed, render in bold without hyperlink -->
