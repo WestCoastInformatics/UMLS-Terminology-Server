@@ -126,13 +126,7 @@ tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location', 's
 tsApp.controller('HeaderCtrl', [ '$scope', 'securityService', function($scope, securityService) {
   console.debug('configure HeaderCtrl');
 
-  // Declare user
-  $scope.user = securityService.getUser();
-
-  // Logout method
-  $scope.logout = function() {
-    securityService.logout();
-  };
+ 
 } ]);
 
 // Footer controller

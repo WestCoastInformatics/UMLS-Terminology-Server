@@ -1,10 +1,11 @@
 // Content controller
 tsApp.directive('treeSearchResult', [
   '$q',
+  '$sce',
   'contentService',
   'metadataService',
   'utilService',
-  function($q, contentService, metadataService, utilService) {
+  function($q, $sce, contentService, metadataService, utilService) {
     console.debug('configure trees directive');
     return {
       restrict : 'A',
@@ -16,9 +17,9 @@ tsApp.directive('treeSearchResult', [
         parameters : '=',
 
         // callback functions from parent scope
-        callbacks : '='
+        callbacks : '=?'
       },
-      templateUrl : 'app/component/tree-search-result/treeSearchResult.html',
+      templateUrl : 'app/util/tree-search-result/treeSearchResult.html',
       link : function(scope, element, attrs) {
 
         console.debug('treeSearchResult', scope.searchResults, scope.parameters, scope.callbacks);
@@ -141,13 +142,14 @@ tsApp.directive('treeSearchResult', [
         // Label functions
         scope.isDerivedLabelSet = metadataService.isDerivedLabelSet;
         scope.isLabelSet = metadataService.isLabelSet;
-        scope.getDerivedLabelSetsValue = function() {
+        scope.getDerivedLabelSetsValue = function(tree) {
+          console.debug('labels', tree.labels, tree);
           return $sce.trustAsHtml('<div style="text-align:left;">'
-            + metadataService.getDerivedLabelSetsValue() + '</div>');
+            + metadataService.getDerivedLabelSetsValue(tree) + '</div>');
         };
-        scope.getLabelSetsValue = function() {
+        scope.getLabelSetsValue = function(tree) {
           return $sce.trustAsHtml('<div style="text-align:left;">'
-            + metadataService.getLabelSetsValue + '</div>');
+            + metadataService.getLabelSetsValue(tree) + '</div>');
         };
 
       }

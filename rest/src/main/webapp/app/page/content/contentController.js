@@ -168,18 +168,7 @@ tsApp.controller('ContentCtrl', [
         });
     };
 
-    $scope.componentReportCallbacks = {
-      getComponent : $scope.getComponent,
-      getComponentFromType : $scope.getComponentFromType,
-      getComponentFromTree : $scope.getComponentFromTree,
-      getTerminologyVersion : metadataService.getTerminologyVersion,
-      getRelationshipTypeName : metadataService.getRelationshipTypeName,
-      getAttributeNameName : metadataService.getAttributeNameName,
-      getTermTypeName : metadataService.getTermTypeName,
-      getGeneralEntryValue : metadataService.getGeneralEntryValue,
-      getLabelSetName : metadataService.getLabelSetName,
-      countLabels : metadataService.countLabels
-    }
+    
 
     // Find components for a programmatic query
     $scope.findComponentsForQuery = function(queryStr) {
@@ -361,6 +350,21 @@ tsApp.controller('ContentCtrl', [
         }
       }
     };
+    
+    // Component Report Callbacks
+    
+    $scope.componentReportCallbacks = {
+      getComponent : $scope.getComponent,
+      getComponentFromType : $scope.getComponentFromType,
+      getComponentFromTree : $scope.getComponentFromTree,
+      getTerminologyVersion : metadataService.getTerminologyVersion,
+      getRelationshipTypeName : metadataService.getRelationshipTypeName,
+      getAttributeNameName : metadataService.getAttributeNameName,
+      getTermTypeName : metadataService.getTermTypeName,
+      getGeneralEntryValue : metadataService.getGeneralEntryValue,
+      getLabelSetName : metadataService.getLabelSetName,
+      countLabels : metadataService.countLabels
+    }
 
     //
     // METADATA related functions

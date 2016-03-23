@@ -510,7 +510,7 @@ tsApp.service('securityService', [ '$http', '$location', '$cookies', 'utilServic
 
     this.logout = function() {
       if (user.authToken == null) {
-        alert("You are not currently logged in");
+        window.alert("You are not currently logged in");
         return;
       }
       gpService.increment();

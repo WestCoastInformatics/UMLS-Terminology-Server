@@ -1,1 +1,1 @@
-This folder is for reusable (display) components.
+This folder contains reusable directives for component reports and search result trees

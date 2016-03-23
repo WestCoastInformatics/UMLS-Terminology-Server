@@ -46,21 +46,27 @@
   src="ui/components/angular-ui-tinymce/src/tinymce.js"></script>
 
 
-<!-- Application style overrides -->
+<!-- UTS Application style overrides -->
 <link href="css/tsApp.css" rel="stylesheet">
 
-<!-- Terminology server Angular application -->
+<!-- UTS Angular application -->
 <script src="app/app.js"></script>
+
+<!-- UTS services -->
 <script src="app/util/general/services.js"></script>
 <script src="app/util/highlight/highlightFilters.js"></script>
 <script src="app/util/metadata/metadataService.js"></script>
 <script src="app/util/content/contentService.js"></script>
+
+<!-- UTS page elements and controllers -->
+<script src="app/page/header/header.js"></script>
+<script src="app/page/footer/footer.js"></script>
 <script src="app/page/landing/landing.js"></script>
 <script src="app/page/login/loginController.js"></script>
 <script src="app/page/metadata/metadataController.js"></script>
 <script src="app/page/content/contentController.js"></script>
 
-<!-- Directives -->
+<!-- UTS Component Report Directives -->
 <script src="app/component/report/report.js"></script>
 <script src="app/component/semantic-types/semanticTypes.js"></script>
 <script src="app/component/definitions/definitions.js"></script>
@@ -69,11 +75,10 @@
 <script src="app/component/subsets/subsets.js"></script>
 <script src="app/component/relationships/relationships.js"></script>
 <script src="app/component/tree-component/treeComponent.js"></script>
-<script src="app/component/tree-search-result/treeSearchResult.js"></script>
 
-<!-- Utilities -->
+<!-- UTS utilities and misc directives -->
 <script src="app/util/pager/pager.js"></script>
-
+<script src="app/util/tree-search-result/treeSearchResult.js"></script>
 
 </head>
 <body>
@@ -84,7 +89,7 @@
   </noscript>
 
   <!-- Header -->
-  <div ng-include src="'app/page/general/header.html'"></div>
+  <div header></div>
   <a id="top"></a>
 
   <!-- Blank for header -->
@@ -103,7 +108,7 @@
   </div>
 
   <!-- Footer -->
-  <div ng-include src="'app/page/general/footer.html'"></div>
+  <div footer></div>
 
   <!-- Glass Pane -->
   <div ng-controller="GlassPaneCtrl" ng-show="glassPane.counter > 0"
