@@ -4,38 +4,43 @@
 package com.wci.umls.server.jpa;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.MapKeyClass;
+import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
+import com.wci.umls.server.UserRole;
+import com.wci.umls.server.jpa.helpers.UserMapUserNameBridge;
+import com.wci.umls.server.jpa.helpers.UserRoleBridge;
+import com.wci.umls.server.jpa.helpers.UserRoleMapAdapter;
 
 /**
  * JPA enabled implementation of {@link Project}.
@@ -84,54 +89,18 @@ public class ProjectJpa implements Project {
   @Column(nullable = false)
   private String version;
 
-  /** The leads. */
-  @ManyToMany(targetEntity = UserJpa.class, fetch = FetchType.EAGER)
-  @JoinTable(name = "projects_leads", joinColumns = @JoinColumn(name = "projects_id") , inverseJoinColumns = @JoinColumn(name = "users_id") )
-  @IndexedEmbedded(targetElement = UserJpa.class)
-  private Set<User> leads = new HashSet<>();
-
-  /** The authors. */
-  @ManyToMany(targetEntity = UserJpa.class, fetch = FetchType.EAGER)
-  @JoinTable(name = "projects_authors", joinColumns = @JoinColumn(name = "projects_id") , inverseJoinColumns = @JoinColumn(name = "users_id") )
-  @IndexedEmbedded(targetElement = UserJpa.class)
-  private Set<User> authors = new HashSet<>();
-
-  /** The administrators. */
-  @ManyToMany(targetEntity = UserJpa.class, fetch = FetchType.EAGER)
-  @JoinTable(name = "projects_administrators", joinColumns = @JoinColumn(name = "projects_id") , inverseJoinColumns = @JoinColumn(name = "users_id") )
-  @IndexedEmbedded(targetElement = UserJpa.class)
-  private Set<User> administrators = new HashSet<>();
-
-  /** The concepts in scope for this project. */
-  @ElementCollection
-  @CollectionTable(name = "projects_scope_concepts", joinColumns = @JoinColumn(name = "id") )
-  @Column(nullable = true)
-  private Set<String> scopeConcepts = new HashSet<>();
-
-  /** The concepts excludes from scope of this project. */
-  @ElementCollection
-  @CollectionTable(name = "projects_scope_excludes_concepts", joinColumns = @JoinColumn(name = "id") )
-  @Column(nullable = true)
-  private Set<String> scopeExcludesConcepts = new HashSet<>();
-
-  /** Indicates if descendants of the scope are included in the scope. */
-  @Column(unique = false, nullable = false)
-  private boolean scopeDescendantsFlag = false;
-
-  /**
-   * Indicates if descendants of the excludes scope are excludes from the scope.
-   */
-  @Column(unique = false, nullable = false)
-  private boolean scopeExcludesDescendantsFlag = false;
-
-  /** The concepts excludes from scope of this project. */
-  @ElementCollection
-  @Column(nullable = true)
-  private Set<String> actionWorkflowStatusValues = new HashSet<>();
-
   /** The branch. */
   @Column(nullable = true)
   private String branch;
+
+  /** The role map. */
+  @ElementCollection
+  @MapKeyClass(value = UserJpa.class)
+  @Enumerated(EnumType.STRING)
+  @MapKeyJoinColumn(name = "user_id")
+  @Column(name = "role")
+  @CollectionTable(name = "project_user_role_map")
+  private Map<User, UserRole> userRoleMap;
 
   /**
    * Instantiates an empty {@link ProjectJpa}.
@@ -155,14 +124,6 @@ public class ProjectJpa implements Project {
     isPublic = project.isPublic();
     terminology = project.getTerminology();
     version = project.getVersion();
-    leads = new HashSet<>(project.getLeads());
-    authors = new HashSet<>(project.getAuthors());
-    administrators = new HashSet<>(project.getAdministrators());
-    scopeConcepts = new HashSet<>(project.getScopeConcepts());
-    scopeDescendantsFlag = project.getScopeDescendantsFlag();
-    scopeExcludesConcepts = new HashSet<>(project.getScopeExcludesConcepts());
-    scopeExcludesDescendantsFlag = project.getScopeExcludesDescendantsFlag();
-    branch = project.getBranch();
   }
 
   /* see superclass */
@@ -221,80 +182,6 @@ public class ProjectJpa implements Project {
     this.lastModifiedBy = lastModifiedBy;
   }
 
-  /* see superclass */
-  @Override
-  @XmlElement(type = UserJpa.class)
-  public Set<User> getLeads() {
-    return leads;
-  }
-
-  /* see superclass */
-  @Override
-  public void setLeads(Set<User> leads) {
-    this.leads = leads;
-  }
-
-  /* see superclass */
-  @Override
-  public void addLead(User lead) {
-    leads.add(lead);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeLead(User lead) {
-    leads.remove(lead);
-  }
-
-  /* see superclass */
-  @Override
-  @XmlElement(type = UserJpa.class)
-  public Set<User> getAuthors() {
-    return authors;
-  }
-
-  /* see superclass */
-  @Override
-  public void setAuthors(Set<User> authors) {
-    this.authors = authors;
-  }
-
-  /* see superclass */
-  @Override
-  public void addAuthor(User author) {
-    authors.add(author);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeAuthor(User author) {
-    authors.remove(author);
-  }
-
-  /* see superclass */
-  @Override
-  @XmlElement(type = UserJpa.class)
-  public Set<User> getAdministrators() {
-    return administrators;
-  }
-
-  /* see superclass */
-  @Override
-  public void setAdministrators(Set<User> administrators) {
-    this.administrators = administrators;
-  }
-
-  /* see superclass */
-  @Override
-  public void addAdministrator(User administrator) {
-    administrators.add(administrator);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeAdministrator(User administrator) {
-    administrators.remove(administrator);
-  }
 
   /* see superclass */
   @Override
@@ -360,90 +247,7 @@ public class ProjectJpa implements Project {
     this.isPublic = isPublic;
   }
 
-  /* see superclass */
-  @Override
-  public Set<String> getScopeConcepts() {
-    return scopeConcepts;
-  }
 
-  /* see superclass */
-  @Override
-  public void setScopeConcepts(Set<String> scopeConcepts) {
-    this.scopeConcepts = scopeConcepts;
-  }
-
-  /* see superclass */
-  @Override
-  public void addScopeConcept(String terminologyId) {
-    this.scopeConcepts.add(terminologyId);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeScopeConcept(String terminologyId) {
-    this.scopeConcepts.remove(terminologyId);
-  }
-
-  /* see superclass */
-  @Override
-  public boolean getScopeDescendantsFlag() {
-    return scopeDescendantsFlag;
-  }
-
-  /* see superclass */
-  @Override
-  public void setScopeDescendantsFlag(boolean flag) {
-    scopeDescendantsFlag = flag;
-  }
-
-  /* see superclass */
-  @Override
-  public Set<String> getScopeExcludesConcepts() {
-    return scopeExcludesConcepts;
-  }
-
-  /* see superclass */
-  @Override
-  public void setScopeExcludesConcepts(Set<String> scopeExcludesConcepts) {
-    this.scopeExcludesConcepts = scopeExcludesConcepts;
-  }
-
-  /* see superclass */
-  @Override
-  public void addScopeExcludesConcept(String terminologyId) {
-    this.scopeExcludesConcepts.add(terminologyId);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeScopeExcludesConcept(String terminologyId) {
-    this.scopeExcludesConcepts.remove(terminologyId);
-  }
-
-  /* see superclass */
-  @Override
-  public boolean getScopeExcludesDescendantsFlag() {
-    return scopeExcludesDescendantsFlag;
-  }
-
-  /* see superclass */
-  @Override
-  public void setScopeExcludesDescendantsFlag(boolean flag) {
-    scopeExcludesDescendantsFlag = flag;
-  }
-
-  /* see superclass */
-  @Override
-  public Set<String> getActionWorkflowStatusValues() {
-    return actionWorkflowStatusValues;
-  }
-
-  /* see superclass */
-  @Override
-  public void setActionWorkflowStatusValues(
-    Set<String> actionWorkflowStatusValues) {
-    this.actionWorkflowStatusValues = actionWorkflowStatusValues;
-  }
 
   /* see superclass */
   @Override
@@ -451,17 +255,7 @@ public class ProjectJpa implements Project {
     return getName() + " " + getId();
   }
 
-  /* see superclass */
-  @Override
-  public String getBranch() {
-    return branch;
-  }
 
-  /* see superclass */
-  @Override
-  public void setBranch(String branch) {
-    this.branch = branch;
-  }
 
   /* see superclass */
   @Override
@@ -469,12 +263,7 @@ public class ProjectJpa implements Project {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result
-        + ((scopeConcepts == null) ? 0 : scopeConcepts.hashCode());
-    result = prime * result + (scopeDescendantsFlag ? 1231 : 1237);
-    result = prime * result + ((scopeExcludesConcepts == null) ? 0
-        : scopeExcludesConcepts.hashCode());
-    result = prime * result + (scopeExcludesDescendantsFlag ? 1231 : 1237);
+    
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
@@ -496,20 +285,7 @@ public class ProjectJpa implements Project {
         return false;
     } else if (!name.equals(other.name))
       return false;
-    if (scopeConcepts == null) {
-      if (other.scopeConcepts != null)
-        return false;
-    } else if (!scopeConcepts.equals(other.scopeConcepts))
-      return false;
-    if (scopeDescendantsFlag != other.scopeDescendantsFlag)
-      return false;
-    if (scopeExcludesConcepts == null) {
-      if (other.scopeExcludesConcepts != null)
-        return false;
-    } else if (!scopeExcludesConcepts.equals(other.scopeExcludesConcepts))
-      return false;
-    if (scopeExcludesDescendantsFlag != other.scopeExcludesDescendantsFlag)
-      return false;
+    
     if (terminology == null) {
       if (other.terminology != null)
         return false;
@@ -522,4 +298,38 @@ public class ProjectJpa implements Project {
       return false;
     return true;
   }
+
+  /* see superclass */
+  @XmlJavaTypeAdapter(UserRoleMapAdapter.class)
+  @Fields({
+      @Field(bridge = @FieldBridge(impl = UserRoleBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO),
+      @Field(name = "userAnyRole", bridge = @FieldBridge(impl = UserMapUserNameBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  })
+  @Override
+  public Map<User, UserRole> getUserRoleMap() {
+    if (userRoleMap == null) {
+      userRoleMap = new HashMap<>();
+    }
+    return userRoleMap;
+  }
+
+  /* see superclass */
+  @Override
+  public void setUserRoleMap(Map<User, UserRole> userRoleMap) {
+    this.userRoleMap = userRoleMap;
+  }
+
+
+  /* see superclass */
+  @Override
+  public String getBranch() {
+    return branch;
+  }
+
+  /* see superclass */
+  @Override
+  public void setBranch(String branch) {
+    this.branch = branch;
+  }
+
 }

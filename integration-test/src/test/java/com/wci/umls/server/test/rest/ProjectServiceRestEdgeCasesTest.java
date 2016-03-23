@@ -74,13 +74,12 @@ public class ProjectServiceRestEdgeCasesTest extends ProjectServiceRestTest {
     ProjectJpa project2 = new ProjectJpa();
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
-    project2.setActionWorkflowStatusValues(values);
     User user = securityService.getUser(adminUser, adminAuthToken);
-    project2.addAdministrator(user);
+    // TODO: add back using userRoleMap
+    /*project2.addAdministrator(user);
     project2.addAuthor(user);
-    project2.addLead(user);
-    project2.addScopeConcept("12345");
-    project2.addScopeExcludesConcept("12345");
+    project2.addLead(user);*/
+    
     project2.setDescription("Sample");
     project2.setName("Sample");
     project2.setTerminology("UMLS");

@@ -16,9 +16,13 @@ import javax.ws.rs.core.Response.Status.Family;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.UserJpa;
+import com.wci.umls.server.jpa.UserPreferencesJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
 
@@ -230,6 +234,46 @@ public class SecurityClientRest extends RootClientRest implements
     } else {
       throw new Exception(response.toString());
     }
+  }
+
+  @Override
+  public User getUserForAuthToken(String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public UserPreferences addUserPreferences(UserPreferencesJpa userPreferences,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void removeUserPreferences(Long id, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public UserPreferences updateUserPreferences(
+    UserPreferencesJpa userPreferences, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public StringList getApplicationRoles(String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public UserList findUsersForQuery(String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

@@ -6,8 +6,10 @@ package com.wci.umls.server.rest.impl;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.handlers.ExceptionHandler;
 
@@ -92,6 +94,44 @@ public class RootServiceRestImpl {
   }
 
   /**
+   * Authorize the users project role or accept application ADMIN.
+   *
+   * @param projectService the project service
+   * @param projectId the project id
+   * @param securityService the security service
+   * @param authToken the auth token
+   * @param perform the perform
+   * @param requiredProjectRole the required project role
+   * @return the username
+   * @throws Exception the exception
+   */
+  public static String authorizeProject(ProjectService projectService,
+    Long projectId, SecurityService securityService, String authToken,
+    String perform, UserRole requiredProjectRole) throws Exception {
+
+    // Get userName
+    final String userName = securityService.getUsernameForToken(authToken);
+
+    // Allow application admin to do anything
+    UserRole appRole = securityService.getApplicationRoleForToken(authToken);
+    if (appRole == UserRole.USER || appRole == UserRole.ADMINISTRATOR) {
+      return userName;
+    }
+
+    // Verify that user project role has privileges of required role
+    UserRole role =
+        projectService.getProject(projectId).getUserRoleMap()
+            .get(securityService.getUser(userName));
+    UserRole projectRole = (role == null) ? UserRole.VIEWER : role;
+    if (!projectRole.hasPrivilegesOf(requiredProjectRole))
+      throw new WebApplicationException(Response.status(401)
+          .entity("User does not have permissions to " + perform + ".").build());
+
+    // return username
+    return userName;
+  }
+  
+  /**
    * Returns the total elapsed time str.
    *
    * @param time the time
@@ -128,4 +168,6 @@ public class RootServiceRestImpl {
     NotificationWebsocket websocket2) {
     websocket = websocket2;
   }
+
+
 }

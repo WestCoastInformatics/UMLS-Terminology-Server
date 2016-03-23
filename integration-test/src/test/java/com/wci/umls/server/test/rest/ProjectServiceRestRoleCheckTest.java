@@ -60,13 +60,11 @@ public class ProjectServiceRestRoleCheckTest extends ProjectServiceRestTest {
     ProjectJpa project = new ProjectJpa();
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
-    project.setActionWorkflowStatusValues(values);
     User user = securityService.getUser(adminUser, adminAuthToken);
-    project.addAdministrator(user);
+    // TODO add back using userRoleMap
+    /*project.addAdministrator(user);
     project.addAuthor(user);
-    project.addLead(user);
-    project.addScopeConcept("12345");
-    project.addScopeExcludesConcept("12345");
+    project.addLead(user);*/
     project.setDescription("Sample");
     project.setName("Sample");
     project.setTerminology("UMLS");

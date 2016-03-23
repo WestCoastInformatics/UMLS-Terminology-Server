@@ -15,11 +15,14 @@ import javax.persistence.NoResultException;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.UserJpa;
+import com.wci.umls.server.jpa.UserPreferencesJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
@@ -333,4 +336,125 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     // n/a
   }
 
+  /**
+   * Handle lazy init.
+   *
+   * @param user the user
+   */
+  @Override
+  public void handleLazyInit(User user) {
+    if (user.getProjectRoleMap() != null) {
+      user.getProjectRoleMap().size();
+    }
+    /*if (user.getUserPreferences() != null) {
+      user.getUserPreferences().getLastProjectId();
+    }
+    if (user.getUserPreferences() != null
+        && user.getUserPreferences().getLanguageDescriptionTypes() != null
+        && user.getUserPreferences().getLanguageDescriptionTypes().size() > 0) {
+      user.getUserPreferences().getLanguageDescriptionTypes().get(0)
+          .getDescriptionType().getName();
+    }*/  //TODO
+  }
+  
+  /* see superclass */
+  @SuppressWarnings("unchecked")
+  @Override
+  public UserList findUsersForQuery(String query, PfsParameter pfs)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Security Service - find users " + query + ", pfs= " + pfs);
+
+    int[] totalCt = new int[1];
+    final List<User> list =
+        (List<User>) getQueryResults(query == null || query.isEmpty()
+            ? "id:[* TO *]" : query, UserJpa.class, UserJpa.class, pfs, totalCt);
+    final UserList result = new UserListJpa();
+    result.setTotalCount(totalCt[0]);
+    result.setObjects(list);
+    for (final User user : result.getObjects()) {
+      handleLazyInit(user);
+    }
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public UserPreferences addUserPreferences(UserPreferences userPreferences) {
+    Logger.getLogger(getClass()).debug(
+        "Security Service - add user preferences " + userPreferences);
+    try {
+      if (getTransactionPerOperation()) {
+        tx = manager.getTransaction();
+        tx.begin();
+        manager.persist(userPreferences);
+        tx.commit();
+      } else {
+        manager.persist(userPreferences);
+      }
+    } catch (Exception e) {
+      if (tx.isActive()) {
+        tx.rollback();
+      }
+      throw e;
+    }
+
+    return userPreferences;
+  }
+
+  /* see superclass */
+  @Override
+  public void removeUserPreferences(Long id) {
+    Logger.getLogger(getClass()).debug(
+        "Security Service - remove user preferences " + id);
+    tx = manager.getTransaction();
+    // retrieve this user
+    final UserPreferences mu = (UserPreferences) manager.find(UserPreferencesJpa.class, id);
+    try {
+      if (getTransactionPerOperation()) {
+        tx.begin();
+        if (manager.contains(mu)) {
+          manager.remove(mu);
+        } else {
+          manager.remove(manager.merge(mu));
+        }
+        tx.commit();
+
+      } else {
+        if (manager.contains(mu)) {
+          manager.remove(mu);
+        } else {
+          manager.remove(manager.merge(mu));
+        }
+      }
+    } catch (Exception e) {
+      if (tx.isActive()) {
+        tx.rollback();
+      }
+      throw e;
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public void updateUserPreferences(UserPreferences userPreferences) {
+    Logger.getLogger(getClass()).debug(
+        "Security Service - update user preferences " + userPreferences);
+    try {
+      if (getTransactionPerOperation()) {
+        tx = manager.getTransaction();
+        tx.begin();
+        manager.merge(userPreferences);
+        tx.commit();
+      } else {
+        manager.merge(userPreferences);
+      }
+    } catch (Exception e) {
+      if (tx.isActive()) {
+        tx.rollback();
+      }
+      throw e;
+    }
+  }
 }

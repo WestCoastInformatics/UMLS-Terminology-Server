@@ -8,7 +8,7 @@ package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ProjectList;
-import com.wci.umls.server.helpers.content.ConceptList;
+import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 
@@ -48,18 +48,6 @@ public interface ProjectServiceRest {
   public void removeProject(Long projectId, String authToken) throws Exception;
 
   /**
-   * Returns the concepts in scope.
-   *
-   * @param projectId the project id
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the concepts in scope
-   * @throws Exception the exception
-   */
-  public ConceptList findConceptsInScope(Long projectId, PfsParameterJpa pfs,
-    String authToken) throws Exception;
-
-  /**
    * Returns the project.
    *
    * @param id the id
@@ -78,4 +66,54 @@ public interface ProjectServiceRest {
    */
   public ProjectList getProjects(String authToken) throws Exception;
 
+  /**
+   * Assign users to project.
+   *
+   * @param id the id
+   * @param userName the user name
+   * @param role the role
+   * @param authToken the auth token
+   * @return the project
+   * @throws Exception the exception
+   */
+  public Project assignUserToProject(Long id, String userName, 
+    String role, String authToken) throws Exception;
+
+  /**
+   * Find unassigned users for project.
+   *
+   * @param projectId the project id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the user list
+   * @throws Exception the exception
+   */
+  public UserList findUnassignedUsersForProject(Long projectId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Unassign user from project.
+   *
+   * @param projectId the project id
+   * @param userName the user name
+   * @param authToken the auth token
+   * @return the project
+   * @throws Exception the exception
+   */
+  public Project unassignUserFromProject(Long projectId, String userName,
+    String authToken) throws Exception;
+
+  /**
+   * Find assigned users for project.
+   *
+   * @param projectId the project id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the user list
+   * @throws Exception the exception
+   */
+  public UserList findAssignedUsersForProject(Long projectId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 }

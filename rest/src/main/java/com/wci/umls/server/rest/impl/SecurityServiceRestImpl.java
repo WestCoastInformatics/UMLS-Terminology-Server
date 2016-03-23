@@ -12,15 +12,20 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.UserJpa;
+import com.wci.umls.server.jpa.UserPreferencesJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
@@ -247,6 +252,186 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl implements
       securityService.updateUser(user);
     } catch (Exception e) {
       handleException(e, "trying to update a concept");
+    } finally {
+      securityService.close();
+    }
+  }
+  
+  /* see superclass */
+  @Override
+  @PUT
+  @Path("/user/preferences/add")
+  @ApiOperation(value = "Add new user preferences", notes = "Adds specified new user preferences. NOTE: the user.id must be set", response = UserPreferencesJpa.class)
+  public UserPreferences addUserPreferences(
+    @ApiParam(value = "UserPreferencesJpa, e.g. update", required = true) UserPreferencesJpa userPreferences,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info(
+            "RESTful call PUT (Security): /user/preferences/add "
+                + userPreferences);
+
+    SecurityService securityService = new SecurityServiceJpa();
+    try {
+
+      authorizeApp(securityService, authToken, "add new user preferences",
+          UserRole.USER);
+
+      // Create service and configure transaction scope
+      UserPreferences newUserPreferences =
+          securityService.addUserPreferences(userPreferences);
+      return newUserPreferences;
+    } catch (Exception e) {
+      handleException(e, "trying to add a user prefs");
+      return null;
+    } finally {
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @DELETE
+  @Path("/user/preferences/remove/{id}")
+  @ApiOperation(value = "Remove user preferences by id", notes = "Removes the user preferences for the specified id")
+  public void removeUserPreferences(
+    @ApiParam(value = "User id, e.g. 2", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call DELETE (Security): /user/preferences/remove/" + id);
+
+    SecurityService securityService = new SecurityServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "remove user preferences",
+          UserRole.USER);
+
+      securityService.removeUserPreferences(id);
+    } catch (Exception e) {
+      handleException(e, "trying to remove user preferences");
+    } finally {
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/user/preferences/update")
+  @ApiOperation(value = "Update user preferences", notes = "Updates the specified user preferences and returns the updated object in case cascaded data structures were added with new identifiers", response = UserPreferencesJpa.class)
+  public UserPreferences updateUserPreferences(
+    @ApiParam(value = "UserPreferencesJpa, e.g. update", required = true) UserPreferencesJpa userPreferences,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call POST (Security): /user/preferences/update "
+            + userPreferences);
+    SecurityService securityService = new SecurityServiceJpa();
+    try {
+      final String userName =
+          authorizeApp(securityService, authToken, "update user preferences",
+              UserRole.VIEWER);
+
+      if (!userPreferences.getUser().getUserName().equals(userName)) {
+        throw new Exception(
+            "User preferences can only be updated for this user");
+      }
+
+      securityService.updateUserPreferences(userPreferences);
+      final User user = securityService.getUser(userName);
+
+      // lazy initialize
+      securityService.handleLazyInit(user);
+
+      return user.getUserPreferences();
+    } catch (Exception e) {
+      handleException(e, "trying to update user preferences");
+    } finally {
+      securityService.close();
+    }
+    return null;
+  }
+  
+  @Override
+  @GET
+  @Path("/roles")
+  @ApiOperation(value = "Get application roles", notes = "Gets list of valid application roles", response = StringList.class)
+  public StringList getApplicationRoles(
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful POST call (Security): /roles");
+
+    final SecurityService securityService = new SecurityServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get application roles",
+          UserRole.VIEWER);
+      final StringList list = new StringList();
+      list.setTotalCount(3);
+      list.getObjects().add(UserRole.VIEWER.toString());
+      list.getObjects().add(UserRole.USER.toString());
+      list.getObjects().add(UserRole.ADMINISTRATOR.toString());
+      return list;
+    } catch (Exception e) {
+      handleException(e, "trying to get roles");
+      return null;
+    } finally {
+      securityService.close();
+    }
+  }
+
+  @POST
+  @Path("/user/find")
+  @ApiOperation(value = "Find user", notes = "Finds a list of all users for the specified query", response = UserListJpa.class)
+  @Override
+  public UserList findUsersForQuery(
+    @ApiParam(value = "The query", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Security): /user/find "
+            + (query == null ? "" : "query=" + query));
+
+    // Track system level information
+    final SecurityService securityService = new SecurityServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "find users", UserRole.VIEWER);
+
+      UserList list = securityService.findUsersForQuery(query, pfs);
+      for (User user : list.getObjects()) {
+        user.setUserPreferences(null);
+      }
+      return list;
+    } catch (Exception e) {
+      handleException(e, "trying to find users");
+    } finally {
+      securityService.close();
+    }
+    return null;
+  }
+  
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/user")
+  
+  @ApiOperation(value = "Get user by auth token", notes = "Gets the user for the specified auth token", response = UserJpa.class)
+  public User getUserForAuthToken(
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Security): /user/name" + authToken);
+    final SecurityService securityService = new SecurityServiceJpa();
+    try {
+      final String userName =
+          authorizeApp(securityService, authToken,
+              "retrieve the user by auth token", UserRole.VIEWER);
+      final User user = securityService.getUser(userName);
+      securityService.handleLazyInit(user);
+      return user;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve a user by auth token");
+      return null;
     } finally {
       securityService.close();
     }

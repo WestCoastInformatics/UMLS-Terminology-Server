@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -118,35 +119,7 @@ public class ProjectClientRest extends RootClientRest implements
     }
   }
 
-  @Override
-  public ConceptList findConceptsInScope(Long id, PfsParameterJpa pfs,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Project Client - find concepts in scope " + id);
-    validateNotEmpty(id, "id");
-    Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/scope/" + id);
-    String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
 
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    // ConceptListJpa list =
-    // (ConceptListJpa) ConfigUtility.getGraphForString(resultString,
-    // ConceptListJpa.class);
-    // return list;
-    return null;
-  }
 
   @Override
   public Project getProject(Long id, String authToken) throws Exception {
@@ -194,6 +167,34 @@ public class ProjectClientRest extends RootClientRest implements
     ProjectListJpa list =
         ConfigUtility.getGraphForString(resultString, ProjectListJpa.class);
     return list;
+  }
+
+  @Override
+  public Project assignUserToProject(Long id, String userName, String role,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public UserList findUnassignedUsersForProject(Long projectId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Project unassignUserFromProject(Long projectId, String userName,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public UserList findAssignedUsersForProject(Long projectId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }
