@@ -143,6 +143,10 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       for (Definition def : atom.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
+      
+      for (AtomSubsetMember member : atom.getMembers()) {
+        resolve(member);
+      }
 
       // Relationships
       for (AtomRelationship rel : atom.getRelationships()) {
