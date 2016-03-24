@@ -1,8 +1,9 @@
 // Content controller
 tsApp.directive('report', [
   '$window',
+  '$routeParams',
   'metadataService',
-  function($window, metadataService) {
+  function($window, $routeParams, metadataService) {
     console.debug('configure report directive');
     return {
       restrict : 'A',
@@ -22,6 +23,8 @@ tsApp.directive('report', [
 
         // declare the show hidden variable (suppressible/obsolete)
         scope.showHidden = false;
+        
+        scope.showPopout = $routeParams.mode != 'simple';
 
         scope.popout = function() {
           var currentUrl = window.location.href;

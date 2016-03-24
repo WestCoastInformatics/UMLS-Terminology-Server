@@ -80,8 +80,13 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         resolve(atom);
       }
       
-      // TODO Check Subsets lazy initialization, etc.
-      // DO this for descriptors and codes as well
+      // Subsets
+      for (ConceptSubsetMember subset : concept.getMembers()) {
+        if (nullId) {
+          subset.setId(null);;
+        }
+        resolve(subset);
+      }
 
       // Relationships
       // default behavior -- require paging of relationships
@@ -215,7 +220,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         }
         resolve(atom);
       }
-
+     
       // Relationships
       // default behavior -- require paging of relationships
       descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
