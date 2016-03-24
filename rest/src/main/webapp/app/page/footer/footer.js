@@ -1,21 +1,22 @@
 // Content controller
-tsApp.directive('footer', [ '$rootScope', 'gpService', 'securityService',
-  function($rootScope, gpService, securityService) {
+tsApp.directive('footer', [ '$rootScope', '$routeParams', 'gpService', 'securityService',
+  function($rootScope, $routeParams, gpService, securityService) {
     console.debug('configure footer directive');
     return {
       restrict : 'A',
       scope : {},
       templateUrl : 'app/page/footer/footer.html',
       link : function(scope, element, attrs) {
-        
-        var isShowing = false;
-        switch ($routeParams.mode) {
-        case 'simple':
-          return false;
-        default:
-          return true;
+
+        scope.isShowing = function() {
+          switch ($routeParams.mode) {
+          case 'simple':
+            return false;
+          default:
+            return true;
+          }
         }
-        
+
         // Declare user
         scope.user = securityService.getUser();
 

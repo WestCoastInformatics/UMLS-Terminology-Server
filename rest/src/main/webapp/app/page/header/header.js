@@ -8,14 +8,16 @@ tsApp.directive('header', [ '$rootScope', '$routeParams', 'securityService',
       templateUrl : 'app/page/header/header.html',
       link : function(scope, element, attrs) {
 
-        var isShowing = false;
-        switch ($routeParams.mode) {
-        case 'simple':
-          return false;
-        default:
-          return true;
+        scope.isShowing = function() {
+          switch ($routeParams.mode) {
+          case 'simple':
+            console.debug('Simple mode, hiding header');
+            return false;
+          default:
+            console.debug('Not simple mode, showing header')
+            return true;
+          }
         }
-
         // Declare user
         scope.user = securityService.getUser();
 

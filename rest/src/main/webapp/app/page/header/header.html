@@ -1,5 +1,14 @@
+<style>
+.content-offset-md {
+	height: 96px;
+}
+
+.content-offset-xs {
+	height: 60px;
+}
+</style>
 <!--  header -->
-<nav id="navBar" ng-if="isShowing"
+<nav id="navBar" ng-if="isShowing()"
   style="background: #00008A url('images/background.jpg');"
   class="navbar navbar-default navbar-fixed-top" role="navigation">
   <!-- Brand and toggle get grouped for better mobile display -->
@@ -27,4 +36,7 @@
       </table>
     </div>
   </div>
+  <!--  Make room for content with fixed navbar-top -->
+  <div ng-if="isShowing" class="hidden-xs" style="height: 94px;">&nbsp;</div>
+  <div ng-if="isShowing" class="visible-xs" style="height: 60px;">&nbsp;</div>
 </nav>
