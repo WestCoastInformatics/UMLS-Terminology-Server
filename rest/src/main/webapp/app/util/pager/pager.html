@@ -15,12 +15,14 @@
   <!-- Field sort order -->
   <span
     uib-tooltip="Sort - {{paging.sortAscending ? 'Ascending' : 'Descending'}}"
-    ng-click="paging.page = 1; paging.sortAscending = !paging.sortAscending; getPagedList();"
-    ng-show="pagedData.totalCount > pageSizes.rels" class="glyphicon"
+    ng-click="paging.page = 1; paging.sortAscending = !paging.sortAscending; callback.getPagedList();"
+    ng-show="count > paging.  pageSize" class="glyphicon"
     ng-class="[{'glyphicon-sort-by-attributes': paging.sortAscending}, {'glyphicon-sort-by-attributes-alt': !paging.sortAscending}]"></span>
-  <select ng-show="pagedData.totalCount > paging.pageSize" class="input-filter"
+  <select ng-show="count > paging.pageSize" class="input-filter"
     ng-model="paging.sortField"
     ng-options="o.value as o.key for o in paging.sortOptions"
-    ng-change="getPagedList()">
+    ng-change="paging.page = 1; callback.getPagedList()">
   </select>
 </span>
+
+  

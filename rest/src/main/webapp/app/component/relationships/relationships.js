@@ -43,7 +43,7 @@ tsApp.directive('relationships', [
         } ];
 
         function getPagedList() {
-
+       
           // compute the sort order
           // if group sort specified, sort additionally by relationship type
           // otherwise, sort by specified field and additionally by group
@@ -59,7 +59,7 @@ tsApp.directive('relationships', [
             showObsolete : scope.showHidden,
             showInferred : scope.paging.showInferred,
             text : scope.paging.filter,
-            sortFields : scope.paging.sortFields,
+            sortFields : sortFields,
             sortAscending : scope.paging.sortAscending
           };
 
