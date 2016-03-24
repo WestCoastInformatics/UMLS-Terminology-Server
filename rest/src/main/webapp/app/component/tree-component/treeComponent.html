@@ -2,11 +2,14 @@
 <!-- Hierarchical Tree -->
 <div ng-if="treeCount > 0">
   <h4>
-    {{metadata.hierarchiesLabel}} (
-    <a class="glyphicon glyphicon-step-backward" ng-click="getTreeByOffset(-1)"></a>
-    {{treeViewed+1}} of {{treeCount}}
-    <a class="glyphicon glyphicon-step-forward" ng-click="getTreeByOffset(1)"></a>
-    )
+    {{metadata.hierarchiesLabel}} 
+    <span ng-show="treeCount > 1">(
+      <a class="glyphicon glyphicon-step-backward"
+        ng-click="getTreeByOffset(-1)"></a>
+      {{treeViewed+1}} of {{treeCount}}
+      <a class="glyphicon glyphicon-step-forward" ng-click="getTreeByOffset(1)"></a>
+      )
+    </span>
   </h4>
   <div ui-tree>
     <ol ui-tree-nodes="" ng-model="componentTree" id="tree-root"

@@ -3461,7 +3461,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> conceptRelList =
           new ArrayList<>(conceptRels);
 
-      // Apply PFS sorting manually
+      // TODO: Use root service applyPfsToList
       if (pfs != null && pfs.getSortField() != null) {
         final Method getMethod = ConceptRelationshipJpa.class
             .getMethod("get" + pfs.getSortField().substring(0, 1).toUpperCase()

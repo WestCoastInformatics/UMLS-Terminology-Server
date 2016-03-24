@@ -199,10 +199,13 @@
       <div class="col-md-12 nobreak alert alert-info"
         ng-if="component.object != null">
         <div style="display: inline" uib-dropdown dropdown-append-to-body>
-          <a uib-tooltip="View All History"
+        
+       
+        
+          <i uib-tooltip="View All History"
             ng-show="component.history.length > 2"
-            class="glyphicon glyphicon-time dropdown-toggle" uib-dropdown-toggle
-            id="history-dropdown"></a>
+            class="glyphicon glyphicon-time dropdown-toggle noul" uib-dropdown-toggle
+            id="history-dropdown"></i>
           <ul uib-dropdown-menu role="menu" aria-labelledby="history-dropdown">
             <li ng-show="localHistoryNextCt > 0">... {{localHistoryNextCt}}
               more recent</li>
@@ -216,17 +219,22 @@
               {{localHistoryPreviousCt}} less recent</li>
           </ul>
         </div>
-        <a class="glyphicon glyphicon-step-backward"
+        <i class="glyphicon glyphicon-step-backward noul"
           ng-click="getComponentFromHistory(component.historyIndex -1)"
           ng-show="component.historyIndex > 0"
-          uib-tooltip="{{getComponentStr(component.history[component.historyIndex - 1])}}"></a>
+          uib-tooltip="{{getComponentStr(component.history[component.historyIndex - 1])}}"></i>
         <span
           ng-show="component.object.terminology != metadata.terminology.terminology">{{component.object.terminology}}</span>
         {{component.type}} Report
-        <a class="glyphicon glyphicon-step-forward"
+       
+        <i class="glyphicon glyphicon-step-forward noul"
           ng-click="getComponentFromHistory(component.historyIndex + 1)"
           ng-show="component.history.length > component.historyIndex + 1 && component.history.length > 0"
-          uib-tooltip="{{getComponentStr(component.history[component.historyIndex + 1])}}"></a>
+          uib-tooltip="{{getComponentStr(component.history[component.historyIndex + 1])}}"></i>
+          
+          &nbsp;&nbsp;   <i uib-tooltip="Open {{component.type}} in new window" ng-click="popout()" class="glyphicon glyphicon-share noul"></i>
+      
+             
       </div>
     </div>
     <!-- Component display -->

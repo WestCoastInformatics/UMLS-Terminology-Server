@@ -1,10 +1,14 @@
-
-<!-- Simple Component Report display -->
-<div class="row" ng-if="component.object != null">
-  <div class="col-md-1 col-xs-0"></div>
-  <div class="col-md-10 col-xs-12">
-    <div report component="component" metadata="metadata"
-      callbacks="componentReportCallbacks"></div>
+<!-- Title bar & Navigation history -->
+<div>
+  <div class="row">
+    <div class="col-md-1 col-xs-0"></div>
+    <div class="col-md-10 col-xs-12 nobreak "
+      ng-if="component.object != null">
+      <div class="alert alert-info" style="width: 100%;">
+        {{component.object.terminology}} {{component.type}} Report</div>
+      <div report component="component" metadata="metadata"
+        callbacks="componentReportCallbacks"></div>
+    </div>
+    <div class="col-md-1 col-xs-0"></div>
   </div>
-  <div class="col-md-1 col-xs-0"></div>
 </div>

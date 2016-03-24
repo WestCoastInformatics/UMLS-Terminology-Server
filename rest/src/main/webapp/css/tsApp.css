@@ -126,7 +126,7 @@ body {
 
 .nolink {
 	color: black;
-	cursor: pointer;
+	cursor: none;
 	text-decoration: none;
 }
 

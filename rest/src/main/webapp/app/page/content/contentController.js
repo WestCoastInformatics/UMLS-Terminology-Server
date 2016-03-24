@@ -350,7 +350,7 @@ tsApp.controller('ContentCtrl', [
     //
     // Component Report Callbacks
     //
-    
+
     // if in simple mode, disable navigation functionality
     if ($routeParams.mode === 'simple') {
       console.debug('Enabling component report callbacks for mode: ' + $routeParams.mode);
@@ -363,8 +363,8 @@ tsApp.controller('ContentCtrl', [
         getLabelSetName : metadataService.getLabelSetName,
         countLabels : metadataService.countLabels
       }
-    } 
-    
+    }
+
     // otherwise, enable full functionality
     else {
       console.debug('Enabling component report callbacks for mode: FULL');
@@ -550,6 +550,17 @@ tsApp.controller('ContentCtrl', [
 
       // return the local history
       $scope.localHistory = $scope.component.history.slice(lowerBound, upperBound);
+    };
+
+    $scope.popout = function() {
+      var currentUrl = window.location.href;
+      var baseUrl = currentUrl.substring(0, currentUrl.indexOf('#') + 1);
+      var newUrl = baseUrl + '/content/simple/' + $scope.component.object.terminology + '/'
+        + $scope.component.object.version + '/' + $scope.component.object.terminologyId;
+      var myWindow = window.open(newUrl, $scope.component.object.terminology + '/'
+        + $scope.component.object.version + ', ' + $scope.component.object.terminologyId + ', '
+        + $scope.component.object.name);
+      myWindow.focus();
     };
 
   }

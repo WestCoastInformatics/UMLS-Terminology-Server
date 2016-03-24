@@ -41,7 +41,7 @@
             ng-show="item.codeId != component.object.terminologyId && item.codeId != item.conceptId && item.codeId != item.descriptorId"
             uib-tooltip="{{item.terminology}} code">
             <a ng-show="item.codeId != 'NOCODE'"
-            ng-class="{'nolink' : !callbacks.getComponentFromType}"
+              ng-class="{'nolink' : !callbacks.getComponentFromType}"
               ng-click="callbacks.getComponentFromType(item.codeId, item.terminology, item.version,'CODE')">{{item.codeId}}</a>
             <span ng-show="item.codeId==='NOCODE'">NOCODE</span>
           </span>
