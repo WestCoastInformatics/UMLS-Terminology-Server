@@ -167,13 +167,14 @@ public interface ContentServiceRest {
    * @param terminology the terminology
    * @param version the version
    * @param pfs the pfs
+   * @param filter the filter
    * @param authToken the auth token
    * @return the relationship list
    * @throws Exception the exception
    */
   public RelationshipList findDeepRelationshipsForConcept(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+    String terminology, String version, PfsParameterJpa pfs, String filter,
+    String authToken) throws Exception;
 
   /**
    * Returns the relationships for descriptor.
@@ -839,5 +840,7 @@ public interface ContentServiceRest {
   public MappingList findMappingsForDescriptor(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
+
+  
 
 }

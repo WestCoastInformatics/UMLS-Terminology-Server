@@ -252,13 +252,50 @@ public abstract class RootServiceJpa implements RootService {
   }
 
   /**
+   * Retrieves the sort field value from an object
+   * @param o the object
+   * @param sortField the period-separated X list of sequential getX methods, e.g. a.b.c
+   * @return the value of the requested sort field
+   * @throws Exception
+   */
+  private String getSortFieldValue(Object o, String sortField)
+    throws Exception {
+    // split the fields for method retrieval, e.g. a.b.c. =
+    // o.getA().getB().getC()
+    String[] splitFields = sortField.split("\\.");
+
+    int i = 0;
+    Method finalMethod = null;
+    Object finalObject = o;
+
+    while (i < splitFields.length) {
+      finalMethod = finalObject.getClass().getMethod(
+          "get" + ConfigUtility.capitalize(splitFields[i]), new Class<?>[] {});
+      finalMethod.setAccessible(true);
+      finalObject = finalMethod.invoke(finalObject, new Object[] {});
+      i++;
+    }
+
+    // verify that final object is actually a string, enum, or date
+    if (!finalMethod.getReturnType().equals(String.class)
+        && !finalMethod.getReturnType().isEnum()
+        && !finalMethod.getReturnType().equals(Date.class)) {
+      throw new Exception(
+          "Requested sort field value is not string, enum, or date value");
+    }
+    return finalObject == null ? null : finalObject.toString();
+
+  }
+
+  /**
    * Apply pfs to List.
    *
    * @param <T> the
    * @param list the list
    * @param clazz the clazz
+   * @param totalCt the total ct
    * @param pfs the pfs
-   * @return the javax.persistence. query
+   * @return the paged, filtered, and sorted list
    * @throws Exception the exception
    */
   @Override
@@ -274,83 +311,91 @@ public abstract class RootServiceJpa implements RootService {
 
     List<T> result = list;
 
-    // Handle sorting
-
-    // apply paging, and sorting if appropriate
-    if (pfs != null
-        && (pfs.getSortField() != null && !pfs.getSortField().isEmpty())) {
-
-      // check that specified sort field exists on Concept and is
-      // a string
-      final Method sortMethod =
-          clazz.getMethod("get" + ConfigUtility.capitalize(pfs.getSortField()),
-              new Class<?>[] {});
-
-      if (!sortMethod.getReturnType().equals(String.class)
-          && !sortMethod.getReturnType().isEnum()
-          && !sortMethod.getReturnType().equals(Date.class)) {
-        throw new Exception("Referenced sort field is not of type String");
-      }
-
-      // allow the method to be accessed
-      sortMethod.setAccessible(true);
-
-      final boolean ascending = (pfs != null) ? pfs.isAscending() : true;
-
-      // sort the list
-      Collections.sort(result, new Comparator<T>() {
-        @Override
-        public int compare(T t1, T t2) {
-          // if an exception is returned, simply pass equality
-          try {
-            final String s1 = (String) sortMethod.invoke(t1, new Object[] {});
-            final String s2 = (String) sortMethod.invoke(t2, new Object[] {});
-            if (ascending) {
-              return s1.compareTo(s2);
-            } else {
-              return s2.compareTo(s1);
-            }
-          } catch (Exception e) {
-            return 0;
-          }
-        }
-      });
-
-    }
-    // Total count before filtering
-    totalCt[0] = result.size();
-
-    // Handle filtering based on toString()
+    // handle filtering based on query restriction
     if (pfs != null && (pfs.getQueryRestriction() != null
         && !pfs.getQueryRestriction().isEmpty())) {
-
-      // Strip last char off if it is a *
-      String match = pfs.getQueryRestriction();
-      if (match.lastIndexOf('*') == match.length() - 1) {
-        match = match.substring(0, match.length() - 1);
-      }
-      final List<T> filteredResult = new ArrayList<T>();
-      for (T t : result) {
-        if (t.toString().toLowerCase().indexOf(match.toLowerCase()) != -1) {
-          filteredResult.add(t);
+      result = new ArrayList<>();
+      for (T t : list) {
+        if (t.toString().toLowerCase()
+            .indexOf(pfs.getQueryRestriction().toLowerCase()) != -1) {
+          result.add(t);
         }
       }
+    }
 
-      if (filteredResult.size() != result.size()) {
-        result = filteredResult;
+    // check if sorting required
+    if (pfs != null) {
+
+      List<String> sortFields = new ArrayList<>();
+      
+      // if sort field specified, add to list of sort fields
+      if (pfs.getSortField() != null && pfs.getSortField().isEmpty()) {
+        sortFields.add(pfs.getSortField());
+      } 
+      
+      // otherwise, if multiple sort fields specified
+      else if (pfs.getSortFields() != null && !pfs.getSortFields().isEmpty()) {
+        sortFields = pfs.getSortFields();
+      }
+
+      // if one or more sort fields found, apply sorting
+      if (!sortFields.isEmpty()) {
+
+        final boolean ascending = (pfs != null) ? pfs.isAscending() : true;
+
+        // sort the list
+        Collections.sort(result, new Comparator<T>() {
+
+          @Override
+          public int compare(T t1, T t2) {
+            // if an exception is returned, simply pass equality
+            try {
+
+              for (String sortField : pfs.getSortFields()) {
+                final String s1 = getSortFieldValue(t1, sortField);
+                final String s2 = getSortFieldValue(t2, sortField);
+
+                if (ascending) {
+                  if (s1 == null && s2 != null) {
+                    return -1;
+                  }
+                  if (s1.compareTo(s2) != 0) {
+                    return s1.compareTo(s2);
+                  }
+                } else {
+                  if (s2 == null && s1 != null) {
+                    return -1;
+                  }
+                  if (s2.compareTo(s1) != 0) {
+                    return s2.compareTo(s1);
+                  }
+                }
+              }
+              // if no return after checking all methods, return equality
+              return 0;
+            } catch (Exception e) {
+              e.printStackTrace();
+              return 0;
+            }
+          }
+        });
       }
     }
 
     // get the start and end indexes based on paging parameters
     int startIndex = 0;
+
     int toIndex = result.size();
     if (pfs != null && pfs.getStartIndex() != -1) {
       startIndex = pfs.getStartIndex();
       toIndex = Math.min(result.size(), startIndex + pfs.getMaxResults());
-      if (startIndex > toIndex) {
+      if (startIndex > toIndex)
+
+      {
         startIndex = 0;
       }
       result = result.subList(startIndex, toIndex);
+
     }
 
     return result;
@@ -401,6 +446,7 @@ public abstract class RootServiceJpa implements RootService {
       } else {
         // make comparator
         return new Comparator<T>() {
+
           @Override
           public int compare(T o2, T o1) {
             try {
@@ -418,6 +464,7 @@ public abstract class RootServiceJpa implements RootService {
               return 0;
             }
           }
+
         };
       }
 

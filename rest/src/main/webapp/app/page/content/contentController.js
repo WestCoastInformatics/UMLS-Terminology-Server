@@ -362,6 +362,8 @@ tsApp.controller('ContentCtrl', [
         getGeneralEntryValue : metadataService.getGeneralEntryValue,
         getLabelSetName : metadataService.getLabelSetName,
         countLabels : metadataService.countLabels
+
+      // TODO Add relationship functions here, remove from relationships/relationships-deep
       }
     }
 
@@ -379,6 +381,8 @@ tsApp.controller('ContentCtrl', [
         getGeneralEntryValue : metadataService.getGeneralEntryValue,
         getLabelSetName : metadataService.getLabelSetName,
         countLabels : metadataService.countLabels
+
+      // TODO Add relationship functions here, remove from relationships/relationships-deep
       }
     }
 

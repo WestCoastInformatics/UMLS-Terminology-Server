@@ -1758,7 +1758,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("  Test deep relationships");
     RelationshipList list =
         contentService.findDeepRelationshipsForConcept("C0000097", "UMLS",
-            "latest", new PfsParameterJpa(), authToken);
+            "latest", new PfsParameterJpa(), null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
     assertEquals(66, list.getTotalCount());
@@ -1773,7 +1773,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setMaxResults(10);
     list =
         contentService.findDeepRelationshipsForConcept("C0000097", "UMLS",
-            "latest", pfs, authToken);
+            "latest", pfs, null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
     assertEquals(66, list.getTotalCount());
@@ -1786,7 +1786,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setSortField("relationshipType");
     list =
         contentService.findDeepRelationshipsForConcept("C0000097", "UMLS",
-            "latest", pfs, authToken);
+            "latest", pfs, null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
     assertEquals(66, list.getTotalCount());
@@ -1801,7 +1801,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setSortField("relationshipType");
     list =
         contentService.findDeepRelationshipsForConcept("C0000097", "UMLS",
-            "latest", pfs, authToken);
+            "latest", pfs, null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
     assertEquals(66, list.getTotalCount());
@@ -1818,7 +1818,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setSortField("relationshipType");
     list =
         contentService.findDeepRelationshipsForConcept("C0000097", "UMLS",
-            "latest", pfs, authToken);
+            "latest", pfs, null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
     assertEquals(66, list.getTotalCount());

@@ -11,7 +11,7 @@ tsApp.directive('relationshipsDeep', [
         showHidden : '=',
         callbacks : '='
       },
-      templateUrl : 'app/component/relationshipsDeep/relationshipsDeep.html',
+      templateUrl : 'app/component/relationships-deep/relationshipsDeep.html',
       link : function(scope, element, attrs) {
 
         // instantiate paging and paging callback function

@@ -1143,10 +1143,21 @@ public class ContentClientRest extends RootClientRest
     return list;
   }
 
+  /**
+   * Find deep relationships for concept.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
   public RelationshipList findDeepRelationshipsForConcept(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String authToken)
+    String terminology, String version, PfsParameterJpa pfs, String filter, String authToken)
       throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - find deep relationships for concept "
