@@ -254,7 +254,8 @@ public abstract class RootServiceJpa implements RootService {
   /**
    * Retrieves the sort field value from an object
    * @param o the object
-   * @param sortField the period-separated X list of sequential getX methods, e.g. a.b.c
+   * @param sortField the period-separated X list of sequential getX methods,
+   *          e.g. a.b.c
    * @return the value of the requested sort field
    * @throws Exception
    */
@@ -312,10 +313,13 @@ public abstract class RootServiceJpa implements RootService {
     List<T> result = list;
 
     // handle filtering based on query restriction
-    if (pfs != null && (pfs.getQueryRestriction() != null
-        && !pfs.getQueryRestriction().isEmpty())) {
+    if (pfs != null && pfs.getQueryRestriction() != null
+        && !pfs.getQueryRestriction().isEmpty()) {
       result = new ArrayList<>();
       for (T t : list) {
+        String tStr = t.toString().toLowerCase();
+        String fStr = pfs.getQueryRestriction().toLowerCase();
+        int index = tStr.indexOf(fStr);
         if (t.toString().toLowerCase()
             .indexOf(pfs.getQueryRestriction().toLowerCase()) != -1) {
           result.add(t);
@@ -327,12 +331,12 @@ public abstract class RootServiceJpa implements RootService {
     if (pfs != null) {
 
       List<String> sortFields = new ArrayList<>();
-      
+
       // if sort field specified, add to list of sort fields
       if (pfs.getSortField() != null && pfs.getSortField().isEmpty()) {
         sortFields.add(pfs.getSortField());
-      } 
-      
+      }
+
       // otherwise, if multiple sort fields specified
       else if (pfs.getSortFields() != null && !pfs.getSortFields().isEmpty()) {
         sortFields = pfs.getSortFields();
@@ -355,23 +359,27 @@ public abstract class RootServiceJpa implements RootService {
                 final String s1 = getSortFieldValue(t1, sortField);
                 final String s2 = getSortFieldValue(t2, sortField);
 
-                if (ascending) {
-                  if (s1 == null && s2 != null) {
-                    return -1;
-                  }
-                  if (s1.compareTo(s2) != 0) {
-                    return s1.compareTo(s2);
-                  }
-                } else {
-                  if (s2 == null && s1 != null) {
-                    return -1;
-                  }
-                  if (s2.compareTo(s1) != 0) {
-                    return s2.compareTo(s1);
+                // if both values null, skip to next sort field
+                if (s1 != null || s2 != null) {
+
+                  if (ascending) {
+                    if (s1 == null && s2 != null) {
+                      return -1;
+                    }
+                    if (s1.compareTo(s2) != 0) {
+                      return s1.compareTo(s2);
+                    }
+                  } else {
+                    if (s2 == null && s1 != null) {
+                      return -1;
+                    }
+                    if (s2.compareTo(s1) != 0) {
+                      return s2.compareTo(s1);
+                    }
                   }
                 }
               }
-              // if no return after checking all methods, return equality
+              // if no return after checking all sort fields, return equality
               return 0;
             } catch (Exception e) {
               e.printStackTrace();
@@ -381,6 +389,9 @@ public abstract class RootServiceJpa implements RootService {
         });
       }
     }
+    
+    // set the total count
+    totalCt[0] = result.size();
 
     // get the start and end indexes based on paging parameters
     int startIndex = 0;

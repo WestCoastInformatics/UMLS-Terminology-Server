@@ -31,13 +31,15 @@
         class="hidden-xs">
         <a ng-class="{'nolink' : !callbacks.getComponent}"
           ng-click="callbacks.getComponent(item.toTerminologyId, component.object.terminology, component.object.version)"
-          uib-tooltip="{{item.terminology}} {{componentType | lowercase}}">{{item.toTerminologyId}}</a>
-        {{item.toName}}
+          uib-tooltip="{{component.object.terminology}} {{component.type | lowercase}}">{{item.toTerminologyId}}</a>
+        {{item.toName}}  [{{item.terminology}}]
       </span> <span class="visible-xs-inline">
         <a ng-class="{'nolink' : !callbacks.getComponent}"
           ng-click="callbacks.getComponent(item.toTerminologyId, component.object.terminology, component.object.version)"
-          uib-tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
-      </span></li>
+          uib-tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}} [{{item.terminology}}]</a>
+      </span>
+      &nbsp;
+     </li>
   </ul>
 
 </div>

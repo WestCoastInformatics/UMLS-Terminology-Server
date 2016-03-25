@@ -3345,7 +3345,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     boolean inverseFlag, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - find deep relationships for concept "
-            + conceptId + "/" + terminology + "/" + version);
+            + conceptId + "/" + terminology + "/" + version + "/" + filter);
 
     if (pfs != null && pfs.getQueryRestriction() != null) {
       throw new IllegalArgumentException(
@@ -3470,10 +3470,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       int[] totalCt = new int[1];
       conceptRelList = this.applyPfsToList(conceptRelList,
-          ConceptRelationship.class, totalCt, pfs);
+          ConceptRelationship.class, totalCt, pfsLocal);
 
       RelationshipList list = new RelationshipListJpa();
-      list.setTotalCount(conceptRels.size());
+      list.setTotalCount(totalCt[0]);
       for (ConceptRelationship cr : conceptRelList) {
         list.addObject(cr);
       }

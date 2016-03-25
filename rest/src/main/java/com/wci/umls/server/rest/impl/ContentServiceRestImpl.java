@@ -2035,20 +2035,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
-    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("filter") String filter,
+    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /cui/" + terminology + "/" + version
-            + "/" + terminologyId + "/relationships/deep");
+            + "/" + terminologyId + "/relationships/deep with query: " + query);
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
           "retrieve deep relationships for the concept", UserRole.VIEWER);
 
       return contentService.findDeepRelationshipsForConcept(terminologyId,
-          terminology, version, Branch.ROOT, filter, false, pfs);
+          terminology, version, Branch.ROOT, query, false, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve deep relationships for a concept");

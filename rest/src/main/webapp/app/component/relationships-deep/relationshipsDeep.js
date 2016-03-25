@@ -39,7 +39,7 @@ tsApp.directive('relationshipsDeep', [
           value : 'additionalRelationshipType'
         }, {
           key : 'Name',
-          value : 'toName'
+          value : 'to.name'
         } ];
 
         function getPagedList() {
@@ -49,7 +49,7 @@ tsApp.directive('relationshipsDeep', [
           // otherwise, sort by specified field and additionally by group
           var sortFields = [];
           if (scope.paging.sortField === 'group') {
-            sortFields = [ 'group', 'relationshipType' ]
+            sortFields = [ 'group', 'relationshipType', 'additionalRelationshipType']
           } else {
             sortFields = [ scope.paging.sortField, 'group' ];
           }
