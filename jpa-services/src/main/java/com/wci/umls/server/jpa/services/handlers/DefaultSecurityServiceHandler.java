@@ -10,9 +10,11 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.UserJpa;
+import com.wci.umls.server.jpa.UserPreferencesJpa;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 
 /**
@@ -45,6 +47,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     }
 
     User user = new UserJpa();
+    UserPreferences userPreferences = new UserPreferencesJpa();
 
     // check specified admin users list from config file
     if (getAdminUsersFromConfigFile().contains(username)) {
@@ -53,6 +56,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
       user.setName(username.substring(0, 1).toUpperCase()
           + username.substring(1));
       user.setEmail(username + "@example.com");
+      user.setUserPreferences(userPreferences);
       return user;
     }
 
@@ -62,6 +66,7 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
       user.setName(username.substring(0, 1).toUpperCase()
           + username.substring(1));
       user.setEmail(username + "@example.com");
+      user.setUserPreferences(userPreferences);
       return user;
     }
 

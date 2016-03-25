@@ -75,4 +75,15 @@ public interface ProjectService extends RootService {
    */
   public UserRole getUserRoleForProject(String username, Long projectId)
     throws Exception;
+
+  /**
+   * Find projects for query.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @return the project list
+   * @throws Exception the exception
+   */
+  public ProjectList findProjectsForQuery(String query, PfsParameter pfs)
+    throws Exception;
 }

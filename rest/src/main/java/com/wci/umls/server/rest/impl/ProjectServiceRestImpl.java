@@ -21,19 +21,16 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.UserList;
-import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.ProjectListJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
-import com.wci.umls.server.jpa.helpers.content.ConceptListJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
@@ -332,6 +329,32 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   
   /* see superclass */
   @Override
+  @GET
+  @Path("/roles")
+  @ApiOperation(value = "Get project roles", notes = "Gets list of valid project roles", response = StringList.class)
+  public StringList getProjectRoles(
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful POST call (Project): /roles");
+
+    try {
+      authorizeApp(securityService, authToken, "get roles", UserRole.VIEWER);
+      final StringList list = new StringList();
+      list.setTotalCount(3);
+      list.getObjects().add(UserRole.AUTHOR.toString());
+      list.getObjects().add(UserRole.REVIEWER.toString());
+      list.getObjects().add(UserRole.ADMINISTRATOR.toString());
+      return list;
+    } catch (Exception e) {
+      handleException(e, "trying to get roles");
+      return null;
+    } finally {
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
   @POST
   @Path("/users/{projectId}/unassigned")
   @ApiOperation(value = "Find candidate users for project", notes = "Finds users who do not yet have assigned roles on the specified project", response = UserListJpa.class)
@@ -373,6 +396,42 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     }
   }
   
+  /* see superclass */
+  @Override
+  @GET
+  @Produces("text/plain")
+  @Path("/user/anyrole")
+  @ApiOperation(value = "Determines whether the user has a project role", notes = "Returns true if the user has any role on any project", response = Boolean.class)
+  public Boolean userHasSomeProjectRole(
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Project): /user/anyrole");
+    final ProjectService projectService = new ProjectServiceJpa();
+    try {
+      final String user =
+          authorizeApp(securityService, authToken,
+              "check for any project role", UserRole.VIEWER);
+
+      final StringBuilder sb = new StringBuilder();
+      sb.append("(");
+      sb.append("userRoleMap:" + user + UserRole.ADMINISTRATOR).append(" OR ");
+      sb.append("userRoleMap:" + user + UserRole.REVIEWER).append(" OR ");
+      sb.append("userRoleMap:" + user + UserRole.AUTHOR).append(")");
+      final ProjectList list =
+          projectService.findProjectsForQuery(sb.toString(),
+              new PfsParameterJpa());
+      return list.getTotalCount() != 0;
+
+    } catch (Exception e) {
+      handleException(e, "trying to check for any project role");
+    } finally {
+      projectService.close();
+      securityService.close();
+    }
+    return false;
+  }
+
   /* see superclass */
   @Override
   @GET
@@ -433,4 +492,34 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     }
     return null;
   }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/projects")
+  @ApiOperation(value = "Finds projects", notes = "Finds projects for the specified query", response = ProjectListJpa.class)
+  public ProjectList findProjectsForQuery(
+    @ApiParam(value = "Query", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Project): find projects for query, " + pfs);
+
+    final ProjectService projectService = new ProjectServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "find projects", UserRole.VIEWER);
+
+      return projectService.findProjectsForQuery(query, pfs);
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve projects ");
+      return null;
+    } finally {
+      projectService.close();
+      securityService.close();
+    }
+
+  }
+
 }

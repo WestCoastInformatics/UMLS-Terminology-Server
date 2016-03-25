@@ -6,7 +6,6 @@ package com.wci.umls.server.rest.impl;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.services.ProjectService;

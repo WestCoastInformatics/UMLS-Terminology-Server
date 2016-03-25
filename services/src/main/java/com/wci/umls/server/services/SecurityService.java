@@ -119,12 +119,36 @@ public interface SecurityService extends RootService {
    */
   public void handleLazyInit(User user);
 
+  /**
+   * Update user preferences.
+   *
+   * @param userPreferences the user preferences
+   */
   public void updateUserPreferences(UserPreferences userPreferences);
 
+  /**
+   * Removes the user preferences.
+   *
+   * @param id the id
+   */
   public void removeUserPreferences(Long id);
 
+  /**
+   * Adds the user preferences.
+   *
+   * @param userPreferences the user preferences
+   * @return the user preferences
+   */
   public UserPreferences addUserPreferences(UserPreferences userPreferences);
 
+  /**
+   * Find users for query.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @return the user list
+   * @throws Exception the exception
+   */
   public UserList findUsersForQuery(String query, PfsParameter pfs) throws Exception;
 
 }
