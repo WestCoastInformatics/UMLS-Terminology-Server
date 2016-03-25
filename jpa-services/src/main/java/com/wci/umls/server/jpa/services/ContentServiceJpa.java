@@ -2452,7 +2452,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     SearchResultList results = new SearchResultListJpa();
     List<T> classes = null;
     int totalCt[] = new int[1];
-    
+
     // declare search handler
     SearchHandler searchHandler = null;
 
@@ -2461,12 +2461,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     boolean queryFlag = false;
     if (isLuceneQueryInfo(query, pfsc)) {
       queryFlag = true;
-      
+
       // if an atom class, use atom class
       if (AbstractAtomClass.class.isAssignableFrom(clazz)) {
         searchHandler = getSearchHandler(ConfigUtility.ATOMCLASS);
       }
-      
+
       // otherwise look for terminology specific handlers
       else {
         searchHandler = getSearchHandler(terminology);
@@ -2554,8 +2554,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       results.setTotalCount(0);
       return results;
     }
-    
-    
+
     Map<Long, Float> scoreMap = new HashMap<>();
     if (searchHandler != null) {
       scoreMap = searchHandler.getScoreMap();
@@ -3341,15 +3340,15 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @SuppressWarnings({
-      "rawtypes", "unchecked"
+      "unchecked"
   })
   @Override
   public RelationshipList findDeepRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch, boolean inverseFlag,
-    PfsParameter pfs) throws Exception {
+    String terminology, String version, String branch, String filter,
+    boolean inverseFlag, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - find deep relationships for concept "
-            + conceptId + "/" + terminology + "/" + version);
+            + conceptId + "/" + terminology + "/" + version + "/" + filter);
 
     if (pfs != null && pfs.getQueryRestriction() != null) {
       throw new IllegalArgumentException(
@@ -3364,7 +3363,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       String queryStr =
           "select a.id, a.terminologyId, a.terminology, a.version, "
               + "a.relationshipType, a.additionalRelationshipType, a.to.terminologyId, "
-              + "a.obsolete, a.suppressible, a.published, a.publishable "
+              + "a.obsolete, a.suppressible, a.published, a.publishable, "
+              + (inverseFlag ? "a.to.name " : "a.from.name ")
               + "from ConceptRelationshipJpa a " + "where "
               + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId ";
       javax.persistence.Query query = manager.createQuery(queryStr);
@@ -3373,7 +3373,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
-          + "a.obsolete, a.suppressible, a.published, a.publishable "
+          + "a.obsolete, a.suppressible, a.published, a.publishable, "
+          + (inverseFlag ? "a.to.name " : "a.from.name ")
           + "from AtomRelationshipJpa a join a.to.conceptTerminologyIds cui2 "
           + "where key(cui2) = '" + concept.getTerminology() + "' and "
           + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds) ";
@@ -3387,7 +3388,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
-          + "a.obsolete, a.suppressible, a.published, a.publishable "
+          + "a.obsolete, a.suppressible, a.published, a.publishable, "
+          + (inverseFlag ? "a.to.name " : "a.from.name ")
           + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
           + "DescriptorJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
           + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -3404,7 +3406,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
-          + "a.obsolete, a.suppressible, a.published, a.publishable "
+          + "a.obsolete, a.suppressible, a.published, a.publishable, "
+          + (inverseFlag ? "a.to.name " : "a.from.name ")
           + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
           + "ConceptJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
           + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -3421,7 +3424,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
-          + "a.obsolete, a.suppressible, a.published, a.publishable "
+          + "a.obsolete, a.suppressible, a.published, a.publishable, "
+          + (inverseFlag ? "a.to.name " : "a.from.name ")
           + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
           + "CodeJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
           + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -3437,14 +3441,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
       results.addAll(query.getResultList());
 
       // Use a set to "uniq" them
-      Set<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> conceptRels =
-          new HashSet<>();
+      Set<ConceptRelationship> conceptRels = new HashSet<>();
       for (final Object[] result : results) {
         final ConceptRelationship relationship = new ConceptRelationshipJpa();
         final Concept toConcept = new ConceptJpa();
         toConcept.setTerminology(concept.getTerminology());
         toConcept.setVersion(concept.getVersion());
         toConcept.setTerminologyId(result[6].toString());
+        toConcept.setName(result[11].toString());
         relationship.setId(Long.parseLong(result[0].toString()));
         relationship.setFrom(concept);
         relationship.setTerminologyId(result[1].toString());
@@ -3461,45 +3465,21 @@ public class ContentServiceJpa extends MetadataServiceJpa
         relationship.setTo(toConcept);
         conceptRels.add(relationship);
       }
-      List<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> conceptRelList =
-          new ArrayList<>(conceptRels);
+      List<ConceptRelationship> conceptRelList = new ArrayList<>(conceptRels);
 
-      // Apply PFS sorting manually
-      if (pfs != null && pfs.getSortField() != null) {
-        final Method getMethod = ConceptRelationshipJpa.class
-            .getMethod("get" + pfs.getSortField().substring(0, 1).toUpperCase()
-                + pfs.getSortField().substring(1));
-        if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
-          throw new Exception("Referenced sort field is not comparable");
-        }
-        Collections.sort(conceptRelList, new Comparator<Relationship>() {
-          @Override
-          public int compare(Relationship o1, Relationship o2) {
-            try {
-              Comparable f1 =
-                  (Comparable) getMethod.invoke(o1, new Object[] {});
-              Comparable f2 =
-                  (Comparable) getMethod.invoke(o2, new Object[] {});
-              return f1.compareTo(f2);
-            } catch (Exception e) {
-              // do nothing
-            }
-            return 0;
-          }
-        });
-      }
+      // set filter as query restriction for use in applyPfsToList
+      PfsParameter pfsLocal = new PfsParameterJpa(pfs);
+      pfsLocal.setQueryRestriction(filter);
 
-      // Apply PFS paging manually
-      if (pfs != null && pfs.getStartIndex() != -1) {
-        int startIndex = pfs.getStartIndex();
-        int toIndex = conceptRelList.size();
-        toIndex = Math.min(toIndex, startIndex + pfs.getMaxResults());
-        conceptRelList = conceptRelList.subList(startIndex, toIndex);
-      }
+      int[] totalCt = new int[1];
+      conceptRelList = this.applyPfsToList(conceptRelList,
+          ConceptRelationship.class, totalCt, pfsLocal);
 
       RelationshipList list = new RelationshipListJpa();
-      list.setTotalCount(conceptRels.size());
-      list.setObjects(conceptRelList);
+      list.setTotalCount(totalCt[0]);
+      for (ConceptRelationship cr : conceptRelList) {
+        list.addObject(cr);
+      }
 
       return list;
     } catch (NoResultException e) {
@@ -3599,25 +3579,25 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-@SuppressWarnings({
-    "unchecked", "rawtypes"
-})
-private MappingList findMappingsForComponentHelper(
-  String terminologyId, String terminology, String version, String branch,
-  String query, PfsParameter pfs) throws Exception {
+  @SuppressWarnings({
+      "unchecked", "rawtypes"
+  })
+  private MappingList findMappingsForComponentHelper(String terminologyId,
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
 
-  if (terminologyId == null || terminologyId.isEmpty()) {
-    throw new Exception("Terminology id is required");
-  }
+    if (terminologyId == null || terminologyId.isEmpty()) {
+      throw new Exception("Terminology id is required");
+    }
 
-  MappingList results = new MappingListJpa();
+    MappingList results = new MappingListJpa();
 
-  // Prepare the query string
-  StringBuilder finalQuery = new StringBuilder();
-  finalQuery.append(query == null ? "" : query);
-  if (!finalQuery.toString().isEmpty()) {
-    finalQuery.append(" AND ");
-  }
+    // Prepare the query string
+    StringBuilder finalQuery = new StringBuilder();
+    finalQuery.append(query == null ? "" : query);
+    if (!finalQuery.toString().isEmpty()) {
+      finalQuery.append(" AND ");
+    }
 
   finalQuery
         .append("fromTerminologyId:" + terminologyId + " AND fromTerminology:"
@@ -3632,12 +3612,12 @@ private MappingList findMappingsForComponentHelper(
       MappingJpa.class, pfs, totalCt, manager));
   results.setTotalCount(totalCt[0]);
 
-  for (Mapping mapping : results.getObjects()) {
-    getGraphResolutionHandler(terminology).resolve(mapping);
-  }
-  return results;
+    for (Mapping mapping : results.getObjects()) {
+      getGraphResolutionHandler(terminology).resolve(mapping);
+    }
+    return results;
 
-}
+  }
 
   /* see superclass */
   @Override
@@ -4401,13 +4381,13 @@ private MappingList findMappingsForComponentHelper(
     return getComponent(terminologyId, terminology, version, branch,
         MapSetJpa.class);
   }
-  
+
   /* see superclass */
   @Override
   public MapSetList getMapSets(String terminology, String version,
     String branch) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Service - get mapsets " + terminology + "/" + version);
+    Logger.getLogger(getClass())
+        .debug("Content Service - get mapsets " + terminology + "/" + version);
     javax.persistence.Query query =
         manager.createQuery("select a from MapSetJpa a where "
             + "version = :version and terminology = :terminology");
@@ -4428,7 +4408,7 @@ private MappingList findMappingsForComponentHelper(
       return null;
     }
   }
-  
+
   /* see superclass */
   @Override
   public Mapping getMapping(Long id) throws Exception {
@@ -4481,26 +4461,26 @@ private MappingList findMappingsForComponentHelper(
     String terminology, String version, String branch, String query,
     PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - find mappings for concept " + conceptId
-            + "/" + terminology + "/" + version + "/" + branch + "/" + query);
+        .debug("Content Service - find mappings for concept " + conceptId + "/"
+            + terminology + "/" + version + "/" + branch + "/" + query);
 
     return findMappingsForComponentHelper(conceptId, terminology, version,
         branch, query, pfs);
   }
-  
+
   /* see superclass */
   @Override
-  public MappingList findMappingsForCode(String codeId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
+  public MappingList findMappingsForCode(String codeId, String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+      throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Service - find mappings for code " + codeId
-            + "/" + terminology + "/" + version + "/" + branch + "/" + query);
+        .debug("Content Service - find mappings for code " + codeId + "/"
+            + terminology + "/" + version + "/" + branch + "/" + query);
 
-    return findMappingsForComponentHelper(codeId, terminology, version,
-        branch, query, pfs);
+    return findMappingsForComponentHelper(codeId, terminology, version, branch,
+        query, pfs);
   }
-  
+
   /* see superclass */
   @Override
   public MappingList findMappingsForDescriptor(String descriptorId,
@@ -4513,7 +4493,7 @@ private MappingList findMappingsForComponentHelper(
     return findMappingsForComponentHelper(descriptorId, terminology, version,
         branch, query, pfs);
   }
-  
+
   /* see superclass */
   @Override
   public MapSet addMapSet(MapSet mapSet) throws Exception {
@@ -4589,6 +4569,5 @@ private MappingList findMappingsForComponentHelper(
       }
     }
   }
-  
-  
+
 }

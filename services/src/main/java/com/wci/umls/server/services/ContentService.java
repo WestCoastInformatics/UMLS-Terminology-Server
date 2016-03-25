@@ -230,13 +230,14 @@ public interface ContentService extends MetadataService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param filter the filter
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationship list
    * @throws Exception the exception
    */
   public RelationshipList findDeepRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch, boolean inverseFlag,
+    String terminology, String version, String branch, String filter, boolean inverseFlag,
     PfsParameter pfs) throws Exception;
 
   /**

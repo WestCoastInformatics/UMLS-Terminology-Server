@@ -1,0 +1,28 @@
+<span style="display: block;" ng-show="count > paging.pageSize || paging.filter">
+  <!-- UIB Pagination -->
+  <uib-pagination items-per-page="paging.pageSize" max-size="5"
+    boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
+    next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+    total-items="count" ng-model="paging.page"
+    ng-change="callback.getPagedList()"></uib-pagination>
+  <!--  Filters -->
+  <input class="input-filter" placeholder="Enter filter text" type="text"
+    ng-model="paging.filter" ng-model-options="{ debounce: 500 }"
+    ng-change="callback.getPagedList()">
+  <button class="btn btn-xs btn-warning" ng-show="paging.filter"
+    ng-click="paging.filter = ''; callback.getPagedList(); "
+    uib-tooltip="Click to clear filter text">Clear</button>
+  <!-- Field sort order -->
+  <span
+    uib-tooltip="Sort - {{paging.sortAscending ? 'Ascending' : 'Descending'}}"
+    ng-click="paging.page = 1; paging.sortAscending = !paging.sortAscending; callback.getPagedList();"
+    ng-show="count > paging.  pageSize" class="glyphicon"
+    ng-class="[{'glyphicon-sort-by-attributes': paging.sortAscending}, {'glyphicon-sort-by-attributes-alt': !paging.sortAscending}]"></span>
+  <select ng-show="count > paging.pageSize" class="input-filter"
+    ng-model="paging.sortField"
+    ng-options="o.value as o.key for o in paging.sortOptions"
+    ng-change="paging.page = 1; callback.getPagedList()">
+  </select>
+</span>
+
+  

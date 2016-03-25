@@ -1,28 +1,52 @@
-
-<!-- Title -->
-<h3>
-  {{component.object.terminologyId}} {{component.object.name}}
-  <span class="label label-warning"
-    ng-show="metadata.terminology.metathesaurus && component.object.suppressible == true"
-    uib-tooltip="Suppressible">S</span>
-  <span class="label label-default" ng-show="component.object.obsolete == true"
-    uib-tooltip="Obsolete">O</span>
-  <span
-    ng-show="metadata.terminology.descriptionLogicTerminology && !component.object.fullyDefined"
-    class="label label-info" uib-tooltip="Primitive">P</span>
-  <span style="padding-bottom: 2px;"
-    ng-show="metadata.terminology.descriptionLogicTerminology && component.object.fullyDefined"
-    class="label label-info" uib-tooltip="Necessary and sufficient definition">D</span>
-</h3>
-
-<!-- Buttons for suppressible/obsolete -->
-
-<button ng-show="!metadata.terminology.descriptionLogicTerminology"
-  ng-click="toggleSuppressible()" class="btn btn-xs btn-primary">
-  <span ng-show="showSuppressible == true">Hide Suppressible</span>
-  <span ng-show="showSuppressible != true">Show Suppressible</span>
-</button>
-<button ng-click="toggleObsolete()" class="btn btn-xs btn-primary">
-  <span ng-show="showObsolete == true">Hide Obsolete</span>
-  <span ng-show="showObsolete != true">Show Obsolete</span>
-</button>
+<div ng-if="component">
+  <!-- Title -->
+  <h3>
+    {{component.object.terminologyId}} {{component.object.name}}
+    <span class="label label-warning"
+      ng-show="metadata.terminology.metathesaurus && component.object.suppressible"
+      uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator}}</span>
+    <span class="label label-default" ng-show="component.object.obsolete"
+      uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+    <span style="padding-bottom: 2px;"
+      ng-show="metadata.terminology.descriptionLogicTerminology && component.object.anonymous"
+      class="label label-info" uib-tooltip="Anonymous">A</span>
+    <span style="padding-bottom: 2px;"
+      ng-show="metadata.terminology.descriptionLogicTerminology && !component.object.fullyDefined && !component.object.anonymous"
+      class="label label-info" uib-tooltip="Primitive">P</span>
+    <span style="padding-bottom: 2px;"
+      ng-show="metadata.terminology.descriptionLogicTerminology && component.object.fullyDefined"
+      class="label label-info" uib-tooltip="Necessary and sufficient definition">D</span>
+  </h3>
+  <!-- Buttons for suppressible/obsolete -->
+  <button ng-show="!metadata.terminology.descriptionLogicTerminology"
+    ng-click="showHidden = !showHidden" class="btn btn-xs btn-primary">
+    <span ng-show="showHidden">Hide Obsolete and Suppressible</span>
+    <span ng-show="!showHidden">Show Obsolete and Suppressible</span>
+  </button>
+  <!-- Hierarchical tree -->
+  <div tree-component component="component" metadata="metadata"
+    callbacks="callbacks"></div>
+  <!-- Semantic Types -->
+  <div semantic-types component="component" metadata="metadata"
+    show-hidden="showHidden" callbacks="callbacks"></div>
+  <!-- Definitions -->
+  <div definitions component="component" metadata="metadata"
+    show-hidden="showHidden" callbacks="callbacks"></div>
+  <!-- Atoms -->
+  <div atoms component="component" metadata="metadata" show-hidden="showHidden"
+    callbacks="callbacks"></div>
+  <!-- Attributes -->
+  <div attributes component="component" metadata="metadata"
+    show-hidden="showHidden" callbacks="callbacks"></div>
+  <!-- Subsets -->
+  <div subsets component="component" metadata="metadata"
+    show-hidden="showHidden" callbacks="callbacks"></div>
+  <!-- Relationships -->
+  <div relationships component="component" metadata="metadata"
+    show-hidden="showHidden" callbacks="callbacks"></div>
+  <!-- Deep relationships -->
+  <div
+    ng-if="metadata.terminology.metathesaurus && component.type === 'CONCEPT'"
+    relationships-deep component="component" metadata="metadata"
+    show-hidden="showHidden" callbacks="callbacks"></div>
+</div>

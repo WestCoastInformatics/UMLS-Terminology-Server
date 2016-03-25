@@ -79,6 +79,14 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         }
         resolve(atom);
       }
+      
+      // Subsets
+      for (ConceptSubsetMember subset : concept.getMembers()) {
+        if (nullId) {
+          subset.setId(null);;
+        }
+        resolve(subset);
+      }
 
       // Relationships
       // default behavior -- require paging of relationships
@@ -134,6 +142,10 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       // Definitions
       for (Definition def : atom.getDefinitions()) {
         resolveDefinition(def, nullId);
+      }
+      
+      for (AtomSubsetMember member : atom.getMembers()) {
+        resolve(member);
       }
 
       // Relationships
@@ -212,7 +224,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         }
         resolve(atom);
       }
-
+     
       // Relationships
       // default behavior -- require paging of relationships
       descriptor.setRelationships(new ArrayList<DescriptorRelationship>());

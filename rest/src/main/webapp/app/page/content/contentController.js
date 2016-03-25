@@ -1,6 +1,7 @@
 // Content controller
 tsApp.controller('ContentCtrl', [
   '$scope',
+  '$routeParams',
   '$http',
   '$uibModal',
   '$location',
@@ -13,8 +14,8 @@ tsApp.controller('ContentCtrl', [
   'securityService',
   'metadataService',
   'contentService',
-  function($scope, $http, $uibModal, $location, $q, $anchorScroll, $sce, gpService, utilService,
-    tabService, securityService, metadataService, contentService) {
+  function($scope, $routeParams, $http, $uibModal, $location, $q, $anchorScroll, $sce, gpService,
+    utilService, tabService, securityService, metadataService, contentService) {
     console.debug('configure ContentCtrl');
 
     // Handle resetting tabs on "back" button
@@ -58,8 +59,7 @@ tsApp.controller('ContentCtrl', [
     $scope.getColorForScore = function(score) {
       if (score > $scope.scoreExcellent) {
         return 'green'
-      }
-      else if (score > $scope.scoreGood) {
+      } else if (score > $scope.scoreGood) {
         return 'yellow';
       } else {
         return 'orange';
@@ -70,7 +70,7 @@ tsApp.controller('ContentCtrl', [
     // Watch expressions
     //
 
-    // Watch for changes in metadata.terminologies
+    // Watch for changes in metadata.terminologies (indicates application readiness)
     $scope.$watch('metadata.terminology', function() {
 
       // clear the terminology-specific variables
@@ -89,9 +89,6 @@ tsApp.controller('ContentCtrl', [
         + contentService.getPrefixForType($scope.metadata.terminology.organizingClassType) + '/'
         + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
         + "/autocomplete/";
-
-      // metadataService.setTerminology($scope.metadata.terminologies);
-
     });
 
     //
@@ -100,9 +97,10 @@ tsApp.controller('ContentCtrl', [
 
     // Sets the terminololgy
     $scope.setTerminology = function(terminology) {
-      metadataService.setTerminology(terminology);
-      // clear the STY
-      $scope.semanticType = null;
+
+      metadataService.setTerminology(terminology).then(function() {
+        // do nothing
+      })
     };
 
     // Autocomplete function
@@ -112,197 +110,6 @@ tsApp.controller('ContentCtrl', [
         return new Array();
       }
       return contentService.autocomplete(searchTerms, $scope.autocompleteUrl);
-    };
-
-    ////////////////////////////////////////////
-    // Supporting trees
-    // NOTE: Functions called from the DOM use
-    // the angular-ui-tree node scope, which
-    // contains the actual tree information in 
-    // nodeScope.$modelValue
-    ////////////////////////////////////////////
-
-    // retrieves the specified tree position by index (top-level, scope-indifferent)
-    // displayed
-    $scope.getTree = function(startIndex) {
-      // Call content service to retrieve the tree
-      contentService.getTree($scope.component.object.terminologyId,
-        $scope.component.object.terminology, $scope.component.object.version, startIndex).then(
-        function(data) {
-
-          $scope.componentTree = data.trees;
-
-          // set the count and position variables
-          $scope.treeCount = data.totalCount;
-          if (data.count > 0)
-            $scope.treeViewed = startIndex;
-          else
-            $scope.treeViewed = 0;
-
-          // if parent tree cannot be read, clear the component
-          // tree
-          // (indicates no hierarchy present)
-          if ($scope.componentTree.length == 0) {
-            $scope.componentTree = null;
-            return;
-          }
-
-          // get the ancestor path of the bottom element (the
-          // component)
-          // ASSUMES: unilinear path (e.g. A~B~C~D, no siblings)
-          var parentTree = $scope.componentTree[0];
-          while (parentTree.children.length > 0) {
-            // check if child has no children
-            if (parentTree.children[0].children.length == 0)
-              break;
-            parentTree = parentTree.children[0];
-          }
-
-          // replace the parent tree of the lowest level with
-          // first page of siblings computed
-          $scope.getTreeChildren(parentTree, 0).then(function(children) {
-            parentTree.children = parentTree.children.concat(children.filter(function(child) {
-              // do not re-add the already-shown component for this tree
-              return $scope.component.object.terminologyId !== child.nodeTerminologyId;
-            }));
-          })
-
-        });
-
-    };
-
-    $scope.isDerivedLabelSetFromTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-      return $scope.isDerivedLabelSet(tree);
-    }
-
-    $scope.getDerivedLabelSetsValueFromTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-      return $scope.getDerivedLabelSetsValue(tree);
-    }
-
-    $scope.isLabelSetFromTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-      return $scope.isLabelSet(tree);
-    }
-
-    $scope.getLabelSetsValueFromTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-      return $scope.getLabelSetsValue(tree);
-    }
-
-    $scope.getComponentFromTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-
-      console.debug('getting component from tree for ', tree, nodeScope);
-
-      $scope.getComponent(tree.nodeTerminologyId, tree.terminology, tree.version);
-    }
-
-    // retrieves the children for a node (from DOM)
-    $scope.getTreeChildrenFromTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-      $scope.getTreeChildren(tree).then(function(children) {
-        console.debug('adding children', children);
-        tree.children = tree.children.concat(children);
-      });
-    }
-
-    // retrieves children for a node (not from DOM)
-    $scope.getTreeChildren = function(tree) {
-
-      var deferred = $q.defer();
-
-      if (!tree) {
-        console.error('getChildren called with null node');
-        deferred.resolve([]);
-      }
-
-      // get the next page of children based on start index of current children length
-      contentService.getChildTrees(tree, tree.children.length).then(function(data) {
-        console.debug('retrieved children', data);
-        deferred.resolve(data.trees);
-      }, function(error) {
-        console.error('Unexpected error retrieving children');
-        deferred.resolve([]);
-      });
-
-      return deferred.promise;
-    }
-
-    // get tree by specified offset (circular index)
-    $scope.getTreeByOffset = function(offset) {
-
-      var treeViewed = $scope.treeViewed + offset;
-
-      if (!treeViewed)
-        treeViewed = 0;
-      if (treeViewed >= $scope.treeCount)
-        treeViewed = treeViewed - $scope.treeCount;
-      if (treeViewed < 0)
-        treeViewed = treeViewed + $scope.treeCount;
-
-      $scope.getTree(treeViewed);
-    };
-
-    // toggles a node (from DOM)
-    $scope.toggleTree = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-
-      console.debug('toggling tree', tree, nodeScope.collapsed);
-
-      // if not expanded, simply expand
-      if (nodeScope.collapsed) {
-        nodeScope.toggle();
-      }
-
-      // otherwise if a full page of siblings not already loaded, get first page
-      else if (tree.children.length != tree.childCt
-        && tree.children.length < $scope.pageSizes.sibling) {
-        console.debug('getting children')
-        $scope.getTreeChildren(tree).then(function(children) {
-          console.debug('adding children', children);
-          tree.children = tree.children.concat(children);
-        });
-      }
-
-      // otherwise, collapse
-      else {
-        console.debug('collapsing');
-        nodeScope.toggle();
-      }
-    }
-
-    // returns the display icon for a node (from DOM)
-    $scope.getTreeNodeIcon = function(nodeScope) {
-      var tree = nodeScope.$modelValue;
-
-      // NOTE: This is redundant, leaf icon is set directly in html
-      if (tree.childCt == 0) {
-        return 'glyphicon-leaf';
-      }
-
-      // if formally collapsed or less than sibling page size retrieved children, return plus sign
-      else if (tree.children.length != tree.childCt
-        && tree.children.length < $scope.pageSizes.sibling) {
-        return 'glyphicon-plus';
-      }
-
-      // if collapsed or unloaded
-      else if (nodeScope.collapsed || (tree.childCt > 0 && tree.children.length == 0)) {
-        return 'glyphicon-chevron-right'
-      }
-
-      // otherwise, return minus sign
-      else if (!nodeScope.collapsed) {
-        return 'glyphicon-chevron-down';
-      }
-
-      // if no matches, return a ? because something is seriously wrong
-      else {
-        return 'glyphicon-question-sign';
-      }
-
     };
 
     // 
@@ -344,24 +151,18 @@ tsApp.controller('ContentCtrl', [
     $scope.getComponent = function(terminologyId, terminology, version) {
       contentService.getComponent(terminologyId, terminology, version).then(function() {
         $scope.setActiveRow($scope.component.object.terminologyId);
-        $scope.getTree(0);
         $scope.setComponentLocalHistory($scope.component.historyIndex);
-        $scope.resetPaging();
-        applyPaging();
       });
     };
 
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a link in a report
     $scope.getComponentFromType = function(terminologyId, terminology, version, type) {
-
+      console.debug('AAAAAAAAAAAARRRRRRRRRGH!')
       contentService.getComponentFromType(terminologyId, terminology, version, type).then(
         function() {
           $scope.setActiveRow($scope.component.object.terminologyId);
           $scope.setComponentLocalHistory($scope.component.historyIndex);
-          $scope.getTree(0);
-          $scope.resetPaging();
-          applyPaging();
         });
     };
 
@@ -449,6 +250,12 @@ tsApp.controller('ContentCtrl', [
       });
     };
 
+    // set the top level component from a tree node
+    $scope.getComponentFromTree = function(nodeScope) {
+      var tree = nodeScope.$modelValue;
+      $scope.getComponent(tree.nodeTerminologyId, tree.terminology, tree.version);
+    };
+
     // Load hierarchy into tree view
     $scope.browseHierarchy = function() {
       console.debug('Browsing request detected');
@@ -474,92 +281,6 @@ tsApp.controller('ContentCtrl', [
       });
     };
 
-    // 
-    // Show/Hide List Elements
-    // 
-
-    // variables for showing/hiding elements based on boolean fields
-    $scope.showSOElements = false;
-    $scope.showAtomElement = true;
-    $scope.showInferred = true;
-    $scope.showExtension = false;
-
-    // Helper function to determine if an item has boolean fields
-    // set to true in its child arrays
-    $scope.hasBooleanFieldTrue = function(item, fieldToCheck) {
-
-      // check for proper arguments
-      if (item == null || item == undefined)
-        return false;
-
-      // cycle over all properties
-      for ( var prop in item) {
-        var value = item[prop];
-
-        // if null or undefined, skip
-        if (value == null || value == undefined) {
-          // do nothing
-        }
-
-        // if an array, check the array's items
-        else if (Array.isArray(value)) {
-          for (var i = 0; i < value.length; i++) {
-            if (value[i][fieldToCheck]) {
-              return true;
-            }
-          }
-        }
-
-        // if not an array, check the item itself
-        else if (value.hasOwnProperty(fieldToCheck) && value[fieldToCheck]) {
-          return true;
-        }
-
-      }
-
-      // default is false
-      return false;
-    };
-
-    // Helper function to determine whether an item should be shown
-    // based on
-    // obsolete/suppressible
-    $scope.showItem = function(item) {
-
-      // trigger on suppressible and obsolete(model data)
-      if (!$scope.showSOElements && (item.suppressible || item.obsolete)) {
-        return false;
-      }
-
-      // trigger on applied showAtomElement flag
-      if (!$scope.showAtomElement && item.atomElement) {
-        return false;
-      }
-
-      // trigger on inferred flag
-      if ($scope.metadata.terminology.descriptionLogicTerminology && item.hasOwnProperty('stated')
-        && $scope.showInferred && item.stated) {
-        return false;
-      }
-      if ($scope.metadata.terminology.descriptionLogicTerminology
-        && item.hasOwnProperty('inferred') && !$scope.showInferred && item.inferred) {
-        return false;
-      }
-      return true;
-    };
-
-    // Function to toggle suppressible and obsolete flag and apply paging
-    $scope.toggleSODisplay = function() {
-      if ($scope.showSOElements == null || $scope.showSOElements == undefined) {
-        $scope.showSOElements = false;
-      } else {
-        $scope.showSOElements = !$scope.showSOElements;
-      }
-
-      applyPaging();
-    };
-
-    // Function to toggle atom element flag and apply paging
     $scope.toggleAtomElement = function() {
       if ($scope.showAtomElement == null || $scope.showAtomElement == undefined) {
         $scope.showAtomElement = false;
@@ -567,10 +288,10 @@ tsApp.controller('ContentCtrl', [
         $scope.showAtomElement = !$scope.showAtomElement;
       }
 
-      applyPaging();
     };
 
     // Function to toggle inferred flag and apply paging
+    // TODO This should only be used by relationships directive
     $scope.toggleInferred = function() {
       if ($scope.showInferred == null || $scope.showInferred == undefined) {
         $scope.showInferred = false;
@@ -581,178 +302,28 @@ tsApp.controller('ContentCtrl', [
       $scope.getPagedRelationships();
     };
 
-    // Function to toggle showing of extension info
-    $scope.toggleExtension = function() {
-      if ($scope.showExtension == null || $scope.showExtension == undefined) {
-        $scope.showExtension = false;
-      } else {
-        $scope.showExtension = !$scope.showExtension;
-      }
+    ////////////////////////////////////////////
+    // Supporting search result trees
+    ////////////////////////////////////////////
+
+    // Search Result Tree Parameters
+    $scope.srtParams = {
+      showExtension : false
     };
 
-    // 
-    // Expand/Collapse functions
-    // 
-
-    // Toggle collapse state
-    $scope.toggleItemCollapse = function(item) {
-      item.expanded = !item.expanded;
-    };
-
-    // Returns the css class for an item's collapsible control
-    $scope.getCollapseIcon = function(item) {
-
-      // if no expandable content detected, return blank glyphicon
-      // (see
-      // tsApp.css)
-      if (!item.hasContent)
-        return 'glyphicon glyphicon-plus glyphicon-none';
-
-      // return plus/minus based on current expanded status
-      if (item.expanded)
-        return 'glyphicon glyphicon-minus';
-      else
-        return 'glyphicon glyphicon-plus';
-    };
-
-    //
-    // Paging functions
-    //
-
-    // paged variable lists
-    // NOTE: Each list must have a totalCount variable
-    // either from ResultList object or calculated
-    $scope.pagedAttributes = null;
-    $scope.pagedMembers = null;
-    $scope.pagedSemanticTypes = null;
-    $scope.pagedDescriptions = null;
-    $scope.pagedRelationships = null;
-    $scope.pagedMappings = null;
-    $scope.pagedAtoms = null;
-
-    $scope.resetPaging = function() {
-
-      // variable page numbers
-      $scope.atomPaging = {
-        page : 1,
-        filter : ""
-      };
-
-      $scope.styPaging = {
-        page : 1,
-        filter : ""
-      };
-
-      $scope.defPaging = {
-        page : 1,
-        filter : ""
-      };
-
-      $scope.attributePaging = {
-        page : 1,
-        filter : ""
-      };
-
-      $scope.memberPaging = {
-        page : 1,
-        filter : ""
-      };
-      
-      $scope.mappingPaging = {
-        page : 1,
-        filter : ""
-      };
-
-      $scope.relPaging = {
-        page : 1,
-        filter : "",
-        sortField : 'group', 
-        sortAscending : true,
-        
-        // Default is Group/Type, where in getPagedRelationships
-        // relationshipType is automatically appended as a multi-
-        // sort search
-        sortOptions : [ {
-          key : 'Group, Type', 
-          value : 'group' 
-        }, {
-          key : 'Type',
-          value : 'relationshipType'
-        }, {
-          key : 'Additional Type',
-          value : 'additionalRelationshipType'
-        }, {
-          key : 'Name',
-          value : 'toName'
-        } ]
-      };
-    };
-
-    // on load, instantiate paging
-    $scope.resetPaging();
-
-    // apply paging to all elements
-    function applyPaging() {
-      // call each get function without paging (use current paging
-      // info)
-      $scope.getPagedAtoms();
-      $scope.getPagedRelationships();
-      $scope.getPagedDefinitions();
-      $scope.getPagedAttributes();
-      $scope.getPagedMembers();
-      $scope.getPagedSemanticTypes();
-      $scope.getPagedMappings();
+    // search result tree callbacks
+    $scope.srtCallbacks = {
+      // set top level component from tree node
+      getComponentFromTree : $scope.getComponentFromTree
     }
 
-    // Handle paging of relationships (requires content service
-    // call).
-    $scope.getPagedRelationships = function() {
-
-      // compute the sort order
-      // if group sort specified, sort additionally by relationship type
-      // otherwise, sort by specified field and additionally by group
-      var sortFields = [];
-      if ($scope.relPaging.sortField === 'group') {
-        sortFields = [ 'group', 'relationshipType' ]
+    // Function to toggle showing of extension info
+    $scope.toggleExtension = function() {
+      if ($scope.srtParams.showExtension == null || $scope.srtParams.showExtension == undefined) {
+        $scope.srtParams.showExtension = false;
       } else {
-        sortFields = [ $scope.relPaging.sortField, 'group' ];
+        $scope.srtParams.showExtension = !$scope.srtParams.showExtension;
       }
-
-      var parameters = {
-        showSuppressible : $scope.showSOElements,
-        showObsolete : $scope.showSOElements,
-        showInferred : $scope.showInferred,
-        text : $scope.relPaging.filter,
-        sortFields : sortFields,
-        sortAscending : $scope.relPaging.sortAscending
-      };
-
-      // Request from service
-      contentService.findRelationships($scope.component.object.terminologyId,
-        $scope.component.object.terminology, $scope.component.object.version,
-        $scope.relPaging.page, parameters).then(function(data) {
-
-        // if description logic terminology, sort
-        // relationships also by
-        // group
-        if ($scope.metadata.terminology.descriptionLogicTerminology) {
-          data.relationships.sort(function(a, b) {
-            if (a.relationshipType < b.relationshipType)
-              return -1;
-            if (a.relationshipType > b.relationshipType)
-              return 1;
-            if (a.group < b.group)
-              return -1;
-            if (a.group > b.group)
-              return 1;
-            return 0;
-          });
-        }
-
-        $scope.pagedRelationships = data.relationships;
-        $scope.pagedRelationships.totalCount = data.totalCount;
-
-      });
     };
 
     // Handle paging of mappings (requires content service
@@ -779,47 +350,7 @@ tsApp.controller('ContentCtrl', [
     };
     
     // Get paged atoms (assume all are loaded)
-    $scope.getPagedAtoms = function() {
-
-      // filter by suppressible/obsolete
-      var localAtoms = $scope.component.object.atoms.filter(function(object) {
-        return $scope.showSOElements || (!object.suppressible && !object.obsolete);
-      });
-
-      // want all filtered atoms to 
-      var localAtoms = utilService.getPagedArray(localAtoms, $scope.atomPaging,
-        $scope.pageSizes.general);
-
-      $scope.pagedAtoms = localAtoms;
-    };
-
-    // Get paged definitions (assume all are loaded)
-    $scope.getPagedDefinitions = function() {
-      // get the paged array, with flags and filter
-      $scope.pagedDefinitions = utilService.getPagedArray($scope.component.object.definitions,
-        $scope.defPaging, $scope.pageSizes.general);
-    };
-
-    // Get paged attributes (assume all are loaded)
-    $scope.getPagedAttributes = function() {
-      // get the paged array, with flags and filter
-      $scope.pagedAttributes = utilService.getPagedArray($scope.component.object.attributes,
-        $scope.attributePaging, $scope.pageSizes.general);
-    };
-
-    // Get paged members (assume all are loaded)
-    $scope.getPagedMembers = function() {
-      // get the paged array, with flags and filter
-      $scope.pagedMembers = utilService.getPagedArray($scope.component.object.members,
-        $scope.memberPaging, $scope.pageSizes.general);
-    };
-
-    // Get paged STYs (assume all are loaded)
-    $scope.getPagedSemanticTypes = function() {
-      // get the paged array, with flags and filter
-      $scope.pagedSemanticTypes = utilService.getPagedArray($scope.component.object.semanticTypes,
-        $scope.styPaging, $scope.pageSizes.general);
-    };
+   // $scope.getPagedAtoms = function() {
 
     // 
     // Misc helper functions
@@ -837,6 +368,45 @@ tsApp.controller('ContentCtrl', [
         }
       }
     };
+
+    //
+    // Component Report Callbacks
+    //
+
+    // if in simple mode, disable navigation functionality
+    if ($routeParams.mode === 'simple') {
+      console.debug('Enabling component report callbacks for mode: ' + $routeParams.mode);
+      $scope.componentReportCallbacks = {
+        getTerminologyVersion : metadataService.getTerminologyVersion,
+        getRelationshipTypeName : metadataService.getRelationshipTypeName,
+        getAttributeNameName : metadataService.getAttributeNameName,
+        getTermTypeName : metadataService.getTermTypeName,
+        getGeneralEntryValue : metadataService.getGeneralEntryValue,
+        getLabelSetName : metadataService.getLabelSetName,
+        countLabels : metadataService.countLabels
+
+      // TODO Add relationship functions here, remove from relationships/relationships-deep
+      }
+    }
+
+    // otherwise, enable full functionality
+    else {
+      console.debug('Enabling component report callbacks for mode: FULL');
+      $scope.componentReportCallbacks = {
+        getComponent : $scope.getComponent,
+        getComponentFromType : $scope.getComponentFromType,
+        getComponentFromTree : $scope.getComponentFromTree,
+        getTerminologyVersion : metadataService.getTerminologyVersion,
+        getRelationshipTypeName : metadataService.getRelationshipTypeName,
+        getAttributeNameName : metadataService.getAttributeNameName,
+        getTermTypeName : metadataService.getTermTypeName,
+        getGeneralEntryValue : metadataService.getGeneralEntryValue,
+        getLabelSetName : metadataService.getLabelSetName,
+        countLabels : metadataService.countLabels
+
+      // TODO Add relationship functions here, remove from relationships/relationships-deep
+      }
+    }
 
     //
     // METADATA related functions
@@ -865,89 +435,83 @@ tsApp.controller('ContentCtrl', [
       return viewableTerminologies;
     };
 
-    // get relationship type name from its abbreviation
-    $scope.getRelationshipTypeName = function(abbr) {
-      return metadataService.getRelationshipTypeName(abbr);
-    };
-
-    // get attribute name name from its abbreviation
-    $scope.getAttributeNameName = function(abbr) {
-      return metadataService.getAttributeNameName(abbr);
-    };
-
-    // get term type name from its abbreviation
-    $scope.getTermTypeName = function(abbr) {
-      return metadataService.getTermTypeName(abbr);
-    };
-
-    // get general entry name from its abbreviation
-    $scope.getGeneralEntryValue = function(abbr) {
-      return metadataService.getGeneralEntryValue(abbr);
-    };
-
-    // Gets the label set name
-    $scope.getLabelSetName = function(abbr) {
-      return metadataService.getLabelSetName(abbr);
-    };
-
-    // Label functions
-    $scope.isDerivedLabelSet = metadataService.isDerivedLabelSet;
-    $scope.isLabelSet = metadataService.isLabelSet;
-
-    $scope.getDerivedLabelSetsValue = function() {
-      return $sce.trustAsHtml('<div style="text-align:left;">'
-        + metadataService.getDerivedLabelSetsValue() + '</div>');
-
-    };
-
-    $scope.getLabelSetsValue = function() {
-      return $sce.trustAsHtml('<div style="text-align:left;">' + metadataService.getLabelSetsValue
-        + '</div>');
-    };
-
-    $scope.countLabels = metadataService.countLabels;
-
     // Load all terminologies upon controller load (unless already
     // loaded)
     if (!$scope.metadata.terminologies) {
       metadataService.initTerminologies().then(
-      // success
-      function(data) {
+        // success
+        function(data) {
 
-        var found = false;
-        for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-          var terminology = $scope.metadata.terminologies[i];
-          // Determine whether to set as default
-          if (terminology.metathesaurus) {
-            metadataService.setTerminology(terminology);
-            found = true;
-            break;
-          }
-        }
+          // if route parameters are specified, set the terminology and retrieve the specified concept
+          if ($routeParams.terminology && $routeParams.version) {
+            console.debug('Route parameters set', $routeParams);
 
-        // if no metathesaurus found, default to ICD10CM
-        // TODO: Used for ICD10 server, unhardcode this
-        if (!found) {
-          for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-            var terminology = $scope.metadata.terminologies[i];
-            console.debug(terminology.terminology, terminology.terminology === 'ICD10CM');
-            if (terminology.terminology === 'ICD10CM') {
-              metadataService.setTerminology(terminology);
-              found = true;
-              break;
+            var termToSet = null;
+            for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+              var terminology = $scope.metadata.terminologies[i];
+              // Determine whether to set as default
+              if (terminology.terminology === $routeParams.terminology
+                && terminology.version === $routeParams.version) {
+
+                termToSet = terminology;
+                break;
+              }
+            }
+
+            if (!termToSet) {
+              utilService.setError('Terminology specified in URL not found');
+            } else {
+
+              // set the terminology
+              metadataService.setTerminology(termToSet).then(
+                function() {
+
+                  // get the component
+                  $scope.getComponent($routeParams.terminologyId, $routeParams.terminology,
+                    $routeParams.version);
+                });
             }
           }
-        }
 
-        // If nothing set, pick the first one
-        if (!found) {
-          if (!$scope.metadata.terminologies) {
-            window.alert('No terminologies found, database may not be properly loaded.');
-          } else {
-            metadataService.setTerminology($scope.metadata.terminologies[0]);
+          // otherwise, specify the default terminology
+          else {
+            console.debug('No route parameters');
+
+            var found = false;
+            for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+              var terminology = $scope.metadata.terminologies[i];
+              // Determine whether to set as default
+              if (terminology.metathesaurus) {
+                metadataService.setTerminology(terminology);
+                found = true;
+                break;
+              }
+            }
+
+            // if no metathesaurus found, default to ICD10CM
+            // TODO: Used for ICD10 server, unhardcode this
+            if (!found) {
+              for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+                var terminology = $scope.metadata.terminologies[i];
+                console.debug(terminology.terminology, terminology.terminology === 'ICD10CM');
+                if (terminology.terminology === 'ICD10CM') {
+                  metadataService.setTerminology(terminology);
+                  found = true;
+                  break;
+                }
+              }
+            }
+
+            // If nothing set, pick the first one
+            if (!found) {
+              if (!$scope.metadata.terminologies) {
+                window.alert('No terminologies found, database may not be properly loaded.');
+              } else {
+                metadataService.setTerminology($scope.metadata.terminologies[0]);
+              }
+            }
           }
-        }
-      });
+        });
     }
 
     // 
@@ -970,8 +534,6 @@ tsApp.controller('ContentCtrl', [
       contentService.getComponentFromHistory(index).then(function(data) {
         // manage local history
         $scope.setComponentLocalHistory(index);
-        $scope.getTree(0);
-        applyPaging();
       });
     };
 
@@ -1016,10 +578,16 @@ tsApp.controller('ContentCtrl', [
       $scope.localHistory = $scope.component.history.slice(lowerBound, upperBound);
     };
 
-    // when navigating back, apply paging if there is a component
-    if ($scope.component.object) {
-      applyPaging();
-    }
+    $scope.popout = function() {
+      var currentUrl = window.location.href;
+      var baseUrl = currentUrl.substring(0, currentUrl.indexOf('#') + 1);
+      var newUrl = baseUrl + '/content/simple/' + $scope.component.object.terminology + '/'
+        + $scope.component.object.version + '/' + $scope.component.object.terminologyId;
+      var myWindow = window.open(newUrl, $scope.component.object.terminology + '/'
+        + $scope.component.object.version + ', ' + $scope.component.object.terminologyId + ', '
+        + $scope.component.object.name);
+      myWindow.focus();
+    };
 
   }
 

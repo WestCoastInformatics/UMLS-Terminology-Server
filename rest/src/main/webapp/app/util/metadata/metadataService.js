@@ -193,9 +193,18 @@ tsApp
           // Return all deferred promises
           return $q.all([ deferred.promise, deferred2.promise ]);
         };
+        
+        this.getTerminologyVersion = function(terminology) {
+          for (var i = 0; i < metadata.terminologies.length; i++) {
+            if (terminology === metadata.terminologies[i].terminology) {
+              return metadata.terminologies[i].version;
+            }
+          }
+        };
 
         // Returns the terminology object for the terminology name
         this.getTerminology = function(terminology, version) {
+          console.debug('getTerminology', terminology, version, metadata.terminologies, metadata.terminology);
           // check for full terminology object by comparing to
           // selected
           // terminology
@@ -209,13 +218,18 @@ tsApp
                 if (!version || version != metadata.terminologies[i].version) {
                   continue;
                 }
+                
+                console.debug(i, metadata.terminologies[i]);
 
                 return metadata.terminologies[i];
               }
             }
           } else {
+            console.debug('-1', metadata.terminology);
             return metadata.terminology;
           }
+          
+          console.debug('no return');
         };
 
         // initialize all terminologies

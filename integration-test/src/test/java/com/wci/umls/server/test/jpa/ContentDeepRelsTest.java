@@ -64,7 +64,7 @@ public class ContentDeepRelsTest {
         "  Test basic findDeepRelationshipsForConcept call");
     RelationshipList list =
         service.findDeepRelationshipsForConcept("C0000097", "UMLS", "latest",
-            Branch.ROOT, false, new PfsParameterJpa());
+            Branch.ROOT, null, false, new PfsParameterJpa());
     for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
         .getObjects()) {
       Logger.getLogger(getClass()).info(
@@ -87,7 +87,7 @@ public class ContentDeepRelsTest {
     pfs.setSortField("relationshipType");
     list =
         service.findDeepRelationshipsForConcept("C0000097", "UMLS", "latest",
-            Branch.ROOT, false, pfs);
+            Branch.ROOT, null, false, pfs);
     for (Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
         .getObjects()) {
       Logger.getLogger(getClass()).info(

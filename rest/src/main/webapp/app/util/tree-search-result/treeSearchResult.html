@@ -1,0 +1,9 @@
+<!-- Search Results Tree -->
+<div ng-if="searchResults.tree && searchResults.tree.totalCount > 0"
+  style="display: block;" ui-tree>
+  <ol ui-tree-nodes="" ng-model="searchResults.tree" id="tree-root"
+    data-nodrop-enabled="true">
+    <li ng-repeat="tree in searchResults.tree" ui-tree-node data-nodrag
+      ng-include="'app/util/tree-search-result/searchResultsTree_renderer.html'"></li>
+  </ol>
+</div>

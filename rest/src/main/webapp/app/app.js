@@ -57,6 +57,13 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
     controller : 'AdminCtrl',
     reloadOnSearch : false
   })
+  .when('/content/:mode/:terminology/:version/:terminologyId', {
+    templateUrl: function(urlAttr){
+      return 'app/page/content/' + urlAttr.mode + '.html';
+    },
+    controller : 'ContentCtrl',
+    reloadOnSearch: false
+  })
   .otherwise({
     redirectTo : '/content' 
   });
@@ -87,8 +94,8 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
 } ]);
 
 // Tab controller
-tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location', 'securityService', 'tabService',
-  function($scope, $interval, $timeout, $location, securityService, tabService) {
+tsApp.controller('TabCtrl', [ '$scope', '$routeParams', '$interval', '$timeout', '$location', 'securityService', 'tabService',
+  function($scope, $routeParams, $interval, $timeout, $location, securityService, tabService) {
     console.debug('configure TabCtrl');
 
     // Setup tabs
@@ -97,7 +104,7 @@ tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location', 's
     // Set selected tab (change the view)
     $scope.setSelectedTab = function(tab) {
       tabService.setSelectedTab(tab);
-    }
+    };
 
     // Set "active" or not
     $scope.tabClass = function(tab) {
@@ -106,64 +113,34 @@ tsApp.controller('TabCtrl', [ '$scope', '$interval', '$timeout', '$location', 's
       } else {
         return "";
       }
-    }
+    };
 
     // tabs are only shown if logged in and not on the landing or login page
     $scope.isShowing = function() {
-       return securityService.isLoggedIn() && $location.url() !== '/' && $location.url() !== '/login';
-    }
-
+      switch ($routeParams.mode) {
+      case 'simple':
+        return false;
+      default:
+        return securityService.isLoggedIn() && $location.url() !== '/' && $location.url() !== '/login';
+      
+      }
+    };
+    
     // configure whether certain tabs require permissions here
     $scope.isTabShowing = function(tab) {
       return isAdmin() || tab.label == 'Directory' || userHasAnyRole;
-    }
+    };
 
     // returns true if a user has a defined role on a project
     $scope.userHasAnyRole = function() {
       return userProjectsInfo.anyrole;
-    }
+    };
 
     // returns true if user has administrator application role
     $scope.isAdmin = function() {
       return user.applicationRole == 'ADMIN';
     };
 } ]);
-
-// Header controller
-tsApp.controller('HeaderCtrl', [ '$scope', 'securityService', function($scope, securityService) {
-  console.debug('configure HeaderCtrl');
-
-  // Declare user
-  $scope.user = securityService.getUser();
-
-  // Logout method
-  $scope.logout = function() {
-    securityService.logout();
-  };
-} ]);
-
-// Footer controller
-tsApp.controller('FooterCtrl', [ '$scope', 'gpService', 'securityService',
-  function($scope, gpService, securityService) {
-    console.debug('configure FooterCtrl');
-    // Declare user
-    $scope.user = securityService.getUser();
-
-    // Logout method
-    $scope.logout = securityService.logout;
-
-    // Check gp status
-    $scope.isGlassPaneNegative = function() {
-      return gpService.isGlassPaneNegative();
-    }
-
-    // Get gp counter
-    $scope.getGlassPaneCounter = function() {
-      return gpService.glassPane.counter;
-    }
-}
-
-]);
 
 // Confirm dialog conroller and directive
 tsApp.controller('ConfirmModalCtrl', function($scope, $uibModalInstance, data) {

@@ -1,0 +1,26 @@
+<!-- Subsets -->
+<div ng-show="component.object.members.length > 0">
+  <h4>{{metadata.subsetsLabel}} ({{pagedData.totalCount}})</h4>
+  <div pager paging="paging" count="pagedData.totalCount"
+    callback="pageCallback"></div>
+  <ul>
+    <li class="cr-list" ng-repeat="item in pagedData.data"
+      ng-show="showItem(item)"><span class="label label-warning"
+        ng-show="metadata.terminology.metathesaurus && item.suppressible"
+        uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator}}</span>
+      <span class="label label-default" ng-show="item.obsolete"
+        uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+      {{item.subsetName}}
+      <div ng-show="item.attributes.length > 0">
+        <ul>
+          <li
+            ng-repeat="attribute in item.attributes | orderBy: ['name', 'value']">
+            <span class="label label-info"
+              uib-tooltip="{{callbacks.getAttributeNameName(attribute.name)}}">{{attribute.name}}</span>
+            = {{attribute.value}}
+          </li>
+        </ul>
+      </div>
+  </ul>
+</div>
+<!-- end Subsets -->

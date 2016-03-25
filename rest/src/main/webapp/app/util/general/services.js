@@ -206,18 +206,38 @@ tsApp
             return '▾';
           }
         };
+        
+        // Helper function to get a standard paging object
+        // overwritten as needed
+        this.getPaging = function() {
+          return {
+            page : 1,
+            pageSize: 10,
+            filter : null,
+            sortField : null, 
+            sortAscending : true,
+            sortOptions : []
+          };
+        }
 
         // Helper to get a paged array with show/hide flags
         // and filtered by query string
-        this.getPagedArray = function(array, paging, pageSize) {
+        this.getPagedArray = function(array, paging) {
           var newArray = new Array();
-
+          
           // if array blank or not an array, return blank list
           if (array == null || array == undefined || !Array.isArray(array)) {
             return newArray;
           }
 
           newArray = array;
+          
+          // apply suppressible/obsolete
+          if (!paging.showHidden) {
+            newArray = newArray.filter(function(item) {
+              return !item.suppressible && !item.obsolete;
+            });
+          }
 
           // apply sort if specified
           if (paging.sortField) {
@@ -236,19 +256,20 @@ tsApp
           }
 
           // get the page indices (if supplied)
-          if (pageSize != -1) {
-            var fromIndex = (paging.page - 1) * pageSize;
-            var toIndex = Math.min(fromIndex + pageSize, array.length);
+          if (paging.pageSize != -1) {
+            var fromIndex = (paging.page - 1) * paging.pageSize;
+            var toIndex = Math.min(fromIndex + paging.pageSize, array.length);
 
             // slice the array
             var results = newArray.slice(fromIndex, toIndex);
           } else {
             results = newArray;
           }
-          // add the total count before slicing
-          results.totalCount = newArray.length;
 
-          return results;
+          return { 
+            data : results,
+            totalCount : newArray.length
+          }
         };
 
         // function for sorting an array by (string) field and direction
@@ -489,7 +510,7 @@ tsApp.service('securityService', [ '$http', '$location', '$q', '$cookies', 'util
 
     this.logout = function() {
       if (user.authToken == null) {
-        alert("You are not currently logged in");
+        window.alert("You are not currently logged in");
         return;
       }
       gpService.increment();
