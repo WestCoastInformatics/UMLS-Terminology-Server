@@ -21,9 +21,6 @@ tsApp.run(function($rootScope, $http, $location) {
   // nothing yet -- may want to put metadata retrieval here
 });
 
-tsApp.config([ '$locationProvider', function($locationProvider) {
-  $locationProvider.html5Mode(true);
-}])
 
 // Route provider configuration
 tsApp.config([ '$routeProvider', function($routeProvider) {
@@ -31,17 +28,21 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
 
   // Set reloadOnSearch so that $location.hash() calls do not reload the
   // controller
+  // TODO MOve these to the appropriate directives/controllers
   $routeProvider
-  .when('/', {
+  .when('/login', {
     templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl',
     reloadOnSearch : false
-//    templateUrl : 'app/page/landing/landing.html',
-//    controller: 'LandingCtrl',
-//    reloadOnSearch : false
   })
   
-  .when('/login', {
+ /* .when('/', {
+    templateUrl : 'app/page/landing/landing.html',
+    controller: 'LandingCtrl',
+    reloadOnSearch : false
+  })*/
+  
+  .when('/', {
     templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl',
     reloadOnSearch : false
@@ -69,7 +70,7 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
     reloadOnSearch: false
   })
   .otherwise({
-    redirectTo : '/login' 
+    redirectTo : '/content' 
   });
 }]);
 
