@@ -1,5 +1,6 @@
 <html ng-app="tsApp">
 <head>
+<base href="/umls-server-rest/index.html">
 <meta http-equiv="Content-Language" content="en" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -100,7 +101,7 @@
     <div ng-include src="'app/page/general/error.html'"></div>
     <ul ng-show="isShowing()" class="nav nav-tabs" ng-controller="TabCtrl">
       <li ng-class="tabClass(tab)" ng-repeat="tab in tabs"><a
-          href="{{tab.link}}" ng-click="setSelectedTab(tab)"> {{tab.label}}
+          ng-click="setSelectedTab(tab)"> {{tab.label}}
         </a></li>
     </ul>
     <!-- Body -->

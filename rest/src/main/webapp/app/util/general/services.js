@@ -543,10 +543,10 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService',
     console.debug('configure tabService');
     // Available tabs
     this.tabs = [ {
-      link : '#/content',
+      link : 'content',
       label : 'Content'
     }, {
-      link : '#/metadata',
+      link : 'metadata',
       label : 'Metadata'
     } ];
 
@@ -556,6 +556,7 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService',
     // Sets the selected tab
     this.setSelectedTab = function(tab) {
       this.selectedTab = tab;
+      $location.path(tab.link);
     };
 
     // sets the selected tab by label
@@ -565,6 +566,7 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService',
       for (var i = 0; i < this.tabs.length; i++) {
         if (this.tabs[i].label === label) {
           this.selectedTab = this.tabs[i];
+          $location.path(tab.link);
           break;
         }
       }

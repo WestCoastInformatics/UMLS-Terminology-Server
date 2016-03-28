@@ -19,6 +19,10 @@ tsApp.run(function($rootScope, $http, $location) {
   // nothing yet -- may want to put metadata retrieval here
 });
 
+tsApp.config([ '$locationProvider', function($locationProvider) {
+  $locationProvider.html5Mode(true);
+}])
+
 // Route provider configuration
 tsApp.config([ '$routeProvider', function($routeProvider) {
   console.debug('configure $routeProvider');
@@ -58,7 +62,7 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
     reloadOnSearch: false
   })
   .otherwise({
-    redirectTo : '/content' 
+    redirectTo : '/login' 
   });
 }]);
 
