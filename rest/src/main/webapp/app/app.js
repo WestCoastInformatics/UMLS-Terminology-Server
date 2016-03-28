@@ -21,7 +21,6 @@ tsApp.run(function($rootScope, $http, $location) {
   // nothing yet -- may want to put metadata retrieval here
 });
 
-
 // Route provider configuration
 tsApp.config([ '$routeProvider', function($routeProvider) {
   console.debug('configure $routeProvider');
@@ -29,50 +28,43 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
   // Set reloadOnSearch so that $location.hash() calls do not reload the
   // controller
   // TODO MOve these to the appropriate directives/controllers
-  $routeProvider
-  .when('/login', {
+  $routeProvider.when('/login', {
     templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl',
     reloadOnSearch : false
   })
-  
- /* .when('/', {
-    templateUrl : 'app/page/landing/landing.html',
-    controller: 'LandingCtrl',
-    reloadOnSearch : false
-  })*/
-  
+
+  /*
+     * .when('/', { templateUrl : 'app/page/landing/landing.html', controller: 'LandingCtrl',
+     * reloadOnSearch : false })
+     */
+
   .when('/', {
     templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl',
     reloadOnSearch : false
-  })
-  .when('/content', {
+  }).when('/content', {
     templateUrl : 'app/page/content/content.html',
     controller : 'ContentCtrl',
     reloadOnSearch : false
-  })
-  .when('/metadata', {
+  }).when('/metadata', {
     templateUrl : 'app/page/metadata/metadata.html',
     controller : 'MetadataCtrl',
     reloadOnSearch : false
-  })
-  .when('/admin', {
+  }).when('/admin', {
     templateUrl : 'app/page/admin/admin.html',
     controller : 'AdminCtrl',
     reloadOnSearch : false
-  })
-  .when('/content/:mode/:terminology/:version/:terminologyId', {
-    templateUrl: function(urlAttr){
+  }).when('/content/:mode/:terminology/:version/:terminologyId', {
+    templateUrl : function(urlAttr) {
       return 'app/page/content/' + urlAttr.mode + '.html';
     },
     controller : 'ContentCtrl',
-    reloadOnSearch: false
-  })
-  .otherwise({
-    redirectTo : '/content' 
+    reloadOnSearch : false
+  }).otherwise({
+    redirectTo : '/content'
   });
-}]);
+} ]);
 
 // Simple glass pane controller
 tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService', function($scope, gpService) {
@@ -99,7 +91,14 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
 } ]);
 
 // Tab controller
-tsApp.controller('TabCtrl', [ '$scope', '$routeParams', '$interval', '$timeout', '$location', 'securityService', 'tabService',
+tsApp.controller('TabCtrl', [
+  '$scope',
+  '$routeParams',
+  '$interval',
+  '$timeout',
+  '$location',
+  'securityService',
+  'tabService',
   function($scope, $routeParams, $interval, $timeout, $location, securityService, tabService) {
     console.debug('configure TabCtrl');
 
@@ -126,11 +125,13 @@ tsApp.controller('TabCtrl', [ '$scope', '$routeParams', '$interval', '$timeout',
       case 'simple':
         return false;
       default:
-        return securityService.isLoggedIn() && $location.url() !== '/' && $location.url() !== '/login';
-      
+        console.debug(securityService.isLoggedIn(), $location.url());
+        return securityService.isLoggedIn() && $location.url() !== '/'
+          && $location.url() !== '/#top' && $location.url().indexOf('login') == -1;
+
       }
     };
-    
+
     // configure whether certain tabs require permissions here
     $scope.isTabShowing = function(tab) {
       return isAdmin() || tab.label == 'Directory' || userHasAnyRole;
@@ -145,7 +146,7 @@ tsApp.controller('TabCtrl', [ '$scope', '$routeParams', '$interval', '$timeout',
     $scope.isAdmin = function() {
       return user.applicationRole == 'ADMIN';
     };
-} ]);
+  } ]);
 
 // Confirm dialog conroller and directive
 tsApp.controller('ConfirmModalCtrl', function($scope, $uibModalInstance, data) {
@@ -226,5 +227,4 @@ tsApp.directive('confirm', function($confirm) {
       }
     }
   }
-  });
-
+});
