@@ -147,6 +147,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /** The id assignment handler . */
   static Map<String, IdentifierAssignmentHandler> idHandlerMap =
       new HashMap<>();
+  
+  /** The search handlers. */
+  static Map<String, SearchHandler> searchHandlers = new HashMap<>();
 
   /** The query timeout. */
   static int queryTimeout = 1000;
@@ -3596,17 +3599,18 @@ public class ContentServiceJpa extends MetadataServiceJpa
       finalQuery.append(" AND ");
     }
 
-    finalQuery.append("fromTerminologyId:" + terminologyId + " AND terminology:"
-        + terminology + " AND version:" + version);
+  finalQuery
+        .append("fromTerminologyId:" + terminologyId + " AND fromTerminology:"
+            + terminology + " AND fromVersion:" + version);
+  
 
-    SearchHandler searchHandler = getSearchHandler(terminology);
-    int[] totalCt = new int[1];
-    // pass empty terminology/version because it's handled above
-    // TODO: nameSort? no name on Mapping - what does query work against?
-    results.setObjects((List) searchHandler.getQueryResults("", "", branch,
-        finalQuery.toString(), "nameSort", MappingJpa.class, MappingJpa.class,
-        pfs, totalCt, manager));
-    results.setTotalCount(totalCt[0]);
+  SearchHandler searchHandler = getSearchHandler(terminology);
+  int[] totalCt = new int[1];
+  // pass empty terminology/version because it's handled above
+  results.setObjects((List) searchHandler.getQueryResults("", "", branch,
+      finalQuery.toString(), "fromNameSort", MappingJpa.class,
+      MappingJpa.class, pfs, totalCt, manager));
+  results.setTotalCount(totalCt[0]);
 
     for (Mapping mapping : results.getObjects()) {
       getGraphResolutionHandler(terminology).resolve(mapping);
@@ -4268,13 +4272,20 @@ public class ContentServiceJpa extends MetadataServiceJpa
    */
   @Override
   public SearchHandler getSearchHandler(String key) throws Exception {
+    if (searchHandlers.containsKey(key)) {
+      return searchHandlers.get(key);
+    }
     if (searchHandlerNames.contains(key)) {
       // Add handlers to map
-      return ConfigUtility.newStandardHandlerInstanceWithConfiguration(
+      SearchHandler searchHandler = ConfigUtility.newStandardHandlerInstanceWithConfiguration(
           "search.handler", key, SearchHandler.class);
+      searchHandlers.put(key, searchHandler);
+      return searchHandler;
     }
-    return ConfigUtility.newStandardHandlerInstanceWithConfiguration(
+    SearchHandler searchHandler =  ConfigUtility.newStandardHandlerInstanceWithConfiguration(
         "search.handler", ConfigUtility.DEFAULT, SearchHandler.class);
+    searchHandlers.put(key, searchHandler);
+    return searchHandler;
   }
 
   /* see superclass */

@@ -4,7 +4,9 @@
 package com.wci.umls.server.services;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.UserList;
 
 /**
@@ -109,5 +111,44 @@ public interface SecurityService extends RootService {
    * @param user the user
    */
   public void updateUser(User user);
+  
+  /**
+   * Handle lazy init.
+   *
+   * @param user the user
+   */
+  public void handleLazyInit(User user);
+
+  /**
+   * Update user preferences.
+   *
+   * @param userPreferences the user preferences
+   */
+  public void updateUserPreferences(UserPreferences userPreferences);
+
+  /**
+   * Removes the user preferences.
+   *
+   * @param id the id
+   */
+  public void removeUserPreferences(Long id);
+
+  /**
+   * Adds the user preferences.
+   *
+   * @param userPreferences the user preferences
+   * @return the user preferences
+   */
+  public UserPreferences addUserPreferences(UserPreferences userPreferences);
+
+  /**
+   * Find users for query.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @return the user list
+   * @throws Exception the exception
+   */
+  public UserList findUsersForQuery(String query, PfsParameter pfs) throws Exception;
 
 }

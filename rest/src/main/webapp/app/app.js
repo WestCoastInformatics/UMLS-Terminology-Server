@@ -13,6 +13,8 @@ var tsApp = angular.module('tsApp',
 var securityUrl = "security/";
 var metadataUrl = "metadata/";
 var contentUrl = "content/";
+var adminUrl = "admin/";
+var projectUrl = "project/";
 
 // Initialization of tsApp
 tsApp.run(function($rootScope, $http, $location) {
@@ -52,6 +54,11 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
   .when('/metadata', {
     templateUrl : 'app/page/metadata/metadata.html',
     controller : 'MetadataCtrl',
+    reloadOnSearch : false
+  })
+  .when('/admin', {
+    templateUrl : 'app/page/admin/admin.html',
+    controller : 'AdminCtrl',
     reloadOnSearch : false
   })
   .when('/content/:mode/:terminology/:version/:terminologyId', {

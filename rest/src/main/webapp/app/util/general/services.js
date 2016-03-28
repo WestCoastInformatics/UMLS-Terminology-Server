@@ -424,8 +424,8 @@ tsApp.service('gpService', function() {
 });
 
 // Security service
-tsApp.service('securityService', [ '$http', '$location', '$cookies', 'utilService', 'gpService',
-  function($http, $location, $cookies, utilService, gpService) {
+tsApp.service('securityService', [ '$http', '$location', '$q', '$cookies', 'utilService', 'gpService',
+  function($http, $location, $q, $cookies, utilService, gpService) {
     console.debug('configure securityService');
 
     // Declare the user
@@ -535,6 +535,199 @@ tsApp.service('securityService', [ '$http', '$location', '$cookies', 'utilServic
         gpService.decrement();
       });
     };
+    
+    // get all users
+    this.getUsers = function() {
+      console.debug('getUsers');
+      var deferred = $q.defer();
+
+      // Get users
+      gpService.increment();
+      $http.get(securityUrl + 'user/users').then(
+      // success
+      function(response) {
+        console.debug('  users = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // get user for auth token
+    this.getUserForAuthToken = function() {
+      console.debug('getUserforAuthToken');
+      var deferred = $q.defer();
+
+      // Get users
+      gpService.increment();
+      $http.get(securityUrl + 'user').then(
+      // success
+      function(response) {
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    // add user
+    this.addUser = function(user) {
+      console.debug('addUser');
+      var deferred = $q.defer();
+
+      // Add user
+      gpService.increment();
+      $http.put(securityUrl + 'user/add', user).then(
+      // success
+      function(response) {
+        console.debug('  user = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // update user
+    this.updateUser = function(user) {
+      console.debug('updateUser');
+      var deferred = $q.defer();
+
+      // Add user
+      gpService.increment();
+      $http.post(securityUrl + 'user/update', user).then(
+      // success
+      function(response) {
+        console.debug('  user = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // remove user
+    this.removeUser = function(user) {
+      console.debug('removeUser');
+      var deferred = $q.defer();
+
+      // Add user
+      gpService.increment();
+      $http['delete'](securityUrl + 'user/remove/' + user.id).then(
+      // success
+      function(response) {
+        console.debug('  user = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // get application roles
+    this.getApplicationRoles = function() {
+      console.debug('getApplicationRoles');
+      var deferred = $q.defer();
+
+      // Get application roles
+      gpService.increment();
+      $http.get(securityUrl + 'roles').then(
+      // success
+      function(response) {
+        console.debug('  roles = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // Finds users as a list
+    this.findUsersAsList = function(query, pfs) {
+      console.debug('findUsersAsList', query, pfs);
+      // Setup deferred
+      var deferred = $q.defer();
+
+      // Make POST call
+      gpService.increment();
+      $http.post(securityUrl + 'user/find?query=' + utilService.prepQuery(query),
+        utilService.prepPfs(pfs)).then(
+      // success
+      function(response) {
+        console.debug('  output = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+
+      return deferred.promise;
+    };
+
+    // update user preferences
+    this.updateUserPreferences = function(userPreferences) {
+      console.debug('updateUserPreferences');
+      // skip if user preferences is not set
+      if (!userPreferences) {
+        return;
+      }
+
+      // Whenever we update user preferences, we need to update the cookie
+      $cookies.put('user', JSON.stringify(user));
+
+      var deferred = $q.defer();
+
+      gpService.increment();
+      $http.post(securityUrl + 'user/preferences/update', userPreferences).then(
+      // success
+      function(response) {
+        console.debug('  userPreferences = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
   } ]);
 
 // Tab service
@@ -548,6 +741,9 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService',
     }, {
       link : 'metadata',
       label : 'Metadata'
+/*    }, {
+      link : '#/admin',
+      label : 'Admin'*/
     } ];
 
     // the selected tab

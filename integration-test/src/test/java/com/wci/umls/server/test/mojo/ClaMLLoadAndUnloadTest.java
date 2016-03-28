@@ -174,7 +174,6 @@ public class ClaMLLoadAndUnloadTest {
     for (Project project : projectService.getProjects().getObjects()) {
       if (project.getName().equals("Sample project")
           && project.getDescription().equals("Sample project.")
-          && project.getScopeDescendantsFlag()
           && project.getTerminology().equals("ICD10")
           && project.getVersion().equals("latest")) {
         // Scope ignored for now - &&
@@ -292,7 +291,6 @@ public class ClaMLLoadAndUnloadTest {
     for (Project project : projectService.getProjects().getObjects()) {
       if (project.getName().equals("Sample project2")
           && project.getDescription().equals("Sample project2.")
-          && project.getScopeDescendantsFlag()
           && project.getTerminology().equals("ICD10CM")
           && project.getVersion().equals("latest")) {
         // Scope ignored for now - &&

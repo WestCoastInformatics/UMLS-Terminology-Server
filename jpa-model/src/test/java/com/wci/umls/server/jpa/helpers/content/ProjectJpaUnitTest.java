@@ -114,22 +114,6 @@ public class ProjectJpaUnitTest {
     Set<String> s2 = new HashSet<>();
     s2.add("def");
 
-    p1.setScopeConcepts(s1);
-    p2.setScopeConcepts(s1);
-    assertEquals(p1, p2);
-
-    p2.setScopeConcepts(s2);
-    assertNotEquals(p1, p2);
-
-    // Explicitly test scopeExcludesConcepts
-    p2.setScopeConcepts(s1);
-
-    p1.setScopeExcludesConcepts(s1);
-    p2.setScopeExcludesConcepts(s1);
-    assertEquals(p1, p2);
-
-    p2.setScopeExcludesConcepts(s2);
-    assertNotEquals(p1, p2);
 
   }
 

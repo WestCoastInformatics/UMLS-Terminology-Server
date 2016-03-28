@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.NoResultException;
 
@@ -89,22 +90,41 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     }
 
     // check admin
-    for (final User user : project.getAdministrators()) {
-      if (username.equals(user.getUserName())) {
+    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap().entrySet()) {
+      if (username.equals(entry.getKey().getName()) && 
+          entry.getValue().equals(UserRole.ADMINISTRATOR)) {
         return UserRole.ADMINISTRATOR;
       }
     }
 
-    // check lead
-    for (final User user : project.getLeads()) {
-      if (username.equals(user.getUserName())) {
-        return UserRole.LEAD;
+    // check viewer
+    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap().entrySet()) {
+      if (username.equals(entry.getKey().getName()) && 
+          entry.getValue().equals(UserRole.VIEWER)) {
+        return UserRole.VIEWER;
+      }
+    }
+    
+    // check reviewer
+    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap().entrySet()) {
+      if (username.equals(entry.getKey().getName()) && 
+          entry.getValue().equals(UserRole.REVIEWER)) {
+        return UserRole.REVIEWER;
       }
     }
 
+    // check user
+    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap().entrySet()) {
+      if (username.equals(entry.getKey().getName()) && 
+          entry.getValue().equals(UserRole.USER)) {
+        return UserRole.USER;
+      }
+    }
+    
     // check author
-    for (final User user : project.getAuthors()) {
-      if (username.equals(user.getUserName())) {
+    for (final Map.Entry<User, UserRole> entry : project.getUserRoleMap().entrySet()) {
+      if (username.equals(entry.getKey().getName()) && 
+          entry.getValue().equals(UserRole.AUTHOR)) {
         return UserRole.AUTHOR;
       }
     }
@@ -218,24 +238,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     if (project == null) {
       return;
     }
-    if (project.getActionWorkflowStatusValues() != null) {
-      project.getActionWorkflowStatusValues().size();
-    }
-    if (project.getAdministrators() != null) {
-      project.getAdministrators().size();
-    }
-    if (project.getAuthors() != null) {
-      project.getAuthors().size();
-    }
-    if (project.getLeads() != null) {
-      project.getLeads().size();
-    }
-    if (project.getScopeExcludesConcepts() != null) {
-      project.getScopeExcludesConcepts().size();
-    }
-    if (project.getScopeConcepts() != null) {
-      project.getScopeConcepts().size();
-    }
+    // TODO: see if anything needs to go here
   }
 
   /**
@@ -306,6 +309,28 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     } else {
       return null;
     }
+  }
+
+  /* see superclass */
+  @SuppressWarnings("unchecked")
+  @Override
+  public ProjectList findProjectsForQuery(String query, PfsParameter pfs)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Project Service - find projects " + "/" + query);
+
+    int[] totalCt = new int[1];
+    List<Project> list =
+        (List<Project>) getQueryResults(query == null || query.isEmpty()
+            ? "id:[* TO *]" : query, ProjectJpa.class, ProjectJpa.class, pfs,
+            totalCt);
+    ProjectList result = new ProjectListJpa();
+    result.setTotalCount(totalCt[0]);
+    result.setObjects(list);
+    for (Project project : result.getObjects()) {
+      handleLazyInit(project);
+    }
+    return result;
   }
 
   /* see superclass */

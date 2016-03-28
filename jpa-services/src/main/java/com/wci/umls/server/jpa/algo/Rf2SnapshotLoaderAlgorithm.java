@@ -1679,9 +1679,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
       mapSet.setTerminologyId(fields[4].intern());
       mapSet.setName(getConcept(conceptIdMap.get(fields[4])).getName());
       mapSet.setFromTerminology(terminology);
-      mapSet.setToTerminology(terminology); // TODO how to get this?
+      mapSet.setToTerminology(null); // no way to get this
       mapSet.setFromVersion(version);
-      mapSet.setToVersion(version);
+      mapSet.setToVersion(null);
       mapSet.setMapVersion(version);
 
       final Attribute attribute2 = new AttributeJpa();

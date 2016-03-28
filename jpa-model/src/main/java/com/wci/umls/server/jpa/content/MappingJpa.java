@@ -166,6 +166,46 @@ public class MappingJpa extends AbstractComponentHasAttributes
   }
 
   /**
+   * Gets the from terminology.
+   *
+   * @return the from terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getFromTerminology() {
+    return mapSet == null ? null : mapSet.getFromTerminology();
+  }
+
+  /**
+   * Gets the from version.
+   *
+   * @return the from version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getFromVersion() {
+    return mapSet == null ? null : mapSet.getFromVersion();
+  }
+
+  /**
+   * Gets the to terminology.
+   *
+   * @return the to terminology
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getToTerminology() {
+    return mapSet == null ? null : mapSet.getToTerminology();
+  }
+
+  /**
+   * Gets the to version.
+   *
+   * @return the to version
+   */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getToVersion() {
+    return mapSet == null ? null : mapSet.getToVersion();
+  }
+  
+  /**
    * Sets the from term.
    *
    * @param term the from term
@@ -356,6 +396,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
     mapSet.setTerminologyId(id);
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -381,6 +422,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

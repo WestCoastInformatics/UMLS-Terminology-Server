@@ -172,7 +172,6 @@ public class Rf2SnapshotLoadAndUnloadTest {
     for (Project project : projectService.getProjects().getObjects()) {
       if (project.getName().equals("Sample project")
           && project.getDescription().equals("Sample project.")
-          && project.getScopeDescendantsFlag()
           && project.getTerminology().equals("SNOMEDCT")
           && project.getVersion().equals("latest")) {
         // Scope ignored for now - &&

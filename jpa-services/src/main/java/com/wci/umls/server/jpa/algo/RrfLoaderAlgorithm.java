@@ -1479,41 +1479,41 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       mapping.setMapSet(mapSet);
       mapping.setGroup(fields[2]); // MAPSUBSETID
       mapping.setRank(fields[3]); // MAPRANK
-      if (fields[4] != null && fields[4].equals("")) {
+      if (fields[4] != null && !fields[4].equals("")) {
         mapping.addAttribute(makeAttribute(mapping, "MAPID", fields[4]));
       }
-      if (fields[5] != null && fields[5].equals("")) {
+      if (fields[5] != null && !fields[5].equals("")) {
         mapping.addAttribute(makeAttribute(mapping, "MAPSID", fields[5]));
       }
-      if (fields[6] != null && fields[6].equals("")) {
+      if (fields[6] != null && !fields[6].equals("")) {
         mapping.addAttribute(makeAttribute(mapping, "FROMID", fields[6]));
       }
-      if (fields[7] != null && fields[7].equals("")) {
+      if (fields[7] != null && !fields[7].equals("")) {
         mapping.addAttribute(makeAttribute(mapping, "FROMSID", fields[7]));
       }
       mapping.setFromTerminologyId(fields[8]); // FROMEXPR
       mapping.setFromIdType(IdType.getIdType(fields[9])); // FROMTYPE
-      if (fields[10] != null && fields[10].equals("")) {
+      if (fields[10] != null && !fields[10].equals("")) {
         mapping.addAttribute(makeAttribute(mapping, "FROMRULE", fields[10]));
       }
-      if (fields[11] != null && fields[11].equals("")) {
+      if (fields[11] != null && !fields[11].equals("")) {
         mapping.addAttribute(makeAttribute(mapping, "FROMRES", fields[11]));
       }
 
       mapping.setRelationshipType(fields[12]);
       mapping.setAdditionalRelationshipType(fields[13]);
-      if (fields[14] != null && fields[14].equals("")) {
+      if (fields[14] != null && !fields[14].equals("")) {
         mapping.addAttribute(makeAttribute(mapping, "TOID", fields[14]));
       }
-      if (fields[15] != null && fields[15].equals("")) {
+      if (fields[15] != null && !fields[15].equals("")) {
         mapping.addAttribute(makeAttribute(mapping, "TOSID", fields[15]));
       }
       mapping.setToTerminologyId(fields[16]); // TOEXPR
       mapping.setToIdType(IdType.getIdType(fields[17])); // TOTYPE
-      if (fields[18] != null && fields[18].equals("")) {
+      if (fields[18] != null && !fields[18].equals("")) {
         mapping.addAttribute(makeAttribute(mapping, "TORULE", fields[18]));
       }
-      if (fields[19] != null && fields[19].equals("")) {
+      if (fields[19] != null && !fields[19].equals("")) {
         mapping.addAttribute(makeAttribute(mapping, "TORES", fields[19]));
       }
       mapping.setRule(fields[20]); // MAPRULE
@@ -1534,10 +1534,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
       mapping.setPublished(true);
       mapping.setPublishable(true);
-      mapping.setTerminology(terminology);
-      mapping.setVersion(version);
-      mapping.setTerminologyId(
-          mapping.getFromTerminologyId() + mapping.getToTerminologyId());
+      // ideally this wouldn't be hardcoded but...
+      if (fields[1].equals("MTH")) {
+        mapping.setTerminology(terminology);
+        mapping.setVersion(version);
+      } else {
+        mapping.setTerminology(fields[1]);
+        mapping.setVersion(loadedTerminologies.get(fields[1]).getVersion());         
+      }
+      mapping.setTerminologyId(fields[5]);
 
       // mapSet.addMapping(mapping);
       addMapping(mapping);
@@ -1602,24 +1607,27 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       mapSet.setMapVersion(atv);
     } else if (atn.equals("TOVSAB")) {
       if (mapSet.getToTerminology() != null) {
-        mapSet.setToVersion(atv.substring(mapSet.getToTerminology().length()));
+        String version = atv.substring(mapSet.getToTerminology().length());
+        mapSet.setToVersion(version.startsWith("_") ? version.substring(1): version);
       } else {
         mapSet.setToVersion(atv);
       }
     } else if (atn.equals("TORSAB")) {
       mapSet.setToTerminology(atv);
       if (mapSet.getToVersion() != null) {
-        mapSet.setToVersion(mapSet.getToVersion().substring(atv.length()));
+        String version = mapSet.getToVersion().substring(atv.length());
+        mapSet.setToVersion(version.startsWith("_") ? version.substring(1): version);
       }
     } else if (atn.equals("FROMRSAB")) {
       mapSet.setFromTerminology(atv);
       if (mapSet.getFromVersion() != null) {
-        mapSet.setFromVersion(mapSet.getFromVersion().substring(atv.length()));
+        String version = mapSet.getFromVersion().substring(atv.length());
+        mapSet.setFromVersion(version.startsWith("_") ? version.substring(1): version);
       }
     } else if (atn.equals("FROMVSAB")) {
       if (mapSet.getFromTerminology() != null) {
-        mapSet.setFromVersion(
-            atv.substring(mapSet.getFromTerminology().length()));
+        String version = atv.substring(mapSet.getFromTerminology().length());
+        mapSet.setFromVersion(version.startsWith("_") ? version.substring(1): version);
       } else {
         mapSet.setFromVersion(atv);
       }

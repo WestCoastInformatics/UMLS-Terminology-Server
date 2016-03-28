@@ -326,9 +326,31 @@ tsApp.controller('ContentCtrl', [
       }
     };
 
-    // Handle paging of relationships (requires content service
+    // Handle paging of mappings (requires content service
     // call).
-    // TODO Move this to relationships directive, or at least reports directive
+    $scope.getPagedMappings = function() {
+
+      var parameters = {
+        showSuppressible : $scope.showSOElements,
+        showObsolete : $scope.showSOElements,
+        text : $scope.mappingPaging.filter,
+        sortField : $scope.mappingPaging.sortField,
+        sortAscending : $scope.mappingPaging.sortAscending
+      };
+
+      // Request from service
+      contentService.findMappings($scope.component.object.terminologyId,
+        $scope.component.object.terminology, $scope.component.object.version,
+        $scope.mappingPaging.page, parameters).then(function(data) {
+
+        $scope.pagedMappings = data.mapping;
+        $scope.pagedMappings.totalCount = data.totalCount;
+
+      });
+    };
+    
+    // Get paged atoms (assume all are loaded)
+   // $scope.getPagedAtoms = function() {
 
     // 
     // Misc helper functions

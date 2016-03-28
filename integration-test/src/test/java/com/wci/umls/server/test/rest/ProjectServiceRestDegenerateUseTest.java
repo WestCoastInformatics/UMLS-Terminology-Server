@@ -160,10 +160,6 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
     project.setName("name");
     project.setDescription("description");
     project.setPublic(true);
-    project.setScopeConcepts(null);
-    project.setScopeDescendantsFlag(true);
-    project.setScopeExcludesConcepts(null);
-    project.setScopeExcludesDescendantsFlag(true);
     project.setTerminology("terminology");
     project.setVersion("version");
     project.setLastModifiedBy("some_user");
@@ -180,7 +176,7 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
     user =
         securityService.getUser(properties.getProperty("bad.user"),
             adminAuthToken);
-    project.addAuthor(user);
+    // TODO add back project.addAuthor(user);
 
     // add the project
     project = (ProjectJpa) projectService.addProject(project, adminAuthToken);
@@ -199,51 +195,6 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
 
   }
 
-  /**
-   * Test findConceptsInScope with degenerate parameters.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testDegenerateUseRestProject003() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
-
-    // Call findConceptsInScope() project id is null
-    try {
-      projectService.findConceptsInScope(null, new PfsParameterJpa(),
-          viewerAuthToken);
-    } catch (Exception e) {
-      // do nothing
-    }
-
-    /*
-     * Call "find concepts in scope" with a pfs that has a query restriction
-     * TEST: exception (because it is not supported).
-     */
-    ProjectList projectList = projectService.getProjects(viewerAuthToken);
-    ProjectJpa project = (ProjectJpa) projectList.getObjects().get(0);
-    PfsParameterJpa pfs = new PfsParameterJpa();
-    pfs.setQueryRestriction("testQueryRestriction");
-    try {
-      projectService.findConceptsInScope(project.getId(), pfs, viewerAuthToken);
-      fail("");
-    } catch (Exception e) {
-      // do nothing
-    }
-
-    /*
-     * Get all projects and choose the first one. Set the identifier to -1 Call
-     * "find concepts in scope" using this project (and null pfs). TEST:
-     * exception because project with this id does not exist.
-     */
-    project.setId(-1L);
-    try {
-      projectService
-          .findConceptsInScope(project.getId(), null, viewerAuthToken);
-    } catch (Exception e) {
-      // do nothing
-    }
-  }
 
   /**
    * Teardown.

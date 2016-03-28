@@ -4,7 +4,7 @@
 package com.wci.umls.server;
 
 import java.util.Date;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * Generically represents an editing project.
@@ -96,89 +96,6 @@ public interface Project {
   public void setLastModifiedBy(String lastModifiedBy);
 
   /**
-   * Returns the leads.
-   * 
-   * @return the leads
-   */
-  public Set<User> getLeads();
-
-  /**
-   * Sets the leads.
-   * 
-   * @param leads the leads
-   */
-  public void setLeads(Set<User> leads);
-
-  /**
-   * Adds the lead.
-   * 
-   * @param lead the lead
-   */
-  public void addLead(User lead);
-
-  /**
-   * Removes the lead.
-   * 
-   * @param lead the lead
-   */
-  public void removeLead(User lead);
-
-  /**
-   * Returns the administrators.
-   * 
-   * @return the administrators
-   */
-  public Set<User> getAdministrators();
-
-  /**
-   * Sets the administrators.
-   * @param administrators the administrators
-   */
-  public void setAdministrators(Set<User> administrators);
-
-  /**
-   * Adds the administrator.
-   * 
-   * @param administrator a administrator
-   */
-  public void addAdministrator(User administrator);
-
-  /**
-   * Removes the administrator.
-   * 
-   * @param administrator the administrator
-   */
-  public void removeAdministrator(User administrator);
-
-  /**
-   * Returns the author.
-   * 
-   * @return the author.
-   */
-  public Set<User> getAuthors();
-
-  /**
-   * Sets the authors.
-   * 
-   * @param authors the authors
-   */
-  public void setAuthors(Set<User> authors);
-
-  /**
-   * Adds the author.
-   * 
-   * @param author the author
-   */
-  public void addAuthor(User author);
-
-  /**
-   * Removes the author.
-   * 
-   * @param author the author
-   */
-  public void removeAuthor(User author);
-
-  /**
    * Returns the terminology.
    * 
    * @return the terminology
@@ -207,104 +124,18 @@ public interface Project {
   public void setVersion(String version);
 
   /**
-   * Returns the scope concepts.
-   * 
-   * @return the scope concepts
-   */
-  public Set<String> getScopeConcepts();
-
-  /**
-   * Sets the scope concepts.
-   * 
-   * @param scopeConcepts the scope concepts
-   */
-  public void setScopeConcepts(Set<String> scopeConcepts);
-
-  /**
-   * Indicates whether or not project scope includes descendants of scope
-   * concepts.
-   * 
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean getScopeDescendantsFlag();
-
-  /**
-   * Sets the scope descendants flag.
-   * 
-   * @param flag the scope descendants flag
-   */
-  public void setScopeDescendantsFlag(boolean flag);
-
-  /**
-   * Returns the scope excludes concepts.
-   * 
-   * @return the scope excludes concepts
-   */
-  public Set<String> getScopeExcludesConcepts();
-
-  /**
-   * Sets the scope excludes concepts.
-   * 
-   * @param scopeExcludesConcepts the scope excludes concepts
-   */
-  public void setScopeExcludesConcepts(Set<String> scopeExcludesConcepts);
-
-  /**
-   * Indicates whether or not scope excludes descendants of the scope excludes
-   * concepts.
-   * 
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean getScopeExcludesDescendantsFlag();
-
-  /**
-   * Sets the scope excludes descendants flag.
-   * 
-   * @param flag the scope excludes descendants flag
-   */
-  public void setScopeExcludesDescendantsFlag(boolean flag);
-
-  /**
-   * Adds the scope excludes concept.
+   * Returns the user role map.
    *
-   * @param terminologyId the terminology id
+   * @return the user role map
    */
-  public void addScopeExcludesConcept(String terminologyId);
+  public Map<User, UserRole> getUserRoleMap();
 
   /**
-   * Removes the scope excludes concept.
+   * Sets the user role map.
    *
-   * @param terminologyId the terminology id
+   * @param userRoleMap the user role map
    */
-  public void removeScopeExcludesConcept(String terminologyId);
-
-  /**
-   * Adds the scope concept.
-   *
-   * @param terminologyId the terminology id
-   */
-  public void addScopeConcept(String terminologyId);
-
-  /**
-   * Removes the scope concept.
-   *
-   * @param terminologyId the terminology id
-   */
-  public void removeScopeConcept(String terminologyId);
-
-  /**
-   * Returns the action workflow status values.
-   *
-   * @return the action workflow status values
-   */
-  public Set<String> getActionWorkflowStatusValues();
-
-  /**
-   * Sets the action workflow status values.
-   *
-   * @param values the action workflow status values
-   */
-  public void setActionWorkflowStatusValues(Set<String> values);
+  public void setUserRoleMap(Map<User, UserRole> userRoleMap);
 
   /**
    * Returns the branch.

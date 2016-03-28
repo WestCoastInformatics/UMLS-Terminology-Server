@@ -202,7 +202,6 @@ public class RrfUmlsLoadAndUnloadTest {
     for (Project project : projectService.getProjects().getObjects()) {
       if (project.getName().equals("Sample project")
           && project.getDescription().equals("Sample project.")
-          && project.getScopeDescendantsFlag()
           && project.getTerminology().equals("UMLS")
           && project.getVersion().equals("latest")) {
         // Scope ignored for now - &&
