@@ -396,6 +396,12 @@ public class IndexUtility {
     QueryParser queryParser = new MultiFieldQueryParser(IndexUtility
         .getIndexedFieldNames(fieldNamesKey, true).toArray(new String[] {}),
         searchFactory.getAnalyzer(clazz));
+    
+    // preserve capitalization from incoming query (in order to correctly match 
+    // capitalized terms)
+    queryParser.setLowercaseExpandedTerms(false);
+    
+    // construct the query
     String finalQuery = pfsQuery.toString();
     if (pfsQuery.toString().startsWith(" AND ")) {
       finalQuery = finalQuery.substring(5);
