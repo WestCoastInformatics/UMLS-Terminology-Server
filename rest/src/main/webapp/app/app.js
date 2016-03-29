@@ -34,13 +34,13 @@ tsApp.config([ '$routeProvider', function($routeProvider) {
     reloadOnSearch : false
   })
 
-  .when('/', {
+  /*.when('/', {
     templateUrl : 'app/page/landing/landing.html',
     controller : 'LandingCtrl',
     reloadOnSearch : false
   })
-
-  .when('/login', {
+*/
+  .when('/', {
     templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl',
     reloadOnSearch : false
