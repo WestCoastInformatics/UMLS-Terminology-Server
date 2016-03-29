@@ -53,7 +53,7 @@
           </td>
           <td>
             <select style="margin-bottom: 5px; width: 85%;"
-              uib-tooltip="Semantic Type" ng-show="metadata.semanticTypes"
+              ng-show="metadata.semanticTypes"
               ng-model="searchParams.semanticType"
               ng-options="item.value as item.value for item in metadata.semanticTypes | orderBy:'value'">
               <option value="">--- All ---</option>
