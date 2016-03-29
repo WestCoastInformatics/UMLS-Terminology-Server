@@ -1,9 +1,14 @@
 
+<style>
+.m-t-10 {
+  margin-top: 10px;
+}
+</style>"
 <div class="row">
   <!-- padding -->
   <div class="col-md-1 col-xs-0"></div>
   <div class="col-md-10 col-xs-10">
-    <div ng-include src="'app/page/general/intro-landing.html'"></div>
+    <div ng-include src="'app/page/landing/intro-landing.html'"></div>
     <!-- Row: Introduction -->
     <div class="row">
       <div class="col-md-6 col-xs-12">
@@ -48,72 +53,155 @@
       <div class="col-md-6 col-xs-12">[IMAGE: General screenshot]</div>
     </div>
     <!-- Feature Row: Searching Algorithms and Advanced Searching -->
-    <div class="row">
-      <div class="col-md-6 col-xs-12">
-        <h4>Fast and Convenient Searching</h4>
-        Quickly and easily search for concepts, descriptors, and codes with
-        highly tuned algorithms based on Apache Lucene indexing. Search features
-        include:
-        <ul>
-          <li>Simple and intuitive text entry to search by name or code</li>
-          <li>Scored results indicate fidelity of matching terms.</li>
-          <li>Spelling correction for commonly misspelled terms.</li>
-          <li>Comprehensive acronym expansion.</li>
-          <li>Automatic pattern matching for chemical structure and other
-            complex names.</li>
-        </ul>
-        Use advanced options to restrict and refine your search by language,
-        semantic and term types, or terminologies within a metathesaurus.
+    <div>
+      <div class="row">
+        <div class="col-md-6 col-xs-12">
+          <h4>Fast and Convenient Searching</h4>
+          Quickly and easily search for concepts, descriptors, and codes with
+          highly tuned algorithms based on Apache Lucene indexing. Search
+          features include:
+          <ul>
+            <li>Simple and intuitive text entry to search by name or code</li>
+            <li>Scored results indicate fidelity of matching terms.</li>
+            <li>Spelling correction for commonly misspelled terms.</li>
+            <li>Comprehensive acronym expansion.</li>
+            <li>Automatic pattern matching for chemical structure and other
+              complex names.</li>
+          </ul>
+          Use advanced options to restrict and refine your search by language,
+          semantic and term types, or terminologies within a metathesaurus. <br>
+          <button class="btn btn-xs btn-primary pull-right m-t-10"
+            ng-click="learnMoreSearch = !learnMoreSearch"><span ng-show="learnMoreSearch">Hide Details</span><span ng-show="!learnMoreSearch">Learn More</span></button>
+        </div>
+        <div class="col-md-6 col-xs-12">
+          <img src="">
+        </div>
       </div>
-      <div class="col-md-6 col-xs-12">
-        <img src="">
-      </div>
+      <div class="row" ng-show="learnMoreSearch">Additional content</div>
     </div>
+    <hr>
     <!-- Feature Row: Searching and Viewing Hierarchies -->
-    <div class="row">
-      <div class="col-md-6 col-xs-12">
-        <h4>Navigate Hierarchical Terminologies</h4>
+    <div>
+      <div class="row">
+        <div class="col-md-6 col-xs-12">
+          <h4>Navigate Hierarchical Terminologies</h4>
+          Explore hierarchical terminologies and view multiple paths to your
+          search results. Our hierarchical tree view allows you to:
+          <ul>
+            <li>Browse a terminology from the top-down, and inspect objects
+              as you go.</li>
+            <li>Retrieve search results as hierarchical trees instead of a
+              simple list.
+            <li>Open and close parents, siblings, and children for any
+              object.</li>
+            <li>Highlight and retrieve details for terminology extensions.</li>
+            <li>View and browse through individual paths to any given
+              object.</li>
+          </ul>
+          <br>
+          <button class="btn btn-xs btn-primary pull-right m-t-10"
+            ng-click="learnMoreHierarchies = !learnMoreHierarchies"><span ng-show="learnMoreHierarchies">Hide Details</span><span ng-show="!learnMoreHierarchies">Learn More</span></button>
+        </div>
+        <div class="col-md-6 col-xs-12">
+          <img src="">
+        </div>
       </div>
-      Explore hierarchical terminologies and view multiple paths to your search results. Our hierarchical tree view allows you to:
-      <ul>
-      <li>Browse a terminology from the top-down, and inspect objects as you go.</li>
-      <li>Retrieve search results as hierarchical trees instead of a simple list.
-      <li>Open and close parents, siblings, and children for any object.</li>
-      <li>Highlight and retrieve details for terminology extensions.</li>
-      <li>View and browse through individual paths to any given object.</li>
-      </ul>
-      <div class="col-md-6 col-xs-12">
-        <img src="">
-      </div>
+      <div class="row" ng-show="learnMoreHierarchies">Additional content</div>
     </div>
-    <!-- Feature Row:  Inspect terminology metadata -->
-    <div class="row">
-      <div class="col-md-6 col-xs-12">
-        <h4></h4>
-      </div>
-      <div class="col-md-6 col-xs-12">
-        <img src="">
-      </div>
-    </div>
-    <!-- Feature Row:  Component Navigation through Atoms and Relationships  -->
-    <div class="row">
-      <div class="col-md-6 col-xs-12">
-        <h4></h4>
-      </div>
-      <div class="col-md-6 col-xs-12">
-        <img src="">
-      </div>
-    </div>
+    <hr>
     <!-- Feature Row:  Metathesaurus deep relationships -->
-    <div class="row">
-      <div class="col-md-6 col-xs-12">
-        <h4></h4>
+    <div>
+      <div class="row">
+        <div class="col-md-6 col-xs-12">
+          <h4>Metathesaurus Deep Relationships</h4>
+          Browse through "deep" relationships between concepts in a
+          metathesaurus terminology (e.g. UMLS). Search through deep
+          relationships by text, or sort by terminology connection, relationship
+          type, and target object details. <br>
+          <button class="btn btn-xs btn-primary pull-right m-t-10"
+            ng-click="learnMoreDeepRels = !learnMoreDeepRels"><span ng-show="learnMoreDeepRels">Hide Details</span><span ng-show="!learnMoreDeepRels">Learn More</span></button>
+        </div>
+        <div class="col-md-6 col-xs-12">
+          <img src="">
+        </div>
       </div>
-      <div class="col-md-6 col-xs-12">
-        <img src="">
-      </div>
+      <div class="row" ng-show="learnMoreDeepRels">Additional content</div>
     </div>
+    <hr>
+    <!-- Feature Row:  Navigation through Atoms and Relationships -->
+    <div>
+      <div class="row">
+        <div class="col-md-6 col-xs-12">
+          <h4>Easily Navigate Between Objects</h4>
+          something something <br>
+          <button class="btn btn-xs btn-primary pull-right m-t-10"
+            ng-click="learnMoreNavigation = !learnMoreNavigation"><span ng-show="learnMoreNavigation">Hide Details</span><span ng-show="!learnMoreNavigation">Learn More</span></button>
+        </div>
+        <div class="col-md-6 col-xs-12">
+          <img src="">
+        </div>
+      </div>
+      <div class="row" ng-show="learnMoreNavigation">Additional content</div>
+    </div>
+    <hr>
+    <!-- Feature Row:  Mappings -->
+    <div>
+      <div class="row">
+        <div class="col-md-6 col-xs-12">
+          <h4>See Object Mappings</h4>
+          something something <br>
+          <button class="btn btn-xs btn-primary pull-right m-t-10"
+            ng-click="learnMoreMappings = !learnMoreMappings"><span ng-show="learnMoreMappings">Hide Details</span><span ng-show="!learnMoreMappings">Learn More</span></button>
+        </div>
+        <div class="col-md-6 col-xs-12">
+          <img src="">
+        </div>
+      </div>
+      <div class="row" ng-show="learnMoreMappings">Additional content</div>
+    </div>
+    <hr>
+    <!-- Feature Row:  Inspect terminology metadata -->
+    <div ng-init="learnMore">
+      <div class="row">
+        <div class="col-md-6 col-xs-12">
+          <h4>Inspect Terminology Metadata</h4>
+          Immediately switch between viewing content and metadata with a click
+          of a tab. Inspect complete lists of abbreviations and meanings for:
+          <ul>
+            <li>Precedence lists.</li>
+            <li>Attribute names</li>
+            <li>Relationship and additional relationship types</li>
+            <li>Languages</li>
+            <li>Semantic Types</li>
+            <li>Term Types</li>
+          </ul>
+          <br>
+         <button class="btn btn-xs btn-primary pull-right m-t-10"
+            ng-click="learnMoreMetadata = !learnMoreMetadata"><span ng-show="learnMoreMetadata">Hide Details</span><span ng-show="!learnMoreMetadata">Learn More</span></button>
+        </div>
+        <div class="col-md-6 col-xs-12">
+          <img src="">
+        </div>
+      </div>
+      <div class="row" ng-show="learnMoreMetadata">Additional content</div>
+    </div>
+    <hr>
+    <!-- Feature Row:  Template -->
+    <div>
+      <div class="row">
+        <div class="col-md-6 col-xs-12">
+          <h4>Template Feature Row</h4>
+          <br>
+          <button class="btn btn-xs btn-primary pull-right m-t-10"
+            ng-click="learnMoreXXX = !learnMoreXXX"><span ng-show="learnMoreXXX">Hide Details</span><span ng-show="!learnMoreXXX">Learn More</span></button>
+        </div>
+        <div class="col-md-6 col-xs-12">
+          <img src="">
+        </div>
+      </div>
+      <div class="row" ng-show="learnMoreXXX">Additional content</div>    </div>
   </div>
+  <hr>
   <!-- Padding -->
   <div class="col-md-1 col-xs-0"></div>
 </div>
