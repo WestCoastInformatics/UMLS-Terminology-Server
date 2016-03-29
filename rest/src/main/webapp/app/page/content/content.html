@@ -243,64 +243,6 @@
         callbacks="componentReportCallbacks"></div>
       <!-- end Component Display -->
     </div>
-    <!-- Mappings -->
-    <div
-      ng-show="pagedMappings.totalCount > 0 || mappingPaging.filter || !showInferred">
-      <h4>
-        {{metadata.mappingsLabel}}
-        ({{pagedMappings.totalCount}})&nbsp;&nbsp;
-      </h4>
-      <span style="display: block;">
-        <uib-pagination items-per-page="pageSizes.mappings" max-size="5"
-          boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
-          next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-          ng-show="pagedMappings.totalCount > pageSizes.mappings || mappingPaging.filter"
-          total-items="pagedMappings.totalCount" ng-model="mappingPaging.page"
-          ng-change="getPagedMappings()"></uib-pagination>
-        <span
-          ng-click="mappingPaging.sortAscending = !mappingPaging.sortAscending; getPagedMappings();"
-          ng-show="pagedMappings.totalCount > pageSizes.mappings"
-          class="glyphicon"
-          ng-class="[{'glyphicon-sort-by-attributes': mappingPaging.sortAscending}, {'glyphicon-sort-by-attributes-alt': !mappingPaging.sortAscending}]"></span>
-        <select ng-show="pagedMappings.totalCount > pageSizes.mappings"
-          class="input-filter" ng-model="mappingPaging.sortField"
-          ng-options="o.value as o.key for o in mappingPaging.sortOptions"
-          ng-change="getPagedMappings()">
-        </select> <input class="input-filter" placeholder="Enter filter text"
-          ng-show="pagedMappings.totalCount > pageSizes.mappings || mappingPaging.filter"
-          type="text" ng-model="mappingPaging.filter"
-          ng-model-options="{ debounce: 300 }"
-          ng-change="getPagedMappings()">
-        <button class="btn btn-xs btn-warning" ng-show="mappingPaging.filter"
-          ng-click="mappingPaging.filter = ''; getPagedMappings()"
-          uib-tooltip="Click to clear filter text">Clear</button>
-      </span>
-      <ul class="icon-list">
-        <li class="cr-list" ng-repeat="item in pagedMappings"
-          ng-show="showItem(item)"><span ng-show="item.group > 0">
-            <span class="label label-success"
-              uib-tooltip="Mapping group {{item.group}}">{{item.group}}</span>
-            &nbsp;
-          </span> <span class="label label-warning"
-            ng-show="metadata.terminology.metathesaurus && item.suppressible"
-            uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator}}</span>
-          <span class="label label-default" ng-show="item.obsolete"
-            uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
-          <span class="label label-info"
-            uib-tooltip="{{getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
-          {{item.additionalRelationshipType}} <!-- Mobile friendly switch --> <span
-            class="hidden-xs">
-            <a
-              ng-click="getComponent(item.toTerminologyId, item.toTerminology, component.object.version)"
-              uib-tooltip="{{item.toTerminology}} {{componentType | lowercase}}">{{item.toTerminologyId}}</a>
-            {{item.toName}}
-          </span> <span class="visible-xs-inline">
-            <a
-              ng-click="getComponent(item.toTerminologyId, item.toTerminology, component.object.version)"
-              uib-tooltip="{{item.toTerminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
-          </span></li>
-      </ul>
-    </div>
-    <!-- end Mappings -->
+   
   </div>
 </div>

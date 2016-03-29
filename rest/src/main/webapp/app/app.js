@@ -125,7 +125,6 @@ tsApp.controller('TabCtrl', [
       case 'simple':
         return false;
       default:
-        console.debug(securityService.isLoggedIn(), $location.url());
         return securityService.isLoggedIn() && $location.url() !== '/'
           && $location.url() !== '/#top' && $location.url().indexOf('login') == -1;
 
