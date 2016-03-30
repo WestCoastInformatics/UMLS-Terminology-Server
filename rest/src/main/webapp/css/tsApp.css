@@ -27,6 +27,10 @@ body {
 	color: grey;
 }
 
+.selected {
+	background-color: #e9e9e9;
+}
+
 .swagger-ui-wrap p {
 	line-height: 1.4em;
 	padding: 0 0 10px;
@@ -134,72 +138,21 @@ body {
 	word-break: break-all;
 }
 
-/* Makes font size in table smaller than default */
-/* TODO: renaming this table-small-font breaks all the other table styling */
-/* .table {
-	font-size: 12px;
-	margin-bottom: 0px;
-} */
-
-/* Shades the background of the selected project cell */
-.selected {
-	background-color: #e9e9e9;
-}
-
-.disabled {
-	color: lightgrey;
-}
-
-
-.nobreak {
-	display: inline-block;
-	white-space: nowrap;
+.ellipsis {
+	text-overflow: ellipsis;
 }
 
 .table-select-row {
 	cursor: pointer;
 }
 
-/* Material Design Icons */
-.material-icons.md-12 {
-	font-size: 12px;
+.m10 {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	margin-left: 5px;
 }
 
-.material-icons.md-18 {
-	font-size: 18px;
+.table {
+	font-size: 14px;
+	margin-bottom: 10px;
 }
-
-.material-icons.md-24 {
-	font-size: 24px;
-}
-
-.material-icons.md-36 {
-	font-size: 36px;
-}
-
-.material-icons.md-48 {
-	font-size: 48px;
-}
-
-.header-footer-title {
-	font-size: 16px;
-	color: white;
-	font-family: Museo-300, sans-serif;
-	display: inline;
-}
-
-.header-footer-text {
-	font-size: 12px;
-	color: white;
-	font-family: Museo-300, sans-serif;
-	display: inline;
-}
-
-.header-footer-link {
-	cursor: pointer;
-}
-
-.header-footer-bg {
-	background-color: #474747;
-}
-

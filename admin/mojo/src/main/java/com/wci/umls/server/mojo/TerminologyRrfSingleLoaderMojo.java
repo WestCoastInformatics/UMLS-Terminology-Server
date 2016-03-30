@@ -101,8 +101,8 @@ public class TerminologyRrfSingleLoaderMojo extends AbstractMojo {
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog()
-          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog().info(
+          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(

@@ -31,12 +31,11 @@ import com.wci.umls.server.model.content.Mapping;
 @Entity
 @Table(name = "mapsets", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "id"
-}) )
+}))
 @Audited
 @Indexed
 @XmlRootElement(name = "mapSet")
-public class MapSetJpa extends AbstractComponentHasAttributes
-    implements MapSet {
+public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet {
 
   /** The mappings. */
   @OneToMany(mappedBy = "mapSet", targetEntity = MappingJpa.class)
@@ -428,7 +427,7 @@ public class MapSetJpa extends AbstractComponentHasAttributes
   public void clearMappings() {
     mappings = new ArrayList<>();
   }
-  
+
   /* see superclass */
   @Override
   public int hashCode() {
@@ -436,12 +435,15 @@ public class MapSetJpa extends AbstractComponentHasAttributes
     int result = super.hashCode();
     result =
         prime * result + ((complexity == null) ? 0 : complexity.hashCode());
-    result = prime * result
-        + ((fromComplexity == null) ? 0 : fromComplexity.hashCode());
-    result = prime * result
-        + ((fromExhaustive == null) ? 0 : fromExhaustive.hashCode());
-    result = prime * result
-        + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
+    result =
+        prime * result
+            + ((fromComplexity == null) ? 0 : fromComplexity.hashCode());
+    result =
+        prime * result
+            + ((fromExhaustive == null) ? 0 : fromExhaustive.hashCode());
+    result =
+        prime * result
+            + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
     result =
         prime * result + ((fromVersion == null) ? 0 : fromVersion.hashCode());
     result =
@@ -451,8 +453,9 @@ public class MapSetJpa extends AbstractComponentHasAttributes
         prime * result + ((toComplexity == null) ? 0 : toComplexity.hashCode());
     result =
         prime * result + ((toExhaustive == null) ? 0 : toExhaustive.hashCode());
-    result = prime * result
-        + ((toTerminology == null) ? 0 : toTerminology.hashCode());
+    result =
+        prime * result
+            + ((toTerminology == null) ? 0 : toTerminology.hashCode());
     result = prime * result + ((toVersion == null) ? 0 : toVersion.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     return result;

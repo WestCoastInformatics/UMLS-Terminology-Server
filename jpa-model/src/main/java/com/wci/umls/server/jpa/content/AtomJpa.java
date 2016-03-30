@@ -216,15 +216,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /* see superclass */
   @Override
-  public void setConceptTerminologyIds(
-    Map<String, String> conceptTerminologyIds) {
+  public void setConceptTerminologyIds(Map<String, String> conceptTerminologyIds) {
     this.conceptTerminologyIds = conceptTerminologyIds;
   }
 
   /* see superclass */
   @Override
-  public void putConceptTerminologyId(String terminology,
-    String terminologyId) {
+  public void putConceptTerminologyId(String terminology, String terminologyId) {
     if (conceptTerminologyIds == null) {
       conceptTerminologyIds = new HashMap<>(2);
     }
@@ -321,10 +319,10 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /* see superclass */
   @Override
   @Fields({
-      @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord") ),
+      @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
-      @Field(name = "edgeNGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteEdgeAnalyzer") ),
-      @Field(name = "nGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteNGramAnalyzer") )
+      @Field(name = "edgeNGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteEdgeAnalyzer")),
+      @Field(name = "nGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteNGramAnalyzer"))
   })
   public String getName() {
     return name;
@@ -430,8 +428,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology,
-    String terminologyId) {
+  public void putAlternateTerminologyId(String terminology, String terminologyId) {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
     }
@@ -488,17 +485,25 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     int result = super.hashCode();
     result = prime * result + ((codeId == null) ? 0 : codeId.hashCode());
     result = prime * result + ((conceptId == null) ? 0 : conceptId.hashCode());
-    result = prime * result + ((conceptTerminologyIds == null) ? 0
-        : conceptTerminologyIds.toString().hashCode());
-    result = prime * result + ((alternateTerminologyIds == null) ? 0
-        : alternateTerminologyIds.toString().hashCode());
+    result =
+        prime
+            * result
+            + ((conceptTerminologyIds == null) ? 0 : conceptTerminologyIds
+                .toString().hashCode());
+    result =
+        prime
+            * result
+            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
+                .toString().hashCode());
     result =
         prime * result + ((descriptorId == null) ? 0 : descriptorId.hashCode());
     result = prime * result + ((language == null) ? 0 : language.hashCode());
-    result = prime * result
-        + ((lexicalClassId == null) ? 0 : lexicalClassId.hashCode());
-    result = prime * result
-        + ((stringClassId == null) ? 0 : stringClassId.hashCode());
+    result =
+        prime * result
+            + ((lexicalClassId == null) ? 0 : lexicalClassId.hashCode());
+    result =
+        prime * result
+            + ((stringClassId == null) ? 0 : stringClassId.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((termType == null) ? 0 : termType.hashCode());
     return result;

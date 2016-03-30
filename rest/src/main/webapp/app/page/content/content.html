@@ -23,7 +23,8 @@
       <div class="row m10">
         <div class="col-lg-1 col-md-2 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Query <i class="glyphicon glyphicon-cog noul pull-right"
+          Query
+          <i class="glyphicon glyphicon-cog noul pull-right"
             uib-tooltip="Advanced Search Options"
             tooltip-placement="bottom-right"
             ng-click="searchParams.advancedMode = !searchParams.advancedMode"></i>
@@ -60,7 +61,8 @@
       <div ng-show="metadata.semanticTypes.length > 0" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Semantic Type <i class="glyphicon glyphicon-remove pull-right"
+          Semantic Type
+          <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.semanticType"
             ng-click="searchParams.semanticType = null;"></i>
         </div>
@@ -76,7 +78,8 @@
       <div ng-show="metadata.termTypes.length > 0" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Term Type <i class="glyphicon glyphicon-remove pull-right"
+          Term Type
+          <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.termType"
             ng-click="searchParams.termType = null;"></i>
         </div>
@@ -91,7 +94,8 @@
       <div ng-show="metadata.terminology.metathesaurus" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Match Terminology <i class="glyphicon glyphicon-remove pull-right"
+          Match Terminology
+          <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.matchTerminology"
             ng-click="searchParams.matchTerminology = null;"></i>
         </div>
@@ -106,7 +110,8 @@
       <div ng-show="metadata.languages.length > 0" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Language <i class="glyphicon glyphicon-remove pull-right"
+          Language
+          <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.language"
             ng-click="searchParams.language = null;"></i>
         </div>
@@ -155,7 +160,7 @@
               </span>
             </td>
             <td>
-              {{searchResult.value}}
+              <span class="breakword"> {{searchResult.value}}</span>
               <span class="label label-default" ng-show="searchResult.obsolete"
                 uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
             </td>
@@ -237,12 +242,13 @@
           uib-tooltip="{{getComponentStr(component.history[component.historyIndex - 1])}}"></i>
         <span
           ng-show="component.object.terminology != metadata.terminology.terminology">{{component.object.terminology}}</span>
-        {{component.type}} Report <i
-          class="glyphicon glyphicon-step-forward noul"
+        {{component.type}} Report
+        <i class="glyphicon glyphicon-step-forward noul"
           ng-click="getComponentFromHistory(component.historyIndex + 1)"
           ng-show="component.history.length > component.historyIndex + 1 && component.history.length > 0"
           uib-tooltip="{{getComponentStr(component.history[component.historyIndex + 1])}}"></i>
-        &nbsp;&nbsp; <i uib-tooltip="Open {{component.type}} in new window"
+        &nbsp;&nbsp;
+        <i uib-tooltip="Open {{component.type}} in new window"
           ng-click="popout()" class="glyphicon glyphicon-share noul"></i>
       </div>
     </div>

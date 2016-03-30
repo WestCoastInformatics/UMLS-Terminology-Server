@@ -53,7 +53,7 @@ public class TerminologyRf2SnapshotSampler extends AbstractMojo {
   /**
    * Whether to run this mojo against an active server.
    *
-   * @parameter 
+   * @parameter
    */
   private boolean server = false;
 

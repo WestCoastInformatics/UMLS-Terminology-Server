@@ -139,8 +139,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
 
     // Verify release info
     HistoryService historyService = new HistoryServiceJpa();
-    Assert
-        .assertNotNull(historyService.getReleaseInfo("SNOMEDCT", "20140731"));
+    Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT", "20140731"));
     historyService.close();
     historyService.closeFactory();
 
@@ -252,10 +251,8 @@ public class Rf2SnapshotLoadAndUnloadTest {
 
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert
-        .assertEquals(0,
-            service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT)
-                .getCount());
+    Assert.assertEquals(0,
+        service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 

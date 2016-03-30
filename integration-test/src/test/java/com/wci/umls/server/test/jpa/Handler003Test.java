@@ -79,7 +79,6 @@ public class Handler003Test {
       // do nothing
     }
 
-
   }
 
   /**

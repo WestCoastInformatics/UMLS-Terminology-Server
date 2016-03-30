@@ -22,7 +22,8 @@ import com.wci.umls.server.model.meta.RootTerminology;
 /**
  * Unit testing for {@link RootTerminologyList}.
  */
-public class RootTerminologyListUnitTest extends AbstractListUnit<RootTerminology> {
+public class RootTerminologyListUnitTest extends
+    AbstractListUnit<RootTerminology> {
 
   /** The list1 test fixture . */
   private RootTerminologyList list1;

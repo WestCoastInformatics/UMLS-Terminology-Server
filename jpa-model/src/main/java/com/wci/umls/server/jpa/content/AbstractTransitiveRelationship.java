@@ -44,7 +44,6 @@ public abstract class AbstractTransitiveRelationship<T extends AtomClass>
     super(relationship, deepCopy);
   }
 
-
   @Override
   public int getDepth() {
     return depth;
@@ -54,7 +53,6 @@ public abstract class AbstractTransitiveRelationship<T extends AtomClass>
   public void setDepth(int depth) {
     this.depth = depth;
   }
-
 
   @Override
   public String toString() {

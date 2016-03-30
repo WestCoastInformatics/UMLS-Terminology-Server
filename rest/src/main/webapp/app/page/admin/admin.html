@@ -71,12 +71,12 @@
 
               <i
                 ng-click="openEditProjectModal(project); $event.stopPropagation()"
-                title="Edit" class="noul material-icons md-18">edit</i>
+                title="Edit" class="noul glyphicon glyphicon-pencil"></i>
 
               <i
                 confirm="Are you sure you want to remove the project ({{project.name}})?"
                 ng-click="removeProject(project); $event.stopPropagation()"
-                title="Delete" class="noul material-icons md-18">delete</i>
+                title="Delete" class="noul glyphicon glyphicon-trash"></i>
 
             </td>
           </tr>
@@ -144,11 +144,11 @@
 
             <td class="nobreak">
               <i ng-click="openEditUserModal(user); $event.stopPropagation()"
-                title="Edit" class="noul material-icons md-18">edit</i>
+                title="Edit" class="noul glyphicon glyphicon-pencil"></i>
               <i
                 confirm="Are you sure you want to remove the user ({{user.userName}})?"
                 ng-click="removeUser(user); $event.stopPropagation()"
-                title="Delete" class="noul material-icons md-18">delete</i>
+                title="Delete" class="noul glyphicon glyphicon-trash"></i>
             </td>
           </tr>
         </tbody>
@@ -315,7 +315,7 @@
                   <i
                     ng-click="assignUserToProject(selectedProject.id, unassigned.userName, unassigned.projectRole)"
                     title="Add user to project with selected role."
-                    class="noul material-icons md-18">add</i>
+                    class="noul glyphicon glyphicon-plus"></i>
                 </td>
               </tr>
             </tbody>
@@ -380,7 +380,7 @@
                     confirm="Are you sure you want to unassign yourself from this project?"
                     confirm-if="user.userName == assigned.userName"
                     ng-click="unassignUserFromProject(selectedProject.id, assigned.userName);"
-                    title="Unassign user" class="noul material-icons md-18">delete</i>
+                    title="Unassign user" class="noul glyphicon glyphicon-trash"></i>
                 </td>
               </tr>
             </tbody>

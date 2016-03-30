@@ -171,8 +171,9 @@ public class SearchResultJpa implements SearchResult {
     result = prime * result + Float.floatToIntBits(score);
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result
-        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result =
+        prime * result
+            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;

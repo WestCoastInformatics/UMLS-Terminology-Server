@@ -17,7 +17,8 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 /**
  * Unit testing for {@link SemanticTypeComponentList}.
  */
-public class SemanticTypeComponentListUnitTest extends AbstractListUnit<SemanticTypeComponent> {
+public class SemanticTypeComponentListUnitTest extends
+    AbstractListUnit<SemanticTypeComponent> {
 
   /** The list test fixture . */
   private SemanticTypeComponentList list;
