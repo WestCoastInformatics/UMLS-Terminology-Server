@@ -1145,7 +1145,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa
 
       line = line.replace("\r", "");
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
-
+      System.out.println("line=" + line);
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release version

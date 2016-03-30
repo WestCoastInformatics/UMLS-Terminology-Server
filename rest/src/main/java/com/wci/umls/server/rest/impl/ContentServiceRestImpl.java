@@ -539,7 +539,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       Logger.getLogger(getClass()).info("  Sort RF2 Files");
       final Rf2FileSorter sorter = new Rf2FileSorter();
       sorter.setSortByEffectiveTime(false);
-      sorter.setRequireAllFiles(true);
+     // sorter.setRequireAllFiles(true);
       final File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
       sorter.sortFiles(inputDirFile, outputDir);
       final String releaseVersion = sorter.getFileVersion();

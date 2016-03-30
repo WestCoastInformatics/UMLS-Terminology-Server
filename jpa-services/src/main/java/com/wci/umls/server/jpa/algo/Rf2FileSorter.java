@@ -151,7 +151,8 @@ public class Rf2FileSorter {
       Logger.getLogger(getClass()).info("    file = " + file);
 
       // Determine file version from filename
-      if (fileVersion == null) {
+      // Skip null filenames (e.g. for nonexistent files)
+      if (fileVersion == null && file != null) {
         Matcher matcher =
             Pattern.compile("\\d+").matcher(
                 file.getName().substring(file.getName().lastIndexOf('_')));
