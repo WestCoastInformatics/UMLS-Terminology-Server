@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -185,6 +186,13 @@ public class ValidationClientRest implements ValidationServiceRest {
         ConfigUtility
             .getGraphForString(resultString, ValidationResultJpa.class);
     return result;
+  }
+
+  @Override
+  public KeyValuePairList getValidationChecks(String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

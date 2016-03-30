@@ -4,6 +4,7 @@
 package com.wci.umls.server;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.HasId;
@@ -126,5 +127,33 @@ public interface Project extends HasId {
    * @param branch the branch
    */
   public void setBranch(String branch);
+
+  /**
+   * Gets the feedback email.
+   *
+   * @return the feedback email
+   */
+  public String getFeedbackEmail();
+
+  /**
+   * Sets the feedback email.
+   *
+   * @param feedbackEmail the new feedback email
+   */
+  public void setFeedbackEmail(String feedbackEmail);
+
+  /**
+   * Gets the validation checks.
+   *
+   * @return the validation checks
+   */
+  public List<String> getValidationChecks();
+
+  /**
+   * Sets the validation checks.
+   *
+   * @param validationChecks the new validation checks
+   */
+  public void setValidationChecks(List<String> validationChecks);
 
 }

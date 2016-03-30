@@ -15,6 +15,7 @@ var metadataUrl = "metadata/";
 var contentUrl = "content/";
 var adminUrl = "admin/";
 var projectUrl = "project/";
+var validationUrl = "validation/";
 
 // Initialization of tsApp
 tsApp.run(function($rootScope, $http, $location) {

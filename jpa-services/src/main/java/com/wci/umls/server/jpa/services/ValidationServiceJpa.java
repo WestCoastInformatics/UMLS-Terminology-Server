@@ -5,10 +5,13 @@ package com.wci.umls.server.jpa.services;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
@@ -122,4 +125,17 @@ public class ValidationServiceJpa extends RootServiceJpa implements
     return result;
   }
 
+
+  /* see superclass */
+  @Override
+  public KeyValuePairList getValidationCheckNames() {
+    final KeyValuePairList keyValueList = new KeyValuePairList();
+    for (final Entry<String, ValidationCheck> entry : validationHandlersMap
+        .entrySet()) {
+      final KeyValuePair pair =
+          new KeyValuePair(entry.getKey(), entry.getValue().getName());
+      keyValueList.addKeyValuePair(pair);
+    }
+    return keyValueList;
+  }
 }
