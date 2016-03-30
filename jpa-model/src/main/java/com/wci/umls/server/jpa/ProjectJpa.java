@@ -85,10 +85,6 @@ public class ProjectJpa implements Project {
   @Column(nullable = false)
   private String terminology;
 
-  /** The version. */
-  @Column(nullable = false)
-  private String version;
-
   /** The branch. */
   @Column(nullable = true)
   private String branch;
@@ -123,7 +119,8 @@ public class ProjectJpa implements Project {
     description = project.getDescription();
     isPublic = project.isPublic();
     terminology = project.getTerminology();
-    version = project.getVersion();
+    branch = project.getBranch();
+    userRoleMap = project.getUserRoleMap();
   }
 
   /* see superclass */
@@ -196,18 +193,6 @@ public class ProjectJpa implements Project {
     this.terminology = terminology;
   }
 
-  /* see superclass */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getVersion() {
-    return version;
-  }
-
-  /* see superclass */
-  @Override
-  public void setVersion(String version) {
-    this.version = version;
-  }
 
   /* see superclass */
   @Override
@@ -257,20 +242,28 @@ public class ProjectJpa implements Project {
 
 
 
-  /* see superclass */
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + ((branch == null) ? 0 : branch.hashCode());
+    result =
+        prime * result + ((description == null) ? 0 : description.hashCode());
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + (isPublic ? 1231 : 1237);
+    result =
+        prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
+    result = prime * result
+        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result + ((version == null) ? 0 : version.hashCode());
+    result =
+        prime * result + ((userRoleMap == null) ? 0 : userRoleMap.hashCode());
     return result;
   }
 
-  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -280,21 +273,47 @@ public class ProjectJpa implements Project {
     if (getClass() != obj.getClass())
       return false;
     ProjectJpa other = (ProjectJpa) obj;
+    if (branch == null) {
+      if (other.branch != null)
+        return false;
+    } else if (!branch.equals(other.branch))
+      return false;
+    if (description == null) {
+      if (other.description != null)
+        return false;
+    } else if (!description.equals(other.description))
+      return false;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
+    if (isPublic != other.isPublic)
+      return false;
+    if (lastModified == null) {
+      if (other.lastModified != null)
+        return false;
+    } else if (!lastModified.equals(other.lastModified))
+      return false;
+    if (lastModifiedBy == null) {
+      if (other.lastModifiedBy != null)
+        return false;
+    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
+      return false;
     if (name == null) {
       if (other.name != null)
         return false;
     } else if (!name.equals(other.name))
       return false;
-    
     if (terminology == null) {
       if (other.terminology != null)
         return false;
     } else if (!terminology.equals(other.terminology))
       return false;
-    if (version == null) {
-      if (other.version != null)
+    if (userRoleMap == null) {
+      if (other.userRoleMap != null)
         return false;
-    } else if (!version.equals(other.version))
+    } else if (!userRoleMap.equals(other.userRoleMap))
       return false;
     return true;
   }

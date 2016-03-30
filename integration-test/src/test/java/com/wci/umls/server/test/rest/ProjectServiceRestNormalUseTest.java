@@ -63,7 +63,6 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     project.setDescription("Sample");
     project.setName("Sample");
     project.setTerminology("UMLS");
-    project.setVersion("latest");
 
     ProjectJpa project2 =
         (ProjectJpa) projectService.addProject(project, adminAuthToken);
@@ -111,7 +110,6 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     project.setDescription("Sample");
     project.setName("Sample");
     project.setTerminology("UMLS");
-    project.setVersion("latest");
     ProjectJpa project2 = new ProjectJpa(project);
     project = (ProjectJpa) projectService.addProject(project, adminAuthToken);
 

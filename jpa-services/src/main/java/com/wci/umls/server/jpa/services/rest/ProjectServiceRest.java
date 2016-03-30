@@ -147,4 +147,5 @@ public interface ProjectServiceRest {
    */
   public ProjectList findProjectsForQuery(String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
+
 }

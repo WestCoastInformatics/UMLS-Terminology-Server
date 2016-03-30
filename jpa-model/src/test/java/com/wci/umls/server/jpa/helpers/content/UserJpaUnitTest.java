@@ -17,14 +17,11 @@ import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
-import com.wci.umls.server.helpers.KeyValuePairList;
-import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.UserPreferencesJpa;
 import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 
 /**
  * Unit testing for {@link UserJpa}.
@@ -104,22 +101,18 @@ public class UserJpaUnitTest {
    * Test XML serialization.
    *
    * @throws Exception the exception
-   */
+   */   
   @Test
   public void testModelXmlSerialization003() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient003");
     XmlSerializationTester tester = new XmlSerializationTester(object);
 
     UserPreferences up = new UserPreferencesJpa();
-    PrecedenceList pl = new PrecedenceListJpa();
     User user = new UserJpa();
     user.setId(1L);
     user.setUserName("1");
     up.setId(1L);
     up.setUser(user);
-    up.setPrecedenceList(pl);
-    pl.setId(1L);
-    pl.setPrecedence(new KeyValuePairList());
     tester.proxy(UserPreferences.class, 1, up);
 
     assertTrue(tester.testXmlSerialization());
@@ -153,6 +146,8 @@ public class UserJpaUnitTest {
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
     tester.include("name");
+    tester.include("projectRoleMap");
+    tester.include("projectAnyRole");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
@@ -160,6 +155,9 @@ public class UserJpaUnitTest {
     tester = new IndexedFieldTester(object);
     tester.include("userName");
     tester.include("email");
+    tester.include("applicationrole");
+    tester.include("namesort");
+    tester.include("id");
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }

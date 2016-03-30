@@ -1,108 +1,123 @@
+<style>
+.m10 {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+</style>
 <!-- Full-function content page, with search and report  -->
 <div class="row">
-  <div class="col-md-6 col-xs-12">
+  <div class="col-md-12 col-xs-12">
     <form style="margin-bottom: 0px;">
-      <table class="table">
-        <tr>
-          <td style="width: 175px;">Terminology</td>
-          <td>
-            <select ng-model="metadata.terminology"
-              ng-change="setTerminology(metadata.terminology)"
-              ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
-            <button ng-show="!metadata.terminology.metathesaurus" type="button"
-              class="btn btn-sm btn-primary" ng-click="browseHierarchy()"
-              uib-tooltip="Click to browse top level hierarchy">Browse</button>
-          </td>
-        </tr>
-        <tr>
-          <td style="width: 175px;">
-            Query <i class="glyphicon glyphicon-cog noul pull-right"
-              uib-tooltip="Advanced Search Options"
-              ng-click="searchParams.advancedMode = !searchParams.advancedMode"></i>
-          </td>
-          <td>
-            <input autofocus style="margin-bottom: 5px; width: 75%;" type="text"
-              ng-model="searchParams.query" placeholder="Enter search terms"
-              typeahead="suggestion for suggestion in autocomplete($viewValue)"
-              typeahead-loading="loadingSuggestions"
-              typeahead-focus-first="false"
-              typeahead-on-select="searchParams.page = 1 && findComponents(true)"
-              typeahead-editable="true" typeahead-min-length="3">
-            <!-- Mobile friendly line-break -->
-            <br class="visible-xs-inline" />
-            <button class="btn btn-sm btn-primary" type="submit"
-              ng-click="searchParams.page = 1 && findComponents(true)">Search</button>
-            <button class="btn btn-sm btn-warning" type="button"
-              ng-show="searchParams.query || semanticType"
-              ng-click="clearQuery()" uib-tooltip="Click to clear search">Clear</button>
-        </tr>
-      </table>
+      <div class="row m10">
+        <div class="col-lg-1 col-md-2 col-xs-3">Terminology</div>
+        <div class="col-lg-11 col-md-10 col-xs-9">
+          <select ng-model="metadata.terminology"
+            ng-change="setTerminology(metadata.terminology)"
+            ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'">
+          </select>
+          <button ng-show="!metadata.terminology.metathesaurus" type="button"
+            class="btn btn-sm btn-primary" ng-click="browseHierarchy()"
+            uib-tooltip="Click to browse top level hierarchy">Browse</button>
+        </div>
+      </div>
+      <div class="row m10">
+        <div class="col-lg-1 col-md-2 col-xs-3"
+          style="margin-right: 0px; padding-right: 0px;">
+          Query <i class="glyphicon glyphicon-cog noul pull-right"
+            uib-tooltip="Advanced Search Options"
+            tooltip-placement="bottom-right"
+            ng-click="searchParams.advancedMode = !searchParams.advancedMode"></i>
+        </div>
+        <div class="col-lg-6 col-md-7 col-xs-9">
+          <div class="row">
+            <div class="col-lg-8 col-md-8 col-xs-12">
+              <input autofocus style="margin-bottom: 5px; width: 100%;"
+                type="text" ng-model="searchParams.query"
+                placeholder="Enter search terms"
+                typeahead="suggestion for suggestion in autocomplete($viewValue)"
+                typeahead-loading="loadingSuggestions"
+                typeahead-focus-first="false"
+                typeahead-on-select="searchParams.page = 1 && findComponents(true)"
+                typeahead-editable="true" typeahead-min-length="3">
+            </div>
+            <div class="col-lg-4 col-md-4 col-xs-12">
+              <button class="btn btn-sm btn-primary" type="submit"
+                ng-click="searchParams.page = 1 && findComponents(true)">Search</button>
+              <button class="btn btn-sm btn-warning" type="button"
+                ng-show="searchParams.query || semanticType"
+                ng-click="clearQuery()" uib-tooltip="Click to clear search">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </form>
   </div>
 </div>
 <div class="row">
-  <!-- Search Controls -->
+  <!-- Advanced Search Controls -->
   <div class="col-md-4 col-xs-12">
     <div ng-show="searchParams.advancedMode">
-      <table class="table">
-        <tr ng-show="metadata.semanticTypes.length > 0">
-          <td style="width: 175px;">
-            Semantic Type <i class="glyphicon glyphicon-remove pull-right"
-              ng-show="searchParams.semanticType"
-              ng-click="searchParams.semanticType = null;"></i>
-          </td>
-          <td>
-            <select style="margin-bottom: 5px; width: 85%;"
-              uib-tooltip="Semantic Type" ng-show="metadata.semanticTypes"
-              ng-model="searchParams.semanticType"
-              ng-options="item.value as item.value for item in metadata.semanticTypes | orderBy:'value'">
-              <option value="">--- All ---</option>
-            </select>
-          </td>
-        <tr ng-show="metadata.termTypes.length > 0">
-          <td style="width: 175px;">
-            Term Type <i class="glyphicon glyphicon-remove pull-right"
-              ng-show="searchParams.termType"
-              ng-click="searchParams.termType = null;"></i>
-          </td>
-          <td>
-            <select style="margin-bottom: 5px; width: 85%" type="text"
-              ng-options="termType.key as termType.key + ' / ' + termType.value for termType in metadata.termTypes"
-              ng-model="searchParams.termType">
-              <option value="">--- All ---</option>
-            </select>
-          </td>
-        </tr>
-        <tr ng-show="metadata.terminology.metathesaurus">
-          <td style="width: 175px;">
-            Match Terminology <i class="glyphicon glyphicon-remove pull-right"
-              ng-show="searchParams.matchTerminology"
-              ng-click="searchParams.matchTerminology = null;"></i>
-          </td>
-          <td>
-            <select style="margin-bottom: 5px; width: 85%" type="text"
-              ng-options="terminology.terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"
-              ng-model="searchParams.matchTerminology">
-              <option value="">--- All ---</option>
-            </select>
-          </td>
-        </tr>
-        <tr ng-show="metadata.languages.length > 0">
-          <td style="width: 175px;">
-            Language <i class="glyphicon glyphicon-remove pull-right"
-              ng-show="searchParams.language"
-              ng-click="searchParams.language = null;"></i>
-          </td>
-          <td>
-            <select style="margin-bottom: 5px; width: 85%" type="text"
-              ng-options="language.key as language.key + ' / ' + language.value for language in metadata.languages"
-              ng-model="searchParams.language">
-              <option value="">--- All ---
-            </select>
-          </td>
-        </tr>
-      </table>
-      </form>
+      <div ng-show="metadata.semanticTypes.length > 0" class="row m10">
+        <div class="col-lg-3 col-md-6 col-xs-3"
+          style="margin-right: 0px; padding-right: 0px;">
+          Semantic Type <i class="glyphicon glyphicon-remove pull-right"
+            ng-show="searchParams.semanticType"
+            ng-click="searchParams.semanticType = null;"></i>
+        </div>
+        <div class="col-lg-9 col-md-6 col-xs-9">
+          <select style="margin-bottom: 5px; width: 100%;"
+            ng-show="metadata.semanticTypes"
+            ng-model="searchParams.semanticType"
+            ng-options="item.value as item.value for item in metadata.semanticTypes | orderBy:'value'">
+            <option value="">--- All ---</option>
+          </select>
+        </div>
+      </div>
+      <div ng-show="metadata.termTypes.length > 0" class="row m10">
+        <div class="col-lg-3 col-md-6 col-xs-3"
+          style="margin-right: 0px; padding-right: 0px;">
+          Term Type <i class="glyphicon glyphicon-remove pull-right"
+            ng-show="searchParams.termType"
+            ng-click="searchParams.termType = null;"></i>
+        </div>
+        <div class="col-lg-9 col-md-6 col-xs-9">
+          <select style="margin-bottom: 5px; width: 100%" type="text"
+            ng-options="termType.key as termType.key + ' / ' + termType.value for termType in metadata.termTypes"
+            ng-model="searchParams.termType">
+            <option value="">--- All ---</option>
+          </select>
+        </div>
+      </div>
+      <div ng-show="metadata.terminology.metathesaurus" class="row m10">
+        <div class="col-lg-3 col-md-6 col-xs-3"
+          style="margin-right: 0px; padding-right: 0px;">
+          Match Terminology <i class="glyphicon glyphicon-remove pull-right"
+            ng-show="searchParams.matchTerminology"
+            ng-click="searchParams.matchTerminology = null;"></i>
+        </div>
+        <div class="col-lg-9 col-md-6 col-xs-9">
+          <select style="margin-bottom: 5px; width: 100%" type="text"
+            ng-options="terminology.terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"
+            ng-model="searchParams.matchTerminology">
+            <option value="">--- All ---</option>
+          </select>
+        </div>
+      </div>
+      <div ng-show="metadata.languages.length > 0" class="row m10">
+        <div class="col-lg-3 col-md-6 col-xs-3"
+          style="margin-right: 0px; padding-right: 0px;">
+          Language <i class="glyphicon glyphicon-remove pull-right"
+            ng-show="searchParams.language"
+            ng-click="searchParams.language = null;"></i>
+        </div>
+        <div class=" col-lg-9 col-md-6 col-xs-9">
+          <select style="margin-bottom: 5px; width: 100%" type="text"
+            ng-options="language.key as language.key + ' / ' + language.value for language in metadata.languages"
+            ng-model="searchParams.language">
+            <option value="">--- All ---
+          </select>
+        </div>
+      </div>
     </div>
     <!-- End search controls-->
     <!-- Search Results -->
@@ -181,8 +196,8 @@
         ng-show="searchResults.tree.totalCount > pageSizes.trees"
         total-items="searchResults.tree.totalCount" ng-model="searchParams.page"
         ng-change="findComponents(false)"></uib-pagination>
-      
-      <div tree-search-result search-results="searchResults" parameters="srtParams" callbacks="srtCallbacks"></div>
+      <div tree-search-result search-results="searchResults"
+        parameters="srtParams" callbacks="srtCallbacks"></div>
       <p style="display: block;">&nbsp;</p>
     </div>
   </div>
@@ -199,13 +214,10 @@
       <div class="col-md-12 nobreak alert alert-info"
         ng-if="component.object != null">
         <div style="display: inline" uib-dropdown dropdown-append-to-body>
-        
-       
-        
           <i uib-tooltip="View All History"
             ng-show="component.history.length > 2"
-            class="glyphicon glyphicon-time dropdown-toggle noul" uib-dropdown-toggle
-            id="history-dropdown"></i>
+            class="glyphicon glyphicon-time dropdown-toggle noul"
+            uib-dropdown-toggle id="history-dropdown"></i>
           <ul uib-dropdown-menu role="menu" aria-labelledby="history-dropdown">
             <li ng-show="localHistoryNextCt > 0">... {{localHistoryNextCt}}
               more recent</li>
@@ -225,16 +237,13 @@
           uib-tooltip="{{getComponentStr(component.history[component.historyIndex - 1])}}"></i>
         <span
           ng-show="component.object.terminology != metadata.terminology.terminology">{{component.object.terminology}}</span>
-        {{component.type}} Report
-       
-        <i class="glyphicon glyphicon-step-forward noul"
+        {{component.type}} Report <i
+          class="glyphicon glyphicon-step-forward noul"
           ng-click="getComponentFromHistory(component.historyIndex + 1)"
           ng-show="component.history.length > component.historyIndex + 1 && component.history.length > 0"
           uib-tooltip="{{getComponentStr(component.history[component.historyIndex + 1])}}"></i>
-          
-          &nbsp;&nbsp;   <i uib-tooltip="Open {{component.type}} in new window" ng-click="popout()" class="glyphicon glyphicon-share noul"></i>
-      
-             
+        &nbsp;&nbsp; <i uib-tooltip="Open {{component.type}} in new window"
+          ng-click="popout()" class="glyphicon glyphicon-share noul"></i>
       </div>
     </div>
     <!-- Component display -->
@@ -243,6 +252,5 @@
         callbacks="componentReportCallbacks"></div>
       <!-- end Component Display -->
     </div>
-   
   </div>
 </div>

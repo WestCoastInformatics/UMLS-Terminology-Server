@@ -63,11 +63,7 @@ public class UnitTest extends AbstractListUnit<User> {
     User user = new UserJpa();
     user.setId(1L);
     user.setUserName("1");
-    PrecedenceList pl = new PrecedenceListJpa();
-    pl.setId(1L);
-    pl.setPrecedence(new KeyValuePairList());
     up.setUser(user);
-    up.setPrecedenceList(pl);
     o1.setUserPreferences(up);
     o2.setUserPreferences(up);
   }

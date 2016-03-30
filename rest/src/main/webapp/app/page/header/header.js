@@ -1,6 +1,6 @@
 // Content controller
-tsApp.directive('header', [ '$rootScope', '$routeParams', 'securityService',
-  function($rootScope, $routeParams, securityService) {
+tsApp.directive('header', [ '$rootScope', '$routeParams', 'securityService', '$location',
+  function($rootScope, $routeParams, securityService, $location) {
     console.debug('configure header directive');
     return {
       restrict : 'A',
@@ -14,6 +14,18 @@ tsApp.directive('header', [ '$rootScope', '$routeParams', 'securityService',
              return false;
           default:
              return true;
+          }
+        }
+        
+        scope.isLanding = function() {
+          return ($location.url() === '/')
+        }
+        
+        scope.gotoTool = function() {
+          if (securityService.isLoggedIn()) {
+            $location.url('/content');
+          } else {
+            $location.url('/login');
           }
         }
         // Declare user

@@ -63,7 +63,6 @@ public class ProjectServiceRestRoleCheckTest extends ProjectServiceRestTest {
     project.setDescription("Sample");
     project.setName("Sample");
     project.setTerminology("UMLS");
-    project.setVersion("latest");
 
     try {
       projectService.addProject(project, viewerAuthToken);

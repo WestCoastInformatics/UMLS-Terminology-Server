@@ -238,7 +238,7 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
     if (project == null) {
       return;
     }
-    // TODO: see if anything needs to go here
+    project.getUserRoleMap().size();
   }
 
   /**

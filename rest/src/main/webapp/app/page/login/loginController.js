@@ -1,6 +1,6 @@
 // Login controller
 tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService', 'gpService',
-  'utilService', function($scope, $http, $location, securityService, gpService, utilService) {
+  'utilService', 'projectService', function($scope, $http, $location, securityService, gpService, utilService, projectService) {
     console.debug('configure LoginCtrl');
 
     // Declare the user
@@ -35,7 +35,12 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService
 
         // set request header authorization and reroute
         $http.defaults.headers.common.Authorization = response.data.authToken;
-        $location.path("/content");
+        projectService.getUserHasAnyRole();
+        if (response.data.userPreferences && response.data.userPreferences.lastTab) {
+          $location.path(response.data.userPreferences.lastTab);
+        } else {
+          $location.path("/content");
+        }
         gpService.decrement();
       },
 
