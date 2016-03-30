@@ -75,14 +75,6 @@ public class ProjectLoaderMojo extends AbstractMojo {
   private String version = null;
 
   /**
-   * The admin user.
-   * 
-   * @parameter
-   * @required
-   */
-  private String adminUser = null;
-
-  /**
    * The scope concepts.
    * 
    * @parameter
