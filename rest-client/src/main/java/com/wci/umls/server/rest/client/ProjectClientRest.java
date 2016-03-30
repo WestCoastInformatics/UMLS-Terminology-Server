@@ -121,8 +121,6 @@ public class ProjectClientRest extends RootClientRest implements
     }
   }
 
-
-
   @Override
   public Project getProject(Long id, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Project Client - get project " + id);
@@ -200,8 +198,7 @@ public class ProjectClientRest extends RootClientRest implements
 
     // converting to object
     ProjectJpa project =
-        (ProjectJpa) ConfigUtility.getGraphForString(resultString,
-            ProjectJpa.class);
+        ConfigUtility.getGraphForString(resultString, ProjectJpa.class);
     return project;
 
   }
@@ -234,8 +231,7 @@ public class ProjectClientRest extends RootClientRest implements
 
     // converting to object
     ProjectJpa project =
-        (ProjectJpa) ConfigUtility.getGraphForString(resultString,
-            ProjectJpa.class);
+        ConfigUtility.getGraphForString(resultString, ProjectJpa.class);
     return project;
 
   }
@@ -261,11 +257,9 @@ public class ProjectClientRest extends RootClientRest implements
 
     // converting to object
     StringList list =
-        (StringList) ConfigUtility.getGraphForString(resultString,
-            StringList.class);
+        ConfigUtility.getGraphForString(resultString, StringList.class);
     return list;
   }
-
 
   /* see superclass */
   @Override
@@ -298,8 +292,7 @@ public class ProjectClientRest extends RootClientRest implements
 
     // converting to object
     UserList list =
-        (UserListJpa) ConfigUtility.getGraphForString(resultString,
-            UserListJpa.class);
+        ConfigUtility.getGraphForString(resultString, UserListJpa.class);
     return list;
   }
 
@@ -335,8 +328,7 @@ public class ProjectClientRest extends RootClientRest implements
 
     // converting to object
     UserList list =
-        (UserListJpa) ConfigUtility.getGraphForString(resultString,
-            UserListJpa.class);
+        ConfigUtility.getGraphForString(resultString, UserListJpa.class);
     return list;
   }
 

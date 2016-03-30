@@ -431,7 +431,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
         "Security Service - remove user preferences " + id);
     tx = manager.getTransaction();
     // retrieve this user
-    final UserPreferences mu = (UserPreferences) manager.find(UserPreferencesJpa.class, id);
+    final UserPreferences mu = manager.find(UserPreferencesJpa.class, id);
     try {
       if (getTransactionPerOperation()) {
         tx.begin();

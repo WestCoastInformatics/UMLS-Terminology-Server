@@ -3,8 +3,6 @@
  */
 package com.wci.umls.server.rest.impl;
 
-import java.util.List;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -177,7 +175,6 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
-
   /* see superclass */
   @Override
   @GET
@@ -223,7 +220,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
           UserRole.VIEWER);
 
       ProjectList projects = projectService.getProjects();
-      
+
       return projects;
     } catch (Exception e) {
       handleException(e, "trying to retrieve the projects");
@@ -272,8 +269,10 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       user.getProjectRoleMap().put(projectCopy, UserRole.valueOf(role));
       securityService.updateUser(user);
 
-      /*addLogEntry(projectService, authUser, "ASSIGN user to project",
-          projectId, projectId, userName);*/
+      /*
+       * addLogEntry(projectService, authUser, "ASSIGN user to project",
+       * projectId, projectId, userName);
+       */
       return project;
 
     } catch (Exception e) {
@@ -284,7 +283,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     }
     return null;
   }
-  
+
   /* see superclass */
   @Override
   @POST
@@ -328,7 +327,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-  
+
   /* see superclass */
   @Override
   @GET
@@ -397,7 +396,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       securityService.close();
     }
   }
-  
+
   /* see superclass */
   @Override
   @GET
@@ -482,8 +481,10 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       user.getProjectRoleMap().remove(projectCopy);
       securityService.updateUser(user);
 
-      /*addLogEntry(projectService, authUser, "UNASSIGN user from project",
-          projectId, projectId, userName);*/
+      /*
+       * addLogEntry(projectService, authUser, "UNASSIGN user from project",
+       * projectId, projectId, userName);
+       */
 
       return project;
     } catch (Exception e) {
@@ -494,7 +495,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     }
     return null;
   }
-  
+
   /* see superclass */
   @Override
   @POST
@@ -523,6 +524,5 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     }
 
   }
-
 
 }

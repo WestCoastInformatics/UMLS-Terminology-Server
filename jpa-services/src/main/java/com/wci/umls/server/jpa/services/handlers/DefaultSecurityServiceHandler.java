@@ -10,11 +10,9 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.User;
-import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.UserJpa;
-import com.wci.umls.server.jpa.UserPreferencesJpa;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 
 /**

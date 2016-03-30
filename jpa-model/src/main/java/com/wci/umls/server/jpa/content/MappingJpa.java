@@ -35,12 +35,12 @@ import com.wci.umls.server.model.meta.IdType;
 @Entity
 @Table(name = "mappings", uniqueConstraints = @UniqueConstraint(columnNames = {
     "fromTerminologyId", "toTerminologyId", "terminology", "version", "id"
-}) )
+}))
 @Audited
 @Indexed
 @XmlRootElement(name = "mapping")
-public class MappingJpa extends AbstractComponentHasAttributes
-    implements Mapping {
+public class MappingJpa extends AbstractComponentHasAttributes implements
+    Mapping {
 
   /** The map set. */
   @ManyToOne(targetEntity = MapSetJpa.class, optional = false)
@@ -80,11 +80,11 @@ public class MappingJpa extends AbstractComponentHasAttributes
   /** The rank. */
   @Column(nullable = true)
   private String rank;
-  
+
   /** The from name. */
   @Column(nullable = true)
   private String fromName;
-  
+
   /** The to name. */
   @Column(nullable = true)
   private String toName;
@@ -114,9 +114,11 @@ public class MappingJpa extends AbstractComponentHasAttributes
     super(mapping, deepCopy);
     mapSet = mapping.getMapSet();
     fromTerminologyId = mapping.getFromTerminologyId();
+    fromName = mapping.getFromName();
     toTerminologyId = mapping.getToTerminologyId();
     fromIdType = mapping.getFromIdType();
     toIdType = mapping.getToIdType();
+    toName = mapping.getToName();
     advice = mapping.getAdvice();
     rule = mapping.getRule();
     group = mapping.getGroup();
@@ -170,6 +172,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
    *
    * @return the from terminology
    */
+  @XmlTransient
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromTerminology() {
     return mapSet == null ? null : mapSet.getFromTerminology();
@@ -180,6 +183,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
    *
    * @return the from version
    */
+  @XmlTransient
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromVersion() {
     return mapSet == null ? null : mapSet.getFromVersion();
@@ -190,6 +194,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
    *
    * @return the to terminology
    */
+  @XmlTransient
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToTerminology() {
     return mapSet == null ? null : mapSet.getToTerminology();
@@ -200,11 +205,12 @@ public class MappingJpa extends AbstractComponentHasAttributes
    *
    * @return the to version
    */
+  @XmlTransient
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToVersion() {
     return mapSet == null ? null : mapSet.getToVersion();
   }
-  
+
   /**
    * Sets the from term.
    *
@@ -238,7 +244,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
   public void setToName(String term) {
     this.toName = term;
   }
-  
+
   /* see superclass */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
@@ -285,8 +291,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
 
   /* see superclass */
   @Override
-  public void setAdditionalRelationshipType(
-    String addRelType) {
+  public void setAdditionalRelationshipType(String addRelType) {
     this.additionalRelationshipType = addRelType;
   }
 
@@ -357,7 +362,7 @@ public class MappingJpa extends AbstractComponentHasAttributes
    * @return the map set id
    */
   @FieldBridge(impl = LongBridge.class)
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO) 
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getMapSetId() {
     return mapSet == null ? null : mapSet.getId();
   }
@@ -401,24 +406,28 @@ public class MappingJpa extends AbstractComponentHasAttributes
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((additionalRelationshipType == null) ? 0
-        : additionalRelationshipType.hashCode());
+    result =
+        prime
+            * result
+            + ((additionalRelationshipType == null) ? 0
+                : additionalRelationshipType.hashCode());
     result = prime * result + ((advice == null) ? 0 : advice.hashCode());
     result =
         prime * result + ((fromIdType == null) ? 0 : fromIdType.hashCode());
-    result = prime * result + ((fromName == null) ? 0 : fromName.hashCode());
-    result = prime * result
-        + ((fromTerminologyId == null) ? 0 : fromTerminologyId.hashCode());
+    result =
+        prime * result
+            + ((fromTerminologyId == null) ? 0 : fromTerminologyId.hashCode());
     result = prime * result + ((group == null) ? 0 : group.hashCode());
     result = prime * result + ((mapSet == null) ? 0 : mapSet.hashCode());
     result = prime * result + ((rank == null) ? 0 : rank.hashCode());
-    result = prime * result
-        + ((relationshipType == null) ? 0 : relationshipType.hashCode());
+    result =
+        prime * result
+            + ((relationshipType == null) ? 0 : relationshipType.hashCode());
     result = prime * result + ((rule == null) ? 0 : rule.hashCode());
     result = prime * result + ((toIdType == null) ? 0 : toIdType.hashCode());
-    result = prime * result + ((toName == null) ? 0 : toName.hashCode());
-    result = prime * result
-        + ((toTerminologyId == null) ? 0 : toTerminologyId.hashCode());
+    result =
+        prime * result
+            + ((toTerminologyId == null) ? 0 : toTerminologyId.hashCode());
     return result;
   }
 
@@ -444,11 +453,6 @@ public class MappingJpa extends AbstractComponentHasAttributes
     } else if (!advice.equals(other.advice))
       return false;
     if (fromIdType != other.fromIdType)
-      return false;
-    if (fromName == null) {
-      if (other.fromName != null)
-        return false;
-    } else if (!fromName.equals(other.fromName))
       return false;
     if (fromTerminologyId == null) {
       if (other.fromTerminologyId != null)
@@ -482,11 +486,6 @@ public class MappingJpa extends AbstractComponentHasAttributes
       return false;
     if (toIdType != other.toIdType)
       return false;
-    if (toName == null) {
-      if (other.toName != null)
-        return false;
-    } else if (!toName.equals(other.toName))
-      return false;
     if (toTerminologyId == null) {
       if (other.toTerminologyId != null)
         return false;
@@ -498,11 +497,11 @@ public class MappingJpa extends AbstractComponentHasAttributes
   /* see superclass */
   @Override
   public String toString() {
-    return "MappingJpa [mapSet=" + mapSet.getTerminologyId() + ", fromTerminologyId="
-        + fromTerminologyId + ", toTerminologyId=" + toTerminologyId
-        + ", fromIdType=" + fromIdType + ", toIdType=" + toIdType + ", advice="
-        + advice + ", rule=" + rule + ", group=" + group + ", rank=" + rank
-        + ", relationshipType=" + relationshipType
+    return "MappingJpa [mapSet=" + mapSet.getTerminologyId()
+        + ", fromTerminologyId=" + fromTerminologyId + ", toTerminologyId="
+        + toTerminologyId + ", fromIdType=" + fromIdType + ", toIdType="
+        + toIdType + ", advice=" + advice + ", rule=" + rule + ", group="
+        + group + ", rank=" + rank + ", relationshipType=" + relationshipType
         + ", fromName=" + fromName + ", toName=" + toName
         + ", additionalRelationshipType=" + additionalRelationshipType + "]";
   }

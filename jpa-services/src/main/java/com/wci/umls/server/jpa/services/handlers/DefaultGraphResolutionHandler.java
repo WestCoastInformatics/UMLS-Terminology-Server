@@ -83,7 +83,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       // Subsets
       for (ConceptSubsetMember subset : concept.getMembers()) {
         if (nullId) {
-          subset.setId(null);;
+          subset.setId(null);
         }
         resolve(subset);
       }

@@ -5,8 +5,6 @@ package com.wci.umls.server.jpa.helpers.content;
 
 import static org.junit.Assert.assertTrue;
 
-import javax.persistence.Column;
-
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;

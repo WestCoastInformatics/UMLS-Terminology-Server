@@ -11,13 +11,10 @@ import org.junit.Test;
 
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
-import com.wci.umls.server.helpers.KeyValuePairList;
-import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.UserPreferencesJpa;
-import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
 
 /**
