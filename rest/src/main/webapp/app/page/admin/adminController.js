@@ -11,10 +11,11 @@ tsApp
       'utilService',
       'tabService',
       'securityService',
+      'validationService',
       'metadataService',
       'projectService',
       function($scope, $http, $location, $uibModal, gpService, utilService, tabService,
-        securityService, metadataService, projectService) {
+        securityService, validationService, metadataService, projectService) {
         console.debug('configure AdminCtrl');
 
         // Clear error
@@ -384,13 +385,13 @@ tsApp
           $scope.getUnassignedUsers();
         };
 
-        /*$scope.getValidationChecks = function() {
+        $scope.getValidationChecks = function() {
           validationService.getValidationCheckNames().then(
           // Success
           function(data) {
-            $scope.validationChecks = data.keyValuePairs;
+            $scope.validationChecks = data.keyValuePair;
           });
-        };*/
+        };
 
         //
         // MODALS
@@ -447,27 +448,27 @@ tsApp
           $scope.errors = [];
 
           // Wire default validation check 'on' by default
-          /*for (var i = 0; i < $scope.validationChecks.length; i++) {
+          for (var i = 0; i < $scope.validationChecks.length; i++) {
             if ($scope.validationChecks[i].value == 'Default validation check') {
               $scope.selectedChecks.push($scope.validationChecks[i].value);
             } else {
               $scope.availableChecks.push($scope.validationChecks[i].value);
             }
-          }*/
+          }
 
           // move a check from unselected to selected
-          /*$scope.selectValidationCheck = function(check) {
+          $scope.selectValidationCheck = function(check) {
             $scope.selectedChecks.push(check);
             var index = $scope.availableChecks.indexOf(check);
             $scope.availableChecks.splice(index, 1);
-          };*/
+          };
 
           // move a check from selected to unselected
-          /*$scope.removeValidationCheck = function(check) {
+          $scope.removeValidationCheck = function(check) {
             $scope.availableChecks.push(check);
             var index = $scope.selectedChecks.indexOf(check);
             $scope.selectedChecks.splice(index, 1);
-          };*/
+          };
           
           
           // Function to filter viewable terminologies for picklist
@@ -492,12 +493,12 @@ tsApp
               return;
             }
             // Connect validation checks
-            /*project.validationChecks = [];
+            project.validationChecks = [];
             for (var i = 0; i < $scope.validationChecks.length; i++) {
               if ($scope.selectedChecks.indexOf($scope.validationChecks[i].value) != -1) {
                 project.validationChecks.push($scope.validationChecks[i].key);
               }
-            }*/
+            }
 
            
             // Add project - this will validate the expression
@@ -582,15 +583,15 @@ tsApp
           $scope.selectedChecks = [];
           $scope.errors = [];
 
-          /*for (var i = 0; i < $scope.validationChecks.length; i++) {
+          for (var i = 0; i < $scope.validationChecks.length; i++) {
             if (project.validationChecks.indexOf($scope.validationChecks[i].key) > -1) {
               $scope.selectedChecks.push($scope.validationChecks[i].value);
             } else {
               $scope.availableChecks.push($scope.validationChecks[i].value);
             }
-          }*/
+          }
 
-          /*$scope.selectValidationCheck = function(check) {
+          $scope.selectValidationCheck = function(check) {
             $scope.selectedChecks.push(check);
             var index = $scope.availableChecks.indexOf(check);
             $scope.availableChecks.splice(index, 1);
@@ -601,7 +602,7 @@ tsApp
             var index = $scope.selectedChecks.indexOf(check);
             $scope.selectedChecks.splice(index, 1);
           };
-*/
+
           
           // Function to filter viewable terminologies for picklist
           $scope.getViewableTerminologies = function() {
@@ -624,12 +625,12 @@ tsApp
               return;
             }
 
-            /*project.validationChecks = [];
+            project.validationChecks = [];
             for (var i = 0; i < $scope.validationChecks.length; i++) {
               if ($scope.selectedChecks.indexOf($scope.validationChecks[i].value) != -1) {
                 project.validationChecks.push($scope.validationChecks[i].key);
               }
-            }*/
+            }
 
             // Update project - this will validate the expression
             projectService.updateProject(project).then(
@@ -787,7 +788,7 @@ tsApp
         $scope.getApplicationRoles();
         $scope.getProjectRoles();
         $scope.getTerminologies();
-        //$scope.getValidationChecks();
+        $scope.getValidationChecks();
 
         // Handle users with user preferences
         if ($scope.user.userPreferences) {

@@ -109,6 +109,7 @@ public class ProjectJpaUnitTest {
     tester.include("branch");
     tester.include("public");
     tester.include("userRoleMap");
+    tester.include("feedbackEmail");
 
     // Set up objects
     tester.proxy(Set.class, 1, s1);

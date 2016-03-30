@@ -3,8 +3,10 @@
  */
 package com.wci.umls.server.jpa;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.CollectionTable;
@@ -13,6 +15,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -89,6 +92,10 @@ public class ProjectJpa implements Project {
   /** The branch. */
   @Column(nullable = true)
   private String branch;
+  
+  /**  The module id. */
+  @Column(nullable = true)
+  private String feedbackEmail;
 
   /** The role map. */
   @ElementCollection
@@ -99,6 +106,12 @@ public class ProjectJpa implements Project {
   @CollectionTable(name = "project_user_role_map")
   private Map<User, UserRole> userRoleMap;
 
+  /**  The validation checks. */
+  @Column(nullable = true)
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "project_validation_checks")
+  private List<String> validationChecks = new ArrayList<>();
+  
   /**
    * Instantiates an empty {@link ProjectJpa}.
    */
@@ -122,6 +135,7 @@ public class ProjectJpa implements Project {
     terminology = project.getTerminology();
     branch = project.getBranch();
     userRoleMap = project.getUserRoleMap();
+    feedbackEmail = project.getFeedbackEmail();
   }
 
   /* see superclass */
@@ -246,6 +260,31 @@ public class ProjectJpa implements Project {
     this.branch = branch;
   }
 
+  @Override
+  public String getFeedbackEmail() {
+    return feedbackEmail;
+  }
+  
+  @Override
+  public void setFeedbackEmail(String feedbackEmail) {
+    this.feedbackEmail = feedbackEmail;
+  }
+  
+  /* see superclass */
+  @XmlElement
+  @Override
+  public List<String> getValidationChecks() {
+    if (this.validationChecks == null) {
+      this.validationChecks = new ArrayList<String>();
+    }
+    return validationChecks;
+  }
+
+  @Override
+  public void setValidationChecks(List<String> validationChecks) {
+    this.validationChecks = validationChecks;
+  }
+  
   /* see superclass */
   @Override
   public int hashCode() {
@@ -255,11 +294,13 @@ public class ProjectJpa implements Project {
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + (isPublic ? 1231 : 1237);
+    result = prime * result + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result =
         prime * result + ((userRoleMap == null) ? 0 : userRoleMap.hashCode());
+    // result = prime * result + ((validationChecks == null) ? 0 : validationChecks.hashCode()); 
     return result;
   }
 
@@ -300,6 +341,11 @@ public class ProjectJpa implements Project {
         return false;
     } else if (!userRoleMap.equals(other.userRoleMap))
       return false;
+    if (feedbackEmail == null) {
+      if (other.feedbackEmail != null)
+        return false;
+    } else if (!feedbackEmail.equals(other.feedbackEmail))
+      return false;
     return true;
   }
 
@@ -309,7 +355,8 @@ public class ProjectJpa implements Project {
         + ", lastModifiedBy=" + lastModifiedBy + ", name=" + name
         + ", description=" + description + ", isPublic=" + isPublic
         + ", terminology=" + terminology + ", branch=" + branch
-        + ", userRoleMap=" + userRoleMap + "]";
+        + ", userRoleMap=" + userRoleMap 
+        + ", feedbackEmail=" + feedbackEmail + ", validationChecks=" + validationChecks + "]";
   }
 
 }
