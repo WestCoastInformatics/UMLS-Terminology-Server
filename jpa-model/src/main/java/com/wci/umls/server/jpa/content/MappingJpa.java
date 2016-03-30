@@ -418,7 +418,8 @@ public class MappingJpa extends AbstractComponentHasAttributes implements
         prime * result
             + ((fromTerminologyId == null) ? 0 : fromTerminologyId.hashCode());
     result = prime * result + ((group == null) ? 0 : group.hashCode());
-    result = prime * result + ((mapSet == null) ? 0 : mapSet.hashCode());
+    result =
+        prime * result + ((mapSet == null) ? 0 : mapSet.getId().hashCode());
     result = prime * result + ((rank == null) ? 0 : rank.hashCode());
     result =
         prime * result
@@ -464,16 +465,20 @@ public class MappingJpa extends AbstractComponentHasAttributes implements
         return false;
     } else if (!group.equals(other.group))
       return false;
+
+    // TODO: make this based on "id"
     if (mapSet == null) {
       if (other.mapSet != null)
         return false;
-    } else if (!mapSet.equals(other.mapSet))
+    } else if (!mapSet.getId().equals(other.mapSet.getId()))
       return false;
+
     if (rank == null) {
       if (other.rank != null)
         return false;
     } else if (!rank.equals(other.rank))
       return false;
+    
     if (relationshipType == null) {
       if (other.relationshipType != null)
         return false;

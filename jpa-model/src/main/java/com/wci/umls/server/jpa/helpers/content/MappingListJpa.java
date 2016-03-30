@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.wci.umls.server.helpers.AbstractResultList;
 import com.wci.umls.server.helpers.content.MappingList;
-import com.wci.umls.server.jpa.content.MapSetJpa;
+import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.model.content.Mapping;
 
 /**
@@ -22,7 +22,7 @@ public class MappingListJpa extends AbstractResultList<Mapping> implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = MapSetJpa.class, name = "mapping")
+  @XmlElement(type = MappingJpa.class, name = "mapping")
   public List<Mapping> getObjects() {
     return super.getObjectsTransient();
   }

@@ -37,9 +37,6 @@ public class PfscParameterJpaUnitTest {
   private SearchCriteria sc1;
 
   /** test fixture */
-  private SearchCriteria sc2;
-
-  /** test fixture */
   private List<?> list1;
 
   /** test fixture */
@@ -62,7 +59,6 @@ public class PfscParameterJpaUnitTest {
     object = new PfscParameterJpa();
     ProxyTester tester = new ProxyTester(new SearchCriteriaJpa());
     sc1 = (SearchCriteria) tester.createObject(1);
-    sc2 = (SearchCriteria) tester.createObject(2);
     list1 = new ArrayList<>();
     list1.add(null);
     list2 = new ArrayList<>();
@@ -136,8 +132,8 @@ public class PfscParameterJpaUnitTest {
   public void testModelXmlSerialization024() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient024");
     XmlSerializationTester tester = new XmlSerializationTester(object);
-    //tester.proxy(List.class, 1, list1);
-   // tester.proxy(List.class, 2, list2);
+    // tester.proxy(List.class, 1, list1);
+    // tester.proxy(List.class, 2, list2);
 
     assertTrue(tester.testXmlSerialization());
   }
