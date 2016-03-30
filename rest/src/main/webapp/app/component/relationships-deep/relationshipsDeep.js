@@ -45,13 +45,16 @@ tsApp.directive('relationshipsDeep', [
         function getPagedList() {
        
           // compute the sort order
-          // if group sort specified, sort additionally by relationship type
-          // otherwise, sort by specified field and additionally by group
+          // always sort intelligently around relationship type and additional relationship type
           var sortFields = [];
           if (scope.paging.sortField === 'group') {
             sortFields = [ 'group', 'relationshipType', 'additionalRelationshipType']
+          } else if (scope.paging.sortField === 'relationshipType') {
+            sortFields = ['relationshipType', 'additionalRelationshipType', 'group'];
+          } else if (scope.paging.sortFied === 'additionalRelationshipType'){
+            sortFields = ['additionalRelationshipType', 'relationshipType', 'group'];
           } else {
-            sortFields = [ scope.paging.sortField, 'group' ];
+            sortFields = [ scope.paging.sortField, 'group', 'relationshipType', 'additionalRelationshipType' ];
           }
 
           var parameters = {

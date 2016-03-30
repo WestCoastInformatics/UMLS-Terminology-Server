@@ -339,32 +339,7 @@ tsApp.controller('ContentCtrl', [
       }
     };
 
-    // Handle paging of mappings (requires content service
-    // call).
-    $scope.getPagedMappings = function() {
-
-      var parameters = {
-        showSuppressible : $scope.showSOElements,
-        showObsolete : $scope.showSOElements,
-        text : $scope.mappingPaging.filter,
-        sortField : $scope.mappingPaging.sortField,
-        sortAscending : $scope.mappingPaging.sortAscending
-      };
-
-      // Request from service
-      contentService.findMappings($scope.component.object.terminologyId,
-        $scope.component.object.terminology, $scope.component.object.version,
-        $scope.mappingPaging.page, parameters).then(function(data) {
-
-        $scope.pagedMappings = data.mapping;
-        $scope.pagedMappings.totalCount = data.totalCount;
-
-      });
-    };
-    
-    // Get paged atoms (assume all are loaded)
-   // $scope.getPagedAtoms = function() {
-
+   
     // 
     // Misc helper functions
     // 
@@ -593,12 +568,14 @@ tsApp.controller('ContentCtrl', [
 
     $scope.popout = function() {
       var currentUrl = window.location.href;
-      var baseUrl = currentUrl.substring(0, currentUrl.indexOf('#') + 1);
+      var baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
       var newUrl = baseUrl + '/content/simple/' + $scope.component.object.terminology + '/'
         + $scope.component.object.version + '/' + $scope.component.object.terminologyId;
+      console.debug('POPOUT URLS', baseUrl, newUrl);
       var myWindow = window.open(newUrl, $scope.component.object.terminology + '/'
         + $scope.component.object.version + ', ' + $scope.component.object.terminologyId + ', '
         + $scope.component.object.name);
+      
       myWindow.focus();
     };
 

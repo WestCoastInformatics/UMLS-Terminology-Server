@@ -82,6 +82,7 @@
 <script src="app/component/relationships/relationships.js"></script>
 <script src="app/component/relationships-deep/relationshipsDeep.js"></script>
 <script src="app/component/tree-component/treeComponent.js"></script>
+<script src="app/component/mappings/mappings.js"></script>
 
 <!-- UTS utilities and misc directives -->
 <script src="app/util/pager/pager.js"></script>
@@ -106,7 +107,7 @@
     <div ng-include src="'app/page/general/error.html'"></div>
     <ul ng-show="isShowing()" class="nav nav-tabs" ng-controller="TabCtrl">
       <li ng-class="tabClass(tab)" ng-repeat="tab in tabs"><a
-          href="{{tab.link}}" ng-click="setSelectedTab(tab)"> {{tab.label}}
+          ng-click="setSelectedTab(tab)"> {{tab.label}}
         </a></li>
     </ul>
     <!-- Body -->

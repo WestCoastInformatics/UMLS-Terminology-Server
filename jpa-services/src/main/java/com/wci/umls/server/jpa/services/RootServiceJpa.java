@@ -259,7 +259,7 @@ public abstract class RootServiceJpa implements RootService {
    * @return the value of the requested sort field
    * @throws Exception
    */
-  private String getSortFieldValue(Object o, String sortField)
+  private Object getSortFieldValue(Object o, String sortField)
     throws Exception {
     // split the fields for method retrieval, e.g. a.b.c. =
     // o.getA().getB().getC()
@@ -284,7 +284,44 @@ public abstract class RootServiceJpa implements RootService {
       throw new Exception(
           "Requested sort field value is not string, enum, or date value");
     }
-    return finalObject == null ? null : finalObject.toString();
+    return finalObject;
+
+  }
+
+  /**
+   * Retrieves the sort field value from an object
+   * @param o the object
+   * @param sortField the period-separated X list of sequential getX methods,
+   *          e.g. a.b.c
+   * @return the value of the requested sort field
+   * @throws Exception
+   */
+  private Class<?> getSortFieldType(Object o, String sortField)
+    throws Exception {
+    // split the fields for method retrieval, e.g. a.b.c. =
+    // o.getA().getB().getC()
+    String[] splitFields = sortField.split("\\.");
+
+    int i = 0;
+    Method finalMethod = null;
+    Object finalObject = o;
+
+    while (i < splitFields.length) {
+      finalMethod = finalObject.getClass().getMethod(
+          "get" + ConfigUtility.capitalize(splitFields[i]), new Class<?>[] {});
+      finalMethod.setAccessible(true);
+      finalObject = finalMethod.invoke(finalObject, new Object[] {});
+      i++;
+    }
+
+    // verify that final object is actually a string, enum, or date
+    if (!finalMethod.getReturnType().equals(String.class)
+        && !finalMethod.getReturnType().isEnum()
+        && !finalMethod.getReturnType().equals(Date.class)) {
+      throw new Exception(
+          "Requested sort field value is not string, enum, or date value");
+    }
+    return finalMethod.getReturnType();
 
   }
 
@@ -317,9 +354,6 @@ public abstract class RootServiceJpa implements RootService {
         && !pfs.getQueryRestriction().isEmpty()) {
       result = new ArrayList<>();
       for (T t : list) {
-        String tStr = t.toString().toLowerCase();
-        String fStr = pfs.getQueryRestriction().toLowerCase();
-        int index = tStr.indexOf(fStr);
         if (t.toString().toLowerCase()
             .indexOf(pfs.getQueryRestriction().toLowerCase()) != -1) {
           result.add(t);
@@ -356,25 +390,50 @@ public abstract class RootServiceJpa implements RootService {
             try {
 
               for (String sortField : pfs.getSortFields()) {
-                final String s1 = getSortFieldValue(t1, sortField);
-                final String s2 = getSortFieldValue(t2, sortField);
+                final Object s1 = getSortFieldValue(t1, sortField);
+                final Object s2 = getSortFieldValue(t2, sortField);
+
+                final boolean isDate =
+                    getSortFieldType(t1, sortField).equals(Date.class);
 
                 // if both values null, skip to next sort field
                 if (s1 != null || s2 != null) {
 
-                  if (ascending) {
+                  // handle date comparison by long value
+                  if (isDate) {
+                    Long l1 = s1 == null ? null : ((Date) s1).getTime();
+                    Long l2 = s2 == null ? null : ((Date) s2).getTime();
+                    if (ascending) {
+                      if (l1 == null && s2 != null) {
+                        return -1;
+                      }
+                      if (l1.compareTo(l2) != 0) {
+                        return l1.compareTo(l2);
+                      }
+                    } else {
+                      if (l2 == null && l1 != null) {
+                        return -1;
+                      }
+                      if (l2.compareTo(l2) != 0) {
+                        return l2.compareTo(l1);
+                      }
+                    }
+                  }
+
+                  // otherwise handle via string comparison
+                  else if (ascending) {
                     if (s1 == null && s2 != null) {
                       return -1;
                     }
-                    if (s1.compareTo(s2) != 0) {
-                      return s1.compareTo(s2);
+                    if (s1.toString().compareTo(s2.toString()) != 0) {
+                      return s1.toString().compareTo(s2.toString());
                     }
                   } else {
                     if (s2 == null && s1 != null) {
                       return -1;
                     }
-                    if (s2.compareTo(s1) != 0) {
-                      return s2.compareTo(s1);
+                    if (((String) s2).compareTo((String) s1) != 0) {
+                      return ((String) s2).compareTo((String) s1);
                     }
                   }
                 }
@@ -389,7 +448,7 @@ public abstract class RootServiceJpa implements RootService {
         });
       }
     }
-    
+
     // set the total count
     totalCt[0] = result.size();
 

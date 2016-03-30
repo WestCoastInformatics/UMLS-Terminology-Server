@@ -1,6 +1,6 @@
 
 <!-- Relationships -->
-<div ng-show="pagedData.totalCount > 0 || relPaging.filter || !showInferred">
+<div ng-show="pagedData.totalCount > 0">
   <h4>
     {{metadata.relationshipsLabel}} ({{pagedData.totalCount}})&nbsp;&nbsp;
     <button ng-show="metadata.terminology.descriptionLogicTerminology"
@@ -25,7 +25,6 @@
       <span class="label label-default" ng-show="item.obsolete"
         uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
       <span class="label label-info"
-      
         uib-tooltip="{{callbacks.getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
       {{item.additionalRelationshipType}} <!-- Mobile friendly switch --> <span
         class="hidden-xs">
@@ -39,6 +38,5 @@
           uib-tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
       </span></li>
   </ul>
-
 </div>
 <!-- end Relationships -->
