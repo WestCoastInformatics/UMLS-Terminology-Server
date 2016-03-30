@@ -11,8 +11,8 @@ import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 
 /**
- * Hibernate search field bridge for searching user/role combinations.
- * For example, "userRoleMap:user1ADMIN"
+ * Hibernate search field bridge for searching user/role combinations. For
+ * example, "userRoleMap:user1ADMIN"
  */
 public class UserRoleBridge implements StringBridge {
 
@@ -24,9 +24,9 @@ public class UserRoleBridge implements StringBridge {
       StringBuilder buf = new StringBuilder();
 
       Map<User, UserRole> map = (Map<User, UserRole>) value;
-      for(Map.Entry<User, UserRole> entry : map.entrySet()) {
+      for (Map.Entry<User, UserRole> entry : map.entrySet()) {
         buf.append(entry.getKey().getUserName())
-        .append(entry.getValue().toString()).append(",");
+            .append(entry.getValue().toString()).append(",");
       }
       return buf.toString();
     }

@@ -75,14 +75,6 @@ public class ProjectLoaderMojo extends AbstractMojo {
   private String version = null;
 
   /**
-   * The admin user.
-   * 
-   * @parameter
-   * @required
-   */
-  private String adminUser = null;
-
-  /**
    * The scope concepts.
    * 
    * @parameter
@@ -164,7 +156,6 @@ public class ProjectLoaderMojo extends AbstractMojo {
       project.setDescription(description);
       project.setPublic(true);
       project.setTerminology(terminology);
-      project.setVersion(version);
       project.setLastModifiedBy("admin");
 
       // check for this project

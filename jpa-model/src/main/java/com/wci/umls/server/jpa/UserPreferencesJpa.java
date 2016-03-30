@@ -3,15 +3,14 @@
  */
 package com.wci.umls.server.jpa;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -20,8 +19,6 @@ import org.hibernate.envers.Audited;
 
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
-import com.wci.umls.server.helpers.PrecedenceList;
-import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 
 /**
  * JPA enabled implementation of {@link UserPreferences}.
@@ -42,10 +39,20 @@ public class UserPreferencesJpa implements UserPreferences {
   @OneToOne(targetEntity = UserJpa.class)
   private User user;
 
-  /** The precedence list. */
-  @OneToOne(targetEntity = UserJpa.class, optional = false)
-  @JoinColumn(nullable = false)
-  private PrecedenceList precedenceList;
+  /** The lastProjectId. */
+  private Long lastProjectId;
+
+  /** The module id. */
+  @Column(nullable = true)
+  private String feedbackEmail;
+
+  /** The lastTab. */
+  @Column(nullable = true)
+  private String lastTab;
+
+  /** The lastTerminology. */
+  @Column(nullable = true)
+  private String lastTerminology;
 
   /**
    * The default constructor.
@@ -62,7 +69,10 @@ public class UserPreferencesJpa implements UserPreferences {
     super();
     id = userPreferences.getId();
     user = userPreferences.getUser();
-    precedenceList = userPreferences.getPrecedenceList();
+    feedbackEmail = userPreferences.getFeedbackEmail();
+    lastTab = userPreferences.getLastTab();
+    lastProjectId = userPreferences.getLastProjectId();
+    lastTerminology = userPreferences.getLastTerminology();
   }
 
   /**
@@ -101,7 +111,7 @@ public class UserPreferencesJpa implements UserPreferences {
    * @param id the object id
    */
   public void setObjectId(String id) {
-    if (id != null) {
+    if (id != null && !id.equals("")) {
       this.id = Long.parseLong(id);
     }
   }
@@ -170,24 +180,63 @@ public class UserPreferencesJpa implements UserPreferences {
   }
 
   /**
-   * Returns the precedence list.
+   * Returns the last tab accessed.
    *
-   * @return the precedence list
+   * @return the lastTab
    */
-  @XmlElement(type = PrecedenceListJpa.class)
   @Override
-  public PrecedenceList getPrecedenceList() {
-    return precedenceList;
+  public String getLastTab() {
+    return lastTab;
   }
 
   /**
-   * Sets the precedence list.
+   * Sets the last tab accessed.
    *
-   * @param list the precedence list
+   * @param lastTab the last tab accessed
    */
   @Override
-  public void setPrecedenceList(PrecedenceList list) {
-    this.precedenceList = list;
+  public void setLastTab(String lastTab) {
+    this.lastTab = lastTab;
+  }
+
+  @Override
+  public String getLastTerminology() {
+    return lastTerminology;
+  }
+
+  @Override
+  public void setLastTerminology(String lastTerminology) {
+    this.lastTerminology = lastTerminology;
+  }
+
+  /**
+   * Returns the last project ID accessed.
+   *
+   * @return the lastProjectId
+   */
+  @Override
+  public Long getLastProjectId() {
+    return lastProjectId;
+  }
+
+  /**
+   * Sets the last project accessed.
+   *
+   * @param lastProjectId the last project id
+   */
+  @Override
+  public void setLastProjectId(Long lastProjectId) {
+    this.lastProjectId = lastProjectId;
+  }
+
+  @Override
+  public String getFeedbackEmail() {
+    return feedbackEmail;
+  }
+
+  @Override
+  public void setFeedbackEmail(String feedbackEmail) {
+    this.feedbackEmail = feedbackEmail;
   }
 
   /* see superclass */
@@ -195,9 +244,16 @@ public class UserPreferencesJpa implements UserPreferences {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + ((lastTab == null) ? 0 : lastTab.hashCode());
     result =
         prime * result
-            + ((precedenceList == null) ? 0 : precedenceList.hashCode());
+            + ((lastTerminology == null) ? 0 : lastTerminology.hashCode());
+    result =
+        prime * result
+            + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
+    result =
+        prime * result
+            + ((lastProjectId == null) ? 0 : lastProjectId.hashCode());
     result = prime * result + ((user == null) ? 0 : user.hashCode());
     return result;
   }
@@ -212,15 +268,31 @@ public class UserPreferencesJpa implements UserPreferences {
     if (getClass() != obj.getClass())
       return false;
     UserPreferencesJpa other = (UserPreferencesJpa) obj;
-    if (precedenceList == null) {
-      if (other.precedenceList != null)
-        return false;
-    } else if (!precedenceList.equals(other.precedenceList))
-      return false;
+
     if (user == null) {
       if (other.user != null)
         return false;
     } else if (!user.getUserName().equals(other.user.getUserName()))
+      return false;
+    if (lastTab == null) {
+      if (other.lastTab != null)
+        return false;
+    } else if (!lastTab.equals(other.lastTab))
+      return false;
+    if (lastTerminology == null) {
+      if (other.lastTerminology != null)
+        return false;
+    } else if (!lastTerminology.equals(other.lastTerminology))
+      return false;
+    if (lastProjectId == null) {
+      if (other.lastProjectId != null)
+        return false;
+    } else if (!lastProjectId.equals(other.lastProjectId))
+      return false;
+    if (feedbackEmail == null) {
+      if (other.feedbackEmail != null)
+        return false;
+    } else if (!feedbackEmail.equals(other.feedbackEmail))
       return false;
     return true;
   }
@@ -229,7 +301,9 @@ public class UserPreferencesJpa implements UserPreferences {
   @Override
   public String toString() {
     return "UserPreferencesJpa [id=" + id + ", user=" + user
-        + ", precedenceList=" + precedenceList + "]";
+        + ", lastTerminology=" + lastTerminology + ", lastProjectId="
+        + lastProjectId + ", lastTab=" + lastTab + ", feedbackEmail="
+        + feedbackEmail + "]";
   }
 
 }

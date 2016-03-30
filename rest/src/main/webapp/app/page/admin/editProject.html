@@ -28,34 +28,7 @@
             placeholder="Basic description of the project"></textarea>
         </td>
       </tr>
-      <tr>
-        <td>
-          <b>Namespace</b>
-        </td>
-        <td>
-          <input ng-model="project.namespace" size="25"
-            placeholder="e.g. 1000124" />
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Module Id</b>
-        </td>
-        <td>
-          <input ng-model="project.moduleId" size="25"
-            placeholder="e.g. 900000000000207008" />
-          <span flag-icon obj="project"></span>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Organization</b>
-        </td>
-        <td>
-          <input ng-model="project.organization" size="40"
-            placeholder="e.g. IHTSDO, NLM, UKTC" />
-        </td>
-      </tr>
+
       <tr>
         <td>
           <b>Feedback Email</b>
@@ -71,22 +44,15 @@
         </td>
         <td>
           <select ng-model="project.terminology"
-            ng-options="item for item in terminologies"></select>
+              ng-change="setTerminology(project.terminology)"
+              ng-options="terminology.terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
         </td>
       </tr>
-      <tr>
-        <td title="Project level exclusion clause for intensional definitions">
-          <b>Exclusion Clause</b>
-        </td>
-        <td>
-          <div definition-clause clause="clause" mode="edit"
-            allowNegation="false"></div>
-        </td>
-      </tr>
+      
     </table>
   </div>
   <div class="row">
-    <div class="col-md-6 col-xs-12">
+    <!-- <div class="col-md-6 col-xs-12">
       <table class="table">
         <thead>
           <tr>
@@ -100,13 +66,13 @@
             <td>
               <i ng-click="selectValidationCheck(check)"
                 title="Select validation check for project"
-                class="noul material-icons md-18">add</i>
+                class="noul glyphicon glyphicon-plus"></i>
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
-    <div class="col-md-6 col-xs-12">
+    </div> -->
+    <!-- <div class="col-md-6 col-xs-12">
       <table class="table">
         <thead>
           <tr>
@@ -120,12 +86,12 @@
             <td>
               <i ng-click="removeValidationCheck(check)"
                 title="Remove validation check from project"
-                class="noul material-icons md-18">delete</i>
+                class="noul glyphicon glyphicon-trash">delete</i>
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
+    </div> -->
   </div>
   <div ng-show="errors.length > 0" class="row">
     <table class="table">

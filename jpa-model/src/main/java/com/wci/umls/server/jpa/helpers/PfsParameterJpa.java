@@ -30,10 +30,10 @@ public class PfsParameterJpa implements PfsParameter {
 
   /** The comparator for sorting. */
   private String sortField = null;
-  
+
   /** The backwards-compatible multiple sort field */
   private List<String> sortFields = new ArrayList<>();
-      
+
   /** The ascending flag. */
   private boolean ascending = true;
 
@@ -146,17 +146,16 @@ public class PfsParameterJpa implements PfsParameter {
   public void setSortField(String sortField) {
     this.sortField = sortField;
   }
-  
+
   @Override
   public void setSortFields(List<String> sortFields) {
     this.sortFields = sortFields;
   }
-  
+
   @Override
   public List<String> getSortFields() {
     return this.sortFields;
   }
-
 
   @Override
   public int hashCode() {
@@ -167,8 +166,9 @@ public class PfsParameterJpa implements PfsParameter {
     result = prime * result + ((branch == null) ? 0 : branch.hashCode());
     result = prime * result + (inactiveOnly ? 1231 : 1237);
     result = prime * result + maxResults;
-    result = prime * result
-        + ((queryRestriction == null) ? 0 : queryRestriction.hashCode());
+    result =
+        prime * result
+            + ((queryRestriction == null) ? 0 : queryRestriction.hashCode());
     result = prime * result + ((sortField == null) ? 0 : sortField.hashCode());
     result =
         prime * result + ((sortFields == null) ? 0 : sortFields.hashCode());

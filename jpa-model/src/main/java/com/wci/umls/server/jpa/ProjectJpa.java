@@ -23,6 +23,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -48,7 +49,7 @@ import com.wci.umls.server.jpa.helpers.UserRoleMapAdapter;
 @Entity
 @Table(name = "projects", uniqueConstraints = @UniqueConstraint(columnNames = {
     "name", "description"
-}) )
+}))
 @Audited
 @Indexed
 @XmlRootElement(name = "project")
@@ -85,10 +86,6 @@ public class ProjectJpa implements Project {
   @Column(nullable = false)
   private String terminology;
 
-  /** The version. */
-  @Column(nullable = false)
-  private String version;
-
   /** The branch. */
   @Column(nullable = true)
   private String branch;
@@ -123,7 +120,8 @@ public class ProjectJpa implements Project {
     description = project.getDescription();
     isPublic = project.isPublic();
     terminology = project.getTerminology();
-    version = project.getVersion();
+    branch = project.getBranch();
+    userRoleMap = project.getUserRoleMap();
   }
 
   /* see superclass */
@@ -136,24 +134,6 @@ public class ProjectJpa implements Project {
   @Override
   public void setId(Long id) {
     this.id = id;
-  }
-
-  /**
-   * Returns the object id. For JAXB.
-   *
-   * @return the object id
-   */
-  public String getObjectId() {
-    return id == null ? "" : id.toString();
-  }
-
-  /**
-   * Sets the object id. For JAXB.
-   *
-   * @param id the object id
-   */
-  public void setObjectId(String id) {
-    this.id = Long.parseLong(id);
   }
 
   /* see superclass */
@@ -182,7 +162,6 @@ public class ProjectJpa implements Project {
     this.lastModifiedBy = lastModifiedBy;
   }
 
-
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
@@ -194,19 +173,6 @@ public class ProjectJpa implements Project {
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
-  }
-
-  /* see superclass */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getVersion() {
-    return version;
-  }
-
-  /* see superclass */
-  @Override
-  public void setVersion(String version) {
-    this.version = version;
   }
 
   /* see superclass */
@@ -247,59 +213,8 @@ public class ProjectJpa implements Project {
     this.isPublic = isPublic;
   }
 
-
-
   /* see superclass */
-  @Override
-  public String toString() {
-    return getName() + " " + getId();
-  }
-
-
-
-  /* see superclass */
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
-    
-    result =
-        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result + ((version == null) ? 0 : version.hashCode());
-    return result;
-  }
-
-  /* see superclass */
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    ProjectJpa other = (ProjectJpa) obj;
-    if (name == null) {
-      if (other.name != null)
-        return false;
-    } else if (!name.equals(other.name))
-      return false;
-    
-    if (terminology == null) {
-      if (other.terminology != null)
-        return false;
-    } else if (!terminology.equals(other.terminology))
-      return false;
-    if (version == null) {
-      if (other.version != null)
-        return false;
-    } else if (!version.equals(other.version))
-      return false;
-    return true;
-  }
-
-  /* see superclass */
+  @XmlElement
   @XmlJavaTypeAdapter(UserRoleMapAdapter.class)
   @Fields({
       @Field(bridge = @FieldBridge(impl = UserRoleBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO),
@@ -319,7 +234,6 @@ public class ProjectJpa implements Project {
     this.userRoleMap = userRoleMap;
   }
 
-
   /* see superclass */
   @Override
   public String getBranch() {
@@ -330,6 +244,72 @@ public class ProjectJpa implements Project {
   @Override
   public void setBranch(String branch) {
     this.branch = branch;
+  }
+
+  /* see superclass */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((branch == null) ? 0 : branch.hashCode());
+    result =
+        prime * result + ((description == null) ? 0 : description.hashCode());
+    result = prime * result + (isPublic ? 1231 : 1237);
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result =
+        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
+    result =
+        prime * result + ((userRoleMap == null) ? 0 : userRoleMap.hashCode());
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ProjectJpa other = (ProjectJpa) obj;
+    if (branch == null) {
+      if (other.branch != null)
+        return false;
+    } else if (!branch.equals(other.branch))
+      return false;
+    if (description == null) {
+      if (other.description != null)
+        return false;
+    } else if (!description.equals(other.description))
+      return false;
+    if (isPublic != other.isPublic)
+      return false;
+    if (name == null) {
+      if (other.name != null)
+        return false;
+    } else if (!name.equals(other.name))
+      return false;
+    if (terminology == null) {
+      if (other.terminology != null)
+        return false;
+    } else if (!terminology.equals(other.terminology))
+      return false;
+    if (userRoleMap == null) {
+      if (other.userRoleMap != null)
+        return false;
+    } else if (!userRoleMap.equals(other.userRoleMap))
+      return false;
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "ProjectJpa [id=" + id + ", lastModified=" + lastModified
+        + ", lastModifiedBy=" + lastModifiedBy + ", name=" + name
+        + ", description=" + description + ", isPublic=" + isPublic
+        + ", terminology=" + terminology + ", branch=" + branch
+        + ", userRoleMap=" + userRoleMap + "]";
   }
 
 }

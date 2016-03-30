@@ -89,7 +89,7 @@ public class UserJpa implements User {
   /** The user preferences. */
   @OneToOne(mappedBy = "user", targetEntity = UserPreferencesJpa.class, optional = true)
   private UserPreferences userPreferences;
-  
+
   /** The project role map. */
   @ElementCollection
   @MapKeyClass(value = ProjectJpa.class)
@@ -123,7 +123,7 @@ public class UserJpa implements User {
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO) 
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getId() {
     return id;
   }
@@ -171,8 +171,8 @@ public class UserJpa implements User {
   /* see superclass */
   @Override
   @Fields({
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
-    @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
+      @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
   public String getName() {
     return name;
@@ -199,7 +199,7 @@ public class UserJpa implements User {
 
   /* see superclass */
   @Override
-  @Field(bridge = @FieldBridge(impl = EnumBridge.class), index = Index.YES, analyze = Analyze.NO, store = Store.NO)  
+  @Field(bridge = @FieldBridge(impl = EnumBridge.class), index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public UserRole getApplicationRole() {
     return applicationRole;
   }

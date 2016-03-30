@@ -37,13 +37,13 @@ import com.wci.umls.server.model.content.DescriptorRelationship;
 @Entity
 @Table(name = "descriptor_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
-}) )
+}))
 @Audited
 @Indexed
 @XmlRootElement(name = "descriptorRelationship")
-public class DescriptorRelationshipJpa
-    extends AbstractRelationship<Descriptor, Descriptor>
-    implements DescriptorRelationship {
+public class DescriptorRelationshipJpa extends
+    AbstractRelationship<Descriptor, Descriptor> implements
+    DescriptorRelationship {
 
   /** The from concept. */
   @ManyToOne(targetEntity = DescriptorJpa.class, optional = false)
@@ -189,7 +189,7 @@ public class DescriptorRelationshipJpa
    * @return the from term
    */
   @Fields({
-      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord") ),
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "fromNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
   public String getFromName() {
@@ -353,8 +353,7 @@ public class DescriptorRelationshipJpa
 
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology,
-    String terminologyId) {
+  public void putAlternateTerminologyId(String terminology, String terminologyId) {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
     }
@@ -381,12 +380,21 @@ public class DescriptorRelationshipJpa
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((from == null || from.getTerminologyId() == null)
-        ? 0 : from.getTerminologyId().hashCode());
-    result = prime * result + ((to == null || to.getTerminologyId() == null) ? 0
-        : to.getTerminologyId().hashCode());
-    result = prime * result + ((alternateTerminologyIds == null) ? 0
-        : alternateTerminologyIds.toString().hashCode());
+    result =
+        prime
+            * result
+            + ((from == null || from.getTerminologyId() == null) ? 0 : from
+                .getTerminologyId().hashCode());
+    result =
+        prime
+            * result
+            + ((to == null || to.getTerminologyId() == null) ? 0 : to
+                .getTerminologyId().hashCode());
+    result =
+        prime
+            * result
+            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
+                .toString().hashCode());
     return result;
   }
 

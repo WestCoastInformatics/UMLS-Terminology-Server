@@ -105,36 +105,58 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     }
 
     // if user was found, update to match settings
+    Long userId = null;
     if (userFound != null) {
-      Logger.getLogger(getClass()).info(
-          "Update user = " + authUser.getUserName());
+      handleLazyInit(userFound);
+
+      Logger.getLogger(getClass()).info("update");
       userFound.setEmail(authUser.getEmail());
       userFound.setName(authUser.getName());
       userFound.setUserName(authUser.getUserName());
-      updateUser(userFound);
+      userFound.setApplicationRole(authUser.getApplicationRole());
 
+      updateUser(userFound);
+      if (userFound.getUserPreferences() == null) {
+        UserPreferences newUserPreferences = new UserPreferencesJpa();
+        newUserPreferences.setUser(userFound);
+        addUserPreferences(newUserPreferences);
+      }
+      userId = userFound.getId();
     }
     // if User not found, create one for our use
     else {
-      Logger.getLogger(getClass()).info("Add user = " + authUser.getUserName());
+      Logger.getLogger(getClass()).info("add");
       User newUser = new UserJpa();
       newUser.setEmail(authUser.getEmail());
       newUser.setName(authUser.getName());
       newUser.setUserName(authUser.getUserName());
-      newUser.setApplicationRole(UserRole.VIEWER);
-      addUser(newUser);
-      clear();
+      newUser.setApplicationRole(authUser.getApplicationRole());
+      newUser = addUser(newUser);
+
+      UserPreferences newUserPreferences = new UserPreferencesJpa();
+      newUserPreferences.setUser(newUser);
+      addUserPreferences(newUserPreferences);
+      userId = newUser.getId();
     }
+    manager.clear();
 
     // Generate application-managed token
     String token = handler.computeTokenForUser(authUser.getUserName());
     tokenUsernameMap.put(token, authUser.getUserName());
     tokenTimeoutMap.put(token, new Date(new Date().getTime() + timeout));
 
-    Logger.getLogger(getClass()).debug("User = " + authUser.getUserName());
+    Logger.getLogger(getClass()).debug(
+        "User = " + authUser.getUserName() + ", " + authUser);
 
-    authUser.setAuthToken(token);
-    return authUser;
+    // Reload the user to populate UserPreferences
+    final User result = getUser(userId);
+    handleLazyInit(result);
+    Logger.getLogger(getClass()).info(
+        "Result = " + authUser.getUserName() + ", "
+            + result.getUserPreferences());
+    result.setAuthToken(token);
+
+    return result;
   }
 
   /* see superclass */
@@ -409,7 +431,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
         "Security Service - remove user preferences " + id);
     tx = manager.getTransaction();
     // retrieve this user
-    final UserPreferences mu = (UserPreferences) manager.find(UserPreferencesJpa.class, id);
+    final UserPreferences mu = manager.find(UserPreferencesJpa.class, id);
     try {
       if (getTransactionPerOperation()) {
         tx.begin();

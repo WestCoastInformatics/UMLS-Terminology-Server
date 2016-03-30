@@ -11,9 +11,10 @@ tsApp
       'utilService',
       'tabService',
       'securityService',
+      'metadataService',
       'projectService',
       function($scope, $http, $location, $uibModal, gpService, utilService, tabService,
-        securityService, projectService) {
+        securityService, metadataService, projectService) {
         console.debug('configure AdminCtrl');
 
         // Clear error
@@ -45,8 +46,6 @@ tsApp
         $scope.users = null;
         $scope.assignedUsers = null;
         $scope.unassignedUsers = null;
-        $scope.languageDescriptionTypes = [];
-        $scope.pagedAvailableLdt = [];
 
         // Metadata for refsets, projects, etc.
         $scope.metadata = {
@@ -108,10 +107,10 @@ tsApp
             sortField : $scope.paging['project'].sortField,
             ascending : $scope.paging['project'].ascending == null ? true
               : $scope.paging['project'].ascending,
-            queryRestriction : 'userRoleMap:' + $scope.user.userName + 'ADMIN'
+            queryRestriction : 'userRoleMap:' + $scope.user.userName + 'ADMINISTRATOR'
           };
           // clear queryRestriction for application admins
-          if ($scope.user.applicationRole == 'ADMIN') {
+          if ($scope.user.applicationRole == 'ADMINISTRATOR') {
             pfs.queryRestriction = null;
           }
           projectService.findProjectsAsList($scope.paging['project'].filter, pfs).then(
@@ -134,10 +133,10 @@ tsApp
             sortField : $scope.paging['candidateProject'].sortField,
             ascending : $scope.paging['candidateProject'].ascending == null ? true
               : $scope.paging['candidateProject'].ascending,
-            queryRestriction : 'userRoleMap:' + $scope.user.userName + 'ADMIN'
+            queryRestriction : 'userRoleMap:' + $scope.user.userName + 'ADMINISTRATOR'
           };
           // clear queryRestriction for application admins
-          if ($scope.user.applicationRole == 'ADMIN') {
+          if ($scope.user.applicationRole == 'ADMINISTRATOR') {
             pfs.queryRestriction = null;
           }
 
@@ -179,7 +178,7 @@ tsApp
             sortField : $scope.paging['candidateUser'].sortField,
             ascending : $scope.paging['candidateUser'].ascending == null ? true
               : $scope.paging['candidateUser'].ascending,
-            queryRestriction : '(applicationRole:USER OR applicationRole:ADMIN)'
+            queryRestriction : '(applicationRole:USER OR applicationRole:ADMINISTRATOR)'
           };
 
           projectService.findUnassignedUsersForProject($scope.selectedProject.id,
@@ -225,11 +224,10 @@ tsApp
         };
 
         // Get $scope.metadata.terminologies
-        $scope.getTerminologyEditions = function() {
-          projectService.getTerminologyEditions().then(function(data) {
-            $scope.metadata.terminologies = data.strings;
+        $scope.getTerminologies = function() {
+          metadataService.initTerminologies().then(function(data) {
+            $scope.metadata.terminologies = data.terminologies;
           });
-
         };
 
         // Sets the selected project
@@ -259,7 +257,14 @@ tsApp
               return;
             }
           }
-
+          // Otherwise, remove project
+          projectService.removeProject(project).then(
+          // Success
+          function() {
+            // Refresh projects
+            $scope.getProjects();
+            $scope.getCandidateProjects();
+          });
 
         };
 
@@ -283,19 +288,7 @@ tsApp
 
         // update a specific user preference
         $scope.saveUserPreference = function(item, value) {
-          if (item == 'moduleId') {
-            $scope.user.userPreferences.moduleId = value;
-            $scope.moduleIdChanged = false;
-          } else if (item == 'namespace') {
-            $scope.user.userPreferences.namespace = value;
-            $scope.namespaceChanged = false;
-          } else if (item == 'organization') {
-            $scope.user.userPreferences.organization = value;
-            $scope.organizationChanged = false;
-          } else if (item == 'exclusionClause') {
-            $scope.user.userPreferences.exclusionClause = value;
-            $scope.exclusionClauseChanged = false;
-          } else if (item == 'feedbackEmail') {
+          if (item == 'feedbackEmail') {
             $scope.user.userPreferences.feedbackEmail = value;
             $scope.feedbackEmailChanged = false;
           }
@@ -309,7 +302,6 @@ tsApp
           // Success
           function(data) {
             $scope.user.userPreferences = data;
-            $scope.getPagedAvailableLdt();
           });
         };
         
@@ -329,76 +321,6 @@ tsApp
         }
 
 
-        // Get paged available language description types not already assigned
-        $scope.getPagedAvailableLdt = function() {
-          var available = [];
-          for (var i = 0; i < $scope.languageDescriptionTypes.length; i++) {
-            var found = false;
-            for (var j = 0; j < $scope.user.userPreferences.languageDescriptionTypes.length; j++) {
-              if ($scope.isEquivalent($scope.languageDescriptionTypes[i],
-                $scope.user.userPreferences.languageDescriptionTypes[j])) {
-                found = true;
-                break;
-              }
-            }
-            if (!found) {
-              available.push($scope.languageDescriptionTypes[i]);
-            }
-          }
-          $scope.pagedAvailableLdt = utilService.getPagedArray(available, $scope.paging['lang'],
-            $scope.pageSize);
-        };
-
-        // equivalent test for language description types
-        $scope.isEquivalent = function(ldt1, ldt2) {
-          return ldt1.refsetId == ldt2.refsetId
-            && ldt1.descriptionType.typeId == ldt2.descriptionType.typeId
-            && ldt1.descriptionType.acceptabilityId == ldt2.descriptionType.acceptabilityId;
-        };
-
-        // Add an LDT to user prefs
-        $scope.addLanguageDescriptionType = function(ldt) {
-          $scope.user.userPreferences.languageDescriptionTypes.push(ldt);
-          $scope.saveUserPreferences();
-        };
-
-        // Remove an LDT from user prefs
-        $scope.removeLanguageDescriptionType = function(ldt) {
-          for (var i = 0; i < $scope.user.userPreferences.languageDescriptionTypes.length; i++) {
-            if ($scope.isEquivalent(ldt, $scope.user.userPreferences.languageDescriptionTypes[i])) {
-              $scope.user.userPreferences.languageDescriptionTypes.splice(i, 1);
-            }
-          }
-          $scope.saveUserPreferences();
-        };
-
-        // Move an LDT up in user prefs
-        $scope.moveLanguageDescriptionTypeUp = function(ldt) {
-          // Start at index 1 because we can't move the top one up
-          for (var i = 1; i < $scope.user.userPreferences.languageDescriptionTypes.length; i++) {
-            if ($scope.isEquivalent(ldt, $scope.user.userPreferences.languageDescriptionTypes[i])) {
-              $scope.user.userPreferences.languageDescriptionTypes.splice(i, 1);
-              $scope.user.userPreferences.languageDescriptionTypes.splice(i - 1, 0, ldt);
-            }
-          }
-          $scope.saveUserPreferences();
-        };
-
-        // Move an LDT down in user prefs
-        $scope.moveLanguageDescriptionTypeDown = function(ldt) {
-          // end at index -11 because we can't move the last one down
-          for (var i = 0; i < $scope.user.userPreferences.languageDescriptionTypes.length - 1; i++) {
-            if ($scope.isEquivalent(ldt, $scope.user.userPreferences.languageDescriptionTypes[i])) {
-              console.debug(' ldt 1 = ', $scope.user.userPreferences.languageDescriptionTypes);
-              $scope.user.userPreferences.languageDescriptionTypes.splice(i, 2,
-                $scope.user.userPreferences.languageDescriptionTypes[i + 1], ldt);
-              console.debug(' ldt 2 = ', $scope.user.userPreferences.languageDescriptionTypes);
-              break;
-            }
-          }
-          $scope.saveUserPreferences();
-        };
-
         // sort mechanism
         $scope.setSortField = function(table, field) {
           utilService.setSortField(table, field, $scope.paging);
@@ -414,9 +336,7 @@ tsApp
             $scope.getAssignedUsers();
           } else if (table === 'candidateUser') {
             $scope.getUnassignedUsers();
-          } else if (table === 'lang') {
-            $scope.getPagedAvailableLdt();
-          }
+          } 
         };
 
         // Return up or down sort chars if sorted
@@ -512,11 +432,7 @@ tsApp
 
           $scope.action = 'Add';
           $scope.project = {
-            terminology : metadata.terminologies[0],
-            moduleId : user.userPreferences.moduleId,
-            namespace : user.userPreferences.namespace,
-            organization : user.userPreferences.organization,
-            exclusionClause : user.userPreferences.exclusionClause,
+            terminology : metadata.terminologies[0].terminology,
             feedbackEmail : user.userPreferences.feedbackEmail
           };
           $scope.clause = {
@@ -531,28 +447,44 @@ tsApp
           $scope.errors = [];
 
           // Wire default validation check 'on' by default
-          for (var i = 0; i < $scope.validationChecks.length; i++) {
+          /*for (var i = 0; i < $scope.validationChecks.length; i++) {
             if ($scope.validationChecks[i].value == 'Default validation check') {
               $scope.selectedChecks.push($scope.validationChecks[i].value);
             } else {
               $scope.availableChecks.push($scope.validationChecks[i].value);
             }
-          }
+          }*/
 
           // move a check from unselected to selected
-          $scope.selectValidationCheck = function(check) {
+          /*$scope.selectValidationCheck = function(check) {
             $scope.selectedChecks.push(check);
             var index = $scope.availableChecks.indexOf(check);
             $scope.availableChecks.splice(index, 1);
-          };
+          };*/
 
           // move a check from selected to unselected
-          $scope.removeValidationCheck = function(check) {
+          /*$scope.removeValidationCheck = function(check) {
             $scope.availableChecks.push(check);
             var index = $scope.selectedChecks.indexOf(check);
             $scope.selectedChecks.splice(index, 1);
+          };*/
+          
+          
+          // Function to filter viewable terminologies for picklist
+          $scope.getViewableTerminologies = function() {
+            var viewableTerminologies = new Array();
+            if (!$scope.metadata.terminologies) {
+              return viewableTerminologies;
+            }
+            for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+              // exclude MTH and SRC
+              if ($scope.metadata.terminologies[i].terminology != 'MTH'
+                && $scope.metadata.terminologies[i].terminology != 'SRC')
+                viewableTerminologies.push($scope.metadata.terminologies[i]);
+            }
+            return viewableTerminologies;
           };
-
+          
           // Add the project
           $scope.submitProject = function(project) {
             if (!project || !project.name || !project.description || !project.terminology) {
@@ -560,24 +492,22 @@ tsApp
               return;
             }
             // Connect validation checks
-            project.validationChecks = [];
+            /*project.validationChecks = [];
             for (var i = 0; i < $scope.validationChecks.length; i++) {
               if ($scope.selectedChecks.indexOf($scope.validationChecks[i].value) != -1) {
                 project.validationChecks.push($scope.validationChecks[i].key);
               }
-            }
+            }*/
 
-            // copy clause - don't allow negation - it's implicitly negated
-            project.exclusionClause = $scope.clause == null ? null : $scope.clause.value;
-
+           
             // Add project - this will validate the expression
             projectService.addProject(project).then(
               // Success
               function(data) {
                 // if not an admin, add user as a project admin
-                if ($scope.user.applicationRole != 'ADMIN') {
+                if ($scope.user.applicationRole != 'ADMINISTRATOR') {
                   var projectId = data.id;
-                  projectService.assignUserToProject(data.id, $scope.user.userName, 'ADMIN').then(
+                  projectService.assignUserToProject(data.id, $scope.user.userName, 'ADMINISTRATOR').then(
                     function(data) {
                       // Update 'anyrole'
                       projectService.getUserHasAnyRole();
@@ -652,15 +582,15 @@ tsApp
           $scope.selectedChecks = [];
           $scope.errors = [];
 
-          for (var i = 0; i < $scope.validationChecks.length; i++) {
+          /*for (var i = 0; i < $scope.validationChecks.length; i++) {
             if (project.validationChecks.indexOf($scope.validationChecks[i].key) > -1) {
               $scope.selectedChecks.push($scope.validationChecks[i].value);
             } else {
               $scope.availableChecks.push($scope.validationChecks[i].value);
             }
-          }
+          }*/
 
-          $scope.selectValidationCheck = function(check) {
+          /*$scope.selectValidationCheck = function(check) {
             $scope.selectedChecks.push(check);
             var index = $scope.availableChecks.indexOf(check);
             $scope.availableChecks.splice(index, 1);
@@ -671,22 +601,36 @@ tsApp
             var index = $scope.selectedChecks.indexOf(check);
             $scope.selectedChecks.splice(index, 1);
           };
-
+*/
+          
+          // Function to filter viewable terminologies for picklist
+          $scope.getViewableTerminologies = function() {
+            var viewableTerminologies = new Array();
+            if (!$scope.metadata.terminologies) {
+              return viewableTerminologies;
+            }
+            for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+              // exclude MTH and SRC
+              if ($scope.metadata.terminologies[i].terminology != 'MTH'
+                && $scope.metadata.terminologies[i].terminology != 'SRC')
+                viewableTerminologies.push($scope.metadata.terminologies[i]);
+            }
+            return viewableTerminologies;
+          };
+          
           $scope.submitProject = function(project) {
             if (!project || !project.name || !project.description || !project.terminology) {
               window.alert('The name, description, and terminology fields cannot be blank. ');
               return;
             }
 
-            project.validationChecks = [];
+            /*project.validationChecks = [];
             for (var i = 0; i < $scope.validationChecks.length; i++) {
               if ($scope.selectedChecks.indexOf($scope.validationChecks[i].value) != -1) {
                 project.validationChecks.push($scope.validationChecks[i].key);
               }
-            }
+            }*/
 
-            // copy clause - don't allow negation - it's implicitly negated
-            project.exclusionClause = $scope.clause == null ? null : $scope.clause.value;
             // Update project - this will validate the expression
             projectService.updateProject(project).then(
             // Success
@@ -798,8 +742,8 @@ tsApp
 
           // those without application admin roles, can't give themselves admin
           // roles
-          if (user.applicationRole != 'ADMIN') {
-            var index = $scope.applicationRoles.indexOf('ADMIN');
+          if (user.applicationRole != 'ADMINISTRATOR') {
+            var index = $scope.applicationRoles.indexOf('ADMINISTRATOR');
             $scope.applicationRoles.splice(index, 1);
           }
 
@@ -842,7 +786,7 @@ tsApp
         $scope.getCandidateProjects();
         $scope.getApplicationRoles();
         $scope.getProjectRoles();
-        $scope.getTerminologyEditions();
+        $scope.getTerminologies();
         //$scope.getValidationChecks();
 
         // Handle users with user preferences

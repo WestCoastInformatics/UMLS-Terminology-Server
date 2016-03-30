@@ -16,7 +16,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.wci.umls.server.User;
 import com.wci.umls.server.jpa.ProjectJpa;
 
 /**
@@ -60,15 +59,10 @@ public class ProjectServiceRestRoleCheckTest extends ProjectServiceRestTest {
     ProjectJpa project = new ProjectJpa();
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
-    User user = securityService.getUser(adminUser, adminAuthToken);
-    // TODO add back using userRoleMap
-    /*project.addAdministrator(user);
-    project.addAuthor(user);
-    project.addLead(user);*/
+
     project.setDescription("Sample");
     project.setName("Sample");
     project.setTerminology("UMLS");
-    project.setVersion("latest");
 
     try {
       projectService.addProject(project, viewerAuthToken);

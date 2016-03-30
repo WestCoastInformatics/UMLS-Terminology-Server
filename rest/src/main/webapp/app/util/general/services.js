@@ -731,8 +731,8 @@ tsApp.service('securityService', [ '$http', '$location', '$q', '$cookies', 'util
   } ]);
 
 // Tab service
-tsApp.service('tabService', [ '$location', 'utilService', 'gpService',
-  function($location, utilService, gpService) {
+tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'securityService',
+  function($location, utilService, gpService, securityService) {
     console.debug('configure tabService');
     // Available tabs
     this.tabs = [ {
@@ -741,14 +741,20 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService',
     }, {
       link : 'metadata',
       label : 'Metadata'
-/*    }, {
+   /* }, {
       link : '#/admin',
       label : 'Admin'*/
     } ];
 
     // the selected tab
     this.selectedTab = this.tabs[0];
-
+    
+    // Show admin tab for admins only
+    this.showTab = function(tab) {
+      console.debug('tab label', tab.label);
+      return tab.label != 'Admin' || securityService.getUser().applicationRole == 'ADMINISTRATOR';
+    };
+    
     // Sets the selected tab
     this.setSelectedTab = function(tab) {
       this.selectedTab = tab;

@@ -15,10 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.wci.umls.server.Project;
-import com.wci.umls.server.User;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProjectJpa;
-import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 
 /**
  * Implementation of the "Project Service REST Normal Use" Test Cases.
@@ -61,15 +59,10 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     ProjectJpa project = new ProjectJpa();
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
-    User user = securityService.getUser(adminUser, adminAuthToken);
-    // TODO add back using userRoleMap
-    /*project.addAdministrator(user);
-    project.addAuthor(user);
-    project.addLead(user);*/
+
     project.setDescription("Sample");
     project.setName("Sample");
     project.setTerminology("UMLS");
-    project.setVersion("latest");
 
     ProjectJpa project2 =
         (ProjectJpa) projectService.addProject(project, adminAuthToken);
@@ -114,15 +107,9 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     ProjectJpa project = new ProjectJpa();
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
-    User user = securityService.getUser(adminUser, adminAuthToken);
-    // TODO: add back using UserRoleMap
-    /*project.addAdministrator(user);
-    project.addAuthor(user);
-    project.addLead(user);*/
     project.setDescription("Sample");
     project.setName("Sample");
     project.setTerminology("UMLS");
-    project.setVersion("latest");
     ProjectJpa project2 = new ProjectJpa(project);
     project = (ProjectJpa) projectService.addProject(project, adminAuthToken);
 
@@ -152,7 +139,6 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     Assert.assertEquals(projectCount - 2, projectList.getCount());
 
   }
-
 
   /**
    * Teardown.

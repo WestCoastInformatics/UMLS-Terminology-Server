@@ -34,10 +34,11 @@ public class ProjectRoleMapAdapter extends
 
   /* see superclass */
   @Override
-  public HashMap<Long, String> marshal(Map<Project, UserRole> v) throws Exception {
+  public HashMap<Long, String> marshal(Map<Project, UserRole> v)
+    throws Exception {
     HashMap<Long, String> map = new HashMap<Long, String>();
 
-    for (Map.Entry<Project,UserRole> entry : v.entrySet()) {
+    for (Map.Entry<Project, UserRole> entry : v.entrySet()) {
       map.put(entry.getKey().getId(), entry.getValue().toString());
     }
     return map;

@@ -154,7 +154,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals("PUBLISHED", c.getWorkflowStatus());
     assertEquals("loader", c.getLastModifiedBy());
 
-
     // Test UMLS concept
 
     Logger.getLogger(getClass()).info(
@@ -254,7 +253,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals("D019226", c.getTerminologyId());
     assertEquals("PUBLISHED", c.getWorkflowStatus());
     assertEquals("loader", c.getLastModifiedBy());
-
 
     // Test SNOMEDCT_US concept
     Logger.getLogger(getClass()).info(
@@ -378,7 +376,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     }
     assertEquals(3, foundCt);
 
-
   }
 
   /**
@@ -465,8 +462,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       }
     }
     assertEquals(3, foundCt);
-
-   
 
   }
 
@@ -920,7 +915,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
 
-  
   }
 
   /**
@@ -1158,7 +1152,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     }
     assertEquals(10, searchResults.getCount());
 
-    
   }
 
   /**
@@ -1398,14 +1391,13 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     }
     assertEquals(10, searchResults.getCount());
 
-    
   }
 
   /**
    * Test ancestor/descendant for concepts.
    *
    * @throws Exception the exception
-   */   
+   */
   @Test
   public void testNormalUseRestContent011() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
@@ -1457,7 +1449,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         "    totalResults = " + conceptList.getTotalCount());
     assertEquals(3, conceptList.getTotalCount());
     assertEquals(2, conceptList.getCount());
-
 
   }
 
@@ -1827,8 +1818,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertTrue(PfsParameterForComponentTest.testSort(list, pfs,
         AbstractRelationship.class));
 
-   
-
   }
 
   /**
@@ -1996,7 +1985,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   public void testNormalUseRestContent025() throws Exception {
     Logger.getLogger(getClass()).info("Start test");
     // n/a - no sample data
-   
+
   }
 
   /**
@@ -2288,8 +2277,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       assertTrue(leaf.getNodeName().toLowerCase().contains("a"));
     }
 
-
-
   }
 
   /**
@@ -2344,7 +2331,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("Start test");
 
     // n/a - no sample data
-   }
+  }
 
   /**
    * Test "find" concept tree children
@@ -2375,7 +2362,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("Start test");
 
   }
-  
+
   /**
    * Test get mapset.
    * @throws Exception
@@ -2383,7 +2370,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   @Test
   public void testNormalUseRestContent033() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
-    
+
     Logger.getLogger(getClass()).info(
         "TEST - " + "447562003, SNOMEDCT_US, _2014_09_01, " + authToken);
     MapSet c =
@@ -2395,14 +2382,14 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertTrue(c.isPublishable());
     assertTrue(c.isPublished());
     assertFalse(c.isObsolete());
-    assertFalse(c.isSuppressible());   
-    assertEquals(1, c.getAttributes().size());   
+    assertFalse(c.isSuppressible());
+    assertEquals(1, c.getAttributes().size());
     assertEquals("SNOMEDCT_US", c.getTerminology());
     assertEquals("_2014_09_01", c.getVersion());
     assertEquals("447562003", c.getTerminologyId());
     assertEquals("loader", c.getLastModifiedBy());
   }
-  
+
   /**
    * Test get mapsets.
    * @throws Exception
@@ -2410,17 +2397,16 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   @Test
   public void testNormalUseRestContent034() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
-    
+
     Logger.getLogger(getClass()).info(
         "TEST - " + "SNOMEDCT_US, _2014_09_01, " + authToken);
     MapSetList c =
-        contentService.getMapSets("SNOMEDCT_US", "_2014_09_01",
-            authToken);
+        contentService.getMapSets("SNOMEDCT_US", "_2014_09_01", authToken);
     // Validate the concept returned
     assertNotNull(c);
     assertEquals(c.getObjects().size(), 1);
   }
-  
+
   /**
    * Test find mappings for mapset
    * @throws Exception
@@ -2428,18 +2414,18 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   @Test
   public void testNormalUseRestContent035() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
-    
+
     Logger.getLogger(getClass()).info(
         "TEST - " + "SNOMEDCT_US, _2014_09_01, " + authToken);
     MappingList c =
-        contentService.findMappingsForMapSet("447562003", "SNOMEDCT_US", "_2014_09_01",
-            "", new PfsParameterJpa(), authToken);
-    
+        contentService.findMappingsForMapSet("447562003", "SNOMEDCT_US",
+            "_2014_09_01", "", new PfsParameterJpa(), authToken);
+
     // Validate the concept returned
     assertNotNull(c);
     assertEquals(c.getObjects().size(), 334);
   }
-  
+
   /**
    * Test find mappings for concept
    * @throws Exception
@@ -2447,18 +2433,18 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   @Test
   public void testNormalUseRestContent036() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
-    
+
     Logger.getLogger(getClass()).info(
         "TEST - " + "C0155860, UMLS, latest" + authToken);
     MappingList c =
-        contentService.findMappingsForConcept("C0155860", "UMLS", "latest",
-            "", new PfsParameterJpa(), authToken);
-    
+        contentService.findMappingsForConcept("C0155860", "UMLS", "latest", "",
+            new PfsParameterJpa(), authToken);
+
     // Validate the concept returned
     assertNotNull(c);
     assertEquals(c.getObjects().size(), 1);
   }
-  
+
   /**
    * Teardown.
    *

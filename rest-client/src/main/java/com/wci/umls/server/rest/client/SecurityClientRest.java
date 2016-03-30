@@ -261,11 +261,9 @@ public class SecurityClientRest extends RootClientRest implements
     }
 
     // converting to object
-    UserJpa user =
-        (UserJpa) ConfigUtility.getGraphForString(resultString, UserJpa.class);
+    UserJpa user = ConfigUtility.getGraphForString(resultString, UserJpa.class);
     return user;
   }
-
 
   /* see superclass */
   @Override
@@ -295,8 +293,7 @@ public class SecurityClientRest extends RootClientRest implements
 
     // converting to object
     UserPreferencesJpa result =
-        (UserPreferencesJpa) ConfigUtility.getGraphForString(resultString,
-            UserPreferencesJpa.class);
+        ConfigUtility.getGraphForString(resultString, UserPreferencesJpa.class);
 
     return result;
   }
@@ -349,10 +346,11 @@ public class SecurityClientRest extends RootClientRest implements
     }
 
     // converting to object
-    return (UserPreferencesJpa) ConfigUtility.getGraphForString(resultString,
+    return ConfigUtility.getGraphForString(resultString,
         UserPreferencesJpa.class);
   }
-  
+
+  /* see superclass */
   @Override
   public StringList getApplicationRoles(String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Security Client - getApplicationRoles");
@@ -373,11 +371,11 @@ public class SecurityClientRest extends RootClientRest implements
 
     // converting to object
     StringList list =
-        (StringList) ConfigUtility.getGraphForString(resultString,
-            StringList.class);
+        ConfigUtility.getGraphForString(resultString, StringList.class);
     return list;
   }
 
+  /* see superclass */
   @Override
   public UserList findUsersForQuery(String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
@@ -407,8 +405,7 @@ public class SecurityClientRest extends RootClientRest implements
 
     // converting to object
     UserListJpa list =
-        (UserListJpa) ConfigUtility.getGraphForString(resultString,
-            UserListJpa.class);
+        ConfigUtility.getGraphForString(resultString, UserListJpa.class);
     return list;
 
   }

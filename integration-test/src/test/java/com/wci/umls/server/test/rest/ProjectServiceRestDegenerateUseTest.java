@@ -19,8 +19,6 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
-import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.test.rest.ProjectServiceRestTest;
 
 /**
  * Implementation of the "Project Service REST Degenerate Use" Test Cases.
@@ -161,7 +159,6 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
     project.setDescription("description");
     project.setPublic(true);
     project.setTerminology("terminology");
-    project.setVersion("version");
     project.setLastModifiedBy("some_user");
 
     User user = new UserJpa();
@@ -194,7 +191,6 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
     securityService.removeUser(user.getId(), adminAuthToken);
 
   }
-
 
   /**
    * Teardown.
