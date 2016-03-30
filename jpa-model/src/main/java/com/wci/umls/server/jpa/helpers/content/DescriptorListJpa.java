@@ -20,7 +20,6 @@ import com.wci.umls.server.model.content.Descriptor;
 public class DescriptorListJpa extends AbstractResultList<Descriptor> implements
     DescriptorList {
 
-
   /* see superclass */
   @Override
   @XmlElement(type = DescriptorJpa.class, name = "descriptors")

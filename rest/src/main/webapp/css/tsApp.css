@@ -138,19 +138,21 @@ body {
 	word-break: break-all;
 }
 
+.ellipsis {
+	text-overflow: ellipsis;
+}
+
 .table-select-row {
 	cursor: pointer;
 }
 
-/* Makes font size in table smaller than default */
-/* TODO: renaming this table-small-font breaks all the other table styling */
-/* .table {
-	font-size: 12px;
-	margin-bottom: 0px;
+.m10 {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	margin-left: 5px;
 }
 
-
-TODO: .material-icons
-
-
-*/
+.table {
+	font-size: 14px;
+	margin-bottom: 10px;
+}

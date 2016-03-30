@@ -31,7 +31,8 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
   public void setup() throws Exception {
 
     // authentication
-    authToken = securityClient.authenticate(testUser, testPassword).getAuthToken();
+    authToken =
+        securityClient.authenticate(testUser, testPassword).getAuthToken();
 
   }
 
@@ -69,7 +70,8 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
-    // Loading relationships with paging - in case a relationship has MANY relationships.
+    // Loading relationships with paging - in case a relationship has MANY
+    // relationships.
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
@@ -81,7 +83,6 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
     for (Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
-    
 
   }
 
@@ -119,7 +120,8 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
-    // Loading relationships with paging - in case a relationship has MANY relationships.
+    // Loading relationships with paging - in case a relationship has MANY
+    // relationships.
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
@@ -131,8 +133,7 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
     for (Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
-      
-  
+
   }
 
   /**

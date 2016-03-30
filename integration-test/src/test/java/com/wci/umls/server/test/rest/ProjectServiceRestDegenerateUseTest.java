@@ -192,7 +192,6 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
 
   }
 
-
   /**
    * Teardown.
    *

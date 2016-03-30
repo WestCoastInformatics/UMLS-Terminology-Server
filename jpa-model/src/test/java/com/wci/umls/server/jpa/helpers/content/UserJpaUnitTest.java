@@ -101,7 +101,7 @@ public class UserJpaUnitTest {
    * Test XML serialization.
    *
    * @throws Exception the exception
-   */   
+   */
   @Test
   public void testModelXmlSerialization003() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient003");

@@ -18,7 +18,8 @@ import com.wci.umls.server.model.meta.RelationshipType;
 /**
  * Unit testing for {@link RelationshipTypeList}.
  */
-public class RelationshipTypeListUnitTest extends AbstractListUnit<RelationshipType> {
+public class RelationshipTypeListUnitTest extends
+    AbstractListUnit<RelationshipType> {
 
   /** The list1 test fixture . */
   private RelationshipTypeList list1;

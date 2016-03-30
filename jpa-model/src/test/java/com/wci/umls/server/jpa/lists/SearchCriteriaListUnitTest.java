@@ -18,7 +18,8 @@ import com.wci.umls.server.jpa.helpers.SearchCriteriaListJpa;
 /**
  * Unit testing for {@link SearchCriteriaList}.
  */
-public class SearchCriteriaListUnitTest extends AbstractListUnit<SearchCriteria> {
+public class SearchCriteriaListUnitTest extends
+    AbstractListUnit<SearchCriteria> {
 
   /** The list1 test fixture . */
   private SearchCriteriaList list1;

@@ -73,7 +73,7 @@ public class RrfSingleLoadAndUnloadTest {
   public void test() throws Exception {
 
     // Use the run.config.claml configuration for this build
-    
+
     // Createdb
     InvocationRequest request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));

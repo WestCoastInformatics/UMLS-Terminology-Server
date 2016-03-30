@@ -53,10 +53,7 @@ public class TemplateServiceXxxUseTest {
   public void testXxxUseRestTemplate001() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
-    
-
   }
-
 
   /**
    * Teardown.

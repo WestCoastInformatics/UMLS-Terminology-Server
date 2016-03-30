@@ -33,7 +33,8 @@ public class FindDescriptorsByStringQueryTest extends ExampleSupport {
   public void setup() throws Exception {
 
     // authentication
-    authToken = securityClient.authenticate(testUser, testPassword).getAuthToken();
+    authToken =
+        securityClient.authenticate(testUser, testPassword).getAuthToken();
 
   }
 

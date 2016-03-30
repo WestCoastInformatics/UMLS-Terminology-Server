@@ -60,8 +60,11 @@ public class CodeTransitiveRelationshipJpa extends
     subType = relationship.getSubType();
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.content.TransitiveRelationship#getSuperType()
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.TransitiveRelationship#getSuperType()
    */
   /* see superclass */
   @XmlTransient
@@ -70,8 +73,12 @@ public class CodeTransitiveRelationshipJpa extends
     return superType;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.content.TransitiveRelationship#setSuperType(com.wci.umls.server.model.content.AtomClass)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.TransitiveRelationship#setSuperType(com
+   * .wci.umls.server.model.content.AtomClass)
    */
   /* see superclass */
   @Override
@@ -184,7 +191,9 @@ public class CodeTransitiveRelationshipJpa extends
     superType.setName(term);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.model.content.TransitiveRelationship#getSubType()
    */
   /* see superclass */
@@ -194,8 +203,12 @@ public class CodeTransitiveRelationshipJpa extends
     return subType;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.model.content.TransitiveRelationship#setSubType(com.wci.umls.server.model.content.AtomClass)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.model.content.TransitiveRelationship#setSubType(com
+   * .wci.umls.server.model.content.AtomClass)
    */
   /* see superclass */
   @Override
@@ -308,7 +321,9 @@ public class CodeTransitiveRelationshipJpa extends
     subType.setName(term);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.jpa.content.AbstractComponent#hashCode()
    */
   /* see superclass */
@@ -321,8 +336,11 @@ public class CodeTransitiveRelationshipJpa extends
     return result;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.content.AbstractComponent#equals(java.lang.Object)
    */
   /* see superclass */
   @Override

@@ -41,19 +41,19 @@ public class UserPreferencesJpa implements UserPreferences {
 
   /** The lastProjectId. */
   private Long lastProjectId;
- 
-  /**  The module id. */
+
+  /** The module id. */
   @Column(nullable = true)
   private String feedbackEmail;
-  
+
   /** The lastTab. */
   @Column(nullable = true)
   private String lastTab;
-  
+
   /** The lastTerminology. */
   @Column(nullable = true)
   private String lastTerminology;
-  
+
   /**
    * The default constructor.
    */
@@ -204,12 +204,11 @@ public class UserPreferencesJpa implements UserPreferences {
     return lastTerminology;
   }
 
-
   @Override
   public void setLastTerminology(String lastTerminology) {
     this.lastTerminology = lastTerminology;
   }
-  
+
   /**
    * Returns the last project ID accessed.
    *
@@ -229,12 +228,12 @@ public class UserPreferencesJpa implements UserPreferences {
   public void setLastProjectId(Long lastProjectId) {
     this.lastProjectId = lastProjectId;
   }
-  
+
   @Override
   public String getFeedbackEmail() {
     return feedbackEmail;
   }
-  
+
   @Override
   public void setFeedbackEmail(String feedbackEmail) {
     this.feedbackEmail = feedbackEmail;
@@ -246,11 +245,15 @@ public class UserPreferencesJpa implements UserPreferences {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((lastTab == null) ? 0 : lastTab.hashCode());
-    result = prime * result + ((lastTerminology == null) ? 0 : lastTerminology.hashCode());
-    result = prime * result + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
     result =
         prime * result
-            + ((lastProjectId == null) ? 0 : lastProjectId.hashCode());    
+            + ((lastTerminology == null) ? 0 : lastTerminology.hashCode());
+    result =
+        prime * result
+            + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
+    result =
+        prime * result
+            + ((lastProjectId == null) ? 0 : lastProjectId.hashCode());
     result = prime * result + ((user == null) ? 0 : user.hashCode());
     return result;
   }
@@ -265,7 +268,7 @@ public class UserPreferencesJpa implements UserPreferences {
     if (getClass() != obj.getClass())
       return false;
     UserPreferencesJpa other = (UserPreferencesJpa) obj;
-    
+
     if (user == null) {
       if (other.user != null)
         return false;
@@ -298,11 +301,9 @@ public class UserPreferencesJpa implements UserPreferences {
   @Override
   public String toString() {
     return "UserPreferencesJpa [id=" + id + ", user=" + user
-        + ", lastTerminology=" + lastTerminology 
-        + ", lastProjectId=" + lastProjectId 
-        + ", lastTab=" + lastTab 
-        + ", feedbackEmail=" + feedbackEmail
-      + "]";
+        + ", lastTerminology=" + lastTerminology + ", lastProjectId="
+        + lastProjectId + ", lastTab=" + lastTab + ", feedbackEmail="
+        + feedbackEmail + "]";
   }
 
 }
