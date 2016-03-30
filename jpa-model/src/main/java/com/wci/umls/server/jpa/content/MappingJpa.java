@@ -419,7 +419,13 @@ public class MappingJpa extends AbstractComponentHasAttributes implements
             + ((fromTerminologyId == null) ? 0 : fromTerminologyId.hashCode());
     result = prime * result + ((group == null) ? 0 : group.hashCode());
     result =
-        prime * result + ((mapSet == null) ? 0 : mapSet.getId().hashCode());
+        prime * result
+            + ((getMapSetId() == null) ? 0 : getMapSetId().hashCode());
+    result =
+        prime
+            * result
+            + ((getMapSetTerminologyId() == null) ? 0
+                : getMapSetTerminologyId().hashCode());
     result = prime * result + ((rank == null) ? 0 : rank.hashCode());
     result =
         prime * result
@@ -467,10 +473,15 @@ public class MappingJpa extends AbstractComponentHasAttributes implements
       return false;
 
     // TODO: make this based on "id"
-    if (mapSet == null) {
-      if (other.mapSet != null)
+    if (getMapSetId() == null) {
+      if (other.getMapSetId() != null)
         return false;
-    } else if (!mapSet.getId().equals(other.mapSet.getId()))
+    } else if (!getMapSetId().equals(other.getMapSetId()))
+      return false;
+    if (getMapSetTerminologyId() == null) {
+      if (other.getMapSetTerminologyId() != null)
+        return false;
+    } else if (!getMapSetTerminologyId().equals(other.getMapSetTerminologyId()))
       return false;
 
     if (rank == null) {
@@ -478,7 +489,7 @@ public class MappingJpa extends AbstractComponentHasAttributes implements
         return false;
     } else if (!rank.equals(other.rank))
       return false;
-    
+
     if (relationshipType == null) {
       if (other.relationshipType != null)
         return false;

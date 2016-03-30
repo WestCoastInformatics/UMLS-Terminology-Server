@@ -221,7 +221,7 @@ public class MappingJpaUnitTest {
     tester.include("toTerminologyId");
     tester.include("fromIdType");
     tester.include("toIdType");
-    
+
     assertTrue(tester.testNotNullFields());
   }
 
@@ -263,7 +263,7 @@ public class MappingJpaUnitTest {
     tester.include("fromversion");
     tester.include("toversion");
     tester.include("mapsetterminologyid");
-    
+
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }
 
