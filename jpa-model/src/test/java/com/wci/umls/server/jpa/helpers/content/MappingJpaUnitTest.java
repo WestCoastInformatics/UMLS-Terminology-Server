@@ -251,8 +251,19 @@ public class MappingJpaUnitTest {
     tester.include("terminology");
     tester.include("version");
     tester.include("branch");
+    tester.include("fromTerminology");
+    tester.include("toTerminology");
     tester.include("fromTerminologyId");
     tester.include("toTerminologyId");
+    tester.include("mapSetId");
+    tester.include("fromIdType");
+    tester.include("toIdType");
+    tester.include("fromNameSort");
+    tester.include("toNameSort");
+    tester.include("fromversion");
+    tester.include("toversion");
+    tester.include("mapsetterminologyid");
+    
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }
 

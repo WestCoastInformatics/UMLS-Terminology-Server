@@ -6,24 +6,14 @@ package com.wci.umls.server;
 import java.util.Date;
 import java.util.Map;
 
+import com.wci.umls.server.helpers.HasId;
+
 /**
  * Generically represents an editing project.
  */
-public interface Project {
+public interface Project extends HasId {
 
-  /**
-   * Returns the id.
-   * 
-   * @return the id
-   */
-  public Long getId();
 
-  /**
-   * Sets the id.
-   * 
-   * @param id the id
-   */
-  public void setId(Long id);
 
   /**
    * Returns the name.
@@ -108,20 +98,6 @@ public interface Project {
    * @param terminology the terminology
    */
   public void setTerminology(String terminology);
-
-  /**
-   * Returns the version.
-   * 
-   * @return the version
-   */
-  public String getVersion();
-
-  /**
-   * Sets the version.
-   * 
-   * @param version the version
-   */
-  public void setVersion(String version);
 
   /**
    * Returns the user role map.

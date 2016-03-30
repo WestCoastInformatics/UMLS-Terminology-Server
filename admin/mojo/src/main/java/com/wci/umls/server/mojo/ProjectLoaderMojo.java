@@ -164,7 +164,6 @@ public class ProjectLoaderMojo extends AbstractMojo {
       project.setDescription(description);
       project.setPublic(true);
       project.setTerminology(terminology);
-      project.setVersion(version);
       project.setLastModifiedBy("admin");
 
       // check for this project

@@ -95,6 +95,19 @@ tsApp.controller('ContentCtrl', [
     // General
     //
 
+    // Configure tab and accordion
+    $scope.configureTab = function() {
+      // skip guest user
+      if ($http.defaults.headers.common.Authorization == 'guest') {
+        return;
+      }
+      $scope.user.userPreferences.lastTab = '/content';
+
+      securityService.updateUserPreferences($scope.user.userPreferences);
+    };
+    
+    $scope.configureTab();
+    
     // Sets the terminololgy
     $scope.setTerminology = function(terminology) {
 

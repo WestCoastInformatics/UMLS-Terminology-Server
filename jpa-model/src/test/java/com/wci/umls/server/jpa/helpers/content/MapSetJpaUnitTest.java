@@ -5,6 +5,8 @@ package com.wci.umls.server.jpa.helpers.content;
 
 import static org.junit.Assert.assertTrue;
 
+import javax.persistence.Column;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -182,7 +184,7 @@ public class MapSetJpaUnitTest {
     //tester.include("toExhaustive");
     //tester.include("type");
     tester.include("fromTerminology");
-    tester.include("toTerminology");
+    //tester.include("toTerminology");
     //tester.include("fromVersion");
     //tester.include("toVersion");
 

@@ -86,12 +86,14 @@ public class ProjectJpaUnitTest {
     Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode001");
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("name");
-    // tester.include("scopeConcepts");
-    tester.include("scopeDescendantsFlag");
-    // tester.include("scopeExcludesConcepts");
-    tester.include("scopeExcludesDescendantsFlag");
+    tester.include("description");
     tester.include("terminology");
-    tester.include("version");
+    tester.include("branch");
+    tester.include("isPublic");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
+    tester.include("userRoleMap");
+    
 
     // Set up objects
     tester.proxy(Set.class, 1, s1);
@@ -163,9 +165,6 @@ public class ProjectJpaUnitTest {
     tester.include("description");
     tester.include("isPublic");
     tester.include("terminology");
-    tester.include("version");
-    tester.include("scopeDescendantsFlag");
-    tester.include("scopeExcludesDescendantsFlag");
     assertTrue(tester.testNotNullFields());
   }
 
@@ -182,13 +181,14 @@ public class ProjectJpaUnitTest {
     IndexedFieldTester tester = new IndexedFieldTester(object);
     tester.include("name");
     tester.include("description");
+    tester.include("userrolemap");
+    tester.include("useranyrole");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
     assertTrue(tester.testAnalyzedIndexedFields());
     tester = new IndexedFieldTester(object);
     tester.include("terminology");
-    tester.include("version");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     assertTrue(tester.testNotAnalyzedIndexedFields());

@@ -161,7 +161,6 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
     project.setDescription("description");
     project.setPublic(true);
     project.setTerminology("terminology");
-    project.setVersion("version");
     project.setLastModifiedBy("some_user");
 
     User user = new UserJpa();

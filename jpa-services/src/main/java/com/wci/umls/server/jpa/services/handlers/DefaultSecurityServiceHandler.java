@@ -47,7 +47,6 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     }
 
     User user = new UserJpa();
-    UserPreferences userPreferences = new UserPreferencesJpa();
 
     // check specified admin users list from config file
     if (getAdminUsersFromConfigFile().contains(username)) {
@@ -56,7 +55,6 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
       user.setName(username.substring(0, 1).toUpperCase()
           + username.substring(1));
       user.setEmail(username + "@example.com");
-      user.setUserPreferences(userPreferences);
       return user;
     }
 
@@ -66,7 +64,6 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
       user.setName(username.substring(0, 1).toUpperCase()
           + username.substring(1));
       user.setEmail(username + "@example.com");
-      user.setUserPreferences(userPreferences);
       return user;
     }
 
