@@ -1,12 +1,18 @@
 // Login controller
 tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService', 'gpService',
-  'utilService', 'projectService', function($scope, $http, $location, securityService, gpService, utilService, projectService) {
+  'utilService', 'projectService',
+  function($scope, $http, $location, securityService, gpService, utilService, projectService) {
     console.debug('configure LoginCtrl');
+
+    // Clear user info
+    securityService.clearUser();
 
     // Declare the user
     $scope.user = securityService.getUser();
+
     
-    // TODO Check status and either revert to #/content or #/landing depending locationChange
+    // TODO Check status and either revert to #/content or #/landing depending
+    // locationChange
 
     // Login function
     $scope.login = function(name, password) {

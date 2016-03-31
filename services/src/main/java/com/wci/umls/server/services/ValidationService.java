@@ -4,6 +4,7 @@
 package com.wci.umls.server.services;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
@@ -54,5 +55,12 @@ public interface ValidationService extends RootService {
    * @return the validation result
    */
   public ValidationResult validateMerge(Concept concept1, Concept concept2);
+
+  /**
+   * Gets the validation check names.
+   *
+   * @return the validation check names
+   */
+  public KeyValuePairList getValidationCheckNames();
 
 }

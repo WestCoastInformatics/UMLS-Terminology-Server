@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -72,4 +73,13 @@ public interface ValidationServiceRest {
     */
    public ValidationResult validateMerge(String terminology, String version,
      String cui1, String cui2, String authToken) throws Exception;
+
+   /**
+    * Gets the validation checks.
+    *
+    * @param authToken the auth token
+    * @return the validation checks
+    * @throws Exception the exception
+    */
+   public KeyValuePairList getValidationChecks(String authToken) throws Exception;
 }

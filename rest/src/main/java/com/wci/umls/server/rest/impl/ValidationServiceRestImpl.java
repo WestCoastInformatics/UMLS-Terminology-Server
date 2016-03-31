@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.PUT;
@@ -18,6 +19,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -40,6 +42,9 @@ import com.wordnik.swagger.annotations.ApiParam;
  */
 @Path("/validation")
 @Api(value = "/validation", description = "Operations providing terminology validation")
+@Consumes({
+  MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+})
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
@@ -212,4 +217,30 @@ public class ValidationServiceRestImpl extends RootServiceRestImpl implements
 
   }
 
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/checks")
+  @ApiOperation(value = "Gets all validation checks", notes = "Gets all validation checks", response = KeyValuePairList.class)
+  public KeyValuePairList getValidationChecks(
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call POST (Validation): /checks ");
+
+    final ValidationService validationService = new ValidationServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get validation checks",
+          UserRole.VIEWER);
+
+      final KeyValuePairList list = validationService.getValidationCheckNames();
+      return list;
+    } catch (Exception e) {
+      handleException(e, "trying to validate all concept");
+      return null;
+    } finally {
+      validationService.close();
+      securityService.close();
+    }
+  }
 }

@@ -15,7 +15,7 @@
 <!-- Material Design Icons -->
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
   rel="stylesheet">
-  
+
 <!-- Angular core and standard plugins -->
 <script type="text/javascript"
   src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
@@ -58,10 +58,13 @@
 
 <!-- UTS services -->
 <script src="app/util/general/services.js"></script>
+<script src="app/util/general/tabService.js"></script>
+<script src="app/util/general/tabController.js"></script>
 <script src="app/util/highlight/highlightFilters.js"></script>
 <script src="app/util/metadata/metadataService.js"></script>
 <script src="app/util/project/projectService.js"></script>
 <script src="app/util/content/contentService.js"></script>
+<script src="app/util/validation/validationService.js"></script>
 
 <!-- UTS page elements and controllers -->
 <script src="app/page/header/header.js"></script>
@@ -108,9 +111,9 @@
     <!-- Show global error message -->
     <div ng-include src="'app/page/general/error.html'"></div>
     <ul ng-show="isShowing()" class="nav nav-tabs" ng-controller="TabCtrl">
-      <li ng-class="tabClass(tab)" ng-repeat="tab in tabs"><a
-          ng-click="setSelectedTab(tab)"> {{tab.label}}
-        </a></li>
+      <li ng-show="isTabShowing(tab)" ng-class="tabClass(tab)"
+        ng-repeat="tab in tabs"><a ng-click="setSelectedTab(tab)">
+          {{tab.label}} </a></li>
     </ul>
     <!-- Body -->
     <div ng-view=""></div>

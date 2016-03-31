@@ -15,6 +15,7 @@ var metadataUrl = "metadata/";
 var contentUrl = "content/";
 var adminUrl = "admin/";
 var projectUrl = "project/";
+var validationUrl = "validation/";
 
 // Initialization of tsApp
 tsApp.run(function($rootScope, $http, $location) {
@@ -91,62 +92,7 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
 
 } ]);
 
-// Tab controller
-tsApp.controller('TabCtrl', [
-  '$scope',
-  '$routeParams',
-  '$interval',
-  '$timeout',
-  '$location',
-  'securityService',
-  'tabService',
-  function($scope, $routeParams, $interval, $timeout, $location, securityService, tabService) {
-    console.debug('configure TabCtrl');
 
-    // Setup tabs
-    $scope.tabs = tabService.tabs;
-
-    // Set selected tab (change the view)
-    $scope.setSelectedTab = function(tab) {
-      tabService.setSelectedTab(tab);
-    };
-
-    // Set "active" or not
-    $scope.tabClass = function(tab) {
-      if (tabService.selectedTab == tab) {
-        return "active";
-      } else {
-        return "";
-      }
-    };
-
-    // tabs are only shown if logged in and not on the landing or login page
-    $scope.isShowing = function() {
-      switch ($routeParams.mode) {
-      case 'simple':
-        return false;
-      default:
-        return securityService.isLoggedIn() && $location.url() !== '/'
-          && $location.url() !== '/#top' && $location.url().indexOf('login') == -1;
-
-      }
-    };
-
-    // configure whether certain tabs require permissions here
-    $scope.isTabShowing = function(tab) {
-      return isAdmin() || tab.label == 'Directory' || userHasAnyRole;
-    };
-
-    // returns true if a user has a defined role on a project
-    $scope.userHasAnyRole = function() {
-      return userProjectsInfo.anyrole;
-    };
-
-    // returns true if user has administrator application role
-    $scope.isAdmin = function() {
-      return user.applicationRole == 'ADMIN';
-    };
-  } ]);
 
 // Confirm dialog conroller and directive
 tsApp.controller('ConfirmModalCtrl', function($scope, $uibModalInstance, data) {
