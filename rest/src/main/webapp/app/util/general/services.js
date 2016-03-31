@@ -508,6 +508,16 @@ tsApp.service('securityService', [ '$http', '$location', '$q', '$cookies', 'util
       return user.authToken;
     };
 
+    // isAdmin function
+    this.isAdmin = function() {
+      return user.applicationRole == 'ADMINISTRATOR';
+    };
+
+    // isUser function
+    this.isUser = function() {
+      return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'USER';
+    };    
+    
     this.logout = function() {
       if (user.authToken == null) {
         window.alert("You are not currently logged in");
@@ -730,51 +740,7 @@ tsApp.service('securityService', [ '$http', '$location', '$q', '$cookies', 'util
 
   } ]);
 
-// Tab service
-tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'securityService',
-  function($location, utilService, gpService, securityService) {
-    console.debug('configure tabService');
-    // Available tabs
-    this.tabs = [ {
-      link : 'content',
-      label : 'Content'
-    }, {
-      link : 'metadata',
-      label : 'Metadata'
-    }, {
-      link : '#/admin',
-      label : 'Admin'
-    } ];
 
-    // the selected tab
-    this.selectedTab = this.tabs[0];
-    
-    // Show admin tab for admins only
-    this.showTab = function(tab) {
-      console.debug('tab label', tab.label);
-      return tab.label != 'Admin' || securityService.getUser().applicationRole == 'ADMINISTRATOR';
-    };
-    
-    // Sets the selected tab
-    this.setSelectedTab = function(tab) {
-      this.selectedTab = tab;
-      $location.path(tab.link);
-    };
-
-    // sets the selected tab by label
-    // to be called by controllers when their
-    // respective tab is selected
-    this.setSelectedTabByLabel = function(label) {
-      for (var i = 0; i < this.tabs.length; i++) {
-        if (this.tabs[i].label === label) {
-          this.selectedTab = this.tabs[i];
-          $location.path(tab.link);
-          break;
-        }
-      }
-    };
-
-  } ]);
 
 // Websocket service
 

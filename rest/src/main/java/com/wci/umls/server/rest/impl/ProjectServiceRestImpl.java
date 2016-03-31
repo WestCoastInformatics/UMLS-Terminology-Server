@@ -245,7 +245,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   public Project assignUserToProject(
     @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "User name, e.g. guest", required = true) @QueryParam("userName") String userName,
-    @ApiParam(value = "User role, e.g. 'ADMIN'", required = true) @QueryParam("role") String role,
+    @ApiParam(value = "User role, e.g. 'ADMINISTRATOR'", required = true) @QueryParam("role") String role,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(

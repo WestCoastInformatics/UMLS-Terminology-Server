@@ -18,6 +18,9 @@ tsApp.controller('ContentCtrl', [
     utilService, tabService, securityService, metadataService, contentService) {
     console.debug('configure ContentCtrl');
 
+    // Clear error
+    utilService.clearError();
+
     // Handle resetting tabs on "back" button
     if (tabService.selectedTab.label != 'Content') {
       tabService.setSelectedTabByLabel('Content');
@@ -58,7 +61,7 @@ tsApp.controller('ContentCtrl', [
 
     $scope.getColorForScore = function(score) {
       if (score > $scope.scoreExcellent) {
-        return 'green'
+        return 'green';
       } else if (score > $scope.scoreGood) {
         return 'yellow';
       } else {
@@ -70,7 +73,8 @@ tsApp.controller('ContentCtrl', [
     // Watch expressions
     //
 
-    // Watch for changes in metadata.terminologies (indicates application readiness)
+    // Watch for changes in metadata.terminologies (indicates application
+    // readiness)
     $scope.$watch('metadata.terminology', function() {
 
       // clear the terminology-specific variables
@@ -102,18 +106,15 @@ tsApp.controller('ContentCtrl', [
         return;
       }
       $scope.user.userPreferences.lastTab = '/content';
-
       securityService.updateUserPreferences($scope.user.userPreferences);
     };
-    
-    $scope.configureTab();
-    
+
     // Sets the terminololgy
     $scope.setTerminology = function(terminology) {
 
       metadataService.setTerminology(terminology).then(function() {
         // do nothing
-      })
+      });
     };
 
     // Autocomplete function
@@ -171,7 +172,6 @@ tsApp.controller('ContentCtrl', [
     // Get a component and set the local component data model
     // e.g. this is called when a user clicks on a link in a report
     $scope.getComponentFromType = function(terminologyId, terminology, version, type) {
-      console.debug('AAAAAAAAAAAARRRRRRRRRGH!')
       contentService.getComponentFromType(terminologyId, terminology, version, type).then(
         function() {
           $scope.setActiveRow($scope.component.object.terminologyId);
@@ -209,9 +209,10 @@ tsApp.controller('ContentCtrl', [
 
       // ensure query string has minimum length
       /*
-             * if ($scope.searchParams.query == null || $scope.searchParams.query.length < 3) {
-             * alert("You must use at least one character to search"); return; }
-             */
+       * if ($scope.searchParams.query == null ||
+       * $scope.searchParams.query.length < 3) { alert("You must use at least
+       * one character to search"); return; }
+       */
 
       contentService.findComponentsAsList($scope.searchParams.query,
         $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
@@ -315,9 +316,9 @@ tsApp.controller('ContentCtrl', [
       $scope.getPagedRelationships();
     };
 
-    ////////////////////////////////////////////
+    // //////////////////////////////////////////
     // Supporting search result trees
-    ////////////////////////////////////////////
+    // //////////////////////////////////////////
 
     // Search Result Tree Parameters
     $scope.srtParams = {
@@ -328,7 +329,7 @@ tsApp.controller('ContentCtrl', [
     $scope.srtCallbacks = {
       // set top level component from tree node
       getComponentFromTree : $scope.getComponentFromTree
-    }
+    };
 
     // Function to toggle showing of extension info
     $scope.toggleExtension = function() {
@@ -339,7 +340,6 @@ tsApp.controller('ContentCtrl', [
       }
     };
 
-   
     // 
     // Misc helper functions
     // 
@@ -373,8 +373,9 @@ tsApp.controller('ContentCtrl', [
         getLabelSetName : metadataService.getLabelSetName,
         countLabels : metadataService.countLabels
 
-      // TODO Add relationship functions here, remove from relationships/relationships-deep
-      }
+      // TODO Add relationship functions here, remove from
+      // relationships/relationships-deep
+      };
     }
 
     // otherwise, enable full functionality
@@ -392,8 +393,9 @@ tsApp.controller('ContentCtrl', [
         getLabelSetName : metadataService.getLabelSetName,
         countLabels : metadataService.countLabels
 
-      // TODO Add relationship functions here, remove from relationships/relationships-deep
-      }
+      // TODO Add relationship functions here, remove from
+      // relationships/relationships-deep
+      };
     }
 
     //
@@ -423,6 +425,84 @@ tsApp.controller('ContentCtrl', [
       return viewableTerminologies;
     };
 
+    // 
+    // HISTORY related functions
+    //
+
+    // Local history variables for the display.
+    $scope.localHistory = null;
+    $scope.localHistoryPageSize = $scope.pageSizes.general; // NOTE:
+    // must be even number!
+    $scope.localHistoryPreviousCt = 0;
+    $scope.localHistoryNextCt = 0;
+
+    // Retrieve a component from the history list
+    $scope.getComponentFromHistory = function(index) {
+      // if currently viewed do nothing
+      if (index === $scope.component.historyIndex)
+        return;
+
+      contentService.getComponentFromHistory(index).then(function(data) {
+        // manage local history
+        $scope.setComponentLocalHistory(index);
+      });
+    };
+
+    // Get a string representation fo the component
+    $scope.getComponentStr = function(component) {
+      if (!component)
+        return null;
+
+      return component.terminology + "/" + component.terminologyId + " " + component.type + ": "
+        + component.name;
+    };
+
+    // Function to set the local history for drop down list based on
+    // an index For cases where history > page size, returns array
+    // [index - pageSize / 2 + 1 : index + pageSize]
+    $scope.setComponentLocalHistory = function(index) {
+      // if not a full page of history, simply set to component
+      // history and
+      // stop
+      if ($scope.component.history.length <= $scope.localHistoryPageSize) {
+        $scope.localHistory = $scope.component.history;
+        return;
+      }
+
+      // get upper bound
+      var upperBound = Math.min(index + $scope.localHistoryPageSize / 2,
+        $scope.component.history.length);
+      var lowerBound = Math.max(upperBound - $scope.localHistoryPageSize, 0);
+
+      // resize upper bound to ensure full page (for cases near
+      // beginning of history)
+      upperBound = lowerBound + $scope.localHistoryPageSize;
+
+      // calculate unshown element numbers
+      $scope.localHistoryNextCt = $scope.component.history.length - upperBound;
+      $scope.localHistoryPreviousCt = lowerBound;
+
+      // return the local history
+      $scope.localHistory = $scope.component.history.slice(lowerBound, upperBound);
+    };
+
+    // Pop out content window
+    $scope.popout = function() {
+      var currentUrl = window.location.href;
+      var baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+      // TODO; don't hardcode this - maybe "simple" should be a parameter
+      var newUrl = baseUrl + '/content/simple/' + $scope.component.object.terminology + '/'
+        + $scope.component.object.version + '/' + $scope.component.object.terminologyId;
+      var myWindow = window.open(newUrl, $scope.component.object.terminology + '/'
+        + $scope.component.object.version + ', ' + $scope.component.object.terminologyId + ', '
+        + $scope.component.object.name);
+      myWindow.focus();
+    };
+
+    //
+    // Initialize
+    //
+
     // Load all terminologies upon controller load (unless already
     // loaded)
     if (!$scope.metadata.terminologies) {
@@ -430,7 +510,8 @@ tsApp.controller('ContentCtrl', [
         // success
         function(data) {
 
-          // if route parameters are specified, set the terminology and retrieve the specified concept
+          // if route parameters are specified, set the terminology and retrieve
+          // the specified concept
           if ($routeParams.terminology && $routeParams.version) {
             console.debug('Route parameters set', $routeParams);
 
@@ -502,83 +583,7 @@ tsApp.controller('ContentCtrl', [
         });
     }
 
-    // 
-    // HISTORY related functions
-    //
-
-    // Local history variables for the display.
-    $scope.localHistory = null;
-    $scope.localHistoryPageSize = $scope.pageSizes.general; // NOTE:
-    // must be even number!
-    $scope.localHistoryPreviousCt = 0;
-    $scope.localHistoryNextCt = 0;
-
-    // Retrieve a component from the history list
-    $scope.getComponentFromHistory = function(index) {
-      // if currently viewed do nothing
-      if (index === $scope.component.historyIndex)
-        return;
-
-      contentService.getComponentFromHistory(index).then(function(data) {
-        // manage local history
-        $scope.setComponentLocalHistory(index);
-      });
-    };
-
-    // Get a string representation fo the component
-    $scope.getComponentStr = function(component) {
-      if (!component)
-        return null;
-
-      return component.terminology + "/" + component.terminologyId + " " + component.type + ": "
-        + component.name;
-    };
-
-    // Function to set the local history for drop down list based on
-    // an
-    // index For cases where history > page size, returns array
-    // [index -
-    // pageSize / 2 + 1 : index + pageSize]
-    $scope.setComponentLocalHistory = function(index) {
-      // if not a full page of history, simply set to component
-      // history and
-      // stop
-      if ($scope.component.history.length <= $scope.localHistoryPageSize) {
-        $scope.localHistory = $scope.component.history;
-        return;
-      }
-
-      // get upper bound
-      var upperBound = Math.min(index + $scope.localHistoryPageSize / 2,
-        $scope.component.history.length);
-      var lowerBound = Math.max(upperBound - $scope.localHistoryPageSize, 0);
-
-      // resize upper bound to ensure full page (for cases near
-      // beginning of
-      // history)
-      upperBound = lowerBound + $scope.localHistoryPageSize;
-
-      // calculate unshown element numbers
-      $scope.localHistoryNextCt = $scope.component.history.length - upperBound;
-      $scope.localHistoryPreviousCt = lowerBound;
-
-      // return the local history
-      $scope.localHistory = $scope.component.history.slice(lowerBound, upperBound);
-    };
-
-    $scope.popout = function() {
-      var currentUrl = window.location.href;
-      var baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-      var newUrl = baseUrl + '/content/simple/' + $scope.component.object.terminology + '/'
-        + $scope.component.object.version + '/' + $scope.component.object.terminologyId;
-      console.debug('POPOUT URLS', baseUrl, newUrl);
-      var myWindow = window.open(newUrl, $scope.component.object.terminology + '/'
-        + $scope.component.object.version + ', ' + $scope.component.object.terminologyId + ', '
-        + $scope.component.object.name);
-      
-      myWindow.focus();
-    };
-
+    $scope.configureTab();
   }
 
 ]);
