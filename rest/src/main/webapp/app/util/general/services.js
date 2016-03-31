@@ -741,9 +741,9 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'security
     }, {
       link : 'metadata',
       label : 'Metadata'
-   /* }, {
+    }, {
       link : '#/admin',
-      label : 'Admin'*/
+      label : 'Admin'
     } ];
 
     // the selected tab

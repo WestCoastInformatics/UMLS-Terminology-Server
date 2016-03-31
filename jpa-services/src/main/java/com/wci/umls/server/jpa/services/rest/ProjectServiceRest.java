@@ -148,4 +148,17 @@ public interface ProjectServiceRest {
   public ProjectList findProjectsForQuery(String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
 
+  /**
+   * Gets the log.
+   *
+   * @param projectId the project id
+   * @param objectId the object id
+   * @param lines the lines
+   * @param authToken the auth token
+   * @return the log
+   * @throws Exception the exception
+   */
+  public String getLog(Long projectId, Long objectId, int lines, String authToken)
+    throws Exception;
+
 }

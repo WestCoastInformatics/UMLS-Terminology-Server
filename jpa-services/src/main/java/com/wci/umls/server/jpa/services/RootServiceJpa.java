@@ -28,7 +28,9 @@ import org.hibernate.search.jpa.FullTextQuery;
 import com.wci.umls.server.User;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasLastModified;
+import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.jpa.helpers.LogEntryJpa;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.services.RootService;
 
@@ -876,5 +878,50 @@ public abstract class RootServiceJpa implements RootService {
     } catch (NoResultException e) {
       return null;
     }
+  }
+  
+  /* see superclass */
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<LogEntry> findLogEntriesForQuery(String query, PfsParameter pfs)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Root Service - find log entries " + "/" + query);
+
+    final StringBuilder sb = new StringBuilder();
+    if (query != null && !query.equals("")) {
+      sb.append(query);
+    }
+
+    int[] totalCt = new int[1];
+    final List<LogEntry> list =
+        (List<LogEntry>) getQueryResults(sb.toString(), LogEntryJpa.class,
+            LogEntryJpa.class, pfs, totalCt);
+
+    return list;
+  }
+  
+  /* see superclass */
+  @Override
+  public LogEntry addLogEntry(LogEntry logEntry) throws Exception {
+    return addHasLastModified(logEntry);
+  }
+
+  /* see superclass */
+  @Override
+  public void updateLogEntry(LogEntry logEntry) throws Exception {
+    updateHasLastModified(logEntry);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeLogEntry(Long id) throws Exception {
+    removeHasLastModified(id, LogEntry.class);
+  }
+
+  /* see superclass */
+  @Override
+  public LogEntry getLogEntry(Long id) throws Exception {
+    return getHasLastModified(id, LogEntry.class);
   }
 }

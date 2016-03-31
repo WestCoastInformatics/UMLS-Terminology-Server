@@ -3,12 +3,20 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.LogEntry;
+import com.wci.umls.server.jpa.helpers.LogEntryJpa;
+import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.services.ProjectService;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.handlers.ExceptionHandler;
 
@@ -168,5 +176,47 @@ public class RootServiceRestImpl {
     websocket = websocket2;
   }
 
+  /**
+   * Adds the log entry.
+   *
+   * @param service the service
+   * @param userName the user name
+   * @param action the action
+   * @param projectId the project id
+   * @param objectId the object id
+   * @param detail the detail
+   * @return the log entry
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  public LogEntry addLogEntry(RootService service, String userName,
+    String action, Long projectId, Long objectId, String detail, LogActivity activity)
+    throws Exception {
+    LogEntry entry = new LogEntryJpa();
+    entry.setLastModifiedBy(userName);
+    entry.setObjectId(objectId);
+    entry.setProjectId(projectId);
+    entry.setActivity(activity);
+    entry.setTimestamp(new Date());
 
+    // $action (projectId=$projectId, objectId=$objectId): $detail
+    StringBuilder message = new StringBuilder();
+    Calendar c = Calendar.getInstance();
+    message.append("[").append(ConfigUtility.DATE_FORMAT4.format(c.getTime()));
+    message.append("] ");
+    message.append(userName).append(" ");
+    message.append(action).append(" (projectId=");
+    message.append(projectId).append(", objectId=");
+    message.append(objectId).append("): ");
+    message.append(detail).append("\n");
+
+    entry.setMessage(message.toString());
+
+    // Add component
+    LogEntry newLogEntry = service.addLogEntry(entry);
+
+    // do not inform listeners
+    return newLogEntry;
+
+  }
 }

@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -20,6 +22,8 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.LogEntry;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.UserList;
@@ -31,6 +35,7 @@ import com.wci.umls.server.jpa.helpers.UserListJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
+import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
@@ -268,11 +273,10 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
       user.getProjectRoleMap().put(projectCopy, UserRole.valueOf(role));
       securityService.updateUser(user);
-
-      /*
-       * addLogEntry(projectService, authUser, "ASSIGN user to project",
-       * projectId, projectId, userName);
-       */
+      
+      addLogEntry(projectService, authUser, "ASSIGN user to project",
+       projectId, projectId, userName, LogActivity.EDITING);
+       
       return project;
 
     } catch (Exception e) {
@@ -481,10 +485,10 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       user.getProjectRoleMap().remove(projectCopy);
       securityService.updateUser(user);
 
-      /*
-       * addLogEntry(projectService, authUser, "UNASSIGN user from project",
-       * projectId, projectId, userName);
-       */
+      
+      addLogEntry(projectService, authUser, "UNASSIGN user from project",
+       projectId, projectId, userName, LogActivity.EDITING);
+       
 
       return project;
     } catch (Exception e) {
@@ -522,7 +526,51 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       projectService.close();
       securityService.close();
     }
+  }
 
+  /* see superclass */
+  @GET
+  @Path("/log")
+  @Produces("text/plain")
+  @ApiOperation(value = "Get log entries for objectId", notes = "Returns log entries for the given objectId", response = String.class)
+  @Override
+  public String getLog(
+    @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Object id, e.g. 5", required = false) @QueryParam("objectId") Long objectId,
+    @ApiParam(value = "Lines, e.g. 5", required = false) @QueryParam("lines") int lines,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Project): /log/" + projectId + ", " + objectId);
+
+    final ProjectService projectService = new ProjectServiceJpa();
+    try {
+      authorizeProject(projectService, projectId, securityService, authToken,
+          "get log entries", UserRole.AUTHOR);
+
+      PfsParameter pfs = new PfsParameterJpa();
+      pfs.setStartIndex(0);
+      pfs.setMaxResults(1000);
+      pfs.setAscending(false);
+      pfs.setSortField("lastModified");
+
+      final List<LogEntry> entries =
+          projectService.findLogEntriesForQuery("objectId:" + objectId, pfs);
+
+      StringBuilder log = new StringBuilder();
+      for (int i = entries.size() - 1; i >= 0; i--) {
+        log.append(entries.get(i).getMessage());
+      }
+
+      return log.toString();
+
+    } catch (Exception e) {
+      handleException(e, "trying to get log");
+    } finally {
+      projectService.close();
+      securityService.close();
+    }
+    return null;
   }
 
 }

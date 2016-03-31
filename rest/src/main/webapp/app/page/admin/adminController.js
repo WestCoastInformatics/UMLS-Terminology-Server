@@ -778,6 +778,30 @@ tsApp
           $scope.user.userPreferences.lastTab = '/admin';
           securityService.updateUserPreferences($scope.user.userPreferences);
         };
+        
+
+        // Log modal
+        $scope.openLogModal = function() {
+          console.debug('openLogModal ');
+
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/component/refsetTable/log.html',
+            controller : LogModalCtrl,
+            backdrop : 'static',
+            size : 'lg',
+            resolve : {
+              refset : function() {
+                return $scope.selected.refset;
+              },
+              project : function() {
+                return $scope.project;
+              }
+            }
+          });
+
+          // NO need for result function - no action on close
+          // modalInstance.result.then(function(data) {});
+        };
 
         //
         // Initialize
@@ -799,4 +823,5 @@ tsApp
 
       }
 
+      
     ]);
