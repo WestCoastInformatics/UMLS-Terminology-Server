@@ -52,10 +52,10 @@ tsApp
         $scope.metadata = {
           terminologies : []
         };
-        
+
         $scope.userPreferences = {
           feedbackEmail : $scope.user.userPreferences.feedbackEmail
-        }
+        };
         $scope.feedbackEmailChanged = false;
 
         // Paging variables
@@ -293,10 +293,10 @@ tsApp
             $scope.user.userPreferences.feedbackEmail = value;
             $scope.feedbackEmailChanged = false;
           }
-          
+
           $scope.saveUserPreferences();
         };
-        
+
         // Save the user preferences
         $scope.saveUserPreferences = function() {
           securityService.updateUserPreferences($scope.user.userPreferences).then(
@@ -305,7 +305,7 @@ tsApp
             $scope.user.userPreferences = data;
           });
         };
-        
+
         // indicate that a user preference value has changed
         $scope.setChanged = function(item) {
           if (item == 'moduleId') {
@@ -317,10 +317,9 @@ tsApp
           } else if (item == 'exclusionClause') {
             $scope.exclusionClauseChanged = true;
           } else if (item == 'feedbackEmail') {
-            $scope.feedbackEmailChanged = true; 
+            $scope.feedbackEmailChanged = true;
           }
-        }
-
+        };
 
         // sort mechanism
         $scope.setSortField = function(table, field) {
@@ -337,7 +336,7 @@ tsApp
             $scope.getAssignedUsers();
           } else if (table === 'candidateUser') {
             $scope.getUnassignedUsers();
-          } 
+          }
         };
 
         // Return up or down sort chars if sorted
@@ -469,8 +468,7 @@ tsApp
             var index = $scope.selectedChecks.indexOf(check);
             $scope.selectedChecks.splice(index, 1);
           };
-          
-          
+
           // Function to filter viewable terminologies for picklist
           $scope.getViewableTerminologies = function() {
             var viewableTerminologies = new Array();
@@ -485,7 +483,7 @@ tsApp
             }
             return viewableTerminologies;
           };
-          
+
           // Add the project
           $scope.submitProject = function(project) {
             if (!project || !project.name || !project.description || !project.terminology) {
@@ -500,7 +498,6 @@ tsApp
               }
             }
 
-           
             // Add project - this will validate the expression
             projectService.addProject(project).then(
               // Success
@@ -508,21 +505,22 @@ tsApp
                 // if not an admin, add user as a project admin
                 if ($scope.user.applicationRole != 'ADMINISTRATOR') {
                   var projectId = data.id;
-                  projectService.assignUserToProject(data.id, $scope.user.userName, 'ADMINISTRATOR').then(
-                    function(data) {
-                      // Update 'anyrole'
-                      projectService.getUserHasAnyRole();
+                  projectService
+                    .assignUserToProject(data.id, $scope.user.userName, 'ADMINISTRATOR').then(
+                      function(data) {
+                        // Update 'anyrole'
+                        projectService.getUserHasAnyRole();
 
-                      // Set the "last project" setting to this project
-                      $scope.user.userPreferences.lastProjectId = projectId;
-                      securityService.updateUserPreferences($scope.user.userPreferences);
-                      $uibModalInstance.close(data);
-                    },
-                    // Error
-                    function(data) {
-                      $scope.errors[0] = data;
-                      utilService.clearError();
-                    });
+                        // Set the "last project" setting to this project
+                        $scope.user.userPreferences.lastProjectId = projectId;
+                        securityService.updateUserPreferences($scope.user.userPreferences);
+                        $uibModalInstance.close(data);
+                      },
+                      // Error
+                      function(data) {
+                        $scope.errors[0] = data;
+                        utilService.clearError();
+                      });
                 } else {
                   $uibModalInstance.close(data);
                 }
@@ -603,7 +601,6 @@ tsApp
             $scope.selectedChecks.splice(index, 1);
           };
 
-          
           // Function to filter viewable terminologies for picklist
           $scope.getViewableTerminologies = function() {
             var viewableTerminologies = new Array();
@@ -618,7 +615,7 @@ tsApp
             }
             return viewableTerminologies;
           };
-          
+
           $scope.submitProject = function(project) {
             if (!project || !project.name || !project.description || !project.terminology) {
               window.alert('The name, description, and terminology fields cannot be blank. ');
@@ -775,6 +772,10 @@ tsApp
 
         // Configure the tab
         $scope.configureTab = function() {
+          // skip guest user
+          if ($http.defaults.headers.common.Authorization == 'guest') {
+            return;
+          }
           $scope.user.userPreferences.lastTab = '/admin';
           securityService.updateUserPreferences($scope.user.userPreferences);
         };
