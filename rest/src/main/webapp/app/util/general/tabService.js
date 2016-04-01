@@ -16,6 +16,16 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'security
       label : 'Admin',
       role : 'USER'
 
+    }, {
+      link : 'upload',
+      label : 'Upload',
+      role : 'USER'
+
+    }, {
+      link : 'source',
+      label : 'Data',
+      role : 'USER'
+
     } ];
 
     // the selected tab

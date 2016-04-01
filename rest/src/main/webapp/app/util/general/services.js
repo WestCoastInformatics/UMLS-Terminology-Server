@@ -798,7 +798,7 @@ tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
   } ]);
 
 //Source data service
-ttApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'utilService',
+tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'utilService',
   'gpService', function($http, $location, $q, ngCookies, utilService, gpService) {
     console.debug('configure sourceDataService');
 
