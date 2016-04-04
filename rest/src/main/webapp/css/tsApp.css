@@ -152,6 +152,11 @@ body {
 	margin-left: 5px;
 }
 
+.tab-disabled {
+	color : gray;
+	cursor : pointer;
+}
+
 /* Makes table section headers medium blue background */
 .section-header {
 	background-color: #bee4f2;
@@ -162,3 +167,12 @@ body {
 	font-size: 14px;
 	margin-bottom: 10px;
 }
+
+/* File upload drop zone stying */
+.afu-drop-zone {
+	border: dotted 3px lightgray;
+}
+
+.nv-file-over {
+	border: dotted 3px red;
+} /* Default class applied to drop zones on over */

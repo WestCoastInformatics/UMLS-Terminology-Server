@@ -240,22 +240,27 @@ tsApp.service('metadataService', [
       console.debug("initTerminologies");
       var deferred = $q.defer();
 
-      // Get terminologies
-      gpService.increment();
-      $http.get(metadataUrl + 'terminology/terminologies').then(
-      // success
-      function(response) {
-        console.debug("  terminologies = ", response.data);
-        metadata.terminologies = response.data.terminologies;
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
+      if (metadata.terminologies) {
+        deferred.resolve(metadata.terminologies);
+      } else {
+        // Get terminologies
+        gpService.increment();
+        $http.get(metadataUrl + 'terminology/terminologies').then(
+        // success
+        function(response) {
+          console.debug("  terminologies = ", response.data);
+          metadata.terminologies = response.data.terminologies;
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
+      }
+
       return deferred.promise;
     };
 

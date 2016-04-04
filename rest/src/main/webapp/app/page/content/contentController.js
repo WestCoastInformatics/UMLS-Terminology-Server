@@ -101,6 +101,7 @@ tsApp.controller('ContentCtrl', [
       }
 
       console.log('Terminology changed', $scope.metadata.terminology);
+      tabService.setTabEnabledByLabel('content', false);
 
       // set the autocomplete url, with pattern:
       // /type/{terminology}/{version}/autocomplete/{searchTerm}

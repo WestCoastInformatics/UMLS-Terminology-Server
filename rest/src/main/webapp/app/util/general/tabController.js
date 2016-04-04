@@ -19,7 +19,7 @@ tsApp.controller('TabCtrl', [ '$scope', 'securityService', 'tabService', 'projec
     // respective tab is selected
     this.setSelectedTabByLabel = function(label) {
       for (var i = 0; i < this.tabs.length; i++) {
-        if (this.tabs[i].label === label) {
+        if (this.tabs[i].label === label && this.tabs[i].enabled) {
           this.selectedTab = this.tabs[i];
           break;
         }
@@ -28,7 +28,9 @@ tsApp.controller('TabCtrl', [ '$scope', 'securityService', 'tabService', 'projec
 
     // Set 'active' or not
     $scope.tabClass = function(tab) {
-      if (tabService.selectedTab == tab) {
+      if (!tab.enabled) {
+        return 'tab-disabled';
+      } else if (tabService.selectedTab == tab) {
         return 'active';
       } else {
         return '';
@@ -61,5 +63,4 @@ tsApp.controller('TabCtrl', [ '$scope', 'securityService', 'tabService', 'projec
       }
       return false;
     };
-
   } ]);
