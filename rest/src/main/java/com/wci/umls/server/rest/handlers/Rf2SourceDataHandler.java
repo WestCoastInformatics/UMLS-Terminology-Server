@@ -76,15 +76,28 @@ public class Rf2SourceDataHandler implements SourceDataHandler {
           "No source data loader specified for source data object "
               + sourceData.getName());
     }
+    if (sourceData.getTerminology() == null || sourceData.getTerminology().isEmpty()) {
+      throw new Exception("No terminology specified for source data object " + sourceData.getName());
+    }
+    if (sourceData.getVersion() == null || sourceData.getVersion().isEmpty()) {
+      throw new Exception("No version specified for source data object " + sourceData.getName());
+    }
+    if (sourceData.getReleaseVersion() == null || sourceData.getReleaseVersion().isEmpty()) {
+      throw new Exception("No releaseVersion specified for source data object " + sourceData.getName());
+    }
 
     // find the data directory from the first sourceDataFile
-    String inputDir = sourceData.getSourceDataFiles().get(0).getPath();
+    String path = sourceData.getSourceDataFiles().get(0).getPath();
+    
+    // find directory path based on last folder separator
+    String inputDir = path.substring(0, path.lastIndexOf(File.separator));
 
     if (!new File(inputDir).isDirectory()) {
       throw new LocalException(
           "Source data directory is not a directory: " + inputDir);
     }
 
+    // ensure that source data is up to date in database
     SourceDataService sourceDataService = new SourceDataServiceJpa();
     sourceDataService.updateSourceData(sourceData);
 
@@ -167,25 +180,4 @@ public class Rf2SourceDataHandler implements SourceDataHandler {
     // n/a
   }
 
-  @Override
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  @Override
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  @Override
-  public void executeLoad() {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void executeRemove() {
-    // TODO Auto-generated method stub
-    
-  }
 }

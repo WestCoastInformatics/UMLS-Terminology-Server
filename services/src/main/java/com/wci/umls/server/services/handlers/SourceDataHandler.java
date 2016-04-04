@@ -19,27 +19,6 @@ public interface SourceDataHandler extends Algorithm, Configurable {
    */
   public void setSourceData(SourceData sourceData);
 
-  /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
-  public void setTerminology(String terminology);
-
-  /**
-   * Sets the version.
-   *
-   * @param version the version
-   */
-  public void setVersion(String version);
   
-  /**
-   * Execute load.
-   */
-  public void executeLoad();
   
-  /**
-   * Execute remove.
-   */
-  public void executeRemove();
 }

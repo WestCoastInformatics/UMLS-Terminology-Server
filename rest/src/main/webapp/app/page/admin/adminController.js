@@ -1,3 +1,12 @@
+// Route
+tsApp.config(function config($routeProvider) {
+  $routeProvider.when('/admin', {
+    templateUrl : 'app/page/admin/admin.html',
+    controller : 'AdminCtrl',
+    reloadOnSearch : false
+  });
+});
+
 // Administration controller
 tsApp
   .controller(

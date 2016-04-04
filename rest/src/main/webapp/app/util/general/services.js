@@ -206,15 +206,15 @@ tsApp
             return '▾';
           }
         };
-        
+
         // Helper function to get a standard paging object
         // overwritten as needed
         this.getPaging = function() {
           return {
             page : 1,
-            pageSize: 10,
+            pageSize : 10,
             filter : null,
-            sortField : null, 
+            sortField : null,
             sortAscending : true,
             sortOptions : []
           };
@@ -224,14 +224,14 @@ tsApp
         // and filtered by query string
         this.getPagedArray = function(array, paging) {
           var newArray = new Array();
-          
+
           // if array blank or not an array, return blank list
           if (array == null || array == undefined || !Array.isArray(array)) {
             return newArray;
           }
 
           newArray = array;
-          
+
           // apply suppressible/obsolete
           if (!paging.showHidden) {
             newArray = newArray.filter(function(item) {
@@ -266,7 +266,7 @@ tsApp
             results = newArray;
           }
 
-          return { 
+          return {
             data : results,
             totalCount : newArray.length
           }
@@ -424,7 +424,13 @@ tsApp.service('gpService', function() {
 });
 
 // Security service
-tsApp.service('securityService', [ '$http', '$location', '$q', '$cookies', 'utilService', 'gpService',
+tsApp.service('securityService', [
+  '$http',
+  '$location',
+  '$q',
+  '$cookies',
+  'utilService',
+  'gpService',
   function($http, $location, $q, $cookies, utilService, gpService) {
     console.debug('configure securityService');
 
@@ -516,8 +522,8 @@ tsApp.service('securityService', [ '$http', '$location', '$q', '$cookies', 'util
     // isUser function
     this.isUser = function() {
       return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'USER';
-    };    
-    
+    };
+
     this.logout = function() {
       if (user.authToken == null) {
         window.alert("You are not currently logged in");
@@ -545,7 +551,7 @@ tsApp.service('securityService', [ '$http', '$location', '$q', '$cookies', 'util
         gpService.decrement();
       });
     };
-    
+
     // get all users
     this.getUsers = function() {
       console.debug('getUsers');
@@ -740,8 +746,6 @@ tsApp.service('securityService', [ '$http', '$location', '$q', '$cookies', 'util
 
   } ]);
 
-
-
 // Websocket service
 
 tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
@@ -803,14 +807,14 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
     console.debug('configure sourceDataService');
 
     // cached loader names
-    var loaders = [];
+    var sourceDataHandlers = null;
 
     // Get details for all currently uploaded files
     this.findSourceDataFiles = function(query) {
       console.debug('find source data files', query);
       var deferred = $q.defer();
       gpService.increment();
-      $http.post(fileUrl + '/find?query=' + encodeURI(query), {}).then(
+      $http.get(fileUrl + 'find?query=' + encodeURI(query), {}).then(
       // Success
       function(response) {
         console.debug('  data = ', response.data);
@@ -831,7 +835,7 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
       console.debug('remove source data file', id);
       var deferred = $q.defer();
       gpService.increment();
-      $http['delete'](fileUrl + '/remove/' + id).then(
+      $http['delete'](fileUrl + 'remove/' + id).then(
       // Success
       function(response) {
         console.debug('  data = ', response.data);
@@ -853,7 +857,7 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
       var deferred = $q.defer();
       if (file.id) {
         gpService.increment();
-        $http.post(fileUrl + '/update', file).then(
+        $http.post(fileUrl + 'update', file).then(
         // Success
         function(response) {
           gpService.decrement();
@@ -867,7 +871,7 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
         });
       } else {
         gpService.increment();
-        $http.put(fileUrl + '/add', file).then(
+        $http.put(fileUrl + 'add', file).then(
         // Success
         function(response) {
           gpService.decrement();
@@ -887,13 +891,13 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
     this.updateSourceData = function(data) {
       console.debug('update source data', data);
       var deferred = $q.defer();
-      if (sourceData.id) {
+      if (data.id) {
         gpService.increment();
-        $http.post(fileUrl + '/data/update', data).then(
+        $http.post(fileUrl + 'data/update', data).then(
         // Success
         function(response) {
           gpService.decrement();
-          deferred.resolve(sourceData);
+          deferred.resolve(data);
         },
         // Error
         function(response) {
@@ -903,7 +907,7 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
         });
       } else {
         gpService.increment();
-        $http.put(fileUrl + '/data/add', data).then(
+        $http.put(fileUrl + 'data/add', data).then(
         // Success
         function(response) {
           gpService.decrement();
@@ -924,7 +928,7 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
       console.debug('remove source data', data);
       var deferred = $q.defer();
       gpService.increment();
-      $http['delete'](fileUrl + '/data/delete/' + data.id).then(
+      $http['delete'](fileUrl + 'data/remove/' + data.id).then(
       // Success
       function(response) {
         gpService.decrement();
@@ -940,41 +944,94 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
     };
 
     // find source data
-    this.findSourceData = function(query) {
+    this.findSourceData = function(query, disableGlassPane) {
       console.debug('find source data', query);
       var deferred = $q.defer();
-      gpService.increment();
-      $http.post(fileUrl + '/data/find?query=' + encodeURI(query), {}).then(
+      if (!disableGlassPane) {
+        gpService.increment();
+      }
+      $http.get(fileUrl + 'data/find?query=' + encodeURI(query), {}).then(
       // Success
       function(response) {
         console.debug("  data =", response.data);
-        gpService.decrement();
+        if (!disableGlassPane) {
+          gpService.decrement();
+        }
         deferred.resolve(response.data);
       }, // Error
       function(response) {
         utilService.handleError(response);
-        gpService.decrement();
+        if (!disableGlassPane) {
+          gpService.decrement();
+        }
         deferred.reject(response);
       });
       return deferred.promise;
     };
 
     // get loaders
-    this.getLoaders = function() {
-      console.debut('get loaders');
+    this.getSourceDataHandlers = function() {
+      console.debug('get source data handlers');
       var deferred = $q.defer();
 
-      if (loaders) {
-        deferred.resolve(loaders);
+      if (sourceDataHandlers) {
+        deferred.resolve(sourceDataHandlers);
       } else {
         gpService.increment();
-        $http.get(fileUrl + '/data/loaders').then(
+        $http.get(fileUrl + 'data/sourceDataHandlers').then(
         // Success
         function(response) {
           console.debug("  data =", response.data);
-          loaders = response.data.strings;
+          sourceDataHandlers = response.data.keyValuePais;
           gpService.decrement();
-          deferred.resolve(response.data.strings);
+          deferred.resolve(response.data.keyValuePair);
+        },
+        // Error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response);
+        });
+      }
+      return deferred.promise;
+    };
+    
+    this.getSourceData = function(id) {
+      console.debug('loading source data from id ' + id);
+      var deferred = $q.defer();
+      if (!id) {
+        console.error('Attempted to load from null or undefined id');
+        deferred.reject('No id specified');
+      } else {
+        gpService.increment();
+
+        $http.get(fileUrl + 'data/id' + id).then(function(response) {
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // Error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.resolve(null);
+        });
+      }
+      return deferred.promise;
+    }
+
+    this.loadFromSourceData = function(sourceData) {
+
+      console.debug('loading source data for ' + sourceData.name);
+      var deferred = $q.defer();
+      if (!sourceData) {
+        console.error('Attempted to load from null or undefined source data');
+        deferred.reject('No source data specified');
+      } else {
+        gpService.increment();
+
+        $http.post(fileUrl + 'data/load', sourceData).then(function(response) {
+          gpService.decrement();
+          deferred.resolve();
         },
         // Error
         function(response) {

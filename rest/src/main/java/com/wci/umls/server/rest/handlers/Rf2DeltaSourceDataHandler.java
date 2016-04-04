@@ -164,26 +164,5 @@ public class Rf2DeltaSourceDataHandler implements SourceDataHandler {
     // n/a
   }
 
-  @Override
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
 
-  @Override
-  public void setVersion(String version) {
-    // n/a - version is computed
-    // this.version = version;
-  }
-
-  @Override
-  public void executeLoad() {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void executeRemove() {
-    // TODO Auto-generated method stub
-    
-  }
 }

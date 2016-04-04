@@ -1,8 +1,10 @@
 'use strict'
 
-var tsApp = angular.module('tsApp',
-  [ 'ngRoute', 'ui.bootstrap', 'ui.tree', 'ui.tinymce', 'ngCookies' ]).config(
-  function($rootScopeProvider) {
+var tsApp = angular
+  .module(
+    'tsApp',
+    [ 'ngRoute', 'ui.bootstrap', 'ui.tree', 'ui.tinymce', 'ngCookies', 'ngTable',
+      'angularFileUpload' ]).config(function($rootScopeProvider) {
 
     // Set recursive digest limit higher to handle very deep trees.
     $rootScopeProvider.digestTtl(15);
@@ -16,6 +18,7 @@ var contentUrl = "content/";
 var adminUrl = "admin/";
 var projectUrl = "project/";
 var validationUrl = "validation/";
+var fileUrl = 'file/';
 
 // Initialization of tsApp
 tsApp.run(function($rootScope, $http, $location) {
@@ -26,46 +29,9 @@ tsApp.run(function($rootScope, $http, $location) {
 tsApp.config([ '$routeProvider', function($routeProvider) {
   console.debug('configure $routeProvider');
 
-  // Set reloadOnSearch so that $location.hash() calls do not reload the
-  // controller
-  // TODO MOve these to the appropriate directives/controllers
-  $routeProvider.when('/login', {
-    templateUrl : 'app/page/login/login.html',
-    controller : 'LoginCtrl',
-    reloadOnSearch : false
-  })
-
-  /*.when('/', {
-    templateUrl : 'app/page/landing/landing.html',
-    controller : 'LandingCtrl',
-    reloadOnSearch : false
-  })
-*/
-  .when('/', {
-    templateUrl : 'app/page/login/login.html',
-    controller : 'LoginCtrl',
-    reloadOnSearch : false
-  }).when('/content', {
-    templateUrl : 'app/page/content/content.html',
-    controller : 'ContentCtrl',
-    reloadOnSearch : false
-  }).when('/metadata', {
-    templateUrl : 'app/page/metadata/metadata.html',
-    controller : 'MetadataCtrl',
-    reloadOnSearch : false
-  }).when('/admin', {
-    templateUrl : 'app/page/admin/admin.html',
-    controller : 'AdminCtrl',
-    reloadOnSearch : false
-  }).when('/content/:mode/:terminology/:version/:terminologyId', {
-    templateUrl : function(urlAttr) {
-      return 'app/page/content/' + urlAttr.mode + '.html';
-    },
-    controller : 'ContentCtrl',
-    reloadOnSearch : false
-  }).otherwise({
+  $routeProvider.otherwise({
     redirectTo : '/content'
-  });
+  })
 } ]);
 
 // Simple glass pane controller
@@ -91,8 +57,6 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
   };
 
 } ]);
-
-
 
 // Confirm dialog conroller and directive
 tsApp.controller('ConfirmModalCtrl', function($scope, $uibModalInstance, data) {

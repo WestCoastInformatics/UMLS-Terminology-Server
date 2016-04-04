@@ -6,10 +6,10 @@ package com.wci.umls.server.services;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SourceDataFileList;
 import com.wci.umls.server.helpers.SourceDataList;
-import com.wci.umls.server.helpers.StringList;
 
 /**
  * Generically represents a service for accessing {@link Project} information.
@@ -116,11 +116,14 @@ public interface SourceDataService extends RootService {
   public SourceDataList findSourceDatasForQuery(String query, PfsParameter pfs)
     throws Exception;
 
+
+
   /**
-   * Gets the loader names.
+   * Gets the handler names.
    *
-   * @return the loader names
+   * @return the handler names
+   * @throws Exception 
    */
-  public StringList getLoaderNames();
+  public KeyValuePairList getSourceDataHandlerNames() throws Exception;
 
 }

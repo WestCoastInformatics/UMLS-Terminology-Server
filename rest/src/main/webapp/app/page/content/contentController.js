@@ -1,3 +1,18 @@
+// Route
+tsApp.config(function config($routeProvider) {
+  $routeProvider.when('/content', {
+    templateUrl : 'app/page/content/content.html',
+    controller : 'ContentCtrl',
+    reloadOnSearch : false
+  }).when('/content/:mode/:terminology/:version/:terminologyId', {
+    templateUrl : function(urlAttr) {
+      return 'app/page/content/' + urlAttr.mode + '.html';
+    },
+    controller : 'ContentCtrl',
+    reloadOnSearch : false
+  })
+});
+
 // Content controller
 tsApp.controller('ContentCtrl', [
   '$scope',
@@ -209,10 +224,9 @@ tsApp.controller('ContentCtrl', [
 
       // ensure query string has minimum length
       /*
-       * if ($scope.searchParams.query == null ||
-       * $scope.searchParams.query.length < 3) { alert("You must use at least
-       * one character to search"); return; }
-       */
+             * if ($scope.searchParams.query == null || $scope.searchParams.query.length < 3) {
+             * alert("You must use at least one character to search"); return; }
+             */
 
       contentService.findComponentsAsList($scope.searchParams.query,
         $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
@@ -414,7 +428,7 @@ tsApp.controller('ContentCtrl', [
     $scope.getViewableTerminologies = function() {
       var viewableTerminologies = new Array();
       if (!$scope.metadata.terminologies) {
-        return viewableTerminologies;
+        return null;
       }
       for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
         // exclude MTH and SRC

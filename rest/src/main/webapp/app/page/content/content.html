@@ -1,12 +1,12 @@
-<style>
-.m10 {
-	margin-top: 10px;
-	margin-bottom: 10px;
-}
+
 </style>
 <!-- Full-function content page, with search and report  -->
 <div class="row">
-  <div class="col-md-12 col-xs-12">
+ 
+  <div class="col-md-3 col-xs-3 alert alert-warning" style="margin-left: 25px;" ng-show="getViewableTerminologies().length === 0">
+    No viewable terminologies loaded.
+  </div>
+  <div class="col-md-12 col-xs-12" ng-show="getViewableTerminologies().length > 0">
     <form style="margin-bottom: 0px;">
       <div class="row m10">
         <div class="col-lg-1 col-md-2 col-xs-3">Terminology</div>

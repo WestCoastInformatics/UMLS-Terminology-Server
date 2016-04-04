@@ -29,6 +29,7 @@ import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SourceDataFileList;
 import com.wci.umls.server.helpers.SourceDataList;
@@ -42,6 +43,7 @@ import com.wci.umls.server.jpa.services.helper.SourceDataFileUtility;
 import com.wci.umls.server.jpa.services.rest.SourceDataServiceRest;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.SourceDataService;
+import com.wci.umls.server.services.handlers.SourceDataHandler;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -101,7 +103,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
             + " unzip=" + unzip + " authToken=" + authToken);
 
     String destinationFolder =
-        ConfigUtility.getConfigProperties().getProperty("upload.dir");
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir");
 
     final SourceDataService service = new SourceDataServiceJpa();
     try {
@@ -241,13 +243,17 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
 
       final SourceDataFile sourceDataFile = service.getSourceDataFile(id);
 
-      // physically remove the file
-      final File dir = new File(uploadDir);
-      final File[] files = dir.listFiles();
-      for (final File f : files) {
-        if (f.getName().equals(sourceDataFile.getName())) {
-          f.delete();
+      try {
+        // physically remove the file
+        final File dir = new File(uploadDir);
+        final File[] files = dir.listFiles();
+        for (final File f : files) {
+          if (f.getName().equals(sourceDataFile.getName())) {
+            f.delete();
+          }
         }
+      } catch (Exception e) {
+        Logger.getLogger(getClass()).warn("Unexpected error removingn file " + sourceDataFile.getPath());
       }
 
       // remove the database entry
@@ -447,9 +453,9 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @GET
-  @Path("/data/loaders")
-  @ApiOperation(value = "Get loader names", notes = "Gets all loader names.", response = StringList.class)
-  public StringList getLoaderNames(
+  @Path("/data/sourceDataHandlers")
+  @ApiOperation(value = "Get source data handler names", notes = "Gets all loader names.", response = StringList.class)
+  public KeyValuePairList getSourceDataHandlerNames(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
     Logger.getLogger(getClass())
@@ -460,7 +466,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "get source datas",
           UserRole.ADMINISTRATOR);
 
-      return service.getLoaderNames();
+      return service.getSourceDataHandlerNames();
 
     } catch (Exception e) {
       handleException(e, "retrieving uploaded file list");
@@ -470,4 +476,69 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/data/id/{id}")
+  @ApiOperation(value = "Get source data by id", notes = "Gets a source data object by Hibernate id", response = SourceDataJpa.class)
+  public SourceData getSourceData(
+    @ApiParam(value = "Source data id, e.g. 1", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Source Data): /data/loaders");
+
+    final SourceDataService service = new SourceDataServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get source datas",
+          UserRole.ADMINISTRATOR);
+      return service.getSourceData(id);
+    } catch (Exception e) {
+      handleException(e, "retrieving uploaded file list");
+      return null;
+    } finally {
+      service.close();
+    }
+  }
+
+  @Override
+  @POST
+  @Path("/data/load")
+  @ApiOperation(value = "Load data from source data configuration", notes = "Invokes loading of data based on source data files and configuration")
+  public void loadFromSourceData(
+    @ApiParam(value = "Source data to load from", required = true) SourceDataJpa sourceData,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Source Data): /data/loaders");
+
+    try {
+      authorizeApp(securityService, authToken, "get source datas",
+          UserRole.ADMINISTRATOR);
+
+      Thread t = new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+          try {
+            // instantiate the handler
+            Class<?> sourceDataHandlerClass =
+                Class.forName(sourceData.getHandler());
+            SourceDataHandler handler =
+                (SourceDataHandler) sourceDataHandlerClass.newInstance();
+            handler.setSourceData(sourceData);
+            handler.compute();
+
+          } catch (Exception e) {
+            handleException(e, " during execution of load from source data");
+          }
+        }
+      });
+      t.start();
+
+    } catch (Exception e) {
+      handleException(e,
+          " attempting to load data from source data configuration");
+    }
+  }
 }

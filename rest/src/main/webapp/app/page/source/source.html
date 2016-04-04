@@ -1,13 +1,9 @@
 <!-- Source view -->
 <div class="row">
-
-  <div class="col-md-1 col-xs-0"></div>
-  <div class="col-md-11 col-xs-12">
+  <div class="col-md-12 col-xs-12">
     <h3>Source Data</h3>
-
     <button class="btn btn-default btn-primary" ng-click="createSourceData()">Create
       Source Data</button>
-
     <table ng-table="tpSourceDatas" class="table">
       <tr ng-repeat="item in $data">
         <td data-title="'Actions'" sortable="''">
@@ -23,106 +19,144 @@
         </td>
         <td data-title="'Name'" sortable="'name'">{{item.name ? item.name :
           '(Unnamed Source Data)'}}</td>
-        <td data-title="'Status'" sortable="'loaderStatus'">{{item.loaderStatus}}
-
-
-
-        
+        <td data-title="'Status'" sortable="'status'">
+          {{item.status}} <i class="noul glyphicon glyphicon-eye-open"
+            uib-tooltip="Click to cancel status polling"
+            ng-show="item.status === 'LOADING' && loadingPolls[item.id]"
+            ng-click="cancelLoadingPolling(item)"></i>
+            <i class="noul glyphicon glyphicon-eye-close"
+            uib-tooltip="Click to resume status polling"
+            ng-show="item.status === 'LOADING' && loadingPolls[item.id]"
+            ng-click="cancelLoadingPolling(item)"></i>
+        </td>
         <td data-title="'Last Modified'" sortable="'lastModified'">
           {{item.lastModified | date: 'medium'}}</td>
         <td data-title="'Source Files'" sortable="'sourceDataFiles.length'">
           {{item.sourceDataFiles ? item.sourceDataFiles.length : 0}}</td>
       </tr>
     </table>
-
-    <div class="row" style="margin-top: 50px">&nbsp;</div>
-
-    <div class="row" ng-show="currentSourceData">
+    <div class="row" ng-show="currentSourceData" style="margin-top: 75px;">
       <div class="col-md-4">
         <h4>Source Data Details</h4>
         <div class="row">
-          <div class="col-md-2">Name</div>
-          <div class="col-md-10">
-            <textarea style="width: 100%" ng-model="currentSourceData.name"></textarea>
+          <div class="col-md-3">Name</div>
+          <div class="col-md-9">
+            <textarea style="width: 95%" ng-model="currentSourceData.name"
+              placeholder="Unique name for this source data configuration"></textarea>
           </div>
         </div>
         <div class="row">
-          <div class="col-md-2">Description</div>
-          <div class="col-md-10">
-            <textarea style="min-height: 100px; width: 100%;"
-              ng-model="currentSourceData.description"></textarea>
+          <div class="col-md-3">Description</div>
+          <div class="col-md-9">
+            <textarea style="min-height: 100px; width: 95%; max-width: 95%;"
+              ng-model="currentSourceData.description"
+              placeholder="Optional description"></textarea>
           </div>
         </div>
         <div class="row">
-          <div class="col-md-2">Loader</div>
-          <div class="col-md-10">
-            <select ng-model="currentSourceData.loader"
-              ng-options=" loader as loader for loader in loaders">
+          <div class="col-md-3">Terminology</div>
+          <div class="col-md-9">
+            <input style="max-width: 100%"
+              ng-model="currentSourceData.terminology"
+              placeholder="e.g. UMLS, SNOMEDCT, ...">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">Version</div>
+          <div class="col-md-9">
+            <input style="max-width: 100%" ng-model="currentSourceData.version"
+              placeholder="e.g. latest">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">Release Date</div>
+          <div class="col-md-9">
+            <input style="max-width: 100%"
+              ng-model="currentSourceData.releaseVersion"
+              placeholder="e.g. 20150131">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">Loader</div>
+          <div class="col-md-9">
+            <select ng-model="currentSourceData.handler"
+              ng-options=" handler.value as handler.key for handler in sourceDataHandlers">
             </select>
           </div>
         </div>
         <div class="row" style="margin-top: 10px;">
-          <div class="col-md-2"></div>
-          <div class="col-md-10">
-            <button class="btn btn-primary btn-s"
+          <div class="col-md-3"></div>
+          <div class="col-md-9">
+            <button class="btn btn-primary btn-sm"
               style="padding-top: 5px; padding-bottom: 5px;"
               ng-click="saveSourceData(currentSourceData)"
-              ng-disabled="!isSourceDataModified">
+              ng-show="isSourceDataModified">
               <span class="glyphicon glyphicon-save"> Save</span>
             </button>
-            <button class="btn btn-default btn-warning"
-              ng-click="cancelSourceDataModifications()">
+            <button class="btn btn-warning btn-sm"
+              ng-click="cancelSourceDataModifications()"
+              ng-show="isSourceDataModified">
               <span class="glyphicon glyphicon-ban-circle"> Cancel</span>
             </button>
           </div>
         </div>
+        <div class="row" style="margin-top: 10px;">
+          <div class="col-md-3">Actions</div>
+          <div class="col-md-9">
+            <button class="btn btn-success btn-sm"
+              ng-click="loadFromSourceData(currentSourceData)"
+              ng-show="!isSourceDataModified">
+              <span class="glyphicon glyphicon-play"></span>
+              &nbsp;Load Data
+            </button>
+          </div>
+        </div>
       </div>
-
-      <div class="col-md-4">
-        <h4>Source Data Files</h4>
-        <table ng-table="tpAttached" class="table">
-          <tr ng-repeat="item in $data">
-            <td data-title="'Name'" sortable="'name'"
-              stye="word-break: break-all;">{{item.name}}</td>
-            <td data-title="'Size'" sortable="'size'">{{item.size/1024/1024|number:2
-              }} MB</td>
-            <td data-title="'Uploaded'" sortable="'date'">{{item.timestamp
-              | date : medium}}</td>
-            <td data-title="''" sortable="''">
-              <button type="button" class="btn btn-danger btn-xs"
-                ng-click="removeSourceDataFileFromSourceData(currentSourceData, item)">
-                <span class="glyphicon glyphicon-minus"></span>
-                Remove
-              </button>
-            </td>
-
-          </tr>
-        </table>
-      </div>
-
-      <div class="col-md-4">
-        <h4>Available Files</h4>
-        <table ng-table="tpAvailable" class="table">
-          <tr ng-repeat="item in $data">
-            <td data-title="''" sortable="''">
-              <button type="button" class="btn btn-primary btn-xs"
-                ng-click="addSourceDataFileToSourceData(currentSourceData, item)">
-                <span class="glyphicon glyphicon-plus"></span>
-                Add
-              </button>
-            </td>
-            <td data-title="'Name'" sortable="'name'"
-              stye="word-break: break-all;">{{item.name}}</td>
-            <td data-title="'Size'" sortable="'size'">{{item.size/1024/1024|number:2
-              }} MB</td>
-            <td data-title="'Uploaded'" sortable="'date'">{{item.timestamp
-              | date : medium}}</td>
-
-
-          </tr>
-        </table>
+      <div class="col-md-8">
+        <div class="row">
+          <h4>Source Data Files</h4>
+          <div class="alert alert-warning"
+            ng-show="!currentSourceData.sourceDataFiles || currentSourceData.sourceDataFiles.length === 0">No
+            source data files added.</div>
+          <table ng-table="tpAttached" class="table"
+            ng-show="currentSourceData.sourceDataFiles.length > 0">
+            <tr ng-repeat="item in $data">
+              <td data-title="'Name'" sortable="'name'"
+                stye="word-break: break-all;">{{item.name}}</td>
+              <td data-title="'Size'" sortable="'size'">{{item.size/1024/1024|number:2
+                }} MB</td>
+              <td data-title="'Uploaded'" sortable="'date'">{{item.timestamp
+                | date : medium}}</td>
+              <td data-title="''" sortable="''">
+                <button type="button" class="btn btn-danger btn-xs"
+                  ng-click="removeSourceDataFileFromSourceData(currentSourceData, item)">
+                  <span class="glyphicon glyphicon-minus"></span>
+                  Remove
+                </button>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="row" style="margin-top: 50px;">
+          <h4>Available Files</h4>
+          <table ng-table="tpAvailable" class="table">
+            <tr ng-repeat="item in $data">
+              <td data-title="''" sortable="''">
+                <button type="button" class="btn btn-primary btn-xs"
+                  ng-click="addSourceDataFileToSourceData(currentSourceData, item)">
+                  <span class="glyphicon glyphicon-plus"></span>
+                  Add
+                </button>
+              </td>
+              <td data-title="'Name'" sortable="'name'"
+                stye="word-break: break-all;">{{item.name}}</td>
+              <td data-title="'Size'" sortable="'size'">{{item.size/1024/1024|number:2
+                }} MB</td>
+              <td data-title="'Uploaded'" sortable="'date'">{{item.timestamp
+                | date : medium}}</td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-  <div class="col-md-1 col-xs-0"></div>
-</div>

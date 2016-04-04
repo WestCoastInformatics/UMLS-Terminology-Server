@@ -9,10 +9,10 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SourceDataFileList;
 import com.wci.umls.server.helpers.SourceDataList;
-import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.jpa.SourceDataFileJpa;
 import com.wci.umls.server.jpa.SourceDataJpa;
 
@@ -120,11 +120,32 @@ public interface SourceDataServiceRest {
     throws Exception;
 
   /**
-   * Gets the loader names.
+   * Gets the source data handler names.
    *
    * @param authToken the auth token
-   * @return the loader names
+   * @return the source data handler names
    * @throws Exception the exception
    */
-  public StringList getLoaderNames(String authToken) throws Exception;
+  public KeyValuePairList getSourceDataHandlerNames(String authToken)
+    throws Exception;
+
+  /**
+   * Load from source data.
+   *
+   * @param sourceData the source data
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadFromSourceData(SourceDataJpa sourceData, String authToken)
+    throws Exception;
+
+  /**
+   * Gets the source data.
+   *
+   * @param id the id
+   * @param authToken the auth token
+   * @return the source data
+   * @throws Exception the exception
+   */
+  public SourceData getSourceData(Long id, String authToken) throws Exception;
 }

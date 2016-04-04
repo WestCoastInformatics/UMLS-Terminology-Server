@@ -541,13 +541,30 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       if (!inputDirFile.exists()) {
         throw new Exception("Specified input directory does not exist");
       }
+      
+      // ensure sorted temp folder has been deleted
+      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
+      outputDir.delete();
+      
+      // check for folder or flat structure
+      boolean flatStructure = true;
+      for (File f : inputDirFile.listFiles()) {
+        System.out.println(f.getName() + " / " + f.isDirectory());
+        if (f.isDirectory()) {
+          flatStructure = false;
+        }
+      }
 
       // Sort files
       Logger.getLogger(getClass()).info("  Sort RF2 Files");
+      Logger.getLogger(getClass()).info("    sort by effective time: false");
+      Logger.getLogger(getClass()).info("    require all files     : false");
+      Logger.getLogger(getClass()).info("    flat file structure   : false");
       final Rf2FileSorter sorter = new Rf2FileSorter();
       sorter.setSortByEffectiveTime(false);
       sorter.setRequireAllFiles(true);
-      final File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
+      sorter.setFlatFileStructure(flatStructure);
+      outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
       sorter.sortFiles(inputDirFile, outputDir);
       final String releaseVersion = sorter.getFileVersion();
       Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);

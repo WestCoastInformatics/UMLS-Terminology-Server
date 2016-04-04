@@ -11,16 +11,19 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
+import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SourceDataFileList;
 import com.wci.umls.server.helpers.SourceDataList;
-import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.jpa.SourceDataFileJpa;
 import com.wci.umls.server.jpa.SourceDataJpa;
 import com.wci.umls.server.jpa.helpers.SourceDataFileListJpa;
 import com.wci.umls.server.jpa.helpers.SourceDataListJpa;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.SourceDataService;
+import com.wci.umls.server.services.handlers.SourceDataHandler;
 
 /**
  * Reference implementation of the {@link SecurityService}.
@@ -182,12 +185,44 @@ public class SourceDataServiceJpa extends RootServiceJpa
   }
 
   @Override
-  public StringList getLoaderNames() {
-    StringList stringList = new StringList();
+  public KeyValuePairList getSourceDataHandlerNames() throws Exception {
+    KeyValuePairList keyValuePairList = new KeyValuePairList();
 
-    stringList.addObject("com.wci.tt.jpa.converters.RxNormConverter");
+    String handlerNames =
+        ConfigUtility.getConfigProperties().getProperty("source.data.handler");
 
-    return stringList;
+    if (handlerNames == null || handlerNames.split(",").length == 0) {
+      Logger.getLogger(getClass()).warn(
+          "No source data handlers specified in config file (source.data.handler = "
+              + handlerNames + ")");
+      return keyValuePairList;
+    }
+
+    for (String handlerName : handlerNames.split(",")) {
+      String handlerClassName = ConfigUtility.getConfigProperties()
+          .getProperty("source.data.handler." + handlerName + ".class");
+      if (handlerClassName == null) {
+        Logger.getLogger(getClass()).warn("Source data handler " + handlerName
+            + " has no class specified in config file");
+      } else {
+
+        SourceDataHandler handler = null;
+        try {
+          Class<?> handlerClass = Class.forName(handlerClassName);
+          handler = (SourceDataHandler) handlerClass.newInstance();
+
+        } catch (Exception e) {
+          throw new Exception(handlerClassName + " could not be instantiated");
+        }
+        if (handler != null) {
+          KeyValuePair keyValuePair = new KeyValuePair();
+          keyValuePair.setKey(handler.getName());
+          keyValuePair.setValue(handlerClassName);
+          keyValuePairList.addKeyValuePair(keyValuePair);
+        }
+      }
+    }
+    return keyValuePairList;
   }
 
   /**

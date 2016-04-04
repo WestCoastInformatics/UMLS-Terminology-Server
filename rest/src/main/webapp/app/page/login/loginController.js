@@ -1,3 +1,19 @@
+// Route
+tsApp.config(function config($routeProvider) {
+  // TODO Remove this when landing has been reenabled
+  $routeProvider.when('/', {
+    templateUrl : 'app/page/login/login.html',
+    controller : 'LoginCtrl',
+    reloadOnSearch : false
+  })
+  
+  $routeProvider.when('/login', {
+    templateUrl : 'app/page/login/login.html',
+    controller : 'LoginCtrl',
+    reloadOnSearch : false
+  })
+});
+
 // Login controller
 tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService', 'gpService',
   'utilService', 'projectService',
@@ -10,7 +26,6 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService
     // Declare the user
     $scope.user = securityService.getUser();
 
-    
     // TODO Check status and either revert to #/content or #/landing depending
     // locationChange
 

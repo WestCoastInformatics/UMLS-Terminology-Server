@@ -14,6 +14,7 @@ import javax.ws.rs.core.Application;
 import org.apache.log4j.Logger;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.jsonp.JsonProcessingFeature;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import com.ibm.icu.util.Calendar;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -106,12 +107,20 @@ public class TermServerApplication extends Application {
   @Override
   public Set<Class<?>> getClasses() {
     final Set<Class<?>> classes = new HashSet<Class<?>>();
+    
+    // register REST implementations
     classes.add(SecurityServiceRestImpl.class);
     classes.add(ContentServiceRestImpl.class);
     classes.add(HistoryServiceRestImpl.class);
     classes.add(MetadataServiceRestImpl.class);
     classes.add(ProjectServiceRestImpl.class);
     classes.add(ValidationServiceRestImpl.class);
+    classes.add(SourceDataServiceRestImpl.class);
+    
+    // register file upload support classes
+    classes.add(MultiPartFeature.class);
+
+    // register swagger classes
     classes
         .add(com.wordnik.swagger.jersey.listing.ApiListingResourceJSON.class);
     classes

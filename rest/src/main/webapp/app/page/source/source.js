@@ -7,7 +7,7 @@ tsApp.config(function config($routeProvider) {
 });
 
 // Controller
-tsApp.controller('SourceDataCtrl', function($scope, $http, $q, $timeout, NgTableParams,
+tsApp.controller('SourceDataCtrl', function($scope, $http, $q, $interval, NgTableParams,
   sourceDataService, utilService, securityService, gpService) {
   console.debug('configure SourceDataCtrl');
 
@@ -60,6 +60,10 @@ tsApp.controller('SourceDataCtrl', function($scope, $http, $q, $timeout, NgTable
     $scope.tpAttached = new NgTableParams({}, {
       dataset : sourceDataFiles.filter(function(item) {
         return currentFileIds.indexOf(item.id) !== -1;
+        
+        pfsParameter = { queryRestiction :$scope.tpAttached.filter = ...
+        sortField = $scope.tpAttached.sort = ...
+        startIndex = $scope.tpAttached.page * pageSize...
       })
     });
   }
@@ -67,12 +71,10 @@ tsApp.controller('SourceDataCtrl', function($scope, $http, $q, $timeout, NgTable
   // view the source data and retrieve current source data file list
   $scope.viewSourceData = function(sourceData) {
     console.debug('Viewing sourceData', sourceData);
-    $scope.currentSourceData = sourceData;
 
-    // hackish way to set the isModified flag
-    $timeout(function() {
-      $scope.isSourceDataModified = false;
-    }, 250);
+    // set to null initially for currentSourceData watch condition
+    $scope.isSourceDataModified = null;
+    $scope.currentSourceData = sourceData;
 
     sourceDataService.findSourceDataFiles("").then(
     // Successs
@@ -84,7 +86,12 @@ tsApp.controller('SourceDataCtrl', function($scope, $http, $q, $timeout, NgTable
 
   // watch for changes to current source data to enable save/cancel buttons
   $scope.$watch('currentSourceData', function() {
-    $scope.isSourceDataModified = true;
+    // if null condition found, newly loaded/unmodified source data
+    if ($scope.isSourceDataModified == null) {
+      $scope.isSourceDataModified = false;
+    } else {
+      $scope.isSourceDataModified = true;
+    }
   }, true);
 
   // Create new source data JSON object
@@ -93,8 +100,13 @@ tsApp.controller('SourceDataCtrl', function($scope, $http, $q, $timeout, NgTable
       name : null,
       description : null,
       lastModifiedBy : securityService.getUser().userName,
+      status : 'NEW',
+      statusText : 'New source data package',
       sourceDataFiles : [],
-      loader : null,
+      handler : null,
+      terminology : null,
+      version : null,
+      releaseVersion : null
     };
     sourceDatas.splice(0, 0, sourceData);
     refreshSourceDataTable();
@@ -148,27 +160,86 @@ tsApp.controller('SourceDataCtrl', function($scope, $http, $q, $timeout, NgTable
   // Refreshes source data list from server and instantiates new table
   // params
   function refreshSourceDatas() {
+    var deferred = $q.defer();
     sourceDataService.findSourceData("").then(
     // Success
     function(response) {
       sourceDatas = response.sourceDatas;
       refreshSourceDataTable();
+      deferred.resolve();
+    }, function() {
+      deferred.reject();
     });
   }
 
   // Gets $scope.loaders
-  function getLoaders() {
-    sourceDataService.getLoaders().then(
+  function getSourceDataHandlers() {
+    sourceDataService.getSourceDataHandlers().then(
     // Success
-    function(names) {
-      $scope.loaders = names;
+    function(sourceDataHandlers) {
+      console.debug('source data handlers', sourceDataHandlers);
+      $scope.sourceDataHandlers = sourceDataHandlers;
+
     });
   }
+
+  // currently active polls, array of objects {id, poll}
+  $scope.loadingPolls = {};
+
+  $scope.loadFromSourceData = function(sourceData) {
+    // ensure that source data is not modified
+    if ($scope.isSourceDataModified) {
+      window.alert('Save or cancel changes to source data before loading.');
+      return;
+    }
+
+    // start load and initiate polling
+    sourceDataService.loadFromSourceData(sourceData).then(function() {
+      // TODO Reenable polling 
+      // $scope.startLoadingPolling(sourceData);
+    });
+
+  };
+
+  $scope.startLoadingPolling = function(sourceData) {
+    console.log('Starting loading polling for ' + sourceData.name);
+
+    // TODO Ensure Brian notices my rebellion with polling interval of 1.001s!
+    $scope.loadingPolls[sourceData.id] = $interval(function() {
+
+      // get the source data by id
+      sourceDataService.getSourceData(sourceData.id).then(
+        function(polledSourceData) {
+          // if cannot retrieve or no longer loading, cancel polling
+          if (!polledSourceData || polledSourceData.status !== 'LOADING') {
+            console.log('Status change detected for ' + sourceData.name + ': '
+              + polledSourceData.status);
+            $interval.cancel($scope.loadingPolls[sourceData.id]);
+            delete $scope.loadingPolls[sourceData.id];
+          }
+        });
+
+    }, 1001);
+  }
+
+  $scope.cancelLoadingPolling = function(sourceData) {
+    $interval.cancel($scope.loadingPolls[sourceData.id]);
+    delete $scope.loadingPolls[sourceData.id];
+  }
+
+  // cancel all polling on reloads or navigation
+  $scope.$on("$routeChangeStart", function(event, next, current) {
+    for (var key in $scope.loadingPolls) {
+      if ($scope.loadingPolls.hasOwnProperty(key)) {
+        $interval.cancel($scope.loadingPolls[key]);
+      }
+    }
+  });
 
   //
   // Initialize
   //
   refreshSourceDatas();
-  getLoaders();
+  getSourceDataHandlers();
 
 });
