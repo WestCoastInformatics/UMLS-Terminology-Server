@@ -5,24 +5,39 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.meta.LogActivity;
 
+/**
+ * The Class AbstractLoaderAlgorithm.
+ */
 public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa {
 
   
+  /**
+   * Instantiates a new abstract loader algorithm.
+   *
+   * @throws Exception the exception
+   */
   public AbstractLoaderAlgorithm() throws Exception {
     super();
     // TODO Auto-generated constructor stub
   }
 
+  /**
+   * Gets the terminology.
+   *
+   * @return the terminology
+   */
   public abstract String getTerminology();
   
+  /**
+   * Gets the version.
+   *
+   * @return the version
+   */
   public abstract String getVersion();
   
   /**
    * Commit clear begin.
    *
-   * @param terminology the terminology
-   * @param version the version
-   * @param activity the activity
    * @throws Exception the exception
    */
   @Override
@@ -39,9 +54,6 @@ public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa {
    * @param objectCt the object ct
    * @param logCt the log ct
    * @param commitCt the commit ct
-   * @param terminology the terminology
-   * @param version the version
-   * @param activity the activity
    * @throws Exception the exception
    */
   @Override

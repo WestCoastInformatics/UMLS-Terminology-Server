@@ -162,6 +162,9 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm
     this.inputFile = inputFile;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.algo.Algorithm#compute()
+   */
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -259,6 +262,9 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm
 
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.algo.Algorithm#reset()
+   */
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -267,8 +273,10 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm
 
   /**
    * Fires a {@link ProgressEvent}.
+   *
    * @param pct percent done
    * @param note progress note
+   * @throws Exception the exception
    */
   public void fireProgressEvent(int pct, String note) throws Exception {
     ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
@@ -278,18 +286,27 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm
     logInfo("    " + pct + "% " + note);
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.helpers.ProgressReporter#addProgressListener(com.wci.umls.server.services.helpers.ProgressListener)
+   */
   /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.helpers.ProgressReporter#removeProgressListener(com.wci.umls.server.services.helpers.ProgressListener)
+   */
   /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.algo.Algorithm#cancel()
+   */
   /* see superclass */
   @Override
   public void cancel() {
@@ -438,6 +455,9 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm
       super();
     }
 
+    /* (non-Javadoc)
+     * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String, java.lang.String, java.lang.String, org.xml.sax.Attributes)
+     */
     /* see superclass */
     @Override
     public void startElement(String uri, String localName, String qName,
@@ -648,6 +668,9 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm
 
     }
 
+    /* (non-Javadoc)
+     * @see org.xml.sax.helpers.DefaultHandler#endElement(java.lang.String, java.lang.String, java.lang.String)
+     */
     /* see superclass */
     @Override
     public void endElement(String uri, String localName, String qName)
@@ -896,12 +919,18 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm
 
     }
 
+    /* (non-Javadoc)
+     * @see org.xml.sax.helpers.DefaultHandler#characters(char[], int, int)
+     */
     /* see superclass */
     @Override
     public void characters(char ch[], int start, int length) {
       chars.append(new String(ch, start, length));
     }
 
+    /* (non-Javadoc)
+     * @see org.xml.sax.helpers.DefaultHandler#endDocument()
+     */
     /* see superclass */
     @Override
     public void endDocument() throws SAXException {
@@ -1548,10 +1577,11 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm
 
     /**
      * Override exclusions in certain cases.
-     * 
+     *
      * @param code the code
      * @param modifier the modifier
      * @return true, if successful
+     * @throws Exception the exception
      */
     private boolean overrideExclusion(String code, String modifier)
       throws Exception {
@@ -2091,12 +2121,18 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm
     }
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.algo.AbstractLoaderAlgorithm#getTerminology()
+   */
   /* see superclass */
   @Override
   public String getTerminology() {
     return terminology;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.algo.AbstractLoaderAlgorithm#getVersion()
+   */
   /* see superclass */
   @Override
   public String getVersion() {

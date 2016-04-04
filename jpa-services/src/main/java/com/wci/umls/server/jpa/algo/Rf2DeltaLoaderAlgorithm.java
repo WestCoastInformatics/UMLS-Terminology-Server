@@ -389,8 +389,10 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractLoaderAlgorithm
 
   /**
    * Fires a {@link ProgressEvent}.
+   *
    * @param pct percent done
    * @param note progress note
+   * @throws Exception the exception
    */
   public void fireProgressEvent(int pct, String note) throws Exception {
     ProgressEvent pe = new ProgressEvent(this, pct, pct, note);

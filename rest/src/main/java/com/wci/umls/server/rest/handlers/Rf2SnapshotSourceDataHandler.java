@@ -34,12 +34,6 @@ public class Rf2SnapshotSourceDataHandler implements SourceDataHandler {
   /** The source data. */
   private SourceData sourceData;
 
-  /** The terminology. */
-  private String terminology;
-
-  /** The version. */
-  private String version;
-
   /**
    * Instantiates an empty {@link Rf2SourceDataLoader}.
    */
