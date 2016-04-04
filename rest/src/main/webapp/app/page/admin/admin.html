@@ -18,13 +18,6 @@
     </h5>
     </uib-accordion-heading>
     <div class="col-md-12 col-xs-12">
-      <h4>
-        <span style="float: right;">
-          <button ng-click="openAddProjectModal()" title="Add project"
-            class="btn btn-xs btn-primary">Add Project</button>
-        </span>
-      </h4>
-
       <span style="display: block;">
         <uib-pagination items-per-page="pageSize" max-size="5"
           boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
@@ -57,8 +50,11 @@
             <th class="col-md-4 col-xs-4"
               ng-click="setSortField('project','description')">Description<span
                 ng-bind="getSortIndicator('project','description')"></span></th>
-            
-            <th class="col-md-1 col-xs-1">&nbsp;</th>
+
+            <th class="col-md-1 col-xs-1"><span style="float: right;">
+                <button ng-click="openAddProjectModal()" title="Add project"
+                  class="btn btn-xs btn-primary">Add Project</button>
+              </span></th>
           </tr>
         </thead>
         <tbody>
@@ -92,12 +88,6 @@
     </h5>
     </uib-accordion-heading>
     <div class="col-md-12 col-xs-12">
-      <h4>
-        <span style="float: right;">
-          <button ng-click="openAddUserModal(luser)" title="Add user"
-            class="btn btn-xs btn-primary">Add User</button>
-        </span>
-      </h4>
 
       <span style="display: block;">
         <uib-pagination items-per-page="pageSize" max-size="5"
@@ -132,7 +122,10 @@
               ng-click="setSortField('user','applicationRole')">Application
               Role<span ng-bind="getSortIndicator('user','applicationRole')"></span>
             </th>
-            <th class="col-md-1 col-xs-1">&nbsp;</th>
+            <th class="col-md-1 col-xs-1"><span style="float: right;">
+                <button ng-click="openAddUserModal(luser)" title="Add user"
+                  class="btn btn-xs btn-primary">Add User</button>
+              </span></th>
           </tr>
         </thead>
         <tbody>
@@ -180,7 +173,7 @@
               </tr>
             </thead>
             <tbody>
-    
+
               <tr>
                 <td>Feedback Email:</td>
                 <td>
@@ -200,199 +193,190 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+</uib-accordion-group>
+<div></div>
 
 
+<h4>User &amp; Project Management</h4>
+<div class="col-md-6 col-xs-12">
+  <h5 class="section-header">Project List</h5>
 
-      </div>
-    </div>
-    </uib-accordion-group>
-    <div></div>
+  <div ng-show="candidateProjects.totalCount != 0" style="display: block;">
+    <uib-pagination items-per-page="pageSize" max-size="5" boundary-links="true"
+      class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;"
+      first-text="&laquo;" last-text="&raquo;"
+      ng-show="candidateProjects.totalCount > pageSize || paging['candidateProject'].filter"
+      total-items="candidateProjects.totalCount"
+      ng-model="paging['candidateProject'].page"
+      ng-change="getCandidateProjects()"></uib-pagination>
 
+    <input class="input-filter" placeholder="Search"
+      ng-show="candidateProjects.totalCount > pageSize || paging['candidateProject'].filter"
+      type="text" ng-model="paging['candidateProject'].filter"
+      ng-model-options="{ debounce: 300 }" ng-change="getCandidateProjects()">
 
-    <h4>User &amp; Project Management</h4>
-    <div class="col-md-6 col-xs-12">
-      <h5 class="section-header">Project List</h5>
+    <button class="btn btn-xs btn-warning"
+      ng-show="paging['candidateProject'].filter"
+      ng-click="paging['candidateProject'].filter = ''; getCandidateProjects()"
+      title="Click to clear filter text">Clear</button>
 
-      <div ng-show="candidateProjects.totalCount != 0" style="display: block;">
+    <table class="table">
+      <thead class="table-select-row">
+        <tr>
+          <th class="col-md-1 col-xs-1"
+            ng-click="setSortField('candidateProject','id')">Id<span
+              ng-bind="getSortIndicator('candidateProject','id')"></span>
+          </th>
+          <th class="col-md-5 col-xs-5"
+            ng-click="setSortField('candidateProject','name')">Name<span
+              ng-bind="getSortIndicator('candidateProject','name')"></span></th>
+          <th class="col-md-6 col-xs-6"
+            ng-click="setSortField('candidateProject','description')">Description<span
+              ng-bind="getSortIndicator('candidateProject','description')"></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-class="{selected: project.id === selectedProject.id}"
+          ng-repeat="project in candidateProjects"
+          ng-click="setProject(project)">
+          <td>{{project.id}}</td>
+          <td>{{project.name}}</td>
+          <td>{{project.description}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <span ng-show="candidateProjects.totalCount == 0" style="display: block;"
+    class="alert alert-warning"> No projects with admin role </span>
+
+</div>
+
+<div ng-show="candidateProjects.totalCount != 0" class="col-md-6 col-xs-12">
+  <div class="col-md-12 col-xs-12">
+    <h5 class="section-header">Unassigned Users</h5>
+    <div ng-show="selectedProject">
+      <span style="display: block;">
         <uib-pagination items-per-page="pageSize" max-size="5"
           boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
           next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-          ng-show="candidateProjects.totalCount > pageSize || paging['candidateProject'].filter"
-          total-items="candidateProjects.totalCount"
-          ng-model="paging['candidateProject'].page"
-          ng-change="getCandidateProjects()"></uib-pagination>
+          ng-show="unassignedUsers.totalCount > pageSize || project['candidateUser'].filter"
+          total-items="unassignedUsers.totalCount"
+          ng-model="paging['candidateUser'].page"
+          ng-change="getUnassignedUsers()"></uib-pagination>
 
-        <input class="input-filter" placeholder="Search"
-          ng-show="candidateProjects.totalCount > pageSize || paging['candidateProject'].filter"
-          type="text" ng-model="paging['candidateProject'].filter"
-          ng-model-options="{ debounce: 300 }"
-          ng-change="getCandidateProjects()">
+        <input class="input-filter" placeholder="Search" type="text"
+          ng-model="paging['candidateUser'].filter"
+          ng-model-options="{ debounce: 300 }" ng-change="getUnassignedUsers()">
 
         <button class="btn btn-xs btn-warning"
-          ng-show="paging['candidateProject'].filter"
-          ng-click="paging['candidateProject'].filter = ''; getCandidateProjects()"
+          ng-click="paging['candidateUser'].filter = ''; getUnassignedUsers()"
           title="Click to clear filter text">Clear</button>
+      </span>
 
-        <table class="table">
-          <thead class="table-select-row">
-            <tr>
-              <th class="col-md-1 col-xs-1"
-                ng-click="setSortField('candidateProject','id')">Id<span
-                  ng-bind="getSortIndicator('candidateProject','id')"></span>
-              </th>
-              <th class="col-md-5 col-xs-5"
-                ng-click="setSortField('candidateProject','name')">Name<span
-                  ng-bind="getSortIndicator('candidateProject','name')"></span></th>
-              <th class="col-md-6 col-xs-6"
-                ng-click="setSortField('candidateProject','description')">Description<span
-                  ng-bind="getSortIndicator('candidateProject','description')"></span></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-class="{selected: project.id === selectedProject.id}"
-              ng-repeat="project in candidateProjects"
-              ng-click="setProject(project)">
-              <td>{{project.id}}</td>
-              <td>{{project.name}}</td>
-              <td>{{project.description}}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <span ng-show="candidateProjects.totalCount == 0" style="display: block;"
-        class="alert alert-warning"> No projects with admin role </span>
+      <table class="table">
+        <thead class="table-select-row">
+          <tr>
+            <th class="col-md-5 col-xs-5 table-select-row"
+              ng-click="setSortField('candidateUser','name')">Name<span
+                ng-bind="getSortIndicator('candidateUser','name')"></span></th>
+            <th class="col-md-4 col-xs-4 table-select-row"
+              ng-click="setSortField('candidateUser','userName')">UserName<span
+                ng-bind="getSortIndicator('candidateUser','userName')"></span></th>
+            <th class="col-md-2 col-xs-2">Project Role</th>
+            <th class="col-md-1 col-xs-1">&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="unassigned in unassignedUsers">
+            <td>{{unassigned.name}}</td>
+            <td>{{unassigned.userName}}</td>
+            <td>
+              <select ng-model="unassigned.projectRole"
+                ng-init="unassigned.projectRole='AUTHOR'"
+                ng-options="item for item in projectRoles"></select>
+            </td>
+            <td>
 
+              <i
+                ng-click="assignUserToProject(selectedProject.id, unassigned.userName, unassigned.projectRole)"
+                title="Add user to project with selected role."
+                class="noul glyphicon glyphicon-plus"></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-
-    <div ng-show="candidateProjects.totalCount != 0" class="col-md-6 col-xs-12">
-      <div class="col-md-12 col-xs-12">
-        <h5 class="section-header">Unassigned Users</h5>
-        <div ng-show="selectedProject">
-          <span style="display: block;">
-            <uib-pagination items-per-page="pageSize" max-size="5"
-              boundary-links="true" class="pagination-sm"
-              previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
-              last-text="&raquo;"
-              ng-show="unassignedUsers.totalCount > pageSize || project['candidateUser'].filter"
-              total-items="unassignedUsers.totalCount"
-              ng-model="paging['candidateUser'].page"
-              ng-change="getUnassignedUsers()"></uib-pagination>
-
-            <input class="input-filter" placeholder="Search"
-              type="text" ng-model="paging['candidateUser'].filter"
-              ng-model-options="{ debounce: 300 }"
-              ng-change="getUnassignedUsers()">
-
-            <button class="btn btn-xs btn-warning"
-              ng-click="paging['candidateUser'].filter = ''; getUnassignedUsers()"
-              title="Click to clear filter text">Clear</button>
-          </span>
-             
-          <table class="table">
-            <thead class="table-select-row">
-              <tr>
-                <th class="col-md-5 col-xs-5 table-select-row"
-                  ng-click="setSortField('candidateUser','name')">Name<span
-                    ng-bind="getSortIndicator('candidateUser','name')"></span></th>
-                <th class="col-md-4 col-xs-4 table-select-row"
-                  ng-click="setSortField('candidateUser','userName')">UserName<span
-                    ng-bind="getSortIndicator('candidateUser','userName')"></span></th>
-                <th class="col-md-2 col-xs-2">Project Role</th>
-                <th class="col-md-1 col-xs-1">&nbsp;</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="unassigned in unassignedUsers">
-                <td>{{unassigned.name}}</td>
-                <td>{{unassigned.userName}}</td>
-                <td>
-                  <select ng-model="unassigned.projectRole"
-                    ng-init="unassigned.projectRole='AUTHOR'"
-                    ng-options="item for item in projectRoles"></select>
-                </td>
-                <td>
-
-                  <i
-                    ng-click="assignUserToProject(selectedProject.id, unassigned.userName, unassigned.projectRole)"
-                    title="Add user to project with selected role."
-                    class="noul glyphicon glyphicon-plus"></i>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <span ng-show="!selectedProject" style="display: block;"
-          class="alert alert-warning"> No project selected</span>
-        <span ng-show="selectedProject && unassignedUsers.totalCount == 0 
+    <span ng-show="!selectedProject" style="display: block;"
+      class="alert alert-warning"> No project selected</span>
+    <span
+      ng-show="selectedProject && unassignedUsers.totalCount == 0 
         && paging['candidateUser'].filter == ''"
-          style="display: block;" class="alert alert-warning"> Selected
-          project has no unassigned users</span>
+      style="display: block;" class="alert alert-warning"> Selected
+      project has no unassigned users</span>
 
-      </div>
-
-      <div ng-show="candidateProjects.totalCount != 0"
-        class="col-md-12 col-xs-12">
-        <h5 class="section-header">Assigned Users</h5>
-        <div ng-show="selectedProject && assignedUsers.totalCount > 0">
-
-          <span style="display: block;">
-            <uib-pagination items-per-page="pageSize" max-size="5"
-              boundary-links="true" class="pagination-sm"
-              previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
-              last-text="&raquo;"
-              ng-show="assignedUsers.totalCount > pageSize || paging['assignedUser'].filter"
-              total-items="assignedUsers.totalCount"
-              ng-model="paging['assignedUser'].page"
-              ng-change="getAssignedUsers()"></uib-pagination>
-
-            <input class="input-filter" placeholder="Search"
-              ng-show="assignedUsers.totalCount > pageSize || paging['assignedUser'].filter"
-              type="text" ng-model="paging['assignedUser'].filter"
-              ng-model-options="{ debounce: 300 }"
-              ng-change="getAssignedUsers()">
-
-            <button class="btn btn-xs btn-warning"
-              ng-show="paging['assignedUser'].filter"
-              ng-click="paging['assignedUser'].filter = ''; getAssignedUsers()"
-              title="Click to clear filter text">Clear</button>
-          </span>
-
-          <table class="table">
-            <thead class="table-select-row">
-              <tr>
-                <th class="col-md-5 col-xs-5 table-select-row"
-                  ng-click="setSortField('assignedUser','name')">Name<span
-                    ng-bind="getSortIndicator('assignedUser','name')"></span></th>
-                <th class="col-md-4 col-xs-4 table-select-row"
-                  ng-click="setSortField('assignedUser','userName')">UserName<span
-                    ng-bind="getSortIndicator('assignedUser','userName')"></span></th>
-                <th class="col-md-2 col-xs-2">Project Role</th>
-                <th class="col-md-1 col-xs-1">&nbsp;</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="assigned in assignedUsers">
-                <td>{{assigned.name}}</td>
-                <td>{{assigned.userName}}</td>
-                <td>{{assigned.projectRoleMap[selectedProject.id]}}</td>
-                <td>
-                  <i
-                    confirm="Are you sure you want to unassign yourself from this project?"
-                    confirm-if="user.userName == assigned.userName"
-                    ng-click="unassignUserFromProject(selectedProject.id, assigned.userName);"
-                    title="Unassign user" class="noul glyphicon glyphicon-trash"></i>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <span ng-show="!selectedProject" style="display: block;"
-          class="alert alert-warning"> No project selected</span>
-        <span ng-show="selectedProject && assignedUsers.totalCount == 0"
-          style="display: block;" class="alert alert-warning"> Selected
-          project has no assigned users</span>
-
-      </div>
-    </div>
   </div>
+
+  <div ng-show="candidateProjects.totalCount != 0" class="col-md-12 col-xs-12">
+    <h5 class="section-header">Assigned Users</h5>
+    <div ng-show="selectedProject && assignedUsers.totalCount > 0">
+
+      <span style="display: block;">
+        <uib-pagination items-per-page="pageSize" max-size="5"
+          boundary-links="true" class="pagination-sm" previous-text="&lsaquo;"
+          next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+          ng-show="assignedUsers.totalCount > pageSize || paging['assignedUser'].filter"
+          total-items="assignedUsers.totalCount"
+          ng-model="paging['assignedUser'].page" ng-change="getAssignedUsers()"></uib-pagination>
+
+        <input class="input-filter" placeholder="Search"
+          ng-show="assignedUsers.totalCount > pageSize || paging['assignedUser'].filter"
+          type="text" ng-model="paging['assignedUser'].filter"
+          ng-model-options="{ debounce: 300 }" ng-change="getAssignedUsers()">
+
+        <button class="btn btn-xs btn-warning"
+          ng-show="paging['assignedUser'].filter"
+          ng-click="paging['assignedUser'].filter = ''; getAssignedUsers()"
+          title="Click to clear filter text">Clear</button>
+      </span>
+
+      <table class="table">
+        <thead class="table-select-row">
+          <tr>
+            <th class="col-md-5 col-xs-5 table-select-row"
+              ng-click="setSortField('assignedUser','name')">Name<span
+                ng-bind="getSortIndicator('assignedUser','name')"></span></th>
+            <th class="col-md-4 col-xs-4 table-select-row"
+              ng-click="setSortField('assignedUser','userName')">UserName<span
+                ng-bind="getSortIndicator('assignedUser','userName')"></span></th>
+            <th class="col-md-2 col-xs-2">Project Role</th>
+            <th class="col-md-1 col-xs-1">&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="assigned in assignedUsers">
+            <td>{{assigned.name}}</td>
+            <td>{{assigned.userName}}</td>
+            <td>{{assigned.projectRoleMap[selectedProject.id]}}</td>
+            <td>
+              <i
+                confirm="Are you sure you want to unassign yourself from this project?"
+                confirm-if="user.userName == assigned.userName"
+                ng-click="unassignUserFromProject(selectedProject.id, assigned.userName);"
+                title="Unassign user" class="noul glyphicon glyphicon-trash"></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <span ng-show="!selectedProject" style="display: block;"
+      class="alert alert-warning"> No project selected</span>
+    <span ng-show="selectedProject && assignedUsers.totalCount == 0"
+      style="display: block;" class="alert alert-warning"> Selected
+      project has no assigned users</span>
+
+  </div>
+</div>
+</div>
 </div>
