@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.Calendar;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -22,6 +23,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProjectList;
@@ -82,7 +84,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "add project",
+      String authUser = authorizeApp(securityService, authToken, "add project",
           UserRole.ADMINISTRATOR);
 
       // check to see if project already exists
@@ -97,6 +99,10 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       // Add project
       project.setLastModifiedBy(securityService.getUsernameForToken(authToken));
       Project newProject = projectService.addProject(project);
+      
+      projectService.addLogEntry(authUser, "ADD project",
+          project.getId(), project.getId(), project.getName(), LogActivity.EDITING);
+      
       return newProject;
     } catch (Exception e) {
       handleException(e, "trying to add a project");
@@ -123,7 +129,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     // Create service and configure transaction scope
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "update project",
+      String authUser = authorizeApp(securityService, authToken, "update project",
           UserRole.ADMINISTRATOR);
 
       // check to see if project already exists
@@ -142,6 +148,9 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       project.setLastModifiedBy(securityService.getUsernameForToken(authToken));
       projectService.updateProject(project);
 
+      projectService.addLogEntry(authUser, "UPDATE project",
+          project.getId(), project.getId(), project.getName(), LogActivity.EDITING);
+      
     } catch (Exception e) {
       handleException(e, "trying to update a project");
     } finally {
@@ -165,16 +174,19 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "remove project",
+      String authUser = authorizeApp(securityService, authToken, "remove project",
           UserRole.ADMINISTRATOR);
 
       // Create service and configure transaction scope
       projectService.removeProject(id);
 
+      projectService.addLogEntry(authUser, "REMOVE project",
+          id, id, "Removed project " + id, LogActivity.EDITING);
+      
     } catch (Exception e) {
       handleException(e, "trying to remove a project");
     } finally {
-      projectService.close();
+      projectService.close();      
       securityService.close();
     }
 
@@ -274,7 +286,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       user.getProjectRoleMap().put(projectCopy, UserRole.valueOf(role));
       securityService.updateUser(user);
       
-      addLogEntry(projectService, authUser, "ASSIGN user to project",
+      projectService.addLogEntry(authUser, "ASSIGN user to project",
        projectId, projectId, userName, LogActivity.EDITING);
        
       return project;
@@ -486,7 +498,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       securityService.updateUser(user);
 
       
-      addLogEntry(projectService, authUser, "UNASSIGN user from project",
+      projectService.addLogEntry(authUser, "UNASSIGN user from project",
        projectId, projectId, userName, LogActivity.EDITING);
        
 
@@ -535,7 +547,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @ApiOperation(value = "Get log entries for objectId", notes = "Returns log entries for the given objectId", response = String.class)
   @Override
   public String getLog(
-    @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Project id, e.g. 5", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Object id, e.g. 5", required = false) @QueryParam("objectId") Long objectId,
     @ApiParam(value = "Lines, e.g. 5", required = false) @QueryParam("lines") int lines,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
@@ -550,16 +562,27 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
       PfsParameter pfs = new PfsParameterJpa();
       pfs.setStartIndex(0);
-      pfs.setMaxResults(1000);
+      pfs.setMaxResults(lines);
       pfs.setAscending(false);
       pfs.setSortField("lastModified");
 
       final List<LogEntry> entries =
-          projectService.findLogEntriesForQuery("objectId:" + objectId, pfs);
+          projectService.findLogEntriesForQuery("projectId:" + projectId +
+              (objectId == null ? "" : " AND objectId:" + objectId), pfs);
 
       StringBuilder log = new StringBuilder();
       for (int i = entries.size() - 1; i >= 0; i--) {
-        log.append(entries.get(i).getMessage());
+        StringBuilder message = new StringBuilder();
+        Calendar c = Calendar.getInstance();
+        message.append("[").append(ConfigUtility.DATE_FORMAT4.format(c.getTime()));
+        message.append("] ");
+        message.append(entries.get(i).getUserName()).append(" ");
+        message.append(entries.get(i).getActivity()).append(" ");
+        message.append(" (projectId=");
+        message.append(entries.get(i).getProjectId()).append(", objectId=");
+        message.append(entries.get(i).getObjectId()).append("): ");
+        message.append(entries.get(i).getMessage()).append("\n");
+        log.append(message);       
       }
 
       return log.toString();
@@ -573,4 +596,60 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     return null;
   }
 
+
+  /* see superclass */
+    @GET
+  @Path("/log")
+  @Produces("text/plain")
+  @ApiOperation(value = "Get log entries", notes = "Returns log entries for the given terminology, version and activity", response = String.class)
+  @Override
+  public String getLog(
+    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. 20150131", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Activity, e.g. EDITING", required = true) @QueryParam("activity") String activity,
+    @ApiParam(value = "Lines, e.g. 5", required = false) @QueryParam("lines") int lines,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Project): /log/" + terminology + ", " + version);
+
+    final ProjectService projectService = new ProjectServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get log", UserRole.USER);
+
+      PfsParameter pfs = new PfsParameterJpa();
+      pfs.setStartIndex(0);
+      pfs.setMaxResults(lines);
+      pfs.setAscending(false);
+      pfs.setSortField("lastModified");
+
+      final List<LogEntry> entries =
+          projectService.findLogEntriesForQuery("terminology:" + terminology +
+              " AND version:" + version + " AND activity:" + activity, pfs);
+
+      StringBuilder log = new StringBuilder();
+      for (int i = entries.size() - 1; i >= 0; i--) {
+        StringBuilder message = new StringBuilder();
+        Calendar c = Calendar.getInstance();
+        message.append("[").append(ConfigUtility.DATE_FORMAT4.format(c.getTime()));
+        message.append("] ");
+        message.append(entries.get(i).getUserName()).append(" ");
+        message.append(entries.get(i).getActivity()).append(" ");
+        message.append(" (terminology=");
+        message.append(entries.get(i).getTerminology()).append(", version=");
+        message.append(entries.get(i).getVersion()).append("): ");
+        message.append(entries.get(i).getMessage()).append("\n");
+        log.append(message);     
+      }
+
+      return log.toString();
+
+    } catch (Exception e) {
+      handleException(e, "trying to get log");
+    } finally {
+      projectService.close();
+      securityService.close();
+    }
+    return null;
+  }
 }

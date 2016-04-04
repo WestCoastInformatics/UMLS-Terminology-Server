@@ -32,6 +32,7 @@ import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.jpa.helpers.LogEntryJpa;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
+import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.services.RootService;
 
 /**
@@ -923,5 +924,51 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public LogEntry getLogEntry(Long id) throws Exception {
     return getHasLastModified(id, LogEntry.class);
+  }
+  
+
+  /* see superclass */
+  @SuppressWarnings("static-method")
+  @Override
+  public LogEntry addLogEntry(String userName,
+    String action, Long projectId, Long objectId, String detail, LogActivity activity)
+    throws Exception {
+    LogEntry entry = new LogEntryJpa();
+    entry.setLastModifiedBy(userName);
+    entry.setObjectId(objectId);
+    entry.setProjectId(projectId);
+    entry.setActivity(activity);
+    entry.setTimestamp(new Date());
+    entry.setUserName(userName);
+    entry.setMessage(detail);
+
+    // Add component
+    LogEntry newLogEntry = addLogEntry(entry);
+
+    // do not inform listeners
+    return newLogEntry;
+
+  }
+  
+  /* see superclass */
+  @Override
+  public LogEntry addLogEntry(String userName,
+    String terminology, String version, String detail, LogActivity activity)
+    throws Exception {
+    LogEntry entry = new LogEntryJpa();
+    entry.setLastModifiedBy(userName);
+    entry.setTerminology(terminology);
+    entry.setVersion(version);
+    entry.setActivity(activity);
+    entry.setTimestamp(new Date());
+    entry.setUserName(userName);
+    entry.setMessage(detail.toString());
+
+    // Add component
+    LogEntry newLogEntry = addLogEntry(entry);
+
+    // do not inform listeners
+    return newLogEntry;
+
   }
 }

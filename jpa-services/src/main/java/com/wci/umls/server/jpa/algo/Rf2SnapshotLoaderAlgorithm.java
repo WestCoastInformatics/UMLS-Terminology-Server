@@ -41,7 +41,6 @@ import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
-import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;
@@ -77,8 +76,8 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
-    Algorithm {
+public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
+    implements Algorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -231,10 +230,10 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   @Override
   public void compute() throws Exception {
     try {
-      Logger.getLogger(getClass()).info("Start loading snapshot");
-      Logger.getLogger(getClass()).info("  terminology = " + terminology);
-      Logger.getLogger(getClass()).info("  version = " + version);
-      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
+      logInfo("Start loading snapshot");
+      logInfo("  terminology = " + terminology);
+      logInfo("  version = " + version);
+      logInfo("  releaseVersion = " + releaseVersion);
       releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
 
       // control transaction scope
@@ -250,34 +249,32 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       //
       // Load concepts
       //
-      Logger.getLogger(getClass()).info("  Loading Concepts...");
+      logInfo("  Loading Concepts...");
       loadConcepts();
 
       //
       // Load descriptions and language refsets
       //
-      Logger.getLogger(getClass()).info("  Loading Atoms...");
+      logInfo("  Loading Atoms...");
       loadAtoms();
       loadDefinitions();
 
-      Logger.getLogger(getClass()).info("  Loading Language Ref Sets...");
+      logInfo("  Loading Language Ref Sets...");
       loadLanguageRefSetMembers();
 
-      Logger.getLogger(getClass()).info(
-          "  Connecting atoms/concepts and computing preferred names...");
+      logInfo("  Connecting atoms/concepts and computing preferred names...");
       connectAtomsAndConcepts();
 
       //
       // Load relationships
       //
-      Logger.getLogger(getClass()).info("  Loading Relationships...");
+      logInfo("  Loading Relationships...");
       loadRelationships();
 
       //
       // load AssocationReference RefSets (Content)
       //
-      Logger.getLogger(getClass()).info(
-          "  Loading Association Reference Ref Sets...");
+      logInfo("  Loading Association Reference Ref Sets...");
       loadAssociationReferenceRefSets();
       commitClearBegin();
 
@@ -292,13 +289,13 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       //
       // Load Simple RefSets (Content)
       //
-      Logger.getLogger(getClass()).info("  Loading Simple Ref Sets...");
+      logInfo("  Loading Simple Ref Sets...");
       loadSimpleRefSets();
 
       //
       // Load SimpleMapRefSets
       //
-      Logger.getLogger(getClass()).info("  Loading Simple Map Ref Sets...");
+      logInfo("  Loading Simple Map Ref Sets...");
       loadSimpleMapRefSets();
 
       commitClearBegin();
@@ -306,35 +303,33 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       //
       // Load ComplexMapRefSets
       //
-      Logger.getLogger(getClass()).info("  Loading Complex Map Ref Sets...");
+      logInfo("  Loading Complex Map Ref Sets...");
       loadComplexMapRefSets();
 
       //
       // Load ExtendedMapRefSets
       //
-      Logger.getLogger(getClass()).info("  Loading Extended Map Ref Sets...");
+      logInfo("  Loading Extended Map Ref Sets...");
       loadExtendedMapRefSets();
 
       commitClearBegin();
 
       // load RefsetDescriptor RefSets (Content)
       //
-      Logger.getLogger(getClass()).info(
-          "  Loading Refset Descriptor Ref Sets...");
+      logInfo("  Loading Refset Descriptor Ref Sets...");
       loadRefsetDescriptorRefSets();
 
       //
       // load ModuleDependency RefSets (Content)
       //
-      Logger.getLogger(getClass()).info(
-          "  Loading Module Dependency Ref Sets...");
+      logInfo("  Loading Module Dependency Ref Sets...");
 
       loadModuleDependencyRefSets();
 
       //
       // load AtomType RefSets (Content)
       //
-      Logger.getLogger(getClass()).info("  Loading Atom Type Ref Sets...");
+      logInfo("  Loading Atom Type Ref Sets...");
 
       loadAtomTypeRefSets();
 
@@ -367,10 +362,9 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       // clear and commit
       commitClearBegin();
 
-      Logger.getLogger(getClass()).info(
-          getComponentStats(terminology, version, Branch.ROOT));
+      logInfo(getComponentStats(terminology, version, Branch.ROOT).toString());
 
-      Logger.getLogger(getClass()).info("Done ...");
+      logInfo("Done ...");
 
     } catch (Exception e) {
       throw e;
@@ -388,12 +382,12 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
    * @param pct percent done
    * @param note progress note
    */
-  public void fireProgressEvent(int pct, String note) {
+  public void fireProgressEvent(int pct, String note) throws Exception {
     ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
     for (int i = 0; i < listeners.size(); i++) {
       listeners.get(i).updateProgress(pe);
     }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
+    logInfo("    " + pct + "% " + note);
   }
 
   /* see superclass */
@@ -524,11 +518,11 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         relationship.setObsolete(fields[2].equals("0")); // active
         relationship.setSuppressible(relationship.isObsolete());
         relationship.setGroup(fields[6].intern()); // relationshipGroup
-        relationship.setRelationshipType(fields[7].equals(isaTypeRel) ? "Is a"
-            : "other"); // typeId
+        relationship.setRelationshipType(
+            fields[7].equals(isaTypeRel) ? "Is a" : "other"); // typeId
         relationship.setAdditionalRelationshipType(fields[7]); // typeId
-        relationship.setHierarchical(relationship.getRelationshipType().equals(
-            "Is a"));
+        relationship
+            .setHierarchical(relationship.getRelationshipType().equals("Is a"));
         generalEntryValues.add(relationship.getAdditionalRelationshipType());
         additionalRelTypes.add(relationship.getAdditionalRelationshipType());
         relationship.setStated(fields[8].equals("900000000000010007"));
@@ -577,13 +571,12 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
         } else {
           if (fromConcept == null) {
-            throw new Exception("Relationship "
-                + relationship.getTerminologyId()
-                + " -existent source concept " + fields[4]);
+            throw new Exception(
+                "Relationship " + relationship.getTerminologyId()
+                    + " -existent source concept " + fields[4]);
           }
           if (toConcept == null) {
-            throw new Exception("Relationship"
-                + relationship.getTerminologyId()
+            throw new Exception("Relationship" + relationship.getTerminologyId()
                 + " references non-existent destination concept " + fields[5]);
           }
         }
@@ -768,18 +761,16 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
   private void connectAtomsAndConcepts() throws Exception {
 
     // Connect concepts and atoms and compute preferred names
-    Logger.getLogger(getClass()).info("  Connect atoms and concepts");
+    logInfo("  Connect atoms and concepts");
     objectCt = 0;
     // NOTE: Hibernate-specific to support iterating
     Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session
-            .createQuery(
-                "select a from AtomJpa a " + "where conceptId is not null "
-                    + "and conceptId != '' and terminology = :terminology "
-                    + "order by terminology, conceptId")
-            .setParameter("terminology", terminology).setReadOnly(true)
-            .setFetchSize(1000);
+    org.hibernate.Query hQuery = session
+        .createQuery("select a from AtomJpa a " + "where conceptId is not null "
+            + "and conceptId != '' and terminology = :terminology "
+            + "order by terminology, conceptId")
+        .setParameter("terminology", terminology).setReadOnly(true)
+        .setFetchSize(1000);
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     String prevCui = null;
     String prefName = null;
@@ -795,9 +786,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           // compute preferred name
           if (prefName == null) {
             prefName = altPrefName;
-            Logger.getLogger(getClass()).error(
-                "Unable to determine preferred name for "
-                    + concept.getTerminologyId());
+            logError("Unable to determine preferred name for "
+                + concept.getTerminologyId());
             if (altPrefName == null) {
               throw new Exception(
                   "Unable to determine preferred name (or alt pref name) for "
@@ -998,12 +988,10 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
         if (conceptIdMap.get(fields[4]) == null) {
 
-          Logger
-              .getLogger(getClass())
-              .warn(
-                  "Association reference member connected to nonexistent refset with terminology id "
-                      + fields[4]);
-          Logger.getLogger(getClass()).warn("  Line: " + line);
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent refset with terminology id "
+                  + fields[4]);
+          logWarn("  Line: " + line);
           continue;
           /*
            * throw new Exception(
@@ -1012,12 +1000,10 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         }
 
         if (conceptIdMap.get(fields[5]) == null) {
-          Logger
-              .getLogger(getClass())
-              .warn(
-                  "Association reference member connected to nonexistent source object with terminology id "
-                      + fields[5]);
-          Logger.getLogger(getClass()).warn("  Line: " + line);
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent source object with terminology id "
+                  + fields[5]);
+          logWarn("  Line: " + line);
           continue;
           /*
            * throw new Exception(
@@ -1026,12 +1012,10 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         }
 
         if (conceptIdMap.get(fields[6]) == null) {
-          Logger
-              .getLogger(getClass())
-              .warn(
-                  "Association reference member connected to nonexistent target object with terminology id "
-                      + fields[5]);
-          Logger.getLogger(getClass()).warn("  Line: " + line);
+          Logger.getLogger(getClass()).warn(
+              "Association reference member connected to nonexistent target object with terminology id "
+                  + fields[5]);
+          logWarn("  Line: " + line);
           continue;
           /*
            * throw new Exception(
@@ -1084,27 +1068,22 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
           relationship.setTo(toConcept);
           addRelationship(relationship);
 
-          Logger.getLogger(getClass()).debug(
-              "adding RO rel "
-                  + (objectCt + 1)
-                  + ", "
-                  + relationship.getTerminologyId()
-                  + ", "
-                  + relationship.getFrom().getName()
-                  + ", "
-                  + getConcept(conceptIdMap.get(relationship
-                      .getAdditionalRelationshipType())) + ", "
-                  + relationship.getTo().getName());
+          Logger.getLogger(getClass())
+              .debug("adding RO rel " + (objectCt + 1) + ", "
+                  + relationship.getTerminologyId() + ", "
+                  + relationship.getFrom().getName() + ", "
+                  + getConcept(conceptIdMap
+                      .get(relationship.getAdditionalRelationshipType()))
+                  + ", " + relationship.getTo().getName());
 
         } else {
           if (fromConcept == null) {
-            throw new Exception("Relationship "
-                + relationship.getTerminologyId()
-                + " references non-existent source concept " + fields[5]);
+            throw new Exception(
+                "Relationship " + relationship.getTerminologyId()
+                    + " references non-existent source concept " + fields[5]);
           }
           if (toConcept == null) {
-            throw new Exception("Relationship"
-                + relationship.getTerminologyId()
+            throw new Exception("Relationship" + relationship.getTerminologyId()
                 + " references non-existent destination concept " + fields[6]);
           }
         }
@@ -1230,8 +1209,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         mapping.setObsolete(fields[2].equals("0")); // active
         mapping.setSuppressible(mapping.isObsolete());
         mapping.setGroup(fields[6].intern()); // relationshipGroup
-        mapping.setRelationshipType(fields[7].equals(isaTypeRel) ? "Is a"
-            : "other"); // typeId
+        mapping.setRelationshipType(
+            fields[7].equals(isaTypeRel) ? "Is a" : "other"); // typeId
         mapping.setAdditionalRelationshipType(fields[7]); // typeId
 
         generalEntryValues.add(mapping.getAdditionalRelationshipType());
@@ -1320,8 +1299,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         mapping.setObsolete(fields[2].equals("0")); // active
         mapping.setSuppressible(mapping.isObsolete());
         mapping.setGroup(fields[6].intern()); // relationshipGroup
-        mapping.setRelationshipType(fields[7].equals(isaTypeRel) ? "Is a"
-            : "other"); // typeId
+        mapping.setRelationshipType(
+            fields[7].equals(isaTypeRel) ? "Is a" : "other"); // typeId
         mapping.setAdditionalRelationshipType(fields[7]); // typeId
 
         generalEntryValues.add(mapping.getAdditionalRelationshipType());
@@ -1882,8 +1861,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     chain.setLastModifiedBy(loader);
     chain.setPublishable(true);
     chain.setPublished(true);
-    chain
-        .setAbbreviation("direct-substance o has-active-ingredient -> direct-substance");
+    chain.setAbbreviation(
+        "direct-substance o has-active-ingredient -> direct-substance");
     chain.setExpandedForm(chain.getAbbreviation());
     List<AdditionalRelationshipType> list = new ArrayList<>();
     list.add(directSubstance);
@@ -1900,8 +1879,8 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     // Root Terminology
     RootTerminology root = new RootTerminologyJpa();
     root.setFamily(terminology);
-    root.setHierarchicalName(getConcept(conceptIdMap.get(rootConceptId))
-        .getName());
+    root.setHierarchicalName(
+        getConcept(conceptIdMap.get(rootConceptId)).getName());
     root.setLanguage(rootLanguage);
     root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
@@ -1932,13 +1911,11 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     for (String conceptId : generalEntryValues) {
       // Skip if there is no concept for this thing
       if (!conceptIdMap.containsKey(conceptId)) {
-        Logger.getLogger(getClass()).info(
-            "  Skipping Genral Metadata Entry = " + conceptId);
+        logInfo("  Skipping Genral Metadata Entry = " + conceptId);
         continue;
       }
       String name = getConcept(conceptIdMap.get(conceptId)).getName();
-      Logger.getLogger(getClass()).info(
-          "  Genral Metadata Entry = " + conceptId + ", " + name);
+      logInfo("  Genral Metadata Entry = " + conceptId + ", " + name);
       GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
       entry.setTerminology(terminology);
       entry.setVersion(version);
@@ -1953,16 +1930,14 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
       addGeneralMetadataEntry(entry);
     }
 
-    String[] labels =
-        new String[] {
-            "Atoms_Label", "Subsets_Label", "Attributes_Label",
-            "Semantic_Types_Label", "Obsolete_Label", "Obsolete_Indicator",
-        };
-    String[] labelValues =
-        new String[] {
-            "Descriptions", "Refsets", "Properties", "Semantic Tags",
-            "Retired", "Retired"
-        };
+    String[] labels = new String[] {
+        "Atoms_Label", "Subsets_Label", "Attributes_Label",
+        "Semantic_Types_Label", "Obsolete_Label", "Obsolete_Indicator",
+    };
+    String[] labelValues = new String[] {
+        "Descriptions", "Refsets", "Properties", "Semantic Tags", "Retired",
+        "Retired"
+    };
     int i = 0;
     for (String label : labels) {
       GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
@@ -1992,8 +1967,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     // for each non core module, create a Subset object
     List<ConceptSubset> subsets = new ArrayList<>();
     for (String moduleId : moduleIds) {
-      Logger.getLogger(getClass()).info(
-          "  Create subset for module = " + moduleId);
+      logInfo("  Create subset for module = " + moduleId);
       Concept concept = getConcept(conceptIdMap.get(moduleId));
       ConceptSubset subset = new ConceptSubsetJpa();
       subset.setName(concept.getName());
@@ -2016,7 +1990,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
 
       // Create members
       int objectCt = 0;
-      Logger.getLogger(getClass()).info("  Add subset members");
+      logInfo("  Add subset members");
       for (String conceptId : moduleConceptIdMap.get(moduleId)) {
         final Concept memberConcept = getConcept(conceptIdMap.get(conceptId));
 
@@ -2037,7 +2011,7 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
       }
     }
-    Logger.getLogger(getClass()).info("    count = " + objectCt);
+    logInfo("    count = " + objectCt);
   }
 
   /**
@@ -2089,4 +2063,15 @@ public class Rf2SnapshotLoaderAlgorithm extends HistoryServiceJpa implements
     readers = null;
   }
 
+  /* see superclass */
+  @Override
+  public String getTerminology() {
+    return terminology;
+  }
+
+  /* see superclass */
+  @Override
+  public String getVersion() {
+    return version;
+  }
 }

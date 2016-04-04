@@ -3,8 +3,6 @@
  */
 package com.wci.umls.server.jpa.algo;
 
-import gnu.trove.strategy.HashingStrategy;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -57,7 +55,6 @@ import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
-import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -102,10 +99,13 @@ import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
 
+import gnu.trove.strategy.HashingStrategy;
+
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
+public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
+    implements Algorithm {
 
   /** The prefix. */
   private String prefix = "MR";
@@ -258,6 +258,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     this.terminology = terminology;
   }
 
+  public String getTerminology() {
+    return terminology;
+  }
+
   /**
    * Sets the terminology version.
    *
@@ -265,6 +269,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    */
   public void setVersion(String version) {
     this.version = version;
+  }
+
+  public String getVersion() {
+    return version;
   }
 
   /**
@@ -321,11 +329,11 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
   @Override
   public void compute() throws Exception {
     try {
-      Logger.getLogger(getClass()).info("Start loading RRF");
-      Logger.getLogger(getClass()).info("  terminology = " + terminology);
-      Logger.getLogger(getClass()).info("  version = " + version);
-      Logger.getLogger(getClass()).info("  single mode = " + singleMode);
-      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
+      logInfo("Start loading RRF");
+      logInfo("  terminology = " + terminology);
+      logInfo("  version = " + version);
+      logInfo("  single mode = " + singleMode);
+      logInfo("  releaseVersion = " + releaseVersion);
       releaseVersionDate = ConfigUtility.DATE_FORMAT
           .parse(releaseVersion.substring(0, 4) + "0101");
 
@@ -439,23 +447,24 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
 
       // Clear concept cache
-      // clear and commit
-      commit();
-      clear();
 
-      Logger.getLogger(getClass()).info("Log component stats");
+      logInfo("Log component stats");
       final Map<String, Integer> stats = getComponentStats(null, null, null);
       final List<String> statsList = new ArrayList<>(stats.keySet());
       Collections.sort(statsList);
       for (final String key : statsList) {
-        Logger.getLogger(getClass()).info("  " + key + " = " + stats.get(key));
+        logInfo("  " + key + " = " + stats.get(key));
       }
       // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("Done ...");
+      logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+      logInfo("Done ...");
+
+      // clear and commit
+      commit();
+      clear();
 
     } catch (Exception e) {
+      logError(e.getMessage());
       throw e;
     }
   }
@@ -466,7 +475,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @throws Exception the exception
    */
   private void loadSrdef() throws Exception {
-    Logger.getLogger(getClass()).info("  Load Semantic types");
+    logInfo("  Load Semantic types");
     String line = null;
     int objectCt = 0;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.SRDEF);
@@ -528,7 +537,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @throws Exception the exception
    */
   private void loadMrdoc() throws Exception {
-    Logger.getLogger(getClass()).info("  Load MRDOC abbreviation types");
+    logInfo("  Load MRDOC abbreviation types");
     String line = null;
     Set<String> atnSeen = new HashSet<>();
     final Map<String, RelationshipType> relMap = new HashMap<>();
@@ -785,7 +794,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @throws Exception the exception
    */
   private void loadMrsab() throws Exception {
-    Logger.getLogger(getClass()).info("  Load MRSAB data");
+    logInfo("  Load MRSAB data");
     String line = null;
     final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSAB);
     final String fields[] = new String[25];
@@ -956,7 +965,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     final List<KeyValuePair> lkvp = new ArrayList<>();
 
-    Logger.getLogger(getClass()).info("  Load MRRANK data");
+    logInfo("  Load MRRANK data");
     String line = null;
     final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRRANK);
     final String fields[] = new String[4];
@@ -1004,7 +1013,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @throws Exception the exception
    */
   private void loadMrdef() throws Exception {
-    Logger.getLogger(getClass()).info("  Load MRDEF data");
+    logInfo("  Load MRDEF data");
     String line = null;
     int objectCt = 0;
     final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDEF);
@@ -1099,7 +1108,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @throws Exception the exception
    */
   private void loadMrsat() throws Exception {
-    Logger.getLogger(getClass()).info("  Load MRSAT data");
+    logInfo("  Load MRSAT data");
     String line = null;
 
     int objectCt = 0;
@@ -1204,7 +1213,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             atomTerminologyMap.get(fields[3]) + atomCodeIdMap.get(fields[3]));
         if (codeId == null) {
           // Referential integrity error
-          Logger.getLogger(getClass()).error("line = " + line);
+          logError("line = " + line);
           Logger.getLogger(getClass())
               .error("Referential integrity issue with field 3: " + fields[3]);
         } else {
@@ -1228,7 +1237,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
                 + atomConceptIdMap.get(fields[3]));
         if (conceptId == null) {
           // Referential integrity error
-          Logger.getLogger(getClass()).error("line = " + line);
+          logError("line = " + line);
           Logger.getLogger(getClass())
               .error("Referential integrity issue with field 3: " + fields[3]);
 
@@ -1245,7 +1254,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
                 + atomDescriptorIdMap.get(fields[3]));
         if (descriptorId == null) {
           // Referential integrity error
-          Logger.getLogger(getClass()).error("line = " + line);
+          logError("line = " + line);
           Logger.getLogger(getClass())
               .error("Referential integrity issue with field 3: " + fields[3]);
 
@@ -1317,18 +1326,15 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // add all of the mapsets
     for (MapSet mapSet : mapSetMap.values()) {
       if (mapSet.getName() == null) {
-        Logger.getLogger(getClass())
-            .warn("Mapset has no name set: " + mapSet.toString());
+        logWarn("Mapset has no name set: " + mapSet.toString());
         throw new LocalException("Mapsets must have a name set.");
       }
       if (mapSet.getFromTerminology() == null) {
-        Logger.getLogger(getClass())
-            .warn("Mapset has no from terminology set: " + mapSet.toString());
+        logWarn("Mapset has no from terminology set: " + mapSet.toString());
         throw new LocalException("Mapsets must have a from terminology set.");
       }
       if (mapSet.getToTerminology() == null) {
-        Logger.getLogger(getClass())
-            .warn("Mapset has no to terminology set: " + mapSet.toString());
+        logWarn("Mapset has no to terminology set: " + mapSet.toString());
         throw new LocalException("Mapsets must have a to terminology set.");
       }
       mapSet.setLastModifiedBy(loader);
@@ -1350,8 +1356,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         throw new LocalException("Mapsets has no terminology set.");
       }
       if (mapSet.getMapVersion() == null) {
-        Logger.getLogger(getClass())
-            .warn("Mapset has no version set: " + mapSet.toString());
+        logWarn("Mapset has no version set: " + mapSet.toString());
         throw new LocalException("Mapsets must have a map version set.");
       }
 
@@ -1416,7 +1421,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @throws Exception the exception
    */
   private void loadMrmap() throws Exception {
-    Logger.getLogger(getClass()).info("  Load MRMAP data");
+    logInfo("  Load MRMAP data");
     String line = null;
 
     int objectCt = 0;
@@ -1540,7 +1545,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
         mapping.setVersion(version);
       } else {
         mapping.setTerminology(fields[1]);
-        mapping.setVersion(loadedTerminologies.get(fields[1]).getVersion());         
+        mapping.setVersion(loadedTerminologies.get(fields[1]).getVersion());
       }
       mapping.setTerminologyId(fields[5]);
 
@@ -1608,7 +1613,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     } else if (atn.equals("TOVSAB")) {
       if (mapSet.getToTerminology() != null) {
         String version = atv.substring(mapSet.getToTerminology().length());
-        mapSet.setToVersion(version.startsWith("_") ? version.substring(1): version);
+        mapSet.setToVersion(
+            version.startsWith("_") ? version.substring(1) : version);
       } else {
         mapSet.setToVersion(atv);
       }
@@ -1616,18 +1622,21 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       mapSet.setToTerminology(atv);
       if (mapSet.getToVersion() != null) {
         String version = mapSet.getToVersion().substring(atv.length());
-        mapSet.setToVersion(version.startsWith("_") ? version.substring(1): version);
+        mapSet.setToVersion(
+            version.startsWith("_") ? version.substring(1) : version);
       }
     } else if (atn.equals("FROMRSAB")) {
       mapSet.setFromTerminology(atv);
       if (mapSet.getFromVersion() != null) {
         String version = mapSet.getFromVersion().substring(atv.length());
-        mapSet.setFromVersion(version.startsWith("_") ? version.substring(1): version);
+        mapSet.setFromVersion(
+            version.startsWith("_") ? version.substring(1) : version);
       }
     } else if (atn.equals("FROMVSAB")) {
       if (mapSet.getFromTerminology() != null) {
         String version = atv.substring(mapSet.getFromTerminology().length());
-        mapSet.setFromVersion(version.startsWith("_") ? version.substring(1): version);
+        mapSet.setFromVersion(
+            version.startsWith("_") ? version.substring(1) : version);
       } else {
         mapSet.setFromVersion(atv);
       }
@@ -1698,7 +1707,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @throws Exception the exception
    */
   private void loadMrsatSubsets() throws Exception {
-    Logger.getLogger(getClass()).info("  Load MRSAT Subset data");
+    logInfo("  Load MRSAT Subset data");
     String line = null;
 
     int objectCt = 0;
@@ -1887,10 +1896,10 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // for each non core module, create a Subset object
     final List<ConceptSubset> subsets = new ArrayList<>();
     for (final String key : moduleConceptIdMap.keySet()) {
-      Logger.getLogger(getClass()).info("  Create subset for module = " + key);
+      logInfo("  Create subset for module = " + key);
       // bail if concept doesn't exist
       if (!conceptIdMap.containsKey(key)) {
-        Logger.getLogger(getClass()).warn("    MISSING CONCEPT");
+        logWarn("    MISSING CONCEPT");
         continue;
       }
       final Concept concept = getConcept(conceptIdMap.get(key));
@@ -1916,7 +1925,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
       // Create members
       int objectCt = 0;
-      Logger.getLogger(getClass()).info("  Add subset members");
+      logInfo("  Add subset members");
       for (final Long id : moduleConceptIdMap.get(key)) {
         final Concept memberConcept = getConcept(id);
 
@@ -1946,7 +1955,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @throws Exception the exception
    */
   private void loadMrrel() throws Exception {
-    Logger.getLogger(getClass()).info("  Load MRREL data");
+    logInfo("  Load MRREL data");
     String line = null;
 
     int objectCt = 0;
@@ -2048,10 +2057,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           // Referential integrity error, we know this happens in RXNORM
           // because RXAUI 5430346 has a relationship with SCUI type
           // but the SCUI of this atom is null;
-          Logger.getLogger(getClass()).error("line = " + line);
-          Logger.getLogger(getClass())
-              .error("Referential integrity issue with field 2 or 6: "
-                  + fields[1] + ", " + fields[5]);
+          logError("line = " + line);
+          logError("Referential integrity issue with field 2 or 6: " + fields[1]
+              + ", " + fields[5]);
         } else {
           conceptRel.setFrom(getConcept(fromId));
           conceptRel.setTo(getConcept(toId));
@@ -2071,10 +2079,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
         if (fromId == null || toId == null) {
           // Referential integrity error
-          Logger.getLogger(getClass()).error("line = " + line);
-          Logger.getLogger(getClass())
-              .error("Referential integrity issue with field 2 or 6: "
-                  + fields[1] + ", " + fields[5]);
+          logError("line = " + line);
+          logError("Referential integrity issue with field 2 or 6: " + fields[1]
+              + ", " + fields[5]);
         } else {
           descriptorRel.setFrom(getDescriptor(fromId));
           descriptorRel.setTo(getDescriptor(toId));
@@ -2093,10 +2100,9 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
             atomTerminologyMap.get(fields[1]) + atomCodeIdMap.get(fields[1]));
         if (fromId == null || toId == null) {
           // Referential integrity error
-          Logger.getLogger(getClass()).error("line = " + line);
-          Logger.getLogger(getClass())
-              .error("Referential integrity issue with field 2 or 6: "
-                  + fields[5] + ", " + fields[1]);
+          logError("line = " + line);
+          logError("Referential integrity issue with field 2 or 6: " + fields[5]
+              + ", " + fields[1]);
         } else {
 
           codeRel.setFrom(getCode(fromId));
@@ -2158,8 +2164,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     if (fields[13].equals("Y")) {
       loadedTerminologies.get(fields[10]).setAssertsRelDirection(true);
     }
-    
-    // zero groups should be represented as blank values    
+
+    // zero groups should be represented as blank values
     relationship.setGroup(fields[12] == "0" ? "" : fields[12]);
 
     // Since we don't know, have the rels count as "both"
@@ -2174,7 +2180,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @throws Exception the exception
    */
   private void loadMrsty() throws Exception {
-    Logger.getLogger(getClass()).info("  Load MRSTY data");
+    logInfo("  Load MRSTY data");
     String line = null;
     final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRSTY);
     // make set of all concepts that got an additional sty
@@ -2246,8 +2252,8 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @throws Exception the exception
    */
   private void loadMrconso() throws Exception {
-    Logger.getLogger(getClass()).info("  Load MRCONSO");
-    Logger.getLogger(getClass()).info("  Insert atoms and concepts ");
+    logInfo("  Load MRCONSO");
+    logInfo("  Insert atoms and concepts ");
 
     // Set up maps
     String line = null;
@@ -2332,7 +2338,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (fields[11].equals("SRC") && fields[12].equals("SSN")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
-          Logger.getLogger(getClass()).error("  Null root " + line);
+          logError("  Null root " + line);
         } else {
           t.getRootTerminology().setShortName(fields[14]);
         }
@@ -2340,7 +2346,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (fields[11].equals("SRC") && fields[12].equals("RHT")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
-          Logger.getLogger(getClass()).error("  Null root " + line);
+          logError("  Null root " + line);
         } else {
           t.getRootTerminology().setHierarchicalName(fields[14]);
         }
@@ -2349,7 +2355,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       if (fields[11].equals("SRC") && fields[12].equals("RPT")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
-          Logger.getLogger(getClass()).error("  Null root " + line);
+          logError("  Null root " + line);
         } else {
           t.getRootTerminology().setPreferredName(fields[14]);
         }
@@ -2358,7 +2364,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           && !fields[14].equals("")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
-          Logger.getLogger(getClass()).error("  Null root " + line);
+          logError("  Null root " + line);
         } else {
           List<String> syNames = t.getRootTerminology().getSynonymousNames();
           syNames.add(fields[14]);
@@ -2370,7 +2376,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
           && !fields[14].equals("")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
-          Logger.getLogger(getClass()).error("  Null root " + line);
+          logError("  Null root " + line);
         } else {
           List<String> syNames = t.getSynonymousNames();
           syNames.add(fields[14]);
@@ -2463,7 +2469,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       }
     }
 
-    Logger.getLogger(getClass()).info("  Add concepts");
+    logInfo("  Add concepts");
     objectCt = 0;
     // NOTE: Hibernate-specific to support iterating
     // Restrict to timestamp used for THESE atoms, in case multiple RRF
@@ -2514,7 +2520,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
       commitClearBegin();
     }
     results.close();
-    Logger.getLogger(getClass()).info("  Add descriptors");
+    logInfo("  Add descriptors");
     objectCt = 0;
 
     // NOTE: Hibernate-specific to support iterating
@@ -2566,7 +2572,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     // Use flag to decide whether to handle codes
     if (codesFlag) {
-      Logger.getLogger(getClass()).info("  Add codes");
+      logInfo("  Add codes");
       objectCt = 0;
       // NOTE: Hibernate-specific to support iterating
       // Skip NOCODE
@@ -2630,7 +2636,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
 
     // // NOTE: atoms are not connected to lexical classes as there are
     // // currently no known uses for this.
-    // Logger.getLogger(getClass()).info(" Add lexical classes");
+    // logInfo(" Add lexical classes");
     // objectCt = 0;
     // query = NEED TO FIX THIS
     // manager
@@ -2677,7 +2683,7 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
     // // NOTE: currently atoms are not loaded for string classes
     // // We simply load the objects themselves ( for SUI maintenance)
     // // There are no known use cases for having the atoms here.
-    // Logger.getLogger(getClass()).info(" Add string classes");
+    // logInfo(" Add string classes");
     // objectCt = 0;
     // query = NEED TO FIX THIS
     // manager
@@ -2771,12 +2777,12 @@ public class RrfLoaderAlgorithm extends HistoryServiceJpa implements Algorithm {
    * @param pct percent done
    * @param note progress note
    */
-  public void fireProgressEvent(int pct, String note) {
+  public void fireProgressEvent(int pct, String note) throws Exception {
     final ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
     for (int i = 0; i < listeners.size(); i++) {
       listeners.get(i).updateProgress(pe);
     }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
+    logInfo("    " + pct + "% " + note);
   }
 
   /**

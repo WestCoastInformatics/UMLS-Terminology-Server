@@ -94,6 +94,21 @@ public interface LogEntry extends HasLastModified {
    *
    * @param terminology the new terminology
    */
-  public void setTerminology(String terminology); 
+  public void setTerminology(String terminology);
+
+  /**
+   * Sets the user name.
+   *
+   * @param userName the new user name
+   */
+  public void setUserName(String userName);
+
+  /**
+   * Gets the user name.
+   *
+   * @return the user name
+   */
+  public String getUserName();
+ 
   
 }

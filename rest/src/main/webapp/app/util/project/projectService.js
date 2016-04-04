@@ -541,7 +541,8 @@ tsApp.service('projectService', [
       // Assign user to project
       gpService.increment();
       $http
-        .get(projectUrl + 'log?projectId=' + projectId + '&objectId=' + objectId + '&lines=1000')
+        .get(projectUrl + 'log?projectId=' + projectId + 
+          (objectId ? '&objectId=' + objectId : '') + '&lines=1000')
         .then(
         // success
         function(response) {

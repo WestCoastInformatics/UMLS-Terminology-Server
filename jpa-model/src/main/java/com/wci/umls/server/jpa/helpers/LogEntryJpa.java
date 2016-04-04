@@ -59,11 +59,11 @@ public class LogEntryJpa implements LogEntry {
   private String message;
 
   /** The object id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private Long objectId;
 
   /** The project id. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   private Long projectId;
   
   /** The terminology. */
@@ -73,6 +73,10 @@ public class LogEntryJpa implements LogEntry {
   /** The version. */
   @Column(nullable = true)
   private String version;
+  
+  /** The terminology. */
+  @Column(nullable = true)
+  private String userName;
   
   /** The from id type. */
   @Enumerated(EnumType.STRING)
@@ -106,6 +110,7 @@ public class LogEntryJpa implements LogEntry {
     terminology = logEntry.getTerminology();
     version = logEntry.getVersion();
     activity = logEntry.getActivity();
+    userName = logEntry.getUserName();
   }
 
   /* see superclass */
@@ -226,6 +231,18 @@ public class LogEntryJpa implements LogEntry {
   }
   
   @Override
+  @XmlTransient
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getUserName() {
+    return userName;
+  }
+  
+  @Override
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
+  
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -242,6 +259,7 @@ public class LogEntryJpa implements LogEntry {
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
+    result = prime * result + ((userName == null) ? 0 : userName.hashCode());
     return result;
   }
 
@@ -301,6 +319,11 @@ public class LogEntryJpa implements LogEntry {
         return false;
     } else if (!version.equals(other.version))
       return false;
+    if (userName == null) {
+      if (other.userName != null)
+        return false;
+    } else if (!userName.equals(other.userName))
+      return false;
     return true;
   }
 
@@ -310,6 +333,7 @@ public class LogEntryJpa implements LogEntry {
         + ", lastModifiedBy=" + lastModifiedBy + ", message=" + message
         + ", objectId=" + objectId + ", projectId=" + projectId
         + ", terminology=" + terminology + ", version=" + version
+        + ", userName=" + userName
         + ", activity=" + activity + ", timestamp=" + timestamp + "]";
   }
 
