@@ -100,6 +100,7 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.HistoryService;
@@ -1001,9 +1002,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     long startTimeOrig = System.nanoTime();
 
     final RemoveTerminologyAlgorithm algo = new RemoveTerminologyAlgorithm();
-    final MetadataService service = new MetadataServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "remove terminology",
+      String authUser = authorizeApp(securityService, authToken, "remove terminology",
           UserRole.ADMINISTRATOR);
 
       // Remove terminology
@@ -1018,6 +1018,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       Logger.getLogger(getClass()).info(
           "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
       Logger.getLogger(getClass()).info("done ...");
+      
+      securityService.addLogEntry(authUser, 
+          terminology, version, "Remove terminology", LogActivity.EDITING);
+      
       return true;
 
     } catch (Exception e) {
@@ -1025,7 +1029,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       return false;
     } finally {
       algo.close();
-      service.close();
       securityService.close();
     }
   }

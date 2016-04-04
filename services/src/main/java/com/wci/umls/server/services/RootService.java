@@ -5,7 +5,9 @@ package com.wci.umls.server.services;
 
 import java.util.List;
 
+import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.model.meta.LogActivity;
 
 /**
  * Generically represents a service.
@@ -129,5 +131,81 @@ public interface RootService {
    * @param lastModifiedFlag the last modified flag
    */
   public void setLastModifiedFlag(boolean lastModifiedFlag);
+
+  /**
+   * Find log entries for query.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @return the list
+   * @throws Exception the exception
+   */
+  public List<LogEntry> findLogEntriesForQuery(String query, PfsParameter pfs)
+    throws Exception;
+
+  /**
+   * Update log entry.
+   *
+   * @param logEntry the log entry
+   * @throws Exception the exception
+   */
+  public void updateLogEntry(LogEntry logEntry) throws Exception;
+
+  /**
+   * Removes the log entry.
+   *
+   * @param id the id
+   * @throws Exception the exception
+   */
+  public void removeLogEntry(Long id) throws Exception;
+
+  /**
+   * Gets the log entry.
+   *
+   * @param id the id
+   * @return the log entry
+   * @throws Exception the exception
+   */
+  public LogEntry getLogEntry(Long id) throws Exception;
+
+  /**
+   * Adds the log entry.
+   *
+   * @param logEntry the log entry
+   * @return the log entry
+   * @throws Exception the exception
+   */
+  public LogEntry addLogEntry(LogEntry logEntry) throws Exception;
+
+  /**
+   * Adds the log entry.
+   *
+   * @param userName the user name
+   * @param terminology the terminology
+   * @param version the version
+   * @param detail the detail
+   * @param activity the activity
+   * @return the log entry
+   * @throws Exception the exception
+   */
+  public LogEntry addLogEntry(String userName, 
+    String terminology, String version, String detail, LogActivity activity)
+    throws Exception;
+
+  /**
+   * Adds the log entry.
+   *
+   * @param userName the user name
+   * @param action the action
+   * @param projectId the project id
+   * @param objectId the object id
+   * @param detail the detail
+   * @param activity the activity
+   * @return the log entry
+   * @throws Exception the exception
+   */
+  public LogEntry addLogEntry(String userName, String action,
+    Long projectId, Long objectId, String detail, LogActivity activity)
+    throws Exception;
 
 }

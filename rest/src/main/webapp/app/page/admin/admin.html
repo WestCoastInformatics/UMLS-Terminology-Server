@@ -4,6 +4,7 @@
   <!-- Content -->
   <div class="col-md-12 col-xs-12">
     <!-- Application Administration section -->
+
     <h4
       ng-show="user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'USER'">Application
       Administration</h4>
@@ -73,7 +74,7 @@
                 confirm="Are you sure you want to remove the project ({{project.name}})?"
                 ng-click="removeProject(project); $event.stopPropagation()"
                 title="Delete" class="noul glyphicon glyphicon-trash"></i>
-
+            <span log project="project"></span>
             </td>
           </tr>
         </tbody>

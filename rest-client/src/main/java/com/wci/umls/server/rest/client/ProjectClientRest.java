@@ -332,17 +332,119 @@ public class ProjectClientRest extends RootClientRest implements
     return list;
   }
 
+  /* see superclass */
   @Override
   public Boolean userHasSomeProjectRole(String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/project/user/anyrole");
+    Response response =
+        target.request(MediaType.TEXT_PLAIN).header("Authorization", authToken)
+            .get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    return resultString.equals("true");
+
   }
 
+
+  /* see superclass */
   @Override
   public ProjectList findProjectsForQuery(String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    validateNotEmpty(query, "query");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url")
+            + "/project/projects"
+            + "?query="
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
+    String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.xml(pfsString));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    ProjectList list =
+        (ProjectListJpa) ConfigUtility.getGraphForString(resultString,
+            ProjectListJpa.class);
+    return list;
   }
 
+
+  /* see superclass */
+  @Override
+  public String getLog(Long projectId, Long objectId, int lines,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Project Client - get log");
+    validateNotEmpty(projectId, "projectId");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/project/log?"
+            + "projectId=" + projectId + "&objectId=" + objectId + "&lines="
+            + lines);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return resultString;
+
+  }
+  
+  /* see superclass */
+  @Override
+  public String getLog(String terminology, String version, String activity, int lines,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Project Client - get log");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    validateNotEmpty(activity, "activity");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/project/log?"
+            + "terminology=" + terminology + "&version=" + version + "&activity="
+            + activity + "&lines=" + lines);
+    Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return resultString;
+
+  }
 }

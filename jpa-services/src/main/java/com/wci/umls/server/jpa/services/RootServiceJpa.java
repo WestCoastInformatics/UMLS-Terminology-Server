@@ -28,8 +28,11 @@ import org.hibernate.search.jpa.FullTextQuery;
 import com.wci.umls.server.User;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasLastModified;
+import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.jpa.helpers.LogEntryJpa;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
+import com.wci.umls.server.model.meta.LogActivity;
 import com.wci.umls.server.services.RootService;
 
 /**
@@ -876,5 +879,96 @@ public abstract class RootServiceJpa implements RootService {
     } catch (NoResultException e) {
       return null;
     }
+  }
+  
+  /* see superclass */
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<LogEntry> findLogEntriesForQuery(String query, PfsParameter pfs)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "Root Service - find log entries " + "/" + query);
+
+    final StringBuilder sb = new StringBuilder();
+    if (query != null && !query.equals("")) {
+      sb.append(query);
+    }
+
+    int[] totalCt = new int[1];
+    final List<LogEntry> list =
+        (List<LogEntry>) getQueryResults(sb.toString(), LogEntryJpa.class,
+            LogEntryJpa.class, pfs, totalCt);
+
+    return list;
+  }
+  
+  /* see superclass */
+  @Override
+  public LogEntry addLogEntry(LogEntry logEntry) throws Exception {
+    return addHasLastModified(logEntry);
+  }
+
+  /* see superclass */
+  @Override
+  public void updateLogEntry(LogEntry logEntry) throws Exception {
+    updateHasLastModified(logEntry);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeLogEntry(Long id) throws Exception {
+    removeHasLastModified(id, LogEntry.class);
+  }
+
+  /* see superclass */
+  @Override
+  public LogEntry getLogEntry(Long id) throws Exception {
+    return getHasLastModified(id, LogEntry.class);
+  }
+  
+
+  /* see superclass */
+  @SuppressWarnings("static-method")
+  @Override
+  public LogEntry addLogEntry(String userName,
+    String action, Long projectId, Long objectId, String detail, LogActivity activity)
+    throws Exception {
+    LogEntry entry = new LogEntryJpa();
+    entry.setLastModifiedBy(userName);
+    entry.setObjectId(objectId);
+    entry.setProjectId(projectId);
+    entry.setActivity(activity);
+    entry.setTimestamp(new Date());
+    entry.setUserName(userName);
+    entry.setMessage(detail);
+
+    // Add component
+    LogEntry newLogEntry = addLogEntry(entry);
+
+    // do not inform listeners
+    return newLogEntry;
+
+  }
+  
+  /* see superclass */
+  @Override
+  public LogEntry addLogEntry(String userName,
+    String terminology, String version, String detail, LogActivity activity)
+    throws Exception {
+    LogEntry entry = new LogEntryJpa();
+    entry.setLastModifiedBy(userName);
+    entry.setTerminology(terminology);
+    entry.setVersion(version);
+    entry.setActivity(activity);
+    entry.setTimestamp(new Date());
+    entry.setUserName(userName);
+    entry.setMessage(detail.toString());
+
+    // Add component
+    LogEntry newLogEntry = addLogEntry(entry);
+
+    // do not inform listeners
+    return newLogEntry;
+
   }
 }

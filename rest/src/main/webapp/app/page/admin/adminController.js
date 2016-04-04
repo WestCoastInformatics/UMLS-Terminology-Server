@@ -788,6 +788,8 @@ tsApp
           $scope.user.userPreferences.lastTab = '/admin';
           securityService.updateUserPreferences($scope.user.userPreferences);
         };
+        
+
 
         //
         // Initialize
@@ -809,4 +811,5 @@ tsApp
 
       }
 
+      
     ]);

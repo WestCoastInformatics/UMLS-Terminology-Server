@@ -53,7 +53,6 @@ import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
-import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Attribute;
@@ -80,7 +79,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * Implementation of an algorithm to import ClaML data.
  */
-public class ClamlLoaderAlgorithm extends HistoryServiceJpa
+public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm
     implements Algorithm {
 
   /** Listeners. */
@@ -166,10 +165,10 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    Logger.getLogger(getClass()).info("Starting loading Claml terminology");
-    Logger.getLogger(getClass()).info("  inputFile = inputFile");
-    Logger.getLogger(getClass()).info("  terminology = " + terminology);
-    Logger.getLogger(getClass()).info("  version = " + version);
+    logInfo("Starting loading Claml terminology");
+    logInfo("  inputFile = inputFile");
+    logInfo("  terminology = " + terminology);
+    logInfo("  version = " + version);
 
     FileInputStream fis = null;
     InputStream inputStream = null;
@@ -229,7 +228,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
       clear();
       close();
 
-      Logger.getLogger(getClass()).info("Done ...");
+      logInfo("Done ...");
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -271,12 +270,12 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
    * @param pct percent done
    * @param note progress note
    */
-  public void fireProgressEvent(int pct, String note) {
+  public void fireProgressEvent(int pct, String note) throws Exception {
     ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
     for (int i = 0; i < listeners.size(); i++) {
       listeners.get(i).updateProgress(pe);
     }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
+    logInfo("    " + pct + "% " + note);
   }
 
   /* see superclass */
@@ -455,7 +454,12 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
           String value = attributes.getValue("value");
           rootCodes = new ArrayList<>();
           for (String code : value.split(" ")) {
-            Logger.getLogger(getClass()).info("  Adding root: " + code.trim());
+            try {
+              logInfo("  Adding root: " + code.trim());
+            } catch (Exception e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+            }
             rootCodes.add(code.trim());
           }
         }
@@ -467,16 +471,26 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
       if (qName.equalsIgnoreCase("class")) {
         code = attributes.getValue("code");
         classUsage = attributes.getValue("usage");
-        Logger.getLogger(getClass()).info("  Encountered class " + code + " "
-            + (classUsage == null ? "" : "(" + classUsage + ")"));
+        try {
+          logInfo("  Encountered class " + code + " "
+              + (classUsage == null ? "" : "(" + classUsage + ")"));
+        } catch (Exception e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
       }
 
       // Encountered Modifier tag, save code and class usage
       if (qName.equalsIgnoreCase("modifier")) {
         code = attributes.getValue("code");
         classUsage = attributes.getValue("usage");
-        Logger.getLogger(getClass()).info("  Encountered modifier " + code + " "
-            + (classUsage == null ? "" : "(" + classUsage + ")"));
+        try {
+          logInfo("  Encountered modifier " + code + " "
+              + (classUsage == null ? "" : "(" + classUsage + ")"));
+        } catch (Exception e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
       }
 
       // Encountered ModifierClass, save modifier, modifierCode and class usage
@@ -546,8 +560,13 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
       // Encountered ExcludeModifier, save excluded modifier code information
       if (qName.equalsIgnoreCase("excludemodifier")) {
         String excludeModifierCode = attributes.getValue("code");
-        Logger.getLogger(getClass()).info("  Class and subclasses of " + code
-            + " exclude modifier " + excludeModifierCode);
+        try {
+          logInfo("  Class and subclasses of " + code + " exclude modifier "
+              + excludeModifierCode);
+        } catch (Exception e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
         List<String> currentModifiers = new ArrayList<>();
         if (classToExcludedModifierMap.containsKey(code)) {
           currentModifiers = classToExcludedModifierMap.get(code);
@@ -569,8 +588,13 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
               String code =
                   c + padI.substring(padI.length() - startEnd[0].length() + 1,
                       padI.length());
-              Logger.getLogger(getClass()).info("  Class and subclasses of "
-                  + code + " exclude modifier " + excludeModifierCode);
+              try {
+                logInfo("  Class and subclasses of " + code
+                    + " exclude modifier " + excludeModifierCode);
+              } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }
               currentModifiers = new ArrayList<>();
               if (classToExcludedModifierMap.containsKey(code)) {
                 currentModifiers = classToExcludedModifierMap.get(code);
@@ -587,8 +611,13 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
       if (qName.equalsIgnoreCase("rubric")) {
         rubricKind = attributes.getValue("kind");
         rubricId = attributes.getValue("id");
-        Logger.getLogger(getClass()).info(
-            "  Class " + code + " has rubric " + rubricKind + ", " + rubricId);
+        try {
+          logInfo("  Class " + code + " has rubric " + rubricKind + ", "
+              + rubricId);
+        } catch (Exception e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
       }
 
       // Encountered Reference, append label chars and save usage
@@ -708,8 +737,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
             def.setSuppressible(false);
             def.setPublishable(true);
             def.setPublished(true);
-            Logger.getLogger(getClass()).info("  Add Definition for class "
-                + code + " - " + rubricKind + " - "
+            logInfo("  Add Definition for class " + code + " - " + rubricKind
+                + " - "
                 + (def.getValue().replaceAll("\r", "").replaceAll("\n", "")));
             addDefinition(def, concept);
             concept.addDefinition(def);
@@ -721,8 +750,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
                 labelChars.toString(), concept.getTerminologyId());
             concept.addAtom(atom);
 
-            Logger.getLogger(getClass()).info("  Add Atom for class " + code
-                + " - " + rubricKind + " - "
+            logInfo("  Add Atom for class " + code + " - " + rubricKind + " - "
                 + (atom.getName().replaceAll("\r", "").replaceAll("\n", "")));
 
             // Set the concept name to the "preferred" rubric
@@ -793,8 +821,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
           }
           modifierCodeToClassMap.put(modifierCode, concept);
           modifierMap.put(modifier, modifierCodeToClassMap);
-          Logger.getLogger(getClass()).info("  Modifier " + modifier
-              + " needs template class for " + modifierCode);
+          logInfo("  Modifier " + modifier + " needs template class for "
+              + modifierCode);
         }
 
         // Encountered </Class> or </Modifier> or </ModifierClass>
@@ -907,7 +935,6 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
               // Create an atom relationship between the "id"
               // and the "preferred" rubric of the "parent code"
             }
-           
 
             if (type.equals("aster"))
               type = "* (asterisk)";
@@ -970,7 +997,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
                 // fromAtom.addRelationship(relationship);
                 atomRelationshipSet.add(relationship);
               } else if (modifierMap.containsKey(parentCode)) {
-                Logger.getLogger(getClass()).info("    IGNORE rel to modifier");
+                logInfo("    IGNORE rel to modifier");
               } else {
                 // throw new
                 // SAXException("Problem inserting relationship, code "
@@ -1038,7 +1065,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
               relationshipSet.add(relationship);
 
             } else if (modifierMap.containsKey(parentCode)) {
-              Logger.getLogger(getClass()).info("    IGNORE rel to modifier");
+              logInfo("    IGNORE rel to modifier");
             } else {
               // throw new SAXException("Problem inserting relationship, code "
               // + parentCode + " does not exist.");
@@ -1048,7 +1075,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
           }
         }
 
-        Logger.getLogger(getClass()).info("Load Concepts and Atoms");
+        logInfo("Load Concepts and Atoms");
         Set<Concept> conceptSet = new HashSet<>(conceptMap.values());
         // Now add all objects to the database
         int objectCt = 0;
@@ -1065,7 +1092,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
         }
         commitClearBegin();
 
-        Logger.getLogger(getClass()).info("Load Atom Relationships");
+        logInfo("Load Atom Relationships");
         for (AtomRelationship rel : atomRelationshipSet) {
           if (modifierMap.containsKey(rel.getFrom().getConceptId())) {
             continue;
@@ -1075,7 +1102,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
         }
         commitClearBegin();
 
-        Logger.getLogger(getClass()).info("Load Concept Relationships");
+        logInfo("Load Concept Relationships");
         // add rels after all concepts exist
         for (ConceptRelationship rel : relationshipSet) {
           if (conceptSet.contains(rel.getFrom())
@@ -1125,8 +1152,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
         concept.setUsesRelationshipIntersection(true);
         concept.setUsesRelationshipUnion(false);
 
-        Logger.getLogger(getClass()).info("  Add modifier concept "
-            + concept.getTerminologyId() + " " + concept.getName());
+        logInfo("  Add modifier concept " + concept.getTerminologyId() + " "
+            + concept.getName());
         // NOTE: we don't persist these modifier classes, the
         // classes they generate get added during modifierHelper
         conceptMap.put(code, concept);
@@ -1148,8 +1175,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
         def.setPublished(true);
         Logger.getLogger(getClass())
             .info("  Add Definition for class " + code + " - " + rubricKind
-                + " - "
-                + (def.getValue().replaceAll("\r", "").replaceAll("\n", "")));
+                + " - " + (def.getValue().replaceAll("\r", "").replaceAll("\n",
+                    "")));
         addDefinition(def, concept);
         concept.addDefinition(def);
       }
@@ -1230,7 +1257,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
 
       // Determine the modifiers that apply to the current code
       Set<String> modifiersForCode = modifiersToMatchedCodeMap.keySet();
-      Logger.getLogger(getClass()).info(
+      logInfo(
           "      Final modifiers to generate classes for: " + modifiersForCode);
 
       if (modifiersForCode.size() > 0) {
@@ -1244,8 +1271,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
           if (codeToModify.length() == 3 && modifiedByCode.endsWith("_4")
               || codeToModify.length() == 5 && modifiedByCode.endsWith("_5")) {
 
-            Logger.getLogger(getClass()).info("        Apply modifier "
-                + modifiedByCode + " to " + codeToModify);
+            logInfo("        Apply modifier " + modifiedByCode + " to "
+                + codeToModify);
 
             if (modifierMap.containsKey(modifiedByCode)) {
               // for each code on that modifier, create a
@@ -1320,8 +1347,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
             modifierHelper(
                 conceptMap.get(codeToModify).getTerminologyId() + ".X");
           } else {
-            Logger.getLogger(getClass()).info("        SKIPPING modifier "
-                + modifiedByCode + " for " + codeToModify);
+            logInfo("        SKIPPING modifier " + modifiedByCode + " for "
+                + codeToModify);
           }
 
         }
@@ -1355,8 +1382,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
         copy.setId(null);
         concept.addAttribute(copy);
         addAttribute(copy, concept);
-        Logger.getLogger(getClass()).info("          copy attribute - "
-            + copy.getName() + ", " + copy.getValue());
+        logInfo("          copy attribute - " + copy.getName() + ", "
+            + copy.getValue());
       }
 
       if (classUsageMap.containsKey(parentConcept.getTerminologyId())
@@ -1384,8 +1411,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
           preferredFound = true;
         }
         concept.addAtom(copy);
-        Logger.getLogger(getClass()).info("          copy atom - "
-            + copy.getTermType() + ", " + copy.getName());
+        logInfo("          copy atom - " + copy.getTermType() + ", "
+            + copy.getName());
 
         // Look for entries in modifierRelMap
         final String modifierKey =
@@ -1395,8 +1422,8 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
             final String relsMapKey = modifierKey + ":" + value;
             final String newRelsMapKey = concept.getTerminologyId() + ":"
                 + copy.getTerminologyId() + ":" + value;
-            Logger.getLogger(getClass()).info("            copy atom rels from "
-                + relsMapKey + " to " + newRelsMapKey);
+            logInfo("            copy atom rels from " + relsMapKey + " to "
+                + newRelsMapKey);
             // Here, create new relsMap entries for THIS concept and atom.
             relsMap.put(newRelsMapKey, relsMap.get(modifierKey + ":" + value));
           }
@@ -1526,13 +1553,13 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
      * @param modifier the modifier
      * @return true, if successful
      */
-    private boolean overrideExclusion(String code, String modifier) {
+    private boolean overrideExclusion(String code, String modifier)
+      throws Exception {
       if (code.contains("-")) {
         return false;
       }
       String cmpCode = code.substring(0, 3);
-      Logger.getLogger(getClass()).info(
-          "    CHECK OVERRIDE " + code + ", " + cmpCode + ", " + modifier);
+      logInfo("    CHECK OVERRIDE " + code + ", " + cmpCode + ", " + modifier);
 
       Set<String> overrideCodes = new HashSet<>();
 
@@ -1797,7 +1824,7 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
     br.close();
     // Override version with parameter
     releaseVersionDate = ConfigUtility.DATE_FORMAT3.parse(releaseVersion);
-    Logger.getLogger(getClass()).info("version: " + releaseVersion);
+    logInfo("version: " + releaseVersion);
   }
 
   /**
@@ -2064,4 +2091,15 @@ public class ClamlLoaderAlgorithm extends HistoryServiceJpa
     }
   }
 
+  /* see superclass */
+  @Override
+  public String getTerminology() {
+    return terminology;
+  }
+
+  /* see superclass */
+  @Override
+  public String getVersion() {
+    return version;
+  }
 }
