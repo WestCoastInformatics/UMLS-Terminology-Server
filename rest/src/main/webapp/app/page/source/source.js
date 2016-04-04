@@ -60,10 +60,10 @@ tsApp.controller('SourceDataCtrl', function($scope, $http, $q, $interval, NgTabl
     $scope.tpAttached = new NgTableParams({}, {
       dataset : sourceDataFiles.filter(function(item) {
         return currentFileIds.indexOf(item.id) !== -1;
-        
+        /*
         pfsParameter = { queryRestiction :$scope.tpAttached.filter = ...
         sortField = $scope.tpAttached.sort = ...
-        startIndex = $scope.tpAttached.page * pageSize...
+        startIndex = $scope.tpAttached.page * pageSize...*/
       })
     });
   }
