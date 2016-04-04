@@ -60,7 +60,8 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService
         if (response.data.userPreferences && response.data.userPreferences.lastTab) {
           $location.path(response.data.userPreferences.lastTab);
         } else {
-          $location.path("/content");
+          // if no previous preferences, go to source for initial file upload
+          $location.path("/source");
         }
         gpService.decrement();
       },

@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.LocalException;
@@ -34,12 +33,10 @@ public class SourceDataFileUtility {
    * @param destinationFolder the destination folder
    * @param fileName the name of the file
    * @return the file
-   * @throws IOException thrown if file errors
-   * @throws LocalException thrown if file already exists
+   * @throws Exception the exception
    */
   public static File writeSourceDataFile(InputStream fileInputStream,
-    String destinationFolder, String fileName)
-      throws IOException, LocalException {
+    String destinationFolder, String fileName) throws Exception {
 
     Logger.getLogger(SourceDataFileUtility.class)
         .info("Writing file " + destinationFolder + File.separator + fileName);
@@ -47,6 +44,7 @@ public class SourceDataFileUtility {
     if (fileExists(destinationFolder, fileName)) {
       throw new LocalException(
           "File " + fileName + " already exists. Write aborted.");
+
     }
 
     BufferedOutputStream bos = new BufferedOutputStream(
@@ -96,48 +94,84 @@ public class SourceDataFileUtility {
     Logger.getLogger(SourceDataFileUtility.class)
         .info("  Cycling over entries");
 
-    // iterates over entries in the zip file
-    while (entry != null) {
+    try {
 
-      Logger.getLogger(SourceDataFileUtility.class)
-          .info("  Extracting " + entry.getName());
+      // iterates over entries in the zip file
+      while (entry != null) {
 
-      // only extract top-level elements
-      // TEST: is a directory OR contains more than one file separator (file
-      // passes, dir/file fails)
-      if (!entry.isDirectory()
-          && StringUtils.countMatches(entry.getName(), File.separator) == 0) {
-
-        if (fileExists(destinationFolder, entry.getName())) {
-          throw new LocalException("Unzipped file " + entry.getName()
-              + " already exists. Write aborted.");
+        // construct a name without the zip file's name in it
+        // NOTE Clunky system detected because can't rely on server-side
+        // file separator to match system separator.
+        int index = -1;
+        if (entry.getName().indexOf(File.separator) != -1) {
+          index = entry.getName().indexOf(File.separator);
+        } else if (entry.getName().indexOf("\\") != -1) {
+          index = entry.getName().indexOf("\\");
+        } else if (entry.getName().indexOf("/") != -1) {
+          index = entry.getName().indexOf("/");
         }
+
+        String shortName = entry.getName().substring(index + 1);
 
         Logger.getLogger(SourceDataFileUtility.class)
-            .info("    File does not exist");
+            .info("  Processing " + shortName);
 
-        // preserve archive name by replacing file separator with underscore
-        File f = extractZipEntry(zipIn, destinationFolder + File.separator
-            + entry.getName().replace("/", "_"));
+        // construct local directory to match file structure
+        if (entry.isDirectory()) {
 
-        files.add(f);
-      }
+          Logger.getLogger(SourceDataFileUtility.class)
+              .info("    Directory detected, creating folder");
+          if (fileExists(destinationFolder, shortName)) {
+            throw new LocalException("Unzipped folder " + shortName
+                + " already exists. Write aborted");
+          }
 
-      // if not a valid directory, delete previously added files and throw
-      // exception
-      else {
-        for (File f : files) {
-          f.delete();
+          // create the directory
+          File f = new File(destinationFolder + File.separator + shortName);
+          f.mkdir();
+          System.out.println(f.getAbsolutePath());
         }
-        throw new LocalException("Compressed file " + fileName
-            + " contains subdirectories. Upload aborted");
-      }
-      zipIn.closeEntry();
-      entry = zipIn.getNextEntry();
-    }
-    zipIn.close();
 
-    return files;
+        // if not a directory, simply extract the file
+        else {
+
+          Logger.getLogger(SourceDataFileUtility.class)
+              .info("    File detected, extracting");
+
+          if (fileExists(destinationFolder, entry.getName())) {
+            throw new LocalException("Unzipped file " + shortName
+                + " already exists. Write aborted.");
+          }
+
+          // preserve archive name by replacing file separator with underscore
+          File f = extractZipEntry(zipIn,
+              destinationFolder + File.separator + shortName);
+
+          files.add(f);
+        }
+
+        // if not a valid directory, delete previously added files and throw
+        // exception
+        /*
+         * else { for (File f : files) { f.delete(); } throw new LocalException(
+         * "Compressed file " + fileName +
+         * " contains subdirectories. Upload aborted"); }
+         */
+        zipIn.closeEntry();
+        entry = zipIn.getNextEntry();
+      }
+      zipIn.close();
+
+      return files;
+    } catch (Exception e) {
+      // TODO Delete any successfully extracted files on failed load
+      if (e instanceof LocalException) {
+        throw new LocalException(e.getMessage());
+      } else {
+        throw new Exception(e);
+      }
+    }
+
   }
 
   /**

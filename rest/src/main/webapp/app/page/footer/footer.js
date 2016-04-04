@@ -1,5 +1,5 @@
 // Content controller
-tsApp.directive('footer', [ '$rootScope', '$routeParams', 'gpService', 'securityService',
+tsApp.directive('tsFooter', [ '$rootScope', '$routeParams', 'gpService', 'securityService',
   function($rootScope, $routeParams, gpService, securityService) {
     console.debug('configure footer directive');
     return {

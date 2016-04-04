@@ -897,7 +897,7 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
         // Success
         function(response) {
           gpService.decrement();
-          deferred.resolve(data);
+          deferred.resolve(data.data);
         },
         // Error
         function(response) {
@@ -911,7 +911,7 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
         // Success
         function(response) {
           gpService.decrement();
-          deferred.resolve(response);
+          deferred.resolve(response.data);
         },
         // Error
         function(response) {

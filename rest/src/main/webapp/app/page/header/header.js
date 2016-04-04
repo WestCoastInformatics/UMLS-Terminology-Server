@@ -1,5 +1,5 @@
 // Content controller
-tsApp.directive('header', [ '$rootScope', '$routeParams', 'securityService', '$location',
+tsApp.directive('tsHeader', [ '$rootScope', '$routeParams', 'securityService', '$location',
   function($rootScope, $routeParams, securityService, $location) {
     console.debug('configure header directive');
     return {
@@ -18,7 +18,7 @@ tsApp.directive('header', [ '$rootScope', '$routeParams', 'securityService', '$l
         }
         
         scope.isLanding = function() {
-          return ($location.url() === '/')
+          return ($location.url() === '/landing')
         }
         
         scope.gotoTool = function() {

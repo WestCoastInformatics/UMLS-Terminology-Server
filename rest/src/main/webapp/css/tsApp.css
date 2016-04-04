@@ -171,8 +171,10 @@ body {
 /* File upload drop zone stying */
 .afu-drop-zone {
 	border: dotted 3px lightgray;
+	padding: 10px;
 }
 
 .nv-file-over {
 	border: dotted 3px red;
+	padding: 10px;
 } /* Default class applied to drop zones on over */

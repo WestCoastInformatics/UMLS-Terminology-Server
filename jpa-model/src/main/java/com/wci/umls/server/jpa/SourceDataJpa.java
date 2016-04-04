@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -55,15 +57,15 @@ public class SourceDataJpa implements SourceData {
   /** The file name. */
   @Column(nullable = false, unique = true, length = 250)
   private String name;
-  
+
   /** The source data description */
   @Column(nullable = true, unique = false, length = 4000)
   private String terminology;
-  
+
   /** The source data description */
   @Column(nullable = true, unique = false, length = 4000)
   private String version;
-  
+
   /** The source data description */
   @Column(nullable = true, unique = false, length = 4000)
   private String releaseVersion;
@@ -85,17 +87,17 @@ public class SourceDataJpa implements SourceData {
   private String lastModifiedBy;
 
   /** The data files. */
-  @OneToMany(targetEntity = SourceDataFileJpa.class)
+  @OneToMany(targetEntity = SourceDataFileJpa.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
   private List<SourceDataFile> sourceDataFiles = new ArrayList<>();
 
   /** The status */
   @Column(nullable = true, unique = false)
   private SourceData.Status status;
-  
+
   /** The status text */
   @Column(nullable = true, unique = false, length = 4000)
   private String statusText;
-  
+
   /**
    * The handler key from the config file.
    */
@@ -258,7 +260,7 @@ public class SourceDataJpa implements SourceData {
   public void setStatus(SourceData.Status handlerStatus) {
     this.handlerStatus = handlerStatus;
   }
-  
+
   /* see superclass */
   @Override
   public String getStatusText() {
@@ -279,6 +281,21 @@ public class SourceDataJpa implements SourceData {
   @Override
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  @Override
+  public void addSourceDataFile(SourceDataFile sourceDataFile) {
+    if (this.sourceDataFiles == null) {
+      sourceDataFiles = new ArrayList<>();
+    }
+    this.sourceDataFiles.add(sourceDataFile);
+  }
+
+  @Override
+  public void removeSourceDataFile(SourceDataFile sourceDataFile) {
+    if (this.sourceDataFiles != null) {
+      this.sourceDataFiles.remove(sourceDataFile);
+    }
   }
 
   /* see superclass */
@@ -402,7 +419,7 @@ public class SourceDataJpa implements SourceData {
   public void setVersion(String version) {
     this.version = version;
   }
-  
+
   @Override
   public String getReleaseVersion() {
     return this.releaseVersion;
@@ -416,13 +433,13 @@ public class SourceDataJpa implements SourceData {
   @Override
   public void load() {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void remove() {
     // TODO Auto-generated method stub
-    
+
   }
 
 }

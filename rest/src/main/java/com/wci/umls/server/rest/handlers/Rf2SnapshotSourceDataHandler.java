@@ -26,7 +26,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * Converter for RxNorm files.
  */
-public class Rf2SourceDataHandler implements SourceDataHandler {
+public class Rf2SnapshotSourceDataHandler implements SourceDataHandler {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -43,7 +43,7 @@ public class Rf2SourceDataHandler implements SourceDataHandler {
   /**
    * Instantiates an empty {@link Rf2SourceDataLoader}.
    */
-  public Rf2SourceDataHandler() {
+  public Rf2SnapshotSourceDataHandler() {
     // n/a
   }
 
@@ -76,25 +76,83 @@ public class Rf2SourceDataHandler implements SourceDataHandler {
           "No source data loader specified for source data object "
               + sourceData.getName());
     }
-    if (sourceData.getTerminology() == null || sourceData.getTerminology().isEmpty()) {
-      throw new Exception("No terminology specified for source data object " + sourceData.getName());
+    if (sourceData.getTerminology() == null
+        || sourceData.getTerminology().isEmpty()) {
+      throw new Exception("No terminology specified for source data object "
+          + sourceData.getName());
     }
     if (sourceData.getVersion() == null || sourceData.getVersion().isEmpty()) {
-      throw new Exception("No version specified for source data object " + sourceData.getName());
+      throw new Exception("No version specified for source data object "
+          + sourceData.getName());
     }
-    if (sourceData.getReleaseVersion() == null || sourceData.getReleaseVersion().isEmpty()) {
-      throw new Exception("No releaseVersion specified for source data object " + sourceData.getName());
+    if (sourceData.getReleaseVersion() == null
+        || sourceData.getReleaseVersion().isEmpty()) {
+      throw new Exception("No releaseVersion specified for source data object "
+          + sourceData.getName());
     }
 
-    // find the data directory from the first sourceDataFile
-    String path = sourceData.getSourceDataFiles().get(0).getPath();
-    
-    // find directory path based on last folder separator
-    String inputDir = path.substring(0, path.lastIndexOf(File.separator));
+    // find directory path based on upload directory and id
+    String inputDir =
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+            + File.separator + sourceData.getId().toString();
 
     if (!new File(inputDir).isDirectory()) {
       throw new LocalException(
           "Source data directory is not a directory: " + inputDir);
+    }
+
+    // RF2 Loads require locating a base directory containing two folders
+    // (Refset and Terminology)
+    String[] files = new File(inputDir).list();
+    String revisedInputDir = null;
+
+    // flags for whether refset and terminology folders were found
+    boolean refsetFound = false;
+    boolean terminologyFound = false;
+    
+    // check the input directory for existence of Refset and Terminology folders
+    for (File f : new File(inputDir).listFiles()) {
+      if (f.getName().equals("Refset")) {
+        refsetFound = true;
+      }
+      if (f.getName().equals("Terminology")) {
+        terminologyFound = true;
+      }
+      if (refsetFound && terminologyFound) {
+        revisedInputDir = inputDir;
+        break;
+      }
+    }
+
+    // otherwise, cycle over subdirectories
+    for (String f : files) {
+      File file = new File(f);
+
+      if (revisedInputDir != null)
+        break;
+
+      // only want to check directories
+      if (file.isDirectory()) {
+        refsetFound = false;
+        terminologyFound = false;
+        for (File f2 : file.listFiles()) {
+          if (f2.getName().equals("Refset")) {
+            refsetFound = true;
+          }
+          if (f2.getName().equals("Terminology")) {
+            terminologyFound = true;
+          }
+          if (refsetFound && terminologyFound) {
+            revisedInputDir = f2.getAbsolutePath();
+            break;
+          }
+        }
+      }
+    }
+
+    if (revisedInputDir == null) {
+      throw new LocalException(
+          "Uploaded files do not contain a directory with both RefSet and Terminology files");
     }
 
     // ensure that source data is up to date in database
@@ -111,7 +169,7 @@ public class Rf2SourceDataHandler implements SourceDataHandler {
     try {
       sourceData.setStatus(SourceData.Status.LOADING);
       sourceDataService.updateSourceData(sourceData);
-      contentService.loadTerminologyRf2Snapshot(terminology, version, inputDir,
+      contentService.loadTerminologyRf2Snapshot(sourceData.getTerminology(), sourceData.getVersion(), inputDir,
           adminAuthToken);
       sourceData.setStatus(SourceData.Status.LOADING_COMPLETE);
       sourceDataService.updateSourceData(sourceData);

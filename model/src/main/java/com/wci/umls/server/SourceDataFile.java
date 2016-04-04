@@ -28,14 +28,14 @@ public interface SourceDataFile extends HasId, HasLastModified, HasName {
    *
    * @return the source data name
    */
-  public String getSourceDataName();
+  public SourceData getSourceData();
 
   /**
    * Sets the source data name.
    *
-   * @param sourceDataName the new source data name
+   * @param sourceData the new source data
    */
-  public void setSourceDataName(String sourceDataName);
+  public void setSourceData(SourceData sourceData);
 
   /**
    * Gets the size.

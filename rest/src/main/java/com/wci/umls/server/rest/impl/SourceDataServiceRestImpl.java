@@ -36,7 +36,6 @@ import com.wci.umls.server.helpers.SourceDataList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.jpa.SourceDataFileJpa;
 import com.wci.umls.server.jpa.SourceDataJpa;
-import com.wci.umls.server.jpa.helpers.SourceDataFileListJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
 import com.wci.umls.server.jpa.services.helper.SourceDataFileUtility;
@@ -81,18 +80,18 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
    * @param contentDispositionHeader the content disposition header
    * @param unzip the unzip
    * @param authToken the auth token
-   * @return the source data file list
    * @throws Exception the exception
    */
   /* see superclass */
   @Override
-  @Path("/upload")
+  @Path("/upload/{id}")
   @POST
   @Consumes(MediaType.MULTIPART_FORM_DATA)
-  public SourceDataFileList uploadSourceDataFile(
+  public void uploadSourceDataFile(
     @FormDataParam("file") InputStream fileInputStream,
     @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
     @QueryParam("unzip") boolean unzip,
+    @ApiParam(value = "Source data id, e.g. 1", required = true) @PathParam("id") Long sourceDataId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
 
@@ -102,13 +101,29 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
                 ? contentDispositionHeader.getFileName() : "UNKNOWN FILE")
             + " unzip=" + unzip + " authToken=" + authToken);
 
-    String destinationFolder =
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir");
-
     final SourceDataService service = new SourceDataServiceJpa();
+    SourceData sourceData = null;
     try {
       final String userName = authorizeApp(securityService, authToken,
           "upload source data files", UserRole.ADMINISTRATOR);
+
+      // get the source data to append files to
+      sourceData = service.getSourceData(sourceDataId);
+
+      if (sourceData == null) {
+        throw new Exception(
+            "Source data with id " + sourceDataId + " does not exist");
+      }
+
+      // get the base destination folder (by source data id)
+      String destinationFolder =
+          ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+              + File.separator + sourceDataId.toString();
+
+      // create the destination folder if it does not already exist
+      if (!(new File(destinationFolder).exists())) {
+        new File(destinationFolder).mkdir();
+      }
 
       final List<File> files = new ArrayList<>();
       // if unzipping requested and file is valid, extract compressed file to
@@ -126,7 +141,6 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       }
 
       // Iterate through file list and add source data files.
-      final SourceDataFileList fileList = new SourceDataFileListJpa();
       for (final File file : files) {
         final SourceDataFile sdf = new SourceDataFileJpa();
         sdf.setName(file.getName());
@@ -136,15 +150,18 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
         sdf.setTimestamp(new Date());
         sdf.setLastModifiedBy(userName);
 
-        service.addSourceDataFile(sdf);
-        fileList.addObject(sdf);
-      }
+        sourceData.addSourceDataFile(sdf);
 
-      return fileList;
+        service.addSourceDataFile(sdf);
+      }
+      
+      fileInputStream.close();
+
+      // finally, update the source data object itself
+      service.updateSourceData(sourceData);
 
     } catch (Exception e) {
       handleException(e, "uploading a source data file");
-      return null;
     } finally {
       service.close();
     }
@@ -231,8 +248,6 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "SourceDataFile id, e.g. 5", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
-    String uploadDir =
-        ConfigUtility.getConfigProperties().getProperty("upload.dir");
     Logger.getLogger(getClass())
         .info("RESTful call (Source Data): /remove/" + id);
 
@@ -244,17 +259,20 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       final SourceDataFile sourceDataFile = service.getSourceDataFile(id);
 
       try {
+
         // physically remove the file
-        final File dir = new File(uploadDir);
-        final File[] files = dir.listFiles();
-        for (final File f : files) {
-          if (f.getName().equals(sourceDataFile.getName())) {
-            f.delete();
-          }
-        }
+        final File file = new File(sourceDataFile.getPath());
+        file.delete();
+
       } catch (Exception e) {
-        Logger.getLogger(getClass()).warn("Unexpected error removingn file " + sourceDataFile.getPath());
+        Logger.getLogger(getClass()).warn(
+            "Unexpected error removing file " + sourceDataFile.getPath());
       }
+
+      // remove this entry from its source data
+      SourceData sourceData = sourceDataFile.getSourceData();
+      sourceData.removeSourceDataFile(sourceDataFile);
+      service.updateSourceData(sourceData);
 
       // remove the database entry
       service.removeSourceDataFile(sourceDataFile.getId());
@@ -393,9 +411,17 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
 
     final SourceDataService service = new SourceDataServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "delete source data",
+      authorizeApp(securityService, authToken, "delete source data with id " + id,
           UserRole.ADMINISTRATOR);
+       
+      // remove the directory containing this source data's files
+      // TODO This is not working, revisit
+     /* File sdDir = new File(ConfigUtility.getConfigProperties().getProperty("source.data.dir") + File.separator + id.toString());
+      for (File f : sdDir.listFiles()) {
+        f.delete();
+      }*/
 
+      // remove the source data
       service.removeSourceData(id);
 
     } catch (Exception e) {

@@ -90,7 +90,7 @@
   </noscript>
   
   <!-- Header -->
-  <div header></div>
+  <div ts-header></div>
   <a id="top"></a>
   
   <!-- Main container -->
@@ -111,7 +111,7 @@
         <ul ng-show="isShowing()" class="nav nav-tabs" ng-controller="TabCtrl">
           <li ng-show="isTabShowing(tab)" ng-class="tabClass(tab)"
             ng-repeat="tab in tabs"><a ng-click="setSelectedTab(tab)">
-              {{tab.label}} / {{tabClass(tab)}} </a></li>
+              {{tab.label}} </a></li>
         </ul>
         
         <!-- Application content -->
@@ -124,7 +124,7 @@
   </div>
   
   <!-- Footer -->
-  <div footer></div>
+  <div ts-footer></div>
   
   <!-- Glass Pane -->
   <div ng-controller="GlassPaneCtrl" ng-show="glassPane.counter > 0"

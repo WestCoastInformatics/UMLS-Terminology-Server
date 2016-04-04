@@ -141,4 +141,18 @@ public interface SourceData extends HasId, HasTerminology, HasLastModified, HasN
    */
   public void setReleaseVersion(String releaseVersion);
 
+  /**
+   * Add source data file.
+   *
+   * @param sourceDataFile the source data file
+   */
+  public void addSourceDataFile(SourceDataFile sourceDataFile);
+
+  /**
+   * Remove source data file.
+   *
+   * @param sourceDataFile the source data file
+   */
+  public void removeSourceDataFile(SourceDataFile sourceDataFile);
+
 }

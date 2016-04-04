@@ -43,20 +43,6 @@ public interface SourceDataServiceRest {
     PfsParameter pfsParameter, String authToken) throws Exception;
 
   /**
-   * Save file.
-   *
-   * @param fileInputStream the file input stream
-   * @param contentDispositionHeader the content disposition header
-   * @param unzip the unzip
-   * @param authToken the auth token
-   * @return the string
-   * @throws Exception the exception
-   */
-  public SourceDataFileList uploadSourceDataFile(InputStream fileInputStream,
-    FormDataContentDisposition contentDispositionHeader, boolean unzip,
-    String authToken) throws Exception;
-
-  /**
    * Adds the source data file.
    *
    * @param sourceDataFile the source data file
@@ -148,4 +134,19 @@ public interface SourceDataServiceRest {
    * @throws Exception the exception
    */
   public SourceData getSourceData(Long id, String authToken) throws Exception;
+
+  /**
+   * Upload source data file.
+   *
+   * @param fileInputStream the file input stream
+   * @param contentDispositionHeader the content disposition header
+   * @param unzip the unzip
+   * @param sourceDataId the source data id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  
+  public void uploadSourceDataFile(InputStream fileInputStream,
+    FormDataContentDisposition contentDispositionHeader, boolean unzip,
+    Long sourceDataId, String authToken) throws Exception;
 }

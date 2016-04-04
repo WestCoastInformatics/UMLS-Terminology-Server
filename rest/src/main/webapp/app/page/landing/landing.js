@@ -1,6 +1,6 @@
 // route provider
 tsApp.config(function($routeProvider) {
-  $routeProvider.when('/', {
+  $routeProvider.when('/landing', {
     templateUrl : 'app/page/landing/landing.html',
     controller : 'LandingCtrl',
     reloadOnSearch : false

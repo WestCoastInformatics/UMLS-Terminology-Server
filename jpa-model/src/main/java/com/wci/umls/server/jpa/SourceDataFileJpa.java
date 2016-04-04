@@ -16,7 +16,6 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -53,7 +52,7 @@ public class SourceDataFileJpa implements SourceDataFile {
   private SourceData sourceData;
 
   /** The file name. */
-  @Column(nullable = false, unique = true, length = 250)
+  @Column(nullable = false, unique = false, length = 250)
   private String name;
 
   /** The directory. */
@@ -80,10 +79,6 @@ public class SourceDataFileJpa implements SourceDataFile {
   @Column(nullable = false, unique = false, length = 250)
   private String lastModifiedBy;
 
-  /** The source data this file is connected to, by name. */
-  @Column(nullable = true, unique = false, length = 250)
-  private String sourceDataName;
-
   /**
    * Instantiates a new source data file jpa.
    */
@@ -106,7 +101,6 @@ public class SourceDataFileJpa implements SourceDataFile {
     this.path = sourceDataFile.getPath();
     this.lastModified = sourceDataFile.getLastModified();
     this.lastModifiedBy = sourceDataFile.getLastModifiedBy();
-    this.sourceDataName = sourceDataFile.getSourceDataName();
   }
 
   /* see superclass */
@@ -186,27 +180,6 @@ public class SourceDataFileJpa implements SourceDataFile {
     this.path = path;
   }
 
-  /**
-   * Indicates whether or not connected is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  @XmlTransient
-  public boolean isConnected() {
-    return this.sourceDataName != null;
-  }
-
-  /* see superclass */
-  @Override
-  @Fields({
-      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
-      @Field(name = "sourceDataNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  })
-  public String getSourceDataName() {
-    return this.sourceDataName;
-  }
-
   /* see superclass */
   @Override
   public Date getTimestamp() {
@@ -232,27 +205,24 @@ public class SourceDataFileJpa implements SourceDataFile {
     this.directory = directory;
   }
 
-  /* see superclass */
-  @Override
-  public void setSourceDataName(String sourceDataName) {
-    this.sourceDataName = sourceDataName;
-  }
-
-  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + (directory ? 1231 : 1237);
+    result =
+        prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
+    result = prime * result
+        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((path == null) ? 0 : path.hashCode());
     result = prime * result + ((size == null) ? 0 : size.hashCode());
-    result = prime * result
-        + ((sourceDataName == null) ? 0 : sourceDataName.hashCode());
+    result =
+        prime * result + ((sourceData == null) ? 0 : sourceData.hashCode());
+    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     return result;
   }
 
-  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -263,6 +233,16 @@ public class SourceDataFileJpa implements SourceDataFile {
       return false;
     SourceDataFileJpa other = (SourceDataFileJpa) obj;
     if (directory != other.directory)
+      return false;
+    if (lastModified == null) {
+      if (other.lastModified != null)
+        return false;
+    } else if (!lastModified.equals(other.lastModified))
+      return false;
+    if (lastModifiedBy == null) {
+      if (other.lastModifiedBy != null)
+        return false;
+    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
       return false;
     if (name == null) {
       if (other.name != null)
@@ -279,21 +259,36 @@ public class SourceDataFileJpa implements SourceDataFile {
         return false;
     } else if (!size.equals(other.size))
       return false;
-    if (sourceDataName == null) {
-      if (other.sourceDataName != null)
+    if (sourceData == null) {
+      if (other.sourceData != null)
         return false;
-    } else if (!sourceDataName.equals(other.sourceDataName))
+    } else if (!sourceData.equals(other.sourceData))
+      return false;
+    if (timestamp == null) {
+      if (other.timestamp != null)
+        return false;
+    } else if (!timestamp.equals(other.timestamp))
       return false;
     return true;
   }
 
-  /* see superclass */
   @Override
   public String toString() {
-    return "SourceDataFileJpa [id=" + id + ", name=" + name + ", directory="
-        + directory + ", size=" + size + ", path=" + path + ", timestamp="
-        + timestamp + ", lastModified=" + lastModified + ", lastModifiedBy="
-        + lastModifiedBy + ", sourceDataName=" + sourceDataName + "]";
+    return "SourceDataFileJpa [id=" + id + ", sourceData=" + sourceData
+        + ", name=" + name + ", directory=" + directory + ", size=" + size
+        + ", path=" + path + ", timestamp=" + timestamp + ", lastModified="
+        + lastModified + ", lastModifiedBy=" + lastModifiedBy + "]";
+  }
+
+  @Override
+  public SourceData getSourceData() {
+    return this.sourceData;
+  }
+
+  @Override
+  public void setSourceData(SourceData sourceData) {
+    this.sourceData = sourceData;
+    
   }
 
 }
