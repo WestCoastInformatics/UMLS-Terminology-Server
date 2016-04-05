@@ -389,16 +389,16 @@ public class ProjectClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public String getLog(Long projectId, Long objectId, int lines,
-    String authToken) throws Exception {
+  public String getLog(Long projectId, Long objectId, String terminology,
+    String version, String activity, int lines, String authToken)
+      throws Exception {
     Logger.getLogger(getClass()).debug("Project Client - get log");
-    validateNotEmpty(projectId, "projectId");
-
+ 
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/log?"
-            + "projectId=" + projectId + "&objectId=" + objectId + "&lines="
-            + lines);
+            + "projectId=" + projectId + "&terminology=" + terminology + "&version=" + version
+            + "&activity=" + activity + "&objectId=" + objectId + "&lines=" + lines);
     Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();
@@ -415,33 +415,4 @@ public class ProjectClientRest extends RootClientRest implements
 
   }
 
-  /* see superclass */
-  @Override
-  public String getLog(String terminology, String version, String activity,
-    int lines, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug("Project Client - get log");
-    validateNotEmpty(terminology, "terminology");
-    validateNotEmpty(version, "version");
-    validateNotEmpty(activity, "activity");
-
-    Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/log?"
-            + "terminology=" + terminology + "&version=" + version
-            + "&activity=" + activity + "&lines=" + lines);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
-
-    String resultString = response.readEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    return resultString;
-
-  }
 }
