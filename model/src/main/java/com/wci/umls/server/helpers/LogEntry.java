@@ -6,11 +6,9 @@ package com.wci.umls.server.helpers;
 import com.wci.umls.server.model.meta.LogActivity;
 
 /**
- * Represents a log entry
+ * Represents a log entry.
  */
 public interface LogEntry extends HasLastModified {
-
-  
 
   /**
    * Returns the message.
@@ -18,21 +16,21 @@ public interface LogEntry extends HasLastModified {
    * @return the message
    */
   public String getMessage();
-  
+
   /**
    * Sets the message.
    *
    * @param message the message
    */
   public void setMessage(String message);
-  
+
   /**
    * Returns the object id.
    *
    * @return the object id
    */
   public Long getObjectId();
-  
+
   /**
    * Sets the object id.
    *
@@ -46,7 +44,7 @@ public interface LogEntry extends HasLastModified {
    * @return the project id
    */
   public Long getProjectId();
-  
+
   /**
    * Sets the project id.
    *
@@ -96,19 +94,4 @@ public interface LogEntry extends HasLastModified {
    */
   public void setTerminology(String terminology);
 
-  /**
-   * Sets the user name.
-   *
-   * @param userName the new user name
-   */
-  public void setUserName(String userName);
-
-  /**
-   * Gets the user name.
-   *
-   * @return the user name
-   */
-  public String getUserName();
- 
-  
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.helpers.content;
+package com.wci.umls.server.jpa;
 
 import static org.junit.Assert.assertTrue;
 
@@ -12,19 +12,20 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.User;
+import com.wci.umls.server.ReleaseProperty;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
-import com.wci.umls.server.helpers.UserImpl;
+import com.wci.umls.server.helpers.XmlSerializationTester;
+import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 
 /**
- * Unit testing for {@link UserImpl}.
+ * Unit testing for {@link ReleasePropertyJpa}.
  */
-public class UserImplUnitTest {
+public class ReleasePropertyJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
-  private UserImpl object;
+  private ReleaseProperty object;
 
   /**
    * Setup class.
@@ -39,7 +40,7 @@ public class UserImplUnitTest {
    */
   @Before
   public void setup() {
-    object = new UserImpl();
+    object = new ReleasePropertyJpa();
   }
 
   /**
@@ -48,10 +49,9 @@ public class UserImplUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet022() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet022");
+  public void testModelGetSet031() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("moduleId");
     tester.test();
   }
 
@@ -61,14 +61,11 @@ public class UserImplUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode022() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode022");
+  public void testModelEqualsHashcode031() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
-    tester.include("applicationRole");
-    tester.include("email");
     tester.include("name");
-    tester.include("userName");
-
+    tester.include("value");
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -83,10 +80,22 @@ public class UserImplUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy022() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy022");
+  public void testModelCopy031() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructor(User.class));
+    assertTrue(tester.testCopyConstructor(ReleaseProperty.class));
+  }
+
+  /**
+   * Test XML serialization.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testModelXmlSerialization031() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+    XmlSerializationTester tester = new XmlSerializationTester(object);
+    assertTrue(tester.testXmlSerialization());
   }
 
   /**
@@ -95,8 +104,12 @@ public class UserImplUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField022() throws Exception {
-    // n/a
+  public void testModelNotNullField031() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+    NullableFieldTester tester = new NullableFieldTester(object);
+    tester.include("name");
+    tester.include("value");
+    assertTrue(tester.testNotNullFields());
   }
 
   /**

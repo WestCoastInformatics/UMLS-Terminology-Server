@@ -520,11 +520,11 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
         relationship.setObsolete(fields[2].equals("0")); // active
         relationship.setSuppressible(relationship.isObsolete());
         relationship.setGroup(fields[6].intern()); // relationshipGroup
-        relationship.setRelationshipType(
-            fields[7].equals(isaTypeRel) ? "Is a" : "other"); // typeId
+        relationship.setRelationshipType(fields[7].equals(isaTypeRel) ? "Is a"
+            : "other"); // typeId
         relationship.setAdditionalRelationshipType(fields[7]); // typeId
-        relationship
-            .setHierarchical(relationship.getRelationshipType().equals("Is a"));
+        relationship.setHierarchical(relationship.getRelationshipType().equals(
+            "Is a"));
         generalEntryValues.add(relationship.getAdditionalRelationshipType());
         additionalRelTypes.add(relationship.getAdditionalRelationshipType());
         relationship.setStated(fields[8].equals("900000000000010007"));
@@ -573,12 +573,13 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
         } else {
           if (fromConcept == null) {
-            throw new Exception(
-                "Relationship " + relationship.getTerminologyId()
-                    + " -existent source concept " + fields[4]);
+            throw new Exception("Relationship "
+                + relationship.getTerminologyId()
+                + " -existent source concept " + fields[4]);
           }
           if (toConcept == null) {
-            throw new Exception("Relationship" + relationship.getTerminologyId()
+            throw new Exception("Relationship"
+                + relationship.getTerminologyId()
                 + " references non-existent destination concept " + fields[5]);
           }
         }
@@ -767,12 +768,14 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     objectCt = 0;
     // NOTE: Hibernate-specific to support iterating
     Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery = session
-        .createQuery("select a from AtomJpa a " + "where conceptId is not null "
-            + "and conceptId != '' and terminology = :terminology "
-            + "order by terminology, conceptId")
-        .setParameter("terminology", terminology).setReadOnly(true)
-        .setFetchSize(1000);
+    org.hibernate.Query hQuery =
+        session
+            .createQuery(
+                "select a from AtomJpa a " + "where conceptId is not null "
+                    + "and conceptId != '' and terminology = :terminology "
+                    + "order by terminology, conceptId")
+            .setParameter("terminology", terminology).setReadOnly(true)
+            .setFetchSize(1000);
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     String prevCui = null;
     String prefName = null;
@@ -990,9 +993,11 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
         if (conceptIdMap.get(fields[4]) == null) {
 
-          Logger.getLogger(getClass()).warn(
-              "Association reference member connected to nonexistent refset with terminology id "
-                  + fields[4]);
+          Logger
+              .getLogger(getClass())
+              .warn(
+                  "Association reference member connected to nonexistent refset with terminology id "
+                      + fields[4]);
           logWarn("  Line: " + line);
           continue;
           /*
@@ -1002,9 +1007,11 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
         }
 
         if (conceptIdMap.get(fields[5]) == null) {
-          Logger.getLogger(getClass()).warn(
-              "Association reference member connected to nonexistent source object with terminology id "
-                  + fields[5]);
+          Logger
+              .getLogger(getClass())
+              .warn(
+                  "Association reference member connected to nonexistent source object with terminology id "
+                      + fields[5]);
           logWarn("  Line: " + line);
           continue;
           /*
@@ -1014,9 +1021,11 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
         }
 
         if (conceptIdMap.get(fields[6]) == null) {
-          Logger.getLogger(getClass()).warn(
-              "Association reference member connected to nonexistent target object with terminology id "
-                  + fields[5]);
+          Logger
+              .getLogger(getClass())
+              .warn(
+                  "Association reference member connected to nonexistent target object with terminology id "
+                      + fields[5]);
           logWarn("  Line: " + line);
           continue;
           /*
@@ -1070,22 +1079,27 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
           relationship.setTo(toConcept);
           addRelationship(relationship);
 
-          Logger.getLogger(getClass())
-              .debug("adding RO rel " + (objectCt + 1) + ", "
-                  + relationship.getTerminologyId() + ", "
-                  + relationship.getFrom().getName() + ", "
-                  + getConcept(conceptIdMap
-                      .get(relationship.getAdditionalRelationshipType()))
-                  + ", " + relationship.getTo().getName());
+          Logger.getLogger(getClass()).debug(
+              "adding RO rel "
+                  + (objectCt + 1)
+                  + ", "
+                  + relationship.getTerminologyId()
+                  + ", "
+                  + relationship.getFrom().getName()
+                  + ", "
+                  + getConcept(conceptIdMap.get(relationship
+                      .getAdditionalRelationshipType())) + ", "
+                  + relationship.getTo().getName());
 
         } else {
           if (fromConcept == null) {
-            throw new Exception(
-                "Relationship " + relationship.getTerminologyId()
-                    + " references non-existent source concept " + fields[5]);
+            throw new Exception("Relationship "
+                + relationship.getTerminologyId()
+                + " references non-existent source concept " + fields[5]);
           }
           if (toConcept == null) {
-            throw new Exception("Relationship" + relationship.getTerminologyId()
+            throw new Exception("Relationship"
+                + relationship.getTerminologyId()
                 + " references non-existent destination concept " + fields[6]);
           }
         }
@@ -1862,8 +1876,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     chain.setLastModifiedBy(loader);
     chain.setPublishable(true);
     chain.setPublished(true);
-    chain.setAbbreviation(
-        "direct-substance o has-active-ingredient -> direct-substance");
+    chain
+        .setAbbreviation("direct-substance o has-active-ingredient -> direct-substance");
     chain.setExpandedForm(chain.getAbbreviation());
     List<AdditionalRelationshipType> list = new ArrayList<>();
     list.add(directSubstance);
@@ -1880,8 +1894,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     // Root Terminology
     RootTerminology root = new RootTerminologyJpa();
     root.setFamily(terminology);
-    root.setHierarchicalName(
-        getConcept(conceptIdMap.get(rootConceptId)).getName());
+    root.setHierarchicalName(getConcept(conceptIdMap.get(rootConceptId))
+        .getName());
     root.setLanguage(rootLanguage);
     root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
@@ -1931,14 +1945,16 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       addGeneralMetadataEntry(entry);
     }
 
-    String[] labels = new String[] {
-        "Atoms_Label", "Subsets_Label", "Attributes_Label",
-        "Semantic_Types_Label", "Obsolete_Label", "Obsolete_Indicator",
-    };
-    String[] labelValues = new String[] {
-        "Descriptions", "Refsets", "Properties", "Semantic Tags", "Retired",
-        "Retired"
-    };
+    String[] labels =
+        new String[] {
+            "Atoms_Label", "Subsets_Label", "Attributes_Label",
+            "Semantic_Types_Label", "Obsolete_Label", "Obsolete_Indicator",
+        };
+    String[] labelValues =
+        new String[] {
+            "Descriptions", "Refsets", "Properties", "Semantic Tags",
+            "Retired", "Retired"
+        };
     int i = 0;
     for (String label : labels) {
       GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();

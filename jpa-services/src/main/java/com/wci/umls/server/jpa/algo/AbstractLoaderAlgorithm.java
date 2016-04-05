@@ -6,47 +6,35 @@ import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.meta.LogActivity;
 
 /**
- * The Class AbstractLoaderAlgorithm.
+ * Abstract support for loader algorithms.
  */
 public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa {
 
-  
+  /** LOADER constant for use as userName. */
+  public final static String LOADER = "loader";
+
   /**
-   * Instantiates a new abstract loader algorithm.
+   * Instantiates an empty {@link AbstractLoaderAlgorithm}.
    *
    * @throws Exception the exception
    */
   public AbstractLoaderAlgorithm() throws Exception {
-    super();
-    // TODO Auto-generated constructor stub
+    // n/a
   }
 
   /**
-   * Gets the terminology.
+   * Returns the terminology.
    *
    * @return the terminology
    */
   public abstract String getTerminology();
-  
+
   /**
-   * Gets the version.
+   * Returns the version.
    *
    * @return the version
    */
   public abstract String getVersion();
-  
-  /**
-   * Commit clear begin.
-   *
-   * @throws Exception the exception
-   */
-  @Override
-  public void commitClearBegin() throws Exception {
-    addLogEntry("loader", getTerminology(), getVersion(),
-        "Commit Clear Begin", LogActivity.LOADER);
-    
-    super.commitClearBegin();
-  }
 
   /**
    * Log and commit.
@@ -57,56 +45,52 @@ public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa {
    * @throws Exception the exception
    */
   @Override
-  public void logAndCommit(int objectCt, int logCt, int commitCt) throws Exception {
+  public void logAndCommit(int objectCt, int logCt, int commitCt)
+    throws Exception {
     if (objectCt % logCt == 0) {
-      addLogEntry("loader", getTerminology(), getVersion(),
-          "Commit: count = " + objectCt, LogActivity.LOADER);
+      addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
+          "    count = " + objectCt);
     }
-    
-    super.logAndCommit(objectCt, logCt, commitCt);    
+    super.logAndCommit(objectCt, logCt, commitCt);
   }
 
   /**
-   * Log info.
+   * Log info to console and the database.
    *
    * @param message the message
    * @throws Exception the exception
    */
-  public void logInfo(String message)
-    throws Exception {
-    addLogEntry("loader", getTerminology(), getVersion(), message,
-        LogActivity.LOADER);
+  public void logInfo(String message) throws Exception {
+    addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
+        message);
     Logger.getLogger(getClass()).info(message);
     // TODO: commit here?
   }
 
   /**
-   * Log warn.
+   * Log warning to console and the database.
    *
    * @param message the message
    * @throws Exception the exception
    */
-  public void logWarn(String message)
-    throws Exception {
-    addLogEntry("loader", getTerminology(), getVersion(), "WARNING: " + message,
-        LogActivity.LOADER);
+  public void logWarn(String message) throws Exception {
+    addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
+        "WARNING: " + message);
     Logger.getLogger(getClass()).warn(message);
     commit();
   }
 
   /**
-   * Log error.
+   * Log error to console and the database.
    *
    * @param message the message
    * @throws Exception the exception
    */
-  public void logError(String message)
-    throws Exception {
-    addLogEntry("loader", getTerminology(), getVersion(), "ERROR: " + message,
-        LogActivity.LOADER);
+  public void logError(String message) throws Exception {
+    addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
+        "ERROR: " + message);
     Logger.getLogger(getClass()).error(message);
     commit();
   }
-
 
 }

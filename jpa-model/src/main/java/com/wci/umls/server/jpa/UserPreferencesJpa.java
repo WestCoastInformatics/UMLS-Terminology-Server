@@ -40,6 +40,7 @@ public class UserPreferencesJpa implements UserPreferences {
   private User user;
 
   /** The lastProjectId. */
+  @Column(nullable = true)
   private Long lastProjectId;
 
   /** The module id. */

@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.jpa.algo;
 
+import gnu.trove.strategy.HashingStrategy;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -99,13 +101,11 @@ import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
 
-import gnu.trove.strategy.HashingStrategy;
-
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
-    implements Algorithm {
+public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm implements
+    Algorithm {
 
   /** The prefix. */
   private String prefix = "MR";
@@ -258,6 +258,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
     this.terminology = terminology;
   }
 
+  /* see superclass */
+  @Override
   public String getTerminology() {
     return terminology;
   }
@@ -271,6 +273,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
     this.version = version;
   }
 
+  /* see superclass */
+  @Override
   public String getVersion() {
     return version;
   }
@@ -334,8 +338,9 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
       logInfo("  version = " + version);
       logInfo("  single mode = " + singleMode);
       logInfo("  releaseVersion = " + releaseVersion);
-      releaseVersionDate = ConfigUtility.DATE_FORMAT
-          .parse(releaseVersion.substring(0, 4) + "0101");
+      releaseVersionDate =
+          ConfigUtility.DATE_FORMAT.parse(releaseVersion.substring(0, 4)
+              + "0101");
 
       // Track system level information
       long startTimeOrig = System.nanoTime();
@@ -413,8 +418,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
         if (info == null) {
           info = new ReleaseInfoJpa();
           info.setName(version);
-          info.setDescription(
-              terminology.getTerminology() + " " + version + " release");
+          info.setDescription(terminology.getTerminology() + " " + version
+              + " release");
           info.setPlanned(false);
           info.setPublished(true);
           info.setReleaseBeginDate(null);
@@ -563,8 +568,7 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
 
       // Handle AttributeNames
       if ((fields[0].equals("ATN") || fields[0].equals("MAPATN"))
-          && fields[2].equals("expanded_form")
-          && !atnSeen.contains(fields[1])) {
+          && fields[2].equals("expanded_form") && !atnSeen.contains(fields[1])) {
         final AttributeName atn = new AttributeNameJpa();
         atn.setAbbreviation(fields[1]);
         atn.setExpandedForm(fields[3]);
@@ -596,8 +600,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
         if (latCodeMap.containsKey(fields[1])) {
           lat.setISOCode(latCodeMap.get(fields[1]));
         } else {
-          throw new Exception(
-              "Language map does not have 2 letter code for " + fields[1]);
+          throw new Exception("Language map does not have 2 letter code for "
+              + fields[1]);
         }
         Logger.getLogger(getClass()).debug("    add language - " + lat);
         addLanguage(lat);
@@ -620,8 +624,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
         // DL fields are all left false, with no domain/range
         // no equivalent types or supertypes included
         relaMap.put(fields[1], rela);
-        Logger.getLogger(getClass())
-            .debug("    add additional relationship type - " + rela);
+        Logger.getLogger(getClass()).debug(
+            "    add additional relationship type - " + rela);
       } else if (fields[0].equals("RELA") && fields[2].equals("rela_inverse")) {
         inverseRelaMap.put(fields[1], fields[3]);
 
@@ -697,16 +701,14 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
           ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.SY);
         }
         if (fields[3].equals("preferred")) {
-          if (ttyMap.get(fields[1])
-              .getCodeVariantType() == CodeVariantType.ET) {
+          if (ttyMap.get(fields[1]).getCodeVariantType() == CodeVariantType.ET) {
             ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.PET);
           } else {
             ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.PN);
           }
         }
         if (fields[3].equals("entry_term")) {
-          if (ttyMap.get(fields[1])
-              .getCodeVariantType() == CodeVariantType.PN) {
+          if (ttyMap.get(fields[1]).getCodeVariantType() == CodeVariantType.PN) {
             ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.PET);
           } else {
             ttyMap.get(fields[1]).setCodeVariantType(CodeVariantType.ET);
@@ -1209,13 +1211,14 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
         relationship.addAttribute(att);
         addAttribute(att, relationship);
       } else if (codesFlag && fields[4].equals("CODE")) {
-        final Long codeId = codeIdMap.get(
-            atomTerminologyMap.get(fields[3]) + atomCodeIdMap.get(fields[3]));
+        final Long codeId =
+            codeIdMap.get(atomTerminologyMap.get(fields[3])
+                + atomCodeIdMap.get(fields[3]));
         if (codeId == null) {
           // Referential integrity error
           logError("line = " + line);
-          Logger.getLogger(getClass())
-              .error("Referential integrity issue with field 3: " + fields[3]);
+          Logger.getLogger(getClass()).error(
+              "Referential integrity issue with field 3: " + fields[3]);
         } else {
           // Get the code for the terminology and CODE of the AUI
           final Code code = getCode(codeId);
@@ -1238,8 +1241,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
         if (conceptId == null) {
           // Referential integrity error
           logError("line = " + line);
-          Logger.getLogger(getClass())
-              .error("Referential integrity issue with field 3: " + fields[3]);
+          Logger.getLogger(getClass()).error(
+              "Referential integrity issue with field 3: " + fields[3]);
 
         } else {
           final Concept concept =
@@ -1255,8 +1258,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
         if (descriptorId == null) {
           // Referential integrity error
           logError("line = " + line);
-          Logger.getLogger(getClass())
-              .error("Referential integrity issue with field 3: " + fields[3]);
+          Logger.getLogger(getClass()).error(
+              "Referential integrity issue with field 3: " + fields[3]);
 
         } else {
           // Get the descriptor for the terminology and SDUI of the AUI
@@ -1301,15 +1304,15 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
         if (isExtensionModule(fields[10])) {
           // terminology + module concept id
           final String key = fields[9] + fields[10];
-          Logger.getLogger(getClass())
-              .info("  extension module = " + fields[10] + ", " + key);
+          Logger.getLogger(getClass()).info(
+              "  extension module = " + fields[10] + ", " + key);
           if (!moduleConceptIdMap.containsKey(key)) {
             moduleConceptIdMap.put(key, new HashSet<Long>());
           }
-          Logger.getLogger(getClass())
-              .info("    concept = " + atomConceptIdMap.get(fields[3]));
-          moduleConceptIdMap.get(key)
-              .add(conceptIdMap.get(atomTerminologyMap.get(fields[3])
+          Logger.getLogger(getClass()).info(
+              "    concept = " + atomConceptIdMap.get(fields[3]));
+          moduleConceptIdMap.get(key).add(
+              conceptIdMap.get(atomTerminologyMap.get(fields[3])
                   + atomConceptIdMap.get(fields[3])));
         }
       }
@@ -1613,8 +1616,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
     } else if (atn.equals("TOVSAB")) {
       if (mapSet.getToTerminology() != null) {
         String version = atv.substring(mapSet.getToTerminology().length());
-        mapSet.setToVersion(
-            version.startsWith("_") ? version.substring(1) : version);
+        mapSet.setToVersion(version.startsWith("_") ? version.substring(1)
+            : version);
       } else {
         mapSet.setToVersion(atv);
       }
@@ -1622,21 +1625,21 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
       mapSet.setToTerminology(atv);
       if (mapSet.getToVersion() != null) {
         String version = mapSet.getToVersion().substring(atv.length());
-        mapSet.setToVersion(
-            version.startsWith("_") ? version.substring(1) : version);
+        mapSet.setToVersion(version.startsWith("_") ? version.substring(1)
+            : version);
       }
     } else if (atn.equals("FROMRSAB")) {
       mapSet.setFromTerminology(atv);
       if (mapSet.getFromVersion() != null) {
         String version = mapSet.getFromVersion().substring(atv.length());
-        mapSet.setFromVersion(
-            version.startsWith("_") ? version.substring(1) : version);
+        mapSet.setFromVersion(version.startsWith("_") ? version.substring(1)
+            : version);
       }
     } else if (atn.equals("FROMVSAB")) {
       if (mapSet.getFromTerminology() != null) {
         String version = atv.substring(mapSet.getFromTerminology().length());
-        mapSet.setFromVersion(
-            version.startsWith("_") ? version.substring(1) : version);
+        mapSet.setFromVersion(version.startsWith("_") ? version.substring(1)
+            : version);
       } else {
         mapSet.setFromVersion(atv);
       }
@@ -1805,8 +1808,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
             // We now know subset type, insert it and remove the corresponding
             // opposite type
             if (idTerminologyAtomSubsetMap.containsKey(subsetIdKey)) {
-              Logger.getLogger(getClass())
-                  .debug("  Concept subset " + conceptSubset);
+              Logger.getLogger(getClass()).debug(
+                  "  Concept subset " + conceptSubset);
               addSubset(conceptSubset);
               idTerminologyAtomSubsetMap.remove(subsetIdKey);
             }
@@ -1863,8 +1866,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
           memberAtt.setPublished(true);
           memberAtt.setName(atvFields[1]);
           memberAtt.setValue(atvFields[2]);
-          Logger.getLogger(getClass())
-              .debug("        Add member attribute" + memberAtt);
+          Logger.getLogger(getClass()).debug(
+              "        Add member attribute" + memberAtt);
           addAttribute(memberAtt, member);
 
           // This member is not yet committed, so no need for an
@@ -1905,8 +1908,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
       final Concept concept = getConcept(conceptIdMap.get(key));
       final ConceptSubset subset = new ConceptSubsetJpa();
       subset.setName(concept.getName());
-      subset.setDescription(
-          "Represents the members of module " + concept.getTerminologyId());
+      subset.setDescription("Represents the members of module "
+          + concept.getTerminologyId());
       subset.setDisjointSubset(false);
       subset.setLabelSubset(true);
       subset.setLastModified(releaseVersionDate);
@@ -2048,18 +2051,20 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
       } else if (fields[2].equals("SCUI") && fields[6].equals("SCUI")) {
         final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
 
-        final Long fromId = conceptIdMap.get(atomTerminologyMap.get(fields[5])
-            + atomConceptIdMap.get(fields[5]));
-        final Long toId = conceptIdMap.get(atomTerminologyMap.get(fields[1])
-            + atomConceptIdMap.get(fields[1]));
+        final Long fromId =
+            conceptIdMap.get(atomTerminologyMap.get(fields[5])
+                + atomConceptIdMap.get(fields[5]));
+        final Long toId =
+            conceptIdMap.get(atomTerminologyMap.get(fields[1])
+                + atomConceptIdMap.get(fields[1]));
 
         if (fromId == null || toId == null) {
           // Referential integrity error, we know this happens in RXNORM
           // because RXAUI 5430346 has a relationship with SCUI type
           // but the SCUI of this atom is null;
           logError("line = " + line);
-          logError("Referential integrity issue with field 2 or 6: " + fields[1]
-              + ", " + fields[5]);
+          logError("Referential integrity issue with field 2 or 6: "
+              + fields[1] + ", " + fields[5]);
         } else {
           conceptRel.setFrom(getConcept(fromId));
           conceptRel.setTo(getConcept(toId));
@@ -2074,14 +2079,15 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
         final Long fromId =
             descriptorIdMap.get(atomTerminologyMap.get(fields[5])
                 + atomDescriptorIdMap.get(fields[5]));
-        final Long toId = descriptorIdMap.get(atomTerminologyMap.get(fields[1])
-            + atomDescriptorIdMap.get(fields[1]));
+        final Long toId =
+            descriptorIdMap.get(atomTerminologyMap.get(fields[1])
+                + atomDescriptorIdMap.get(fields[1]));
 
         if (fromId == null || toId == null) {
           // Referential integrity error
           logError("line = " + line);
-          logError("Referential integrity issue with field 2 or 6: " + fields[1]
-              + ", " + fields[5]);
+          logError("Referential integrity issue with field 2 or 6: "
+              + fields[1] + ", " + fields[5]);
         } else {
           descriptorRel.setFrom(getDescriptor(fromId));
           descriptorRel.setTo(getDescriptor(toId));
@@ -2094,15 +2100,17 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
           && fields[6].equals("CODE")) {
         final CodeRelationship codeRel = new CodeRelationshipJpa();
 
-        final Long fromId = codeIdMap.get(
-            atomTerminologyMap.get(fields[5]) + atomCodeIdMap.get(fields[5]));
-        final Long toId = codeIdMap.get(
-            atomTerminologyMap.get(fields[1]) + atomCodeIdMap.get(fields[1]));
+        final Long fromId =
+            codeIdMap.get(atomTerminologyMap.get(fields[5])
+                + atomCodeIdMap.get(fields[5]));
+        final Long toId =
+            codeIdMap.get(atomTerminologyMap.get(fields[1])
+                + atomCodeIdMap.get(fields[1]));
         if (fromId == null || toId == null) {
           // Referential integrity error
           logError("line = " + line);
-          logError("Referential integrity issue with field 2 or 6: " + fields[5]
-              + ", " + fields[1]);
+          logError("Referential integrity issue with field 2 or 6: "
+              + fields[5] + ", " + fields[1]);
         } else {
 
           codeRel.setFrom(getCode(fromId));
@@ -2112,8 +2120,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
           relationshipMap.put(fields[8], codeRel.getId());
         }
       } else {
-        Logger.getLogger(getClass())
-            .debug("  SKIPPING relationship STYPE1!=STYPE2 - " + line);
+        Logger.getLogger(getClass()).debug(
+            "  SKIPPING relationship STYPE1!=STYPE2 - " + line);
         continue;
       }
 
@@ -2133,7 +2141,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
    * @param relationship the relationship
    * @throws Exception the exception
    */
-  private void setRelationshipFields(final String[] fields,
+  private void setRelationshipFields(
+    final String[] fields,
     final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
     throws Exception {
     relationship.setTimestamp(releaseVersionDate);
@@ -2298,8 +2307,8 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
       // Albumin|0|N|256|
 
       // set the root terminology language
-      loadedRootTerminologies.get(fields[11])
-          .setLanguage(loadedLanguages.get(fields[1]));
+      loadedRootTerminologies.get(fields[11]).setLanguage(
+          loadedLanguages.get(fields[1]));
 
       final Atom atom = new AtomJpa();
       atom.setLanguage(fields[1].intern());
@@ -2313,11 +2322,10 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
       atom.setName(fields[14]);
       atom.setTerminology(fields[11].intern());
       if (loadedTerminologies.get(fields[11]) == null) {
-        throw new Exception(
-            "Atom references terminology that does not exist: " + fields[11]);
+        throw new Exception("Atom references terminology that does not exist: "
+            + fields[11]);
       }
-      atom.setVersion(
-          loadedTerminologies.get(fields[11]).getVersion().intern());
+      atom.setVersion(loadedTerminologies.get(fields[11]).getVersion().intern());
       // skip in single mode
       if (!singleMode) {
         atom.putAlternateTerminologyId(terminology, fields[7]);
@@ -2439,15 +2447,13 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
         final AtomSubset atomSubset = new AtomSubsetJpa();
         setSubsetFields(atomSubset, fields);
         cuiAuiAtomSubsetMap.put(fields[0] + fields[7], atomSubset);
-        idTerminologyAtomSubsetMap.put(
-            atomSubset.getTerminologyId() + atomSubset.getTerminology(),
-            atomSubset);
+        idTerminologyAtomSubsetMap.put(atomSubset.getTerminologyId()
+            + atomSubset.getTerminology(), atomSubset);
         final ConceptSubset conceptSubset = new ConceptSubsetJpa();
         setSubsetFields(conceptSubset, fields);
         cuiAuiConceptSubsetMap.put(fields[0] + fields[7], conceptSubset);
-        idTerminologyConceptSubsetMap.put(
-            conceptSubset.getTerminologyId() + conceptSubset.getTerminology(),
-            conceptSubset);
+        idTerminologyConceptSubsetMap.put(conceptSubset.getTerminologyId()
+            + conceptSubset.getTerminology(), conceptSubset);
       }
 
     }
@@ -2475,8 +2481,9 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
     // Restrict to timestamp used for THESE atoms, in case multiple RRF
     // files are loaded
     final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery = session
-        .createQuery("select a from AtomJpa a " + "where conceptId is not null "
+    org.hibernate.Query hQuery =
+        session.createQuery("select a from AtomJpa a "
+            + "where conceptId is not null "
             + "and conceptId != '' and timestamp = :timestamp "
             + "order by terminology, conceptId");
     hQuery.setParameter("timestamp", releaseVersionDate);
@@ -2524,8 +2531,9 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
     objectCt = 0;
 
     // NOTE: Hibernate-specific to support iterating
-    hQuery = session.createQuery(
-        "select a from AtomJpa a " + "where descriptorId is not null "
+    hQuery =
+        session.createQuery("select a from AtomJpa a "
+            + "where descriptorId is not null "
             + "and descriptorId != '' and timestamp = :timestamp "
             + "order by terminology, descriptorId");
     hQuery.setParameter("timestamp", releaseVersionDate);
@@ -2576,8 +2584,9 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm
       objectCt = 0;
       // NOTE: Hibernate-specific to support iterating
       // Skip NOCODE
-      hQuery = session
-          .createQuery("select a from AtomJpa a " + "where codeId is not null "
+      hQuery =
+          session.createQuery("select a from AtomJpa a "
+              + "where codeId is not null "
               + "and codeId != '' and timestamp = :timestamp "
               + "order by terminology, codeId");
       hQuery.setParameter("timestamp", releaseVersionDate);

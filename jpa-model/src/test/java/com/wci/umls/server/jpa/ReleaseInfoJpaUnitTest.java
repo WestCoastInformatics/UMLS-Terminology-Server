@@ -1,7 +1,7 @@
 /*
  * Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.helpers.content;
+package com.wci.umls.server.jpa;
 
 import static org.junit.Assert.assertTrue;
 
@@ -17,7 +17,6 @@ import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
-import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 
 /**
