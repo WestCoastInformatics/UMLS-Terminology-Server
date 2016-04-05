@@ -23,8 +23,8 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class Rf2SnapshotSamplerAlgorithm extends AbstractLoaderAlgorithm implements
-    Algorithm {
+public class Rf2SnapshotSamplerAlgorithm extends AbstractLoaderAlgorithm
+    implements Algorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -77,8 +77,7 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractLoaderAlgorithm impleme
       logInfo("  Load relationships");
       loadRelationshipMaps();
 
-      logInfo(
-          "    chdPar count = " + chdParMap.size());
+      logInfo("    chdPar count = " + chdParMap.size());
       // logInfo("    chdPar = " + chdParMap);
       logInfo("    other count = " + otherMap.size());
       // logInfo("    other = " + otherMap);
@@ -94,8 +93,7 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractLoaderAlgorithm impleme
       logInfo("  Add distance 1 related concepts");
       for (String concept : new HashSet<>(concepts)) {
         if (otherMap.get(concept) != null) {
-          logInfo(
-              "    add concepts = " + otherMap.get(concept));
+          logInfo("    add concepts = " + otherMap.get(concept));
           concepts.addAll(otherMap.get(concept));
         }
       }
@@ -111,47 +109,36 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractLoaderAlgorithm impleme
         // 3. Find metadata concepts (definitionStatusId, typeId,
         logInfo("  Get metadata concepts");
         addConceptMetadata(concepts);
-        logInfo(
-            "    count (after concepts) = " + concepts.size());
+        logInfo("    count (after concepts) = " + concepts.size());
 
         addDescriptionMetadata(concepts, descriptions);
-        logInfo(
-            "    count (after descriptions) = " + concepts.size());
-        logInfo(
-            "    count of descriptions (after descriptions) = "
-                + descriptions.size());
+        logInfo("    count (after descriptions) = " + concepts.size());
+        logInfo("    count of descriptions (after descriptions) = "
+            + descriptions.size());
 
         addRelationshipMetadata(concepts);
-        logInfo(
-            "    count (after relationships) = " + concepts.size());
+        logInfo("    count (after relationships) = " + concepts.size());
 
         addAttributeValueMetadata(concepts, descriptions);
-        logInfo(
-            "    count (after attribute value) = " + concepts.size());
+        logInfo("    count (after attribute value) = " + concepts.size());
 
         addAssociationReferenceMetadata(concepts, descriptions);
-        logInfo(
-            "    count (after association reference) = " + concepts.size());
+        logInfo("    count (after association reference) = " + concepts.size());
 
         addSimpleMetadata(concepts);
-        logInfo(
-            "    count (after simple) = " + concepts.size());
+        logInfo("    count (after simple) = " + concepts.size());
 
         addSimpleMapMetadata(concepts);
-        logInfo(
-            "    count (after simple map) = " + concepts.size());
+        logInfo("    count (after simple map) = " + concepts.size());
 
         addComplexMapMetadata(concepts);
-        logInfo(
-            "    count (after complex map) = " + concepts.size());
+        logInfo("    count (after complex map) = " + concepts.size());
 
         addLanguageMetadata(concepts, descriptions);
-        logInfo(
-            "    count (after language) = " + concepts.size());
+        logInfo("    count (after language) = " + concepts.size());
 
         addMetadataMetadata(concepts);
-        logInfo(
-            "    count (after metadata) = " + concepts.size());
+        logInfo("    count (after metadata) = " + concepts.size());
 
         // 4. Find all concepts on path to root (e.g. walk up ancestors)
         for (String chd : chdParMap.keySet()) {
@@ -159,8 +146,7 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractLoaderAlgorithm impleme
             concepts.addAll(chdParMap.get(chd));
           }
         }
-        logInfo(
-            "    count (after ancestors) = " + concepts.size());
+        logInfo("    count (after ancestors) = " + concepts.size());
         logInfo("    prev count = " + prevCt);
 
         if (concepts.contains("370570004")) {
@@ -614,8 +600,10 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractLoaderAlgorithm impleme
 
   /**
    * Fires a {@link ProgressEvent}.
+   *
    * @param pct percent done
    * @param note progress note
+   * @throws Exception the exception
    */
   public void fireProgressEvent(int pct, String note) throws Exception {
     ProgressEvent pe = new ProgressEvent(this, pct, pct, note);

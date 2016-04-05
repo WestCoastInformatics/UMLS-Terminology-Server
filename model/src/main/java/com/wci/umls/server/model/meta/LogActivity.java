@@ -11,7 +11,10 @@ public enum LogActivity {
 
   /** The loader. */
   LOADER("Loader"),
-  
+
+  /** The remover. */
+  REMOVER("Remover"),
+
   /** The editing. */
   EDITING("Editing"),
 

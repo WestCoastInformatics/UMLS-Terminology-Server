@@ -1,7 +1,7 @@
 /*
  *    Copyright 2016 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.helpers.content;
+package com.wci.umls.server.jpa;
 
 import static org.junit.Assert.assertTrue;
 

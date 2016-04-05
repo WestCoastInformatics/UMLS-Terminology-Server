@@ -17,7 +17,6 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
@@ -65,29 +64,25 @@ public class LogEntryJpa implements LogEntry {
   /** The project id. */
   @Column(nullable = true)
   private Long projectId;
-  
+
   /** The terminology. */
   @Column(nullable = true)
   private String terminology;
-  
+
   /** The version. */
   @Column(nullable = true)
   private String version;
-  
-  /** The terminology. */
-  @Column(nullable = true)
-  private String userName;
-  
+
   /** The from id type. */
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
+  @Column(nullable = true)
   private LogActivity activity;
 
   /** the timestamp. */
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp = null;
-  
+
   /**
    * The default constructor.
    */
@@ -107,10 +102,11 @@ public class LogEntryJpa implements LogEntry {
     lastModifiedBy = logEntry.getLastModifiedBy();
     message = logEntry.getMessage();
     objectId = logEntry.getObjectId();
+    projectId = logEntry.getProjectId();
     terminology = logEntry.getTerminology();
     version = logEntry.getVersion();
     activity = logEntry.getActivity();
-    userName = logEntry.getUserName();
+    timestamp = logEntry.getTimestamp();
   }
 
   /* see superclass */
@@ -151,12 +147,14 @@ public class LogEntryJpa implements LogEntry {
     this.lastModifiedBy = lastModifiedBy;
   }
 
+  /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getMessage() {
     return message;
   }
 
+  /* see superclass */
   @Override
   public void setMessage(String message) {
     if (message.length() > 4000) {
@@ -166,6 +164,7 @@ public class LogEntryJpa implements LogEntry {
     }
   }
 
+  /* see superclass */
   @Override
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
@@ -173,11 +172,13 @@ public class LogEntryJpa implements LogEntry {
     return objectId;
   }
 
+  /* see superclass */
   @Override
   public void setObjectId(Long objectId) {
     this.objectId = objectId;
   }
 
+  /* see superclass */
   @Override
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
@@ -185,6 +186,7 @@ public class LogEntryJpa implements LogEntry {
     return projectId;
   }
 
+  /* see superclass */
   @Override
   public void setProjectId(Long projectId) {
     this.projectId = projectId;
@@ -202,67 +204,49 @@ public class LogEntryJpa implements LogEntry {
   public void setActivity(LogActivity activity) {
     this.activity = activity;
   }
-  
 
+  /* see superclass */
   @Override
-  @XmlTransient
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getVersion() {
     return version;
   }
-  
 
+  /* see superclass */
   @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
-
+  /* see superclass */
   @Override
-  @XmlTransient
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminology() {
     return terminology;
   }
-  
+
+  /* see superclass */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
-  
-  @Override
-  @XmlTransient
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getUserName() {
-    return userName;
-  }
-  
-  @Override
-  public void setUserName(String userName) {
-    this.userName = userName;
-  }
-  
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((activity == null) ? 0 : activity.hashCode());
-    result = prime * result + ((id == null) ? 0 : id.hashCode());
-    result =
-        prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((message == null) ? 0 : message.hashCode());
     result = prime * result + ((objectId == null) ? 0 : objectId.hashCode());
     result = prime * result + ((projectId == null) ? 0 : projectId.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
-    result = prime * result + ((userName == null) ? 0 : userName.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -273,21 +257,6 @@ public class LogEntryJpa implements LogEntry {
       return false;
     LogEntryJpa other = (LogEntryJpa) obj;
     if (activity != other.activity)
-      return false;
-    if (id == null) {
-      if (other.id != null)
-        return false;
-    } else if (!id.equals(other.id))
-      return false;
-    if (lastModified == null) {
-      if (other.lastModified != null)
-        return false;
-    } else if (!lastModified.equals(other.lastModified))
-      return false;
-    if (lastModifiedBy == null) {
-      if (other.lastModifiedBy != null)
-        return false;
-    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
       return false;
     if (message == null) {
       if (other.message != null)
@@ -309,31 +278,21 @@ public class LogEntryJpa implements LogEntry {
         return false;
     } else if (!terminology.equals(other.terminology))
       return false;
-    if (timestamp == null) {
-      if (other.timestamp != null)
-        return false;
-    } else if (!timestamp.equals(other.timestamp))
-      return false;
     if (version == null) {
       if (other.version != null)
         return false;
     } else if (!version.equals(other.version))
       return false;
-    if (userName == null) {
-      if (other.userName != null)
-        return false;
-    } else if (!userName.equals(other.userName))
-      return false;
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return "LogEntryJpa [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", message=" + message
         + ", objectId=" + objectId + ", projectId=" + projectId
         + ", terminology=" + terminology + ", version=" + version
-        + ", userName=" + userName
         + ", activity=" + activity + ", timestamp=" + timestamp + "]";
   }
 

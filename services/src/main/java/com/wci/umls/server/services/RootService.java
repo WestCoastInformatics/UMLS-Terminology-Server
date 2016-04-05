@@ -122,8 +122,8 @@ public interface RootService {
    * @return the list
    * @throws Exception the exception
    */
-  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz, int[] totalCt,
-    PfsParameter pfs) throws Exception;
+  public <T> List<T> applyPfsToList(List<T> list, Class<T> clazz,
+    int[] totalCt, PfsParameter pfs) throws Exception;
 
   /**
    * Sets the last modified flag.
@@ -183,29 +183,25 @@ public interface RootService {
    * @param userName the user name
    * @param terminology the terminology
    * @param version the version
-   * @param detail the detail
    * @param activity the activity
+   * @param message the message
    * @return the log entry
    * @throws Exception the exception
    */
-  public LogEntry addLogEntry(String userName, 
-    String terminology, String version, String detail, LogActivity activity)
-    throws Exception;
+  public LogEntry addLogEntry(String userName, String terminology,
+    String version, LogActivity activity, String message) throws Exception;
 
   /**
    * Adds the log entry.
    *
    * @param userName the user name
-   * @param action the action
    * @param projectId the project id
    * @param objectId the object id
-   * @param detail the detail
-   * @param activity the activity
+   * @param message the message
    * @return the log entry
    * @throws Exception the exception
    */
-  public LogEntry addLogEntry(String userName, String action,
-    Long projectId, Long objectId, String detail, LogActivity activity)
-    throws Exception;
+  public LogEntry addLogEntry(String userName, Long projectId, Long objectId,
+    String message) throws Exception;
 
 }

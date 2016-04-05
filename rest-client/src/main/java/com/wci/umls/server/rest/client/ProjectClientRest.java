@@ -354,7 +354,6 @@ public class ProjectClientRest extends RootClientRest implements
 
   }
 
-
   /* see superclass */
   @Override
   public ProjectList findProjectsForQuery(String query, PfsParameterJpa pfs,
@@ -384,11 +383,9 @@ public class ProjectClientRest extends RootClientRest implements
 
     // converting to object
     ProjectList list =
-        (ProjectListJpa) ConfigUtility.getGraphForString(resultString,
-            ProjectListJpa.class);
+        ConfigUtility.getGraphForString(resultString, ProjectListJpa.class);
     return list;
   }
-
 
   /* see superclass */
   @Override
@@ -417,11 +414,11 @@ public class ProjectClientRest extends RootClientRest implements
     return resultString;
 
   }
-  
+
   /* see superclass */
   @Override
-  public String getLog(String terminology, String version, String activity, int lines,
-    String authToken) throws Exception {
+  public String getLog(String terminology, String version, String activity,
+    int lines, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Project Client - get log");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -430,8 +427,8 @@ public class ProjectClientRest extends RootClientRest implements
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/project/log?"
-            + "terminology=" + terminology + "&version=" + version + "&activity="
-            + activity + "&lines=" + lines);
+            + "terminology=" + terminology + "&version=" + version
+            + "&activity=" + activity + "&lines=" + lines);
     Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();

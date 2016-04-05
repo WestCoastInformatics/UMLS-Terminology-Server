@@ -880,7 +880,7 @@ public abstract class RootServiceJpa implements RootService {
       return null;
     }
   }
-  
+
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
@@ -901,7 +901,7 @@ public abstract class RootServiceJpa implements RootService {
 
     return list;
   }
-  
+
   /* see superclass */
   @Override
   public LogEntry addLogEntry(LogEntry logEntry) throws Exception {
@@ -925,22 +925,17 @@ public abstract class RootServiceJpa implements RootService {
   public LogEntry getLogEntry(Long id) throws Exception {
     return getHasLastModified(id, LogEntry.class);
   }
-  
 
   /* see superclass */
-  @SuppressWarnings("static-method")
   @Override
-  public LogEntry addLogEntry(String userName,
-    String action, Long projectId, Long objectId, String detail, LogActivity activity)
-    throws Exception {
+  public LogEntry addLogEntry(String userName, Long projectId, Long objectId,
+    String message) throws Exception {
     LogEntry entry = new LogEntryJpa();
     entry.setLastModifiedBy(userName);
     entry.setObjectId(objectId);
     entry.setProjectId(projectId);
-    entry.setActivity(activity);
     entry.setTimestamp(new Date());
-    entry.setUserName(userName);
-    entry.setMessage(detail);
+    entry.setMessage(message);
 
     // Add component
     LogEntry newLogEntry = addLogEntry(entry);
@@ -949,20 +944,17 @@ public abstract class RootServiceJpa implements RootService {
     return newLogEntry;
 
   }
-  
+
   /* see superclass */
   @Override
-  public LogEntry addLogEntry(String userName,
-    String terminology, String version, String detail, LogActivity activity)
-    throws Exception {
+  public LogEntry addLogEntry(String userName, String terminology,
+    String version, LogActivity activity, String message) throws Exception {
     LogEntry entry = new LogEntryJpa();
     entry.setLastModifiedBy(userName);
     entry.setTerminology(terminology);
     entry.setVersion(version);
-    entry.setActivity(activity);
     entry.setTimestamp(new Date());
-    entry.setUserName(userName);
-    entry.setMessage(detail.toString());
+    entry.setMessage(message);
 
     // Add component
     LogEntry newLogEntry = addLogEntry(entry);
