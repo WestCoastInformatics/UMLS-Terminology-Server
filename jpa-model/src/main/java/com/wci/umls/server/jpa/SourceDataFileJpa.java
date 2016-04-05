@@ -16,6 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -281,6 +282,7 @@ public class SourceDataFileJpa implements SourceDataFile {
   }
 
   @Override
+  @XmlTransient
   public SourceData getSourceData() {
     return this.sourceData;
   }

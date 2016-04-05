@@ -595,8 +595,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       }
 
       final List<LogEntry> entries =
-          projectService.findLogEntriesForQuery("projectId:" + projectId
-              + (objectId == null ? "" : " AND objectId:" + objectId), pfs);
+          projectService.findLogEntriesForQuery(query, pfs);
 
       StringBuilder log = new StringBuilder();
       for (int i = entries.size() - 1; i >= 0; i--) {

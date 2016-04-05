@@ -1113,7 +1113,6 @@ tsApp
           return deferred.promise;
         };
 
-        // NOTE: This uses project url instead of source data
         this.getSourceDataLog = function(terminology, version, activity, lines) {
           console.debug('getSourceDataLog', terminology, version, activity, lines);
           var deferred = $q.defer();
@@ -1127,7 +1126,8 @@ tsApp
           else {
 
             $http.get(
-              projectUrl + 'log?terminology=' + terminology + '&version=' + version
+              sourceDataUrl + 'log?terminology=' + terminology + '&version=' + version
+                + (activity ? '&activity=' + activity : '')
                 + (lines ? '&lines=' + lines : '')).then(function(response) {
               deferred.resolve(response.data);
             }, function(error) {

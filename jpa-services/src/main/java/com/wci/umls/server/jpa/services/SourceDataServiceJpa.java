@@ -90,9 +90,7 @@ public class SourceDataServiceJpa extends RootServiceJpa
     SourceDataList result = new SourceDataListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);
-    for (SourceData searchData : result.getObjects()) {
-      handleLazyInitialization(searchData);
-    }
+  
     return result;
   }
 
@@ -109,9 +107,7 @@ public class SourceDataServiceJpa extends RootServiceJpa
       SourceDataFileList sourceDataFileList = new SourceDataFileListJpa();
       sourceDataFileList.setObjects(sourceDataFiles);
       sourceDataFileList.setTotalCount(sourceDataFileList.getCount());
-      for (SourceDataFile sourceDataFile : sourceDataFileList.getObjects()) {
-        handleLazyInitialization(sourceDataFile);
-      }
+     
       return sourceDataFileList;
     } catch (NoResultException e) {
       return null;
@@ -179,9 +175,7 @@ public class SourceDataServiceJpa extends RootServiceJpa
     SourceDataFileList result = new SourceDataFileListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);
-    for (SourceDataFile searchDataFile : result.getObjects()) {
-      handleLazyInitialization(searchDataFile);
-    }
+   
     return result;
   }
 
@@ -225,27 +219,4 @@ public class SourceDataServiceJpa extends RootServiceJpa
     }
     return keyValuePairList;
   }
-
-  /**
-   * Handle lazy initialization.
-   *
-   * @param searchDataFile the search data file
-   */
-  private void handleLazyInitialization(SourceDataFile searchDataFile) {
-    /// do nothing as yets
-  }
-
-  /**
-   * Handle lazy initialization.
-   *
-   * @param searchData the search data
-   */
-  private void handleLazyInitialization(SourceData searchData) {
-    for (SourceDataFile sdf : searchData.getSourceDataFiles()) {
-      handleLazyInitialization(sdf);
-    }
-  }
-
-
-
 }

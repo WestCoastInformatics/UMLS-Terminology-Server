@@ -1,30 +1,25 @@
 // Tab service
-tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'securityService', 'metadataService',
-  function($location, utilService, gpService, securityService, metadataService) {
+tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'securityService',
+  'metadataService', function($location, utilService, gpService, securityService, metadataService) {
     console.debug('configure tabService');
     // Available tabs
     this.tabs = [ {
       link : 'source',
       label : 'Sources',
-      role : 'USER',
-      enabled : true
+      role : 'USER'
 
     }, {
       link : 'content',
       label : 'Content',
-      role : false,
-      enabled : true
+      role : false
     }, {
       link : 'metadata',
       label : 'Metadata',
-      role : false,
-      enabled : true
+      role : false
     }, {
       link : 'admin',
       label : 'Admin',
-      role : 'USER',
-      enabled : true
-
+      role : 'USER'
     } ];
 
     // the selected tab
@@ -50,7 +45,7 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'security
         }
       }
     };
-    
+
     this.setTabEnabledByLabel = function(label, enabledStatus) {
       console.debug("set tab enabled", label, enabledStatus);
       for (var i = 0; i < this.tabs.length; i++) {
@@ -61,20 +56,4 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'security
         }
       }
     }
-    
-  /*  
-    TODO This fails due to authorization token not set, really shouldn't be here anyway...
-     
-    
-   // tab initialization
-    metadataService.initTerminologies().then(function(response) {
-      console.debug('Tab Service terminologies retrieved: ', response.count);
-      if (response.count == 0) {
-        console.log('No Terminologies loaded, disabling Content tab');
-       this.setTabEnabledByLabel('content', false)
-      }
-    });*/
-    
-    
-
   } ]);

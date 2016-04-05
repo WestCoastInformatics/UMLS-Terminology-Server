@@ -178,13 +178,17 @@ tsApp
       // Remove source data from list
       $scope.removeSourceDataFileFromSourceData = function(file) {
         sourceDataService.removeSourceDataFile(file.id).then(function() {
-          // re-retrieve the source datas
-
+          retrieveSourceDatas().then(function() {
+            angular.forEach(sourceDatas, function(sourceData) {
+              if (sourceData.id === $scope.currentSourceData.id) {
+                $scope.currentSourceData = sourceData;
+              }
+            })
+          })
         });
       };
 
       $scope.getFilePath = function(file) {
-
         var id = $scope.currentSourceData.id;
         return file.path.substring(file.path.indexOf(id) + id.toString().length + 1);
       };
@@ -312,7 +316,7 @@ tsApp
             sourceData = polledSourceData;
           }
         });
-        
+
         // update poll status from data
         $scope.polls[polledSourceData.id].status = polledSourceData.status;
 

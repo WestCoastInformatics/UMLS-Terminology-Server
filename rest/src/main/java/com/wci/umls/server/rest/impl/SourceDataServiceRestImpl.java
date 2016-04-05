@@ -30,16 +30,21 @@ import com.wci.umls.server.SourceDataFile;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
+import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SourceDataFileList;
 import com.wci.umls.server.helpers.SourceDataList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.jpa.SourceDataFileJpa;
 import com.wci.umls.server.jpa.SourceDataJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
 import com.wci.umls.server.jpa.services.helper.SourceDataFileUtility;
 import com.wci.umls.server.jpa.services.rest.SourceDataServiceRest;
+import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.SourceDataService;
 import com.wci.umls.server.services.handlers.SourceDataHandler;
@@ -149,12 +154,13 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
         sdf.setSize(file.length());
         sdf.setTimestamp(new Date());
         sdf.setLastModifiedBy(userName);
+        sdf.setSourceData(sourceData);
 
         sourceData.addSourceDataFile(sdf);
 
         service.addSourceDataFile(sdf);
       }
-      
+
       fileInputStream.close();
 
       // finally, update the source data object itself
@@ -164,6 +170,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       handleException(e, "uploading a source data file");
     } finally {
       service.close();
+      securityService.close();
     }
   }
 
@@ -197,6 +204,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       handleException(e, "update source data files");
     } finally {
       service.close();
+      securityService.close();
     }
     return null;
   }
@@ -229,7 +237,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     } catch (Exception e) {
       handleException(e, "update source data files");
     } finally {
-      service.close();
+      service.close();securityService.close();
     }
   }
 
@@ -265,8 +273,8 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
         file.delete();
 
       } catch (Exception e) {
-        Logger.getLogger(getClass()).warn(
-            "Unexpected error removing file " + sourceDataFile.getPath());
+        Logger.getLogger(getClass())
+            .warn("Unexpected error removing file " + sourceDataFile.getPath());
       }
 
       // remove this entry from its source data
@@ -280,7 +288,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     } catch (Exception e) {
       handleException(e, "delete source data files");
     } finally {
-      service.close();
+      service.close();securityService.close();
     }
   }
 
@@ -293,6 +301,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
    * @return the source data file list
    * @throws Exception the exception
    */
+  // TODO This should be get
   /* see superclass */
   @Override
   @GET
@@ -317,7 +326,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       handleException(e, "search for source data files");
       return null;
     } finally {
-      service.close();
+      service.close();securityService.close();
     }
 
   }
@@ -352,7 +361,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       handleException(e, "adding new source data");
       return null;
     } finally {
-      service.close();
+      service.close();securityService.close();
     }
 
   }
@@ -386,7 +395,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     } catch (Exception e) {
       handleException(e, "adding new source data");
     } finally {
-      service.close();
+      service.close();securityService.close();
     }
 
   }
@@ -411,15 +420,17 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
 
     final SourceDataService service = new SourceDataServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "delete source data with id " + id,
-          UserRole.ADMINISTRATOR);
-       
+      authorizeApp(securityService, authToken,
+          "delete source data with id " + id, UserRole.ADMINISTRATOR);
+
       // remove the directory containing this source data's files
       // TODO This is not working, revisit
-     /* File sdDir = new File(ConfigUtility.getConfigProperties().getProperty("source.data.dir") + File.separator + id.toString());
-      for (File f : sdDir.listFiles()) {
-        f.delete();
-      }*/
+      /*
+       * File sdDir = new
+       * File(ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+       * + File.separator + id.toString()); for (File f : sdDir.listFiles()) {
+       * f.delete(); }
+       */
 
       // remove the source data
       service.removeSourceData(id);
@@ -427,7 +438,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     } catch (Exception e) {
       handleException(e, "delete source data");
     } finally {
-      service.close();
+      service.close();securityService.close();
     }
   }
 
@@ -458,13 +469,19 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "get source datas",
           UserRole.ADMINISTRATOR);
 
-      return service.findSourceDatasForQuery(query, pfsParameter);
+      SourceDataList list =
+          service.findSourceDatasForQuery(query, pfsParameter);
 
+      // lazy initialize source data files
+      for (SourceData sd : list.getObjects()) {
+        sd.getSourceDataFiles().size();
+      }
+      return list;
     } catch (Exception e) {
       handleException(e, "retrieving uploaded file list");
       return null;
     } finally {
-      service.close();
+      service.close();securityService.close();
     }
 
   }
@@ -498,7 +515,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       handleException(e, "retrieving uploaded file list");
       return null;
     } finally {
-      service.close();
+      service.close();securityService.close();
     }
   }
 
@@ -518,12 +535,15 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     try {
       authorizeApp(securityService, authToken, "get source datas",
           UserRole.ADMINISTRATOR);
-      return service.getSourceData(id);
+      SourceData sourceData = service.getSourceData(id);
+      // lazy initialize source data files
+      sourceData.getSourceDataFiles().size();
+      return sourceData;
     } catch (Exception e) {
       handleException(e, "retrieving uploaded file list");
       return null;
     } finally {
-      service.close();
+      service.close();securityService.close();
     }
   }
 
@@ -535,8 +555,8 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Source data to load from", required = true) SourceDataJpa sourceData,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Source Data): /data/load " + sourceData.toString());
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Source Data): /data/load " + sourceData.toString());
 
     try {
       authorizeApp(securityService, authToken, "load from source data",
@@ -565,9 +585,11 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     } catch (Exception e) {
       handleException(e,
           " attempting to load data from source data configuration");
+    } finally {
+      securityService.close();
     }
   }
-  
+
   @Override
   @POST
   @Path("/data/remove")
@@ -580,8 +602,8 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call (Source Data): /data/remove");
 
     try {
-      authorizeApp(securityService, authToken, "remove loaded data from source data",
-          UserRole.ADMINISTRATOR);
+      authorizeApp(securityService, authToken,
+          "remove loaded data from source data", UserRole.ADMINISTRATOR);
 
       Thread t = new Thread(new Runnable() {
 
@@ -597,7 +619,8 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
             handler.remove();
 
           } catch (Exception e) {
-            handleException(e, " during removal of loaded data from source data");
+            handleException(e,
+                " during removal of loaded data from source data");
           }
         }
       });
@@ -606,6 +629,80 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     } catch (Exception e) {
       handleException(e,
           " attempting to load data from source data configuration");
+    } finally {
+      securityService.close();
     }
+  }
+
+  /* see superclass */
+  @GET
+  @Path("/log")
+  @Produces("text/plain")
+  @ApiOperation(value = "Get log entries", notes = "Returns log entries for specified query parameters", response = String.class)
+  @Override
+  public String getLog(
+    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. 20150131", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Activity, e.g. EDITING", required = true) @QueryParam("activity") String activity,
+    @ApiParam(value = "Lines, e.g. 5", required = false) @QueryParam("lines") int lines,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass()).info("RESTful POST call (Project): /log/"
+        + terminology + ", " + version + ", " + activity + ", " + lines);
+
+    final ProjectService projectService = new ProjectServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "remove loaded data from source data", UserRole.ADMINISTRATOR);
+
+      // Precondition checking -- must have terminology/version OR projectId set
+      if (terminology == null && version == null) {
+        throw new LocalException("terminology/version must be set");
+      }
+
+      PfsParameter pfs = new PfsParameterJpa();
+      pfs.setStartIndex(0);
+      pfs.setMaxResults(lines);
+      pfs.setAscending(false);
+      pfs.setSortField("lastModified");
+
+      String query = "";
+
+      if (terminology != null) {
+        query +=
+            (query.length() == 0 ? "" : " AND ") + "terminology:" + terminology;
+      }
+      if (version != null) {
+        query += (query.length() == 0 ? "" : " AND ") + "version:" + version;
+      }
+
+      if (activity != null) {
+        query += " AND activity:" + activity;
+      }
+
+      final List<LogEntry> entries =
+          projectService.findLogEntriesForQuery(query, pfs);
+
+      StringBuilder log = new StringBuilder();
+      for (int i = entries.size() - 1; i >= 0; i--) {
+        final LogEntry entry = entries.get(i);
+        StringBuilder message = new StringBuilder();
+        message.append("[")
+            .append(ConfigUtility.DATE_FORMAT4.format(entry.getLastModified()));
+        message.append("] ");
+        message.append(entry.getLastModifiedBy()).append(" ");
+        message.append(entry.getMessage()).append("\n");
+        log.append(message);
+      }
+
+      return log.toString();
+
+    } catch (Exception e) {
+      handleException(e, "trying to get log");
+    } finally {
+      projectService.close();
+      securityService.close();
+    }
+    return null;
   }
 }

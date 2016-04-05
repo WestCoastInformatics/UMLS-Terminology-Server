@@ -96,7 +96,7 @@ td {
               <span class="glyphicon glyphicon-play"></span>
               &nbsp;Load Terminology
             </button>
-             <button class="btn btn-success btn-sm"
+            <button class="btn btn-success btn-sm"
               ng-click="loadFromSourceData(currentSourceData)"
               ng-show="!isSourceDataModified && currentSourceData.status === 'REMOVAL_COMPLETE'">
               <span class="glyphicon glyphicon-play"></span>
@@ -121,10 +121,11 @@ td {
       <div class="col-md-8" ng-show="polls[currentSourceData.id]">
         <h4>Activity Log:
           {{getHumanText(polls[currentSourceData.id].status)}}</h4>
-        <div class="well well-md">
+        <div class="well well-md" style="overflow-y: scroll; max-height:300px;">
+          
           <span ng-show="!polls[currentSourceData.id].logEntries">
             Retrieving activity log.... </span>
-          {{polls[currentSourceData.id].logEntries}}
+          <pre>{{polls[currentSourceData.id].logEntries}}</pre>
         </div>
       </div>
       <div class="col-md-8"
@@ -210,7 +211,9 @@ td {
                 ng-style="{ 'width': uploader.progress + '%' }"></div>
             </div>
           </div>
-          <button type="button" class="btn btn-success btn-s"
+          <
+          <!-- Removed as unnecessary but may want to add in later
+          button type="button" class="btn btn-success btn-s"
             ng-click="uploader.uploadAll()"
             ng-disabled="!uploader.getNotUploadedItems().length">
             <span class="glyphicon glyphicon-upload"></span>
@@ -226,7 +229,7 @@ td {
             ng-disabled="!uploader.queue.length">
             <span class="glyphicon glyphicon-trash"></span>
             Remove all
-          </button>
+          </button> -->
         </div>
         <div class="row" ng-show="currentSourceData.sourceDataFiles.length > 0">
           <h4>Source Data Files</h4>
@@ -249,7 +252,7 @@ td {
                 | date : medium}}</td>
               <td data-title="''" sortable="''">
                 <i class="glyphicon glyphicon-trash"
-                  ng-click="removeSourceDataFileFromSourceData(currentSourceData, item)"></i>
+                  ng-click="removeSourceDataFileFromSourceData(item)"></i>
               </td>
             </tr>
           </table>

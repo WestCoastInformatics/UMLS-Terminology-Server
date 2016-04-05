@@ -87,7 +87,7 @@ public class SourceDataJpa implements SourceData {
   private String lastModifiedBy;
 
   /** The data files. */
-  @OneToMany(targetEntity = SourceDataFileJpa.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(targetEntity = SourceDataFileJpa.class, orphanRemoval = true)
   private List<SourceDataFile> sourceDataFiles = new ArrayList<>();
 
   /** The status */
