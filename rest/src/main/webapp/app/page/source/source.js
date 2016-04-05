@@ -140,8 +140,8 @@ tsApp
               break;
             }
           }
-        } 
-        
+        }
+
         // otherwise ask user for confirmation and delete
         else if (confirm('This will delete any uploaded files for this configuration. Are you sure?')) {
           sourceDataService.removeSourceData(sourceData).then(
@@ -198,14 +198,15 @@ tsApp
               }
             });
           }
-          
+
           // check for polling requirements
           angular.forEach(sourceDatas, function(sourceData) {
             if (sourceData.status === 'LOADING' || sourceData.status === 'REMOVING') {
               $scope.startPolling(sourceData);
-            };
+            }
+            ;
           });
-          
+
           refreshTables();
           deferred.resolve();
         }, function() {
@@ -224,8 +225,8 @@ tsApp
         });
       }
 
-      // currently active polls, array of objects {id, poll}
-      $scope.loadingPolls = {};
+      // currently active polls, array of objects {id, {poll: ..., log: ...}}
+      $scope.polls = {};
 
       $scope.loadFromSourceData = function(sourceData) {
         // ensure that source data is not modified
@@ -237,37 +238,63 @@ tsApp
         // start load and initiate polling
         sourceDataService.loadFromSourceData(sourceData).then(function() {
           sourceData.status = 'LOADING';
-          // TODO Reenable polling 
-          // $scope.startPolling(sourceData);
+          $scope.startPolling(sourceData);
         });
 
       };
+      
+      $scope.removeFromSourceData = function(sourceData) {
+        sourceDataService.removeFromSourceData(sourceData).then(function() {
+          sourceData.status = 'REMOVING';
+          $scope.startPolling(sourceData);
+        });
+      };
 
-      $scope.startSourceDataPolling = function(sourceData) {
+      $scope.startPolling = function(sourceData) {
         console.log('Starting status polling for ' + sourceData.name);
 
-        // TODO Ensure Brian notices my rebellion with polling interval of 1.001s!
-        $scope.loadingPolls[sourceData.id] = $interval(function() {
-          
-          var startStatus = sourceData.status;
+        // construct the polling object
+        $scope.polls[sourceData.id] = {
+          startStatus : null,
+          poll : null,
+          logEntries : null
+        };
+
+        // TODO Ensure Brian notices my rebellion with polling interval of π seconds!!!
+        $scope.polls[sourceData.id] = $interval(function() {
+
+          $scope.polls[sourceData.id].startStatus = sourceData.status;
 
           // get the source data by id
           sourceDataService.getSourceData(sourceData.id).then(
             function(polledSourceData) {
               // if cannot retrieve or no longer loading, cancel polling
-              if (!polledSourceData || polledSourceData.status !== startStatus) {
+              if (!polledSourceData || polledSourceData.status !== $scope.polls[sourceData.id].startStatus) {
                 console.log('Status change detected for ' + sourceData.name + ': '
-                  + polledSourceData.status + ' (previously ' + startStatus + ')');
-                $interval.cancel($scope.loadingPolls[sourceData.id]);
+                  + polledSourceData.status + ' (previously ' + $scope.polls[sourceData.id].startStatus + ')');
+                $interval.cancel($scope.loadingPolls[sourceData.id].poll);
                 delete $scope.loadingPolls[sourceData.id];
+                
+                // find the source data in the table and replace it
+                angular.forEach(sourceDatas, function(sourceData) {
+                  if (sourceData.id === polledSourceData.id) {
+                    sourceData = polledSourceData;
+                  }
+                });
               }
             });
 
-        }, 1001);
+          // get the log entries
+          sourceDataService.getSourceDataLog(sourceData.terminology, sourceData.version,
+            sourceData.status, 100).then(function(logEntries) {
+            $scope.loadingPolls[sourceData.id].logEntries = logEntries;
+          })
+
+        }, 3141);
       }
 
       $scope.cancelLoadingPolling = function(sourceData) {
-        $interval.cancel($scope.loadingPolls[sourceData.id]);
+        $interval.cancel($scope.polls[sourceData.id].poll);
         delete $scope.loadingPolls[sourceData.id];
       }
 
@@ -275,21 +302,24 @@ tsApp
       $scope.$on("$routeChangeStart", function(event, next, current) {
         for ( var key in $scope.loadingPolls) {
           if ($scope.loadingPolls.hasOwnProperty(key)) {
-            $interval.cancel($scope.loadingPolls[key]);
+            $interval.cancel($scope.loadingPolls[key].poll);
           }
         }
       });
-      
+
       $scope.processStatusChange = function(sourceData) {
         switch (sourceData.status) {
         case 'LOADING_COMPLETE':
-          
+          utilService.handleSuccess('Terminology load completed for ' + sourceData.terminology + ', ' + sourceData.version);
           break;
         case 'LOADING_FAILED':
+          utilService.handleError('Terminology load failed for ' + sourceData.terminology + ', ' + sourceData.version);
           break;
         case 'REMOVAL_COMPLETE':
+          utilService.handleSuccess('Terminology removal completed for ' + sourceData.terminology + ', ' + sourceData.version);
           break;
         case 'REMOVAL_FAILED':
+          utilService.handleError('Terminology removal failed for ' + sourceData.terminology + ', ' + sourceData.version);
           break;
         }
       }

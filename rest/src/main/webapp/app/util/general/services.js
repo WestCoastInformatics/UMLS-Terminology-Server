@@ -1074,6 +1074,31 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
       }
       return deferred.promise;
     };
+    
+    // NOTE: This uses project url instead of source data
+    this.getSourceDataLog = function(terminology, version, activity, lines) {
+      console.debug('getSourceDataLog', terminology, version, activity, lines);
+      var deferred = $q.defer();
+      
+      if (!terminology && !version && !activity) {
+        console.error('Must specify all of terminology, version, and activity (LOADING/REMOVING) to retrieve log entries')
+        deferred.reject(null);
+      }
+      
+      else {
+      
+      $http.get(projectUrl + 'log?terminology=' 
+        + sourceData.terminology + '&version=' 
+        + sourceData.version + (lines ? '&lines=' + lines : '')).then(function(response) {
+        deferred.resolve(response.data);
+      }, function(error) {
+        utilService.handleError(error);
+        gpService.decrement();
+        deferred.reject('Error retrieving source data log entries');
+      });
+      }
+      return deferred.promise();
+    };
 
     // end.
 
