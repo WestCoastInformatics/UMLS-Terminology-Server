@@ -153,17 +153,6 @@ public interface ProjectServiceRest {
    *
    * @param projectId the project id
    * @param objectId the object id
-   * @param lines the lines
-   * @param authToken the auth token
-   * @return the log
-   * @throws Exception the exception
-   */
-  public String getLog(Long projectId, Long objectId, int lines, String authToken)
-    throws Exception;
-
-  /**
-   * Gets the log.
-   *
    * @param terminology the terminology
    * @param version the version
    * @param activity the activity
@@ -172,7 +161,8 @@ public interface ProjectServiceRest {
    * @return the log
    * @throws Exception the exception
    */
-  public String getLog(String terminology, String version, String activity, int lines,
-    String authToken) throws Exception;
+  public String getLog(Long projectId, Long objectId, String terminology,
+    String version, String activity, int lines, String authToken)
+      throws Exception;
 
 }

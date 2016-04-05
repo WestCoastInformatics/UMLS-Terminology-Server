@@ -543,11 +543,14 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   @GET
   @Path("/log")
   @Produces("text/plain")
-  @ApiOperation(value = "Get log entries for objectId", notes = "Returns log entries for the given objectId", response = String.class)
+  @ApiOperation(value = "Get log entries", notes = "Returns log entries for specified query parameters", response = String.class)
   @Override
   public String getLog(
     @ApiParam(value = "Project id, e.g. 5", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Object id, e.g. 5", required = false) @QueryParam("objectId") Long objectId,
+    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. 20150131", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Activity, e.g. EDITING", required = true) @QueryParam("activity") String activity,
     @ApiParam(value = "Lines, e.g. 5", required = false) @QueryParam("lines") int lines,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -559,9 +562,9 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       authorizeProject(projectService, projectId, securityService, authToken,
           "get log entries", UserRole.AUTHOR);
 
-      // Precondition checking
-      if (projectId == null) {
-        throw new LocalException("Project id must be set");
+      // Precondition checking -- must have terminology/version OR projectId set
+      if (projectId == null && terminology == null && version == null) {
+        throw new LocalException("Project id or terminology/version must be set");
       }
 
       PfsParameter pfs = new PfsParameterJpa();
@@ -569,6 +572,27 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       pfs.setMaxResults(lines);
       pfs.setAscending(false);
       pfs.setSortField("lastModified");
+      
+      String query = "";
+      
+      // at least one of projectId or terminology/version must be set
+      if (projectId != null) {
+        query += "projectId:" + projectId;
+      }
+      if (terminology != null) {
+        query += (query.length() == 0 ? "" : " AND ") + "terminology:" + terminology;
+      }
+      if (version != null) {
+        query += (query.length() == 0 ? "" : " AND ") + "version:" + version;
+      }
+      
+      // optional parameters
+      if (objectId != null) {
+        query += " AND objectId:" + objectId;
+      }
+      if (activity != null) {
+        query += " AND activity:" + activity;
+      }
 
       final List<LogEntry> entries =
           projectService.findLogEntriesForQuery("projectId:" + projectId
@@ -596,76 +620,3 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     }
     return null;
   }
-
-  /* see superclass */
-  @GET
-  @Path("/log")
-  @Produces("text/plain")
-  @ApiOperation(value = "Get log entries", notes = "Returns log entries for the given terminology, version and activity", response = String.class)
-  @Override
-  public String getLog(
-    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @QueryParam("terminology") String terminology,
-    @ApiParam(value = "Version, e.g. 20150131", required = true) @QueryParam("version") String version,
-    @ApiParam(value = "Activity, e.g. EDITING", required = true) @QueryParam("activity") String activity,
-    @ApiParam(value = "Lines, e.g. 5", required = false) @QueryParam("lines") int lines,
-    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful POST call (Project): /log/" + terminology + ", " + version);
-
-    final ProjectService projectService = new ProjectServiceJpa();
-    try {
-      authorizeApp(securityService, authToken, "get log", UserRole.USER);
-
-      // Precondition checking
-      if (terminology == null && version == null && activity == null) {
-        throw new LocalException(
-            "The terminology, version, or activity parameter must be set");
-      }
-
-      PfsParameter pfs = new PfsParameterJpa();
-      pfs.setStartIndex(0);
-      pfs.setMaxResults(lines);
-      pfs.setAscending(false);
-      pfs.setSortField("lastModified");
-
-      final StringBuilder query = new StringBuilder();
-      if (terminology != null) {
-        query.append("terminology:" + terminology);
-      }
-      if (version != null) {
-        query.append(terminology != null ? " AND " : "");
-        query.append("version:" + version);
-      }
-      if (activity != null) {
-        query.append((terminology != null || version != null) ? " AND " : "");
-        query.append("activity:" + activity);
-      }
-
-      final List<LogEntry> entries =
-          projectService.findLogEntriesForQuery(query.toString(), pfs);
-
-      StringBuilder log = new StringBuilder();
-      for (int i = entries.size() - 1; i >= 0; i--) {
-        final LogEntry entry = entries.get(i);
-        final StringBuilder message = new StringBuilder();
-        message.append("[").append(
-            ConfigUtility.DATE_FORMAT4.format(entry.getLastModified()));
-        message.append("] ");
-        message.append(entries.get(i).getLastModifiedBy()).append(" ");
-        message.append(entries.get(i).getActivity()).append(" ");
-        message.append(entries.get(i).getMessage()).append("\n");
-        log.append(message);
-      }
-
-      return log.toString();
-
-    } catch (Exception e) {
-      handleException(e, "trying to get log");
-    } finally {
-      projectService.close();
-      securityService.close();
-    }
-    return null;
-  }
-}
