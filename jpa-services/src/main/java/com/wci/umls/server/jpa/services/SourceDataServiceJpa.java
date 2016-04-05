@@ -31,6 +31,7 @@ import com.wci.umls.server.services.handlers.SourceDataHandler;
 public class SourceDataServiceJpa extends RootServiceJpa
     implements SourceDataService {
 
+
   /**
    * Instantiates a new source data service jpa.
    *
@@ -244,5 +245,7 @@ public class SourceDataServiceJpa extends RootServiceJpa
       handleLazyInitialization(sdf);
     }
   }
+
+
 
 }

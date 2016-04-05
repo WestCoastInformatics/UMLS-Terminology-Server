@@ -231,5 +231,47 @@ public class Rf2FullSourceDataHandler implements SourceDataHandler {
   public void close() throws Exception {
     // n/a
   }
+  
+  @Override
+  public void remove() throws Exception {
+
+    // check prerequisites
+    if (sourceData == null) {
+      throw new Exception("Cannot remove terminology -- no source data set");
+    }
+    if (sourceData.getTerminology() == null) {
+      throw new Exception(
+          "Cannot remove terminology -- no terminology name set");
+    }
+    if (sourceData.getVersion() == null) {
+      throw new Exception("Cannot remove terminology -- no version set");
+    }
+
+    //
+    final Properties config = ConfigUtility.getConfigProperties();
+    final SecurityServiceRest securityService = new SecurityServiceRestImpl();
+    final ContentServiceRest contentService = new ContentServiceRestImpl();
+    final SourceDataService sourceDataService = new SourceDataServiceJpa();
+    final String adminAuthToken =
+        securityService.authenticate(config.getProperty("admin.user"),
+            config.getProperty("admin.password")).getAuthToken();
+
+    // set status to removing
+    sourceData.setStatus(SourceData.Status.REMOVING);
+    sourceDataService.updateSourceData(sourceData);
+
+    try {
+      contentService.removeTerminology(sourceData.getTerminology(),
+          sourceData.getVersion(), adminAuthToken);
+      sourceData.setStatus(SourceData.Status.REMOVAL_COMPLETE);
+      sourceDataService.updateSourceData(sourceData);
+    } catch (Exception e) {
+      sourceData.setStatus(SourceData.Status.REMOVAL_FAILED);
+      sourceDataService.updateSourceData(sourceData);
+    } finally {
+      sourceDataService.close();
+    }
+
+  }
 
 }

@@ -536,10 +536,10 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Source Data): /data/loaders");
+        .info("RESTful call (Source Data): /data/load " + sourceData.toString());
 
     try {
-      authorizeApp(securityService, authToken, "get source datas",
+      authorizeApp(securityService, authToken, "load from source data",
           UserRole.ADMINISTRATOR);
 
       Thread t = new Thread(new Runnable() {
@@ -557,6 +557,47 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
 
           } catch (Exception e) {
             handleException(e, " during execution of load from source data");
+          }
+        }
+      });
+      t.start();
+
+    } catch (Exception e) {
+      handleException(e,
+          " attempting to load data from source data configuration");
+    }
+  }
+  
+  @Override
+  @POST
+  @Path("/data/remove")
+  @ApiOperation(value = "Remove data from source data configuration", notes = "Invokes removing of data based on source data files and configuration")
+  public void removeFromSourceData(
+    @ApiParam(value = "Source data to removed loaded data for", required = true) SourceDataJpa sourceData,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Source Data): /data/remove");
+
+    try {
+      authorizeApp(securityService, authToken, "remove loaded data from source data",
+          UserRole.ADMINISTRATOR);
+
+      Thread t = new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+          try {
+            // instantiate the handler
+            Class<?> sourceDataHandlerClass =
+                Class.forName(sourceData.getHandler());
+            SourceDataHandler handler =
+                (SourceDataHandler) sourceDataHandlerClass.newInstance();
+            handler.setSourceData(sourceData);
+            handler.remove();
+
+          } catch (Exception e) {
+            handleException(e, " during removal of loaded data from source data");
           }
         }
       });

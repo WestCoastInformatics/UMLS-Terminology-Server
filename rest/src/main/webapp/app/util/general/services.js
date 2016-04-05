@@ -834,272 +834,311 @@ tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
   } ]);
 
 //Source data service
-tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'utilService',
-  'gpService', function($http, $location, $q, ngCookies, utilService, gpService) {
-    console.debug('configure sourceDataService');
+tsApp
+  .service(
+    'sourceDataService',
+    [
+      '$http',
+      '$location',
+      '$q',
+      '$cookies',
+      'utilService',
+      'gpService',
+      function($http, $location, $q, ngCookies, utilService, gpService) {
+        console.debug('configure sourceDataService');
 
-    // cached loader names
-    var sourceDataHandlers = null;
+        // cached loader names
+        var sourceDataHandlers = null;
 
-    // Get details for all currently uploaded files
-    this.findSourceDataFiles = function(query) {
-      console.debug('find source data files', query);
-      var deferred = $q.defer();
-      gpService.increment();
-      $http.get(fileUrl + 'find?query=' + encodeURI(query), {}).then(
-      // Success
-      function(response) {
-        console.debug('  data = ', response.data);
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        gpService.decrement();
-        utilService.handleError(response);
-        deferred.reject(response);
-      });
-      return deferred.promise;
-    };
+        // Get details for all currently uploaded files
+        this.findSourceDataFiles = function(query) {
+          console.debug('find source data files', query);
+          var deferred = $q.defer();
+          gpService.increment();
+          $http.get(fileUrl + 'find?query=' + encodeURI(query), {}).then(
+          // Success
+          function(response) {
+            console.debug('  data = ', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            gpService.decrement();
+            utilService.handleError(response);
+            deferred.reject(response);
+          });
+          return deferred.promise;
+        };
 
-    // Removes soure data file
-    this.removeSourceDataFile = function(id) {
-      console.debug('remove source data file', id);
-      var deferred = $q.defer();
-      gpService.increment();
-      $http['delete'](fileUrl + 'remove/' + id).then(
-      // Success
-      function(response) {
-        console.debug('  data = ', response.data);
-        gpService.decrement();
-        deferred.resolve();
-      },
-      // Error
-      function(response) {
-        gpService.decrement();
-        utilService.handleError(response);
-        deferred.reject(response);
-      });
-      return deferred.promise;
-    };
+        // Removes soure data file
+        this.removeSourceDataFile = function(id) {
+          console.debug('remove source data file', id);
+          var deferred = $q.defer();
+          gpService.increment();
+          $http['delete'](fileUrl + 'remove/' + id).then(
+          // Success
+          function(response) {
+            console.debug('  data = ', response.data);
+            gpService.decrement();
+            deferred.resolve();
+          },
+          // Error
+          function(response) {
+            gpService.decrement();
+            utilService.handleError(response);
+            deferred.reject(response);
+          });
+          return deferred.promise;
+        };
 
-    // Save or add the source data file
-    this.updateSourceDataFile = function(file) {
-      console.debug('update source data file', file);
-      var deferred = $q.defer();
-      if (file.id) {
-        gpService.increment();
-        $http.post(fileUrl + 'update', file).then(
-        // Success
-        function(response) {
-          gpService.decrement();
-          deferred.resolve(sourceDataFile);
-        },
-        // Error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response);
-        });
-      } else {
-        gpService.increment();
-        $http.put(fileUrl + 'add', file).then(
-        // Success
-        function(response) {
-          gpService.decrement();
-          deferred.resolve(response);
-        },
-        // Error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response);
-        });
-      }
-      return deferred.promise;
-    };
+        // Save or add the source data file
+        this.updateSourceDataFile = function(file) {
+          console.debug('update source data file', file);
+          var deferred = $q.defer();
+          if (file.id) {
+            gpService.increment();
+            $http.post(fileUrl + 'update', file).then(
+            // Success
+            function(response) {
+              gpService.decrement();
+              deferred.resolve(sourceDataFile);
+            },
+            // Error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response);
+            });
+          } else {
+            gpService.increment();
+            $http.put(fileUrl + 'add', file).then(
+            // Success
+            function(response) {
+              gpService.decrement();
+              deferred.resolve(response);
+            },
+            // Error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response);
+            });
+          }
+          return deferred.promise;
+        };
 
-    // update or add the source data
-    this.updateSourceData = function(data) {
-      console.debug('update source data', data);
-      var deferred = $q.defer();
-      if (data.id) {
-        gpService.increment();
-        $http.post(fileUrl + 'data/update', data).then(
-        // Success
-        function(response) {
-          gpService.decrement();
-          deferred.resolve(data.data);
-        },
-        // Error
-        function(response) {
-          gpService.decrement();
-          utilService.handleError(response);
-          deferred.reject(response);
-        });
-      } else {
-        gpService.increment();
-        $http.put(fileUrl + 'data/add', data).then(
-        // Success
-        function(response) {
-          gpService.decrement();
-          deferred.resolve(response.data);
-        },
-        // Error
-        function(response) {
-          gpService.decrement();
-          utilService.handleError(response);
-          deferred.reject(response);
-        });
-      }
-      return deferred.promise;
-    };
+        // update or add the source data
+        this.updateSourceData = function(data) {
+          console.debug('update source data', data);
+          var deferred = $q.defer();
+          if (data.id) {
+            gpService.increment();
+            $http.post(fileUrl + 'data/update', data).then(
+            // Success
+            function(response) {
+              gpService.decrement();
+              deferred.resolve(data.data);
+            },
+            // Error
+            function(response) {
+              gpService.decrement();
+              utilService.handleError(response);
+              deferred.reject(response);
+            });
+          } else {
+            gpService.increment();
+            $http.put(fileUrl + 'data/add', data).then(
+            // Success
+            function(response) {
+              gpService.decrement();
+              deferred.resolve(response.data);
+            },
+            // Error
+            function(response) {
+              gpService.decrement();
+              utilService.handleError(response);
+              deferred.reject(response);
+            });
+          }
+          return deferred.promise;
+        };
 
-    // Remove the source data
-    this.removeSourceData = function(data) {
-      console.debug('remove source data', data);
-      var deferred = $q.defer();
-      gpService.increment();
-      $http['delete'](fileUrl + 'data/remove/' + data.id).then(
-      // Success
-      function(response) {
-        gpService.decrement();
-        deferred.resolve();
-      },
-      // Error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response);
-      });
-      return deferred.promise;
-    };
+        // Remove the source data
+        this.removeSourceData = function(data) {
+          console.debug('remove source data', data);
+          var deferred = $q.defer();
+          gpService.increment();
+          $http['delete'](fileUrl + 'data/remove/' + data.id).then(
+          // Success
+          function(response) {
+            gpService.decrement();
+            deferred.resolve();
+          },
+          // Error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response);
+          });
+          return deferred.promise;
+        };
 
-    // find source data
-    this.findSourceData = function(query, disableGlassPane) {
-      console.debug('find source data', query);
-      var deferred = $q.defer();
-      if (!disableGlassPane) {
-        gpService.increment();
-      }
-      $http.get(fileUrl + 'data/find?query=' + encodeURI(query), {}).then(
-      // Success
-      function(response) {
-        console.debug("  data =", response.data);
-        if (!disableGlassPane) {
-          gpService.decrement();
+        // find source data
+        this.findSourceData = function(query, disableGlassPane) {
+          console.debug('find source data', query);
+          var deferred = $q.defer();
+          if (!disableGlassPane) {
+            gpService.increment();
+          }
+          $http.get(fileUrl + 'data/find?query=' + encodeURI(query), {}).then(
+          // Success
+          function(response) {
+            console.debug("  data =", response.data);
+            if (!disableGlassPane) {
+              gpService.decrement();
+            }
+            deferred.resolve(response.data);
+          }, // Error
+          function(response) {
+            utilService.handleError(response);
+            if (!disableGlassPane) {
+              gpService.decrement();
+            }
+            deferred.reject(response);
+          });
+          return deferred.promise;
+        };
+
+        // get loaders
+        this.getSourceDataHandlers = function() {
+          console.debug('get source data handlers');
+          var deferred = $q.defer();
+
+          if (sourceDataHandlers) {
+            deferred.resolve(sourceDataHandlers);
+          } else {
+            gpService.increment();
+            $http.get(fileUrl + 'data/sourceDataHandlers').then(
+            // Success
+            function(response) {
+              console.debug("  data =", response.data);
+              sourceDataHandlers = response.data.keyValuePais;
+              gpService.decrement();
+              deferred.resolve(response.data.keyValuePair);
+            },
+            // Error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response);
+            });
+          }
+          return deferred.promise;
+        };
+
+        this.getSourceData = function(id, suppressGlassPane) {
+          console.debug('loading source data from id ' + id);
+          var deferred = $q.defer();
+          if (!id) {
+            console.error('Attempted to load from null or undefined id');
+            deferred.reject('No id specified');
+          } else {
+            if (!suppressGlassPane) {
+              gpService.increment();
+            }
+            $http.get(fileUrl + 'data/id/' + id).then(function(response) {
+              if (!suppressGlassPane) {
+                gpService.decrement();
+              }
+              deferred.resolve(response.data);
+            },
+            // Error
+            function(response) {
+              utilService.handleError(response);
+              if (!suppressGlassPane) {
+                gpService.decrement();
+              }
+              deferred.resolve(null);
+            });
+          }
+          return deferred.promise;
         }
-        deferred.resolve(response.data);
-      }, // Error
-      function(response) {
-        utilService.handleError(response);
-        if (!disableGlassPane) {
-          gpService.decrement();
-        }
-        deferred.reject(response);
-      });
-      return deferred.promise;
-    };
 
-    // get loaders
-    this.getSourceDataHandlers = function() {
-      console.debug('get source data handlers');
-      var deferred = $q.defer();
+        this.loadFromSourceData = function(sourceData) {
 
-      if (sourceDataHandlers) {
-        deferred.resolve(sourceDataHandlers);
-      } else {
-        gpService.increment();
-        $http.get(fileUrl + 'data/sourceDataHandlers').then(
-        // Success
-        function(response) {
-          console.debug("  data =", response.data);
-          sourceDataHandlers = response.data.keyValuePais;
-          gpService.decrement();
-          deferred.resolve(response.data.keyValuePair);
-        },
-        // Error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response);
-        });
-      }
-      return deferred.promise;
-    };
+          console.debug('loading source data for ' + sourceData.name);
+          var deferred = $q.defer();
+          if (!sourceData) {
+            console.error('Attempted to load from null or undefined source data');
+            deferred.reject('No source data specified');
+          } else {
+            gpService.increment();
 
-    this.getSourceData = function(id) {
-      console.debug('loading source data from id ' + id);
-      var deferred = $q.defer();
-      if (!id) {
-        console.error('Attempted to load from null or undefined id');
-        deferred.reject('No id specified');
-      } else {
-        gpService.increment();
+            $http.post(fileUrl + 'data/load', sourceData).then(function(response) {
+              gpService.decrement();
+              deferred.resolve();
+            },
+            // Error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response);
+            });
+          }
+          return deferred.promise;
+        };
+        
+        this.removeFromSourceData = function(sourceData) {
 
-        $http.get(fileUrl + 'data/id' + id).then(function(response) {
-          gpService.decrement();
-          deferred.resolve(response.data);
-        },
-        // Error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.resolve(null);
-        });
-      }
-      return deferred.promise;
-    }
+          console.debug('removing from source data for ' + sourceData.name);
+          var deferred = $q.defer();
+          if (!sourceData) {
+            console.error('Attempted to remove from null or undefined source data');
+            deferred.reject('No source data specified');
+          } else {
+            gpService.increment();
 
-    this.loadFromSourceData = function(sourceData) {
+            $http.post(fileUrl + 'data/remove', sourceData).then(function(response) {
+              gpService.decrement();
+              deferred.resolve();
+            },
+            // Error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response);
+            });
+          }
+          return deferred.promise;
+        };
 
-      console.debug('loading source data for ' + sourceData.name);
-      var deferred = $q.defer();
-      if (!sourceData) {
-        console.error('Attempted to load from null or undefined source data');
-        deferred.reject('No source data specified');
-      } else {
-        gpService.increment();
+        // NOTE: This uses project url instead of source data
+        this.getSourceDataLog = function(terminology, version, activity, lines) {
+          console.debug('getSourceDataLog', terminology, version, activity, lines);
+          var deferred = $q.defer();
 
-        $http.post(fileUrl + 'data/load', sourceData).then(function(response) {
-          gpService.decrement();
-          deferred.resolve();
-        },
-        // Error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response);
-        });
-      }
-      return deferred.promise;
-    };
-    
-    // NOTE: This uses project url instead of source data
-    this.getSourceDataLog = function(terminology, version, activity, lines) {
-      console.debug('getSourceDataLog', terminology, version, activity, lines);
-      var deferred = $q.defer();
-      
-      if (!terminology && !version && !activity) {
-        console.error('Must specify all of terminology, version, and activity (LOADING/REMOVING) to retrieve log entries')
-        deferred.reject(null);
-      }
-      
-      else {
-      
-      $http.get(projectUrl + 'log?terminology=' 
-        + sourceData.terminology + '&version=' 
-        + sourceData.version + (lines ? '&lines=' + lines : '')).then(function(response) {
-        deferred.resolve(response.data);
-      }, function(error) {
-        utilService.handleError(error);
-        gpService.decrement();
-        deferred.reject('Error retrieving source data log entries');
-      });
-      }
-      return deferred.promise();
-    };
+          if (!terminology && !version && !activity) {
+            console
+              .error('Must specify all of terminology, version, and activity (LOADING/REMOVING) to retrieve log entries')
+            deferred.reject(null);
+          }
 
-    // end.
+          else {
 
-  } ]);
+            $http.get(
+              projectUrl + 'log?terminology=' + terminology + '&version=' + version
+                + (lines ? '&lines=' + lines : '')).then(function(response) {
+              deferred.resolve(response.data);
+            }, function(error) {
+              utilService.handleError(error);
+              gpService.decrement();
+              deferred.reject('Error retrieving source data log entries');
+            });
+          }
+          return deferred.promise;
+        };
+
+        // end.
+
+      } ]);

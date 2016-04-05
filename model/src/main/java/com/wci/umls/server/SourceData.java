@@ -39,10 +39,10 @@ public interface SourceData extends HasId, HasTerminology, HasLastModified, HasN
     LOADING_COMPLETE,
 
     /** The REMOVING failed. */
-    REMOVING_FAILED,
+    REMOVAL_FAILED,
 
     /** The REMOVING complete. */
-    REMOVING_COMPLETE
+    REMOVAL_COMPLETE
 
   }
 

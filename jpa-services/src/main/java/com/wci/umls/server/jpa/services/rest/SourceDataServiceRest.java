@@ -149,4 +149,14 @@ public interface SourceDataServiceRest {
   public void uploadSourceDataFile(InputStream fileInputStream,
     FormDataContentDisposition contentDispositionHeader, boolean unzip,
     Long sourceDataId, String authToken) throws Exception;
+
+  /**
+   * Remove from source data.
+   *
+   * @param sourceData the source data
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeFromSourceData(SourceDataJpa sourceData, String authToken)
+    throws Exception;
 }

@@ -4,11 +4,7 @@
 package com.wci.umls.server.rest.handlers;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
-
-import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -20,19 +16,13 @@ import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
 import com.wci.umls.server.rest.impl.SecurityServiceRestImpl;
 import com.wci.umls.server.services.SourceDataService;
 import com.wci.umls.server.services.handlers.SourceDataHandler;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
  * Converter for RxNorm files.
  */
-public class Rf2SnapshotSourceDataHandler implements SourceDataHandler {
+public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler implements SourceDataHandler {
 
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
-
-  /** The source data. */
-  private SourceData sourceData;
+ 
 
   /**
    * Instantiates an empty {@link Rf2SourceDataLoader}.
@@ -79,11 +69,6 @@ public class Rf2SnapshotSourceDataHandler implements SourceDataHandler {
       throw new Exception("No version specified for source data object "
           + sourceData.getName());
     }
-    if (sourceData.getReleaseVersion() == null
-        || sourceData.getReleaseVersion().isEmpty()) {
-      throw new Exception("No releaseVersion specified for source data object "
-          + sourceData.getName());
-    }
 
     // find directory path based on upload directory and id
     String inputDir =
@@ -103,7 +88,7 @@ public class Rf2SnapshotSourceDataHandler implements SourceDataHandler {
     // flags for whether refset and terminology folders were found
     boolean refsetFound = false;
     boolean terminologyFound = false;
-    
+
     // check the input directory for existence of Refset and Terminology folders
     for (File f : new File(inputDir).listFiles()) {
       if (f.getName().equals("Refset")) {
@@ -149,9 +134,8 @@ public class Rf2SnapshotSourceDataHandler implements SourceDataHandler {
           "Uploaded files do not contain a directory with both RefSet and Terminology files");
     }
 
-    // ensure that source data is up to date in database
+    // instantiate service
     SourceDataService sourceDataService = new SourceDataServiceJpa();
-    sourceDataService.updateSourceData(sourceData);
 
     // Use content service rest because it has "loadRf2Terminology"
     final Properties config = ConfigUtility.getConfigProperties();
@@ -163,8 +147,8 @@ public class Rf2SnapshotSourceDataHandler implements SourceDataHandler {
     try {
       sourceData.setStatus(SourceData.Status.LOADING);
       sourceDataService.updateSourceData(sourceData);
-      contentService.loadTerminologyRf2Snapshot(sourceData.getTerminology(), sourceData.getVersion(), inputDir,
-          adminAuthToken);
+      contentService.loadTerminologyRf2Snapshot(sourceData.getTerminology(),
+          sourceData.getVersion(), inputDir, adminAuthToken);
       sourceData.setStatus(SourceData.Status.LOADING_COMPLETE);
       sourceDataService.updateSourceData(sourceData);
 
@@ -176,60 +160,4 @@ public class Rf2SnapshotSourceDataHandler implements SourceDataHandler {
       sourceDataService.close();
     }
   }
-
-  /* see superclass */
-  @Override
-  public void reset() throws Exception {
-    // n/a
-  }
-
-  /**
-   * Fires a {@link ProgressEvent}.
-   * @param pct percent done
-   * @param note progress note
-   */
-  public void fireProgressEvent(int pct, String note) {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
-  }
-
-  /* see superclass */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() {
-    throw new UnsupportedOperationException("cannot cancel.");
-  }
-
-  /* see superclass */
-  @Override
-  public void setProperties(Properties p) throws Exception {
-    // n/a
-  }
-
-  /* see superclass */
-  @Override
-  public void setSourceData(SourceData sourceData) {
-    this.sourceData = sourceData;
-  }
-
-  /* see superclass */
-  @Override
-  public void close() throws Exception {
-    // n/a
-  }
-
 }

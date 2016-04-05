@@ -164,5 +164,11 @@ public class Rf2DeltaSourceDataHandler implements SourceDataHandler {
     // n/a
   }
 
+  @Override
+  public void remove() throws Exception {
+    throw new Exception("RF2 Delta Source Data Loader cannot be used to remove terminologies.");
+    
+  }
+
 
 }
