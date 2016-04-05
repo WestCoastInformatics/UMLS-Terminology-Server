@@ -112,7 +112,6 @@ public class AtomClassSearchHandler implements SearchHandler {
 
     // if the literal field specified is a sort field, also search normalized
     // field
-    // TODO Once confirmed working, move this into the queries
     String normalizedField = null;
     if (literalField != null && literalField.endsWith("Sort")) {
       normalizedField =

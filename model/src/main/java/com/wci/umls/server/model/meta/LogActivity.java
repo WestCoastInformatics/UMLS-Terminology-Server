@@ -19,7 +19,10 @@ public enum LogActivity {
   EDITING("Editing"),
 
   /** The release. */
-  RELEASE("Release");
+  RELEASE("Release"),
+  
+  /** The project. */
+  PROJECT("Project");
 
   /** The activity. */
   private String activity;

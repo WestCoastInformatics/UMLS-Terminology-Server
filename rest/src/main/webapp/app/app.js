@@ -55,6 +55,16 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
   $scope.setError = function(message) {
     utilService.setError(message);
   };
+  
+  $scope.success = utilService.success;
+  
+  $scope.clearSuccess = function() {
+    utilService.clearSuccess();
+  };
+  
+  $scope.setSuccess = function(message) {
+    utilService.setSuccess(message);
+  }
 
 } ]);
 

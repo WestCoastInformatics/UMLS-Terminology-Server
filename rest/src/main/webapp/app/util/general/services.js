@@ -15,6 +15,12 @@ tsApp
           expand : false
         };
 
+        this.success = {
+          message : null,
+          longMessage : null,
+          expand : false
+        }
+
         // tinymce options
         this.tinymceOptions = {
           menubar : false,
@@ -65,6 +71,32 @@ tsApp
           this.error.longMessage = null;
           this.error.expand = false;
         };
+
+        // Sets the error
+        this.setError = function(message) {
+          this.error.message = message;
+        };
+
+        // Clears the error
+        this.clearError = function() {
+          this.error.message = null;
+          this.error.longMessage = null;
+          this.error.expand = false;
+        };
+
+        this.handleSuccess = function(message) {
+          console.debug('Handle success: ', message);
+          if (message && message.legth > 100) {
+            this.success.message = 'Successful process reported, click the icon to view full message'
+            this.success.longMessage = message;
+          } else {
+            this.success.message = message;
+          }
+
+          // scroll to top of page
+          $location.hash('top');
+          $anchorScroll();
+        }
 
         // Handle error message
         this.handleError = function(response) {
@@ -995,7 +1027,7 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
       }
       return deferred.promise;
     };
-    
+
     this.getSourceData = function(id) {
       console.debug('loading source data from id ' + id);
       var deferred = $q.defer();

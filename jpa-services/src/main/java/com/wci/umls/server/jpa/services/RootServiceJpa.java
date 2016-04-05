@@ -936,6 +936,9 @@ public abstract class RootServiceJpa implements RootService {
     entry.setProjectId(projectId);
     entry.setTimestamp(new Date());
     entry.setMessage(message);
+    
+    // TODO Confirm this with Brian/Deborah
+    entry.setActivity(LogActivity.PROJECT);
 
     // Add component
     LogEntry newLogEntry = addLogEntry(entry);
@@ -955,6 +958,7 @@ public abstract class RootServiceJpa implements RootService {
     entry.setVersion(version);
     entry.setTimestamp(new Date());
     entry.setMessage(message);
+    entry.setActivity(activity);
 
     // Add component
     LogEntry newLogEntry = addLogEntry(entry);

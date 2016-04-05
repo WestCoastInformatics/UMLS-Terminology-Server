@@ -98,8 +98,7 @@ tsApp
           sourceDataFiles : [],
           handler : null,
           terminology : null,
-          version : null,
-          releaseVersion : null
+          version : null
         };
         sourceDatas.splice(0, 0, sourceData);
         $scope.currentSourceData = sourceData;
@@ -113,9 +112,12 @@ tsApp
           return;
         }
         sourceDataService.updateSourceData(sourceData).then(function(response) {
-          sourceData = response;
-
-          $scope.currentSourceData = response;
+          // update the source data and current source data if response returned (add call)
+          if (response) {
+            sourceData = response;
+            $scope.currentSourceData = response;
+          }
+          $scope.isSourceDataModified = false;
         })
       };
 
@@ -130,6 +132,7 @@ tsApp
       // Remove source data
       $scope.removeSourceData = function(sourceData) {
 
+        // if local only, simply remove from the list
         if (!sourceData.id) {
           for (var i = 0; i < sourceDatas.length; i++) {
             if (sourceData === sourceDatas[i]) {
@@ -137,7 +140,10 @@ tsApp
               break;
             }
           }
-        } else if (confirm('This will delete any uploaded files for this configuration. Are you sure?')) {
+        } 
+        
+        // otherwise ask user for confirmation and delete
+        else if (confirm('This will delete any uploaded files for this configuration. Are you sure?')) {
           sourceDataService.removeSourceData(sourceData).then(
           // Success
           function(response) {
@@ -192,6 +198,14 @@ tsApp
               }
             });
           }
+          
+          // check for polling requirements
+          angular.forEach(sourceDatas, function(sourceData) {
+            if (sourceData.status === 'LOADING' || sourceData.status === 'REMOVING') {
+              $scope.startPolling(sourceData);
+            };
+          });
+          
           refreshTables();
           deferred.resolve();
         }, function() {
@@ -222,25 +236,28 @@ tsApp
 
         // start load and initiate polling
         sourceDataService.loadFromSourceData(sourceData).then(function() {
+          sourceData.status = 'LOADING';
           // TODO Reenable polling 
-          // $scope.startLoadingPolling(sourceData);
+          // $scope.startPolling(sourceData);
         });
 
       };
 
-      $scope.startLoadingPolling = function(sourceData) {
-        console.log('Starting loading polling for ' + sourceData.name);
+      $scope.startSourceDataPolling = function(sourceData) {
+        console.log('Starting status polling for ' + sourceData.name);
 
         // TODO Ensure Brian notices my rebellion with polling interval of 1.001s!
         $scope.loadingPolls[sourceData.id] = $interval(function() {
+          
+          var startStatus = sourceData.status;
 
           // get the source data by id
           sourceDataService.getSourceData(sourceData.id).then(
             function(polledSourceData) {
               // if cannot retrieve or no longer loading, cancel polling
-              if (!polledSourceData || polledSourceData.status !== 'LOADING') {
+              if (!polledSourceData || polledSourceData.status !== startStatus) {
                 console.log('Status change detected for ' + sourceData.name + ': '
-                  + polledSourceData.status);
+                  + polledSourceData.status + ' (previously ' + startStatus + ')');
                 $interval.cancel($scope.loadingPolls[sourceData.id]);
                 delete $scope.loadingPolls[sourceData.id];
               }
@@ -262,6 +279,20 @@ tsApp
           }
         }
       });
+      
+      $scope.processStatusChange = function(sourceData) {
+        switch (sourceData.status) {
+        case 'LOADING_COMPLETE':
+          
+          break;
+        case 'LOADING_FAILED':
+          break;
+        case 'REMOVAL_COMPLETE':
+          break;
+        case 'REMOVAL_FAILED':
+          break;
+        }
+      }
 
       //
       // Angular File Upload controls

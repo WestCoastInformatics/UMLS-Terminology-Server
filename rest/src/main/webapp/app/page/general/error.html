@@ -17,6 +17,22 @@
       </span>
     </h4>
   </div>
+  <div class="col-md-10 col-xs-12" id="successMsg"
+    class="border-error alert-info" ng-show="success.message.length > 0">
+    <h4 class="alert alert-info">
+      {{success.message}}
+      <span style="display: inline; float: right;">
+        <i ng-show="success.longMessage"
+          title="{{success.expand ? 'Show' : 'Hide'}} long message"
+          class="noul glyphicon glyphicon-paperclip"
+          ng-click="success.expand = !success.expand;"></i> <i
+          class="glyphicon glyphicon-remove" ng-click="clearSuccess()"></i>
+      </span>
+      <span ng-show="success.longMessage && success.expand">
+        <br />{{success.longMessage}}
+      </span>
+    </h4>
+  </div>
   <!-- padding -->
   <div class="col-md-1 col-xs-0"></div>
 </div>
