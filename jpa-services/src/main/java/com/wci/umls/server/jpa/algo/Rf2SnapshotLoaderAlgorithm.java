@@ -1210,10 +1210,9 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
         mapping.setLastModified(date);
         mapping.setObsolete(fields[2].equals("0")); // active
         mapping.setSuppressible(mapping.isObsolete());
-        mapping.setGroup(fields[6].intern()); // relationshipGroup
-        mapping.setRelationshipType(
-            fields[7].equals(isaTypeRel) ? "Is a" : "other"); // typeId
-        mapping.setAdditionalRelationshipType(fields[7]); // typeId
+        mapping.setGroup(fields[6].intern()); 
+        mapping.setRelationshipType("RO");
+        mapping.setAdditionalRelationshipType(fields[11]);
 
         generalEntryValues.add(mapping.getAdditionalRelationshipType());
         additionalRelTypes.add(mapping.getAdditionalRelationshipType());
@@ -1301,9 +1300,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
         mapping.setObsolete(fields[2].equals("0")); // active
         mapping.setSuppressible(mapping.isObsolete());
         mapping.setGroup(fields[6].intern()); // relationshipGroup
-        mapping.setRelationshipType(
-            fields[7].equals(isaTypeRel) ? "Is a" : "other"); // typeId
-        mapping.setAdditionalRelationshipType(fields[7]); // typeId
+        mapping.setRelationshipType("RO");
+        mapping.setAdditionalRelationshipType(fields[11]); 
 
         generalEntryValues.add(mapping.getAdditionalRelationshipType());
         additionalRelTypes.add(mapping.getAdditionalRelationshipType());
@@ -1810,6 +1808,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     Map<AdditionalRelationshipType, AdditionalRelationshipType> inverses =
         new HashMap<>();
     for (String rela : additionalRelTypes) {
+      System.out.println("rela : " + rela);
       AdditionalRelationshipType type = new AdditionalRelationshipTypeJpa();
       type.setTerminology(terminology);
       type.setVersion(version);
