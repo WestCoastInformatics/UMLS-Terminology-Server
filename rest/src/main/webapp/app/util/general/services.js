@@ -1132,7 +1132,7 @@ tsApp
               deferred.resolve(response.data);
             }, function(error) {
               utilService.handleError(error);
-              gpService.decrement();
+              
               deferred.reject('Error retrieving source data log entries');
             });
           }

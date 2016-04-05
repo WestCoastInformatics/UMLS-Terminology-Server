@@ -25,6 +25,9 @@ public interface SourceData extends HasId, HasTerminology, HasLastModified, HasN
 
     /** The new. */
     NEW,
+    
+    /** The cancelled. */
+    CANCELLED,
 
     /** The loading. */
     LOADING,

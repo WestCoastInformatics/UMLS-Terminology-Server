@@ -2,6 +2,7 @@ package com.wci.umls.server.jpa.algo;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.meta.LogActivity;
 
@@ -12,6 +13,8 @@ public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa {
 
   /** LOADER constant for use as userName. */
   public final static String LOADER = "loader";
+  
+  private boolean cancelFlag = false;
 
   /**
    * Instantiates an empty {@link AbstractLoaderAlgorithm}.
@@ -47,6 +50,12 @@ public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa {
   @Override
   public void logAndCommit(int objectCt, int logCt, int commitCt)
     throws Exception {
+    
+    if (cancelFlag == true) {
+      throw new CancelException("Cancel requested");
+    }
+    
+    
     if (objectCt % logCt == 0) {
       addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
           "    count = " + objectCt);
@@ -91,6 +100,13 @@ public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa {
         "ERROR: " + message);
     Logger.getLogger(getClass()).error(message);
     commit();
+  }
+  
+  /**
+   * Cancel.
+   */
+  public void cancel() {
+    cancelFlag = true;
   }
 
 }

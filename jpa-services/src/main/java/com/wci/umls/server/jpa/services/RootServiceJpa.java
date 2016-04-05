@@ -26,6 +26,7 @@ import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.hibernate.search.jpa.FullTextQuery;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LogEntry;
@@ -967,4 +968,5 @@ public abstract class RootServiceJpa implements RootService {
     return newLogEntry;
 
   }
+  
 }

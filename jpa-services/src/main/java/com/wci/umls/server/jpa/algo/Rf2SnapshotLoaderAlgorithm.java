@@ -19,6 +19,7 @@ import org.hibernate.Session;
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
@@ -365,6 +366,9 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       logInfo(getComponentStats(terminology, version, Branch.ROOT).toString());
 
       logInfo("Done ...");
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Compute cancelled");
 
     } catch (Exception e) {
       throw e;

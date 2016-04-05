@@ -6,6 +6,7 @@ package com.wci.umls.server.services;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
+import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SourceDataFileList;
@@ -125,4 +126,19 @@ public interface SourceDataService extends RootService {
    * @throws Exception the exception
    */
   public KeyValuePairList getSourceDataHandlerNames() throws Exception;
+
+  /**
+   * Register source data loader.
+   *
+   * @param id the id
+   * @param algorithm the algorithm
+   */
+  public void registerSourceDataAlgorithm(Long id, Algorithm algorithm);
+
+  /**
+   * Unregister source data loader.
+   *
+   * @param id the id
+   */
+  public void unregisterSourceDataAlgorithm(Long id);
 }

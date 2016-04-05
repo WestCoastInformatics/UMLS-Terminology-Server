@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa.services;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.NoResultException;
 
@@ -11,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
+import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
@@ -30,7 +33,10 @@ import com.wci.umls.server.services.handlers.SourceDataHandler;
  */
 public class SourceDataServiceJpa extends RootServiceJpa
     implements SourceDataService {
-
+  
+  
+  /**  The active process map. */
+  private static Map<Long, Algorithm> algorithmsRuning = new HashMap<>();
 
   /**
    * Instantiates a new source data service jpa.
@@ -41,6 +47,9 @@ public class SourceDataServiceJpa extends RootServiceJpa
     super();
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.SourceDataService#getSourceData(java.lang.Long)
+   */
   /* see superclass */
   @Override
   public SourceData getSourceData(Long sourceDataId) throws Exception {
@@ -49,6 +58,9 @@ public class SourceDataServiceJpa extends RootServiceJpa
     return getHasLastModified(sourceDataId, SourceDataJpa.class);
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.SourceDataService#addSourceData(com.wci.umls.server.SourceData)
+   */
   /* see superclass */
   @Override
   public SourceData addSourceData(SourceData sourceData) throws Exception {
@@ -59,6 +71,9 @@ public class SourceDataServiceJpa extends RootServiceJpa
     return sourceData;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.SourceDataService#updateSourceData(com.wci.umls.server.SourceData)
+   */
   /* see superclass */
   @Override
   public void updateSourceData(SourceData sourceData) throws Exception {
@@ -67,6 +82,9 @@ public class SourceDataServiceJpa extends RootServiceJpa
     updateHasLastModified(sourceData);
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.SourceDataService#removeSourceData(java.lang.Long)
+   */
   /* see superclass */
   @Override
   public void removeSourceData(Long sourceDataId) throws Exception {
@@ -75,6 +93,9 @@ public class SourceDataServiceJpa extends RootServiceJpa
     removeHasLastModified(sourceDataId, SourceDataJpa.class);
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.SourceDataService#findSourceDatasForQuery(java.lang.String, com.wci.umls.server.helpers.PfsParameter)
+   */
   /* see superclass */
   @Override
   public SourceDataList findSourceDatasForQuery(String query, PfsParameter pfs)
@@ -94,6 +115,9 @@ public class SourceDataServiceJpa extends RootServiceJpa
     return result;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.SourceDataService#getSourceDataFiles()
+   */
   /* see superclass */
   @Override
   @SuppressWarnings("unchecked")
@@ -114,6 +138,9 @@ public class SourceDataServiceJpa extends RootServiceJpa
     }
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.SourceDataService#getSourceDataFile(java.lang.Long)
+   */
   /* see superclass */
   @Override
   public SourceDataFile getSourceDataFile(Long sourceDataFileId)
@@ -123,6 +150,9 @@ public class SourceDataServiceJpa extends RootServiceJpa
     return getHasLastModified(sourceDataFileId, SourceDataFileJpa.class);
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.SourceDataService#addSourceDataFile(com.wci.umls.server.SourceDataFile)
+   */
   /* see superclass */
   @Override
   public SourceDataFile addSourceDataFile(SourceDataFile sourceDataFile)
@@ -133,6 +163,9 @@ public class SourceDataServiceJpa extends RootServiceJpa
     return addHasLastModified(sourceDataFile);
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.SourceDataService#updateSourceDataFile(com.wci.umls.server.SourceDataFile)
+   */
   /* see superclass */
   @Override
   public void updateSourceDataFile(SourceDataFile sourceDataFile)
@@ -144,6 +177,9 @@ public class SourceDataServiceJpa extends RootServiceJpa
 
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.SourceDataService#removeSourceDataFile(java.lang.Long)
+   */
   /* see superclass */
   @Override
   public void removeSourceDataFile(Long sourceDataFileId) throws Exception {
@@ -179,6 +215,9 @@ public class SourceDataServiceJpa extends RootServiceJpa
     return result;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.SourceDataService#getSourceDataHandlerNames()
+   */
   @Override
   public KeyValuePairList getSourceDataHandlerNames() throws Exception {
     KeyValuePairList keyValuePairList = new KeyValuePairList();
@@ -218,5 +257,22 @@ public class SourceDataServiceJpa extends RootServiceJpa
       }
     }
     return keyValuePairList;
+  }
+  
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.SourceDataService#registerSourceDataLoader(java.lang.Long, com.wci.umls.server.algo.Algorithm)
+   */
+  @Override
+  public void registerSourceDataAlgorithm(Long id, Algorithm algorithm) {
+    SourceDataServiceJpa.algorithmsRuning.put(id,  algorithm);
+  }
+
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.services.SourceDataService#unregisterSourceDataLoader(java.lang.Long)
+   */
+  @Override
+  public void unregisterSourceDataAlgorithm(Long id) {
+    SourceDataServiceJpa.algorithmsRuning.remove(id);
   }
 }

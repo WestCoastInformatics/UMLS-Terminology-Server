@@ -314,6 +314,7 @@ tsApp
         angular.forEach(sourceDatas, function(sourceData) {
           if (sourceData.id === polledSourceData.id) {
             sourceData = polledSourceData;
+            refreshTables();
           }
         });
 

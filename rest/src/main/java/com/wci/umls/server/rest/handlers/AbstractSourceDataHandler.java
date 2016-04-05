@@ -1,9 +1,7 @@
 package com.wci.umls.server.rest.handlers;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -70,7 +68,7 @@ public class AbstractSourceDataHandler implements SourceDataHandler {
   /* see superclass */
   @Override
   public void cancel() {
-    throw new UnsupportedOperationException("cannot cancel.");
+    
   }
 
   /* see superclass */
@@ -130,7 +128,6 @@ public class AbstractSourceDataHandler implements SourceDataHandler {
     } finally {
       sourceDataService.close();
     }
-
   }
 
   @Override
