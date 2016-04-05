@@ -18,7 +18,7 @@ var contentUrl = "content/";
 var adminUrl = "admin/";
 var projectUrl = "project/";
 var validationUrl = "validation/";
-var fileUrl = 'file/';
+var sourceDataUrl = 'file/';
 
 // Initialization of tsApp
 tsApp.run(function($rootScope, $http, $location) {

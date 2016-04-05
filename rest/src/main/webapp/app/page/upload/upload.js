@@ -112,7 +112,7 @@ tsApp
 
       // Specify the angular-file-uploader
       var uploader = $scope.uploader = new FileUploader({
-        url : fileUrl + '/upload'
+        url : sourceDataUrl + '/upload'
       });
 
       // FILTERS
@@ -149,7 +149,7 @@ tsApp
       uploader.onBeforeUploadItem = function(item) {
 
         // dynamically set the upload url with the unzip flag
-        item.url = fileUrl + '/upload?unzip=' + (item.unzip ? 'true' : 'false');
+        item.url = sourceDataUrl + '/upload?unzip=' + (item.unzip ? 'true' : 'false');
 
         // manually set the headers on the item's request (does not inherit from
         // $http, apparently)

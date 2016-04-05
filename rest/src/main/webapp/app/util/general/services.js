@@ -855,7 +855,7 @@ tsApp
           console.debug('find source data files', query);
           var deferred = $q.defer();
           gpService.increment();
-          $http.get(fileUrl + 'find?query=' + encodeURI(query), {}).then(
+          $http.get(sourceDataUrl + 'find?query=' + encodeURI(query), {}).then(
           // Success
           function(response) {
             console.debug('  data = ', response.data);
@@ -876,7 +876,7 @@ tsApp
           console.debug('remove source data file', id);
           var deferred = $q.defer();
           gpService.increment();
-          $http['delete'](fileUrl + 'remove/' + id).then(
+          $http['delete'](sourceDataUrl + 'remove/' + id).then(
           // Success
           function(response) {
             console.debug('  data = ', response.data);
@@ -898,7 +898,7 @@ tsApp
           var deferred = $q.defer();
           if (file.id) {
             gpService.increment();
-            $http.post(fileUrl + 'update', file).then(
+            $http.post(sourceDataUrl + 'update', file).then(
             // Success
             function(response) {
               gpService.decrement();
@@ -912,7 +912,7 @@ tsApp
             });
           } else {
             gpService.increment();
-            $http.put(fileUrl + 'add', file).then(
+            $http.put(sourceDataUrl + 'add', file).then(
             // Success
             function(response) {
               gpService.decrement();
@@ -934,7 +934,7 @@ tsApp
           var deferred = $q.defer();
           if (data.id) {
             gpService.increment();
-            $http.post(fileUrl + 'data/update', data).then(
+            $http.post(sourceDataUrl + 'data/update', data).then(
             // Success
             function(response) {
               gpService.decrement();
@@ -948,7 +948,7 @@ tsApp
             });
           } else {
             gpService.increment();
-            $http.put(fileUrl + 'data/add', data).then(
+            $http.put(sourceDataUrl + 'data/add', data).then(
             // Success
             function(response) {
               gpService.decrement();
@@ -969,7 +969,7 @@ tsApp
           console.debug('remove source data', data);
           var deferred = $q.defer();
           gpService.increment();
-          $http['delete'](fileUrl + 'data/remove/' + data.id).then(
+          $http['delete'](sourceDataUrl + 'data/remove/' + data.id).then(
           // Success
           function(response) {
             gpService.decrement();
@@ -991,7 +991,7 @@ tsApp
           if (!disableGlassPane) {
             gpService.increment();
           }
-          $http.get(fileUrl + 'data/find?query=' + encodeURI(query), {}).then(
+          $http.get(sourceDataUrl + 'data/find?query=' + encodeURI(query), {}).then(
           // Success
           function(response) {
             console.debug("  data =", response.data);
@@ -1019,7 +1019,7 @@ tsApp
             deferred.resolve(sourceDataHandlers);
           } else {
             gpService.increment();
-            $http.get(fileUrl + 'data/sourceDataHandlers').then(
+            $http.get(sourceDataUrl + 'data/sourceDataHandlers').then(
             // Success
             function(response) {
               console.debug("  data =", response.data);
@@ -1047,7 +1047,7 @@ tsApp
             if (!suppressGlassPane) {
               gpService.increment();
             }
-            $http.get(fileUrl + 'data/id/' + id).then(function(response) {
+            $http.get(sourceDataUrl + 'data/id/' + id).then(function(response) {
               if (!suppressGlassPane) {
                 gpService.decrement();
               }
@@ -1075,7 +1075,7 @@ tsApp
           } else {
             gpService.increment();
 
-            $http.post(fileUrl + 'data/load', sourceData).then(function(response) {
+            $http.post(sourceDataUrl + 'data/load', sourceData).then(function(response) {
               gpService.decrement();
               deferred.resolve();
             },
@@ -1099,7 +1099,7 @@ tsApp
           } else {
             gpService.increment();
 
-            $http.post(fileUrl + 'data/remove', sourceData).then(function(response) {
+            $http.post(sourceDataUrl + 'data/remove', sourceData).then(function(response) {
               gpService.decrement();
               deferred.resolve();
             },
@@ -1117,9 +1117,9 @@ tsApp
           console.debug('getSourceDataLog', terminology, version, activity, lines);
           var deferred = $q.defer();
 
-          if (!terminology && !version && !activity) {
+          if (!terminology && !version) {
             console
-              .error('Must specify all of terminology, version, and activity (LOADING/REMOVING) to retrieve log entries')
+              .error('Must specify all of terminology and version to retrieve log entries');
             deferred.reject(null);
           }
 

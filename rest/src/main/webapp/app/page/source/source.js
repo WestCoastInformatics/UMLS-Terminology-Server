@@ -282,7 +282,7 @@ tsApp
 
           // get the log entries
           sourceDataService.getSourceDataLog(sourceData.terminology, sourceData.version,
-            sourceData.status, 100).then(function(logEntries) {
+            null, 100).then(function(logEntries) {
             $scope.polls[sourceData.id].logEntries = logEntries;
           });
 
@@ -357,7 +357,7 @@ tsApp
 
       // Specify the angular-file-uploader
       var uploader = $scope.uploader = new FileUploader({
-        url : fileUrl + 'upload'
+        url : sourceDataUrl + 'upload'
       });
 
       // FILTERS
@@ -388,7 +388,7 @@ tsApp
       uploader.onBeforeUploadItem = function(item) {
 
         // dynamically set the upload url with the unzip flag
-        item.url = fileUrl + '/upload/' + $scope.currentSourceData.id + '?unzip='
+        item.url = sourceDataUrl + '/upload/' + $scope.currentSourceData.id + '?unzip='
           + (item.unzip ? 'true' : 'false');
 
         // manually set the headers on the item's request (does not inherit from

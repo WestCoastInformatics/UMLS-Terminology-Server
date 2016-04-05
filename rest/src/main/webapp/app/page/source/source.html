@@ -121,7 +121,7 @@ td {
       <div class="col-md-8" ng-show="polls[currentSourceData.id]">
         <h4>Activity Log:
           {{getHumanText(polls[currentSourceData.id].status)}}</h4>
-        <div class="well well-md" style="overflow-y: scroll; max-height:300px;">
+        <div class="well well-md" style="overflow-y: auto; max-height:500px;">
           
           <span ng-show="!polls[currentSourceData.id].logEntries">
             Retrieving activity log.... </span>
