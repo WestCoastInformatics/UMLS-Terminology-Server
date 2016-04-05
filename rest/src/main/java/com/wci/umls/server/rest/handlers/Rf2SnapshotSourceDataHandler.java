@@ -35,7 +35,7 @@ public class Rf2SnapshotSourceDataHandler implements SourceDataHandler {
   private SourceData sourceData;
 
   /**
-   * Instantiates an empty {@link Rf2SourceDataLoader}.
+   * Instantiates an empty {@link Rf2SnapshotSourceDataHandler}.
    */
   public Rf2SnapshotSourceDataHandler() {
     // n/a
@@ -91,8 +91,8 @@ public class Rf2SnapshotSourceDataHandler implements SourceDataHandler {
             + File.separator + sourceData.getId().toString();
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException(
-          "Source data directory is not a directory: " + inputDir);
+      throw new LocalException("Source data directory is not a directory: "
+          + inputDir);
     }
 
     // RF2 Loads require locating a base directory containing two folders
@@ -103,7 +103,7 @@ public class Rf2SnapshotSourceDataHandler implements SourceDataHandler {
     // flags for whether refset and terminology folders were found
     boolean refsetFound = false;
     boolean terminologyFound = false;
-    
+
     // check the input directory for existence of Refset and Terminology folders
     for (File f : new File(inputDir).listFiles()) {
       if (f.getName().equals("Refset")) {
@@ -163,8 +163,8 @@ public class Rf2SnapshotSourceDataHandler implements SourceDataHandler {
     try {
       sourceData.setStatus(SourceData.Status.LOADING);
       sourceDataService.updateSourceData(sourceData);
-      contentService.loadTerminologyRf2Snapshot(sourceData.getTerminology(), sourceData.getVersion(), inputDir,
-          adminAuthToken);
+      contentService.loadTerminologyRf2Snapshot(sourceData.getTerminology(),
+          sourceData.getVersion(), inputDir, adminAuthToken);
       sourceData.setStatus(SourceData.Status.LOADING_COMPLETE);
       sourceDataService.updateSourceData(sourceData);
 

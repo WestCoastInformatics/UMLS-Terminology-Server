@@ -1,16 +1,15 @@
-<style>
-td {
-	word-break: break-all;
-}
-</style>
+
 <!-- Source view -->
 <div class="row">
   <div class="col-md-12 col-xs-12">
-    <h3>Source Data</h3>
+    <h4>Source Data</h4>
+
     <!-- Actions header template for source data ng-table -->
     <script type="text/ng-template" id="headerActions.html">
-      <button class="btn btn-default btn-primary btn-sm" ng-click="createSourceData()"><span class="glyphicon glyphicon-plus">Add</span></button>	
+      <button class="btn btn-xs btn-primary" 
+        ng-click="createSourceData()">Add</button>  
   	</script>
+
     <!--  Source data ng-table -->
     <table ng-table="tpSourceDatas" class="table">
       <tr ng-repeat="item in $data">
@@ -19,11 +18,12 @@ td {
           '(Unnamed Source Data)'}}</td>
         <td data-title="'Status'" sortable="'status'"
           ng-click="viewSourceData(item)">
-          {{item.status}} <i class="noul glyphicon glyphicon-eye-open"
+          {{item.status}}
+          <i class="noul glyphicon glyphicon-eye-open"
             uib-tooltip="Click to cancel status polling"
             ng-show="item.status === 'LOADING' && loadingPolls[item.id]"
-            ng-click="cancelLoadingPolling(item)"></i> <i
-            class="noul glyphicon glyphicon-eye-close"
+            ng-click="cancelLoadingPolling(item)"></i>
+          <i class="noul glyphicon glyphicon-eye-close"
             uib-tooltip="Click to resume status polling"
             ng-show="item.status === 'LOADING' && loadingPolls[item.id]"
             ng-click="cancelLoadingPolling(item)"></i>
@@ -39,75 +39,82 @@ td {
         </td>
       </tr>
     </table>
+
+    <!-- Source Data details -->
     <div class="row" ng-show="currentSourceData" style="margin-top: 75px;">
       <div class="col-md-4">
         <h4>Source Data Details</h4>
-        <div class="row">
-          <div class="col-md-3">Name</div>
-          <div class="col-md-9">
-            <textarea style="width: 95%" ng-model="currentSourceData.name"
-              placeholder="Unique name for this source data configuration"></textarea>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-3">Description</div>
-          <div class="col-md-9">
-            <textarea style="min-height: 100px; width: 95%; max-width: 95%;"
-              ng-model="currentSourceData.description"
-              placeholder="Optional description"></textarea>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-3">Terminology</div>
-          <div class="col-md-9">
-            <input style="max-width: 100%"
-              ng-model="currentSourceData.terminology"
-              placeholder="e.g. UMLS, SNOMEDCT, ...">
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-3">Version</div>
-          <div class="col-md-9">
-            <input style="max-width: 100%" ng-model="currentSourceData.version"
-              placeholder="e.g. latest">
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-3">Loader</div>
-          <div class="col-md-9">
-            <select ng-model="currentSourceData.handler"
-              ng-options=" handler.value as handler.key for handler in sourceDataHandlers">
-            </select>
-          </div>
-        </div>
-        <div class="row" style="margin-top: 10px;">
-          <div class="col-md-3"></div>
-          <div class="col-md-9">
-            <button class="btn btn-primary btn-sm"
-              style="padding-top: 5px; padding-bottom: 5px;"
-              ng-click="saveSourceData(currentSourceData)"
-              ng-show="isSourceDataModified">
-              <span class="glyphicon glyphicon-save"> Save</span>
-            </button>
-            <button class="btn btn-warning btn-sm"
-              ng-click="cancelSourceDataModifications()"
-              ng-show="isSourceDataModified">
-              <span class="glyphicon glyphicon-ban-circle"> Cancel</span>
-            </button>
-          </div>
-        </div>
-        <div class="row" style="margin-top: 10px;">
-          <div class="col-md-3">Actions</div>
-          <div class="col-md-9">
-            <button class="btn btn-success btn-sm"
-              ng-click="loadFromSourceData(currentSourceData)"
-              ng-show="!isSourceDataModified">
-              <span class="glyphicon glyphicon-play"></span>
-              &nbsp;Load Data
-            </button>
-          </div>
-        </div>
+        <table class="table">
+          <tr>
+            <td class="col-md-3">Name</td>
+            <td class="col-md-9">
+              <textarea style="width: 95%" ng-model="currentSourceData.name"
+                placeholder="Unique name for this source data configuration"></textarea>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Description</td>
+            <td class="col-md-9">
+              <textarea style="min-height: 100px; width: 95%; max-width: 95%;"
+                ng-model="currentSourceData.description"
+                placeholder="Optional description"></textarea>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Terminology</td>
+            <td>
+              <input style="max-width: 100%"
+                ng-model="currentSourceData.terminology"
+                placeholder="e.g. UMLS, SNOMEDCT, ...">
+            </td>
+          </tr>
+
+          <tr>
+            <td>Version</td>
+            <td>
+              <input style="max-width: 100%"
+                ng-model="currentSourceData.version" placeholder="e.g. latest">
+            </td>
+          </tr>
+
+          <tr>
+            <td>Loader</td>
+            <td>
+              <select ng-model="currentSourceData.handler"
+                ng-options=" handler.value as handler.key for handler in sourceDataHandlers">
+              </select>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Actions</td>
+            <td class="col-md-9">
+              <button class="btn btn-xs btn-primary"
+                ng-click="saveSourceData(currentSourceData)"
+                ng-show="isSourceDataModified">Save</button>
+              <button class="btn btn-xs btn-warning"
+                ng-click="cancelSourceDataModifications()"
+                ng-show="isSourceDataModified">Cancel</button>
+            </td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>
+              <button class="btn btn-success btn-sm"
+                ng-click="loadFromSourceData(currentSourceData)"
+                ng-show="!isSourceDataModified">
+                <span class="glyphicon glyphicon-play"></span>
+                &nbsp;Load Data
+              </button>
+            </td>
+          </tr>
+
+        </table>
       </div>
+
+      <!-- Upload File -->
       <div class="col-md-8" ng-show="!currentSourceData.id">
         <div class="row">
           <h4>Upload File</h4>

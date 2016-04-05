@@ -1,13 +1,12 @@
 package com.wci.umls.server;
 
-import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasName;
 
 /**
  * Generically represents a data file associated with a source provider.
  */
-public interface SourceDataFile extends HasId, HasLastModified, HasName {
+public interface SourceDataFile extends HasLastModified, HasName {
 
   /**
    * Gets the path.

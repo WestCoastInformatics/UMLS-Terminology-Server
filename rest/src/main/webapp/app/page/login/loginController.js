@@ -5,13 +5,13 @@ tsApp.config(function config($routeProvider) {
     templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl',
     reloadOnSearch : false
-  })
-  
+  });
+
   $routeProvider.when('/login', {
     templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl',
     reloadOnSearch : false
-  })
+  });
 });
 
 // Login controller
@@ -61,7 +61,12 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService
           $location.path(response.data.userPreferences.lastTab);
         } else {
           // if no previous preferences, go to source for initial file upload
-          $location.path("/source");
+          if (response.data.applicationRole == 'VIEWER') {
+            $location.path("/content");
+          } else {
+            $location.path("/source");
+          }
+
         }
         gpService.decrement();
       },
