@@ -139,8 +139,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
 
     // Verify release info
     HistoryService historyService = new HistoryServiceJpa();
-    Assert
-        .assertNotNull(historyService.getReleaseInfo("SNOMEDCT", "20140731"));
+    Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT", "20140731"));
     historyService.close();
     historyService.closeFactory();
 
@@ -172,9 +171,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     for (Project project : projectService.getProjects().getObjects()) {
       if (project.getName().equals("Sample project")
           && project.getDescription().equals("Sample project.")
-          && project.getScopeDescendantsFlag()
-          && project.getTerminology().equals("SNOMEDCT")
-          && project.getVersion().equals("latest")) {
+          && project.getTerminology().equals("SNOMEDCT")) {
         // Scope ignored for now - &&
         // project.getScopeConcepts().iterator().next().equals("138875005")) {
         found = true;
@@ -254,10 +251,8 @@ public class Rf2SnapshotLoadAndUnloadTest {
 
     // Verify no contents
     service = new ContentServiceJpa();
-    Assert
-        .assertEquals(0,
-            service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT)
-                .getCount());
+    Assert.assertEquals(0,
+        service.getAllConcepts("SNOMEDCT", "latest", Branch.ROOT).getCount());
     service.close();
     service.closeFactory();
 

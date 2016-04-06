@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server;
 
-import com.wci.umls.server.helpers.PrecedenceList;
 
 /**
  * Represents a user.
@@ -38,18 +37,62 @@ public interface UserPreferences {
    */
   public void setUser(User user);
 
-  /**
-   * Returns the precedence list.
-   *
-   * @return the precedence list
-   */
-  public PrecedenceList getPrecedenceList();
 
   /**
-   * Sets the precedence list.
+   * Gets the last tab.
    *
-   * @param list the precedence list
+   * @return the last tab
    */
-  public void setPrecedenceList(PrecedenceList list);
+  public String getLastTab();
+
+  /**
+   * Sets the last tab.
+   *
+   * @param lastTab the new last tab
+   */
+  public void setLastTab(String lastTab);
+
+  /**
+   * Gets the last terminology.
+   *
+   * @return the last terminology
+   */
+  public String getLastTerminology();
+
+  /**
+   * Sets the last terminology.
+   *
+   * @param lastTerminology the new last terminology
+   */
+  public void setLastTerminology(String lastTerminology);
+
+  /**
+   * Gets the last project id.
+   *
+   * @return the last project id
+   */
+  public Long getLastProjectId();
+
+  /**
+   * Sets the last project id.
+   *
+   * @param lastProjectId the new last project id
+   */
+  public void setLastProjectId(Long lastProjectId);
+  
+  /**
+   * Returns the feedback email.
+   *
+   * @return the feedback email
+   */
+  public String getFeedbackEmail();
+  
+  /**
+   * Sets the feedback email.
+   *
+   * @param feedbackEmail the feedback email
+   */
+  public void setFeedbackEmail(String feedbackEmail);
+  
 
 }

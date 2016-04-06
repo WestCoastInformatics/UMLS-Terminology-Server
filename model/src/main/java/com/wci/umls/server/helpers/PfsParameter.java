@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.helpers;
 
+import java.util.List;
+
 import com.wci.umls.server.model.content.Concept;
 
 /**
@@ -113,7 +115,7 @@ public interface PfsParameter {
   public boolean isAscending();
 
   /**
-   * Sets the ascending flag
+   * Sets the ascending flag.
    *
    * @param ascending the ascending
    */
@@ -133,4 +135,18 @@ public interface PfsParameter {
    */
   public void setBranch(String branch);
 
+  /**
+   * Gets the sort fields.
+   *
+   * @return the sort fields
+   */
+  public List<String> getSortFields();
+
+  /**
+   * Sets the sort fields.
+   *
+   * @param sortFields the new sort fields
+   */
+  public void setSortFields(List<String> sortFields);
+  
 }

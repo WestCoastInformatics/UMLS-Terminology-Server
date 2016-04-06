@@ -1,0 +1,121 @@
+<div class="modal-header">
+  <h4>{{action}} Project</h4>
+</div>
+
+<div class="modal-body">
+  <div class="row">
+    <table class="table">
+      <tr ng-show="project.id">
+        <td>
+          <b>Project Id</b>
+        </td>
+        <td>{{project.id}}</td>
+      </tr>
+      <tr>
+        <td>
+          <b>Name</b>
+        </td>
+        <td>
+          <input ng-model="project.name" size="40" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Description</b>
+        </td>
+        <td>
+          <textarea rows="4" cols="40" ng-model="project.description"
+            placeholder="Basic description of the project"></textarea>
+        </td>
+      </tr>
+
+      <tr>
+        <td>
+          <b>Feedback Email</b>
+        </td>
+        <td>
+          <input ng-model="project.feedbackEmail" size="40"
+            placeholder="e.g. FreshDesk or Siebel email" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Terminology</b>
+        </td>
+        <td>
+          <select ng-model="project.terminology"
+              ng-change="setTerminology(project.terminology)"
+              ng-options="terminology.terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
+        </td>
+      </tr>
+      
+    </table>
+  </div>
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="col-md-9 col-xs-9">Available Validation Checks</th>
+            <th class="col-md-3 col-xs-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="check in availableChecks">
+            <td>{{check}}</td>
+            <td>
+              <i ng-click="selectValidationCheck(check)"
+                title="Select validation check for project"
+                class="noul glyphicon glyphicon-plus"></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-6 col-xs-12">
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="col-md-9 col-xs-9">Selected Validation Checks</th>
+            <th class="col-md-3 col-xs-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="check in selectedChecks">
+            <td>{{check}}</td>
+            <td>
+              <i ng-click="removeValidationCheck(check)"
+                title="Remove validation check from project"
+                class="noul glyphicon glyphicon-trash">delete</i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div ng-show="errors.length > 0" class="row">
+    <table class="table">
+      <tr>
+        <td>
+          <div class="alert alert-danger alert-error"
+            ng-repeat="error in errors">
+            {{error}}
+            <!-- DO NOT SUPPORT clearing error <div
+              style="cursor: pointer; display: inline; float: right; width: 3%;">
+              <i class="glyphicon glyphicon-remove" ng-click="clearError()"></i>
+            </div> -->
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+
+<div class="modal-footer">
+  <button ng-show="action == 'Add'" class="btn btn-primary"
+    ng-click="submitProject(project);">Add</button>
+  <button ng-show="action == 'Edit'" class="btn btn-primary"
+    ng-click="submitProject(project);">Save</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

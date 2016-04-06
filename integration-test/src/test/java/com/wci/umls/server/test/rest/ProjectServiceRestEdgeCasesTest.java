@@ -15,7 +15,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.wci.umls.server.User;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProjectJpa;
 
@@ -74,17 +73,10 @@ public class ProjectServiceRestEdgeCasesTest extends ProjectServiceRestTest {
     ProjectJpa project2 = new ProjectJpa();
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
-    project2.setActionWorkflowStatusValues(values);
-    User user = securityService.getUser(adminUser, adminAuthToken);
-    project2.addAdministrator(user);
-    project2.addAuthor(user);
-    project2.addLead(user);
-    project2.addScopeConcept("12345");
-    project2.addScopeExcludesConcept("12345");
+
     project2.setDescription("Sample");
     project2.setName("Sample");
     project2.setTerminology("UMLS");
-    project2.setVersion("latest");
 
     project2 = (ProjectJpa) projectService.addProject(project2, adminAuthToken);
 

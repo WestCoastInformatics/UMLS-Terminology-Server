@@ -33,7 +33,7 @@ public class SearchResultJpa implements SearchResult {
   private boolean obsolete;
 
   /** The score. */
-  private float score;
+  private Float score = null;
 
   /**
    * Default constructor.
@@ -152,13 +152,13 @@ public class SearchResultJpa implements SearchResult {
 
   /* see superclass */
   @Override
-  public float getScore() {
+  public Float getScore() {
     return score;
   }
 
   /* see superclass */
   @Override
-  public void setScore(float score) {
+  public void setScore(Float score) {
     this.score = score;
   }
 
@@ -171,8 +171,9 @@ public class SearchResultJpa implements SearchResult {
     result = prime * result + Float.floatToIntBits(score);
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result
-        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result =
+        prime * result
+            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;

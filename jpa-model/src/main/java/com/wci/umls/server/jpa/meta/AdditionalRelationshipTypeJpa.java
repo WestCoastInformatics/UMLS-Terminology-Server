@@ -22,7 +22,7 @@ import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 @Entity
 @Table(name = "additional_relationship_types", uniqueConstraints = @UniqueConstraint(columnNames = {
     // "id" needed here because RELA sometimes has multiple abbreviations
-    // that are the same in a case-insensitive way, which is how the 
+    // that are the same in a case-insensitive way, which is how the
     // constraint works in MySQL when using standard utf8 collation/charset
     "abbreviation", "terminology", "id"
 }))

@@ -30,6 +30,9 @@ public class Rf2FileSorter {
   /** The require all files. */
   private boolean requireAllFiles = false;
 
+  /** Whether the files are in flat structure instead of directory structure */
+  private boolean flatFileStructure = false;
+
   /**
    * Instantiates an empty {@link Rf2FileSorter}.
    *
@@ -67,6 +70,14 @@ public class Rf2FileSorter {
   }
 
   /**
+   * Sets the flat file structure flag
+   * @param flatFileStructure
+   */
+  public void setFlatFileStructure(boolean flatFileStructure) {
+    this.flatFileStructure = flatFileStructure;
+  }
+
+  /**
    * Sort files.
    *
    * @param inputDir the input dir
@@ -89,21 +100,39 @@ public class Rf2FileSorter {
     }
 
     Map<String, String> dirMap = new HashMap<>();
-    dirMap.put("sct2_Concept_", "/Terminology");
-    dirMap.put("sct2_Relationship_", "/Terminology");
-    dirMap.put("sct2_StatedRelationship_", "/Terminology");
-    dirMap.put("sct2_Description_", "/Terminology");
-    dirMap.put("sct2_TextDefinition_", "/Terminology");
-    dirMap.put("Refset_Simple", "/Refset/Content");
-    dirMap.put("AttributeValue", "/Refset/Content");
-    dirMap.put("AssociationReference", "/Refset/Content");
-    dirMap.put("ComplexMap", "/Refset/Map");
-    dirMap.put("ExtendedMap", "/Refset/Map");
-    dirMap.put("SimpleMap", "/Refset/Map");
-    dirMap.put("Language", "/Refset/Language");
-    dirMap.put("RefsetDescriptor", "/Refset/Metadata");
-    dirMap.put("ModuleDependency", "/Refset/Metadata");
-    dirMap.put("DescriptionType", "/Refset/Metadata");
+    if (flatFileStructure) {
+      dirMap.put("sct2_Concept_", "/");
+      dirMap.put("sct2_Relationship_", "/");
+      dirMap.put("sct2_StatedRelationship_", "/");
+      dirMap.put("sct2_Description_", "/");
+      dirMap.put("sct2_TextDefinition_", "/");
+      dirMap.put("Refset_Simple", "/");
+      dirMap.put("AttributeValue", "/");
+      dirMap.put("AssociationReference", "/");
+      dirMap.put("ComplexMap", "/");
+      dirMap.put("ExtendedMap", "/");
+      dirMap.put("SimpleMap", "/");
+      dirMap.put("Language", "/");
+      dirMap.put("RefsetDescriptor", "/");
+      dirMap.put("ModuleDependency", "/");
+      dirMap.put("DescriptionType", "/");
+    } else {
+      dirMap.put("sct2_Concept_", "/Terminology");
+      dirMap.put("sct2_Relationship_", "/Terminology");
+      dirMap.put("sct2_StatedRelationship_", "/Terminology");
+      dirMap.put("sct2_Description_", "/Terminology");
+      dirMap.put("sct2_TextDefinition_", "/Terminology");
+      dirMap.put("Refset_Simple", "/Refset/Content");
+      dirMap.put("AttributeValue", "/Refset/Content");
+      dirMap.put("AssociationReference", "/Refset/Content");
+      dirMap.put("ComplexMap", "/Refset/Map");
+      dirMap.put("ExtendedMap", "/Refset/Map");
+      dirMap.put("SimpleMap", "/Refset/Map");
+      dirMap.put("Language", "/Refset/Language");
+      dirMap.put("RefsetDescriptor", "/Refset/Metadata");
+      dirMap.put("ModuleDependency", "/Refset/Metadata");
+      dirMap.put("DescriptionType", "/Refset/Metadata");
+    }
 
     Map<String, Integer> sortByMap = new HashMap<>();
     sortByMap.put("sct2_Concept_", 0);
@@ -151,16 +180,14 @@ public class Rf2FileSorter {
       Logger.getLogger(getClass()).info("    file = " + file);
 
       // Determine file version from filename
-      // Skip null filenames (e.g. for nonexistent files)
-      if (fileVersion == null && file != null) {
-        Matcher matcher =
-            Pattern.compile("\\d+").matcher(
-                file.getName().substring(file.getName().lastIndexOf('_')));
+      if (fileVersion == null) {
+        Matcher matcher = Pattern.compile("\\d+")
+            .matcher(file.getName().substring(file.getName().lastIndexOf('_')));
         matcher.find();
         fileVersion = matcher.group();
         if (fileVersion == null) {
-          throw new Exception("Unable to determine file version from "
-              + file.getName());
+          throw new Exception(
+              "Unable to determine file version from " + file.getName());
         }
       }
 
@@ -171,7 +198,7 @@ public class Rf2FileSorter {
         };
       } else {
         fields = new int[] {
-          sortByMap.get(key)
+            sortByMap.get(key)
         };
       }
       // Sort the file
@@ -197,17 +224,16 @@ public class Rf2FileSorter {
       };
     } else {
       fields = new int[] {
-        sortByMap.get("merge_Relationship")
+          sortByMap.get("merge_Relationship")
       };
     }
 
-    File mergedRel =
-        ConfigUtility.mergeSortedFiles(relationshipsFile,
-            statedRelationshipsFile, getComparator(fields), outputDir, "");
+    File mergedRel = ConfigUtility.mergeSortedFiles(relationshipsFile,
+        statedRelationshipsFile, getComparator(fields), outputDir, "");
 
     // rename the temporary file
-    Files.move(mergedRel, new File(outputDir + "/"
-        + "relationshipsAllBySourceConcept.sort"));
+    Files.move(mergedRel,
+        new File(outputDir + "/" + "relationshipsAllBySourceConcept.sort"));
 
     Thread.sleep(1000);
     Logger.getLogger(getClass()).info("Done...");
@@ -267,9 +293,8 @@ public class Rf2FileSorter {
       }
       columns.append(sortColumn);
     }
-    Logger.getLogger(getClass()).info(
-        "    Sorting " + fileIn.getName() + "  into " + fileOut.toString()
-            + " by columns " + columns);
+    Logger.getLogger(getClass()).info("    Sorting " + fileIn.getName()
+        + "  into " + fileOut.toString() + " by columns " + columns);
     FileSorter.sortFile(fileIn.toString(), fileOut.toString(), comp);
 
   }

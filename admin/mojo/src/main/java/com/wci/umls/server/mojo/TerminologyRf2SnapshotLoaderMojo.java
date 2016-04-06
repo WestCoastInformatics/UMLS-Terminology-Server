@@ -122,7 +122,7 @@ public class TerminologyRf2SnapshotLoaderMojo extends AbstractMojo {
           ContentServiceRestImpl contentService = new ContentServiceRestImpl();
           contentService.luceneReindex(null, authToken);
         }
-        
+
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
         contentService.loadTerminologyRf2Snapshot(terminology, version,
             inputDir, authToken);
@@ -132,12 +132,12 @@ public class TerminologyRf2SnapshotLoaderMojo extends AbstractMojo {
 
         // invoke the client
         ContentClientRest client = new ContentClientRest(properties);
-        
+
         // handle reindexing
         if (mode != null && mode.equals("create")) {
           client.luceneReindex(null, authToken);
         }
-        
+
         client.loadTerminologyRf2Snapshot(terminology, version, inputDir,
             authToken);
       }

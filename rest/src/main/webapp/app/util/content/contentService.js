@@ -37,13 +37,18 @@ tsApp
         // Search results
         var searchParams = {
           page : 1,
-          query : null
+          query : null,
+          advancedMode : false,
+          semanticType : null,
+          termType : null,
+          matchTerminology : null,
+          language : null
         };
 
         // Search results
         var searchResults = {
-          list : [],
-          tree : []
+          list : null,
+          tree : null
         };
 
         // Accessor function for component
@@ -172,7 +177,6 @@ tsApp
         // component
         // data fields
         this.getComponentHelper = function(terminologyId, terminology, version, prefix) {
-          console.debug("getComponentHelper", terminologyId, terminology, version, prefix);
           var deferred = $q.defer();
 
           // Here the prefix is passed in because of terminologies
@@ -436,8 +440,8 @@ tsApp
         };
 
         // Finds components as a list
-        this.findComponentsAsList = function(queryStr, terminology, version, page, semanticType) {
-          console.debug("findComponentsAsList", queryStr, terminology, version, page, semanticType);
+        this.findComponentsAsList = function(queryStr, terminology, version, page, searchParams) {
+          console.debug("findComponentsAsList", queryStr, terminology, version, page, searchParams);
           // Setup deferred
           var deferred = $q.defer();
 
@@ -449,8 +453,23 @@ tsApp
             queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
           };
 
-          if (semanticType) {
-            pfs.queryRestriction += " AND semanticTypes.semanticType:\"" + semanticType + "\"";
+          // check parameters for advanced mode
+          if (searchParams.advancedMode) {
+            if (searchParams.semanticType) {
+              pfs.queryRestriction += " AND semanticTypes.semanticType:\""
+                + searchParams.semanticType + "\"";
+            }
+
+            if (searchParams.matchTerminology) {
+              pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
+                + "\"";
+            }
+            if (searchParams.termType) {
+              pfs.queryRestriction += " AND atoms.termType:\"" + searchParams.termType + "\"";
+            }
+            if (searchParams.language) {
+              pfs.queryRestriction += " AND atoms.language:\"" + searchParams.language + "\"";
+            }
           }
 
           // Get prefix
@@ -498,8 +517,26 @@ tsApp
             queryRestriction : null
           };
 
-          if (semanticType) {
-            pfs.queryRestriction = "ancestorPath:" + semanticType.replace("~", "\\~") + "*";
+          // check parameters for advanced mode
+          if (searchParams.advancedMode) {
+
+            if (semanticType) {
+              pfs.queryRestriction = "ancestorPath:" + semanticType.replace("~", "\\~") + "*";
+            }/*
+                           * if (searchParams.semanticType) { pfs.queryRestriction += " AND
+                           * semanticTypes.semanticType:\"" + searchParams.semanticType + "\""; }
+                           */
+
+            if (searchParams.matchTerminology) {
+              pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
+                + "\"";
+            }
+            if (searchParams.termType) {
+              pfs.queryRestriction += " AND atoms.termType:\"" + searchParams.termType + "\"";
+            }
+            if (searchParams.language) {
+              pfs.queryRestriction += " AND atoms.language:\"" + searchParams.language + "\"";
+            }
           }
 
           var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
@@ -527,38 +564,40 @@ tsApp
 
         // Handle paging of relationships (requires content service
         // call).
-        this.findRelationships = function(terminologyId, terminology, version, page, filters) {
-          console.debug("findRelationships", terminologyId, terminology, version, page, filters);
+        this.findRelationships = function(terminologyId, terminology, version, page, parameters) {
+          console.debug("findRelationships", terminologyId, terminology, version, page, parameters);
           var deferred = $q.defer();
 
           var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
-          
-          if (filters)
 
-          var pfs = {
-            startIndex : (page - 1) * pageSizes.general,
-            maxResults : pageSizes.general,
-            sortField : null,
-            queryRestriction : null
-          };
+          if (parameters)
+
+            var pfs = {
+              startIndex : (page - 1) * pageSizes.general,
+              maxResults : pageSizes.general,
+              sortFields : parameters.sortFields ? parameters.sortFields : [ 'group',
+                'relationshipType' ],
+              ascending : parameters.sortAscending,
+              queryRestriction : null
+            // constructed from filters
+            };
 
           // Show only inferred rels for now
           // construct query restriction if needed
           var qr = '';
-          if (!filters.showSuppressible) {
+          if (!parameters.showSuppressible) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'suppressible:false';
           }
-          if (!filters.showObsolete) {
+          if (!parameters.showObsolete) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'obsolete:false';
           }
-          if (filters.showInferred) {
+          if (parameters.showInferred) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'inferred:true';
           }
-          if (!filters.showInferred) {
+          if (!parameters.showInferred) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'stated:true';
           }
           pfs.queryRestriction = qr;
-          pfs.sortField = 'relationshipType';
 
           // For description logic sources, simply read all rels.
           // That way we ensure all "groups" are represented.
@@ -569,7 +608,14 @@ tsApp
             pfs.maxResults = pageSizes.general;
           }
 
-          var query = filters.text;
+          var query = parameters.text;
+
+          // Add wildcard to allow better matching from basic search
+          // NOTE: searching for "a"* is interpreted by lucene as a 
+          // leading wildcard search (i.e. "a" *)
+          if (query && !query.endsWith('*') && !query.endsWith('"')) {
+            query += '*';
+          }
           gpService.increment();
           $http.post(
             contentUrl + prefix + "/" + component.object.terminology + "/"
@@ -588,6 +634,122 @@ tsApp
           return deferred.promise;
         };
 
+        // Handle paging of relationships (requires content service
+        // call).
+        this.findDeepRelationships = function(terminologyId, terminology, version, page, parameters) {
+          console.debug("findDeepRelationships", terminologyId, terminology, version, page,
+            parameters);
+          var deferred = $q.defer();
+
+          var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
+
+          if (prefix !== 'cui') {
+            defer.reject('Deep relationships cannot be retrieved for type previs ' + prefix);
+          }
+
+          if (parameters) {
+
+            var pfs = {
+              startIndex : (page - 1) * pageSizes.general,
+              maxResults : pageSizes.general,
+              sortFields : parameters.sortFields ? parameters.sortFields : [ 'group',
+                'relationshipType' ],
+              ascending : parameters.sortAscending,
+
+              // NOTE: Deep relationships do not support query restrictions, instead using
+              // text filter as only query parameter
+              queryRestriction : null
+            };
+          }
+          
+          // set filter/query; unlike relationships, does not require * for filtering
+          var query = parameters.text;
+
+          // For description logic sources, simply read all rels.
+          // That way we ensure all "groups" are represented.
+          /*if (metadata.terminology.descriptionLogicTerminology) {
+            pfs.startIndex = -1;
+            pfs.maxResults = 1000000;
+          } else {
+            pfs.maxResults = pageSizes.general;
+          }*/
+
+          // TODO Re-enable glass pane if no measurable delays are seen
+          //gpService.increment();
+          $http.post(
+            contentUrl + prefix + "/" + component.object.terminology + "/"
+              + component.object.version + "/" + component.object.terminologyId
+              + "/relationships/deep?query=" + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
+            console.debug("  deep relationships =", response.data);
+            //gpService.decrement();
+            deferred.resolve(response.data);
+          }, function(response) {
+            utilService.handleError(response);
+            //gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        };
+
+        // Handle paging of mappings (requires content service
+        // call).
+        this.findMappings = function(terminologyId, terminology, version, page, parameters) {
+          console.debug("findMappings", terminologyId, terminology, version, page, parameters);
+          var deferred = $q.defer();
+
+          var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
+
+          if (parameters)
+
+            var pfs = {
+              startIndex : (page - 1) * pageSizes.general,
+              maxResults : pageSizes.general,
+              sortField : parameters.sortField ? parameters.sortField : 'fromTerminologyId',
+              ascending : parameters.sortAscending,
+              queryRestriction : null
+            // constructed from filters
+            };
+
+          // Show only inferred rels for now
+          // construct query restriction if needed
+          var qr = '';
+          if (!parameters.showSuppressible) {
+            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'suppressible:false';
+          }
+          if (!parameters.showObsolete) {
+            qr = qr + (qr.length > 0 ? ' AND ' : '') + 'obsolete:false';
+          }
+          
+          pfs.queryRestriction = qr;
+
+          // For description logic sources, simply read all rels.
+          // That way we ensure all "groups" are represented.
+          if (metadata.terminology.descriptionLogicTerminology) {
+            pfs.startIndex = -1;
+            pfs.maxResults = 1000000;
+          } else {
+            pfs.maxResults = pageSizes.general;
+          }
+
+          var query = parameters.text;
+          gpService.increment();
+          $http.post(
+            contentUrl + prefix + "/" + component.object.terminologyId + "/"
+              + component.object.terminology + "/" + component.object.version
+              + "/mappings?query=" + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(
+            function(response) {
+              console.debug("  mappings =", response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            }, function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+
+          return deferred.promise;
+        };
         // end
 
       } ]);

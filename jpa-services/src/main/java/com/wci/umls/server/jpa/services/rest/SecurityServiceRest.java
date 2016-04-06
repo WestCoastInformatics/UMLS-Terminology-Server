@@ -4,8 +4,12 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.User;
+import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.UserJpa;
+import com.wci.umls.server.jpa.UserPreferencesJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.helpers.StringList;
 
 /**
  * Represents a security available via a REST service.
@@ -87,4 +91,65 @@ public interface SecurityServiceRest {
    * @throws Exception the exception
    */
   public void updateUser(UserJpa user, String authToken) throws Exception;
+
+  /**
+   * Gets the user for auth token.
+   *
+   * @param authToken the auth token
+   * @return the user for auth token
+   * @throws Exception the exception
+   */
+  public User getUserForAuthToken(String authToken) throws Exception;
+
+  /**
+   * Adds the user preferences.
+   *
+   * @param userPreferences the user preferences
+   * @param authToken the auth token
+   * @return the user preferences
+   * @throws Exception the exception
+   */
+  public UserPreferences addUserPreferences(UserPreferencesJpa userPreferences,
+    String authToken) throws Exception;
+
+  /**
+   * Removes the user preferences.
+   *
+   * @param id the id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeUserPreferences(Long id, String authToken) throws Exception;
+
+  /**
+   * Update user preferences.
+   *
+   * @param userPreferences the user preferences
+   * @param authToken the auth token
+   * @return the user preferences
+   * @throws Exception the exception
+   */
+  public UserPreferences updateUserPreferences(UserPreferencesJpa userPreferences,
+    String authToken) throws Exception;
+
+  /**
+   * Gets the application roles.
+   *
+   * @param authToken the auth token
+   * @return the application roles
+   * @throws Exception the exception
+   */
+  public StringList getApplicationRoles(String authToken) throws Exception;
+
+  /**
+   * Find users for query.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the user list
+   * @throws Exception the exception
+   */
+  public UserList findUsersForQuery(String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 }

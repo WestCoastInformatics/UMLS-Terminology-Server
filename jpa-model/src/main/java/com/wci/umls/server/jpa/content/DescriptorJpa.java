@@ -29,7 +29,7 @@ import com.wci.umls.server.model.content.DescriptorRelationship;
 @Entity
 @Table(name = "descriptors", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
-}) )
+}))
 @Audited
 @Indexed
 @XmlRootElement(name = "descriptor")
@@ -72,8 +72,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
       for (Definition definition : descriptor.getDefinitions()) {
         addDefinition(new DefinitionJpa(definition, deepCopy));
       }
-      for (DescriptorRelationship relationship : descriptor
-          .getRelationships()) {
+      for (DescriptorRelationship relationship : descriptor.getRelationships()) {
         addRelationship(new DescriptorRelationshipJpa(relationship, deepCopy));
       }
 

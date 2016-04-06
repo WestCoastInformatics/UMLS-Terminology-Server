@@ -31,16 +31,16 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
   public void setup() throws Exception {
 
     // authentication
-    authToken = securityClient.authenticate(testUser, testPassword).getAuthToken();
+    authToken =
+        securityClient.authenticate(testUser, testPassword).getAuthToken();
 
   }
 
   /**
-   * Demonstrates how to find UMLS concept "deep" relationships.  
-   * This is used when a user wants to know all of the potential CUI2
-   * on the other side of relationships in, say, the MRREL.RRF perspective.
-   * This is a call that is only sensible to make on a "metathesaurus"-style
-   * terminology.
+   * Demonstrates how to find UMLS concept "deep" relationships. This is used
+   * when a user wants to know all of the potential CUI2 on the other side of
+   * relationships in, say, the MRREL.RRF perspective. This is a call that is
+   * only sensible to make on a "metathesaurus"-style terminology.
    * 
    * @throws Exception the exception
    */
@@ -73,28 +73,29 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
 
     // Loading all deep relationships for the concept
     list =
-        contentClient.findDeepRelationshipsForConcept(terminologyId, terminology,
-            version, null, authToken);
+        contentClient.findDeepRelationshipsForConcept(terminologyId,
+            terminology, version, null, null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
     for (Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
-    // Now, see that this concept has only 126 "deep" relationships (which include the original 25)
+    // Now, see that this concept has only 126 "deep" relationships (which
+    // include the original 25)
 
     // Loading deep relationships with paging
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     list =
-        contentClient.findDeepRelationshipsForConcept(terminologyId, terminology,
-            version, pfs, authToken);
+        contentClient.findDeepRelationshipsForConcept(terminologyId,
+            terminology, version, pfs, null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
     for (Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
-        
+
   }
 
   /**

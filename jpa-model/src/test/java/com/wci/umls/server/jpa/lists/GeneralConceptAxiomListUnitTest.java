@@ -20,7 +20,8 @@ import com.wci.umls.server.model.content.GeneralConceptAxiom;
 /**
  * Unit testing for {@link GeneralConceptAxiomList}.
  */
-public class GeneralConceptAxiomListUnitTest extends AbstractListUnit<GeneralConceptAxiom> {
+public class GeneralConceptAxiomListUnitTest extends
+    AbstractListUnit<GeneralConceptAxiom> {
 
   /** test fixture . */
   private GeneralConceptAxiomList list1;

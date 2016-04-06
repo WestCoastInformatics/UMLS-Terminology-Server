@@ -58,7 +58,8 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
     super(attribute);
     name = attribute.getName();
     value = attribute.getValue();
-    alternateTerminologyIds = new HashMap<>(attribute.getAlternateTerminologyIds());
+    alternateTerminologyIds =
+        new HashMap<>(attribute.getAlternateTerminologyIds());
   }
 
   /**

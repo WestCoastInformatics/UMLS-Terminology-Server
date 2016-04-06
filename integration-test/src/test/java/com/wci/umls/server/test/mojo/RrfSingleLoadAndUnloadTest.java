@@ -73,7 +73,7 @@ public class RrfSingleLoadAndUnloadTest {
   public void test() throws Exception {
 
     // Use the run.config.claml configuration for this build
-    
+
     // Createdb
     InvocationRequest request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/db/pom.xml"));
@@ -182,9 +182,7 @@ public class RrfSingleLoadAndUnloadTest {
     for (Project project : projectService.getProjects().getObjects()) {
       if (project.getName().equals("Sample project")
           && project.getDescription().equals("Sample project.")
-          && project.getScopeDescendantsFlag()
-          && project.getTerminology().equals("SNOMEDCT_US")
-          && project.getVersion().equals("latest")) {
+          && project.getTerminology().equals("SNOMEDCT_US")) {
         // Scope ignored for now - &&
         // project.getScopeConcepts().iterator().next().equals("138875005")) {
         found = true;

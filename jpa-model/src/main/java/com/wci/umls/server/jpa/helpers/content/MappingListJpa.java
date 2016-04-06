@@ -22,7 +22,7 @@ public class MappingListJpa extends AbstractResultList<Mapping> implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = MappingJpa.class, name = "mappings")
+  @XmlElement(type = MappingJpa.class, name = "mapping")
   public List<Mapping> getObjects() {
     return super.getObjectsTransient();
   }

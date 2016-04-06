@@ -211,4 +211,9 @@ public interface MapSet extends ComponentHasAttributes {
    */
   public void setMapVersion(String mapVersion);
 
+  /**
+   * Clear mappings.
+   */
+  public void clearMappings();
+
 }

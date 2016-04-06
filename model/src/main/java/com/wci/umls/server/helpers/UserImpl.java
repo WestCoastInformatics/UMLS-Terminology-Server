@@ -3,6 +3,10 @@
  */
 package com.wci.umls.server.helpers;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
@@ -33,6 +37,9 @@ public class UserImpl implements User {
   /** The auth token. */
   private String authToken;
 
+  /** The projects. */
+  private Map<Project,UserRole> projectRoleMap;
+  
   /**
    * Instantiates an empty {@link UserImpl}.
    */
@@ -179,6 +186,19 @@ public class UserImpl implements User {
   @Override
   public void setUserPreferences(UserPreferences preferences) {
     this.userPreferences = preferences;
+  }
+
+  @Override
+  public Map<Project, UserRole> getProjectRoleMap() {
+    if (projectRoleMap == null) {
+      projectRoleMap = new HashMap<>();
+    }
+    return projectRoleMap;
+  }
+
+  @Override
+  public void setProjectRoleMap(Map<Project, UserRole> projectRoleMap) {
+    this.projectRoleMap = projectRoleMap;
   }
 
 }

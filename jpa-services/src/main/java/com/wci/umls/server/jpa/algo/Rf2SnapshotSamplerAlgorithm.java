@@ -10,13 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
-import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.services.helpers.ProgressEvent;
@@ -26,8 +23,8 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
-    Algorithm {
+public class Rf2SnapshotSamplerAlgorithm extends AbstractLoaderAlgorithm
+    implements Algorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -74,35 +71,33 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
   @Override
   public void compute() throws Exception {
     try {
-      Logger.getLogger(getClass()).info("Start sampling snapshot");
+      logInfo("Start sampling snapshot");
 
       // load relationships
-      Logger.getLogger(getClass()).info("  Load relationships");
+      logInfo("  Load relationships");
       loadRelationshipMaps();
 
-      Logger.getLogger(getClass()).info(
-          "    chdPar count = " + chdParMap.size());
-      // Logger.getLogger(getClass()).info("    chdPar = " + chdParMap);
-      Logger.getLogger(getClass()).info("    other count = " + otherMap.size());
-      // Logger.getLogger(getClass()).info("    other = " + otherMap);
+      logInfo("    chdPar count = " + chdParMap.size());
+      // logInfo("    chdPar = " + chdParMap);
+      logInfo("    other count = " + otherMap.size());
+      // logInfo("    other = " + otherMap);
 
-      Logger.getLogger(getClass()).info("  Find initial concepts");
+      logInfo("  Find initial concepts");
       // 1. Find initial concepts
       Set<String> concepts = new HashSet<>();
       Set<String> descriptions = new HashSet<>();
       concepts.addAll(inputConcepts);
-      Logger.getLogger(getClass()).info("    count = " + concepts.size());
+      logInfo("    count = " + concepts.size());
 
       // 2. Find other related concepts
-      Logger.getLogger(getClass()).info("  Add distance 1 related concepts");
+      logInfo("  Add distance 1 related concepts");
       for (String concept : new HashSet<>(concepts)) {
         if (otherMap.get(concept) != null) {
-          Logger.getLogger(getClass()).info(
-              "    add concepts = " + otherMap.get(concept));
+          logInfo("    add concepts = " + otherMap.get(concept));
           concepts.addAll(otherMap.get(concept));
         }
       }
-      Logger.getLogger(getClass()).info("    count = " + concepts.size());
+      logInfo("    count = " + concepts.size());
 
       int prevCt = -1;
       do {
@@ -112,49 +107,38 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
         readers.openReaders();
 
         // 3. Find metadata concepts (definitionStatusId, typeId,
-        Logger.getLogger(getClass()).info("  Get metadata concepts");
+        logInfo("  Get metadata concepts");
         addConceptMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after concepts) = " + concepts.size());
+        logInfo("    count (after concepts) = " + concepts.size());
 
         addDescriptionMetadata(concepts, descriptions);
-        Logger.getLogger(getClass()).info(
-            "    count (after descriptions) = " + concepts.size());
-        Logger.getLogger(getClass()).info(
-            "    count of descriptions (after descriptions) = "
-                + descriptions.size());
+        logInfo("    count (after descriptions) = " + concepts.size());
+        logInfo("    count of descriptions (after descriptions) = "
+            + descriptions.size());
 
         addRelationshipMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after relationships) = " + concepts.size());
+        logInfo("    count (after relationships) = " + concepts.size());
 
         addAttributeValueMetadata(concepts, descriptions);
-        Logger.getLogger(getClass()).info(
-            "    count (after attribute value) = " + concepts.size());
+        logInfo("    count (after attribute value) = " + concepts.size());
 
         addAssociationReferenceMetadata(concepts, descriptions);
-        Logger.getLogger(getClass()).info(
-            "    count (after association reference) = " + concepts.size());
+        logInfo("    count (after association reference) = " + concepts.size());
 
         addSimpleMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after simple) = " + concepts.size());
+        logInfo("    count (after simple) = " + concepts.size());
 
         addSimpleMapMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after simple map) = " + concepts.size());
+        logInfo("    count (after simple map) = " + concepts.size());
 
         addComplexMapMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after complex map) = " + concepts.size());
+        logInfo("    count (after complex map) = " + concepts.size());
 
         addLanguageMetadata(concepts, descriptions);
-        Logger.getLogger(getClass()).info(
-            "    count (after language) = " + concepts.size());
+        logInfo("    count (after language) = " + concepts.size());
 
         addMetadataMetadata(concepts);
-        Logger.getLogger(getClass()).info(
-            "    count (after metadata) = " + concepts.size());
+        logInfo("    count (after metadata) = " + concepts.size());
 
         // 4. Find all concepts on path to root (e.g. walk up ancestors)
         for (String chd : chdParMap.keySet()) {
@@ -162,15 +146,14 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
             concepts.addAll(chdParMap.get(chd));
           }
         }
-        Logger.getLogger(getClass()).info(
-            "    count (after ancestors) = " + concepts.size());
-        Logger.getLogger(getClass()).info("    prev count = " + prevCt);
+        logInfo("    count (after ancestors) = " + concepts.size());
+        logInfo("    prev count = " + prevCt);
 
         if (concepts.contains("370570004")) {
-          Logger.getLogger(getClass()).info("Found 370570004");
+          logInfo("Found 370570004");
         }
         if (descriptions.contains("1195863013"))
-          Logger.getLogger(getClass()).info("Found 1195863013");
+          logInfo("Found 1195863013");
 
       } while (concepts.size() != prevCt);
 
@@ -178,7 +161,7 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
       outputConcepts = concepts;
       outputDescriptions = descriptions;
 
-      Logger.getLogger(getClass()).info("Done ...");
+      logInfo("Done ...");
 
     } catch (Exception e) {
       throw e;
@@ -617,15 +600,17 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
 
   /**
    * Fires a {@link ProgressEvent}.
+   *
    * @param pct percent done
    * @param note progress note
+   * @throws Exception the exception
    */
-  public void fireProgressEvent(int pct, String note) {
+  public void fireProgressEvent(int pct, String note) throws Exception {
     ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
     for (int i = 0; i < listeners.size(); i++) {
       listeners.get(i).updateProgress(pe);
     }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
+    logInfo("    " + pct + "% " + note);
   }
 
   /* see superclass */
@@ -705,5 +690,17 @@ public class Rf2SnapshotSamplerAlgorithm extends HistoryServiceJpa implements
    */
   public void setKeepInferred(boolean keepInferred) {
     this.keepInferred = keepInferred;
+  }
+
+  @Override
+  public String getTerminology() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String getVersion() {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

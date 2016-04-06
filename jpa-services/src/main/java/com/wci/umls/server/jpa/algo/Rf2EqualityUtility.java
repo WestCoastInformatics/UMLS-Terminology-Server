@@ -7,6 +7,7 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 
 /**
@@ -60,6 +61,22 @@ public class Rf2EqualityUtility {
     if (r1.equals(r2)) {
       return compareAttributes(r1, r2, new String[] {
           "moduleId", "characteristicTypeId", "modifierId"
+      });
+    }
+    return false;
+  }
+  
+  /**
+   * Equals.
+   *
+   * @param m1 the m1
+   * @param m2 the m2
+   * @return true, if successful
+   */
+  public static boolean equals(Mapping m1, Mapping m2) {
+    if (m1.equals(m2)) {
+      return compareAttributes(m1, m2, new String[] {
+          "moduleId"
       });
     }
     return false;

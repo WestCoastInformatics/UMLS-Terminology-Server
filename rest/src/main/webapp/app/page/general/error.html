@@ -4,8 +4,8 @@
   <div class="col-md-10 col-xs-12" id="errorMsg"
     class="border-error alert-error" ng-show="error.message.length > 0">
     <h4 class="alert alert-danger alert-error">
-      {{error.message}}
-      <span style="display: inline; float: right;">
+     {{error.message}}
+       <span style="display: inline; float: right;">
         <i ng-show="error.longMessage"
           title="{{error.expand ? 'Show' : 'Hide'}} long eror"
           class="noul glyphicon glyphicon-paperclip"
@@ -14,6 +14,22 @@
       </span>
       <span ng-show="error.longMessage && error.expand">
         <br />{{error.longMessage}}
+      </span>
+     </h4>
+  </div>
+  <div class="col-md-10 col-xs-12" id="successMsg"
+    class="border-error alert-info" ng-show="success.message.length > 0">
+    <h4 class="alert alert-info">
+      {{success.message}}
+      <span style="display: inline; float: right;">
+        <i ng-show="success.longMessage"
+          title="{{success.expand ? 'Show' : 'Hide'}} long message"
+          class="noul glyphicon glyphicon-paperclip"
+          ng-click="success.expand = !success.expand;"></i> <i
+          class="glyphicon glyphicon-remove" ng-click="clearSuccess()"></i>
+      </span>
+      <span ng-show="success.longMessage && success.expand">
+        <br />{{success.longMessage}}
       </span>
     </h4>
   </div>

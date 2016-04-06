@@ -1,0 +1,44 @@
+
+<!--  header -->
+<nav id="navBar" ng-if="isShowing()"
+  style="background: #00008A url('images/background.jpg');"
+  class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <!-- Brand and toggle get grouped for better mobile display -->
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <table>
+        <tr>
+          <td>
+            <a href="${deploy.link}">
+              <img class="hidden-xs" height="72px"
+                style="background-color: white; padding: 5px; margin: 5px; border-radius: 5px;"
+                src="images/logo65x72.jpg"> <img class="visible-xs"
+                height="40px"
+                style="background-color: white; padding: 3px; margin: 3px; border-radius: 3px;"
+                src="images/logo36x40.jpg">
+            </a>
+          </td>
+          <td style="vertical-align: middle">
+            <b style="color: white;"> ${deploy.title} (and <a
+                href="swagger.html"
+                style="color: white; text-decoration: underline" target="_blank">API)</a>
+            </b>
+          </td>
+          <td style="vertical-align: middle">
+            <button ng-show="isLanding()" class="btn btn-md btn-warning" style="margin-left: 50px;"
+              ng-click="gotoTool()">Enter Tool</button>
+          
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</nav>
+<!--  Make room for content with fixed navbar-top -->
+<div ng-if="isShowing()">
+  <div class="hidden-xs" style="height: 94px;">&nbsp;</div>
+  <div class="visible-xs" style="height: 60px;">&nbsp;</div>
+</div>
+<div ng-if="!isShowing()">
+  <div style="height: 10px;">&nbsp;</div>
+</div>

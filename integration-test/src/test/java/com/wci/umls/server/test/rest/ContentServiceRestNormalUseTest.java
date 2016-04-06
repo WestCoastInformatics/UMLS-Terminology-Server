@@ -22,6 +22,8 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;
+import com.wci.umls.server.helpers.content.MapSetList;
+import com.wci.umls.server.helpers.content.MappingList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
@@ -38,6 +40,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.test.helpers.PfsParameterForComponentTest;
@@ -151,7 +154,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals("PUBLISHED", c.getWorkflowStatus());
     assertEquals("loader", c.getLastModifiedBy());
 
-
     // Test UMLS concept
 
     Logger.getLogger(getClass()).info(
@@ -251,7 +253,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertEquals("D019226", c.getTerminologyId());
     assertEquals("PUBLISHED", c.getWorkflowStatus());
     assertEquals("loader", c.getLastModifiedBy());
-
 
     // Test SNOMEDCT_US concept
     Logger.getLogger(getClass()).info(
@@ -375,7 +376,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     }
     assertEquals(3, foundCt);
 
-
   }
 
   /**
@@ -462,8 +462,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       }
     }
     assertEquals(3, foundCt);
-
-   
 
   }
 
@@ -917,7 +915,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       Logger.getLogger(getClass()).info("    Result: " + sr.getTerminologyId());
     }
 
-  
   }
 
   /**
@@ -1155,7 +1152,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     }
     assertEquals(10, searchResults.getCount());
 
-    
   }
 
   /**
@@ -1395,14 +1391,13 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     }
     assertEquals(10, searchResults.getCount());
 
-    
   }
 
   /**
    * Test ancestor/descendant for concepts.
    *
    * @throws Exception the exception
-   */   
+   */
   @Test
   public void testNormalUseRestContent011() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
@@ -1454,7 +1449,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         "    totalResults = " + conceptList.getTotalCount());
     assertEquals(3, conceptList.getTotalCount());
     assertEquals(2, conceptList.getCount());
-
 
   }
 
@@ -1755,7 +1749,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("  Test deep relationships");
     RelationshipList list =
         contentService.findDeepRelationshipsForConcept("C0000097", "UMLS",
-            "latest", new PfsParameterJpa(), authToken);
+            "latest", new PfsParameterJpa(), null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
     assertEquals(66, list.getTotalCount());
@@ -1770,7 +1764,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setMaxResults(10);
     list =
         contentService.findDeepRelationshipsForConcept("C0000097", "UMLS",
-            "latest", pfs, authToken);
+            "latest", pfs, null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
     assertEquals(66, list.getTotalCount());
@@ -1783,7 +1777,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setSortField("relationshipType");
     list =
         contentService.findDeepRelationshipsForConcept("C0000097", "UMLS",
-            "latest", pfs, authToken);
+            "latest", pfs, null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
     assertEquals(66, list.getTotalCount());
@@ -1798,7 +1792,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setSortField("relationshipType");
     list =
         contentService.findDeepRelationshipsForConcept("C0000097", "UMLS",
-            "latest", pfs, authToken);
+            "latest", pfs, null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
     assertEquals(66, list.getTotalCount());
@@ -1815,7 +1809,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setSortField("relationshipType");
     list =
         contentService.findDeepRelationshipsForConcept("C0000097", "UMLS",
-            "latest", pfs, authToken);
+            "latest", pfs, null, authToken);
     Logger.getLogger(getClass()).info(
         "    totalCount = " + list.getTotalCount());
     assertEquals(66, list.getTotalCount());
@@ -1823,8 +1817,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     assertTrue(PfsParameterForComponentTest.testPaging(list, fullList, pfs));
     assertTrue(PfsParameterForComponentTest.testSort(list, pfs,
         AbstractRelationship.class));
-
-   
 
   }
 
@@ -1993,7 +1985,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   public void testNormalUseRestContent025() throws Exception {
     Logger.getLogger(getClass()).info("Start test");
     // n/a - no sample data
-   
+
   }
 
   /**
@@ -2285,8 +2277,6 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
       assertTrue(leaf.getNodeName().toLowerCase().contains("a"));
     }
 
-
-
   }
 
   /**
@@ -2341,7 +2331,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("Start test");
 
     // n/a - no sample data
-   }
+  }
 
   /**
    * Test "find" concept tree children
@@ -2371,6 +2361,88 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   public void testNormalUseRestContent032() throws Exception {
     Logger.getLogger(getClass()).debug("Start test");
 
+  }
+
+  /**
+   * Test get mapset.
+   * @throws Exception
+   */
+  @Test
+  public void testNormalUseRestContent033() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "447562003, SNOMEDCT_US, _2014_09_01, " + authToken);
+    MapSet c =
+        contentService.getMapSet("447562003", "SNOMEDCT_US", "_2014_09_01",
+            authToken);
+    // Validate the concept returned
+    assertNotNull(c);
+    assertEquals(c.getName(), "ICD-10 complex map reference set");
+    assertTrue(c.isPublishable());
+    assertTrue(c.isPublished());
+    assertFalse(c.isObsolete());
+    assertFalse(c.isSuppressible());
+    assertEquals(1, c.getAttributes().size());
+    assertEquals("SNOMEDCT_US", c.getTerminology());
+    assertEquals("_2014_09_01", c.getVersion());
+    assertEquals("447562003", c.getTerminologyId());
+    assertEquals("loader", c.getLastModifiedBy());
+  }
+
+  /**
+   * Test get mapsets.
+   * @throws Exception
+   */
+  @Test
+  public void testNormalUseRestContent034() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "SNOMEDCT_US, _2014_09_01, " + authToken);
+    MapSetList c =
+        contentService.getMapSets("SNOMEDCT_US", "_2014_09_01", authToken);
+    // Validate the concept returned
+    assertNotNull(c);
+    assertEquals(c.getObjects().size(), 1);
+  }
+
+  /**
+   * Test find mappings for mapset
+   * @throws Exception
+   */
+  @Test
+  public void testNormalUseRestContent035() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "SNOMEDCT_US, _2014_09_01, " + authToken);
+    MappingList c =
+        contentService.findMappingsForMapSet("447562003", "SNOMEDCT_US",
+            "_2014_09_01", "", new PfsParameterJpa(), authToken);
+
+    // Validate the concept returned
+    assertNotNull(c);
+    assertEquals(c.getObjects().size(), 334);
+  }
+
+  /**
+   * Test find mappings for concept
+   * @throws Exception
+   */
+  @Test
+  public void testNormalUseRestContent036() throws Exception {
+    Logger.getLogger(getClass()).debug("Start test");
+
+    Logger.getLogger(getClass()).info(
+        "TEST - " + "C0155860, UMLS, latest" + authToken);
+    MappingList c =
+        contentService.findMappingsForConcept("C0155860", "UMLS", "latest", "",
+            new PfsParameterJpa(), authToken);
+
+    // Validate the concept returned
+    assertNotNull(c);
+    assertEquals(c.getObjects().size(), 1);
   }
 
   /**

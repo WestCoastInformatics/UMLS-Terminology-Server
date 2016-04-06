@@ -66,12 +66,10 @@ public abstract class AbstractTreePosition<T extends AtomClass> extends
     descendantCt = treepos.getDescendantCt();
   }
 
-
   @Override
   public String getAdditionalRelationshipType() {
     return additionalRelationshipType;
   }
-
 
   @Override
   public void setAdditionalRelationshipType(String additionalRelationshipType) {
@@ -84,36 +82,30 @@ public abstract class AbstractTreePosition<T extends AtomClass> extends
     return ancestorPath;
   }
 
-
   @Override
   public void setAncestorPath(String ancestorPath) {
     this.ancestorPath = ancestorPath;
   }
-
 
   @Override
   public int getChildCt() {
     return childCt;
   }
 
-  
   @Override
   public void setChildCt(int childCt) {
     this.childCt = childCt;
   }
 
-  
   @Override
   public int getDescendantCt() {
     return descendantCt;
   }
 
-
   @Override
   public void setDescendantCt(int descendantCt) {
     this.descendantCt = descendantCt;
   }
-
 
   @Override
   public int hashCode() {
@@ -130,7 +122,6 @@ public abstract class AbstractTreePosition<T extends AtomClass> extends
     result = prime * result + descendantCt;
     return result;
   }
-
 
   @SuppressWarnings("rawtypes")
   @Override
@@ -159,7 +150,6 @@ public abstract class AbstractTreePosition<T extends AtomClass> extends
       return false;
     return true;
   }
-
 
   @Override
   public String toString() {

@@ -19,8 +19,6 @@
  */
 package com.wci.umls.server.mojo;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -75,14 +73,6 @@ public class ProjectLoaderMojo extends AbstractMojo {
    * @required
    */
   private String version = null;
-
-  /**
-   * The admin user.
-   * 
-   * @parameter
-   * @required
-   */
-  private String adminUser = null;
 
   /**
    * The scope concepts.
@@ -164,15 +154,8 @@ public class ProjectLoaderMojo extends AbstractMojo {
       ProjectJpa project = new ProjectJpa();
       project.setName(name);
       project.setDescription(description);
-      project.addAdministrator(service.getUser(adminUser));
       project.setPublic(true);
-      project.setScopeConcepts(new HashSet<String>(Arrays.asList(scopeConcepts
-          .split(","))));
-      project.setScopeDescendantsFlag(scopeDescendantsFlag);
-      // no scope excludes concepts
-      project.setScopeExcludesDescendantsFlag(scopeExcludesDescendantsFlag);
       project.setTerminology(terminology);
-      project.setVersion(version);
       project.setLastModifiedBy("admin");
 
       // check for this project

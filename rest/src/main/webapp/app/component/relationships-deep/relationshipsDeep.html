@@ -1,0 +1,43 @@
+
+<!-- Relationships -->
+<div ng-show="pagedData.totalCount > 0">
+  <h4>
+    Deep {{metadata.relationshipsLabel}} ({{pagedData.totalCount}})&nbsp;&nbsp;
+    <button ng-show="metadata.terminology.descriptionLogicTerminology"
+      ng-click="toggleInferred()" class="btn btn-xs btn-primary">
+      <span ng-show="showInferred"
+        uib-tooltip="Showing inferred, click for stated">Inferred</span>
+      <span ng-show="!showInferred"
+        uib-tooltip="Showing stated, click for inferred">Stated</span>
+    </button>
+  </h4>
+  <div pager paging="paging" count="pagedData.totalCount"
+    callback="pageCallback"></div>
+  <ul class="icon-list">
+    <li class="cr-list" ng-repeat="item in pagedData.data"><span
+        ng-show="item.group > 0">
+        <span class="label label-success"
+          uib-tooltip="Relationship group {{item.group}}">{{item.group}}</span>
+        &nbsp;
+      </span> <span class="label label-warning"
+        ng-show="metadata.terminology.metathesaurus && item.suppressible"
+        uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator}}</span>
+      <span class="label label-default" ng-show="item.obsolete"
+        uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+      <span class="label label-info"
+        uib-tooltip="{{callbacks.getRelationshipTypeName(item.relationshipType)}}">{{item.relationshipType}}</span>
+      {{item.additionalRelationshipType}} <!-- Mobile friendly switch --> <span
+        class="hidden-xs">
+        <a ng-class="{'nolink' : !callbacks.getComponent}"
+          ng-click="callbacks.getComponent(item.toTerminologyId, component.object.terminology, component.object.version)"
+          uib-tooltip="{{component.object.terminology}} {{component.type | lowercase}}">{{item.toTerminologyId}}</a>
+        {{item.toName}} [{{item.terminology}}]
+      </span> <span class="visible-xs-inline">
+        <a ng-class="{'nolink' : !callbacks.getComponent}"
+          ng-click="callbacks.getComponent(item.toTerminologyId, component.object.terminology, component.object.version)"
+          uib-tooltip="{{item.terminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}
+          [{{item.terminology}}]</a>
+      </span> &nbsp;</li>
+  </ul>
+</div>
+<!-- end Relationships -->

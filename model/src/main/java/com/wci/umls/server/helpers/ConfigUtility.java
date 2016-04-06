@@ -70,6 +70,9 @@ public class ConfigUtility {
 
   /** The Constant DEFAULT. */
   public final static String DEFAULT = "DEFAULT";
+  
+  /** The Constant ATOMCLASS (search handler for atoms) */
+  public final static String ATOMCLASS = "ATOMCLASS";
 
   /** The date format. */
   public final static FastDateFormat DATE_FORMAT =
@@ -83,6 +86,10 @@ public class ConfigUtility {
   public final static FastDateFormat DATE_FORMAT3 =
       FastDateFormat.getInstance("yyyy");
 
+  /**  The Constant DATE_FORMAT4. */
+  public final static FastDateFormat DATE_FORMAT4 = FastDateFormat
+      .getInstance("yyyy-MM-dd hh:mm:ss");
+  
   /** The Constant PUNCTUATION. */
   public final static String PUNCTUATION =
       " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^";

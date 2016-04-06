@@ -3,10 +3,6 @@ body {
 	padding-bottom: 100px;
 }
 
-a {
-	cursor: pointer;
-}
-
 .loginField {
 	margin: 5px;
 }
@@ -29,6 +25,10 @@ a {
 
 .btn-selected {
 	color: grey;
+}
+
+.selected {
+	background-color: #e9e9e9;
 }
 
 .swagger-ui-wrap p {
@@ -56,7 +56,8 @@ a {
 }
 
 .icon-list {
-	display: block; list-style : none;
+	display: block;
+	list-style: none;
 	padding-left: 0;
 	margin-left: 1em;
 	list-style: none;
@@ -67,7 +68,8 @@ a {
 }
 
 .pagination {
-	display: inline; /* override from inline-block to allow multiple items per line */
+	display: inline;
+	/* override from inline-block to allow multiple items per line */
 	padding-left: 0;
 	padding-right: 10px;
 	padding-bottom: 20px;
@@ -81,11 +83,13 @@ a {
 	margin-bottom: 20px; /* to match the padding of pagination */
 	margin-left: 0px;
 	border-radius: 4px;
-	font-size: 14px;	/* to match font-size of pagination */
+	font-size: 14px; /* to match font-size of pagination */
 	line-height: 1.42857143; /* to match line-height of pagination */
 }
 
-.highlighted { background: yellow }
+.highlighted {
+	background: yellow
+}
 
 /* Angular UI Tree overrides */
 .angular-ui-tree-handle {
@@ -94,6 +98,83 @@ a {
 }
 
 .glyphicon-leaf {
-	opacity: 0.5;	
+	opacity: 0.5;
 }
 
+.green {
+	color: green;
+}
+
+.orange {
+	color: orange;
+}
+
+.yellow {
+	color: yellow;
+}
+
+.grey {
+	color: grey;
+}
+
+.noul {
+	color: #337ab7;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.nobreak {
+	display: inline-block;
+	white-space: nowrap;
+}
+
+.nolink {
+	color: black;
+	cursor: none;
+	text-decoration: none;
+}
+
+.breakword {
+	word-break: break-all;
+}
+
+.ellipsis {
+	text-overflow: ellipsis;
+}
+
+.table-select-row {
+	cursor: pointer;
+}
+
+.m10 {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	margin-left: 5px;
+}
+
+.tab-disabled {
+	color : gray;
+	cursor : pointer;
+}
+
+/* Makes table section headers medium blue background */
+.section-header {
+	background-color: #bee4f2;
+	padding: 5px;
+}
+
+.table {
+	font-size: 14px;
+	margin-bottom: 10px;
+}
+
+/* File upload drop zone stying */
+.afu-drop-zone {
+	border: dotted 3px lightgray;
+	padding: 10px;
+}
+
+.nv-file-over {
+	border: dotted 3px red;
+	padding: 10px;
+} /* Default class applied to drop zones on over */

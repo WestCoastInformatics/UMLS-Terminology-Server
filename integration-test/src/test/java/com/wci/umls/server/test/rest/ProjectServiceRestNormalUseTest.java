@@ -15,10 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.wci.umls.server.Project;
-import com.wci.umls.server.User;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProjectJpa;
-import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 
 /**
  * Implementation of the "Project Service REST Normal Use" Test Cases.
@@ -61,17 +59,10 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     ProjectJpa project = new ProjectJpa();
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
-    project.setActionWorkflowStatusValues(values);
-    User user = securityService.getUser(adminUser, adminAuthToken);
-    project.addAdministrator(user);
-    project.addAuthor(user);
-    project.addLead(user);
-    project.addScopeConcept("12345");
-    project.addScopeExcludesConcept("12345");
+
     project.setDescription("Sample");
     project.setName("Sample");
     project.setTerminology("UMLS");
-    project.setVersion("latest");
 
     ProjectJpa project2 =
         (ProjectJpa) projectService.addProject(project, adminAuthToken);
@@ -116,17 +107,9 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     ProjectJpa project = new ProjectJpa();
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
-    project.setActionWorkflowStatusValues(values);
-    User user = securityService.getUser(adminUser, adminAuthToken);
-    project.addAdministrator(user);
-    project.addAuthor(user);
-    project.addLead(user);
-    project.addScopeConcept("12345");
-    project.addScopeExcludesConcept("12345");
     project.setDescription("Sample");
     project.setName("Sample");
     project.setTerminology("UMLS");
-    project.setVersion("latest");
     ProjectJpa project2 = new ProjectJpa(project);
     project = (ProjectJpa) projectService.addProject(project, adminAuthToken);
 
@@ -155,35 +138,6 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     projectList = projectService.getProjects(adminAuthToken);
     Assert.assertEquals(projectCount - 2, projectList.getCount());
 
-  }
-
-  /**
-   * Test find concepts in scope.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testNormalUseRestProject003() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
-
-    // Get the projects
-    Logger.getLogger(getClass()).info("  Get projects");
-    ProjectList projectList = projectService.getProjects(viewerAuthToken);
-    Assert.assertEquals(1, projectList.getCount());
-    Assert.assertEquals("Sample project", projectList.getObjects().get(0)
-        .getName());
-
-    Set<String> scopeConcepts =
-        projectList.getObjects().get(0).getScopeConcepts();
-    Assert.assertEquals(1, scopeConcepts.size());
-    Assert.assertEquals("138875005", scopeConcepts.toArray()[0]);
-
-    // Call findConceptsInScope() pfs gets first 10
-    Logger.getLogger(getClass()).info("  find concepts in scope (first 10)");
-    PfsParameterJpa pfs = new PfsParameterJpa();
-    pfs.setStartIndex(0);
-    pfs.setMaxResults(10);
-    
   }
 
   /**

@@ -15,6 +15,12 @@ tsApp
           expand : false
         };
 
+        this.success = {
+          message : null,
+          longMessage : null,
+          expand : false
+        };
+
         // tinymce options
         this.tinymceOptions = {
           menubar : false,
@@ -64,6 +70,32 @@ tsApp
           this.error.message = null;
           this.error.longMessage = null;
           this.error.expand = false;
+        };
+
+        // Sets the error
+        this.setError = function(message) {
+          this.error.message = message;
+        };
+
+        // Clears the error
+        this.clearError = function() {
+          this.error.message = null;
+          this.error.longMessage = null;
+          this.error.expand = false;
+        };
+
+        this.handleSuccess = function(message) {
+          console.debug('Handle success: ', message);
+          if (message && message.legth > 100) {
+            this.success.message = 'Successful process reported, click the icon to view full message';
+            this.success.longMessage = message;
+          } else {
+            this.success.message = message;
+          }
+
+          // scroll to top of page
+          $location.hash('top');
+          $anchorScroll();
         };
 
         // Handle error message
@@ -207,9 +239,22 @@ tsApp
           }
         };
 
+        // Helper function to get a standard paging object
+        // overwritten as needed
+        this.getPaging = function() {
+          return {
+            page : 1,
+            pageSize : 10,
+            filter : null,
+            sortField : null,
+            sortAscending : true,
+            sortOptions : []
+          };
+        };
+
         // Helper to get a paged array with show/hide flags
         // and filtered by query string
-        this.getPagedArray = function(array, paging, pageSize) {
+        this.getPagedArray = function(array, paging) {
           var newArray = new Array();
 
           // if array blank or not an array, return blank list
@@ -218,6 +263,13 @@ tsApp
           }
 
           newArray = array;
+
+          // apply suppressible/obsolete
+          if (!paging.showHidden) {
+            newArray = newArray.filter(function(item) {
+              return !item.suppressible && !item.obsolete;
+            });
+          }
 
           // apply sort if specified
           if (paging.sortField) {
@@ -236,19 +288,20 @@ tsApp
           }
 
           // get the page indices (if supplied)
-          if (pageSize != -1) {
-            var fromIndex = (paging.page - 1) * pageSize;
-            var toIndex = Math.min(fromIndex + pageSize, array.length);
+          if (paging.pageSize != -1) {
+            var fromIndex = (paging.page - 1) * paging.pageSize;
+            var toIndex = Math.min(fromIndex + paging.pageSize, array.length);
 
             // slice the array
             var results = newArray.slice(fromIndex, toIndex);
           } else {
             results = newArray;
           }
-          // add the total count before slicing
-          results.totalCount = newArray.length;
 
-          return results;
+          return {
+            data : results,
+            totalCount : newArray.length
+          };
         };
 
         // function for sorting an array by (string) field and direction
@@ -403,8 +456,14 @@ tsApp.service('gpService', function() {
 });
 
 // Security service
-tsApp.service('securityService', [ '$http', '$location', '$cookies', 'utilService', 'gpService',
-  function($http, $location, $cookies, utilService, gpService) {
+tsApp.service('securityService', [
+  '$http',
+  '$location',
+  '$q',
+  '$cookies',
+  'utilService',
+  'gpService',
+  function($http, $location, $q, $cookies, utilService, gpService) {
     console.debug('configure securityService');
 
     // Declare the user
@@ -487,9 +546,19 @@ tsApp.service('securityService', [ '$http', '$location', '$cookies', 'utilServic
       return user.authToken;
     };
 
+    // isAdmin function
+    this.isAdmin = function() {
+      return user.applicationRole == 'ADMINISTRATOR';
+    };
+
+    // isUser function
+    this.isUser = function() {
+      return user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'USER';
+    };
+
     this.logout = function() {
       if (user.authToken == null) {
-        alert("You are not currently logged in");
+        window.alert("You are not currently logged in");
         return;
       }
       gpService.increment();
@@ -514,39 +583,197 @@ tsApp.service('securityService', [ '$http', '$location', '$cookies', 'utilServic
         gpService.decrement();
       });
     };
-  } ]);
 
-// Tab service
-tsApp.service('tabService', [ '$location', 'utilService', 'gpService',
-  function($location, utilService, gpService) {
-    console.debug('configure tabService');
-    // Available tabs
-    this.tabs = [ {
-      link : '#/content',
-      label : 'Content'
-    }, {
-      link : '#/metadata',
-      label : 'Metadata'
-    } ];
+    // get all users
+    this.getUsers = function() {
+      console.debug('getUsers');
+      var deferred = $q.defer();
 
-    // the selected tab
-    this.selectedTab = this.tabs[0];
-
-    // Sets the selected tab
-    this.setSelectedTab = function(tab) {
-      this.selectedTab = tab;
+      // Get users
+      gpService.increment();
+      $http.get(securityUrl + 'user/users').then(
+      // success
+      function(response) {
+        console.debug('  users = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
     };
 
-    // sets the selected tab by label
-    // to be called by controllers when their
-    // respective tab is selected
-    this.setSelectedTabByLabel = function(label) {
-      for (var i = 0; i < this.tabs.length; i++) {
-        if (this.tabs[i].label === label) {
-          this.selectedTab = this.tabs[i];
-          break;
-        }
+    // get user for auth token
+    this.getUserForAuthToken = function() {
+      console.debug('getUserforAuthToken');
+      var deferred = $q.defer();
+
+      // Get users
+      gpService.increment();
+      $http.get(securityUrl + 'user').then(
+      // success
+      function(response) {
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    // add user
+    this.addUser = function(user) {
+      console.debug('addUser');
+      var deferred = $q.defer();
+
+      // Add user
+      gpService.increment();
+      $http.put(securityUrl + 'user/add', user).then(
+      // success
+      function(response) {
+        console.debug('  user = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // update user
+    this.updateUser = function(user) {
+      console.debug('updateUser');
+      var deferred = $q.defer();
+
+      // Add user
+      gpService.increment();
+      $http.post(securityUrl + 'user/update', user).then(
+      // success
+      function(response) {
+        console.debug('  user = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // remove user
+    this.removeUser = function(user) {
+      console.debug('removeUser');
+      var deferred = $q.defer();
+
+      // Add user
+      gpService.increment();
+      $http['delete'](securityUrl + 'user/remove/' + user.id).then(
+      // success
+      function(response) {
+        console.debug('  user = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // get application roles
+    this.getApplicationRoles = function() {
+      console.debug('getApplicationRoles');
+      var deferred = $q.defer();
+
+      // Get application roles
+      gpService.increment();
+      $http.get(securityUrl + 'roles').then(
+      // success
+      function(response) {
+        console.debug('  roles = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // Finds users as a list
+    this.findUsersAsList = function(query, pfs) {
+      console.debug('findUsersAsList', query, pfs);
+      // Setup deferred
+      var deferred = $q.defer();
+
+      // Make POST call
+      gpService.increment();
+      $http.post(securityUrl + 'user/find?query=' + utilService.prepQuery(query),
+        utilService.prepPfs(pfs)).then(
+      // success
+      function(response) {
+        console.debug('  output = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+
+      return deferred.promise;
+    };
+
+    // update user preferences
+    this.updateUserPreferences = function(userPreferences) {
+      console.debug('updateUserPreferences');
+      // skip if user preferences is not set
+      if (!userPreferences) {
+        return;
       }
+
+      // Whenever we update user preferences, we need to update the cookie
+      $cookies.put('user', JSON.stringify(user));
+
+      var deferred = $q.defer();
+
+      gpService.increment();
+      $http.post(securityUrl + 'user/preferences/update', userPreferences).then(
+      // success
+      function(response) {
+        console.debug('  userPreferences = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
     };
 
   } ]);
@@ -603,5 +830,251 @@ tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
     this.send = function(message) {
       this.connection.send(JSON.stringify(message));
     };
+
+  } ]);
+
+// Source data service
+tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'utilService',
+  'gpService', function($http, $location, $q, ngCookies, utilService, gpService) {
+    console.debug('configure sourceDataService');
+
+    // cached loader names
+    var sourceDataHandlers = null;
+
+    // Get details for all currently uploaded files
+    this.findSourceDataFiles = function(query) {
+      console.debug('find source data files', query);
+      var deferred = $q.defer();
+      gpService.increment();
+      $http.get(fileUrl + 'find?query=' + encodeURI(query), {}).then(
+      // Success
+      function(response) {
+        console.debug('  data = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        gpService.decrement();
+        utilService.handleError(response);
+        deferred.reject(response);
+      });
+      return deferred.promise;
+    };
+
+    // Removes soure data file
+    this.removeSourceDataFile = function(id) {
+      console.debug('remove source data file', id);
+      var deferred = $q.defer();
+      gpService.increment();
+      $http['delete'](fileUrl + 'remove/' + id).then(
+      // Success
+      function(response) {
+        console.debug('  data = ', response.data);
+        gpService.decrement();
+        deferred.resolve();
+      },
+      // Error
+      function(response) {
+        gpService.decrement();
+        utilService.handleError(response);
+        deferred.reject(response);
+      });
+      return deferred.promise;
+    };
+
+    // Save or add the source data file
+    this.updateSourceDataFile = function(file) {
+      console.debug('update source data file', file);
+      var deferred = $q.defer();
+      if (file.id) {
+        gpService.increment();
+        $http.post(fileUrl + 'update', file).then(
+        // Success
+        function(response) {
+          gpService.decrement();
+          deferred.resolve(sourceDataFile);
+        },
+        // Error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response);
+        });
+      } else {
+        gpService.increment();
+        $http.put(fileUrl + 'add', file).then(
+        // Success
+        function(response) {
+          gpService.decrement();
+          deferred.resolve(response);
+        },
+        // Error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response);
+        });
+      }
+      return deferred.promise;
+    };
+
+    // update or add the source data
+    this.updateSourceData = function(data) {
+      console.debug('update source data', data);
+      var deferred = $q.defer();
+      if (data.id) {
+        gpService.increment();
+        $http.post(fileUrl + 'data/update', data).then(
+        // Success
+        function(response) {
+          gpService.decrement();
+          deferred.resolve(data.data);
+        },
+        // Error
+        function(response) {
+          gpService.decrement();
+          utilService.handleError(response);
+          deferred.reject(response);
+        });
+      } else {
+        gpService.increment();
+        $http.put(fileUrl + 'data/add', data).then(
+        // Success
+        function(response) {
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // Error
+        function(response) {
+          gpService.decrement();
+          utilService.handleError(response);
+          deferred.reject(response);
+        });
+      }
+      return deferred.promise;
+    };
+
+    // Remove the source data
+    this.removeSourceData = function(data) {
+      console.debug('remove source data', data);
+      var deferred = $q.defer();
+      gpService.increment();
+      $http['delete'](fileUrl + 'data/remove/' + data.id).then(
+      // Success
+      function(response) {
+        gpService.decrement();
+        deferred.resolve();
+      },
+      // Error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response);
+      });
+      return deferred.promise;
+    };
+
+    // find source data
+    this.findSourceData = function(query, disableGlassPane) {
+      console.debug('find source data', query);
+      var deferred = $q.defer();
+      if (!disableGlassPane) {
+        gpService.increment();
+      }
+      $http.get(fileUrl + 'data/find?query=' + encodeURI(query), {}).then(
+      // Success
+      function(response) {
+        console.debug("  data =", response.data);
+        if (!disableGlassPane) {
+          gpService.decrement();
+        }
+        deferred.resolve(response.data);
+      }, // Error
+      function(response) {
+        utilService.handleError(response);
+        if (!disableGlassPane) {
+          gpService.decrement();
+        }
+        deferred.reject(response);
+      });
+      return deferred.promise;
+    };
+
+    // get loaders
+    this.getSourceDataHandlers = function() {
+      console.debug('get source data handlers');
+      var deferred = $q.defer();
+
+      if (sourceDataHandlers) {
+        deferred.resolve(sourceDataHandlers);
+      } else {
+        gpService.increment();
+        $http.get(fileUrl + 'data/sourceDataHandlers').then(
+        // Success
+        function(response) {
+          console.debug("  data =", response.data);
+          sourceDataHandlers = response.data.keyValuePais;
+          gpService.decrement();
+          deferred.resolve(response.data.keyValuePair);
+        },
+        // Error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response);
+        });
+      }
+      return deferred.promise;
+    };
+
+    this.getSourceData = function(id) {
+      console.debug('loading source data from id ' + id);
+      var deferred = $q.defer();
+      if (!id) {
+        console.error('Attempted to load from null or undefined id');
+        deferred.reject('No id specified');
+      } else {
+        gpService.increment();
+
+        $http.get(fileUrl + 'data/id' + id).then(function(response) {
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // Error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.resolve(null);
+        });
+      }
+      return deferred.promise;
+    }
+
+    this.loadFromSourceData = function(sourceData) {
+
+      console.debug('loading source data for ' + sourceData.name);
+      var deferred = $q.defer();
+      if (!sourceData) {
+        console.error('Attempted to load from null or undefined source data');
+        deferred.reject('No source data specified');
+      } else {
+        gpService.increment();
+
+        $http.post(fileUrl + 'data/load', sourceData).then(function(response) {
+          gpService.decrement();
+          deferred.resolve();
+        },
+        // Error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response);
+        });
+      }
+      return deferred.promise;
+    };
+
+    // end.
 
   } ]);

@@ -37,13 +37,10 @@ public class PfscParameterJpaUnitTest {
   private SearchCriteria sc1;
 
   /** test fixture */
-  private SearchCriteria sc2;
+  private List<?> list1;
 
   /** test fixture */
-  private List<SearchCriteria> list1;
-
-  /** test fixture */
-  private List<SearchCriteria> list2;
+  private List<?> list2;
 
   /**
    * Setup class.
@@ -62,11 +59,11 @@ public class PfscParameterJpaUnitTest {
     object = new PfscParameterJpa();
     ProxyTester tester = new ProxyTester(new SearchCriteriaJpa());
     sc1 = (SearchCriteria) tester.createObject(1);
-    sc2 = (SearchCriteria) tester.createObject(2);
     list1 = new ArrayList<>();
-    list1.add(sc1);
+    list1.add(null);
     list2 = new ArrayList<>();
-    list2.add(sc2);
+    list2.add(null);
+    list2.add(null);
     object.addSearchCriteria(sc1);
   }
 
@@ -97,6 +94,8 @@ public class PfscParameterJpaUnitTest {
     tester.include("startIndex");
     tester.include("queryRestriction");
     tester.include("sortField");
+    // TODO Need to test sortFields
+    tester.include("sortFields");
     tester.include("ascending");
     tester.include("branch");
     tester.include("searchCriteria");
@@ -133,8 +132,8 @@ public class PfscParameterJpaUnitTest {
   public void testModelXmlSerialization024() throws Exception {
     Logger.getLogger(getClass()).debug("TEST testModelXmlTransient024");
     XmlSerializationTester tester = new XmlSerializationTester(object);
-    tester.proxy(List.class, 1, list1);
-    tester.proxy(List.class, 2, list2);
+    // tester.proxy(List.class, 1, list1);
+    // tester.proxy(List.class, 2, list2);
 
     assertTrue(tester.testXmlSerialization());
   }

@@ -18,7 +18,8 @@ import com.wci.umls.server.jpa.helpers.ReleasePropertyListJpa;
 /**
  * Unit testing for {@link ReleasePropertyList}.
  */
-public class ReleasePropertyListUnitTest extends AbstractListUnit<ReleaseProperty> {
+public class ReleasePropertyListUnitTest extends
+    AbstractListUnit<ReleaseProperty> {
 
   /** The list1 test fixture . */
   private ReleasePropertyList list1;

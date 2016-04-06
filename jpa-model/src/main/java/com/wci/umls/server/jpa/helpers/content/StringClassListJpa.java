@@ -20,10 +20,9 @@ import com.wci.umls.server.model.content.StringClass;
 public class StringClassListJpa extends AbstractResultList<StringClass>
     implements StringClassList {
 
-
   /* see superclass */
   @Override
-  @XmlElement(type = StringClassJpa.class, name="stringClasses")
+  @XmlElement(type = StringClassJpa.class, name = "stringClasses")
   public List<StringClass> getObjects() {
     return super.getObjectsTransient();
   }

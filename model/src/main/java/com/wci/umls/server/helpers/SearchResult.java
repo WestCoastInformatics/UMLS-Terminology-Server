@@ -97,12 +97,12 @@ public interface SearchResult {
    *
    * @return the score
    */
-  public float getScore();
+  public Float getScore();
 
   /**
    * Sets the score.
    *
    * @param score the score
    */
-  public void setScore(float score);
+  public void setScore(Float score);
 }

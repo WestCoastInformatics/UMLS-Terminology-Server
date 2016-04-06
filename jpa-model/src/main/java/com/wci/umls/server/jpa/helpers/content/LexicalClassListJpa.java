@@ -20,7 +20,6 @@ import com.wci.umls.server.model.content.LexicalClass;
 public class LexicalClassListJpa extends AbstractResultList<LexicalClass>
     implements LexicalClassList {
 
-
   /* see superclass */
   @Override
   @XmlElement(type = LexicalClassJpa.class, name = "lexicalClasses")

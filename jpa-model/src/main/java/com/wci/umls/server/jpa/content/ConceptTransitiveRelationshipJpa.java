@@ -67,7 +67,6 @@ public class ConceptTransitiveRelationshipJpa extends
     return superType;
   }
 
- 
   @Override
   public void setSuperType(Concept ancestor) {
     this.superType = ancestor;
@@ -178,7 +177,6 @@ public class ConceptTransitiveRelationshipJpa extends
     superType.setName(term);
   }
 
- 
   @XmlTransient
   @Override
   public Concept getSubType() {

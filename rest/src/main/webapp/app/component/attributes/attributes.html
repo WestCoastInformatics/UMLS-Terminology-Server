@@ -1,0 +1,18 @@
+<!-- Attributes -->
+<div ng-show="pagedData.totalCount > 0">
+  <h4>{{metadata.attributesLabel}} ({{pagedData.totalCount}})</h4>
+  <div pager paging="paging" count="pagedData.totalCount"
+    callback="pageCallback"></div>
+  <ul class="icon-list">
+    <li class="cr-list" ng-repeat="item in pagedData.data"><span
+        class="label label-warning"
+        ng-show="metadata.terminology.metathesaurus && item.suppressible"
+        uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator}}</span>
+      <span class="label label-default" ng-show="item.obsolete"
+        uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+      <span class="label label-info"
+        uib-tooltip="{{callbacks.getAttributeNameName(item.name)}}">{{item.name}}</span>
+      = {{item.value}}
+  </ul>
+</div>
+<!-- end Attributes -->

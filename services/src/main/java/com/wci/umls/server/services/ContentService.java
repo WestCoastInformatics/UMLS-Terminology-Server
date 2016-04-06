@@ -20,6 +20,7 @@ import com.wci.umls.server.helpers.content.DefinitionList;
 import com.wci.umls.server.helpers.content.DescriptorList;
 import com.wci.umls.server.helpers.content.GeneralConceptAxiomList;
 import com.wci.umls.server.helpers.content.LexicalClassList;
+import com.wci.umls.server.helpers.content.MapSetList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.helpers.content.StringClassList;
 import com.wci.umls.server.helpers.content.SubsetList;
@@ -229,13 +230,14 @@ public interface ContentService extends MetadataService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param filter the filter
    * @param inverseFlag the inverse flag
    * @param pfs the pfs
    * @return the relationship list
    * @throws Exception the exception
    */
   public RelationshipList findDeepRelationshipsForConcept(String conceptId,
-    String terminology, String version, String branch, boolean inverseFlag,
+    String terminology, String version, String branch, String filter, boolean inverseFlag,
     PfsParameter pfs) throws Exception;
 
   /**
@@ -1657,4 +1659,80 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public MapSet getMapSet(Long id) throws Exception;
+
+  /**
+   * Gets the map set.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the map set
+   * @throws Exception the exception
+   */
+  public MapSet getMapSet(String terminologyId, String terminology, String version,
+    String branch) throws Exception;
+
+  /**
+   * Gets the map sets.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the map sets
+   * @throws Exception the exception
+   */
+  public MapSetList getMapSets(String terminology, String version, String branch)
+    throws Exception;
+
+
+  /**
+   * Find mappings for concept.
+   *
+   * @param conceptId the concept id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the mapping list
+   * @throws Exception the exception
+   */
+  public MappingList findMappingsForConcept(String conceptId, String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
+
+  /**
+   * Find mappings for code.
+   *
+   * @param codeId the code id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the mapping list
+   * @throws Exception the exception
+   */
+  public MappingList findMappingsForCode(String codeId, String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
+
+  /**
+   * Find mappings for descriptor.
+   *
+   * @param descriptorId the descriptor id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the mapping list
+   * @throws Exception the exception
+   */
+  public MappingList findMappingsForDescriptor(String descriptorId, String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
+  
+  
 }
