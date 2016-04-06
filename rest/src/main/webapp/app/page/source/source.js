@@ -327,21 +327,25 @@ tsApp
           utilService.handleSuccess('Terminology load completed for '
             + polledSourceData.terminology + ', ' + polledSourceData.version);
           $scope.stopPolling(polledSourceData);
+          retrieveSourceDatas();
           break;
         case 'LOADING_FAILED':
           utilService.handleError('Terminology load failed for ' + polledSourceData.terminology
             + ', ' + polledSourceData.version);
           $scope.stopPolling(polledSourceData);
+          retrieveSourceDatas();
           break;
         case 'REMOVAL_COMPLETE':
           utilService.handleSuccess('Terminology removal completed for '
             + polledSourceData.terminology + ', ' + polledSourceData.version);
           $scope.stopPolling(polledSourceData);
+          retrieveSourceDatas();
           break;
         case 'REMOVAL_FAILED':
           utilService.handleError('Terminology removal failed for ' + polledSourceData.terminology
             + ', ' + polledSourceData.version);
           $scope.stopPolling(polledSourceData);
+          retrieveSourceDatas();
           break;
         default:
           // do nothing

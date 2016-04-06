@@ -531,96 +531,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                 + inputDir);
 
     // Track system level information
-    long startTimeOrig = System.nanoTime();
     final ContentService contentService = new ContentServiceJpa();
 
     try {
       authorizeApp(securityService, authToken, "load snapshot",
           UserRole.ADMINISTRATOR);
-
-      // Check the input directory
-      File inputDirFile = new File(inputDir);
-      if (!inputDirFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
-      }
-
-      // Sort files
-      Logger.getLogger(getClass()).info("  Sort RF2 Files");
-      Logger.getLogger(getClass()).info("    sort by effective time: false");
-      Logger.getLogger(getClass()).info("    require all files     : false");
-      Logger.getLogger(getClass()).info("    flat file structure   : false");
-      final Rf2FileSorter sorter = new Rf2FileSorter();
-      sorter.setSortByEffectiveTime(false);
-      sorter.setRequireAllFiles(true);
-      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
-      sorter.sortFiles(inputDirFile, outputDir);
-      final String releaseVersion = sorter.getFileVersion();
-      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
-
-      // Open readers
-      final Rf2Readers readers = new Rf2Readers(outputDir);
-      readers.openReaders();
-
-      // Load snapshot
-      final Rf2SnapshotLoaderAlgorithm algorithm =
-          new Rf2SnapshotLoaderAlgorithm();
-      algorithm.setTerminology(terminology);
-      algorithm.setVersion(version);
-      algorithm.setReleaseVersion(releaseVersion);
-      algorithm.setReaders(readers);
-      algorithm.compute();
-      algorithm.close();
-
-      // Compute transitive closure
-      Logger.getLogger(getClass()).info(
-          "  Compute transitive closure from  " + terminology + "/" + version);
-      TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-      algo.setCycleTolerant(false);
-      algo.setIdType(IdType.CONCEPT);
+      
+      Rf2SnapshotLoaderAlgorithm algo = new Rf2SnapshotLoaderAlgorithm();
       algo.setTerminology(terminology);
       algo.setVersion(version);
-      algo.reset();
+      algo.setInputDir(inputDir);
       algo.compute();
-      algo.close();
+      
 
-      // compute tree positions
-      final TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
-      algo2.setCycleTolerant(false);
-      algo2.setIdType(IdType.CONCEPT);
-      // some terminologies may have cycles, allow these for now.
-      algo2.setCycleTolerant(true);
-      algo2.setComputeSemanticType(true);
-      algo2.setTerminology(terminology);
-      algo2.setVersion(version);
-      algo2.reset();
-      algo2.compute();
-      algo2.close();
-
-      // Compute label sets - after transitive closure
-      // for each subset, compute the label set
-      for (final Subset subset : contentService.getConceptSubsets(terminology,
-          version, Branch.ROOT).getObjects()) {
-        final ConceptSubset conceptSubset = (ConceptSubset) subset;
-        if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass()).info(
-              "  Create label set for subset = " + subset);
-          LabelSetMarkedParentAlgorithm algo3 =
-              new LabelSetMarkedParentAlgorithm();
-          algo3.setSubset(conceptSubset);
-          algo3.compute();
-          algo3.close();
-        }
-      }
-
-      // Clean-up
-      readers.closeReaders();
-      ConfigUtility
-          .deleteDirectory(new File(inputDirFile, "/RF2-sorted-temp/"));
-
-      // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
+      
 
     } catch (Exception e) {
       handleException(e,
