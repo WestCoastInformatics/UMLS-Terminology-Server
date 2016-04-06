@@ -2,7 +2,7 @@ package com.wci.umls.server.jpa.algo;
 
 import org.apache.log4j.Logger;
 
-import com.wci.umls.server.algo.LoaderAlgorithm;
+import com.wci.umls.server.algo.TerminologyLoaderAlgorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.meta.LogActivity;
@@ -10,7 +10,7 @@ import com.wci.umls.server.model.meta.LogActivity;
 /**
  * Abstract support for loader algorithms.
  */
-public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa implements LoaderAlgorithm  {
+public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa implements TerminologyLoaderAlgorithm  {
 
   /** LOADER constant for use as userName. */
   public final static String LOADER = "loader";

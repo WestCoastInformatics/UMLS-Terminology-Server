@@ -5,7 +5,7 @@ import com.wci.umls.server.helpers.HasTerminology;
 /**
  * The Interface LoaderAlgorithm.
  */
-public interface LoaderAlgorithm extends Algorithm, HasTerminology  {
+public interface TerminologyLoaderAlgorithm extends Algorithm, HasTerminology  {
 
   
   /**

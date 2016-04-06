@@ -690,15 +690,4 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractLoaderAlgorithm {
     this.keepInferred = keepInferred;
   }
 
-  @Override
-  public String getTerminology() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public String getVersion() {
-    // TODO Auto-generated method stub
-    return null;
-  }
 }
