@@ -44,8 +44,9 @@ tsApp.controller('ContentCtrl', [
     // Clear error
     utilService.clearError();
 
-    // Handle resetting tabs on "back" button
-    if (tabService.selectedTab.label != 'Content') {
+    // Handle resetting tabs on "back" button, but also handles non-standard
+    // content modes which may not have tabs
+    if (tabService.selectedTab.label != 'Content' && !$routeParams.mode) {
       tabService.setSelectedTabByLabel('Content');
     }
 
