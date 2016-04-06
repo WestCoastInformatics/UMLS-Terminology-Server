@@ -1,7 +1,7 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.rest.handlers;
+package com.wci.umls.server.jpa.services.handlers;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -14,10 +14,6 @@ import com.wci.umls.server.SourceData;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
-import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
-import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
-import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
-import com.wci.umls.server.rest.impl.SecurityServiceRestImpl;
 import com.wci.umls.server.services.SourceDataService;
 import com.wci.umls.server.services.handlers.SourceDataHandler;
 import com.wci.umls.server.services.helpers.ProgressEvent;
@@ -26,7 +22,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * Converter for RxNorm files.
  */
-public class Rf2FullSourceDataHandler implements SourceDataHandler {
+public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler implements SourceDataHandler {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -153,26 +149,19 @@ public class Rf2FullSourceDataHandler implements SourceDataHandler {
     SourceDataService sourceDataService = new SourceDataServiceJpa();
     sourceDataService.updateSourceData(sourceData);
 
+    
+    sourceData.setStatus(SourceData.Status.LOADING);
+    sourceDataService.updateSourceData(sourceData);
+   
     // Use content service rest because it has "loadRf2Terminology"
-    final Properties config = ConfigUtility.getConfigProperties();
-    final SecurityServiceRest securityService = new SecurityServiceRestImpl();
-    final String adminAuthToken =
-        securityService.authenticate(config.getProperty("admin.user"),
-            config.getProperty("admin.password")).getAuthToken();
-    final ContentServiceRest contentService = new ContentServiceRestImpl();
     try {
-      sourceData.setStatus(SourceData.Status.LOADING);
-      sourceDataService.updateSourceData(sourceData);
-      contentService.loadTerminologyRf2Full(sourceData.getTerminology(),
-          sourceData.getVersion(), inputDir, adminAuthToken);
-      sourceData.setStatus(SourceData.Status.LOADING_COMPLETE);
-      sourceDataService.updateSourceData(sourceData);
-
+      // TODO algo.compute()
+      sourceData.setStatus(SourceData.Status.LOADING_COMPLETE); 
     } catch (Exception e) {
       sourceData.setStatus(SourceData.Status.LOADING_FAILED);
-      sourceDataService.updateSourceData(sourceData);
       throw new Exception("Loading source data failed - " + sourceData, e);
     } finally {
+      sourceDataService.updateSourceData(sourceData);
       sourceDataService.close();
     }
   }
@@ -232,46 +221,5 @@ public class Rf2FullSourceDataHandler implements SourceDataHandler {
     // n/a
   }
   
-  @Override
-  public void remove() throws Exception {
-
-    // check prerequisites
-    if (sourceData == null) {
-      throw new Exception("Cannot remove terminology -- no source data set");
-    }
-    if (sourceData.getTerminology() == null) {
-      throw new Exception(
-          "Cannot remove terminology -- no terminology name set");
-    }
-    if (sourceData.getVersion() == null) {
-      throw new Exception("Cannot remove terminology -- no version set");
-    }
-
-    //
-    final Properties config = ConfigUtility.getConfigProperties();
-    final SecurityServiceRest securityService = new SecurityServiceRestImpl();
-    final ContentServiceRest contentService = new ContentServiceRestImpl();
-    final SourceDataService sourceDataService = new SourceDataServiceJpa();
-    final String adminAuthToken =
-        securityService.authenticate(config.getProperty("admin.user"),
-            config.getProperty("admin.password")).getAuthToken();
-
-    // set status to removing
-    sourceData.setStatus(SourceData.Status.REMOVING);
-    sourceDataService.updateSourceData(sourceData);
-
-    try {
-      contentService.removeTerminology(sourceData.getTerminology(),
-          sourceData.getVersion(), adminAuthToken);
-      sourceData.setStatus(SourceData.Status.REMOVAL_COMPLETE);
-      sourceDataService.updateSourceData(sourceData);
-    } catch (Exception e) {
-      sourceData.setStatus(SourceData.Status.REMOVAL_FAILED);
-      sourceDataService.updateSourceData(sourceData);
-    } finally {
-      sourceDataService.close();
-    }
-
-  }
 
 }

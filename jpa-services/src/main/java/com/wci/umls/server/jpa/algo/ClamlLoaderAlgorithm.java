@@ -32,7 +32,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.wci.umls.server.ReleaseInfo;
-import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
@@ -79,8 +78,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * Implementation of an algorithm to import ClaML data.
  */
-public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
-    Algorithm {
+public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();

@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
@@ -450,6 +451,12 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
 
     // In case manager was cleared here, get it back onto changed list
     manager.merge(tp);
+    
+    // check for cancel request
+    if (requestCancel) {
+      rollback();
+      throw new CancelException("Tree Position computation cancelled");
+    }
 
     // routinely commit and force clear the manager
     // any existing recursive threads are entirely dependent on local

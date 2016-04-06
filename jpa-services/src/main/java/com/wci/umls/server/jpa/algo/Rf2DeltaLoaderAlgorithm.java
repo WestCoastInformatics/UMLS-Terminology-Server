@@ -17,7 +17,6 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ReleaseInfo;
-import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
@@ -72,8 +71,7 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 delta data.
  */
-public class Rf2DeltaLoaderAlgorithm extends AbstractLoaderAlgorithm
-    implements Algorithm {
+public class Rf2DeltaLoaderAlgorithm extends AbstractLoaderAlgorithm {
 
   /** The isa type rel. */
   private final static String isaTypeRel = "116680003";
@@ -418,23 +416,6 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractLoaderAlgorithm
   @Override
   public void cancel() {
     throw new UnsupportedOperationException("cannot cancel.");
-  }
-
-  /**
-   * Returns the total elapsed time str.
-   *
-   * @param time the time
-   * @return the total elapsed time str
-   */
-  @SuppressWarnings("boxing")
-  private static String getTotalElapsedTimeStr(long time) {
-    Long resultnum = (System.nanoTime() - time) / 1000000000;
-    String result = resultnum.toString() + "s";
-    resultnum = resultnum / 60;
-    result = result + " / " + resultnum.toString() + "m";
-    resultnum = resultnum / 60;
-    result = result + " / " + resultnum.toString() + "h";
-    return result;
   }
 
   /**
@@ -3352,16 +3333,5 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractLoaderAlgorithm
     idMap = null;
   }
 
-  /* see superclass */
-  @Override
-  public String getTerminology() {
-    return terminology;
-  }
-
-  /* see superclass */
-  @Override
-  public String getVersion() {
-    return version;
-  }
 
 }

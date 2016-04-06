@@ -1,7 +1,7 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.rest.handlers;
+package com.wci.umls.server.jpa.services.handlers;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,13 +11,9 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
-import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
-import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
-import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
-import com.wci.umls.server.rest.impl.SecurityServiceRestImpl;
 import com.wci.umls.server.services.SourceDataService;
 import com.wci.umls.server.services.handlers.SourceDataHandler;
 import com.wci.umls.server.services.helpers.ProgressEvent;
@@ -26,16 +22,13 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * Converter for RxNorm files.
  */
-public class Rf2DeltaSourceDataHandler implements SourceDataHandler {
+public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler implements SourceDataHandler {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The source data. */
   private SourceData sourceData;
-
-  /** The terminology. */
-  private String terminology;
 
   /**
    * Instantiates an empty {@link Rf2DeltaSourceDataHandler}.
@@ -83,28 +76,27 @@ public class Rf2DeltaSourceDataHandler implements SourceDataHandler {
     }
 
     SourceDataService sourceDataService = new SourceDataServiceJpa();
+   
+    sourceData.setStatus(SourceData.Status.LOADING);
     sourceDataService.updateSourceData(sourceData);
-
-    // Use content service rest because it has "loadRf2Terminology"
-    final Properties config = ConfigUtility.getConfigProperties();
-    final SecurityServiceRest securityService = new SecurityServiceRestImpl();
-    final String adminAuthToken =
-        securityService.authenticate(config.getProperty("admin.user"),
-            config.getProperty("admin.password")).getAuthToken();
-    final ContentServiceRest contentService = new ContentServiceRestImpl();
+    
     try {
-      sourceData.setStatus(SourceData.Status.LOADING);
-      sourceDataService.updateSourceData(sourceData);
-      contentService.loadTerminologyRf2Delta(terminology, inputDir,
-          adminAuthToken);
+
+      // instantiate and set parameters for loader algorithm
+      Rf2DeltaLoaderAlgorithm algo = new Rf2DeltaLoaderAlgorithm();
+      algo.setTerminology(sourceData.getTerminology());
+      algo.setVersion(sourceData.getTerminology());
+      algo.setInputPath(inputDir);
+     
       sourceData.setStatus(SourceData.Status.LOADING_COMPLETE);
-      sourceDataService.updateSourceData(sourceData);
+     
 
     } catch (Exception e) {
       sourceData.setStatus(SourceData.Status.LOADING_FAILED);
-      sourceDataService.updateSourceData(sourceData);
+      
       throw new Exception("Loading source data failed - " + sourceData, e);
     } finally {
+      sourceDataService.updateSourceData(sourceData);
       sourceDataService.close();
     }
   }
@@ -163,6 +155,5 @@ public class Rf2DeltaSourceDataHandler implements SourceDataHandler {
   public void close() throws Exception {
     // n/a
   }
-
 
 }

@@ -275,4 +275,14 @@ public class SourceDataServiceJpa extends RootServiceJpa
   public void unregisterSourceDataAlgorithm(Long id) {
     SourceDataServiceJpa.algorithmsRuning.remove(id);
   }
+  
+  @Override
+  public Map<Long, Algorithm> getRunningProcesses() {
+    return SourceDataServiceJpa.algorithmsRuning;
+  }
+  
+  @Override
+  public Algorithm getRunningProcessForId(Long id) {
+    return SourceDataServiceJpa.algorithmsRuning.get(id);
+  }
 }

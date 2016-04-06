@@ -1,7 +1,7 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.rest.handlers;
+package com.wci.umls.server.jpa.services.handlers;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,13 +11,9 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
-import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
-import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
-import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
-import com.wci.umls.server.rest.impl.SecurityServiceRestImpl;
 import com.wci.umls.server.services.SourceDataService;
 import com.wci.umls.server.services.handlers.SourceDataHandler;
 import com.wci.umls.server.services.helpers.ProgressEvent;
@@ -26,7 +22,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * Converter for RxNorm files.
  */
-public class RrfSourceDataHandler implements SourceDataHandler {
+public class RrfSourceDataHandler extends AbstractSourceDataHandler implements SourceDataHandler {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -35,13 +31,22 @@ public class RrfSourceDataHandler implements SourceDataHandler {
   private SourceData sourceData;
 
   /** The terminology. */
-  private String terminology;
+  private String terminology = null;
 
   /** The version. */
-  private String version;
+  private String version = null;
+  
+  /** The input dir. */
+  private String inputDir = null;
 
   /** The prefix. */
-  private String prefix;
+  private String prefix = null;
+  
+  /**  The single mode. */
+  private Boolean singleMode = null;
+  
+  /**  The code flag. */
+  private Boolean codeFlag = null;
 
   /** The props. */
   private Properties props;
@@ -92,41 +97,45 @@ public class RrfSourceDataHandler implements SourceDataHandler {
       throw new Exception("No releaseVersion specified for source data object " + sourceData.getName());
     }
 
-    // find the data directory from the first sourceDataFile
-    String inputDir = sourceData.getSourceDataFiles().get(0).getPath();
-
     if (!new File(inputDir).isDirectory()) {
       throw new LocalException(
           "Source data directory is not a directory: " + inputDir);
     }
 
+ // instantiate service
     SourceDataService sourceDataService = new SourceDataServiceJpa();
+
+    // instantiate and set parameters for loader algorithm
+    final RrfLoaderAlgorithm algorithm = new RrfLoaderAlgorithm();
+    algorithm.setTerminology(terminology);
+    algorithm.setVersion(version);
+    if (codeFlag == null || codeFlag) {
+      algorithm.setCodesFlag(true);
+    } else {
+      algorithm.setCodesFlag(false);
+    }
+    algorithm.setSingleMode(singleMode);
+    algorithm.compute();
+    algorithm.close();
+    
+    // set to loading status and update the source data
+    sourceData.setStatus(SourceData.Status.LOADING);
     sourceDataService.updateSourceData(sourceData);
-
-    // Use content service rest because it has "loadRrfTerminology"
-    final Properties config = ConfigUtility.getConfigProperties();
-    final SecurityServiceRest securityService = new SecurityServiceRestImpl();
-    final String adminAuthToken =
-        securityService.authenticate(config.getProperty("admin.user"),
-            config.getProperty("admin.password")).getAuthToken();
-    final ContentServiceRest contentService = new ContentServiceRestImpl();
+    
     try {
-      sourceData.setStatus(SourceData.Status.LOADING);
-      sourceDataService.updateSourceData(sourceData);
-      contentService.loadTerminologyRrf(terminology, version, false, false,
-          prefix, inputDir, adminAuthToken);
+      algorithm.compute();
       sourceData.setStatus(SourceData.Status.LOADING_COMPLETE);
-      sourceDataService.updateSourceData(sourceData);
-
     } catch (Exception e) {
       sourceData.setStatus(SourceData.Status.LOADING_FAILED);
-      sourceDataService.updateSourceData(sourceData);
-      throw new Exception("Loading source data failed - " + sourceData, e);
     } finally {
+      sourceDataService.updateSourceData(sourceData);
       sourceDataService.close();
     }
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#reset()
+   */
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -146,24 +155,36 @@ public class RrfSourceDataHandler implements SourceDataHandler {
     Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#addProgressListener(com.wci.umls.server.services.helpers.ProgressListener)
+   */
   /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#removeProgressListener(com.wci.umls.server.services.helpers.ProgressListener)
+   */
   /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#cancel()
+   */
   /* see superclass */
   @Override
   public void cancel() {
     throw new UnsupportedOperationException("cannot cancel.");
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#setProperties(java.util.Properties)
+   */
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
@@ -174,60 +195,97 @@ public class RrfSourceDataHandler implements SourceDataHandler {
     }
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#setSourceData(com.wci.umls.server.SourceData)
+   */
   /* see superclass */
   @Override
   public void setSourceData(SourceData sourceData) {
     this.sourceData = sourceData;
   }
 
+  /* (non-Javadoc)
+   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#close()
+   */
   /* see superclass */
   @Override
   public void close() throws Exception {
     // n/a
   }
-  
-  @Override
-  public void remove() throws Exception {
 
-    // check prerequisites
-    if (sourceData == null) {
-      throw new Exception("Cannot remove terminology -- no source data set");
-    }
-    if (sourceData.getTerminology() == null) {
-      throw new Exception(
-          "Cannot remove terminology -- no terminology name set");
-    }
-    if (sourceData.getVersion() == null) {
-      throw new Exception("Cannot remove terminology -- no version set");
-    }
-
-    //
-    final Properties config = ConfigUtility.getConfigProperties();
-    final SecurityServiceRest securityService = new SecurityServiceRestImpl();
-    final ContentServiceRest contentService = new ContentServiceRestImpl();
-    final SourceDataService sourceDataService = new SourceDataServiceJpa();
-    final String adminAuthToken =
-        securityService.authenticate(config.getProperty("admin.user"),
-            config.getProperty("admin.password")).getAuthToken();
-
-    // set status to removing
-    sourceData.setStatus(SourceData.Status.REMOVING);
-    sourceDataService.updateSourceData(sourceData);
-
-    try {
-      contentService.removeTerminology(sourceData.getTerminology(),
-          sourceData.getVersion(), adminAuthToken);
-      sourceData.setStatus(SourceData.Status.REMOVAL_COMPLETE);
-      sourceDataService.updateSourceData(sourceData);
-    } catch (Exception e) {
-      sourceData.setStatus(SourceData.Status.REMOVAL_FAILED);
-      sourceDataService.updateSourceData(sourceData);
-    } finally {
-      sourceDataService.close();
-    }
-
+  /**
+   * Sets the single mode.
+   *
+   * @param singleMode the new single mode
+   */
+  public void setSingleMode(boolean singleMode) {
+    this.singleMode = singleMode;
   }
-
-
+  
+  /**
+   * Gets the single mode.
+   *
+   * @return the single mode
+   */
+  public Boolean getSingleMode() {
+    return this.singleMode;
+  }
+  
+  /**
+   * Sets the prefix.
+   *
+   * @param prefix the new prefix
+   */
+  public void setPrefix(String prefix) {
+    this.prefix = prefix;
+  }
+  
+  /**
+   * Gets the prefix.
+   *
+   * @return the prefix
+   */
+  public String getPrefix() {
+    return this.prefix;
+  }
+  
+  /**
+   * Sets the code flag.
+   *
+   * @param codeFlag the new code flag
+   */
+  public void setCodeFlag(Boolean codeFlag) {
+    this.codeFlag = codeFlag;
+  }
+  
+  /**
+   * Gets the code flag.
+   *
+   * @return the code flag
+   */
+  public Boolean getCodeFlag() {
+    return this.codeFlag;
+  }
+  
+  /**
+   * Sets the input dir.
+   *
+   * @param inputDir the new input dir
+   */
+  public void setInputDir(String inputDir) {
+    this.inputDir = inputDir;
+  }
+  
+  /**
+   * Gets the input dir.
+   *
+   * @param inputDir the input dir
+   * @return the input dir
+   */
+  public String getInputDir(String inputDir) {
+    return this.inputDir;
+  }
+  
+  
  
 }

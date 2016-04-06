@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.services;
 
+import java.util.Map;
+
 import com.wci.umls.server.Project;
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
@@ -141,4 +143,19 @@ public interface SourceDataService extends RootService {
    * @param id the id
    */
   public void unregisterSourceDataAlgorithm(Long id);
+
+  /**
+   * Gets the running processes.
+   *
+   * @return the running processes
+   */
+  public Map<Long, Algorithm> getRunningProcesses();
+
+  /**
+   * Gets the running process for id.
+   *
+   * @param id the id
+   * @return the running process for id
+   */
+  public Algorithm getRunningProcessForId(Long id);
 }

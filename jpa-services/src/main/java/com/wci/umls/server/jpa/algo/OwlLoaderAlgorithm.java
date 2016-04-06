@@ -51,7 +51,7 @@ import org.semanticweb.owlapi.model.OWLSubPropertyChainOfAxiom;
 import org.semanticweb.owlapi.util.SimpleRootClassChecker;
 
 import com.wci.umls.server.ReleaseInfo;
-import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.algo.LoaderAlgorithm;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePair;
@@ -110,7 +110,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
  * Implementation of an algorithm to import Owl data.
  */
 public class OwlLoaderAlgorithm extends AbstractLoaderAlgorithm
-    implements Algorithm {
+    implements LoaderAlgorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();

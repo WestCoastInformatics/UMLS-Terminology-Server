@@ -18,7 +18,6 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
 import com.wci.umls.server.ReleaseInfo;
-import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -78,8 +77,7 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
-    implements Algorithm {
+public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -107,7 +105,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
   }
 
   /** The input directory */
-  private String inputDir = null;
+  private String inputPath = null;
 
   /** The dpn acceptability id. */
   private String dpnAcceptabilityId = "900000000000548007";
@@ -187,48 +185,20 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
   /** The published. */
   final String published = "PUBLISHED";
 
+  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
+
+  final TransitiveClosureAlgorithm transClosureAlgorithm =
+      new TransitiveClosureAlgorithm();
+
+  final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
+      new LabelSetMarkedParentAlgorithm();
+
   /**
    * Instantiates an empty {@link Rf2SnapshotLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
    */
   public Rf2SnapshotLoaderAlgorithm() throws Exception {
     super();
-  }
-
-  /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /**
-   * Sets the version.
-   *
-   * @param version the version
-   */
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  /**
-   * Sets the release version.
-   *
-   * @param releaseVersion the rlease version
-   */
-  public void setReleaseVersion(String releaseVersion) {
-    this.releaseVersion = releaseVersion;
-  }
-
-  /**
-   * Sets the readers.
-   *
-   * @param readers the readers
-   */
-  public void setReaders(Rf2Readers readers) {
-    this.readers = readers;
   }
 
   /* see superclass */
@@ -242,7 +212,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     if (version == null) {
       throw new Exception("Terminology version must be specified");
     }
-    if (inputDir == null) {
+    if (inputPath == null) {
       throw new Exception("Input directory must be specified");
     }
 
@@ -253,12 +223,12 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       logInfo("Start loading snapshot");
       logInfo("  terminology = " + terminology);
       logInfo("  version = " + version);
-      logInfo("  inputDir = " + inputDir);
+      logInfo("  inputPath = " + inputPath);
 
       // File preparation
       // Check the input directory
-      File inputDirFile = new File(inputDir);
-      if (!inputDirFile.exists()) {
+      File inputPathFile = new File(inputPath);
+      if (!inputPathFile.exists()) {
         throw new Exception("Specified input directory does not exist");
       }
 
@@ -269,8 +239,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       final Rf2FileSorter sorter = new Rf2FileSorter();
       sorter.setSortByEffectiveTime(false);
       sorter.setRequireAllFiles(true);
-      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
-      sorter.sortFiles(inputDirFile, outputDir);
+      File outputDir = new File(inputPathFile, "/RF2-sorted-temp/");
+      sorter.sortFiles(inputPathFile, outputDir);
       releaseVersion = sorter.getFileVersion();
       Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
 
@@ -280,22 +250,16 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       final Rf2Readers readers = new Rf2Readers(outputDir);
       readers.openReaders();
 
-      // Load snapshot
-      final Rf2SnapshotLoaderAlgorithm algorithm =
-          new Rf2SnapshotLoaderAlgorithm();
-      algorithm.setTerminology(terminology);
-      algorithm.setVersion(version);
-      algorithm.setReleaseVersion(releaseVersion);
-      algorithm.setReaders(readers);
-      algorithm.compute();
-      algorithm.close();
-
       // control transaction scope
       setTransactionPerOperation(false);
       // Turn of ID computation when loading a terminology
       setAssignIdentifiersFlag(false);
       // Let loader set last modified flags.
       setLastModifiedFlag(false);
+
+      if (terminology.equals("SNOMEDCT")) {
+        throw new Exception("Breaking");
+      }
 
       // faster performance.
       beginTransaction();
@@ -416,53 +380,10 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       // clear and commit
       commitClearBegin();
 
-      // Compute transitive closure
-      // TODO Move transitive closure into separate invokable method (to support
-      // full loader)
-      Logger.getLogger(getClass()).info(
-          "  Compute transitive closure from  " + terminology + "/" + version);
-      TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-      algo.setCycleTolerant(false);
-      algo.setIdType(IdType.CONCEPT);
-      algo.setTerminology(terminology);
-      algo.setVersion(version);
-      algo.reset();
-      algo.compute();
-      algo.close();
-
-      // compute tree positions
-      final TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
-      algo2.setCycleTolerant(false);
-      algo2.setIdType(IdType.CONCEPT);
-      // some terminologies may have cycles, allow these for now.
-      algo2.setCycleTolerant(true);
-      algo2.setComputeSemanticType(true);
-      algo2.setTerminology(terminology);
-      algo2.setVersion(version);
-      algo2.reset();
-      algo2.compute();
-      algo2.close();
-
-      // Compute label sets - after transitive closure
-      // for each subset, compute the label set
-      for (final Subset subset : getConceptSubsets(terminology, version,
-          Branch.ROOT).getObjects()) {
-        final ConceptSubset conceptSubset = (ConceptSubset) subset;
-        if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass())
-              .info("  Create label set for subset = " + subset);
-          LabelSetMarkedParentAlgorithm algo3 =
-              new LabelSetMarkedParentAlgorithm();
-          algo3.setSubset(conceptSubset);
-          algo3.compute();
-          algo3.close();
-        }
-      }
-
       // Clean-up
       readers.closeReaders();
       ConfigUtility
-          .deleteDirectory(new File(inputDirFile, "/RF2-sorted-temp/"));
+          .deleteDirectory(new File(inputPathFile, "/RF2-sorted-temp/"));
 
       // Final logging messages
       Logger.getLogger(getClass()).info(
@@ -478,6 +399,63 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
     } catch (Exception e) {
       throw e;
+    }
+  }
+
+  @Override
+  public void computeTreePositions() throws Exception {
+    // TODO Decide how to handle cancel requests for sub-handlers
+    // Prefer to have this algorithm as top-level variable, with
+    // local cancel method setting cancel flags on these as well
+    try {
+      Logger.getLogger(getClass()).info("Computing tree positions");
+      treePosAlgorithm.setCycleTolerant(false);
+      treePosAlgorithm.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      treePosAlgorithm.setCycleTolerant(true);
+      treePosAlgorithm.setComputeSemanticType(true);
+      treePosAlgorithm.setTerminology(terminology);
+      treePosAlgorithm.setVersion(version);
+      treePosAlgorithm.reset();
+      treePosAlgorithm.compute();
+      treePosAlgorithm.close();
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Tree position computation cancelled");
+    }
+
+  }
+
+  @Override
+  public void computeTransitiveClosures() throws Exception {
+    Logger.getLogger(getClass()).info(
+        "  Compute transitive closure from  " + terminology + "/" + version);
+    try {
+      transClosureAlgorithm.setCycleTolerant(false);
+      transClosureAlgorithm.setIdType(IdType.CONCEPT);
+      transClosureAlgorithm.setTerminology(terminology);
+      transClosureAlgorithm.setVersion(version);
+      transClosureAlgorithm.reset();
+      transClosureAlgorithm.compute();
+      transClosureAlgorithm.close();
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      for (final Subset subset : getConceptSubsets(terminology, version,
+          Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isLabelSubset()) {
+          Logger.getLogger(getClass())
+              .info("  Create label set for subset = " + subset);
+
+          labelSetAlgorithm.setSubset(conceptSubset);
+          labelSetAlgorithm.compute();
+          labelSetAlgorithm.close();
+        }
+      }
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Tree position computation cancelled");
     }
   }
 
@@ -517,7 +495,13 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
   /* see superclass */
   @Override
   public void cancel() {
-    throw new UnsupportedOperationException("cannot cancel.");
+    // cancel any currently running local algorithms
+    treePosAlgorithm.cancel();
+    transClosureAlgorithm.cancel();
+    labelSetAlgorithm.cancel();
+    
+    // invoke superclass cancel
+    super.cancel();
   }
 
   /**
@@ -2172,36 +2156,6 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
   public void close() throws Exception {
     super.close();
     readers = null;
-  }
-
-  /* see superclass */
-  @Override
-  public String getTerminology() {
-    return terminology;
-  }
-
-  /* see superclass */
-  @Override
-  public String getVersion() {
-    return version;
-  }
-
-  /**
-   * Gets the input dir.
-   *
-   * @return the input dir
-   */
-  public String getInputDir() {
-    return inputDir;
-  }
-
-  /**
-   * Sets the input dir.
-   *
-   * @param inputDir the new input dir
-   */
-  public void setInputDir(String inputDir) {
-    this.inputDir = inputDir;
   }
 
 }

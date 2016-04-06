@@ -1,4 +1,4 @@
-package com.wci.umls.server.rest.handlers;
+package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,12 +7,9 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
-import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
-import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
-import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
-import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
-import com.wci.umls.server.rest.impl.SecurityServiceRestImpl;
 import com.wci.umls.server.services.SourceDataService;
 import com.wci.umls.server.services.handlers.SourceDataHandler;
 import com.wci.umls.server.services.helpers.ProgressEvent;
@@ -31,7 +28,8 @@ public class AbstractSourceDataHandler implements SourceDataHandler {
 
   @Override
   public void reset() throws Exception {
-    throw new Exception("Reset method must be overriden by source data handler");
+    throw new Exception(
+        "Reset method must be overriden by source data handler");
   }
 
   @Override
@@ -67,8 +65,27 @@ public class AbstractSourceDataHandler implements SourceDataHandler {
 
   /* see superclass */
   @Override
-  public void cancel() {
-    
+  public void cancel() throws Exception {
+
+    if (sourceData == null || sourceData.getId() == null) {
+      throw new Exception(
+          "Cannot cancel: source data not specified, or its id is null");
+    }
+
+    // get the algorithm running for this source data if it exists
+    SourceDataService sourceDataService = new SourceDataServiceJpa();
+    try {
+      Algorithm algo =
+          sourceDataService.getRunningProcessForId(sourceData.getId());
+      algo.cancel();
+    } catch (Exception e) {
+      Logger.getLogger(getClass())
+          .info("Error attempting to cancel process for source data "
+              + sourceData.getName());
+      throw new Exception(e);
+    } finally {
+      sourceDataService.close();
+    }
   }
 
   /* see superclass */
@@ -104,29 +121,28 @@ public class AbstractSourceDataHandler implements SourceDataHandler {
       throw new Exception("Cannot remove terminology -- no version set");
     }
 
-    //
-    final Properties config = ConfigUtility.getConfigProperties();
-    final SecurityServiceRest securityService = new SecurityServiceRestImpl();
-    final ContentServiceRest contentService = new ContentServiceRestImpl();
     final SourceDataService sourceDataService = new SourceDataServiceJpa();
-    final String adminAuthToken =
-        securityService.authenticate(config.getProperty("admin.user"),
-            config.getProperty("admin.password")).getAuthToken();
 
     // set status to removing
     sourceData.setStatus(SourceData.Status.REMOVING);
     sourceDataService.updateSourceData(sourceData);
 
+    // instantiate and set algorithm parameters
+    RemoveTerminologyAlgorithm algo = new RemoveTerminologyAlgorithm();
+    algo.setTerminology(sourceData.getTerminology());
+    algo.setVersion(sourceData.getTerminology());
+    sourceDataService.registerSourceDataAlgorithm(sourceData.getId(), algo);
+
     try {
-      contentService.removeTerminology(sourceData.getTerminology(),
-          sourceData.getVersion(), adminAuthToken);
+      algo.compute();
       sourceData.setStatus(SourceData.Status.REMOVAL_COMPLETE);
-      sourceDataService.updateSourceData(sourceData);
     } catch (Exception e) {
       sourceData.setStatus(SourceData.Status.REMOVAL_FAILED);
-      sourceDataService.updateSourceData(sourceData);
     } finally {
+      sourceDataService.updateSourceData(sourceData);
+      sourceDataService.unregisterSourceDataAlgorithm(sourceData.getId());
       sourceDataService.close();
+
     }
   }
 

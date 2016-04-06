@@ -3,14 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -26,11 +19,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
-import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -45,7 +35,6 @@ import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
-import com.wci.umls.server.jpa.algo.LabelSetMarkedParentAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.OwlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
@@ -53,9 +42,6 @@ import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2FileSorter;
 import com.wci.umls.server.jpa.algo.Rf2Readers;
 import com.wci.umls.server.jpa.algo.Rf2SnapshotLoaderAlgorithm;
-import com.wci.umls.server.jpa.algo.RrfFileSorter;
-import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
-import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -80,7 +66,6 @@ import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
@@ -89,7 +74,6 @@ import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
@@ -101,9 +85,7 @@ import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.LogActivity;
-import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.HistoryService;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
@@ -288,6 +270,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "RRF input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
+    
+    try {
 
     Logger.getLogger(getClass())
         .info(
@@ -295,126 +279,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                 + terminology + "/" + version + " from input directory "
                 + inputDir);
 
-    // Track system level information
-    long startTimeOrig = System.nanoTime();
-    final ContentService contentService = new ContentServiceJpa();
-    try {
-      authorizeApp(securityService, authToken, "load RRF",
-          UserRole.ADMINISTRATOR);
-
-      // Check the input directory
-      File inputDirFile = new File(inputDir);
-      if (!inputDirFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
-      }
-
-      // Sort files - not really needed because files are already sorted
-      Logger.getLogger(getClass()).info("  Sort RRF Files");
-      final RrfFileSorter sorter = new RrfFileSorter();
-      // Be flexible about missing files for RXNORM
-      sorter
-          .setRequireAllFiles(!(prefix == null ? "MR" : prefix).equals("RXN"));
-      // File outputDir = new File(inputDirFile, "/RRF-sorted-temp/");
-      // sorter.sortFiles(inputDirFile, outputDir);
-      String releaseVersion = sorter.getFileVersion(inputDirFile);
-      if (releaseVersion == null) {
-        releaseVersion = version;
-      }
-      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
-
-      // Open readers - just open original RRF
-      final RrfReaders readers = new RrfReaders(inputDirFile);
-      // Use default prefix if not specified
-      readers.openOriginalReaders(prefix == null ? "MR" : prefix);
-
-      // Load RRF
-      final RrfLoaderAlgorithm algorithm = new RrfLoaderAlgorithm();
-      algorithm.setTerminology(terminology);
-      algorithm.setVersion(version);
-      if (codeFlag == null || codeFlag) {
-        algorithm.setCodesFlag(true);
-      } else {
-        algorithm.setCodesFlag(false);
-      }
-      algorithm.setSingleMode(singleMode);
-      algorithm.setReleaseVersion(releaseVersion);
-      algorithm.setReaders(readers);
-      algorithm.compute();
-      algorithm.close();
-
-      // Compute transitive closure
-      // Obtain each terminology and run transitive closure on it with the
-      // correct id type
-      // Refresh caches after metadata has changed in loader
-      contentService.refreshCaches();
-      for (final Terminology t : contentService.getTerminologyLatestVersions()
-          .getObjects()) {
-        // Only compute for organizing class types
-        if (t.getOrganizingClassType() != null) {
-          TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-          algo.setTerminology(t.getTerminology());
-          algo.setVersion(t.getVersion());
-          algo.setIdType(t.getOrganizingClassType());
-          // some terminologies may have cycles, allow these for now.
-          algo.setCycleTolerant(true);
-          algo.compute();
-          algo.close();
-        }
-      }
-
-      // Compute tree positions
-      // Refresh caches after metadata has changed in loader
-      for (final Terminology t : contentService.getTerminologyLatestVersions()
-          .getObjects()) {
-        // Only compute for organizing class types
-        if (t.getOrganizingClassType() != null) {
-          TreePositionAlgorithm algo = new TreePositionAlgorithm();
-          algo.setTerminology(t.getTerminology());
-          algo.setVersion(t.getVersion());
-          algo.setIdType(t.getOrganizingClassType());
-          // some terminologies may have cycles, allow these for now.
-          algo.setCycleTolerant(true);
-          // compute "semantic types" for concept hierarchies
-          if (t.getOrganizingClassType() == IdType.CONCEPT) {
-            algo.setComputeSemanticType(true);
-          }
-          algo.compute();
-          algo.close();
-        }
-      }
-
-      // Compute label sets - after transitive closure
-      // for each subset, compute the label set
-      for (final Terminology t : contentService.getTerminologyLatestVersions()
-          .getObjects()) {
-        for (final Subset subset : contentService.getConceptSubsets(
-            t.getTerminology(), t.getVersion(), Branch.ROOT).getObjects()) {
-          final ConceptSubset conceptSubset = (ConceptSubset) subset;
-          if (conceptSubset.isLabelSubset()) {
-            Logger.getLogger(getClass()).info(
-                "  Create label set for subset = " + subset);
-            LabelSetMarkedParentAlgorithm algo3 =
-                new LabelSetMarkedParentAlgorithm();
-            algo3.setSubset(conceptSubset);
-            algo3.compute();
-            algo3.close();
-          }
-        }
-      }
-      // Clean-up
-
-      ConfigUtility
-          .deleteDirectory(new File(inputDirFile, "/RRF-sorted-temp/"));
-
-      // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
+      // TODO Instantiate algorithm here
 
     } catch (Exception e) {
       handleException(e, "trying to load terminology from RRF directory");
     } finally {
-      contentService.close();
+     
       securityService.close();
     }
   }
@@ -540,7 +410,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       Rf2SnapshotLoaderAlgorithm algo = new Rf2SnapshotLoaderAlgorithm();
       algo.setTerminology(terminology);
       algo.setVersion(version);
-      algo.setInputDir(inputDir);
+      algo.setInputPath(inputDir);
       algo.compute();
       
 
@@ -557,7 +427,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
-  @SuppressWarnings("resource")
   @Override
   @PUT
   @Path("/terminology/load/rf2/full/{terminology}/{version}")
@@ -583,7 +452,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     ContentService contentService = new ContentServiceJpa();
 
     try {
-      authorizeApp(securityService, authToken, "load full",
+     /* 
+      * TODO Move to source data handler
+      * authorizeApp(securityService, authToken, "load full",
           UserRole.ADMINISTRATOR);
 
       // Check the input directory
@@ -757,7 +628,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       // Final logging messages
       Logger.getLogger(getClass()).info(
           "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
+      Logger.getLogger(getClass()).info("done ...");*/
 
     } catch (Exception e) {
       handleException(e,

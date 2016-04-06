@@ -1,19 +1,15 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.rest.handlers;
+package com.wci.umls.server.jpa.services.handlers;
 
 import java.io.File;
-import java.util.Properties;
 
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.jpa.algo.Rf2SnapshotLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
-import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
-import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
-import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
-import com.wci.umls.server.rest.impl.SecurityServiceRestImpl;
 import com.wci.umls.server.services.SourceDataService;
 import com.wci.umls.server.services.handlers.SourceDataHandler;
 
@@ -137,27 +133,31 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler impl
     // instantiate service
     SourceDataService sourceDataService = new SourceDataServiceJpa();
 
-    // Use content service rest because it has "loadRf2Terminology"
-    final Properties config = ConfigUtility.getConfigProperties();
-    final SecurityServiceRest securityService = new SecurityServiceRestImpl();
-    final String adminAuthToken =
-        securityService.authenticate(config.getProperty("admin.user"),
-            config.getProperty("admin.password")).getAuthToken();
-    final ContentServiceRest contentService = new ContentServiceRestImpl();
+    // instantiate and set parameters for loader algorithm
+    Rf2SnapshotLoaderAlgorithm algo = new Rf2SnapshotLoaderAlgorithm();
+    algo.setTerminology(sourceData.getTerminology());
+    algo.setVersion(sourceData.getTerminology());
+    algo.setInputPath(inputDir);
+    
+    // update the source data
+    sourceData.setStatus(SourceData.Status.LOADING);
+    sourceDataService.updateSourceData(sourceData);
+    
     try {
-      sourceData.setStatus(SourceData.Status.LOADING);
-      sourceDataService.updateSourceData(sourceData);
-      contentService.loadTerminologyRf2Snapshot(sourceData.getTerminology(),
-          sourceData.getVersion(), inputDir, adminAuthToken);
+      // perform main load
+      algo.compute();
+      
+      // compute transitive closures and tree positions
+      algo.computeTreePositions();
+      algo.computeTransitiveClosures();
+      
       sourceData.setStatus(SourceData.Status.LOADING_COMPLETE);
-      sourceDataService.updateSourceData(sourceData);
-
     } catch (Exception e) {
       sourceData.setStatus(SourceData.Status.LOADING_FAILED);
-      sourceDataService.updateSourceData(sourceData);
-      throw new Exception("Loading source data failed - " + sourceData, e);
     } finally {
+      sourceDataService.updateSourceData(sourceData);
       sourceDataService.close();
     }
   }
+  
 }
