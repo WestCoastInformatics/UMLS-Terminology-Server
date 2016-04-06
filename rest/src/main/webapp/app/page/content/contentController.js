@@ -1,16 +1,24 @@
 // Route
 tsApp.config(function config($routeProvider) {
   $routeProvider.when('/content', {
-    templateUrl : 'app/page/content/content.html',
+    templateUrl : function(urlAttr) {
+      console.debug('CONTENT');
+      return 'app/page/content/content.html';
+    },
     controller : 'ContentCtrl',
     reloadOnSearch : false
   }).when('/content/:mode/:terminology/:version/:terminologyId', {
     templateUrl : function(urlAttr) {
+      console.debug('CONTENT/SIMPLE');
+      console.debug("mode=", urlAttr.mode);
+      console.debug("terminology=", urlAttr.terminology);
+      console.debug("version=", urlAttr.version);
+      console.debug("terminologyId=", urlAttr.terminologyId);
       return 'app/page/content/' + urlAttr.mode + '.html';
     },
     controller : 'ContentCtrl',
     reloadOnSearch : false
-  })
+  });
 });
 
 // Content controller
@@ -36,8 +44,9 @@ tsApp.controller('ContentCtrl', [
     // Clear error
     utilService.clearError();
 
-    // Handle resetting tabs on "back" button
-    if (tabService.selectedTab.label != 'Content') {
+    // Handle resetting tabs on "back" button, but also handles non-standard
+    // content modes which may not have tabs
+    if (tabService.selectedTab.label != 'Content' && !$routeParams.mode) {
       tabService.setSelectedTabByLabel('Content');
     }
 
@@ -99,9 +108,6 @@ tsApp.controller('ContentCtrl', [
       if ($scope.metadata.terminology == null) {
         return;
       }
-
-      console.log('Terminology changed', $scope.metadata.terminology);
-      tabService.setTabEnabledByLabel('content', false);
 
       // set the autocomplete url, with pattern:
       // /type/{terminology}/{version}/autocomplete/{searchTerm}
@@ -224,11 +230,11 @@ tsApp.controller('ContentCtrl', [
       $scope.queryForList = true;
 
       // ensure query string has minimum length
-      /*
-             * if ($scope.searchParams.query == null || $scope.searchParams.query.length < 3) {
-             * alert("You must use at least one character to search"); return; }
-             */
-
+      // ensure query string has minimum length
+      if (!$scope.searchParams.query || $scope.searchParams.query.length < 1) {
+        alert("You must use at least one character to search");
+        return;
+      }
       contentService.findComponentsAsList($scope.searchParams.query,
         $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
         $scope.searchParams.page, $scope.searchParams).then(
@@ -260,19 +266,13 @@ tsApp.controller('ContentCtrl', [
         $scope.searchParams.page, $scope.searchParams).then(function(data) {
 
         // for ease and consistency of use of the ui tree
-        // directive
-        // force the single tree into a ui-tree structure
-        // with count
-        // variables
+        // directive force the single tree into a ui-tree structure
+        // with count variables
         $scope.searchResults.tree = [];
         $scope.searchResults.tree.push(data); // treeList
-        // array
-        // of
-        // size
-        // 1
+        // array of size 1
         $scope.searchResults.tree.totalCount = data.totalCount;
         $scope.searchResults.tree.count = data.count;
-
         // Load first functionality is not obvious here
         // so leave it alone for now.
 
@@ -371,47 +371,6 @@ tsApp.controller('ContentCtrl', [
         }
       }
     };
-
-    //
-    // Component Report Callbacks
-    //
-
-    // if in simple mode, disable navigation functionality
-    if ($routeParams.mode === 'simple') {
-      console.debug('Enabling component report callbacks for mode: ' + $routeParams.mode);
-      $scope.componentReportCallbacks = {
-        getTerminologyVersion : metadataService.getTerminologyVersion,
-        getRelationshipTypeName : metadataService.getRelationshipTypeName,
-        getAttributeNameName : metadataService.getAttributeNameName,
-        getTermTypeName : metadataService.getTermTypeName,
-        getGeneralEntryValue : metadataService.getGeneralEntryValue,
-        getLabelSetName : metadataService.getLabelSetName,
-        countLabels : metadataService.countLabels
-
-      // TODO Add relationship functions here, remove from
-      // relationships/relationships-deep
-      };
-    }
-
-    // otherwise, enable full functionality
-    else {
-      console.debug('Enabling component report callbacks for mode: FULL');
-      $scope.componentReportCallbacks = {
-        getComponent : $scope.getComponent,
-        getComponentFromType : $scope.getComponentFromType,
-        getComponentFromTree : $scope.getComponentFromTree,
-        getTerminologyVersion : metadataService.getTerminologyVersion,
-        getRelationshipTypeName : metadataService.getRelationshipTypeName,
-        getAttributeNameName : metadataService.getAttributeNameName,
-        getTermTypeName : metadataService.getTermTypeName,
-        getGeneralEntryValue : metadataService.getGeneralEntryValue,
-        getLabelSetName : metadataService.getLabelSetName,
-        countLabels : metadataService.countLabels
-
-      // TODO Add relationship functions here, remove from
-      // relationships/relationships-deep
-      };
-    }
 
     //
     // METADATA related functions
@@ -518,6 +477,46 @@ tsApp.controller('ContentCtrl', [
     // Initialize
     //
 
+    //
+    // Component Report Callbacks
+    //
+    // if in simple mode, disable navigation functionality
+    if ($routeParams.mode === 'simple') {
+      console.debug('Enabling component report callbacks for mode: ' + $routeParams.mode);
+      $scope.componentReportCallbacks = {
+        getTerminologyVersion : metadataService.getTerminologyVersion,
+        getRelationshipTypeName : metadataService.getRelationshipTypeName,
+        getAttributeNameName : metadataService.getAttributeNameName,
+        getTermTypeName : metadataService.getTermTypeName,
+        getGeneralEntryValue : metadataService.getGeneralEntryValue,
+        getLabelSetName : metadataService.getLabelSetName,
+        countLabels : metadataService.countLabels
+
+      // TODO Add relationship functions here, remove from
+      // relationships/relationships-deep
+      };
+    }
+
+    // otherwise, enable full functionality
+    else {
+      console.debug('Enabling component report callbacks for mode: FULL');
+      $scope.componentReportCallbacks = {
+        getComponent : $scope.getComponent,
+        getComponentFromType : $scope.getComponentFromType,
+        getComponentFromTree : $scope.getComponentFromTree,
+        getTerminologyVersion : metadataService.getTerminologyVersion,
+        getRelationshipTypeName : metadataService.getRelationshipTypeName,
+        getAttributeNameName : metadataService.getAttributeNameName,
+        getTermTypeName : metadataService.getTermTypeName,
+        getGeneralEntryValue : metadataService.getGeneralEntryValue,
+        getLabelSetName : metadataService.getLabelSetName,
+        countLabels : metadataService.countLabels
+
+      // TODO Add relationship functions here, remove from
+      // relationships/relationships-deep
+      };
+    }
+
     // Load all terminologies upon controller load (unless already
     // loaded)
     if (!$scope.metadata.terminologies) {
@@ -536,7 +535,6 @@ tsApp.controller('ContentCtrl', [
               // Determine whether to set as default
               if (terminology.terminology === $routeParams.terminology
                 && terminology.version === $routeParams.version) {
-
                 termToSet = terminology;
                 break;
               }
@@ -598,7 +596,7 @@ tsApp.controller('ContentCtrl', [
         });
     }
 
-    $scope.configureTab();
+    // $scope.configureTab();
   }
 
 ]);

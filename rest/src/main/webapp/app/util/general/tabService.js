@@ -23,7 +23,8 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'security
     } ];
 
     // the selected tab
-    this.selectedTab = this.tabs[0];
+    // Have the tab default to /content to support the varying routeParams stuff.
+    this.selectedTab = this.tabs[1];
 
     // Sets the selected tab
     this.setSelectedTab = function(tab) {

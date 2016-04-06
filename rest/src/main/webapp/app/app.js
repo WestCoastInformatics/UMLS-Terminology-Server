@@ -25,14 +25,16 @@ tsApp.run(function($rootScope, $http, $location) {
   // nothing yet -- may want to put metadata retrieval here
 });
 
-// Route provider configuration
-tsApp.config([ '$routeProvider', function($routeProvider) {
-  console.debug('configure $routeProvider');
+// Route provider configuration - MOVED to individual controllers for routes
+// e.g. contentController.js, metadataController.js
+// tsApp.config([ '$routeProvider', function($routeProvider) {
+// console.debug('configure $routeProvider');
+//
+// $routeProvider.otherwise({
+// redirectTo : '/content'
+// });
+// } ]);
 
-  $routeProvider.otherwise({
-    redirectTo : '/content'
-  })
-} ]);
 
 // Simple glass pane controller
 tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService', function($scope, gpService) {
@@ -55,16 +57,16 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
   $scope.setError = function(message) {
     utilService.setError(message);
   };
-  
+
   $scope.success = utilService.success;
-  
+
   $scope.clearSuccess = function() {
     utilService.clearSuccess();
   };
-  
+
   $scope.setSuccess = function(message) {
     utilService.setSuccess(message);
-  }
+  };
 
 } ]);
 
