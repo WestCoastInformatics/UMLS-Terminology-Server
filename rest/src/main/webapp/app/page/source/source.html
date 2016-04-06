@@ -1,16 +1,15 @@
-<style>
-td {
-	word-break: break-all;
-}
-</style>
+
 <!-- Source view -->
 <div class="row">
   <div class="col-md-12 col-xs-12">
-    <h3>Source Data</h3>
+    <h4>Source Data</h4>
+
     <!-- Actions header template for source data ng-table -->
     <script type="text/ng-template" id="headerActions.html">
-      <button class="btn btn-default btn-primary btn-sm" ng-click="createSourceData()"><span class="glyphicon glyphicon-plus">Add</span></button>	
+      <button class="btn btn-xs btn-primary" 
+        ng-click="createSourceData()">Add</button>  
   	</script>
+
     <!--  Source data ng-table -->
     <table ng-table="tpSourceDatas" class="table">
       <tr ng-repeat="item in $data">
@@ -30,72 +29,74 @@ td {
         </td>
       </tr>
     </table>
+
+    <!-- Source Data details -->
     <div class="row" ng-show="currentSourceData" style="margin-top: 75px;">
       <div class="col-md-4">
         <h4>Source Data Details</h4>
-        <div class="row m10">
-          <div class="col-md-3">Name</div>
-          <div class="col-md-9">
-            <textarea style="width: 95%" ng-model="currentSourceData.name"
-              placeholder="Unique name for this source data configuration"></textarea>
-          </div>
-        </div>
-        <div class="row m10">
-          <div class="col-md-3">Description</div>
-          <div class="col-md-9">
-            <textarea style="min-height: 100px; width: 95%; max-width: 95%;"
-              ng-model="currentSourceData.description"
-              placeholder="Optional description"></textarea>
-          </div>
-        </div>
-        <div class="row m10">
-          <div class="col-md-3">Terminology</div>
-          <div class="col-md-9">
-            <input style="max-width: 100%"
-              ng-model="currentSourceData.terminology"
-              placeholder="e.g. UMLS, SNOMEDCT, ...">
-          </div>
-        </div>
-        <div class="row m10">
-          <div class="col-md-3">Version</div>
-          <div class="col-md-9">
-            <input style="max-width: 100%" ng-model="currentSourceData.version"
-              placeholder="e.g. latest">
-          </div>
-        </div>
-        <div class="row m10">
-          <div class="col-md-3">Handler</div>
-          <div class="col-md-9">
-            <select ng-model="currentSourceData.handler"
-              ng-options=" handler.value as handler.key for handler in sourceDataHandlers">
-            </select>
-          </div>
-        </div>
-        <div class="row m10" style="margin-top: 10px;">
-          <div class="col-md-3"></div>
-          <div class="col-md-9">
-            <button class="btn btn-primary btn-sm"
-              style="padding-top: 5px; padding-bottom: 5px;"
-              ng-click="saveSourceData(currentSourceData)"
-              ng-show="isSourceDataModified">
-              <span class="glyphicon glyphicon-save"> Save</span>
-            </button>
-            <button class="btn btn-warning btn-sm"
-              ng-click="cancelSourceDataModifications()"
-              ng-show="isSourceDataModified">
-              <span class="glyphicon glyphicon-ban-circle"> Cancel</span>
-            </button>
-          </div>
-        </div>
-        <div class="row m10" style="margin-top: 10px;">
-          <div class="col-md-3"></div>
-          <div class="col-md-9">
-            <button class="btn btn-success btn-sm"
-              ng-click="loadFromSourceData(currentSourceData)"
-              ng-show="!isSourceDataModified && currentSourceData.status === 'NEW'">
-              <span class="glyphicon glyphicon-play"></span>
-              &nbsp;Load Terminology
-            </button>
+        <table class="table">
+          <tr>
+            <td class="col-md-3">Name</td>
+            <td class="col-md-9">
+              <textarea style="width: 100%" ng-model="currentSourceData.name"
+                placeholder="Unique name for source data"></textarea>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Description</td>
+            <td class="col-md-9">
+              <textarea style="height: 100px; width: 100%"
+                ng-model="currentSourceData.description"
+                placeholder="Optional description"></textarea>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Terminology</td>
+            <td>
+              <input size="27" ng-model="currentSourceData.terminology"
+                placeholder="e.g. SNOMEDCT">
+            </td>
+          </tr>
+
+          <tr>
+            <td>Version</td>
+            <td>
+              <input size="27" ng-model="currentSourceData.version"
+                placeholder="e.g. latest">
+            </td>
+          </tr>
+
+          <tr>
+            <td>Loader</td>
+            <td>
+              <select ng-model="currentSourceData.handler"
+                ng-options=" handler.value as handler.key for handler in sourceDataHandlers">
+              </select>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Actions</td>
+            <td class="col-md-9">
+              <button class="btn btn-xs btn-primary"
+                ng-click="saveSourceData(currentSourceData)"
+                ng-show="isSourceDataModified">Save</button>
+              <button class="btn btn-xs btn-warning"
+                ng-click="cancelSourceDataModifications()"
+                ng-show="isSourceDataModified">Cancel</button>
+            </td>
+          </tr>
+          <tr>
+            <td>&nbsp;</td>
+            <td>
+              <button class="btn btn-success btn-sm"
+                ng-click="loadFromSourceData(currentSourceData)"
+                ng-show="!isSourceDataModified">
+                <span class="glyphicon glyphicon-play"></span>
+                &nbsp;Load Data
+              </button>
             <button class="btn btn-success btn-sm"
               ng-click="loadFromSourceData(currentSourceData)"
               ng-show="!isSourceDataModified && currentSourceData.status === 'REMOVAL_COMPLETE'">
@@ -108,9 +109,10 @@ td {
               <span class="glyphicon glyphicon-trash"></span>
               &nbsp;Remove Terminology
             </button>
-          </div>
-        </div>
+</td>
       </div>
+
+      <!-- Upload File -->
       <div class="col-md-8" ng-show="!currentSourceData.id">
         <div class="row">
           <h4>Upload File</h4>
@@ -140,7 +142,7 @@ td {
           <!-- Example: nv-file-select="" uploader="{Object}" options="{Object}" filters="{String}" -->
           <input type="file" nv-file-select="" uploader="uploader" /><br />
         </div>
-        <div class="row" style="margin-bottom: 100px"
+        <div class="row" style="margin-bottom: 75px"
           ng-show="uploader.queue.length > 0">
           <h4>Upload queue</h4>
           <p>Queue length: {{ uploader.queue.length }}</p>
@@ -167,7 +169,7 @@ td {
                 <td ng-show="uploader.isHTML5" nowrap>{{
                   item.file.size/1024/1024|number:2 }} MB</td>
                 <td ng-show="uploader.isHTML5">
-                  <div class="progress" style="margin-bottom: 0;">
+                  <div class="progress">
                     <div class="progress-bar" role="progressbar"
                       ng-style="{ 'width': item.progress + '%' }"></div>
                   </div>
@@ -206,7 +208,7 @@ td {
           </table>
           <div>
             Queue progress:
-            <div class="progress" style="">
+            <div class="progress">
               <div class="progress-bar" role="progressbar"
                 ng-style="{ 'width': uploader.progress + '%' }"></div>
             </div>

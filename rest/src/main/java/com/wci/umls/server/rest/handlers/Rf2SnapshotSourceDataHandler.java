@@ -25,7 +25,7 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler impl
  
 
   /**
-   * Instantiates an empty {@link Rf2SourceDataLoader}.
+   * Instantiates an empty {@link Rf2SnapshotSourceDataHandler}.
    */
   public Rf2SnapshotSourceDataHandler() {
     // n/a
@@ -76,8 +76,8 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler impl
             + File.separator + sourceData.getId().toString();
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException(
-          "Source data directory is not a directory: " + inputDir);
+      throw new LocalException("Source data directory is not a directory: "
+          + inputDir);
     }
 
     // RF2 Loads require locating a base directory containing two folders

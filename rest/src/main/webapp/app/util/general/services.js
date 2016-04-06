@@ -19,7 +19,7 @@ tsApp
           message : null,
           longMessage : null,
           expand : false
-        }
+        };
 
         // tinymce options
         this.tinymceOptions = {
@@ -87,7 +87,7 @@ tsApp
         this.handleSuccess = function(message) {
           console.debug('Handle success: ', message);
           if (message && message.legth > 100) {
-            this.success.message = 'Successful process reported, click the icon to view full message'
+            this.success.message = 'Successful process reported, click the icon to view full message';
             this.success.longMessage = message;
           } else {
             this.success.message = message;
@@ -96,7 +96,7 @@ tsApp
           // scroll to top of page
           $location.hash('top');
           $anchorScroll();
-        }
+        };
 
         // Handle error message
         this.handleError = function(response) {
@@ -250,7 +250,7 @@ tsApp
             sortAscending : true,
             sortOptions : []
           };
-        }
+        };
 
         // Helper to get a paged array with show/hide flags
         // and filtered by query string
@@ -301,7 +301,7 @@ tsApp
           return {
             data : results,
             totalCount : newArray.length
-          }
+          };
         };
 
         // function for sorting an array by (string) field and direction
@@ -833,7 +833,7 @@ tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
 
   } ]);
 
-//Source data service
+// Source data service
 tsApp
   .service(
     'sourceDataService',

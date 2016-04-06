@@ -5,7 +5,6 @@ package com.wci.umls.server;
 
 import java.util.List;
 
-import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasName;
 import com.wci.umls.server.helpers.HasTerminology;
@@ -14,7 +13,7 @@ import com.wci.umls.server.helpers.HasTerminology;
  * Generically represents a collection of source data files and a Handler used
  * for those files.
  */
-public interface SourceData extends HasId, HasTerminology, HasLastModified, HasName {
+public interface SourceData extends HasTerminology, HasLastModified, HasName {
 
   /**
    * Load status for a {@link SourceData}.

@@ -112,7 +112,8 @@ tsApp
           return;
         }
         sourceDataService.updateSourceData(sourceData).then(function(response) {
-          // update the source data and current source data if response returned (add call)
+          // update the source data and current source data if response returned
+          // (add call)
           if (response) {
             sourceData = response;
             $scope.currentSourceData = response;
@@ -270,7 +271,7 @@ tsApp
           logEntries : null
         };
 
-        // TODO Ensure Brian notices my rebellion with polling interval of π seconds!!!
+        // TODO Ensure Brian notices my rebellion with polling interval of p seconds!!!
         $scope.polls[sourceData.id].poll = $interval(function() {
 
           console.debug('Polling', $scope.polls[sourceData.id]);
@@ -371,10 +372,10 @@ tsApp
 
       // CALLBACKS
       uploader.onWhenAddingFileFailed = function(item /* {File|FileLikeObject} */, filter, options) {
-        //console.info('onWhenAddingFileFailed', item, filter, options);
+        // console.info('onWhenAddingFileFailed', item, filter, options);
       };
       uploader.onAfterAddingFile = function(fileItem) {
-        //console.info('onAfterAddingFile', fileItem);
+        // console.info('onAfterAddingFile', fileItem);
         fileItem.isZipped = isZipFile(fileItem);
         if (fileItem.isZipped) {
           $scope.hasZippedFiles = true;
@@ -406,7 +407,7 @@ tsApp
         // console.info('onProgressItem', fileItem, progress);
       };
       uploader.onProgressAll = function(progress) {
-        //  console.info('onProgressAll', progress);
+        // console.info('onProgressAll', progress);
       };
       uploader.onSuccessItem = function(fileItem, response, status, headers) {
         console.info('onSuccessItem', uploader, fileItem, response, status, headers);
@@ -415,7 +416,7 @@ tsApp
         })
       };
       uploader.onErrorItem = function(fileItem, response, status, headers) {
-        //  console.info('onErrorItem', fileItem, response, status, headers);
+        // console.info('onErrorItem', fileItem, response, status, headers);
         utilService
           .handleError({
             data : response ? response
@@ -426,7 +427,7 @@ tsApp
       };
 
       uploader.onCancelItem = function(fileItem, response, status, headers) {
-        //   console.info('onCancelItem', fileItem, response, status, headers);
+        // console.info('onCancelItem', fileItem, response, status, headers);
       };
 
       uploader.onCompleteItem = function(fileItem, response, status, headers) {
@@ -449,9 +450,11 @@ tsApp
       }
 
       //
-      // Initialize
+      // Initialize if USER
       //
-      retrieveSourceDatas();
-      getSourceDataHandlers();
+      if (securityService.isUser()) {
+        retrieveSourceDatas();
+        getSourceDataHandlers();
+      }
 
     });

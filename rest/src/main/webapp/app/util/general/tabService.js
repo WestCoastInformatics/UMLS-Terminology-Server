@@ -46,14 +46,4 @@ tsApp.service('tabService', [ '$location', 'utilService', 'gpService', 'security
       }
     };
 
-    this.setTabEnabledByLabel = function(label, enabledStatus) {
-      console.debug("set tab enabled", label, enabledStatus);
-      for (var i = 0; i < this.tabs.length; i++) {
-        //console.debug("  " + this.tabs[i].label, label);
-        if (this.tabs[i].label === label) {
-          this.tabs[i].enabled = enabledStatus;
-          break;
-        }
-      }
-    }
   } ]);

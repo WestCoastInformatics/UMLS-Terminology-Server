@@ -38,7 +38,7 @@ public class Rf2DeltaSourceDataHandler implements SourceDataHandler {
   private String terminology;
 
   /**
-   * Instantiates an empty {@link Rf2DeltaSourceDataLoader}.
+   * Instantiates an empty {@link Rf2DeltaSourceDataHandler}.
    */
   public Rf2DeltaSourceDataHandler() {
     // n/a
@@ -78,8 +78,8 @@ public class Rf2DeltaSourceDataHandler implements SourceDataHandler {
     String inputDir = sourceData.getSourceDataFiles().get(0).getPath();
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException(
-          "Source data directory is not a directory: " + inputDir);
+      throw new LocalException("Source data directory is not a directory: "
+          + inputDir);
     }
 
     SourceDataService sourceDataService = new SourceDataServiceJpa();
@@ -162,12 +162,6 @@ public class Rf2DeltaSourceDataHandler implements SourceDataHandler {
   @Override
   public void close() throws Exception {
     // n/a
-  }
-
-  @Override
-  public void remove() throws Exception {
-    throw new Exception("RF2 Delta Source Data Loader cannot be used to remove terminologies.");
-    
   }
 
 
