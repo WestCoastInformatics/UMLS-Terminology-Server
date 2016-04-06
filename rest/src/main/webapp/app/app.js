@@ -27,13 +27,14 @@ tsApp.run(function($rootScope, $http, $location) {
 
 // Route provider configuration - MOVED to individual controllers for routes
 // e.g. contentController.js, metadataController.js
-//tsApp.config([ '$routeProvider', function($routeProvider) {
-//  console.debug('configure $routeProvider');
+// tsApp.config([ '$routeProvider', function($routeProvider) {
+// console.debug('configure $routeProvider');
 //
-//  $routeProvider.otherwise({
-//    redirectTo : '/content'
-//  });
-//} ]);
+// $routeProvider.otherwise({
+// redirectTo : '/content'
+// });
+// } ]);
+
 
 // Simple glass pane controller
 tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService', function($scope, gpService) {
@@ -56,16 +57,16 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
   $scope.setError = function(message) {
     utilService.setError(message);
   };
-  
+
   $scope.success = utilService.success;
-  
+
   $scope.clearSuccess = function() {
     utilService.clearSuccess();
   };
-  
+
   $scope.setSuccess = function(message) {
     utilService.setSuccess(message);
-  }
+  };
 
 } ]);
 
