@@ -86,7 +86,7 @@ tsApp.service('metadataService', [
           // success
           function(response) {
             metadata.terminology = terminology;
-            metadata.entries = response.data.keyValuePairList;
+            metadata.entries = response.data.keyValuePairLists;
             initMetadata();
 
             if (metadata.terminology == null) {
@@ -99,25 +99,25 @@ tsApp.service('metadataService', [
               // extract relationship types for
               // convenience
               if (metadata.entries[i].name === 'Relationship_Types') {
-                metadata.relationshipTypes = metadata.entries[i].keyValuePair;
+                metadata.relationshipTypes = metadata.entries[i].keyValuePaisr;
               }
               if (metadata.entries[i].name === 'Languages') {
-                metadata.languages = metadata.entries[i].keyValuePair;
+                metadata.languages = metadata.entries[i].keyValuePairs;
               }
               if (metadata.entries[i].name === 'Attribute_Names') {
-                metadata.attributeNames = metadata.entries[i].keyValuePair;
+                metadata.attributeNames = metadata.entries[i].keyValuePairs;
               }
               if (metadata.entries[i].name === 'Term_Types') {
-                metadata.termTypes = metadata.entries[i].keyValuePair;
+                metadata.termTypes = metadata.entries[i].keyValuePairs;
               }
               if (metadata.entries[i].name === 'Semantic_Types') {
-                metadata.semanticTypes = metadata.entries[i].keyValuePair;
+                metadata.semanticTypes = metadata.entries[i].keyValuePairs;
               }
               if (metadata.entries[i].name === 'Label_Sets') {
-                metadata.labelSets = metadata.entries[i].keyValuePair;
+                metadata.labelSets = metadata.entries[i].keyValuePairs;
               }
               if (metadata.entries[i].name === 'General_Metadata_Entries') {
-                metadata.generalEntries = metadata.entries[i].keyValuePair;
+                metadata.generalEntries = metadata.entries[i].keyValuePairs;
 
                 for (var j = 0; j < metadata.generalEntries.length; j++) {
                   if (metadata.generalEntries[j].key === "Atoms_Label") {

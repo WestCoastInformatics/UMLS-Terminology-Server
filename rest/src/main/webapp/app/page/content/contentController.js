@@ -2,18 +2,12 @@
 tsApp.config(function config($routeProvider) {
   $routeProvider.when('/content', {
     templateUrl : function(urlAttr) {
-      console.debug('CONTENT');
       return 'app/page/content/content.html';
     },
     controller : 'ContentCtrl',
     reloadOnSearch : false
   }).when('/content/:mode/:terminology/:version/:terminologyId', {
     templateUrl : function(urlAttr) {
-      console.debug('CONTENT/SIMPLE');
-      console.debug("mode=", urlAttr.mode);
-      console.debug("terminology=", urlAttr.terminology);
-      console.debug("version=", urlAttr.version);
-      console.debug("terminologyId=", urlAttr.terminologyId);
       return 'app/page/content/' + urlAttr.mode + '.html';
     },
     controller : 'ContentCtrl',
@@ -594,6 +588,13 @@ tsApp.controller('ContentCtrl', [
             }
           }
         });
+    }
+    
+    // else, returning to content tab, set terminology
+    else {
+      console.debug("AAA",$scope.metadata.terminology);
+      console.debug("BBB",$scope.metadata.terminologies);
+
     }
 
     // $scope.configureTab();

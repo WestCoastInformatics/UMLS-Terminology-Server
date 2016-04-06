@@ -1016,7 +1016,7 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
           console.debug("  data =", response.data);
           sourceDataHandlers = response.data.keyValuePais;
           gpService.decrement();
-          deferred.resolve(response.data.keyValuePair);
+          deferred.resolve(response.data.keyValuePairs);
         },
         // Error
         function(response) {
