@@ -1049,7 +1049,7 @@ tsApp.service('sourceDataService', [ '$http', '$location', '$q', '$cookies', 'ut
         });
       }
       return deferred.promise;
-    }
+    };
 
     this.loadFromSourceData = function(sourceData) {
 

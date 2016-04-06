@@ -59,7 +59,6 @@ tsApp
         // hides page sizes
         });
       }
-      ;
 
       // view the source data and retrieve current source data file list
       $scope.viewSourceData = function(sourceData) {
@@ -115,11 +114,11 @@ tsApp
           // update the source data and current source data if response returned
           // (add call)
           if (response) {
-            sourceData = response;
+            // sourceData = response;
             $scope.currentSourceData = response;
           }
           $scope.isSourceDataModified = false;
-        })
+        });
       };
 
       // Cancel source data modifications
@@ -205,7 +204,7 @@ tsApp
             if (sourceData.status === 'LOADING' || sourceData.status === 'REMOVING') {
               $scope.startPolling(sourceData);
             }
-            ;
+
           });
 
           refreshTables();
@@ -267,12 +266,12 @@ tsApp
             });
 
         }, 1001);
-      }
+      };
 
       $scope.cancelLoadingPolling = function(sourceData) {
         $interval.cancel($scope.loadingPolls[sourceData.id]);
         delete $scope.loadingPolls[sourceData.id];
-      }
+      };
 
       // cancel all polling on reloads or navigation
       $scope.$on("$routeChangeStart", function(event, next, current) {
@@ -295,7 +294,7 @@ tsApp
         case 'REMOVAL_FAILED':
           break;
         }
-      }
+      };
 
       //
       // Angular File Upload controls
@@ -356,7 +355,7 @@ tsApp
         console.info('onSuccessItem', uploader, fileItem, response, status, headers);
         uploader.queue = uploader.queue.filter(function(item) {
           return !item.isSuccess;
-        })
+        });
       };
       uploader.onErrorItem = function(fileItem, response, status, headers) {
         // console.info('onErrorItem', fileItem, response, status, headers);
