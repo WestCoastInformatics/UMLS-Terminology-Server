@@ -1,13 +1,13 @@
 // Route
 tsApp.config(function config($routeProvider) {
-  $routeProvider.when('/content', {
-    templateUrl : 'app/page/content/content.html',
-    controller : 'ContentCtrl',
-    reloadOnSearch : false
-  }).when('/content/:mode/:terminology/:version/:terminologyId', {
+  $routeProvider.when('/content/:mode/:terminology/:version/:terminologyId', {
     templateUrl : function(urlAttr) {
       return 'app/page/content/' + urlAttr.mode + '.html';
     },
+    controller : 'ContentCtrl',
+    reloadOnSearch : false
+  }).when('/content', {
+    templateUrl : 'app/page/content/content.html',
     controller : 'ContentCtrl',
     reloadOnSearch : false
   })
@@ -99,9 +99,6 @@ tsApp.controller('ContentCtrl', [
       if ($scope.metadata.terminology == null) {
         return;
       }
-
-      console.log('Terminology changed', $scope.metadata.terminology);
-      tabService.setTabEnabledByLabel('content', false);
 
       // set the autocomplete url, with pattern:
       // /type/{terminology}/{version}/autocomplete/{searchTerm}
@@ -225,9 +222,10 @@ tsApp.controller('ContentCtrl', [
 
       // ensure query string has minimum length
       /*
-             * if ($scope.searchParams.query == null || $scope.searchParams.query.length < 3) {
-             * alert("You must use at least one character to search"); return; }
-             */
+       * if ($scope.searchParams.query == null ||
+       * $scope.searchParams.query.length < 3) { alert("You must use at least
+       * one character to search"); return; }
+       */
 
       contentService.findComponentsAsList($scope.searchParams.query,
         $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
