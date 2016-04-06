@@ -48,15 +48,15 @@
           <tr>
             <td class="col-md-3">Name</td>
             <td class="col-md-9">
-              <textarea style="width: 95%" ng-model="currentSourceData.name"
-                placeholder="Unique name for this source data configuration"></textarea>
+              <textarea style="width: 100%" ng-model="currentSourceData.name"
+                placeholder="Unique name for source data"></textarea>
             </td>
           </tr>
 
           <tr>
             <td>Description</td>
             <td class="col-md-9">
-              <textarea style="min-height: 100px; width: 95%; max-width: 95%;"
+              <textarea style="height: 100px; width: 100%"
                 ng-model="currentSourceData.description"
                 placeholder="Optional description"></textarea>
             </td>
@@ -65,17 +65,16 @@
           <tr>
             <td>Terminology</td>
             <td>
-              <input style="max-width: 100%"
-                ng-model="currentSourceData.terminology"
-                placeholder="e.g. UMLS, SNOMEDCT, ...">
+              <input size="27" ng-model="currentSourceData.terminology"
+                placeholder="e.g. SNOMEDCT">
             </td>
           </tr>
 
           <tr>
             <td>Version</td>
             <td>
-              <input style="max-width: 100%"
-                ng-model="currentSourceData.version" placeholder="e.g. latest">
+              <input size="27" ng-model="currentSourceData.version"
+                placeholder="e.g. latest">
             </td>
           </tr>
 
@@ -133,7 +132,7 @@
           <!-- Example: nv-file-select="" uploader="{Object}" options="{Object}" filters="{String}" -->
           <input type="file" nv-file-select="" uploader="uploader" /><br />
         </div>
-        <div class="row" style="margin-bottom: 100px"
+        <div class="row" style="margin-bottom: 75px"
           ng-show="uploader.queue.length > 0">
           <h4>Upload queue</h4>
           <p>Queue length: {{ uploader.queue.length }}</p>
@@ -160,7 +159,7 @@
                 <td ng-show="uploader.isHTML5" nowrap>{{
                   item.file.size/1024/1024|number:2 }} MB</td>
                 <td ng-show="uploader.isHTML5">
-                  <div class="progress" style="margin-bottom: 0;">
+                  <div class="progress">
                     <div class="progress-bar" role="progressbar"
                       ng-style="{ 'width': item.progress + '%' }"></div>
                   </div>
@@ -199,7 +198,7 @@
           </table>
           <div>
             Queue progress:
-            <div class="progress" style="">
+            <div class="progress">
               <div class="progress-bar" role="progressbar"
                 ng-style="{ 'width': uploader.progress + '%' }"></div>
             </div>
