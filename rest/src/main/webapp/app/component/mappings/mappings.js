@@ -1,6 +1,7 @@
 // Content controller
 tsApp.directive('mappings', [
-  'utilService', 'contentService',
+  'utilService',
+  'contentService',
   function(utilService, contentService) {
     console.debug('configure mappingss directive');
     return {
@@ -19,9 +20,7 @@ tsApp.directive('mappings', [
         scope.paging = utilService.getPaging();
         scope.pageCallback = {
           getPagedList : getPagedList
-        }
-
-        
+        };
 
         function getPagedList() {
 
@@ -36,15 +35,14 @@ tsApp.directive('mappings', [
 
           // Request from service
           contentService.findMappings(scope.component.object.terminologyId,
-            scope.component.object.terminology, scope.component.object.version,
-            scope.paging.page, parameters).then(function(data) {
+            scope.component.object.terminology, scope.component.object.version, scope.paging.page,
+            parameters).then(function(data) {
 
             scope.pagedMappings = data.mapping;
             scope.pagedMappings.totalCount = data.totalCount;
 
           });
         }
-        ;
 
         // watch show hidden flag
         scope.$watch('showHidden', function() {

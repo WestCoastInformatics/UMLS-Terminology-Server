@@ -1,15 +1,14 @@
 // Log controller
-tsApp.directive('log', [ 
-  function() {
-    console.debug('configure log directive');
-    return {
-      restrict : 'A',
-      scope : {
-        project : '='
-      },
-      templateUrl : 'app/component/log/log.html',
-      controller : [ '$scope', '$uibModal', 'projectService', 'utilService',
-                     function($scope, $uibModal, projectService, utilService) {
+tsApp.directive('log', [ function() {
+  console.debug('configure log directive');
+  return {
+    restrict : 'A',
+    scope : {
+      project : '='
+    },
+    templateUrl : 'app/component/log/log.html',
+    controller : [ '$scope', '$uibModal', 'projectService', 'utilService',
+      function($scope, $uibModal, projectService, utilService) {
         console.debug('configure LogModalCtrl');
 
         // Log modal
@@ -59,7 +58,7 @@ tsApp.directive('log', [
 
           // initialize
           $scope.getLog();
-        }
-      }]
-    }
-  } ]);
+        };
+      } ]
+  };
+} ]);

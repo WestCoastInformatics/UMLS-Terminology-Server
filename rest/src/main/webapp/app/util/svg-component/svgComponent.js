@@ -16,13 +16,13 @@ angular.module('tsApp')
       link: function (scope, element, attrs, linkCtrl, snowowlService) {
 
 
-        console.debug('entered svgComponent')
+        console.debug('entered svgComponent');
        
 
         // on open image requests, broadcast concept id to drawModel.js
         scope.openImage = function() {
           rootScope.$broadcast('openDrawModelConceptImage', {conceptId : scope.concept.conceptId});
-        }
+        };
       }
-    }
+    };
   }]);
