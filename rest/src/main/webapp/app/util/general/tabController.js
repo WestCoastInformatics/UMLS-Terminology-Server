@@ -1,6 +1,6 @@
 // Tab controller
-tsApp.controller('TabCtrl', [ '$scope', 'securityService', 'tabService', 'projectService',
-  function($scope, securityService, tabService, projectService) {
+tsApp.controller('TabCtrl', [ '$scope', '$routeParams', 'securityService', 'tabService', 'projectService',
+  function($scope, $routeParams, securityService, tabService, projectService) {
     console.debug('configure TabCtrl');
 
     // Setup tabs
@@ -44,6 +44,13 @@ tsApp.controller('TabCtrl', [ '$scope', 'securityService', 'tabService', 'projec
 
     // for ng-show on an individual tab
     $scope.isTabShowing = function(tab) {
+
+      // Don't show tabs on the "simple" view
+      // TODO: probably pack this into a parameter of tabs
+      if ($routeParams.mode == 'simple') {
+        return false;
+      }
+
       // show tabs without a role
       if (!tab.role) {
         return true;
