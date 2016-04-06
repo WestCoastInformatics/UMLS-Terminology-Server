@@ -457,7 +457,7 @@ tsApp
 
           // Wire default validation check 'on' by default
           for (var i = 0; i < $scope.validationChecks.length; i++) {
-            if ($scope.validationChecks[i].value == 'Default validation check') {
+            if ($scope.validationChecks[i].value.startsWith('Default')) {
               $scope.selectedChecks.push($scope.validationChecks[i].value);
             } else {
               $scope.availableChecks.push($scope.validationChecks[i].value);

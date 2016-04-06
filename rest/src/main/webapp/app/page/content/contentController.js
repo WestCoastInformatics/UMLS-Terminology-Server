@@ -513,7 +513,7 @@ tsApp.controller('ContentCtrl', [
 
     // Load all terminologies upon controller load (unless already
     // loaded)
-    if (!$scope.metadata.terminologies) {
+    if (!$scope.metadata.terminologies || !$scope.metadata.terminology) {
       metadataService.initTerminologies().then(
         // success
         function(data) {
@@ -589,15 +589,8 @@ tsApp.controller('ContentCtrl', [
           }
         });
     }
-    
-    // else, returning to content tab, set terminology
-    else {
-      console.debug("AAA",$scope.metadata.terminology);
-      console.debug("BBB",$scope.metadata.terminologies);
 
-    }
-
-    // $scope.configureTab();
+    $scope.configureTab();
   }
 
 ]);
