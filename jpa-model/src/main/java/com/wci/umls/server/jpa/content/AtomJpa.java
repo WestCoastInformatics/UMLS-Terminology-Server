@@ -91,11 +91,11 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private String codeId;
 
   /** The descriptor id. */
-  @Column(nullable = true)
+  @Column(nullable = false)
   private String descriptorId;
 
   /** The concept id. */
-  @Column(nullable = true)
+  @Column(nullable = false)
   private String conceptId;
 
   /** The language. */
