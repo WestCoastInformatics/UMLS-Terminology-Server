@@ -11,23 +11,24 @@ tsApp.directive('tsHeader', [ '$rootScope', '$routeParams', 'securityService', '
         scope.isShowing = function() {
           switch ($routeParams.mode) {
           case 'simple':
-             return false;
+            return false;
           default:
-             return true;
+            return true;
           }
-        }
-        
+        };
+
         scope.isLanding = function() {
-          return ($location.url() === '/landing')
-        }
-        
+          return ($location.url() === '/landing');
+        };
+
         scope.gotoTool = function() {
           if (securityService.isLoggedIn()) {
             $location.url('/content');
           } else {
             $location.url('/login');
           }
-        }
+        };
+
         // Declare user
         scope.user = securityService.getUser();
 

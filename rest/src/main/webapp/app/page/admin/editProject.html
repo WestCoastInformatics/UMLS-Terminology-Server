@@ -44,11 +44,11 @@
         </td>
         <td>
           <select ng-model="project.terminology"
-              ng-change="setTerminology(project.terminology)"
-              ng-options="terminology.terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
+            ng-change="setTerminology(project.terminology)"
+            ng-options="terminology.terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
         </td>
       </tr>
-      
+
     </table>
   </div>
   <div class="row">

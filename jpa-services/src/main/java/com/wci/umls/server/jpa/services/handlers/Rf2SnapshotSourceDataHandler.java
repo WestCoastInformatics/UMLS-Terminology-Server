@@ -86,6 +86,8 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler impl
     boolean terminologyFound = false;
 
     // check the input directory for existence of Refset and Terminology folders
+    // TODO Must find Refset and Terminology in SNAPSHOT folder
+    // TODO UPdate the delta and full loaders
     for (File f : new File(inputDir).listFiles()) {
       if (f.getName().equals("Refset")) {
         refsetFound = true;
@@ -141,6 +143,7 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler impl
     
     // update the source data
     sourceData.setStatus(SourceData.Status.LOADING);
+    // TODO Require that source data has id and throw intelligent error/fail
     sourceDataService.updateSourceData(sourceData);
     
     try {

@@ -59,7 +59,6 @@ tsApp
         // hides page sizes
         });
       }
-      ;
 
       // view the source data and retrieve current source data file list
       $scope.viewSourceData = function(sourceData) {
@@ -115,17 +114,17 @@ tsApp
           // update the source data and current source data if response returned
           // (add call)
           if (response) {
-            sourceData = response;
+            // sourceData = response;
             $scope.currentSourceData = response;
           }
           $scope.isSourceDataModified = false;
-        })
+        });
       };
 
       // Cancel source data modifications
       $scope.cancelSourceDataModifications = function() {
         if (!$scope.isSourceDataModified || window.confirm('Discard changes?')) {
-          retrieveSourceDatas().then(function() {
+          getSourceDatas().then(function() {
             angular.forEach(sourceDatas, function(sourceData) {
               if (sourceData.id === $scope.currentSourceData.id) {
                 $scope.currentSourceData = sourceData;
@@ -160,7 +159,7 @@ tsApp
               $scope.currentSourceData = null;
             }
             // retrieve source datas, also refreshes tables
-            retrieveSourceDatas();
+            getSourceDatas();
           });
         }
 
@@ -179,7 +178,7 @@ tsApp
       // Remove source data from list
       $scope.removeSourceDataFileFromSourceData = function(file) {
         sourceDataService.removeSourceDataFile(file.id).then(function() {
-          retrieveSourceDatas().then(function() {
+          getSourceDatas().then(function() {
             angular.forEach(sourceDatas, function(sourceData) {
               if (sourceData.id === $scope.currentSourceData.id) {
                 $scope.currentSourceData = sourceData;
@@ -196,7 +195,7 @@ tsApp
 
       // Refreshes source data list from server and instantiates new table
       // params
-      function retrieveSourceDatas() {
+      function getSourceDatas() {
         var deferred = $q.defer();
         sourceDataService.findSourceData("").then(
         // Success
@@ -217,7 +216,7 @@ tsApp
             if (sourceData.status === 'LOADING' || sourceData.status === 'REMOVING') {
               $scope.startPolling(sourceData);
             }
-            ;
+
           });
 
           refreshTables();
@@ -271,7 +270,6 @@ tsApp
           logEntries : null
         };
 
-        // TODO Ensure Brian notices my rebellion with polling interval of p seconds!!!
         $scope.polls[sourceData.id].poll = $interval(function() {
 
           console.debug('Polling', $scope.polls[sourceData.id]);
@@ -288,13 +286,13 @@ tsApp
           });
 
         }, 3142);
-      }
+      };
 
       $scope.stopPolling = function(sourceData) {
         console.log('Stop polling for source data ' + sourceData.id + ': ' + sourceData.name);
         $interval.cancel($scope.polls[sourceData.id].poll);
         delete $scope.polls[sourceData.id];
-      }
+      };
 
       // cancel all polling on reloads or navigation
       $scope.$on("$routeChangeStart", function(event, next, current) {
@@ -328,30 +326,30 @@ tsApp
           utilService.handleSuccess('Terminology load completed for '
             + polledSourceData.terminology + ', ' + polledSourceData.version);
           $scope.stopPolling(polledSourceData);
-          retrieveSourceDatas();
+          getSourceDatas();
           break;
         case 'LOADING_FAILED':
           utilService.handleError('Terminology load failed for ' + polledSourceData.terminology
             + ', ' + polledSourceData.version);
           $scope.stopPolling(polledSourceData);
-          retrieveSourceDatas();
+          getSourceDatas();
           break;
         case 'REMOVAL_COMPLETE':
           utilService.handleSuccess('Terminology removal completed for '
             + polledSourceData.terminology + ', ' + polledSourceData.version);
           $scope.stopPolling(polledSourceData);
-          retrieveSourceDatas();
+          getSourceDatas();
           break;
         case 'REMOVAL_FAILED':
           utilService.handleError('Terminology removal failed for ' + polledSourceData.terminology
             + ', ' + polledSourceData.version);
           $scope.stopPolling(polledSourceData);
-          retrieveSourceDatas();
+          getSourceDatas();
           break;
         default:
           // do nothing
         }
-      }
+      };
 
       //
       // Angular File Upload controls
@@ -413,7 +411,7 @@ tsApp
         console.info('onSuccessItem', uploader, fileItem, response, status, headers);
         uploader.queue = uploader.queue.filter(function(item) {
           return !item.isSuccess;
-        })
+        });
       };
       uploader.onErrorItem = function(fileItem, response, status, headers) {
         // console.info('onErrorItem', fileItem, response, status, headers);
@@ -435,7 +433,7 @@ tsApp
       };
       uploader.onCompleteAll = function() {
         console.info('onCompleteAll', uploader);
-        retrieveSourceDatas();
+        getSourceDatas();
       };
 
       // scope to capitalize first initials only
@@ -453,7 +451,7 @@ tsApp
       // Initialize if USER
       //
       if (securityService.isUser()) {
-        retrieveSourceDatas();
+        getSourceDatas();
         getSourceDataHandlers();
       }
 

@@ -74,7 +74,14 @@ public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa implemen
     
   }
   
-
+  @Override
+  public void commitClearBegin() throws Exception {
+    
+    if (cancelFlag) {
+      throw new CancelException("Cancel requested");
+    }
+    super.commitClearBegin();
+  }
 
   /**
    * Log and commit.
@@ -88,7 +95,7 @@ public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa implemen
   public void logAndCommit(int objectCt, int logCt, int commitCt)
     throws Exception {
     
-    if (cancelFlag == true) {
+    if (cancelFlag) {
       throw new CancelException("Cancel requested");
     }
     

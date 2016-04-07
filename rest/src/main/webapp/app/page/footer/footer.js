@@ -15,7 +15,7 @@ tsApp.directive('tsFooter', [ '$rootScope', '$routeParams', 'gpService', 'securi
           default:
             return true;
           }
-        }
+        };
 
         // Declare user
         scope.user = securityService.getUser();
@@ -29,12 +29,12 @@ tsApp.directive('tsFooter', [ '$rootScope', '$routeParams', 'gpService', 'securi
         // Check gp status
         scope.isGlassPaneNegative = function() {
           return gpService.isGlassPaneNegative();
-        }
+        };
 
         // Get gp counter
         scope.getGlassPaneCounter = function() {
           return gpService.glassPane.counter;
-        }
+        };
       }
     };
   } ]);

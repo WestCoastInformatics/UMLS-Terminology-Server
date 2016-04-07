@@ -16,14 +16,14 @@ tsApp.directive('labels', [ 'utilService', function(utilService) {
 
       function getPagedList() {
         scope.pagedData = utilService.getPagedArray(scope.component.object.labels, scope.paging);
-       }
+      }
 
       // instantiate paging and paging callback function
       scope.pagedData = [];
       scope.paging = utilService.getPaging();
       scope.pageCallback = {
         getPagedList : getPagedList
-      }
+      };
 
       // watch show hidden flag
       scope.$watch('showHidden', function() {
