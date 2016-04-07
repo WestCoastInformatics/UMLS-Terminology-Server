@@ -99,7 +99,7 @@ tsApp.service('metadataService', [
               // extract relationship types for
               // convenience
               if (metadata.entries[i].name === 'Relationship_Types') {
-                metadata.relationshipTypes = metadata.entries[i].keyValuePaisr;
+                metadata.relationshipTypes = metadata.entries[i].keyValuePairs;
               }
               if (metadata.entries[i].name === 'Languages') {
                 metadata.languages = metadata.entries[i].keyValuePairs;
