@@ -7,13 +7,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Properties;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -25,9 +26,8 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
-import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.jpa.services.rest.ConfigureServiceRest;
 import com.wci.umls.server.jpa.services.rest.HistoryServiceRest;
-import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.handlers.ExceptionHandler;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -37,14 +37,14 @@ import com.wordnik.swagger.annotations.ApiParam;
  * REST implementation for {@link HistoryServiceRest}.
  */
 @Path("/configure")
-@Api(value = "/configure", description = "Operations to retrieve historical RF2 content for a terminology")
+@Api(value = "/configure", description = "Operations to configure application")
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-public class ConfigureServiceRestImpl {
+public class ConfigureServiceRestImpl implements ConfigureServiceRest {
 
   /**
    * Instantiates an empty {@link ConfigureServiceRestImpl}.
@@ -103,22 +103,24 @@ public class ConfigureServiceRestImpl {
    */
   /* see superclass */
   @GET
+  @Override
   @Path("/configured")
   @ApiOperation(value = "Checks if application is configured", notes = "Returns true if application is configured, false if not", response = Boolean.class)
-  public Boolean isConfigured() throws Exception {
+  public boolean isConfigured() throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call (History): /configure/configured");
 
     try {
 
-      String configFileName = System.getProperty("catalina.base")
-          + "/wtpwebapps/term-server-rest/WEB-INF/config.properties";
+      String configFileName =
+          ConfigUtility.getLocalConfigFile();
 
-      return (new File(configFileName).exists());
+      return ConfigUtility.getConfigProperties() != null
+          || (new File(configFileName).exists());
 
     } catch (Exception e) {
       handleException(e, "checking if application is configured");
-      return null;
+      return false;
     } finally {
 
     }
@@ -131,6 +133,7 @@ public class ConfigureServiceRestImpl {
    */
   /* see superclass */
   @POST
+  @Override
   @Path("/configure")
   @ApiOperation(value = "Checks if application is configured", notes = "Returns true if application is configured, false if not", response = Boolean.class)
   public void configure(
@@ -176,16 +179,46 @@ public class ConfigureServiceRestImpl {
                 + parameters.get("source.data.dir"));
       }
 
-      // get the starting properties
-      Properties properties = ConfigUtility.getStartingConfigProperties();
-      for (String key : parameters.keySet()) {
-        properties.setProperty(key, parameters.get(key));
+      // get the starting configuration
+      InputStream in = ConfigureServiceRestImpl.class
+          .getResourceAsStream("/config.properties.start");
+
+      if (in == null) {
+        throw new Exception("Could not open stating configuration file");
       }
 
-      // jdbc:mysql://127.0.0.1:3306/umlsdb?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&useLocalSessionState=true
+      // construct name and check that the file does not already exist
+      String configFileName = ConfigUtility.getLocalConfigFile();
+         
 
-      String configFileName = System.getProperty("catalina.base")
-          + "/wtpwebapps/term-server-rest/WEB-INF/config.properties";
+      if (new File(configFileName).exists()) {
+        throw new LocalException(
+            "System is already configured from file: " + configFileName);
+      }
+
+      // get the starting properties
+      Properties properties = new Properties();
+      properties.load(in);
+
+      // directly replace parameters by key
+      for (String key : parameters.keySet()) {
+        if (properties.containsKey(key)) {
+          properties.setProperty(key, parameters.get(key));
+        }
+      }
+
+      // replace config file property values based on replacement pattern ${...}
+      for (Object key : new HashSet<>(properties.keySet())) {
+        for (String param : parameters.keySet()) {
+          if (properties.getProperty(key.toString())
+              .contains("${" + param + "}")) {
+            properties.setProperty(key.toString(),
+                properties.getProperty(key.toString())
+                    .replace("${" + param + "}", parameters.get(param)));
+          }
+        }
+      }
+
       Logger.getLogger(getClass())
           .info("Writing configuration file: " + configFileName);
 
@@ -203,7 +236,7 @@ public class ConfigureServiceRestImpl {
       }
 
       // finally, reset the config properties and test retrieval
-      ConfigUtility.resetConfigProperties();
+      System.setProperty("run.config." + ConfigUtility.getConfigLabel(), configFileName);
       if (ConfigUtility.getConfigProperties() == null) {
         throw new LocalException("Failed to retrieve newly written properties");
       }

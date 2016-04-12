@@ -46,19 +46,19 @@ public class TermServerApplication extends Application {
     beanConfig.setTitle("Term Server API");
     beanConfig.setDescription("RESTful calls for terminology server");
     beanConfig.setVersion(API_VERSION);
-    beanConfig.setBasePath(ConfigUtility.getConfigProperties().getProperty(
-        "base.url"));
+    beanConfig.setBasePath(
+        ConfigUtility.getConfigProperties().getProperty("base.url"));
     beanConfig.setResourcePackage("com.wci.umls.server.rest.impl");
     beanConfig.setScan(true);
-    
-     // Set up a timer task to run at 2AM every day
-     TimerTask task = new InitializationTask();
-     timer = new Timer();
-     Calendar today = Calendar.getInstance();
-     today.set(Calendar.HOUR_OF_DAY, 2);
-     today.set(Calendar.MINUTE, 0);
-     today.set(Calendar.SECOND, 0);
-     timer.scheduleAtFixedRate(task, today.getTime(), 6 * 60 * 60 * 1000);
+
+    // Set up a timer task to run at 2AM every day
+    TimerTask task = new InitializationTask();
+    timer = new Timer();
+    Calendar today = Calendar.getInstance();
+    today.set(Calendar.HOUR_OF_DAY, 2);
+    today.set(Calendar.MINUTE, 0);
+    today.set(Calendar.SECOND, 0);
+    timer.scheduleAtFixedRate(task, today.getTime(), 6 * 60 * 60 * 1000);
 
     // Cache the "guest" user.
     // SecurityService service;
@@ -91,9 +91,11 @@ public class TermServerApplication extends Application {
         // We need to "ping" the server to keep DB connections alive.
         // Do 4 times per day. Just get users list.
         Logger.getLogger(getClass()).info("  PING");
-        MetadataService service = new MetadataServiceJpa();
-        service.getRootTerminologies();
-        service.close();
+        if (new ConfigureServiceRestImpl().isConfigured()) {
+          MetadataService service = new MetadataServiceJpa();
+          service.getRootTerminologies();
+          service.close();
+        }
 
       } catch (Exception e) {
         timer.cancel();
@@ -107,7 +109,7 @@ public class TermServerApplication extends Application {
   @Override
   public Set<Class<?>> getClasses() {
     final Set<Class<?>> classes = new HashSet<Class<?>>();
-    
+
     // register REST implementations
     classes.add(SecurityServiceRestImpl.class);
     classes.add(ContentServiceRestImpl.class);
@@ -117,17 +119,17 @@ public class TermServerApplication extends Application {
     classes.add(ValidationServiceRestImpl.class);
     classes.add(SourceDataServiceRestImpl.class);
     classes.add(ConfigureServiceRestImpl.class);
-    
+
     // register file upload support classes
     classes.add(MultiPartFeature.class);
 
     // register swagger classes
     classes
         .add(com.wordnik.swagger.jersey.listing.ApiListingResourceJSON.class);
-    classes
-        .add(com.wordnik.swagger.jersey.listing.JerseyApiDeclarationProvider.class);
-    classes
-        .add(com.wordnik.swagger.jersey.listing.JerseyResourceListingProvider.class);
+    classes.add(
+        com.wordnik.swagger.jersey.listing.JerseyApiDeclarationProvider.class);
+    classes.add(
+        com.wordnik.swagger.jersey.listing.JerseyResourceListingProvider.class);
     return classes;
   }
 
@@ -139,7 +141,7 @@ public class TermServerApplication extends Application {
     instances.add(new JsonProcessingFeature());
 
     // Enable for LOTS of logging of HTTP requests
-    //instances.add(new LoggingFilter());
+    // instances.add(new LoggingFilter());
     return instances;
   }
 
