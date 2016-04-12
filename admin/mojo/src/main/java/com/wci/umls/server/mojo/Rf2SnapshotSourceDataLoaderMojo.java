@@ -31,7 +31,7 @@ import com.wci.umls.server.services.handlers.ExceptionHandler;
  * @goal loadsd-rf2-snapshot
  * @phase package
  */
-public class Rf2SourceDataLoaderMojo extends SourceDataMojo {
+public class Rf2SnapshotSourceDataLoaderMojo extends SourceDataMojo {
 
   /**
    * Name of terminology to be loaded.
