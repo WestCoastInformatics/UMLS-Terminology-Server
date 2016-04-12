@@ -57,6 +57,34 @@
       </build>
     </profile>
 
+    <!-- Remove source data and terminology, specify -Drun.config.umls=... -Dterminology=... -->
+    <profile>
+      <id>SourceData</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wcinformatics.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>remove-sd-terminology</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>remove-sd-terminology</goal>
+                </goals>
+                <configuration>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <!-- Remove release info, specify -Drun.config.umls=... -Dterminology=... -->
     <profile>
       <id>ReleaseInfo</id>

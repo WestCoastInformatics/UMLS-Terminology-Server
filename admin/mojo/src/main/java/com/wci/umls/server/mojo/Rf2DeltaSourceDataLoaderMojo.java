@@ -24,7 +24,7 @@ import com.wci.umls.server.services.handlers.ExceptionHandler;
  * 
  * See admin/pom.xml for a sample execution.
  * 
- * @goal RF2-delta
+ * @goal loadsd-rf2-delta
  * @phase package
  */
 public class Rf2DeltaSourceDataLoaderMojo extends SourceDataMojo {

@@ -13,13 +13,11 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
 import com.wci.umls.server.services.SourceDataService;
-import com.wci.umls.server.services.handlers.SourceDataHandler;
 
 /**
  * Converter for RxNorm files.
  */
-public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler
-    implements SourceDataHandler {
+public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
 
   /**
    * Instantiates an empty {@link Rf2DeltaSourceDataHandler}.
@@ -87,19 +85,19 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler
 
     // RF2 Loads require locating a base directory containing two folders
     // (Refset and Terminology)
-    String[] files = new File(inputDir).list();
+    //String[] files = new File(inputDir).list();
     String revisedInputDir = null;
 
     // find the DELTA file
     for (File f : new File(inputDir).listFiles()) {
-      if (f.getName().equals("DELTA")) {
+      if (f.getName().equals("Delta")) {
         revisedInputDir = f.getAbsolutePath();
       }
     }
 
     if (revisedInputDir == null) {
       throw new LocalException(
-          "Uploaded files must contain DELTA folder containing delta release");
+          "Uploaded files must contain Delta folder containing delta release");
     }
 
 

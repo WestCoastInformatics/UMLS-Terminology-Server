@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -15,14 +15,13 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
 import com.wci.umls.server.services.SourceDataService;
-import com.wci.umls.server.services.handlers.SourceDataHandler;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
- * Converter for RxNorm files.
+ * RRF source data handler.
  */
-public class RrfSourceDataHandler extends AbstractSourceDataHandler implements SourceDataHandler {
+public class RrfSourceDataHandler extends AbstractSourceDataHandler {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -35,17 +34,17 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
 
   /** The version. */
   private String version = null;
-  
+
   /** The input dir. */
   private String inputDir = null;
 
   /** The prefix. */
   private String prefix = null;
-  
-  /**  The single mode. */
+
+  /** The single mode. */
   private Boolean singleMode = null;
-  
-  /**  The code flag. */
+
+  /** The code flag. */
   private Boolean codeFlag = null;
 
   /** The props. */
@@ -87,22 +86,27 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
           "No source data loader specified for source data object "
               + sourceData.getName());
     }
-    if (sourceData.getTerminology() == null || sourceData.getTerminology().isEmpty()) {
-      throw new Exception("No terminology specified for source data object " + sourceData.getName());
+    if (sourceData.getTerminology() == null
+        || sourceData.getTerminology().isEmpty()) {
+      throw new Exception("No terminology specified for source data object "
+          + sourceData.getName());
     }
     if (sourceData.getVersion() == null || sourceData.getVersion().isEmpty()) {
-      throw new Exception("No version specified for source data object " + sourceData.getName());
+      throw new Exception("No version specified for source data object "
+          + sourceData.getName());
     }
-    if (sourceData.getReleaseVersion() == null || sourceData.getReleaseVersion().isEmpty()) {
-      throw new Exception("No releaseVersion specified for source data object " + sourceData.getName());
+    if (sourceData.getReleaseVersion() == null
+        || sourceData.getReleaseVersion().isEmpty()) {
+      throw new Exception("No releaseVersion specified for source data object "
+          + sourceData.getName());
     }
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException(
-          "Source data directory is not a directory: " + inputDir);
+      throw new LocalException("Source data directory is not a directory: "
+          + inputDir);
     }
 
- // instantiate service
+    // instantiate service
     SourceDataService sourceDataService = new SourceDataServiceJpa();
 
     // instantiate and set parameters for loader algorithm
@@ -117,11 +121,11 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
     algorithm.setSingleMode(singleMode);
     algorithm.compute();
     algorithm.close();
-    
+
     // set to loading status and update the source data
     sourceData.setStatus(SourceData.Status.LOADING);
     sourceDataService.updateSourceData(sourceData);
-    
+
     try {
       algorithm.compute();
       sourceData.setStatus(SourceData.Status.LOADING_COMPLETE);
@@ -133,8 +137,11 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#reset()
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#reset()
    */
   /* see superclass */
   @Override
@@ -147,6 +154,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
    * @param pct percent done
    * @param note progress note
    */
+  @Override
   public void fireProgressEvent(int pct, String note) {
     ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
     for (int i = 0; i < listeners.size(); i++) {
@@ -155,8 +163,11 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
     Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#addProgressListener(com.wci.umls.server.services.helpers.ProgressListener)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#
+   * addProgressListener(com.wci.umls.server.services.helpers.ProgressListener)
    */
   /* see superclass */
   @Override
@@ -164,8 +175,12 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
     listeners.add(l);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#removeProgressListener(com.wci.umls.server.services.helpers.ProgressListener)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#
+   * removeProgressListener
+   * (com.wci.umls.server.services.helpers.ProgressListener)
    */
   /* see superclass */
   @Override
@@ -173,8 +188,12 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
     listeners.remove(l);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#cancel()
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#cancel
+   * ()
    */
   /* see superclass */
   @Override
@@ -182,8 +201,11 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
     throw new UnsupportedOperationException("cannot cancel.");
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#setProperties(java.util.Properties)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#
+   * setProperties(java.util.Properties)
    */
   /* see superclass */
   @Override
@@ -195,8 +217,11 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#setSourceData(com.wci.umls.server.SourceData)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#
+   * setSourceData(com.wci.umls.server.SourceData)
    */
   /* see superclass */
   @Override
@@ -204,8 +229,11 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
     this.sourceData = sourceData;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#close()
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.jpa.services.handlers.AbstractSourceDataHandler#close()
    */
   /* see superclass */
   @Override
@@ -221,7 +249,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
   public void setSingleMode(boolean singleMode) {
     this.singleMode = singleMode;
   }
-  
+
   /**
    * Gets the single mode.
    *
@@ -230,7 +258,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
   public Boolean getSingleMode() {
     return this.singleMode;
   }
-  
+
   /**
    * Sets the prefix.
    *
@@ -239,7 +267,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
   public void setPrefix(String prefix) {
     this.prefix = prefix;
   }
-  
+
   /**
    * Gets the prefix.
    *
@@ -248,7 +276,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
   public String getPrefix() {
     return this.prefix;
   }
-  
+
   /**
    * Sets the code flag.
    *
@@ -257,7 +285,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
   public void setCodeFlag(Boolean codeFlag) {
     this.codeFlag = codeFlag;
   }
-  
+
   /**
    * Gets the code flag.
    *
@@ -266,7 +294,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
   public Boolean getCodeFlag() {
     return this.codeFlag;
   }
-  
+
   /**
    * Sets the input dir.
    *
@@ -275,7 +303,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
   public void setInputDir(String inputDir) {
     this.inputDir = inputDir;
   }
-  
+
   /**
    * Gets the input dir.
    *
@@ -285,7 +313,5 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler implements S
   public String getInputDir(String inputDir) {
     return this.inputDir;
   }
-  
-  
- 
+
 }
