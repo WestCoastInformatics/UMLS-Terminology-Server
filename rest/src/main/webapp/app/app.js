@@ -19,10 +19,15 @@ var adminUrl = "admin/";
 var projectUrl = "project/";
 var validationUrl = "validation/";
 var sourceDataUrl = 'file/';
+var configureUrl = 'configure/';
 
 // Initialization of tsApp
 tsApp.run(function($rootScope, $http, $location) {
-  // nothing yet -- may want to put metadata retrieval here
+
+  // check if application is configured
+  $http.get(configureUrl + 'configured').then(function(response) {
+    console.debug(response);
+  })
 });
 
 // Route provider configuration - MOVED to individual controllers for routes

@@ -107,7 +107,7 @@ import gnu.trove.strategy.HashingStrategy;
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm  {
+public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm  {
 
   /** The prefix. */
   private String prefix = "MR";

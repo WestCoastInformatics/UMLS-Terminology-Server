@@ -32,6 +32,7 @@ public interface TerminologyLoaderAlgorithm extends Algorithm, HasTerminology  {
    * @return the input path
    */
   public String getInputPath();
+  
 
   /**
    * Log info.
@@ -56,4 +57,11 @@ public interface TerminologyLoaderAlgorithm extends Algorithm, HasTerminology  {
    * @throws Exception the exception
    */
   public void logWarn(String message) throws Exception;
+  
+  /**
+   * Whether to create and delete sorted files (true), or use existing files (false)
+   *
+   * @param sortFiles the new sort files
+   */
+  public void setSortFiles(boolean sortFiles);
 }

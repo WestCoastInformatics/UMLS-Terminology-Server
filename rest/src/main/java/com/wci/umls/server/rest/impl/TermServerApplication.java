@@ -116,6 +116,7 @@ public class TermServerApplication extends Application {
     classes.add(ProjectServiceRestImpl.class);
     classes.add(ValidationServiceRestImpl.class);
     classes.add(SourceDataServiceRestImpl.class);
+    classes.add(ConfigureServiceRestImpl.class);
     
     // register file upload support classes
     classes.add(MultiPartFeature.class);

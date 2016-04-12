@@ -3,8 +3,11 @@
  */
 package com.wci.umls.server.jpa.algo;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,7 +25,6 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
@@ -42,6 +44,7 @@ import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
+import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;
@@ -69,6 +72,7 @@ import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.services.HistoryService;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
@@ -77,7 +81,7 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class Rf2SnapshotLoaderAlgorithm
+public class Rf2FullLoaderAlgorithm
     extends AbstractTerminologyLoaderAlgorithm {
 
   /** Listeners. */
@@ -177,28 +181,23 @@ public class Rf2SnapshotLoaderAlgorithm
   /** The published. */
   final String published = "PUBLISHED";
 
-  /** The tree pos algorithm. */
   final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
 
-  /** The trans closure algorithm. */
   final TransitiveClosureAlgorithm transClosureAlgorithm =
       new TransitiveClosureAlgorithm();
 
-  /** The label set algorithm. */
   final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
       new LabelSetMarkedParentAlgorithm();
 
-  /** The RF2 File sorting algorithm. */
-  final Rf2FileSorter sorter = new Rf2FileSorter();
-
   /**
-   * Instantiates an empty {@link Rf2SnapshotLoaderAlgorithm}.
+   * Instantiates an empty {@link Rf2FullLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
    */
-  public Rf2SnapshotLoaderAlgorithm() throws Exception {
+  public Rf2FullLoaderAlgorithm() throws Exception {
     super();
   }
 
+  /* see superclass */
   @Override
   public void compute() throws Exception {
 
@@ -221,203 +220,87 @@ public class Rf2SnapshotLoaderAlgorithm
       logInfo("  terminology = " + terminology);
       logInfo("  version = " + version);
       logInfo("  inputPath = " + inputPath);
-      logInfo("  sorting files = " + sortFiles);
-
-      // Check the input directory
-      File inputPathFile = new File(inputPath);
-      if (!inputPathFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
+      
+   // Get the release versions (need to look in complex map too for October
+      // releases)
+      Logger.getLogger(getClass()).info("  Get release versions");
+      Rf2FileSorter sorter = new Rf2FileSorter();
+      final File conceptsFile =
+          sorter.findFile(new File(inputPath, "Terminology"), "sct2_Concept");
+      final Set<String> releaseSet = new HashSet<>();
+      BufferedReader reader = new BufferedReader(new FileReader(conceptsFile));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        final String fields[] = FieldedStringTokenizer.split(line, "\t");
+        if (!fields[1].equals("effectiveTime")) {
+          try {
+            ConfigUtility.DATE_FORMAT.parse(fields[1]);
+          } catch (Exception e) {
+            throw new Exception(
+                "Improperly formatted date found: " + fields[1]);
+          }
+          releaseSet.add(fields[1]);
+        }
       }
-
-      // prepare the sorting algorithm
-      sorter.setInputDir(inputPath);
-
-      // get the release version
-      releaseVersion = sorter.getAndSetFileVersion();
-      releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
-      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
-
-      // check output dir exists if no sort specified
-      if (!sortFiles && !new File(inputPath + "/RF2-sorted-temp/").exists()) {
-        throw new Exception(
-            "No sort specified, but previously sorted files do not exist.");
+      reader.close();
+      final File complexMapFile = sorter.findFile(
+          new File(inputPath, "Refset/Map"), "der2_iissscRefset_ComplexMap");
+      reader = new BufferedReader(new FileReader(complexMapFile));
+      while ((line = reader.readLine()) != null) {
+        final String fields[] = FieldedStringTokenizer.split(line, "\t");
+        if (!fields[1].equals("effectiveTime")) {
+          try {
+            ConfigUtility.DATE_FORMAT.parse(fields[1]);
+          } catch (Exception e) {
+            throw new Exception(
+                "Improperly formatted date found: " + fields[1]);
+          }
+          releaseSet.add(fields[1]);
+        }
       }
-
-      // Sort files
-      else {
-
-        Logger.getLogger(getClass()).info("  Sort RF2 Files");
-        Logger.getLogger(getClass()).info("    sort by effective time: false");
-        Logger.getLogger(getClass()).info("    require all files     : false");
-
-        sorter.setOutputDir(inputPath + "/RF2-sorted-temp/");
-        sorter.setSortByEffectiveTime(false);
-        sorter.setRequireAllFiles(true);
-        sorter.compute();
-
+      File extendedMapFile = sorter.findFile(new File(inputPath, "Refset/Map"),
+          "der2_iisssccRefset_ExtendedMap");
+      reader = new BufferedReader(new FileReader(extendedMapFile));
+      while ((line = reader.readLine()) != null) {
+        final String fields[] = FieldedStringTokenizer.split(line, "\t");
+        if (!fields[1].equals("effectiveTime")) {
+          try {
+            ConfigUtility.DATE_FORMAT.parse(fields[1]);
+          } catch (Exception e) {
+            throw new Exception(
+                "Improperly formatted date found: " + fields[1]);
+          }
+          releaseSet.add(fields[1]);
+        }
       }
-
-      // Open readers
-      readers = new Rf2Readers(new File(inputPath + "/RF2-sorted-temp/"));
-      readers.openReaders();
-
-      // control transaction scope
-      setTransactionPerOperation(false);
-      // Turn of ID computation when loading a terminology
-      setAssignIdentifiersFlag(false);
-      // Let loader set last modified flags.
-      setLastModifiedFlag(false);
-
-      // faster performance.
-      beginTransaction();
-
-      //
-      // Load concepts
-      //
-      logInfo("  Loading Concepts...");
-      loadConcepts();
-
-      //
-      // Load descriptions and language refsets
-      //
-      logInfo("  Loading Atoms...");
-      loadAtoms();
-      loadDefinitions();
-
-      logInfo("  Loading Language Ref Sets...");
-      loadLanguageRefSetMembers();
-
-      logInfo("  Connecting atoms/concepts and computing preferred names...");
-      connectAtomsAndConcepts();
-
-      //
-      // Load relationships
-      //
-      logInfo("  Loading Relationships...");
-      loadRelationships();
-
-      //
-      // load AssocationReference RefSets (Content)
-      //
-      logInfo("  Loading Association Reference Ref Sets...");
-      loadAssociationReferenceRefSets();
-      commitClearBegin();
-
-      //
-      // Load AttributeValue RefSets (Content)
-      //
-      Logger.getLogger(getClass())
-          .info("  Loading Attribute Value Ref Sets...");
-      loadAttributeValueRefSets();
-      commitClearBegin();
-
-      //
-      // Load Simple RefSets (Content)
-      //
-      logInfo("  Loading Simple Ref Sets...");
-      loadSimpleRefSets();
-
-      //
-      // Load SimpleMapRefSets
-      //
-      logInfo("  Loading Simple Map Ref Sets...");
-      loadSimpleMapRefSets();
-
-      commitClearBegin();
-
-      //
-      // Load ComplexMapRefSets
-      //
-      logInfo("  Loading Complex Map Ref Sets...");
-      loadComplexMapRefSets();
-
-      //
-      // Load ExtendedMapRefSets
-      //
-      logInfo("  Loading Extended Map Ref Sets...");
-      loadExtendedMapRefSets();
-
-      commitClearBegin();
-
-      // load RefsetDescriptor RefSets (Content)
-      //
-      logInfo("  Loading Refset Descriptor Ref Sets...");
-      loadRefsetDescriptorRefSets();
-
-      //
-      // load ModuleDependency RefSets (Content)
-      //
-      logInfo("  Loading Module Dependency Ref Sets...");
-
-      loadModuleDependencyRefSets();
-
-      //
-      // load AtomType RefSets (Content)
-      //
-      logInfo("  Loading Atom Type Ref Sets...");
-
-      loadAtomTypeRefSets();
-
-      // Load metadata
-      loadMetadata();
-
-      // Make subsets and label sets
-      loadExtensionLabelSets();
-
-      //
-      // Create ReleaseInfo for this release if it does not already exist
-      //
-      ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
-      if (info == null) {
-        info = new ReleaseInfoJpa();
-        info.setName(releaseVersion);
-        info.setDescription(terminology + " " + releaseVersion + " release");
-        info.setPlanned(false);
-        info.setPublished(true);
-        info.setReleaseBeginDate(releaseVersionDate);
-        info.setReleaseFinishDate(releaseVersionDate);
-        info.setTerminology(terminology);
-        info.setVersion(version);
-        info.setLastModified(releaseVersionDate);
-        info.setLastModifiedBy(loader);
-        addReleaseInfo(info);
+      
+      
+      reader.close();
+      final List<String> releases = new ArrayList<>(releaseSet);
+      Collections.sort(releases);
+      
+      final HistoryService historyService = new HistoryServiceJpa();
+      Logger.getLogger(getClass()).info("  Releases to process");
+      for (final String release : releases) {
+        Logger.getLogger(getClass()).info("    release = " + release);
+        ReleaseInfo releaseInfo =
+            historyService.getReleaseInfo(terminology, release);
+        if (releaseInfo != null) {
+          throw new Exception("A release info already exists for " + release);
+        }
       }
+      historyService.close();
 
-      // Clear concept cache
-      // clear and commit
-      commitClearBegin();
-
-      // Clean-up
-      readers.closeReaders();
-
-      // if sorted files were created, delete them
-      if (sortFiles) {
-        ConfigUtility.deleteDirectory(new File(inputPath, "/RF2-sorted-temp/"));
-      }
-
-      // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
-
-      logInfo(getComponentStats(terminology, version, Branch.ROOT).toString());
-
-      logInfo("Done ...");
-    } catch (CancelException e) {
-      Logger.getLogger(getClass()).info("Cancel request detected");
-      throw new CancelException("Compute cancelled");
 
     } catch (Exception e) {
-      throw e;
+      
+    } finally {
+      
     }
+
+      
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.algo.AbstractTerminologyLoaderAlgorithm#
-   * computeTreePositions()
-   */
   @Override
   public void computeTreePositions() throws Exception {
 
@@ -440,12 +323,6 @@ public class Rf2SnapshotLoaderAlgorithm
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.algo.AbstractTerminologyLoaderAlgorithm#
-   * computeTransitiveClosures()
-   */
   @Override
   public void computeTransitiveClosures() throws Exception {
     Logger.getLogger(getClass()).info(
@@ -479,11 +356,6 @@ public class Rf2SnapshotLoaderAlgorithm
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.algo.Algorithm#reset()
-   */
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -505,43 +377,22 @@ public class Rf2SnapshotLoaderAlgorithm
     logInfo("    " + pct + "% " + note);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.helpers.ProgressReporter#addProgressListener(
-   * com.wci.umls.server.services.helpers.ProgressListener)
-   */
   /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.helpers.ProgressReporter#
-   * removeProgressListener(com.wci.umls.server.services.helpers.
-   * ProgressListener)
-   */
   /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.algo.AbstractTerminologyLoaderAlgorithm#cancel()
-   */
   /* see superclass */
   @Override
   public void cancel() throws Exception {
     // cancel any currently running local algorithms
-    sorter.cancel();
     treePosAlgorithm.cancel();
     transClosureAlgorithm.cancel();
     labelSetAlgorithm.cancel();
@@ -2197,16 +2048,12 @@ public class Rf2SnapshotLoaderAlgorithm
     return !moduleId.equals(coreModuleId) && !moduleId.equals(metadataModuleId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.RootServiceJpa#close()
-   */
   /* see superclass */
   @Override
   public void close() throws Exception {
     super.close();
     readers = null;
   }
+
 
 }

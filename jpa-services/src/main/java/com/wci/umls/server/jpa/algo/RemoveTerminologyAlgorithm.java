@@ -49,7 +49,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
  */
-public class RemoveTerminologyAlgorithm extends AbstractLoaderAlgorithm
+public class RemoveTerminologyAlgorithm extends AbstractTerminologyLoaderAlgorithm
     implements Algorithm {
 
   /** Listeners. */
@@ -57,12 +57,6 @@ public class RemoveTerminologyAlgorithm extends AbstractLoaderAlgorithm
 
   /** The request cancel flag. */
   boolean requestCancel = false;
-
-  /** The terminology. */
-  private String terminology;
-
-  /** The version. */
-  private String version;
 
   /** The id type. */
   private IdType idType;
@@ -81,23 +75,6 @@ public class RemoveTerminologyAlgorithm extends AbstractLoaderAlgorithm
     super();
   }
 
-  /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /**
-   * Sets the version.
-   *
-   * @param version the version
-   */
-  public void setVersion(String version) {
-    this.version = version;
-  }
 
   /**
    * Returns the id type.
@@ -760,14 +737,7 @@ public class RemoveTerminologyAlgorithm extends AbstractLoaderAlgorithm
     requestCancel = true;
   }
 
-  @Override
-  public String getTerminology() {
-    return terminology;
-  }
 
-  @Override
-  public String getVersion() {
-    return version;
-  }
+
 
 }

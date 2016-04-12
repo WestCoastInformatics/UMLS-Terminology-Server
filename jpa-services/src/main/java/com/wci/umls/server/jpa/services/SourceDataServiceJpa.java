@@ -219,6 +219,8 @@ public class SourceDataServiceJpa extends RootServiceJpa
    * @see com.wci.umls.server.services.SourceDataService#getSourceDataHandlerNames()
    */
   @Override
+  // TODO Make this a static array initialized on name
+  // TODO Change method name to reflect what it actually does
   public KeyValuePairList getSourceDataHandlerNames() throws Exception {
     KeyValuePairList keyValuePairList = new KeyValuePairList();
 

@@ -130,7 +130,7 @@ public class AbstractSourceDataHandler implements SourceDataHandler {
     // instantiate and set algorithm parameters
     RemoveTerminologyAlgorithm algo = new RemoveTerminologyAlgorithm();
     algo.setTerminology(sourceData.getTerminology());
-    algo.setVersion(sourceData.getTerminology());
+    algo.setVersion(sourceData.getVersion());
     sourceDataService.registerSourceDataAlgorithm(sourceData.getId(), algo);
 
     try {
@@ -138,6 +138,7 @@ public class AbstractSourceDataHandler implements SourceDataHandler {
       sourceData.setStatus(SourceData.Status.REMOVAL_COMPLETE);
     } catch (Exception e) {
       sourceData.setStatus(SourceData.Status.REMOVAL_FAILED);
+      throw new Exception(e);
     } finally {
       sourceDataService.updateSourceData(sourceData);
       sourceDataService.unregisterSourceDataAlgorithm(sourceData.getId());

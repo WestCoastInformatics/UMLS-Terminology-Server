@@ -130,7 +130,6 @@ public class SourceDataFileUtility {
           // create the directory
           File f = new File(destinationFolder + File.separator + shortName);
           f.mkdir();
-          System.out.println(f.getAbsolutePath());
         }
 
         // if not a directory, simply extract the file

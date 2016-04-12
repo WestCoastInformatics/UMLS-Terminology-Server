@@ -10,73 +10,87 @@ import com.wci.umls.server.model.meta.LogActivity;
 /**
  * Abstract support for loader algorithms.
  */
-public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa implements TerminologyLoaderAlgorithm  {
+public abstract class AbstractTerminologyLoaderAlgorithm
+    extends HistoryServiceJpa implements TerminologyLoaderAlgorithm {
 
   /** LOADER constant for use as userName. */
   public final static String LOADER = "loader";
-  
-  private boolean cancelFlag = false;
-  
-  private String inputPath = null;
-  
-  private String terminology = null;
-  
-  private String version = null;
+
+  /** The cancel flag. */
+  protected boolean cancelFlag = false;
+
+  /** The input path. */
+  protected String inputPath = null;
+
+  /** The terminology. */
+  protected String terminology = null;
+
+  /** The version. */
+  protected String version = null;
+
+  /** By default, sort and delete temporary files */
+  protected boolean sortFiles = true;
 
   /**
-   * Instantiates an empty {@link AbstractLoaderAlgorithm}.
+   * Instantiates an empty {@link AbstractTerminologyLoaderAlgorithm}.
    *
    * @throws Exception the exception
    */
-  public AbstractLoaderAlgorithm() throws Exception {
+  public AbstractTerminologyLoaderAlgorithm() throws Exception {
     // n/a
   }
-  
+
   @Override
   public String getInputPath() {
     return this.inputPath;
   }
-  
+
   @Override
   public void setInputPath(String inputPath) {
     this.inputPath = inputPath;
   }
-  
+
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
-  
+
   @Override
   public String getTerminology() {
     return this.terminology;
   }
-  
-  
+
   @Override
   public void setVersion(String version) {
     this.version = version;
   }
-  
+
   @Override
   public String getVersion() {
     return this.version;
   }
-  
+
+  @Override
+  public void setSortFiles(boolean sortFiles) {
+    this.sortFiles = sortFiles;
+  }
+
   @Override
   public void computeTransitiveClosures() throws Exception {
-    throw new Exception("Transitive closure computation must be overriden by non-abstract LoaderAlgorithm");
+    throw new Exception(
+        "Transitive closure computation must be overriden by non-abstract LoaderAlgorithm");
   }
-  
-  @Override 
+
+  @Override
   public void computeTreePositions() throws Exception {
-    throw new Exception("Tree position computation must be overriden by non-abstract LoaderAlgorithm");
-    
+    throw new Exception(
+        "Tree position computation must be overriden by non-abstract LoaderAlgorithm");
+
   }
-  
+
   @Override
   public void commitClearBegin() throws Exception {
-    
+
     if (cancelFlag) {
       throw new CancelException("Cancel requested");
     }
@@ -94,12 +108,11 @@ public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa implemen
   @Override
   public void logAndCommit(int objectCt, int logCt, int commitCt)
     throws Exception {
-    
+
     if (cancelFlag) {
       throw new CancelException("Cancel requested");
     }
-    
-    
+
     if (objectCt % logCt == 0) {
       addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
           "    count = " + objectCt);
@@ -148,15 +161,16 @@ public abstract class AbstractLoaderAlgorithm extends HistoryServiceJpa implemen
     Logger.getLogger(getClass()).error(message);
     commit();
   }
-  
+
   /**
    * Cancel.
+   * @throws Exception
    */
   @Override
-  public void cancel() {
+  public void cancel() throws Exception {
     cancelFlag = true;
   }
-  
+
   /**
    * Returns the total elapsed time str.
    *

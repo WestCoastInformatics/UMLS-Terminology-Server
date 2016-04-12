@@ -109,7 +109,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * Implementation of an algorithm to import Owl data.
  */
-public class OwlLoaderAlgorithm extends AbstractLoaderAlgorithm
+public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm
     implements TerminologyLoaderAlgorithm {
 
   /** Listeners. */
@@ -2437,5 +2437,6 @@ public class OwlLoaderAlgorithm extends AbstractLoaderAlgorithm
   public String getVersion() {
     return version;
   }
+
 
 }

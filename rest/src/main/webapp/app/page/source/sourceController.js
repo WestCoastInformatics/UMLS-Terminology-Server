@@ -1,18 +1,10 @@
-// Route
-tsApp.config(function config($routeProvider) {
-  $routeProvider.when('/source', {
-    controller : 'SourceDataCtrl',
-    templateUrl : 'app/page/source/source.html'
-  });
-});
-
 // Controller
 tsApp
   .controller(
-    'SourceDataCtrl',
+    'SourceCtrl',
     function($scope, $http, $q, $interval, NgTableParams, sourceDataService, utilService,
       securityService, gpService, FileUploader, tabService) {
-      console.debug('configure SourceDataCtrl');
+      console.debug('configure SourceCtrl');
 
       // Handle resetting tabs on "back" button
       if (tabService.selectedTab.label != 'Source') {
@@ -187,6 +179,13 @@ tsApp
           })
         });
       };
+      
+      // cancel a running process
+      $scope.cancelSourceDataProcess= function(sourceData) {
+        sourceDataService.cancelSourceDataProcess(sourceData).then(function() {
+          getSourceDatas();
+        });
+      };
 
       $scope.getFilePath = function(file) {
         var id = $scope.currentSourceData.id;
@@ -207,6 +206,7 @@ tsApp
             angular.forEach(sourceDatas, function(sourceData) {
               if ($scope.currentSourceData.id === sourceData.id) {
                 $scope.currentSourceData = sourceData;
+                $scope.isSourceDataModified = false;
               }
             });
           }
@@ -276,14 +276,20 @@ tsApp
 
           // get the source data by id (suppress glass pane)
           sourceDataService.getSourceData(sourceData.id, true).then(function(polledSourceData) {
-            $scope.updateSourceDataFromPoll(polledSourceData);
+            if (polledSourceData) {
+              $scope.updateSourceDataFromPoll(polledSourceData);
+            } else {
+              $scope.stopPolling(sourceData);
+            }
           });
 
-          // get the log entries
-          sourceDataService.getSourceDataLog(sourceData.terminology, sourceData.version,
-            null, 100).then(function(logEntries) {
-            $scope.polls[sourceData.id].logEntries = logEntries;
-          });
+          // get and set the log entries
+          sourceDataService.getSourceDataLog(sourceData.terminology, sourceData.version, null, 100)
+            .then(function(logEntries) {
+              if ($scope.polls[sourceData.id]) {
+                $scope.polls[sourceData.id].logEntries = logEntries;
+              }
+            });
 
         }, 3142);
       };
@@ -315,8 +321,11 @@ tsApp
             sourceData = polledSourceData;
             refreshTables();
           }
+         
         });
-
+        if ($scope.currentSourceData.id ===  polledSourceData.id) {
+          $scope.currentSourceData = polledSourceData;
+        }
         // update poll status from data
         $scope.polls[polledSourceData.id].status = polledSourceData.status;
 

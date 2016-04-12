@@ -572,7 +572,6 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "load from source data",
           UserRole.USER);
 
-      
       final Exception[] exceptions = new Exception[1];
       Thread t = new Thread(new Runnable() {
 
@@ -602,7 +601,6 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
           throw new Exception(exceptions[0]);
         }
       }
-
     } catch (Exception e) {
       handleException(e,
           " attempting to load data from source data configuration");
@@ -616,17 +614,18 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
   @Path("/data/remove")
   @ApiOperation(value = "Remove data from source data configuration", notes = "Invokes removing of data based on source data files and configuration")
   public void removeFromSourceData(
+    @ApiParam(value = "Run as background process", required = false) @QueryParam("background") Boolean background,
     @ApiParam(value = "Source data to removed loaded data for", required = true) SourceDataJpa sourceData,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call (Source Data): /data/remove");
 
-    /// TODO Add backgrounding here
     try {
       authorizeApp(securityService, authToken,
           "remove loaded data from source data", UserRole.ADMINISTRATOR);
 
+      final Exception[] exceptions = new Exception[1];
       Thread t = new Thread(new Runnable() {
 
         @Override
@@ -646,11 +645,47 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
           }
         }
       });
-      t.start();
-
+      if (background != null && background == true) {
+        t.start();
+      } else {
+        t.join();
+        if (exceptions[0] != null) {
+          throw new Exception(exceptions[0]);
+        }
+      }
     } catch (Exception e) {
       handleException(e,
           " attempting to load data from source data configuration");
+    } finally {
+      securityService.close();
+    }
+  }
+
+  @Override
+  @POST
+  @Path("/data/cancel")
+  @ApiOperation(value = "Load data from source data configuration", notes = "Invokes loading of data based on source data files and configuration")
+  public void cancelFromSourceData(
+    @ApiParam(value = "Source data running process", required = true) SourceDataJpa sourceData,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Source Data): /data/cancel " + sourceData.toString());
+
+    try {
+      authorizeApp(securityService, authToken, "cancel from source data",
+          UserRole.USER);
+
+      // instantiate the handler
+      Class<?> sourceDataHandlerClass = Class.forName(sourceData.getHandler());
+      SourceDataHandler handler =
+          (SourceDataHandler) sourceDataHandlerClass.newInstance();
+      handler.setSourceData(sourceData);
+      handler.cancel();
+
+    } catch (Exception e) {
+      handleException(e,
+          " attempting to cancel data from source data configuration");
     } finally {
       securityService.close();
     }

@@ -53,19 +53,19 @@ public class SourceDataJpa implements SourceData {
   private Long id;
 
   /** The file name. */
-  @Column(nullable = false, unique = true, length = 250)
+  @Column(nullable = false, unique = true)
   private String name;
 
   /** The source data description */
-  @Column(nullable = true, unique = false, length = 4000)
+  @Column(nullable = true, unique = false)
   private String terminology;
 
   /** The source data description */
-  @Column(nullable = true, unique = false, length = 4000)
+  @Column(nullable = true, unique = false)
   private String version;
 
   /** The source data description */
-  @Column(nullable = true, unique = false, length = 4000)
+  @Column(nullable = true, unique = false)
   private String releaseVersion;
 
   /** The source data description */
@@ -73,15 +73,15 @@ public class SourceDataJpa implements SourceData {
   private String description;
 
   /** The timestamp. */
-  @Column(nullable = false, unique = false, length = 250)
+  @Column(nullable = false, unique = false)
   private Date timestamp = new Date();
 
   /** The last modified. */
-  @Column(nullable = false, unique = false, length = 250)
+  @Column(nullable = false, unique = false)
   private Date lastModified;
 
   /** The last modified by. */
-  @Column(nullable = false, unique = false, length = 250)
+  @Column(nullable = false, unique = false)
   private String lastModifiedBy;
 
   /** The data files. */

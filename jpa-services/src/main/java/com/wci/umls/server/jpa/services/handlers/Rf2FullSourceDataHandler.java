@@ -4,31 +4,22 @@
 package com.wci.umls.server.jpa.services.handlers;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.jpa.algo.Rf2FullLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
 import com.wci.umls.server.services.SourceDataService;
 import com.wci.umls.server.services.handlers.SourceDataHandler;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
  * Converter for RxNorm files.
  */
-public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler implements SourceDataHandler {
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
-
-  /** The source data. */
-  private SourceData sourceData;
+public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler
+    implements SourceDataHandler {
 
   /**
    * Instantiates an empty {@link Rf2FullSourceDataHandler}.
@@ -54,8 +45,16 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler implemen
    */
   @Override
   public void compute() throws Exception {
+    Logger.getLogger(getClass())
+        .info("Loading RF2 Full for " + sourceData.getName());
 
     // check pre-requisites
+    if (sourceData == null) {
+      throw new Exception("Source data is null");
+    }
+    if (sourceData.getId() == null) {
+      throw new Exception("Source data has no assigned id");
+    }
     if (sourceData.getSourceDataFiles().size() == 0) {
       throw new Exception(
           "No source data files specified for source data object "
@@ -75,11 +74,6 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler implemen
       throw new Exception("No version specified for source data object "
           + sourceData.getName());
     }
-    if (sourceData.getReleaseVersion() == null
-        || sourceData.getReleaseVersion().isEmpty()) {
-      throw new Exception("No releaseVersion specified for source data object "
-          + sourceData.getName());
-    }
 
     // find directory path based on upload directory and id
     String inputDir =
@@ -87,8 +81,8 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler implemen
             + File.separator + sourceData.getId().toString();
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException("Source data directory is not a directory: "
-          + inputDir);
+      throw new LocalException(
+          "Source data directory is not a directory: " + inputDir);
     }
 
     // RF2 Loads require locating a base directory containing two folders
@@ -96,130 +90,52 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler implemen
     String[] files = new File(inputDir).list();
     String revisedInputDir = null;
 
-    // flags for whether refset and terminology folders were found
-    boolean refsetFound = false;
-    boolean terminologyFound = false;
-
-    // check the input directory for existence of Refset and Terminology folders
+    // find the FULL file
     for (File f : new File(inputDir).listFiles()) {
-      if (f.getName().equals("Refset")) {
-        refsetFound = true;
-      }
-      if (f.getName().equals("Terminology")) {
-        terminologyFound = true;
-      }
-      if (refsetFound && terminologyFound) {
-        revisedInputDir = inputDir;
-        break;
-      }
-    }
-
-    // otherwise, cycle over subdirectories
-    for (String f : files) {
-      File file = new File(f);
-
-      if (revisedInputDir != null)
-        break;
-
-      // only want to check directories
-      if (file.isDirectory()) {
-        refsetFound = false;
-        terminologyFound = false;
-        for (File f2 : file.listFiles()) {
-          if (f2.getName().equals("Refset")) {
-            refsetFound = true;
-          }
-          if (f2.getName().equals("Terminology")) {
-            terminologyFound = true;
-          }
-          if (refsetFound && terminologyFound) {
-            revisedInputDir = f2.getAbsolutePath();
-            break;
-          }
-        }
+      if (f.getName().equals("FULL")) {
+        revisedInputDir = f.getAbsolutePath();
       }
     }
 
     if (revisedInputDir == null) {
       throw new LocalException(
-          "Uploaded files do not contain a directory with both RefSet and Terminology files");
+          "Uploaded files must contain FULL folder containing full release");
     }
 
-    // ensure that source data is up to date in database
-    SourceDataService sourceDataService = new SourceDataServiceJpa();
-    sourceDataService.updateSourceData(sourceData);
 
-    
+    // instantiate service
+    SourceDataService sourceDataService = new SourceDataServiceJpa();
+
+    // update the source data
     sourceData.setStatus(SourceData.Status.LOADING);
     sourceDataService.updateSourceData(sourceData);
-   
-    // Use content service rest because it has "loadRf2Terminology"
+
+    // instantiate and set parameters for loader algorithm
+    Rf2FullLoaderAlgorithm algo = new Rf2FullLoaderAlgorithm();
+    algo.setTerminology(sourceData.getTerminology());
+    algo.setVersion(sourceData.getVersion());
+    algo.setInputPath(revisedInputDir);
+    sourceDataService.registerSourceDataAlgorithm(sourceData.getId(), algo);
+
+    Logger.getLogger(getClass()).info("  Prerequisites satisfied, computing");
+
     try {
-      // TODO algo.compute()
-      sourceData.setStatus(SourceData.Status.LOADING_COMPLETE); 
+      // perform main load
+      algo.compute();
+
+      // compute transitive closures and tree positions
+      algo.computeTreePositions();
+      algo.computeTransitiveClosures();
+
+      sourceData.setStatus(SourceData.Status.LOADING_COMPLETE);
     } catch (Exception e) {
       sourceData.setStatus(SourceData.Status.LOADING_FAILED);
-      throw new Exception("Loading source data failed - " + sourceData, e);
+      throw new Exception(e);
     } finally {
+      sourceDataService.unregisterSourceDataAlgorithm(sourceData.getId());
       sourceDataService.updateSourceData(sourceData);
       sourceDataService.close();
     }
   }
-
-  /* see superclass */
-  @Override
-  public void reset() throws Exception {
-    // n/a
-  }
-
-  /**
-   * Fires a {@link ProgressEvent}.
-   * @param pct percent done
-   * @param note progress note
-   */
-  public void fireProgressEvent(int pct, String note) {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
-  }
-
-  /* see superclass */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() {
-    throw new UnsupportedOperationException("cannot cancel.");
-  }
-
-  /* see superclass */
-  @Override
-  public void setProperties(Properties p) throws Exception {
-    // n/a
-  }
-
-  /* see superclass */
-  @Override
-  public void setSourceData(SourceData sourceData) {
-    this.sourceData = sourceData;
-  }
-
-  /* see superclass */
-  @Override
-  public void close() throws Exception {
-    // n/a
-  }
-  
 
 }

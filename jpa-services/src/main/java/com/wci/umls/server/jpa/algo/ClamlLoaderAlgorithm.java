@@ -78,7 +78,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * Implementation of an algorithm to import ClaML data.
  */
-public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm {
+public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -2138,4 +2138,5 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm {
   public String getVersion() {
     return version;
   }
+
 }

@@ -1,18 +1,4 @@
-// Route
-tsApp.config(function config($routeProvider) {
-  // TODO Remove this when landing has been reenabled
-  $routeProvider.when('/', {
-    templateUrl : 'app/page/login/login.html',
-    controller : 'LoginCtrl',
-    reloadOnSearch : false
-  });
 
-  $routeProvider.when('/login', {
-    templateUrl : 'app/page/login/login.html',
-    controller : 'LoginCtrl',
-    reloadOnSearch : false
-  });
-});
 
 // Login controller
 tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService', 'gpService',

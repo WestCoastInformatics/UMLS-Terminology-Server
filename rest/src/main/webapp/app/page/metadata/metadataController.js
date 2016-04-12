@@ -1,11 +1,3 @@
-// Route
-tsApp.config(function config($routeProvider) {
-  $routeProvider.when('/metadata', {
-    templateUrl : 'app/page/metadata/metadata.html',
-    controller : 'MetadataCtrl',
-    reloadOnSearch : false
-  });
-});
 
 // Metadata controller
 tsApp.controller('MetadataCtrl', [

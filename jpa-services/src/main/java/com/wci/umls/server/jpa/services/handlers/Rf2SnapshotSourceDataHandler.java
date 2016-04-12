@@ -4,6 +4,11 @@
 package com.wci.umls.server.jpa.services.handlers;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -16,9 +21,8 @@ import com.wci.umls.server.services.handlers.SourceDataHandler;
 /**
  * Converter for RxNorm files.
  */
-public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler implements SourceDataHandler {
-
- 
+public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler
+    implements SourceDataHandler {
 
   /**
    * Instantiates an empty {@link Rf2SnapshotSourceDataHandler}.
@@ -45,7 +49,16 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler impl
   @Override
   public void compute() throws Exception {
 
+    Logger.getLogger(getClass())
+        .info("Loading RF2 Snapshot for " + sourceData.getName());
+
     // check pre-requisites
+    if (sourceData == null) {
+      throw new Exception("Source data is null");
+    }
+    if (sourceData.getId() == null) {
+      throw new Exception("Source data has no assigned id");
+    }
     if (sourceData.getSourceDataFiles().size() == 0) {
       throw new Exception(
           "No source data files specified for source data object "
@@ -71,96 +84,75 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler impl
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + sourceData.getId().toString();
 
+    Logger.getLogger(getClass())
+        .info("  Source data base directory: " + inputDir);
+
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException("Source data directory is not a directory: "
-          + inputDir);
+      throw new LocalException(
+          "Source data directory is not a directory: " + inputDir);
     }
 
-    // RF2 Loads require locating a base directory containing two folders
-    // (Refset and Terminology)
-    String[] files = new File(inputDir).list();
+    // find the SNAPSHOT directory
     String revisedInputDir = null;
 
-    // flags for whether refset and terminology folders were found
-    boolean refsetFound = false;
-    boolean terminologyFound = false;
-
-    // check the input directory for existence of Refset and Terminology folders
-    // TODO Must find Refset and Terminology in SNAPSHOT folder
-    // TODO UPdate the delta and full loaders
-    for (File f : new File(inputDir).listFiles()) {
-      if (f.getName().equals("Refset")) {
-        refsetFound = true;
-      }
-      if (f.getName().equals("Terminology")) {
-        terminologyFound = true;
-      }
-      if (refsetFound && terminologyFound) {
-        revisedInputDir = inputDir;
-        break;
-      }
-    }
-
-    // otherwise, cycle over subdirectories
-    for (String f : files) {
-      File file = new File(f);
-
-      if (revisedInputDir != null)
-        break;
-
-      // only want to check directories
-      if (file.isDirectory()) {
-        refsetFound = false;
-        terminologyFound = false;
-        for (File f2 : file.listFiles()) {
-          if (f2.getName().equals("Refset")) {
-            refsetFound = true;
-          }
-          if (f2.getName().equals("Terminology")) {
-            terminologyFound = true;
-          }
-          if (refsetFound && terminologyFound) {
-            revisedInputDir = f2.getAbsolutePath();
-            break;
-          }
+    List<File> filesToCheck =
+        new ArrayList<>(Arrays.asList(new File(inputDir).listFiles()));
+    while (!filesToCheck.isEmpty()) {
+      File f = filesToCheck.get(0);
+      if (f.isDirectory()) {
+        if (f.getName().equals("SNAPSHOT")) {
+          revisedInputDir = f.getAbsolutePath();
+          break;
+        } else {
+          filesToCheck.addAll(new ArrayList<>(Arrays.asList(f.listFiles())));
         }
       }
+      filesToCheck.remove(0);
     }
 
     if (revisedInputDir == null) {
       throw new LocalException(
-          "Uploaded files do not contain a directory with both RefSet and Terminology files");
+          "Uploaded files must contain SNAPSHOT folder containing snapshot release");
     }
+    
+    Logger.getLogger(getClass())
+    .info("  Source data SNAPSHOT directory: " + revisedInputDir);
 
     // instantiate service
     SourceDataService sourceDataService = new SourceDataServiceJpa();
 
+    // update the source data
+    sourceData.setStatus(SourceData.Status.LOADING);
+    sourceDataService.updateSourceData(sourceData);
+
     // instantiate and set parameters for loader algorithm
     Rf2SnapshotLoaderAlgorithm algo = new Rf2SnapshotLoaderAlgorithm();
     algo.setTerminology(sourceData.getTerminology());
-    algo.setVersion(sourceData.getTerminology());
-    algo.setInputPath(inputDir);
-    
-    // update the source data
-    sourceData.setStatus(SourceData.Status.LOADING);
-    // TODO Require that source data has id and throw intelligent error/fail
-    sourceDataService.updateSourceData(sourceData);
-    
+    algo.setVersion(sourceData.getVersion());
+    algo.setInputPath(revisedInputDir);
+    sourceDataService.registerSourceDataAlgorithm(sourceData.getId(), algo);
+
+    Logger.getLogger(getClass()).info("  Prerequisites satisfied, computing");
+
     try {
+
       // perform main load
       algo.compute();
-      
+
+
       // compute transitive closures and tree positions
       algo.computeTreePositions();
       algo.computeTransitiveClosures();
-      
+
       sourceData.setStatus(SourceData.Status.LOADING_COMPLETE);
     } catch (Exception e) {
       sourceData.setStatus(SourceData.Status.LOADING_FAILED);
+      throw new Exception(e);
     } finally {
+      sourceDataService.unregisterSourceDataAlgorithm(sourceData.getId());
       sourceDataService.updateSourceData(sourceData);
       sourceDataService.close();
     }
   }
-  
+
 }

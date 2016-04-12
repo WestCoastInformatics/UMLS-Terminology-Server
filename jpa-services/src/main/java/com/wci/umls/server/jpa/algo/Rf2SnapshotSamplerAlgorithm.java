@@ -22,7 +22,7 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class Rf2SnapshotSamplerAlgorithm extends AbstractLoaderAlgorithm {
+public class Rf2SnapshotSamplerAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();

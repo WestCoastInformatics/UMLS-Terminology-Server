@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.algo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.FlushModeType;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
@@ -71,19 +71,13 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 delta data.
  */
-public class Rf2DeltaLoaderAlgorithm extends AbstractLoaderAlgorithm {
+public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /** The isa type rel. */
   private final static String isaTypeRel = "116680003";
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
-
-  /** The terminology. */
-  private String terminology;
-
-  /** The version. */
-  private String version;
 
   /** The release version. */
   private String releaseVersion;
@@ -149,24 +143,6 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractLoaderAlgorithm {
   }
 
   /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /**
-   * Sets the version.
-   *
-   * @param version the version
-   */
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  /**
    * Sets the release version.
    *
    * @param releaseVersion the rlease version
@@ -190,28 +166,60 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractLoaderAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
+    
+    // check prerequisites
+    if (terminology == null) {
+      throw new Exception("Terminology name must be specified");
+    }
+    if (version == null) {
+      throw new Exception("Terminology version must be specified");
+    }
+    if (inputPath == null) {
+      throw new Exception("Input directory must be specified");
+    }
+    
     try {
+      
+      long startTimeOrig = System.nanoTime();
+      
       logInfo("Start loading delta");
       logInfo("  terminology = " + terminology);
       logInfo("  version = " + version);
-      logInfo("  releaseVersion = " + releaseVersion);
+      logInfo("  inputPath = " + inputPath);
+
+   // File preparation
+      // Check the input directory
+      File inputPathFile = new File(inputPath);
+      if (!inputPathFile.exists()) {
+        throw new Exception("Specified input directory does not exist");
+      }
+
+      // Sort files
+      Logger.getLogger(getClass()).info("  Sort RF2 Files");
+      Logger.getLogger(getClass()).info("    sort by effective time: false");
+      Logger.getLogger(getClass()).info("    require all files     : false");
+      final Rf2FileSorter sorter = new Rf2FileSorter();
+      sorter.setSortByEffectiveTime(false);
+      sorter.setRequireAllFiles(true);
+      File outputDir = new File(inputPathFile, "/RF2-sorted-temp/");
+      //sorter.sortFiles(inputPathFile, outputDir);
+      //releaseVersion = sorter.getFileVersion();
+      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
 
       releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
 
-      // Clear the query cache
+      // Open readers
+      readers = new Rf2Readers(outputDir);
+      readers.openReaders();
 
-      // Track system level information
-      long startTimeOrig = System.nanoTime();
-
-      // This is OK because every time we query the database
-      // it is for an object graph we have not yet seen so flushing
-      // of changes is not important until the end.
-      manager.setFlushMode(FlushModeType.COMMIT);
-
-      // Turn of id and lastModified computation when loading a terminology
-      setAssignIdentifiersFlag(false);
-      setLastModifiedFlag(false);
+      // control transaction scope
       setTransactionPerOperation(false);
+      // Turn of ID computation when loading a terminology
+      setAssignIdentifiersFlag(false);
+      // Let loader set last modified flags.
+      setLastModifiedFlag(false);
+
+      // faster performance.
       beginTransaction();
 
       //
