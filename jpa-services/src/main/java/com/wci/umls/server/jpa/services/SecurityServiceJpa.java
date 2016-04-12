@@ -174,6 +174,13 @@ public class SecurityServiceJpa extends RootServiceJpa implements
       throw new LocalException(
           "Attempt to access a service without an AuthToken, the user is likely not logged in.");
 
+    // handle guest user unless
+    if (authToken.equals("guest")
+        && "false".equals(ConfigUtility.getConfigProperties().getProperty(
+            "security.guest.disabled"))) {
+      return "guest";
+    }
+
     // Replace double quotes in auth token.
     String parsedToken = authToken.replace("\"", "");
 
@@ -207,6 +214,12 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     if (authToken == null) {
       throw new LocalException(
           "Attempt to access a service without an AuthToken, the user is likely not logged in.");
+    }
+    // Handle "guest" user
+    if (authToken.equals("guest")
+        && "false".equals(ConfigUtility.getConfigProperties().getProperty(
+            "security.guest.disabled"))) {
+      return UserRole.VIEWER;
     }
 
     String parsedToken = authToken.replace("\"", "");
@@ -368,17 +381,17 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     if (user.getProjectRoleMap() != null) {
       user.getProjectRoleMap().size();
     }
-    /*if (user.getUserPreferences() != null) {
-      user.getUserPreferences().getLastProjectId();
-    }
-    if (user.getUserPreferences() != null
-        && user.getUserPreferences().getLanguageDescriptionTypes() != null
-        && user.getUserPreferences().getLanguageDescriptionTypes().size() > 0) {
-      user.getUserPreferences().getLanguageDescriptionTypes().get(0)
-          .getDescriptionType().getName();
-    }*/  //TODO
+    /*
+     * if (user.getUserPreferences() != null) {
+     * user.getUserPreferences().getLastProjectId(); } if
+     * (user.getUserPreferences() != null &&
+     * user.getUserPreferences().getLanguageDescriptionTypes() != null &&
+     * user.getUserPreferences().getLanguageDescriptionTypes().size() > 0) {
+     * user.getUserPreferences().getLanguageDescriptionTypes().get(0)
+     * .getDescriptionType().getName(); }
+     */// TODO
   }
-  
+
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override

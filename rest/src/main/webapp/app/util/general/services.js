@@ -495,6 +495,11 @@ tsApp.service('securityService', [
             $http.defaults.headers.common.Authorization = user.authToken;
           }
         }
+        
+        // If no cookie, just come in as "guest" user
+        else {
+          this.setGuestUser();
+        }
       }
       // return user (blank if not found)
       return user;
@@ -523,6 +528,19 @@ tsApp.service('securityService', [
 
       // Whenever set user is called, we should save a cookie
       $cookies.put('user', JSON.stringify(user));
+
+    };
+
+    this.setGuestUser = function() {
+      user.userName = 'guest';
+      user.name = 'Guest';
+      user.authToken = 'guest';
+      user.password = 'guest';
+      user.applicationRole = 'VIEWER';
+      user.userPreferences = {};
+
+      // Whenever set user is called, we should save a cookie
+      $cookieStore.put('user', JSON.stringify(user));
 
     };
 

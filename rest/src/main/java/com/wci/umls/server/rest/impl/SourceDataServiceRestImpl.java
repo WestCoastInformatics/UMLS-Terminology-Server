@@ -477,22 +477,22 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /**
-   * Gets the loader names.
+   * Gets the handler names.
    *
    * @param authToken the auth token
-   * @return the loader names
+   * @return the handler names
    * @throws Exception the exception
    */
   /* see superclass */
   @Override
   @GET
   @Path("/data/sourceDataHandlers")
-  @ApiOperation(value = "Get source data handler names", notes = "Gets all loader names.", response = StringList.class)
+  @ApiOperation(value = "Get source data handler names", notes = "Gets all handler names.", response = StringList.class)
   public KeyValuePairList getSourceDataHandlerNames(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (Source Data): /data/loaders");
+        "RESTful call (Source Data): /data/sourceDataHandlers");
 
     final SourceDataService service = new SourceDataServiceJpa();
     try {
@@ -519,7 +519,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (Source Data): /data/loaders");
+        "RESTful call (Source Data): /data/id/" + id);
 
     final SourceDataService service = new SourceDataServiceJpa();
     try {
@@ -542,8 +542,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Source data to load from", required = true) SourceDataJpa sourceData,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Source Data): /data/loaders");
+    Logger.getLogger(getClass()).info("RESTful call (Source Data): /data/load");
 
     try {
       authorizeApp(securityService, authToken, "get source datas",

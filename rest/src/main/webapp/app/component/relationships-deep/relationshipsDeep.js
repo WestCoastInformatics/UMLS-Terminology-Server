@@ -24,7 +24,6 @@ tsApp.directive('relationshipsDeep', [
 
         scope.paging.sortField = 'group';
         scope.paging.sortAscending = true;
-        scope.paging.showInferred = true;
 
         // Default is Group/Type, where in getpagedData
         // relationshipType is automatically appended as a multi-
@@ -63,7 +62,6 @@ tsApp.directive('relationshipsDeep', [
           var parameters = {
             showSuppressible : scope.showHidden,
             showObsolete : scope.showHidden,
-            showInferred : scope.paging.showInferred,
             text : scope.paging.filter,
             sortFields : sortFields,
             sortAscending : scope.paging.sortAscending
