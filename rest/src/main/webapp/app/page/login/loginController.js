@@ -68,5 +68,14 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService
     $scope.logout = function() {
       securityService.logout();
     };
+    
+    //
+    // Initialization: Check that application is configured
+    //
+    configureService.isConfigured().then(function(isConfigured) {
+      if (!isConfigured) {
+        $location.path('/configure');
+      }
+    });
 
   } ]);

@@ -48,5 +48,14 @@ tsApp.controller('MetadataCtrl', [
     else if ($scope.user.userPreferences) {
       $scope.configureTab();
     }
+    
+    //
+    // Initialization: Check that application is configured
+    //
+    configureService.isConfigured().then(function(isConfigured) {
+      if (!isConfigured) {
+        $location.path('/configure');
+      }
+    });
 
   } ]);

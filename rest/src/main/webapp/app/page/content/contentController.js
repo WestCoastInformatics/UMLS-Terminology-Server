@@ -572,6 +572,15 @@ tsApp.controller('ContentCtrl', [
           }
         });
     }
+    
+    //
+    // Initialization: Check that application is configured
+    //
+    configureService.isConfigured().then(function(isConfigured) {
+      if (!isConfigured) {
+        $location.path('/configure');
+      }
+    });
 
     $scope.configureTab();
   }
