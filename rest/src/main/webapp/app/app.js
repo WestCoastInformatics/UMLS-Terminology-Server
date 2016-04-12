@@ -21,25 +21,14 @@ var validationUrl = "validation/";
 var sourceDataUrl = 'file/';
 var configureUrl = 'configure/';
 
-// Initialization of tsApp
-tsApp.run(function($rootScope, $http, $location) {
-
-  // check if application is configured
-  $http.get(configureUrl + 'configured').then(function(response) {
-    console.debug(response);
-  })
+tsApp.run(function checkConfig($rootScope, $http) {
+   $http.get(configureUrl + 'configured').then(function(response) {
+     $rootScope.isConfigured = response.data;
+   }, function() {
+     console.error('Could not determine configuration status');
+     $rootScope.isConfigured = false;
+   })
 });
-
-// Route provider configuration - MOVED to individual controllers for routes
-// e.g. contentController.js, metadataController.js
-// tsApp.config([ '$routeProvider', function($routeProvider) {
-// console.debug('configure $routeProvider');
-//
-// $routeProvider.otherwise({
-// redirectTo : '/content'
-// });
-// } ]);
-
 
 // Simple glass pane controller
 tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService', function($scope, gpService) {

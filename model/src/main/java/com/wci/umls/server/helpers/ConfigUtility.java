@@ -70,7 +70,7 @@ public class ConfigUtility {
 
   /** The Constant DEFAULT. */
   public final static String DEFAULT = "DEFAULT";
-  
+
   /** The Constant ATOMCLASS (search handler for atoms) */
   public final static String ATOMCLASS = "ATOMCLASS";
 
@@ -86,10 +86,10 @@ public class ConfigUtility {
   public final static FastDateFormat DATE_FORMAT3 =
       FastDateFormat.getInstance("yyyy");
 
-  /**  The Constant DATE_FORMAT4. */
-  public final static FastDateFormat DATE_FORMAT4 = FastDateFormat
-      .getInstance("yyyy-MM-dd hh:mm:ss");
-  
+  /** The Constant DATE_FORMAT4. */
+  public final static FastDateFormat DATE_FORMAT4 =
+      FastDateFormat.getInstance("yyyy-MM-dd hh:mm:ss");
+
   /** The Constant PUNCTUATION. */
   public final static String PUNCTUATION =
       " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^";
@@ -177,6 +177,35 @@ public class ConfigUtility {
   }
 
   /**
+   * Returns the starting properties, prior to user initialization
+   * @return the starting properties
+   * @throws Exception
+   */
+  public static Properties getStartingConfigProperties() throws Exception {
+    String configFileName = System.getProperty("catalina.base")
+        + "/wtpwebapps/term-server-rest/WEB-INF/config.properties.start";
+    Logger.getLogger(
+        "Retrieving starting config properties from " + configFileName);
+    config = new Properties();
+    FileReader in = new FileReader(new File(configFileName));
+    config.load(in);
+    in.close();
+    Logger.getLogger(ConfigUtility.class).info("  properties = " + config);
+    return config;
+  }
+  
+  /**
+   * Gets the local config file path.
+   *
+   * @return the local config file path
+   * @throws Exception the exception
+   */
+  public static String getLocalConfigFilePath() {
+    return System.getProperty("catalina.base")
+        + "/wtpwebapps/term-server-rest/WEB-INF/config.properties";
+  }
+
+  /**
    * Returns the config properties.
    * @return the config properties
    *
@@ -219,10 +248,21 @@ public class ConfigUtility {
       Logger.getLogger(ConfigUtility.class.getName())
           .info("  run.config." + label + " = " + configFileName);
       config = new Properties();
-      FileReader in = new FileReader(new File(configFileName));
-      config.load(in);
-      in.close();
-      Logger.getLogger(ConfigUtility.class).info("  properties = " + config);
+      FileReader in = null;
+      try {
+        in = new FileReader(new File(configFileName));
+        config.load(in);
+        in.close();
+        Logger.getLogger(ConfigUtility.class).info("  properties = " + config);
+      } catch (NullPointerException e) {
+        Logger.getLogger(ConfigUtility.class)
+            .info("Config properties file not specified, checking local deployment");
+        in = new FileReader(new File(getLocalConfigFilePath()));
+        config.load(in);;
+        in.close();
+        Logger.getLogger(ConfigUtility.class).info("  properties = " + config);
+      }
+
     }
     return config;
   }

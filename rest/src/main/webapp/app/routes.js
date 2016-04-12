@@ -2,10 +2,31 @@
 tsApp.config(function config($routeProvider) {
   
   // TODO -- Change this to '/' once landing page complete
+  $routeProvider.when('/configure', {
+    templateUrl : 'app/page/configure/configure.html',
+    controller : 'ConfigureCtrl',
+    reloadOnSearch : false,
+    resolve : {
+      'configured' : function($rootScope, $location) {
+        if ($rootScope.isConfigured) {
+          $location.path('/login');
+        }
+      }
+    }
+  });
+  
+  // TODO -- Change this to '/' once landing page complete
   $routeProvider.when('/landing', {
     templateUrl : 'app/page/landing/landing.html',
     controller : 'LandingCtrl',
-    reloadOnSearch : false
+    reloadOnSearch : false,
+    resolve : {
+      'configured' : function($rootScope, $location) {
+        if ($rootScope.isConfigured) {
+          $location.path('/configure');
+        }
+      }
+    }
   });
   
   // Source Data Configurations
@@ -58,7 +79,14 @@ tsApp.config(function config($routeProvider) {
   $routeProvider.when('/login', {
     templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl',
-    reloadOnSearch : false
+    reloadOnSearch : false,
+    resolve : {
+      'configured' : function($rootScope, $location) {
+        if (!$rootScope.isConfigured) {
+          $location.path('/configure');
+        }
+      }
+    }
   });
   
 });

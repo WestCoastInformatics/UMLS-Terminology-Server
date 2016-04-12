@@ -1,0 +1,32 @@
+<h4>SNOMEDCT Starter Kit Configuration</h4>
+<div class="row">
+  <div class="col-md-2">Database Name</div>
+  <div class="col-md-10">
+    <input ng-model="dbName" placeholder="e.g. snomeddb">
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-2">Database User Name</div>
+  <div class="col-md-10">
+    <input ng-model="dbUser" placeholder="e.g. root">
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-2">Database User Password</div>
+  <div class="col-md-10">
+    <input ng-model="dbPassword" placeholder="e.g. rootpwd">
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-2">Application Directory</div>
+  <div class="col-md-10">
+    <input ng-model="appDir" placeholder="e.g. C:/umlsApp">
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-2">&nbsp;</div>
+  <div class="col-md-10">
+    <button class="btn btn-primary btn-md" ng-click="configure()"
+      ng-disabled="!dbName || !dbUser || !dbPassword || !appDir">Configure</button>
+  </div>
+</div>
