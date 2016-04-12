@@ -328,6 +328,18 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm  {
   public void setPrefix(String prefix) {
     this.prefix = prefix;
   }
+  
+  @Override
+  public String getFileVersion() throws Exception {
+    RrfFileSorter sorter = new RrfFileSorter();
+    // Be flexible about missing files for RXNORM
+    sorter
+        .setRequireAllFiles(!(prefix == null ? "MR" : prefix).equals("RXN"));
+    // File outputDir = new File(inputDirFile, "/RRF-sorted-temp/");
+    // sorter.sortFiles(inputDirFile, outputDir);
+    return sorter.getFileVersion( new File(inputDir));
+
+  }
 
   /**
    * Compute.

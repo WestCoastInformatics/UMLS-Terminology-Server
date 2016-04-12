@@ -15,12 +15,19 @@ tsApp
       'validationService',
       'metadataService',
       'projectService',
+      'configureService',
       function($scope, $http, $location, $uibModal, gpService, utilService, tabService,
-        securityService, validationService, metadataService, projectService) {
+        securityService, validationService, metadataService, projectService, configureService) {
         console.debug('configure AdminCtrl');
 
         // Clear error
         utilService.clearError();
+        
+        configureService.isConfigured().then(function(isConfigured) {
+          if (!isConfigured) {
+            $location.path('/configure');
+          }
+        });
 
         // Handle resetting tabs on 'back' button
         if (tabService.selectedTab.label != 'Admin') {

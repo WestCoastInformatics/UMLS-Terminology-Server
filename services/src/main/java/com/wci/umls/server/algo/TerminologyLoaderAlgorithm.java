@@ -64,4 +64,12 @@ public interface TerminologyLoaderAlgorithm extends Algorithm, HasTerminology  {
    * @param sortFiles the new sort files
    */
   public void setSortFiles(boolean sortFiles);
+
+  /**
+   * Gets the file version.
+   *
+   * @return the file version
+   * @throws Exception the exception
+   */
+  public String getFileVersion() throws Exception;
 }

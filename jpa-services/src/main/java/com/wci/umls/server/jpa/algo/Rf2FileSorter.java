@@ -27,8 +27,7 @@ public class Rf2FileSorter implements Algorithm {
   /** The sort by effective time. */
   private boolean sortByEffectiveTime = false;
 
-  /** The file version. */
-  private String fileVersion;
+
 
   /** The require all files. */
   private boolean requireAllFiles = false;
@@ -108,7 +107,9 @@ public class Rf2FileSorter implements Algorithm {
    * @return the file version
    * @throws Exception
    */
-  public String getAndSetFileVersion() throws Exception {
+  public String getFileVersion() throws Exception {
+    
+    String fileVersion = null;
 
     for (String dirName : dirMap.values()) {
       for (String fileName : new File(inputDir + dirName).list()) {

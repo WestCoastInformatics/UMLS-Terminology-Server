@@ -198,6 +198,12 @@ public class Rf2SnapshotLoaderAlgorithm
   public Rf2SnapshotLoaderAlgorithm() throws Exception {
     super();
   }
+  
+  @Override
+  public String getFileVersion() throws Exception {
+    sorter.setInputDir(inputPath);
+    return sorter.getFileVersion();
+  }
 
   @Override
   public void compute() throws Exception {
@@ -233,7 +239,7 @@ public class Rf2SnapshotLoaderAlgorithm
       sorter.setInputDir(inputPath);
 
       // get the release version
-      releaseVersion = sorter.getAndSetFileVersion();
+      releaseVersion = sorter.getFileVersion();
       releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
       Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
 
