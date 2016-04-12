@@ -9,8 +9,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 
 import javax.ws.rs.Consumes;
@@ -94,6 +97,17 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
 
   }
 
+  private void validateProperty(String name, String property) throws Exception {
+    if (property == null || property.isEmpty()) {
+      throw new Exception("Property is empty: " + name);
+    }
+
+    if (property.matches(".+${.*}")) {
+      throw new LocalException(
+          "Configurable value " + name + " not set: " + property);
+    }
+  }
+
   /**
    * Checks if application is configured
    *
@@ -112,8 +126,7 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
 
     try {
 
-      String configFileName =
-          ConfigUtility.getLocalConfigFile();
+      String configFileName = ConfigUtility.getLocalConfigFile();
 
       return ConfigUtility.getConfigProperties() != null
           || (new File(configFileName).exists());
@@ -147,49 +160,16 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
 
     try {
 
-      // prerequisite: database name
-      if (parameters.get("javax.persistence.jdbc.url") == null) {
-        throw new LocalException("Database name must be specified");
-      }
-
-      // prerequisite: database user
-      if (parameters.get("javax.persistence.jdbc.user") == null) {
-        throw new LocalException("Database user must be specified");
-      }
-
-      // prerequisite: database user password
-      if (parameters.get("javax.persistence.jdbc.password") == null) {
-        throw new LocalException("Database user password must be specified");
-      }
-
-      // prerequisite: application upload directory
-      if (parameters.get("source.data.dir") == null) {
-        throw new LocalException("Application directory must be specified");
-      }
-
-      // prerequisite: application directory exists
-      File f = new File(parameters.get("source.data.dir"));
-      if (!f.exists()) {
-        throw new LocalException("Application directory does not exist: "
-            + parameters.get("source.data.dir"));
-      }
-      if (!f.isDirectory()) {
-        throw new LocalException(
-            "Application directory specified is not a directory: "
-                + parameters.get("source.data.dir"));
-      }
-
       // get the starting configuration
       InputStream in = ConfigureServiceRestImpl.class
           .getResourceAsStream("/config.properties.start");
 
       if (in == null) {
-        throw new Exception("Could not open stating configuration file");
+        throw new Exception("Could not open starting configuration file");
       }
 
       // construct name and check that the file does not already exist
       String configFileName = ConfigUtility.getLocalConfigFile();
-         
 
       if (new File(configFileName).exists()) {
         throw new LocalException(
@@ -199,7 +179,8 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       // get the starting properties
       Properties properties = new Properties();
       properties.load(in);
-
+      
+    
       // directly replace parameters by key
       for (String key : parameters.keySet()) {
         if (properties.containsKey(key)) {
@@ -210,6 +191,7 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       // replace config file property values based on replacement pattern ${...}
       for (Object key : new HashSet<>(properties.keySet())) {
         for (String param : parameters.keySet()) {
+        
           if (properties.getProperty(key.toString())
               .contains("${" + param + "}")) {
             properties.setProperty(key.toString(),
@@ -217,6 +199,25 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
                     .replace("${" + param + "}", parameters.get(param)));
           }
         }
+        
+        // validate property
+        validateProperty(key.toString(), properties.getProperty(key.toString()));
+      }
+   
+      // create the local application folder
+      File f = new File(ConfigUtility.getLocalConfigFile());
+      f.createNewFile();
+
+      // prerequisite: application directory exists
+      File f = new File(properties.get("source.data.dir").toString());
+      if (!f.exists()) {
+        throw new LocalException("Application directory does not exist: "
+            + parameters.get("source.data.dir"));
+      }
+      if (!f.isDirectory()) {
+        throw new LocalException(
+            "Application directory specified is not a directory: "
+                + properties.get("source.data.dir"));
       }
 
       Logger.getLogger(getClass())
@@ -227,20 +228,24 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
         Writer writer = new FileWriter(configFile);
         properties.store(writer, "User-configured settings");
         writer.close();
-      } catch (FileNotFoundException ex) {
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
         throw new LocalException("Could not open configuration file");
       } catch (IOException ex) {
         throw new LocalException("Error writing configuration file");
       } catch (Exception e) {
+        e.printStackTrace();
         handleException(e, "checking if application is configured");
       }
 
       // finally, reset the config properties and test retrieval
-      System.setProperty("run.config." + ConfigUtility.getConfigLabel(), configFileName);
+      System.setProperty("run.config." + ConfigUtility.getConfigLabel(),
+          configFileName);
       if (ConfigUtility.getConfigProperties() == null) {
         throw new LocalException("Failed to retrieve newly written properties");
       }
     } catch (Exception e) {
+      e.printStackTrace();
       handleException(e, "checking if application is configured");
     } finally {
     }

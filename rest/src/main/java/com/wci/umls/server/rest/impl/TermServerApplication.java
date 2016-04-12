@@ -46,10 +46,12 @@ public class TermServerApplication extends Application {
     beanConfig.setTitle("Term Server API");
     beanConfig.setDescription("RESTful calls for terminology server");
     beanConfig.setVersion(API_VERSION);
-    beanConfig.setBasePath(
-        ConfigUtility.getConfigProperties().getProperty("base.url"));
-    beanConfig.setResourcePackage("com.wci.umls.server.rest.impl");
-    beanConfig.setScan(true);
+    if (new ConfigureServiceRestImpl().isConfigured()) {
+      beanConfig.setBasePath(
+          ConfigUtility.getConfigProperties().getProperty("base.url"));
+      beanConfig.setResourcePackage("com.wci.umls.server.rest.impl");
+      beanConfig.setScan(true);
+    }
 
     // Set up a timer task to run at 2AM every day
     TimerTask task = new InitializationTask();

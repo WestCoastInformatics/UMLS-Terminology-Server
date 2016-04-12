@@ -9,8 +9,9 @@ tsApp.controller('MetadataCtrl', [
   'tabService',
   'securityService',
   'metadataService',
+  'configureService',
   function($scope, $http, $location, gpService, utilService, tabService, securityService,
-    metadataService) {
+    metadataService, configureService) {
     console.debug("configure MetadataCtrl", tabService.selectedTab.label);
 
     // Clear error

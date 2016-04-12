@@ -7,7 +7,6 @@ hibernate.connection.useUnicode=true
 hibernate.connection.characterEncoding=UTF-8
 hibernate.connection.charSet=UTF-8
 javax.persistence.jdbc.driver=com.mysql.jdbc.Driver
-# For testing use tsdbtest
 javax.persistence.jdbc.url=jdbc:mysql://127.0.0.1:3306/${db.name}?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&useLocalSessionState=true'
 javax.persistence.jdbc.user=${db.user}
 javax.persistence.jdbc.password=${db.password}
@@ -44,7 +43,7 @@ hibernate.c3p0.preferredTestQuery=select 1;
 #
 # Lucene index base
 #
-hibernate.search.default.indexBase=${source.data.dir}/indexes/
+hibernate.search.default.indexBase=${app.dir}/indexes/
 hibernate.search.default.directory_provider=filesystem
 index.packages=com.wci.umls.server
 
@@ -126,7 +125,7 @@ identifier.release.handler.DEFAULT.class=com.wci.umls.server.jpa.services.handle
 #
 # Source data upload directory and handlers
 #
-source.data.dir=${source.data.dir}/uploads
+source.data.dir=${app.dir}/uploads
 source.data.handler=RF2SNAPSHOT,RF2DELTA
 source.data.handler.RF2SNAPSHOT.class=com.wci.umls.server.jpa.services.handlers.Rf2SnapshotSourceDataHandler
 source.data.handler.RF2DELTA.class=com.wci.umls.server.jpa.services.handlers.Rf2DeltaSourceDataHandler
