@@ -120,6 +120,12 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyLoaderAlgorit
   public void reset() throws Exception {
     // n/a
   }
+  
+  @Override
+  public String getFileVersion() throws Exception {
+    // do nothing, irrelevant for removal
+    return null;
+  }
 
   /**
    * Remove a terminology of a given version.

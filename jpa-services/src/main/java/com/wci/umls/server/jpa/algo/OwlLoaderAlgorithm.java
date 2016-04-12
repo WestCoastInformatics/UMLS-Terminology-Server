@@ -238,6 +238,11 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm
   public void setInputFile(String inputFile) {
     this.inputFile = inputFile;
   }
+  
+  @Override
+  public String getFileVersion() throws Exception {
+   throw new Exception("Not yet implemented for OWL loader algorithm");
+  }
 
   /* see superclass */
   /**

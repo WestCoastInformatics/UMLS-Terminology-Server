@@ -64,6 +64,13 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractTerminologyLoaderAlgori
   public void setReaders(Rf2Readers readers) {
     this.readers = readers;
   }
+  
+  @Override
+  public String getFileVersion() throws Exception {
+    Rf2FileSorter sorter = new Rf2FileSorter();
+    sorter.setInputDir(inputPath);
+    return sorter.getFileVersion();
+  }
 
   /* see superclass */
   @Override

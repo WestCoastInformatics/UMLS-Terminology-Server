@@ -196,6 +196,13 @@ public class Rf2FullLoaderAlgorithm
   public Rf2FullLoaderAlgorithm() throws Exception {
     super();
   }
+  
+  @Override
+  public String getFileVersion() throws Exception {
+    Rf2FileSorter sorter = new Rf2FileSorter();
+    sorter.setInputDir(inputPath);
+    return sorter.getFileVersion();
+  }
 
   /* see superclass */
   @Override
