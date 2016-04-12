@@ -27,7 +27,7 @@ tsApp
 
             $http.get(configureUrl + 'configured').then(function(isConfigured) {
               console.debug('    configured: ' + isConfigured.data);
-              $rootScope.isConfigured = isConfigured.data;
+              configured = isConfigured.data;
               deferred.resolve(isConfigured.data);
             }, // error
             function(response) {

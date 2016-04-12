@@ -97,14 +97,17 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
 
   }
 
-  private void validateProperty(String name, String property) throws Exception {
-    if (property == null || property.isEmpty()) {
+  private void validateProperty(String name, Properties props) throws Exception {
+    if (props == null) {
+      throw new Exception("Properties are null");
+    }
+    if (props.getProperty(name) == null || props.getProperty(name).isEmpty()) {
       throw new Exception("Property is empty: " + name);
     }
 
-    if (property.matches(".+${.*}")) {
-      throw new LocalException(
-          "Configurable value " + name + " not set: " + property);
+    if (props.getProperty(name).contains("${")) {
+      throw new Exception(
+          "Configurable value " + name + " not set: " + props.getProperty(name));
     }
   }
 
@@ -179,8 +182,7 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       // get the starting properties
       Properties properties = new Properties();
       properties.load(in);
-      
-    
+
       // directly replace parameters by key
       for (String key : parameters.keySet()) {
         if (properties.containsKey(key)) {
@@ -191,7 +193,7 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       // replace config file property values based on replacement pattern ${...}
       for (Object key : new HashSet<>(properties.keySet())) {
         for (String param : parameters.keySet()) {
-        
+
           if (properties.getProperty(key.toString())
               .contains("${" + param + "}")) {
             properties.setProperty(key.toString(),
@@ -199,26 +201,31 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
                     .replace("${" + param + "}", parameters.get(param)));
           }
         }
-        
-        // validate property
-        validateProperty(key.toString(), properties.getProperty(key.toString()));
       }
-   
+      
+      // validate the user-set properties
+      validateProperty("source.data.dir", properties);
+      validateProperty("hibernate.search.default.indexBase", properties);
+      validateProperty("javax.persistence.jdbc.url", properties);
+      validateProperty("javax.persistence.jdbc.user", properties);
+      validateProperty("javax.persistence.jdbc.password", properties);
+
       // create the local application folder
-      File f = new File(ConfigUtility.getLocalConfigFile());
-      f.createNewFile();
+      File localFolder = new File(ConfigUtility.getLocalConfigFolder());
+      if (!localFolder.exists()) {
+        localFolder.mkdir();
+      } else if (!localFolder.isDirectory()) {
+        throw new LocalException("Could not create local directory "
+            + ConfigUtility.getLocalConfigFolder());
+      }
 
       // prerequisite: application directory exists
-      File f = new File(properties.get("source.data.dir").toString());
+      File f = new File(parameters.get("app.dir").toString());
       if (!f.exists()) {
         throw new LocalException("Application directory does not exist: "
             + parameters.get("source.data.dir"));
       }
-      if (!f.isDirectory()) {
-        throw new LocalException(
-            "Application directory specified is not a directory: "
-                + properties.get("source.data.dir"));
-      }
+    
 
       Logger.getLogger(getClass())
           .info("Writing configuration file: " + configFileName);

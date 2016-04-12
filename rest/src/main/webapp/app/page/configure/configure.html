@@ -1,3 +1,4 @@
+<div ng-show="requiresConfiguration">
 <h4>SNOMEDCT Starter Kit Configuration</h4>
 <div class="row">
   <div class="col-md-2">Database Name</div>
@@ -29,4 +30,5 @@
     <button class="btn btn-primary btn-md" ng-click="configure()"
       ng-disabled="!dbName || !dbUser || !dbPassword || !appDir">Configure</button>
   </div>
+</div>
 </div>
