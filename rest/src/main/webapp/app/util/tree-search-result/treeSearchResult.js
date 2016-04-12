@@ -141,16 +141,16 @@ tsApp.directive('treeSearchResult', [
             return 'glyphicon-leaf';
           }
 
+          // if collapsed or unloaded
+          else if (nodeScope.collapsed || (tree.childCt > 0 && tree.children.length == 0)) {
+            return 'glyphicon-chevron-right';
+          }
+
           // if formally collapsed or less than sibling page size retrieved
           // children, return plus sign
           else if (tree.children.length != tree.childCt
             && tree.children.length < scope.pageSizeSibling) {
             return 'glyphicon-plus';
-          }
-
-          // if collapsed or unloaded
-          else if (nodeScope.collapsed || (tree.childCt > 0 && tree.children.length == 0)) {
-            return 'glyphicon-chevron-right';
           }
 
           // otherwise, return minus sign

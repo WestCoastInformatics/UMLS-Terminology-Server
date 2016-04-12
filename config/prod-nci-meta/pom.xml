@@ -7,15 +7,15 @@
     <groupId>com.wcinformatics.umls.server</groupId>
     <artifactId>term-server-parent</artifactId>
     <version>1.3.0-SNAPSHOT</version>
-    <relativePath>../parent</relativePath>
+    <relativePath>../../parent</relativePath>
   </parent>
 
-  <artifactId>term-server-config</artifactId>
+  <artifactId>term-server-config-prod-nci-meta</artifactId>
   <packaging>pom</packaging>
-  <name>Terminology server configuration project</name>
-  <description>Sample data and template configuration files.</description>
+  <name>Terminology server configuration project for the NCI-META prod environment</name>
+  <description>Template configuration files for the NCI-META prod environment.</description>
 
-  <!-- Assemble and attach resources -->
+  <!-- Package as .zip -->
   <build>
     <plugins>
       <!-- Assemble resources into term-server-config*.zip -->
@@ -40,17 +40,5 @@
       </plugin>
     </plugins>
   </build>
-
-  <!-- Config-specific modules -->
-  <!-- Create your own version of one of these projects for custom config -->
-  <modules>
-    <module>dev-windows</module>
-    <module>prod</module>
-    <module>prod-nci-meta</module>
-    <module>prod-snomedct</module>
-    <module>prod-claml</module>
-    <module>prod-owl</module>
-    <module>prod-vet</module>
-  </modules>
-
+  
 </project>

@@ -4361,7 +4361,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @SuppressWarnings("static-method")
   private boolean isLuceneQueryInfo(String query, PfscParameter pfsc) {
-    if (!pfsc.getSearchCriteria().isEmpty()) {
+    if (pfsc != null && !pfsc.getSearchCriteria().isEmpty()) {
       return pfsc.getQueryRestriction() != null || pfsc.getActiveOnly()
           || pfsc.getInactiveOnly() || (query != null && !query.isEmpty());
     } else {

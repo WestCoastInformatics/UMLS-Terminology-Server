@@ -94,48 +94,48 @@
     <div class="alert alert-danger">You must have Javascript enabled to
       use the Terminology Server Demo</div>
   </noscript>
-  
+
   <!-- Header -->
   <div ts-header></div>
   <a id="top"></a>
-  
+
   <!-- Main container -->
   <div class="container-fluid">
-  
+
     <div class="row">
-    
+
       <!-- Universal left padding -->
-      <div class="col-lg-1 col-md-1 col-sm-0 col-xs-0"></div>
-      
+      <div class="col-md-1 col-xs-0"></div>
+
       <!-- Main body -->
-      <div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
-      
+      <div class="col-md-10 col-xs-12">
+
         <!-- Show global error message -->
         <div ng-include src="'app/page/general/error.html'"></div>
-        
+
         <!-- Tab controller -->
         <ul ng-show="isShowing()" class="nav nav-tabs" ng-controller="TabCtrl">
           <li ng-show="isTabShowing(tab)" ng-class="tabClass(tab)"
             ng-repeat="tab in tabs"><a ng-click="setSelectedTab(tab)">
               {{tab.label}} </a></li>
         </ul>
-        
+
         <!-- Application content -->
         <div ng-view=""></div>
       </div>
-      
+
       <!-- Universal right padding -->
-      <div class="col-lg-1 col-md-1 col-sm-0 col-xs-0"></div>
+      <div class="col-md-1 col-xs-0"></div>
     </div>
   </div>
-  
+
   <!-- Footer -->
   <div ts-footer></div>
-  
+
   <!-- Glass Pane -->
   <div ng-controller="GlassPaneCtrl" ng-show="glassPane.counter > 0"
     class="top-layer"></div>
-    
+
   <!-- Analytics -->
   ${site.tracking.code}
 </body>

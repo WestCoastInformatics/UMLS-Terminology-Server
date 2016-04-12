@@ -50,9 +50,7 @@ tsApp
         $scope.unassignedUsers = null;
 
         // Metadata for refsets, projects, etc.
-        $scope.metadata = {
-          terminologies : []
-        };
+        $scope.metadata = metadataService.getModel();
 
         $scope.userPreferences = {
           feedbackEmail : $scope.user.userPreferences.feedbackEmail
@@ -225,11 +223,13 @@ tsApp
           });
         };
 
-        // Get $scope.metadata.terminologies
+        // Get $scope.metadata.terminologies (unless already set)
         $scope.getTerminologies = function() {
-          metadataService.initTerminologies().then(function(data) {
-            $scope.metadata.terminologies = data.terminologies;
-          });
+          if (!$scope.metadata.terminologies) {
+            metadataService.initTerminologies().then(function(data) {
+              $scope.metadata.terminologies = data.terminologies;
+            });
+          }
         };
 
         // Sets the selected project
@@ -389,7 +389,7 @@ tsApp
           validationService.getValidationCheckNames().then(
           // Success
           function(data) {
-            $scope.validationChecks = data.keyValuePair;
+            $scope.validationChecks = data.keyValuePairs;
           });
         };
 
@@ -449,7 +449,7 @@ tsApp
 
           // Wire default validation check 'on' by default
           for (var i = 0; i < $scope.validationChecks.length; i++) {
-            if ($scope.validationChecks[i].value == 'Default validation check') {
+            if ($scope.validationChecks[i].value.startsWith('Default')) {
               $scope.selectedChecks.push($scope.validationChecks[i].value);
             } else {
               $scope.availableChecks.push($scope.validationChecks[i].value);

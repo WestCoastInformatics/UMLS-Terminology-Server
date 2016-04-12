@@ -22,7 +22,7 @@
     <config.artifactId>term-server-config-dev-windows</config.artifactId>
     <config.version>${project.version}</config.version>
     <!-- Defaults for Eclipse dev -->
-    <deploy.title>Development Term Server Deployment</deploy.title>
+    <deploy.title>Dev Term Server</deploy.title>
     <site.tracking.code></site.tracking.code>
     <deploy.footer.copyright>(c)2015</deploy.footer.copyright>
     <deploy.presented.by></deploy.presented.by>

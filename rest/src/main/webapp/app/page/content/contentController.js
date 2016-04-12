@@ -496,7 +496,7 @@ tsApp.controller('ContentCtrl', [
 
     // Load all terminologies upon controller load (unless already
     // loaded)
-    if (!$scope.metadata.terminologies) {
+    if (!$scope.metadata.terminologies || !$scope.metadata.terminology) {
       metadataService.initTerminologies().then(
         // success
         function(data) {
@@ -573,7 +573,7 @@ tsApp.controller('ContentCtrl', [
         });
     }
 
-    // $scope.configureTab();
+    $scope.configureTab();
   }
 
 ]);
