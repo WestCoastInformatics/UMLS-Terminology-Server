@@ -10,8 +10,8 @@ import com.wci.umls.server.model.meta.LogActivity;
 /**
  * Abstract support for loader algorithms.
  */
-public abstract class AbstractTerminologyLoaderAlgorithm
-    extends HistoryServiceJpa implements TerminologyLoaderAlgorithm {
+public abstract class AbstractTerminologyLoaderAlgorithm extends
+    HistoryServiceJpa implements TerminologyLoaderAlgorithm {
 
   /** LOADER constant for use as userName. */
   public final static String LOADER = "loader";
@@ -28,7 +28,7 @@ public abstract class AbstractTerminologyLoaderAlgorithm
   /** The version. */
   protected String version = null;
 
-  /** By default, sort and delete temporary files */
+  /** By default, sort and delete temporary files. */
   protected boolean sortFiles = true;
 
   /**
@@ -40,47 +40,56 @@ public abstract class AbstractTerminologyLoaderAlgorithm
     // n/a
   }
 
+  /* see superclass */
   @Override
   public String getInputPath() {
     return this.inputPath;
   }
 
+  /* see superclass */
   @Override
   public void setInputPath(String inputPath) {
     this.inputPath = inputPath;
   }
 
+  /* see superclass */
   @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
 
+  /* see superclass */
   @Override
   public String getTerminology() {
     return this.terminology;
   }
 
+  /* see superclass */
   @Override
   public void setVersion(String version) {
     this.version = version;
   }
 
+  /* see superclass */
   @Override
   public String getVersion() {
     return this.version;
   }
 
+  /* see superclass */
   @Override
   public void setSortFiles(boolean sortFiles) {
     this.sortFiles = sortFiles;
   }
 
+  /* see superclass */
   @Override
   public void computeTransitiveClosures() throws Exception {
     throw new Exception(
         "Transitive closure computation must be overriden by non-abstract LoaderAlgorithm");
   }
 
+  /* see superclass */
   @Override
   public void computeTreePositions() throws Exception {
     throw new Exception(
@@ -88,6 +97,7 @@ public abstract class AbstractTerminologyLoaderAlgorithm
 
   }
 
+  /* see superclass */
   @Override
   public void commitClearBegin() throws Exception {
 
@@ -164,7 +174,8 @@ public abstract class AbstractTerminologyLoaderAlgorithm
 
   /**
    * Cancel.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   @Override
   public void cancel() throws Exception {
@@ -178,7 +189,7 @@ public abstract class AbstractTerminologyLoaderAlgorithm
    * @return the total elapsed time str
    */
   @SuppressWarnings({
-      "boxing"
+    "boxing"
   })
   protected static String getTotalElapsedTimeStr(long time) {
     Long resultnum = (System.nanoTime() - time) / 1000000000;

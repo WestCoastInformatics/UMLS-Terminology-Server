@@ -16,13 +16,11 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.algo.Rf2SnapshotLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
 import com.wci.umls.server.services.SourceDataService;
-import com.wci.umls.server.services.handlers.SourceDataHandler;
 
 /**
  * Converter for RxNorm files.
  */
-public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler
-    implements SourceDataHandler {
+public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
 
   /**
    * Instantiates an empty {@link Rf2SnapshotSourceDataHandler}.
@@ -49,8 +47,8 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler
   @Override
   public void compute() throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("Loading RF2 Snapshot for " + sourceData.getName());
+    Logger.getLogger(getClass()).info(
+        "Loading RF2 Snapshot for " + sourceData.getName());
 
     // check pre-requisites
     if (sourceData == null) {
@@ -84,12 +82,12 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + sourceData.getId().toString();
 
-    Logger.getLogger(getClass())
-        .info("  Source data base directory: " + inputDir);
+    Logger.getLogger(getClass()).info(
+        "  Source data base directory: " + inputDir);
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException(
-          "Source data directory is not a directory: " + inputDir);
+      throw new LocalException("Source data directory is not a directory: "
+          + inputDir);
     }
 
     // find the SNAPSHOT directory
@@ -100,7 +98,7 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler
     while (!filesToCheck.isEmpty()) {
       File f = filesToCheck.get(0);
       if (f.isDirectory()) {
-        if (f.getName().equals("SNAPSHOT")) {
+        if (f.getName().equals("Snapshot")) {
           revisedInputDir = f.getAbsolutePath();
           break;
         } else {
@@ -114,9 +112,9 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler
       throw new LocalException(
           "Uploaded files must contain SNAPSHOT folder containing snapshot release");
     }
-    
-    Logger.getLogger(getClass())
-    .info("  Source data SNAPSHOT directory: " + revisedInputDir);
+
+    Logger.getLogger(getClass()).info(
+        "  Source data SNAPSHOT directory: " + revisedInputDir);
 
     // instantiate service
     SourceDataService sourceDataService = new SourceDataServiceJpa();
@@ -138,7 +136,6 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler
 
       // perform main load
       algo.compute();
-
 
       // compute transitive closures and tree positions
       algo.computeTreePositions();

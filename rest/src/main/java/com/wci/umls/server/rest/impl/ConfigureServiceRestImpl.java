@@ -78,26 +78,25 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
     }
     // throw the local exception as a web application exception
     if (e instanceof LocalException) {
-      throw new WebApplicationException(
-          Response.status(500).entity(message).build());
+      throw new WebApplicationException(Response.status(500).entity(message)
+          .build());
     }
 
     // throw the web application exception as-is, e.g. for 401 errors
     if (e instanceof WebApplicationException) {
       throw new WebApplicationException(message, e);
     }
-    throw new WebApplicationException(
-        Response
-            .status(500).entity("\"Unexpected error trying to "
-                + whatIsHappening + ". Please contact the administrator.\"")
-        .build());
+    throw new WebApplicationException(Response
+        .status(500)
+        .entity(
+            "\"Unexpected error trying to " + whatIsHappening
+                + ". Please contact the administrator.\"").build());
 
   }
 
   /**
-   * Checks if application is configured
+   * Checks if application is configured.
    *
-   * @param authToken the auth token
    * @return the release history
    * @throws Exception the exception
    */
@@ -107,13 +106,12 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
   @Path("/configured")
   @ApiOperation(value = "Checks if application is configured", notes = "Returns true if application is configured, false if not", response = Boolean.class)
   public boolean isConfigured() throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (History): /configure/configured");
+    Logger.getLogger(getClass()).info(
+        "RESTful call (History): /configure/configured");
 
     try {
 
-      String configFileName =
-          ConfigUtility.getLocalConfigFile();
+      String configFileName = ConfigUtility.getLocalConfigFile();
 
       return ConfigUtility.getConfigProperties() != null
           || (new File(configFileName).exists());
@@ -121,16 +119,9 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
     } catch (Exception e) {
       handleException(e, "checking if application is configured");
       return false;
-    } finally {
-
     }
   }
 
-  /**
-   * @param parameters
-   * @param authToken
-   * @throws Exception
-   */
   /* see superclass */
   @POST
   @Override
@@ -138,9 +129,9 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
   @ApiOperation(value = "Checks if application is configured", notes = "Returns true if application is configured, false if not", response = Boolean.class)
   public void configure(
     @ApiParam(value = "Configuration parameters as JSON string", required = true) HashMap<String, String> parameters)
-      throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (History): /configure/configure with parameters "
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (History): /configure/configure with parameters "
             + parameters.toString());
 
     // NOTE: Configure calls do not require authorization
@@ -180,8 +171,9 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       }
 
       // get the starting configuration
-      InputStream in = ConfigureServiceRestImpl.class
-          .getResourceAsStream("/config.properties.start");
+      InputStream in =
+          ConfigureServiceRestImpl.class
+              .getResourceAsStream("/config.properties.start");
 
       if (in == null) {
         throw new Exception("Could not open stating configuration file");
@@ -189,11 +181,10 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
 
       // construct name and check that the file does not already exist
       String configFileName = ConfigUtility.getLocalConfigFile();
-         
 
       if (new File(configFileName).exists()) {
-        throw new LocalException(
-            "System is already configured from file: " + configFileName);
+        throw new LocalException("System is already configured from file: "
+            + configFileName);
       }
 
       // get the starting properties
@@ -210,17 +201,18 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       // replace config file property values based on replacement pattern ${...}
       for (Object key : new HashSet<>(properties.keySet())) {
         for (String param : parameters.keySet()) {
-          if (properties.getProperty(key.toString())
-              .contains("${" + param + "}")) {
-            properties.setProperty(key.toString(),
-                properties.getProperty(key.toString())
-                    .replace("${" + param + "}", parameters.get(param)));
+          if (properties.getProperty(key.toString()).contains(
+              "${" + param + "}")) {
+            properties.setProperty(
+                key.toString(),
+                properties.getProperty(key.toString()).replace(
+                    "${" + param + "}", parameters.get(param)));
           }
         }
       }
 
-      Logger.getLogger(getClass())
-          .info("Writing configuration file: " + configFileName);
+      Logger.getLogger(getClass()).info(
+          "Writing configuration file: " + configFileName);
 
       File configFile = new File(configFileName);
       try {
@@ -236,13 +228,13 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       }
 
       // finally, reset the config properties and test retrieval
-      System.setProperty("run.config." + ConfigUtility.getConfigLabel(), configFileName);
+      System.setProperty("run.config." + ConfigUtility.getConfigLabel(),
+          configFileName);
       if (ConfigUtility.getConfigProperties() == null) {
         throw new LocalException("Failed to retrieve newly written properties");
       }
     } catch (Exception e) {
       handleException(e, "checking if application is configured");
-    } finally {
     }
   }
 }

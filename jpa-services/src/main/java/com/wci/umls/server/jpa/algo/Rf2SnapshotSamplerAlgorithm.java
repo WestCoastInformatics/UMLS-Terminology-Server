@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
+import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -22,7 +25,10 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class Rf2SnapshotSamplerAlgorithm extends AbstractTerminologyLoaderAlgorithm {
+public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
+
+  /** The input path. */
+  protected String inputPath = null;
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -64,45 +70,40 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractTerminologyLoaderAlgori
   public void setReaders(Rf2Readers readers) {
     this.readers = readers;
   }
-  
-  @Override
-  public String getFileVersion() throws Exception {
-    Rf2FileSorter sorter = new Rf2FileSorter();
-    sorter.setInputDir(inputPath);
-    return sorter.getFileVersion();
-  }
 
   /* see superclass */
   @Override
   public void compute() throws Exception {
     try {
-      logInfo("Start sampling snapshot");
+      Logger.getLogger(getClass()).info("Start sampling snapshot");
 
       // load relationships
-      logInfo("  Load relationships");
+      Logger.getLogger(getClass()).info("  Load relationships");
       loadRelationshipMaps();
 
-      logInfo("    chdPar count = " + chdParMap.size());
-      // logInfo("    chdPar = " + chdParMap);
-      logInfo("    other count = " + otherMap.size());
-      // logInfo("    other = " + otherMap);
+      Logger.getLogger(getClass()).info(
+          "    chdPar count = " + chdParMap.size());
+      // Logger.getLogger(getClass()).info("    chdPar = " + chdParMap);
+      Logger.getLogger(getClass()).info("    other count = " + otherMap.size());
+      // Logger.getLogger(getClass()).info("    other = " + otherMap);
 
-      logInfo("  Find initial concepts");
+      Logger.getLogger(getClass()).info("  Find initial concepts");
       // 1. Find initial concepts
       Set<String> concepts = new HashSet<>();
       Set<String> descriptions = new HashSet<>();
       concepts.addAll(inputConcepts);
-      logInfo("    count = " + concepts.size());
+      Logger.getLogger(getClass()).info("    count = " + concepts.size());
 
       // 2. Find other related concepts
-      logInfo("  Add distance 1 related concepts");
+      Logger.getLogger(getClass()).info("  Add distance 1 related concepts");
       for (String concept : new HashSet<>(concepts)) {
         if (otherMap.get(concept) != null) {
-          logInfo("    add concepts = " + otherMap.get(concept));
+          Logger.getLogger(getClass()).info(
+              "    add concepts = " + otherMap.get(concept));
           concepts.addAll(otherMap.get(concept));
         }
       }
-      logInfo("    count = " + concepts.size());
+      Logger.getLogger(getClass()).info("    count = " + concepts.size());
 
       int prevCt = -1;
       do {
@@ -112,38 +113,49 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractTerminologyLoaderAlgori
         readers.openReaders();
 
         // 3. Find metadata concepts (definitionStatusId, typeId,
-        logInfo("  Get metadata concepts");
+        Logger.getLogger(getClass()).info("  Get metadata concepts");
         addConceptMetadata(concepts);
-        logInfo("    count (after concepts) = " + concepts.size());
+        Logger.getLogger(getClass()).info(
+            "    count (after concepts) = " + concepts.size());
 
         addDescriptionMetadata(concepts, descriptions);
-        logInfo("    count (after descriptions) = " + concepts.size());
-        logInfo("    count of descriptions (after descriptions) = "
-            + descriptions.size());
+        Logger.getLogger(getClass()).info(
+            "    count (after descriptions) = " + concepts.size());
+        Logger.getLogger(getClass()).info(
+            "    count of descriptions (after descriptions) = "
+                + descriptions.size());
 
         addRelationshipMetadata(concepts);
-        logInfo("    count (after relationships) = " + concepts.size());
+        Logger.getLogger(getClass()).info(
+            "    count (after relationships) = " + concepts.size());
 
         addAttributeValueMetadata(concepts, descriptions);
-        logInfo("    count (after attribute value) = " + concepts.size());
+        Logger.getLogger(getClass()).info(
+            "    count (after attribute value) = " + concepts.size());
 
         addAssociationReferenceMetadata(concepts, descriptions);
-        logInfo("    count (after association reference) = " + concepts.size());
+        Logger.getLogger(getClass()).info(
+            "    count (after association reference) = " + concepts.size());
 
         addSimpleMetadata(concepts);
-        logInfo("    count (after simple) = " + concepts.size());
+        Logger.getLogger(getClass()).info(
+            "    count (after simple) = " + concepts.size());
 
         addSimpleMapMetadata(concepts);
-        logInfo("    count (after simple map) = " + concepts.size());
+        Logger.getLogger(getClass()).info(
+            "    count (after simple map) = " + concepts.size());
 
         addComplexMapMetadata(concepts);
-        logInfo("    count (after complex map) = " + concepts.size());
+        Logger.getLogger(getClass()).info(
+            "    count (after complex map) = " + concepts.size());
 
         addLanguageMetadata(concepts, descriptions);
-        logInfo("    count (after language) = " + concepts.size());
+        Logger.getLogger(getClass()).info(
+            "    count (after language) = " + concepts.size());
 
         addMetadataMetadata(concepts);
-        logInfo("    count (after metadata) = " + concepts.size());
+        Logger.getLogger(getClass()).info(
+            "    count (after metadata) = " + concepts.size());
 
         // 4. Find all concepts on path to root (e.g. walk up ancestors)
         for (String chd : chdParMap.keySet()) {
@@ -151,14 +163,15 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractTerminologyLoaderAlgori
             concepts.addAll(chdParMap.get(chd));
           }
         }
-        logInfo("    count (after ancestors) = " + concepts.size());
-        logInfo("    prev count = " + prevCt);
+        Logger.getLogger(getClass()).info(
+            "    count (after ancestors) = " + concepts.size());
+        Logger.getLogger(getClass()).info("    prev count = " + prevCt);
 
         if (concepts.contains("370570004")) {
-          logInfo("Found 370570004");
+          Logger.getLogger(getClass()).info("Found 370570004");
         }
         if (descriptions.contains("1195863013"))
-          logInfo("Found 1195863013");
+          Logger.getLogger(getClass()).info("Found 1195863013");
 
       } while (concepts.size() != prevCt);
 
@@ -166,7 +179,7 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractTerminologyLoaderAlgori
       outputConcepts = concepts;
       outputDescriptions = descriptions;
 
-      logInfo("Done ...");
+      Logger.getLogger(getClass()).info("Done ...");
 
     } catch (Exception e) {
       throw e;
@@ -615,7 +628,7 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractTerminologyLoaderAlgori
     for (int i = 0; i < listeners.size(); i++) {
       listeners.get(i).updateProgress(pe);
     }
-    logInfo("    " + pct + "% " + note);
+    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 
   /* see superclass */
@@ -639,7 +652,6 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractTerminologyLoaderAlgori
   /* see superclass */
   @Override
   public void close() throws Exception {
-    super.close();
     readers = null;
   }
 
@@ -695,6 +707,15 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractTerminologyLoaderAlgori
    */
   public void setKeepInferred(boolean keepInferred) {
     this.keepInferred = keepInferred;
+  }
+
+  /**
+   * Sets the input path.
+   *
+   * @param inputPath the input path
+   */
+  public void setInputPath(String inputPath) {
+    this.inputPath = inputPath;
   }
 
 }

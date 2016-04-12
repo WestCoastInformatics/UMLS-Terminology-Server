@@ -28,7 +28,7 @@ import com.wci.umls.server.services.handlers.ExceptionHandler;
  * 
  * See admin/pom.xml for a sample execution.
  * 
- * @goal RF2-snapshot
+ * @goal loadsd-rf2-snapshot
  * @phase package
  */
 public class Rf2SourceDataLoaderMojo extends SourceDataMojo {

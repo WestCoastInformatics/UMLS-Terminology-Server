@@ -13,7 +13,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
  * 
  * See admin/pom.xml for sample usage
  * 
- * @goal remove-terminology
+ * @goal remove-sd-terminology
  * 
  * @phase package
  */

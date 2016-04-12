@@ -13,13 +13,11 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.algo.Rf2FullLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
 import com.wci.umls.server.services.SourceDataService;
-import com.wci.umls.server.services.handlers.SourceDataHandler;
 
 /**
  * Converter for RxNorm files.
  */
-public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler
-    implements SourceDataHandler {
+public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler {
 
   /**
    * Instantiates an empty {@link Rf2FullSourceDataHandler}.
@@ -87,19 +85,18 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler
 
     // RF2 Loads require locating a base directory containing two folders
     // (Refset and Terminology)
-    String[] files = new File(inputDir).list();
     String revisedInputDir = null;
 
     // find the FULL file
     for (File f : new File(inputDir).listFiles()) {
-      if (f.getName().equals("FULL")) {
+      if (f.getName().equals("Full")) {
         revisedInputDir = f.getAbsolutePath();
       }
     }
 
     if (revisedInputDir == null) {
       throw new LocalException(
-          "Uploaded files must contain FULL folder containing full release");
+          "Uploaded files must contain Full folder containing full release");
     }
 
 
