@@ -2,8 +2,8 @@
 
 // Login controller
 tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService', 'gpService',
-  'utilService', 'projectService',
-  function($scope, $http, $location, securityService, gpService, utilService, projectService) {
+  'utilService', 'projectService', 'configureService',
+  function($scope, $http, $location, securityService, gpService, utilService, projectService, configureService) {
     console.debug('configure LoginCtrl');
 
     // Clear user info
@@ -68,5 +68,15 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService
     $scope.logout = function() {
       securityService.logout();
     };
+    
+    //
+    // Initialization: Check that application is configured
+    //
+    configureService.isConfigured().then(function(isConfigured) {
+      console.debug('login configured check: ', isConfigured);
+      if (!isConfigured) {
+        $location.path('/configure');
+      }
+    });
 
   } ]);

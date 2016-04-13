@@ -23,11 +23,7 @@ tsApp
         // Clear error
         utilService.clearError();
         
-        configureService.isConfigured().then(function(isConfigured) {
-          if (!isConfigured) {
-            $location.path('/configure');
-          }
-        });
+        
 
         // Handle resetting tabs on 'back' button
         if (tabService.selectedTab.label != 'Admin') {
@@ -803,6 +799,15 @@ tsApp
         if ($scope.user.userPreferences) {
           $scope.configureTab();
         }
+        
+        //
+        // Initialization: Check that application is configured
+        //
+        configureService.isConfigured().then(function(isConfigured) {
+          if (!isConfigured) {
+            $location.path('/configure');
+          }
+        });
 
         // end
 

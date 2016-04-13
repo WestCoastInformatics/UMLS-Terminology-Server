@@ -219,7 +219,17 @@ public class ConfigUtility {
    * @throws Exception the exception
    */
   public static String getLocalConfigFile() throws Exception {
-    return System.getProperty("user.home") + "/.term-server/config.properties";
+    return getLocalConfigFolder() + "config.properties";
+  }
+  
+  /**
+   * Gets the local config folder.
+   *
+   * @return the local config folder
+   * @throws Exception the exception
+   */
+  public static String getLocalConfigFolder() throws Exception {
+    return System.getProperty("user.home") + "/.term-server/";
   }
 
   /**

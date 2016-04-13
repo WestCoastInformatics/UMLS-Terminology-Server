@@ -27,8 +27,8 @@ tsApp
 
             $http.get(configureUrl + 'configured').then(function(isConfigured) {
               console.debug('    configured: ' + isConfigured.data);
-              $rootScope.isConfigured = isConfigured.data;
-              return isConfigured.data;
+              configured = isConfigured.data;
+              deferred.resolve(isConfigured.data);
             }, // error
             function(response) {
               utilService.handleError(response);
@@ -42,12 +42,10 @@ tsApp
           var deferred = $q.defer();
 
           var config = {
-            'javax.persistence.jdbc.url' : 'jdbc:mysql://127.0.0.1:3306/'
-              + dbName
-              + '?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&useLocalSessionState=true',
-            'javax.persistence.jdbc.user' : userName,
-            'javax.persistence.jdbc.password' : userPassword,
-            'source.data.dir' : appDir
+            'db.name' : dbName,
+            'db.user' : userName,
+            'db.password' : userPassword,
+            'app.dir' : appDir
 
           };
           gpService.increment();

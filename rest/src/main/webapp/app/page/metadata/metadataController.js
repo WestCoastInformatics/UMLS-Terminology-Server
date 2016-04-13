@@ -9,8 +9,9 @@ tsApp.controller('MetadataCtrl', [
   'tabService',
   'securityService',
   'metadataService',
+  'configureService',
   function($scope, $http, $location, gpService, utilService, tabService, securityService,
-    metadataService) {
+    metadataService, configureService) {
     console.debug("configure MetadataCtrl", tabService.selectedTab.label);
 
     // Clear error
@@ -48,5 +49,14 @@ tsApp.controller('MetadataCtrl', [
     else if ($scope.user.userPreferences) {
       $scope.configureTab();
     }
+    
+    //
+    // Initialization: Check that application is configured
+    //
+    configureService.isConfigured().then(function(isConfigured) {
+      if (!isConfigured) {
+        $location.path('/configure');
+      }
+    });
 
   } ]);

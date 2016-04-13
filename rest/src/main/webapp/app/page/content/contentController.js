@@ -14,8 +14,9 @@ tsApp.controller('ContentCtrl', [
   'securityService',
   'metadataService',
   'contentService',
+  'configureService',
   function($scope, $routeParams, $http, $uibModal, $location, $q, $anchorScroll, $sce, gpService,
-    utilService, tabService, securityService, metadataService, contentService) {
+    utilService, tabService, securityService, metadataService, contentService, configureService) {
     console.debug('configure ContentCtrl');
 
     // Clear error
@@ -572,6 +573,15 @@ tsApp.controller('ContentCtrl', [
           }
         });
     }
+
+    //
+    // Initialization: Check that application is configured
+    //
+    configureService.isConfigured().then(function(isConfigured) {
+      if (!isConfigured) {
+        $location.path('/configure');
+      }
+    });
 
     $scope.configureTab();
   }

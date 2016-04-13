@@ -3,7 +3,7 @@ tsApp
   .controller(
     'SourceCtrl',
     function($scope, $http, $q, $interval, NgTableParams, sourceDataService, utilService,
-      securityService, gpService, FileUploader, tabService) {
+      securityService, gpService, FileUploader, tabService, configureService) {
       console.debug('configure SourceCtrl');
 
       // Handle resetting tabs on "back" button
@@ -463,5 +463,14 @@ tsApp
         getSourceDatas();
         getSourceDataHandlers();
       }
+      
+      //
+      // Initialization: Check that application is configured
+      //
+      configureService.isConfigured().then(function(isConfigured) {
+        if (!isConfigured) {
+          $location.path('/configure');
+        }
+      });
 
     });
