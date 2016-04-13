@@ -178,7 +178,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   @Override
   public String getFileVersion() throws Exception {
     Rf2FileSorter sorter = new Rf2FileSorter();
-    sorter.setInputDir(inputPath);
+    sorter.setInputDir(getInputPath());
     return sorter.getFileVersion();
   }
 
@@ -187,13 +187,13 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   public void compute() throws Exception {
 
     // check prerequisites
-    if (terminology == null) {
+    if (getTerminology() == null) {
       throw new Exception("Terminology name must be specified");
     }
-    if (version == null) {
+    if (getVersion() == null) {
       throw new Exception("Terminology version must be specified");
     }
-    if (inputPath == null) {
+    if (getInputPath() == null) {
       throw new Exception("Input directory must be specified");
     }
 
@@ -202,13 +202,13 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       long startTimeOrig = System.nanoTime();
 
       logInfo("Start loading delta");
-      logInfo("  terminology = " + terminology);
-      logInfo("  version = " + version);
-      logInfo("  inputPath = " + inputPath);
+      logInfo("  terminology = " + getTerminology());
+      logInfo("  version = " + getVersion());
+      logInfo("  inputPath = " + getInputPath());
 
       // File preparation
       // Check the input directory
-      File inputPathFile = new File(inputPath);
+      File inputPathFile = new File(getInputPath());
       if (!inputPathFile.exists()) {
         throw new Exception("Specified input directory does not exist");
       }
@@ -377,15 +377,16 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       //
       // Create ReleaseInfo for this release if it does not already exist
       //
-      ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
+      ReleaseInfo info = getReleaseInfo(getTerminology(), releaseVersion);
       if (info == null) {
         info = new ReleaseInfoJpa();
         info.setName(releaseVersion);
-        info.setDescription(terminology + " " + releaseVersion + " release");
+        info.setDescription(getTerminology() + " " + releaseVersion
+            + " release");
         info.setPlanned(false);
         info.setPublished(true);
-        info.setTerminology(terminology);
-        info.setVersion(version);
+        info.setTerminology(getTerminology());
+        info.setVersion(getVersion());
         info.setLastModified(releaseVersionDate);
         info.setLastModifiedBy(loader);
         addReleaseInfo(info);
@@ -395,7 +396,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       commit();
       clear();
 
-      logInfo(getComponentStats(terminology, version, Branch.ROOT).toString());
+      logInfo(getComponentStats(getTerminology(), getVersion(), Branch.ROOT)
+          .toString());
 
       logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
 
@@ -450,8 +452,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       // some terminologies may have cycles, allow these for now.
       treePosAlgorithm.setCycleTolerant(true);
       treePosAlgorithm.setComputeSemanticType(true);
-      treePosAlgorithm.setTerminology(terminology);
-      treePosAlgorithm.setVersion(version);
+      treePosAlgorithm.setTerminology(getTerminology());
+      treePosAlgorithm.setVersion(getVersion());
       treePosAlgorithm.reset();
       treePosAlgorithm.compute();
       treePosAlgorithm.close();
@@ -466,20 +468,21 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
   @Override
   public void computeTransitiveClosures() throws Exception {
     Logger.getLogger(getClass()).info(
-        "  Compute transitive closure from  " + terminology + "/" + version);
+        "  Compute transitive closure from  " + getTerminology() + "/"
+            + getVersion());
     try {
       transClosureAlgorithm.setCycleTolerant(false);
       transClosureAlgorithm.setIdType(IdType.CONCEPT);
-      transClosureAlgorithm.setTerminology(terminology);
-      transClosureAlgorithm.setVersion(version);
+      transClosureAlgorithm.setTerminology(getTerminology());
+      transClosureAlgorithm.setVersion(getVersion());
       transClosureAlgorithm.reset();
       transClosureAlgorithm.compute();
       transClosureAlgorithm.close();
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
-      for (final Subset subset : getConceptSubsets(terminology, version,
-          Branch.ROOT).getObjects()) {
+      for (final Subset subset : getConceptSubsets(getTerminology(),
+          getVersion(), Branch.ROOT).getObjects()) {
         final ConceptSubset conceptSubset = (ConceptSubset) subset;
         if (conceptSubset.isLabelSubset()) {
           Logger.getLogger(getClass()).info(
@@ -519,8 +522,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     Query query =
         manager.createQuery("select a.terminologyId, a.id from ConceptJpa a "
             + "where version = :version " + "and terminology = :terminology ");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
     List<Object[]> results = query.getResultList();
     for (Object[] result : results) {
@@ -576,8 +579,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         concept2.setObsolete(fields[2].equals("0"));
         // This is SNOMED specific
         concept2.setFullyDefined(fields[4].equals("900000000000073002"));
-        concept2.setTerminology(terminology);
-        concept2.setVersion(version);
+        concept2.setTerminology(getTerminology());
+        concept2.setVersion(getVersion());
         concept2.setName(initPrefName);
         concept2.setLastModifiedBy(loader);
         concept2.setLastModified(releaseVersionDate);
@@ -664,8 +667,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     Query query =
         manager.createQuery("select a.terminologyId, a.id from AtomJpa a "
             + "where version = :version " + "and terminology = :terminology ");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
     List<Object[]> results = query.getResultList();
     for (Object[] result : results) {
@@ -748,8 +751,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           generalEntryValues.add(atom2.getTermType());
           termTypes.add(atom2.getTermType());
           atom2.setName(fields[7]);
-          atom2.setTerminology(terminology);
-          atom2.setVersion(version);
+          atom2.setTerminology(getTerminology());
+          atom2.setVersion(getVersion());
           atom2.setPublished(true);
           atom2.setPublishable(true);
           atom2.setWorkflowStatus(published);
@@ -921,8 +924,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
           termTypes.add(def2.getTermType());
 
           def2.setName(fields[7]);
-          def2.setTerminology(terminology);
-          def2.setVersion(version);
+          def2.setTerminology(getTerminology());
+          def2.setVersion(getVersion());
           def2.setLastModifiedBy(loader);
           def2.setLastModified(releaseVersionDate);
           def2.setPublished(true);
@@ -1035,8 +1038,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             .createQuery("select a.terminologyId, a.id from AtomSubsetMemberJpa a "
                 + "where version = :version "
                 + "and terminology = :terminology ");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
     List<Object[]> results = query.getResultList();
     for (Object[] result : results) {
@@ -1183,8 +1186,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             .createQuery("select a.terminologyId, a.id from ConceptSubsetMemberJpa a "
                 + "where version = :version "
                 + "and terminology = :terminology ");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
     List<Object[]> results = query.getResultList();
     for (Object[] result : results) {
@@ -1454,8 +1457,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     Query query =
         manager.createQuery("select a.terminologyId, a.id from MappingJpa a "
             + "where version = :version " + "and terminology = :terminology ");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
     List<Object[]> results = query.getResultList();
     for (Object[] result : results) {
@@ -1466,8 +1469,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     query =
         manager.createQuery("select a.terminologyId, a.id from MapSetJpa a "
             + "where version = :version " + "and terminology = :terminology ");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
     List<Object[]> mapSetResults = query.getResultList();
     for (Object[] result : mapSetResults) {
@@ -1530,8 +1533,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         mapping2.setAdditionalRelationshipType(fields[7]); // typeId
         generalEntryValues.add(mapping2.getAdditionalRelationshipType());
         additionalRelTypes.add(mapping2.getAdditionalRelationshipType());
-        mapping2.setTerminology(terminology);
-        mapping2.setVersion(version);
+        mapping2.setTerminology(getTerminology());
+        mapping2.setVersion(getVersion());
         mapping2.setLastModified(releaseVersionDate);
         mapping2.setLastModifiedBy(loader);
         mapping2.setPublished(true);
@@ -1646,8 +1649,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     Query query =
         manager.createQuery("select a.terminologyId, a.id from MappingJpa a "
             + "where version = :version " + "and terminology = :terminology ");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
     List<Object[]> results = query.getResultList();
     for (Object[] result : results) {
@@ -1658,8 +1661,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     query =
         manager.createQuery("select a.terminologyId, a.id from MapSetJpa a "
             + "where version = :version " + "and terminology = :terminology ");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
     List<Object[]> mapSetResults = query.getResultList();
     for (Object[] result : mapSetResults) {
@@ -1722,8 +1725,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         mapping2.setAdditionalRelationshipType(fields[7]); // typeId
         generalEntryValues.add(mapping2.getAdditionalRelationshipType());
         additionalRelTypes.add(mapping2.getAdditionalRelationshipType());
-        mapping2.setTerminology(terminology);
-        mapping2.setVersion(version);
+        mapping2.setTerminology(getTerminology());
+        mapping2.setVersion(getVersion());
         mapping2.setLastModified(releaseVersionDate);
         mapping2.setLastModifiedBy(loader);
         mapping2.setPublished(true);
@@ -2594,8 +2597,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         rel2.setAdditionalRelationshipType(fields[4]); // typeId
         rel2.setStated(false);
         rel2.setInferred(true);
-        rel2.setTerminology(terminology);
-        rel2.setVersion(version);
+        rel2.setTerminology(getTerminology());
+        rel2.setVersion(getVersion());
         rel2.setLastModifiedBy(loader);
         rel2.setPublished(true);
         rel2.setPublishable(true);
@@ -2705,8 +2708,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             .createQuery("select a.terminologyId, a.id from ConceptRelationshipJpa a "
                 + "where version = :version "
                 + "and terminology = :terminology ");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
     List<Object[]> results = query.getResultList();
     for (Object[] result : results) {
@@ -2794,8 +2797,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         additionalRelTypes.add(rel2.getAdditionalRelationshipType());
         rel2.setStated(fields[8].equals("900000000000010007"));
         rel2.setInferred(fields[8].equals("900000000000011006"));
-        rel2.setTerminology(terminology);
-        rel2.setVersion(version);
+        rel2.setTerminology(getTerminology());
+        rel2.setVersion(getVersion());
         rel2.setLastModified(releaseVersionDate);
         rel2.setLastModifiedBy(loader);
         rel2.setPublished(true);
@@ -2944,8 +2947,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         manager.createQuery("select a from AtomSubsetJpa a "
             + "where a.version = :version "
             + "and a.terminology = :terminology ");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
     List<AtomSubset> results = query.getResultList();
     for (AtomSubset result : results) {
@@ -2956,8 +2959,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         manager.createQuery("select a from ConceptSubsetJpa a "
             + "where a.version = :version "
             + "and a.terminology = :terminology ");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
     List<ConceptSubset> results2 = query.getResultList();
     for (ConceptSubset result : results2) {
@@ -2970,8 +2973,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             .createQuery("select a.terminologyId, a.id from AtomSubsetMemberJpa a "
                 + "where a.version = :version "
                 + "and a.terminology = :terminology ");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
     List<Object[]> results3 = query.getResultList();
     for (Object[] result : results3) {
@@ -2983,8 +2986,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
             .createQuery("select a.terminologyId, a.id from ConceptSubsetMemberJpa a "
                 + "where a.version = :version "
                 + "and a.terminology = :terminology ");
-    query.setParameter("terminology", terminology);
-    query.setParameter("version", version);
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
     List<Object[]> results4 = query.getResultList();
     for (Object[] result : results4) {
@@ -3018,8 +3021,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
     // Universal RefSet attributes
     final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
-    member.setTerminology(terminology);
-    member.setVersion(version);
+    member.setTerminology(getTerminology());
+    member.setVersion(getVersion());
     member.setTerminologyId(fields[0]);
     member.setTimestamp(date);
     member.setLastModified(date);
@@ -3134,14 +3137,14 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       setCommonFields(mapSet, date);
       mapSet.setTerminologyId(fields[4].intern());
       mapSet.setName(getConcept(idMap.get(fields[4])).getName());
-      mapSet.setFromTerminology(terminology);
-      mapSet.setFromVersion(version);
+      mapSet.setFromTerminology(getTerminology());
+      mapSet.setFromVersion(getVersion());
       // TODO: need to be able to figure this out
       // perhaps from the concept nmae
       mapSet.setToTerminology(null);
-      mapSet.setToVersion(version);
+      mapSet.setToVersion(getVersion());
 
-      mapSet.setMapVersion(version);
+      mapSet.setMapVersion(getVersion());
 
       final Attribute attribute = new AttributeJpa();
       setCommonFields(attribute, date);
@@ -3171,7 +3174,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
     // Term types - each description type
     Map<String, TermType> ttyMap = new HashMap<>();
-    for (TermType tty : getTermTypes(terminology, version).getObjects()) {
+    for (TermType tty : getTermTypes(getTerminology(), getVersion())
+        .getObjects()) {
       ttyMap.put(tty.getAbbreviation(), tty);
     }
     for (String tty : termTypes) {
@@ -3182,8 +3186,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
         termType = new TermTypeJpa();
       }
       // Set all fields
-      termType.setTerminology(terminology);
-      termType.setVersion(version);
+      termType.setTerminology(getTerminology());
+      termType.setVersion(getVersion());
       termType.setAbbreviation(tty);
       termType.setCodeVariantType(CodeVariantType.SY);
       termType.setExpandedForm(getConcept(idMap.get(tty)).getName());
@@ -3208,7 +3212,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     // Languages - each language value
     // root language doesn't change
     Map<String, Language> latMap = new HashMap<>();
-    for (Language lat : getLanguages(terminology, version).getObjects()) {
+    for (Language lat : getLanguages(getTerminology(), getVersion())
+        .getObjects()) {
       latMap.put(lat.getAbbreviation(), lat);
     }
     for (String lat : languages) {
@@ -3218,8 +3223,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       } else {
         language = new LanguageJpa();
       }
-      language.setTerminology(terminology);
-      language.setVersion(version);
+      language.setTerminology(getTerminology());
+      language.setVersion(getVersion());
       language.setTimestamp(releaseVersionDate);
       language.setLastModified(releaseVersionDate);
       language.setLastModifiedBy(loader);
@@ -3238,7 +3243,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
     // attribute name
     Map<String, AttributeName> atnMap = new HashMap<>();
-    for (AttributeName atn : getAttributeNames(terminology, version)
+    for (AttributeName atn : getAttributeNames(getTerminology(), getVersion())
         .getObjects()) {
       atnMap.put(atn.getAbbreviation(), atn);
     }
@@ -3249,8 +3254,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       } else {
         name = new AttributeNameJpa();
       }
-      name.setTerminology(terminology);
-      name.setVersion(version);
+      name.setTerminology(getTerminology());
+      name.setVersion(getVersion());
       name.setLastModified(releaseVersionDate);
       name.setLastModifiedBy(loader);
       name.setPublishable(true);
@@ -3274,7 +3279,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
     Map<String, AdditionalRelationshipType> relaMap = new HashMap<>();
     for (AdditionalRelationshipType rela : getAdditionalRelationshipTypes(
-        terminology, version).getObjects()) {
+        getTerminology(), getVersion()).getObjects()) {
       relaMap.put(rela.getAbbreviation(), rela);
     }
     AdditionalRelationshipType directSubstance = null;
@@ -3288,8 +3293,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       } else {
         type = new AdditionalRelationshipTypeJpa();
       }
-      type.setTerminology(terminology);
-      type.setVersion(version);
+      type.setTerminology(getTerminology());
+      type.setVersion(getVersion());
       type.setLastModified(releaseVersionDate);
       type.setLastModifiedBy(loader);
       type.setPublishable(true);
@@ -3346,10 +3351,10 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     // $rightid{"363701004"} = "127489000"; # direct-substance o
     // has-active-ingredient -> direct-substance
     // Add if not already added
-    if (this.getPropertyChains(terminology, version).getCount() == 0) {
+    if (this.getPropertyChains(getTerminology(), getVersion()).getCount() == 0) {
       PropertyChain chain = new PropertyChainJpa();
-      chain.setTerminology(terminology);
-      chain.setVersion(version);
+      chain.setTerminology(getTerminology());
+      chain.setVersion(getVersion());
       chain.setLastModified(releaseVersionDate);
       chain.setLastModifiedBy(loader);
       chain.setPublishable(true);
@@ -3381,8 +3386,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
     // todo : do this for entry and label
     Map<String, GeneralMetadataEntry> entryMap = new HashMap<>();
-    for (GeneralMetadataEntry entry : getGeneralMetadataEntries(terminology,
-        version).getObjects()) {
+    for (GeneralMetadataEntry entry : getGeneralMetadataEntries(
+        getTerminology(), getVersion()).getObjects()) {
       entryMap.put(entry.getAbbreviation(), entry);
     }
     for (String conceptId : generalEntryValues) {
@@ -3399,8 +3404,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       } else {
         entry = new GeneralMetadataEntryJpa();
       }
-      entry.setTerminology(terminology);
-      entry.setVersion(version);
+      entry.setTerminology(getTerminology());
+      entry.setVersion(getVersion());
       entry.setLastModified(releaseVersionDate);
       entry.setLastModifiedBy(loader);
       entry.setPublishable(true);
@@ -3437,8 +3442,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     component.setSuppressible(false);
 
     component.setTerminologyId("");
-    component.setTerminology(terminology);
-    component.setVersion(version);
+    component.setTerminology(getTerminology());
+    component.setVersion(getVersion());
 
   }
 

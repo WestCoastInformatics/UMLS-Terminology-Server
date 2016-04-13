@@ -128,9 +128,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The codes flag. */
   private boolean codesFlag = true;
 
-  /** The input dir. */
-  private String inputDir = null;
-
   /** The release version. */
   private String releaseVersion;
 
@@ -336,7 +333,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   @Override
   public String getFileVersion() throws Exception {
-    return new RrfFileSorter().getFileVersion(new File(inputDir));
+    return new RrfFileSorter().getFileVersion(new File(getInputPath()));
   }
 
   /**
@@ -353,8 +350,24 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final ContentService contentService = new ContentServiceJpa();
     try {
 
+      logInfo("Start loading RRF");
+      logInfo("  terminology = " + terminology);
+      logInfo("  version = " + version);
+      logInfo("  single mode = " + singleMode);
+      logInfo("  inputDir = " + getInputPath());
+
+      // Track system level information
+      startTimeOrig = System.nanoTime();
+
+      // control transaction scope
+      setTransactionPerOperation(false);
+      // Turn of ID computation when loading a terminology
+      setAssignIdentifiersFlag(false);
+      // Let loader set last modified flags.
+      setLastModifiedFlag(false);
+
       // Check the input directory
-      File inputDirFile = new File(inputDir);
+      File inputDirFile = new File(getInputPath());
       if (!inputDirFile.exists()) {
         throw new Exception("Specified input directory does not exist");
       }
@@ -371,31 +384,15 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (releaseVersion == null) {
         releaseVersion = version;
       }
+      releaseVersionDate =
+          ConfigUtility.DATE_FORMAT.parse(releaseVersion.substring(0, 4)
+              + "0101");
       Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
 
       // Open readers - just open original RRF, no need to sort
       readers = new RrfReaders(inputDirFile);
       // Use default prefix if not specified
       readers.openOriginalReaders(prefix == null ? "MR" : prefix);
-
-      logInfo("Start loading RRF");
-      logInfo("  terminology = " + terminology);
-      logInfo("  version = " + version);
-      logInfo("  single mode = " + singleMode);
-      logInfo("  releaseVersion = " + releaseVersion);
-      releaseVersionDate =
-          ConfigUtility.DATE_FORMAT.parse(releaseVersion.substring(0, 4)
-              + "0101");
-
-      // Track system level information
-      startTimeOrig = System.nanoTime();
-
-      // control transaction scope
-      setTransactionPerOperation(false);
-      // Turn of ID computation when loading a terminology
-      setAssignIdentifiersFlag(false);
-      // Let loader set last modified flags.
-      setLastModifiedFlag(false);
 
       // faster performance.
       beginTransaction();

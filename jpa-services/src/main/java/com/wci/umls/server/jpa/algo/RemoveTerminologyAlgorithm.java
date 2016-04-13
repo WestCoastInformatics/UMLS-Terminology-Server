@@ -112,7 +112,7 @@ public class RemoveTerminologyAlgorithm extends
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    removeTerminology(terminology, version, idType);
+    removeTerminology(getTerminology(), getVersion(), idType);
   }
 
   /* see superclass */

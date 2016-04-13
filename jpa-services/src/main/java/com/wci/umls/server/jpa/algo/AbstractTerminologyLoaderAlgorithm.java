@@ -17,19 +17,19 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
   public final static String LOADER = "loader";
 
   /** The cancel flag. */
-  protected boolean cancelFlag = false;
+  private boolean cancelFlag = false;
 
   /** The input path. */
-  protected String inputPath = null;
+  private String inputPath = null;
 
   /** The terminology. */
-  protected String terminology = null;
+  private String terminology = null;
 
   /** The version. */
-  protected String version = null;
+  private String version = null;
 
   /** By default, sort and delete temporary files. */
-  protected boolean sortFiles = true;
+  private boolean sortFiles = true;
 
   /**
    * Instantiates an empty {@link AbstractTerminologyLoaderAlgorithm}.
@@ -192,6 +192,15 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
     resultnum = resultnum / 60;
     result = result + " / " + resultnum.toString() + "h";
     return result;
+  }
+
+  /**
+   * Indicates whether or not sort files is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isSortFiles() {
+    return sortFiles;
   }
 
 }

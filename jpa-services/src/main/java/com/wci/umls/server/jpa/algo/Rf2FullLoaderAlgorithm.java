@@ -65,7 +65,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @Override
   public String getFileVersion() throws Exception {
     Rf2FileSorter sorter = new Rf2FileSorter();
-    sorter.setInputDir(inputPath);
+    sorter.setInputDir(getInputPath());
     return sorter.getFileVersion();
   }
 
@@ -75,13 +75,13 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   public void compute() throws Exception {
 
     // check prerequisites
-    if (terminology == null) {
+    if (getTerminology() == null) {
       throw new Exception("Terminology name must be specified");
     }
-    if (version == null) {
-      throw new Exception("Terminology version must be specified");
+    if (getVersion() == null) {
+      throw new Exception("Terminology getVersion() must be specified");
     }
-    if (inputPath == null) {
+    if (getInputPath() == null) {
       throw new Exception("Input directory must be specified");
     }
 
@@ -89,17 +89,19 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     try {
 
       // Check the input directory
-      File inputDirFile = new File(inputPath);
+      File inputDirFile = new File(getInputPath());
       if (!inputDirFile.exists()) {
         throw new Exception("Specified input directory does not exist");
       }
 
-      // Get the release versions (need to look in complex map too for October
+      // Get the release getVersion()s (need to look in complex map too for
+      // October
       // releases)
-      Logger.getLogger(getClass()).info("  Get release versions");
+      Logger.getLogger(getClass()).info("  Get release getVersion()s");
       Rf2FileSorter sorter = new Rf2FileSorter();
       final File conceptsFile =
-          sorter.findFile(new File(inputPath, "Terminology"), "sct2_Concept");
+          sorter.findFile(new File(getInputPath(), "Terminology"),
+              "sct2_Concept");
       final Set<String> releaseSet = new HashSet<>();
       BufferedReader reader = new BufferedReader(new FileReader(conceptsFile));
       String line;
@@ -116,7 +118,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
       reader.close();
       final File complexMapFile =
-          sorter.findFile(new File(inputPath, "Refset/Map"),
+          sorter.findFile(new File(getInputPath(), "Refset/Map"),
               "der2_iissscRefset_ComplexMap");
       reader = new BufferedReader(new FileReader(complexMapFile));
       while ((line = reader.readLine()) != null) {
@@ -131,7 +133,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         }
       }
       File extendedMapFile =
-          sorter.findFile(new File(inputPath, "Refset/Map"),
+          sorter.findFile(new File(getInputPath(), "Refset/Map"),
               "der2_iisssccRefset_ExtendedMap");
       reader = new BufferedReader(new FileReader(extendedMapFile));
       while ((line = reader.readLine()) != null) {
@@ -155,7 +157,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       for (final String release : releases) {
         Logger.getLogger(getClass()).info("    release = " + release);
         ReleaseInfo releaseInfo =
-            historyService.getReleaseInfo(terminology, release);
+            historyService.getReleaseInfo(getTerminology(), release);
         if (releaseInfo != null) {
           throw new Exception("A release info already exists for " + release);
         }
@@ -167,7 +169,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       sorter = new Rf2FileSorter();
       sorter.setSortByEffectiveTime(true);
       sorter.setRequireAllFiles(true);
-      sorter.setInputDir(inputPath);
+      sorter.setInputDir(getInputPath());
       sorter.setOutputDir("/RF2-sorted-temp/");
       sorter.compute();
 
@@ -176,11 +178,11 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       final Rf2Readers readers = new Rf2Readers(outputDir);
       readers.openReaders();
 
-      // Load initial snapshot - first release version
+      // Load initial snapshot - first release getVersion()
       final Rf2SnapshotLoaderAlgorithm algorithm =
           new Rf2SnapshotLoaderAlgorithm();
-      algorithm.setTerminology(terminology);
-      algorithm.setVersion(version);
+      algorithm.setTerminology(getTerminology());
+      algorithm.setVersion(getVersion());
       algorithm.compute();
       algorithm.close();
 
@@ -194,8 +196,8 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         }
 
         Rf2DeltaLoaderAlgorithm algorithm2 = new Rf2DeltaLoaderAlgorithm();
-        algorithm2.setTerminology(terminology);
-        algorithm2.setVersion(version);
+        algorithm2.setTerminology(getTerminology());
+        algorithm2.setVersion(getVersion());
         algorithm2.setReleaseVersion(release);
         algorithm2.setReaders(readers);
         algorithm2.compute();
@@ -227,8 +229,8 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // some terminologies may have cycles, allow these for now.
       treePosAlgorithm.setCycleTolerant(true);
       treePosAlgorithm.setComputeSemanticType(true);
-      treePosAlgorithm.setTerminology(terminology);
-      treePosAlgorithm.setVersion(version);
+      treePosAlgorithm.setTerminology(getTerminology());
+      treePosAlgorithm.setVersion(getVersion());
       treePosAlgorithm.reset();
       treePosAlgorithm.compute();
       treePosAlgorithm.close();
@@ -243,20 +245,21 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @Override
   public void computeTransitiveClosures() throws Exception {
     Logger.getLogger(getClass()).info(
-        "  Compute transitive closure from  " + terminology + "/" + version);
+        "  Compute transitive closure from  " + getTerminology() + "/"
+            + getVersion());
     try {
       transClosureAlgorithm.setCycleTolerant(false);
       transClosureAlgorithm.setIdType(IdType.CONCEPT);
-      transClosureAlgorithm.setTerminology(terminology);
-      transClosureAlgorithm.setVersion(version);
+      transClosureAlgorithm.setTerminology(getTerminology());
+      transClosureAlgorithm.setVersion(getVersion());
       transClosureAlgorithm.reset();
       transClosureAlgorithm.compute();
       transClosureAlgorithm.close();
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
-      for (final Subset subset : getConceptSubsets(terminology, version,
-          Branch.ROOT).getObjects()) {
+      for (final Subset subset : getConceptSubsets(getTerminology(),
+          getVersion(), Branch.ROOT).getObjects()) {
         final ConceptSubset conceptSubset = (ConceptSubset) subset;
         if (conceptSubset.isLabelSubset()) {
           Logger.getLogger(getClass()).info(
