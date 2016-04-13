@@ -9,11 +9,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
 
 import javax.ws.rs.Consumes;
@@ -29,8 +26,10 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ConfigureServiceRest;
 import com.wci.umls.server.jpa.services.rest.HistoryServiceRest;
+import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.handlers.ExceptionHandler;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -251,6 +250,15 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       if (ConfigUtility.getConfigProperties() == null) {
         throw new LocalException("Failed to retrieve newly written properties");
       }
+      
+      //
+      // Create the database
+      //
+      ConfigUtility.getConfigProperties().setProperty("hibernate.hbm2ddl.auto", "create");
+      MetadataService metadataService = new MetadataServiceJpa();
+      metadataService.close();
+      ConfigUtility.getConfigProperties().setProperty("hibernate.hbm2ddl.auto", "create");
+      
     } catch (Exception e) {
       e.printStackTrace();
       handleException(e, "checking if application is configured");
