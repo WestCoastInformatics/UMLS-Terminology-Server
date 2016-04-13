@@ -22,6 +22,7 @@ import org.hibernate.Session;
 
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePair;
@@ -126,9 +127,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /** The codes flag. */
   private boolean codesFlag = true;
-
-  /** The input dir. */
-  private String inputDir = null;
 
   /** The release version. */
   private String releaseVersion;
@@ -246,6 +244,17 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     latCodeMap.put("GRE", "el");
   }
 
+  /** The tree pos algorithm. */
+  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
+
+  /** The trans closure algorithm. */
+  final TransitiveClosureAlgorithm transClosureAlgorithm =
+      new TransitiveClosureAlgorithm();
+
+  /** The label set algorithm. */
+  final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
+      new LabelSetMarkedParentAlgorithm();
+
   /**
    * Instantiates an empty {@link RrfLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -314,15 +323,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /**
-   * Sets the readers.
-   *
-   * @param readers the readers
-   */
-  public void setReaders(RrfReaders readers) {
-    this.readers = readers;
-  }
-
-  /**
    * Sets the prefix.
    *
    * @param prefix the prefix
@@ -333,7 +333,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   @Override
   public String getFileVersion() throws Exception {
-    return new RrfFileSorter().getFileVersion(new File(inputDir));
+    return new RrfFileSorter().getFileVersion(new File(getInputPath()));
   }
 
   /**
@@ -350,8 +350,24 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final ContentService contentService = new ContentServiceJpa();
     try {
 
+      logInfo("Start loading RRF");
+      logInfo("  terminology = " + terminology);
+      logInfo("  version = " + version);
+      logInfo("  single mode = " + singleMode);
+      logInfo("  inputDir = " + getInputPath());
+
+      // Track system level information
+      startTimeOrig = System.nanoTime();
+
+      // control transaction scope
+      setTransactionPerOperation(false);
+      // Turn of ID computation when loading a terminology
+      setAssignIdentifiersFlag(false);
+      // Let loader set last modified flags.
+      setLastModifiedFlag(false);
+
       // Check the input directory
-      File inputDirFile = new File(inputDir);
+      File inputDirFile = new File(getInputPath());
       if (!inputDirFile.exists()) {
         throw new Exception("Specified input directory does not exist");
       }
@@ -368,31 +384,15 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (releaseVersion == null) {
         releaseVersion = version;
       }
-      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
-
-      // Open readers - just open original RRF
-      final RrfReaders readers = new RrfReaders(inputDirFile);
-      // Use default prefix if not specified
-      readers.openOriginalReaders(prefix == null ? "MR" : prefix);
-
-      logInfo("Start loading RRF");
-      logInfo("  terminology = " + terminology);
-      logInfo("  version = " + version);
-      logInfo("  single mode = " + singleMode);
-      logInfo("  releaseVersion = " + releaseVersion);
       releaseVersionDate =
           ConfigUtility.DATE_FORMAT.parse(releaseVersion.substring(0, 4)
               + "0101");
+      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
 
-      // Track system level information
-      startTimeOrig = System.nanoTime();
-
-      // control transaction scope
-      setTransactionPerOperation(false);
-      // Turn of ID computation when loading a terminology
-      setAssignIdentifiersFlag(false);
-      // Let loader set last modified flags.
-      setLastModifiedFlag(false);
+      // Open readers - just open original RRF, no need to sort
+      readers = new RrfReaders(inputDirFile);
+      // Use default prefix if not specified
+      readers.openOriginalReaders(prefix == null ? "MR" : prefix);
 
       // faster performance.
       beginTransaction();
@@ -580,6 +580,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       Logger.getLogger(getClass()).info("done ...");
 
     } catch (Exception e) {
+      e.printStackTrace();
       logError(e.getMessage());
       throw e;
     } finally {
@@ -2933,15 +2934,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /**
-   * Cancel.
-   */
-  /* see superclass */
-  @Override
-  public void cancel() {
-    throw new UnsupportedOperationException("cannot cancel.");
-  }
-
-  /**
    * Returns the elapsed time.
    *
    * @param time the time
@@ -3002,6 +2994,75 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @SuppressWarnings("static-method")
   private boolean isExtensionModule(String moduleId) {
     return !moduleId.equals(coreModuleId) && !moduleId.equals(metadataModuleId);
+  }
+
+  /* see superclass */
+  @Override
+  public void computeTreePositions() throws Exception {
+
+    try {
+      Logger.getLogger(getClass()).info("Computing tree positions");
+      treePosAlgorithm.setCycleTolerant(false);
+      treePosAlgorithm.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      treePosAlgorithm.setCycleTolerant(true);
+      treePosAlgorithm.setComputeSemanticType(true);
+      treePosAlgorithm.setTerminology(terminology);
+      treePosAlgorithm.setVersion(version);
+      treePosAlgorithm.reset();
+      treePosAlgorithm.compute();
+      treePosAlgorithm.close();
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Tree position computation cancelled");
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public void computeTransitiveClosures() throws Exception {
+    Logger.getLogger(getClass()).info(
+        "  Compute transitive closure from  " + terminology + "/" + version);
+    try {
+      transClosureAlgorithm.setCycleTolerant(false);
+      transClosureAlgorithm.setIdType(IdType.CONCEPT);
+      transClosureAlgorithm.setTerminology(terminology);
+      transClosureAlgorithm.setVersion(version);
+      transClosureAlgorithm.reset();
+      transClosureAlgorithm.compute();
+      transClosureAlgorithm.close();
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      for (final Subset subset : getConceptSubsets(terminology, version,
+          Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isLabelSubset()) {
+          Logger.getLogger(getClass()).info(
+              "  Create label set for subset = " + subset);
+
+          labelSetAlgorithm.setSubset(conceptSubset);
+          labelSetAlgorithm.compute();
+          labelSetAlgorithm.close();
+        }
+      }
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Tree position computation cancelled");
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public void cancel() throws Exception {
+    // cancel any currently running local algorithms
+    treePosAlgorithm.cancel();
+    transClosureAlgorithm.cancel();
+    labelSetAlgorithm.cancel();
+
+    // invoke superclass cancel
+    super.cancel();
   }
 
 }
