@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
 
+import com.ibm.icu.impl.ICUService.Factory;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
@@ -96,7 +97,8 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
 
   }
 
-  private void validateProperty(String name, Properties props) throws Exception {
+  private void validateProperty(String name, Properties props)
+    throws Exception {
     if (props == null) {
       throw new Exception("Properties are null");
     }
@@ -105,8 +107,8 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
     }
 
     if (props.getProperty(name).contains("${")) {
-      throw new Exception(
-          "Configurable value " + name + " not set: " + props.getProperty(name));
+      throw new Exception("Configurable value " + name + " not set: "
+          + props.getProperty(name));
     }
   }
 
@@ -130,8 +132,10 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
 
       String configFileName = ConfigUtility.getLocalConfigFile();
 
-      return ConfigUtility.getConfigProperties() != null
+      boolean configured = ConfigUtility.getConfigProperties() != null
           || (new File(configFileName).exists());
+
+      return configured;
 
     } catch (Exception e) {
       handleException(e, "checking if application is configured");
@@ -201,13 +205,16 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
           }
         }
       }
-      
+
       // validate the user-set properties
       validateProperty("source.data.dir", properties);
       validateProperty("hibernate.search.default.indexBase", properties);
       validateProperty("javax.persistence.jdbc.url", properties);
       validateProperty("javax.persistence.jdbc.user", properties);
       validateProperty("javax.persistence.jdbc.password", properties);
+
+      // TODO Test database connection with supplied parameters
+      // Check (1) existence, (2) credentials
 
       // create the local application folder
       File localFolder = new File(ConfigUtility.getLocalConfigFolder());
@@ -224,25 +231,15 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
         throw new LocalException("Application directory does not exist: "
             + parameters.get("source.data.dir"));
       }
-    
 
       Logger.getLogger(getClass())
           .info("Writing configuration file: " + configFileName);
 
       File configFile = new File(configFileName);
-      try {
-        Writer writer = new FileWriter(configFile);
-        properties.store(writer, "User-configured settings");
-        writer.close();
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
-        throw new LocalException("Could not open configuration file");
-      } catch (IOException ex) {
-        throw new LocalException("Error writing configuration file");
-      } catch (Exception e) {
-        e.printStackTrace();
-        handleException(e, "checking if application is configured");
-      }
+
+      Writer writer = new FileWriter(configFile);
+      properties.store(writer, "User-configured settings");
+      writer.close();
 
       // finally, reset the config properties and test retrieval
       System.setProperty("run.config." + ConfigUtility.getConfigLabel(),
@@ -250,17 +247,27 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       if (ConfigUtility.getConfigProperties() == null) {
         throw new LocalException("Failed to retrieve newly written properties");
       }
-      
+
       //
       // Create the database
       //
-      ConfigUtility.getConfigProperties().setProperty("hibernate.hbm2ddl.auto", "create");
-      MetadataService metadataService = new MetadataServiceJpa();
-      metadataService.close();
-      ConfigUtility.getConfigProperties().setProperty("hibernate.hbm2ddl.auto", "create");
-      
+      MetadataService metadataService = null;
+      ConfigUtility.getConfigProperties().setProperty("hibernate.hbm2ddl.auto",
+          "create");
+      try {
+        metadataService = new MetadataServiceJpa();
+      } catch (Exception e) {
+        throw e;
+      } finally {
+        if (metadataService != null) {
+          metadataService.close();
+        }
+        ConfigUtility.getConfigProperties()
+            .setProperty("hibernate.hbm2ddl.auto", "update");
+
+      }
+
     } catch (Exception e) {
-      e.printStackTrace();
       handleException(e, "checking if application is configured");
     } finally {
     }

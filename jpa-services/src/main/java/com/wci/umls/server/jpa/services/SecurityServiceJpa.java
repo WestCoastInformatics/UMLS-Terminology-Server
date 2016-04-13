@@ -211,6 +211,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public UserRole getApplicationRoleForToken(String authToken) throws Exception {
+    
     if (authToken == null) {
       throw new LocalException(
           "Attempt to access a service without an AuthToken, the user is likely not logged in.");

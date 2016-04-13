@@ -2,7 +2,7 @@
 tsApp
   .controller(
     'SourceCtrl',
-    function($scope, $http, $q, $interval, NgTableParams, sourceDataService, utilService,
+    function($scope, $location, $http, $q, $interval, NgTableParams, sourceDataService, utilService,
       securityService, gpService, FileUploader, tabService, configureService) {
       console.debug('configure SourceCtrl');
 
@@ -459,17 +459,23 @@ tsApp
       //
       // Initialize if USER
       //
-      if (securityService.isUser()) {
-        getSourceDatas();
-        getSourceDataHandlers();
+      $scope.initialize = function() {
+        if (securityService.isUser()) {
+          getSourceDatas();
+          getSourceDataHandlers();
+        }
       }
       
+      console.debug('checking configuration');
       //
       // Initialization: Check that application is configured
       //
       configureService.isConfigured().then(function(isConfigured) {
+        console.debug('source configuration check', isConfigured);
         if (!isConfigured) {
           $location.path('/configure');
+        } else {
+          $scope.initialize();
         }
       });
 

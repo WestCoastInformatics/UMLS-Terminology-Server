@@ -79,14 +79,11 @@ tsApp.config(function config($routeProvider) {
   $routeProvider.when('/login', {
     templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl',
-    reloadOnSearch : false,
-    resolve : {
-      'configured' : function($rootScope, $location) {
-        if (!$rootScope.isConfigured) {
-          $location.path('/configure');
-        }
-      }
-    }
+    reloadOnSearch : false
+  });
+  
+  $routeProvider.otherwise({
+    redirectTo: '/content'
   });
   
 });
