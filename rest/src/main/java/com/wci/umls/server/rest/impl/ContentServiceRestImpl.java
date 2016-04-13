@@ -39,6 +39,7 @@ import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2FullLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2SnapshotLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -268,19 +269,34 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
+    Logger.getLogger(getClass())
+        .info(
+            "RESTful POST call (Content): /terminology/load/rrf/umls/"
+                + terminology + "/" + version + " from input directory "
+                + inputDir);
+
+    // Track system level information
+    final ContentService contentService = new ContentServiceJpa();
+
     try {
+      authorizeApp(securityService, authToken, "load rrf",
+          UserRole.ADMINISTRATOR);
 
-      Logger.getLogger(getClass()).info(
-          "RESTful POST call (Content): /terminology/load/rrf/umls/"
-              + terminology + "/" + version + " from input directory "
-              + inputDir);
-
-      // TODO Instantiate algorithm here
+      RrfLoaderAlgorithm algo = new RrfLoaderAlgorithm();
+      algo.setSingleMode(singleMode);
+      algo.setCodesFlag(codeFlag);
+      algo.setPrefix(prefix);
+      algo.setTerminology(terminology);
+      algo.setVersion(version);
+      algo.setInputPath(inputDir);
+      algo.compute();
+      algo.computeTransitiveClosures();
+      algo.computeTreePositions();
 
     } catch (Exception e) {
       handleException(e, "trying to load terminology from RRF directory");
     } finally {
-
+      contentService.close();
       securityService.close();
     }
   }
@@ -298,14 +314,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
     throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Content): /terminology/load/rf2/snapshot/"
+        "RESTful POST call (Content): /terminology/load/rf2/delta/"
             + terminology + " from input directory " + inputDir);
 
     // Track system level information
     final ContentService contentService = new ContentServiceJpa();
 
     try {
-      authorizeApp(securityService, authToken, "load snapshot",
+      authorizeApp(securityService, authToken, "load delta",
           UserRole.ADMINISTRATOR);
 
       // get the latest verison for this terminology
@@ -322,8 +338,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       algo.computeTreePositions();
 
     } catch (Exception e) {
-      handleException(e,
-          "trying to load terminology snapshot from RF2 directory");
+      handleException(e, "trying to load terminology delta from RF2 directory");
     } finally {
       contentService.close();
       securityService.close();

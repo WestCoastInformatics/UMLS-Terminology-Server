@@ -84,18 +84,11 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
 
   /* see superclass */
   @Override
-  public void computeTransitiveClosures() throws Exception {
-    throw new Exception(
-        "Transitive closure computation must be overriden by non-abstract LoaderAlgorithm");
-  }
+  public abstract void computeTransitiveClosures() throws Exception;
 
   /* see superclass */
   @Override
-  public void computeTreePositions() throws Exception {
-    throw new Exception(
-        "Tree position computation must be overriden by non-abstract LoaderAlgorithm");
-
-  }
+  public abstract void computeTreePositions() throws Exception;
 
   /* see superclass */
   @Override

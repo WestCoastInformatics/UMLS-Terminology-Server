@@ -421,12 +421,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.algo.AbstractTerminologyLoaderAlgorithm#
-   * computeTreePositions()
-   */
   /* see superclass */
   @Override
   public void computeTreePositions() throws Exception {
@@ -450,12 +444,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.algo.AbstractTerminologyLoaderAlgorithm#
-   * computeTransitiveClosures()
-   */
   /* see superclass */
   @Override
   public void computeTransitiveClosures() throws Exception {
@@ -490,12 +478,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.algo.Algorithm#reset()
-   */
-  /* see superclass */
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -517,41 +499,18 @@ public class Rf2SnapshotLoaderAlgorithm extends
     logInfo("    " + pct + "% " + note);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.services.helpers.ProgressReporter#addProgressListener(
-   * com.wci.umls.server.services.helpers.ProgressListener)
-   */
-  /* see superclass */
   /* see superclass */
   @Override
   public void addProgressListener(ProgressListener l) {
     listeners.add(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.services.helpers.ProgressReporter#
-   * removeProgressListener(com.wci.umls.server.services.helpers.
-   * ProgressListener)
-   */
-  /* see superclass */
   /* see superclass */
   @Override
   public void removeProgressListener(ProgressListener l) {
     listeners.remove(l);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.wci.umls.server.jpa.algo.AbstractTerminologyLoaderAlgorithm#cancel()
-   */
-  /* see superclass */
   /* see superclass */
   @Override
   public void cancel() throws Exception {
@@ -2228,12 +2187,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
     return !moduleId.equals(coreModuleId) && !moduleId.equals(metadataModuleId);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.services.RootServiceJpa#close()
-   */
-  /* see superclass */
   /* see superclass */
   @Override
   public void close() throws Exception {

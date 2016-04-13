@@ -50,8 +50,8 @@ import com.wci.umls.server.services.helpers.ProgressListener;
  * {@link ContentService}.
  */
 @SuppressWarnings("unused")
-public class RemoveTerminologyAlgorithm extends AbstractTerminologyLoaderAlgorithm
-    implements Algorithm {
+public class RemoveTerminologyAlgorithm extends
+    AbstractTerminologyLoaderAlgorithm implements Algorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -75,7 +75,6 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyLoaderAlgorit
   public RemoveTerminologyAlgorithm() throws Exception {
     super();
   }
-
 
   /**
    * Returns the id type.
@@ -121,7 +120,7 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyLoaderAlgorit
   public void reset() throws Exception {
     // n/a
   }
-  
+
   @Override
   public String getFileVersion() throws Exception {
     // do nothing, irrelevant for removal
@@ -744,7 +743,14 @@ public class RemoveTerminologyAlgorithm extends AbstractTerminologyLoaderAlgorit
     requestCancel = true;
   }
 
+  @Override
+  public void computeTransitiveClosures() throws Exception {
+    // n/a - this is just a remover
+  }
 
-
+  @Override
+  public void computeTreePositions() throws Exception {
+    // n/a - this is just a remover
+  }
 
 }

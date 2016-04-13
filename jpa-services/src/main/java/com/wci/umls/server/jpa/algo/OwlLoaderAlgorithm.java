@@ -51,6 +51,7 @@ import org.semanticweb.owlapi.model.OWLSubPropertyChainOfAxiom;
 import org.semanticweb.owlapi.util.SimpleRootClassChecker;
 
 import com.wci.umls.server.ReleaseInfo;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePair;
@@ -192,6 +193,13 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The dl2 profile. */
   private final String dl2Profile =
       "http://www.w3.org/TR/owl2-profiles/#OWL_2_DL";
+
+  /** The tree pos algorithm. */
+  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
+
+  /** The trans closure algorithm. */
+  final TransitiveClosureAlgorithm transClosureAlgorithm =
+      new TransitiveClosureAlgorithm();
 
   /**
    * Instantiates an empty {@link OwlLoaderAlgorithm}.
@@ -402,12 +410,57 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /* see superclass */
-  /**
-   * Cancel.
-   */
   @Override
-  public void cancel() {
-    // n/a
+  public void computeTreePositions() throws Exception {
+
+    try {
+      Logger.getLogger(getClass()).info("Computing tree positions");
+      treePosAlgorithm.setCycleTolerant(false);
+      treePosAlgorithm.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      treePosAlgorithm.setCycleTolerant(true);
+      treePosAlgorithm.setComputeSemanticType(true);
+      treePosAlgorithm.setTerminology(terminology);
+      treePosAlgorithm.setVersion(version);
+      treePosAlgorithm.reset();
+      treePosAlgorithm.compute();
+      treePosAlgorithm.close();
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Tree position computation cancelled");
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public void computeTransitiveClosures() throws Exception {
+    Logger.getLogger(getClass()).info(
+        "  Compute transitive closure from  " + terminology + "/" + version);
+    try {
+      transClosureAlgorithm.setCycleTolerant(false);
+      transClosureAlgorithm.setIdType(IdType.CONCEPT);
+      transClosureAlgorithm.setTerminology(terminology);
+      transClosureAlgorithm.setVersion(version);
+      transClosureAlgorithm.reset();
+      transClosureAlgorithm.compute();
+      transClosureAlgorithm.close();
+
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Tree position computation cancelled");
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public void cancel() throws Exception {
+    // cancel any currently running local algorithms
+    treePosAlgorithm.cancel();
+    transClosureAlgorithm.cancel();
+
+    // invoke superclass cancel
+    super.cancel();
   }
 
   /**
