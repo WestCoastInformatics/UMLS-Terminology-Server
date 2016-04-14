@@ -49,7 +49,6 @@ import com.wci.umls.server.services.helpers.ProgressListener;
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
  */
-@SuppressWarnings("unused")
 public class RemoveTerminologyAlgorithm extends
     AbstractTerminologyLoaderAlgorithm implements Algorithm {
 

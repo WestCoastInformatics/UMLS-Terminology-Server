@@ -77,8 +77,8 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class Rf2SnapshotLoaderAlgorithm extends
-    AbstractTerminologyLoaderAlgorithm {
+public class Rf2SnapshotLoaderAlgorithm
+    extends AbstractTerminologyLoaderAlgorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -381,8 +381,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (info == null) {
         info = new ReleaseInfoJpa();
         info.setName(releaseVersion);
-        info.setDescription(getTerminology() + " " + releaseVersion
-            + " release");
+        info.setDescription(
+            getTerminology() + " " + releaseVersion + " release");
         info.setPlanned(false);
         info.setPublished(true);
         info.setReleaseBeginDate(releaseVersionDate);
@@ -403,8 +403,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
       // if sorted files were created, delete them
       if (isSortFiles()) {
-        ConfigUtility.deleteDirectory(new File(getInputPath(),
-            "/RF2-sorted-temp/"));
+        ConfigUtility
+            .deleteDirectory(new File(getInputPath(), "/RF2-sorted-temp/"));
       }
 
       // Final logging messages
@@ -451,9 +451,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
   /* see superclass */
   @Override
   public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "  Compute transitive closure from  " + getTerminology() + "/"
-            + getVersion());
+    Logger.getLogger(getClass()).info("  Compute transitive closure from  "
+        + getTerminology() + "/" + getVersion());
     try {
       transClosureAlgorithm.setCycleTolerant(false);
       transClosureAlgorithm.setIdType(IdType.CONCEPT);
@@ -469,8 +468,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
           getVersion(), Branch.ROOT).getObjects()) {
         final ConceptSubset conceptSubset = (ConceptSubset) subset;
         if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass()).info(
-              "  Create label set for subset = " + subset);
+          Logger.getLogger(getClass())
+              .info("  Create label set for subset = " + subset);
 
           labelSetAlgorithm.setSubset(conceptSubset);
           labelSetAlgorithm.compute();
@@ -886,24 +885,14 @@ public class Rf2SnapshotLoaderAlgorithm extends
     objectCt = 0;
     // NOTE: Hibernate-specific to support iterating
     Session session = manager.unwrap(Session.class);
-<<<<<<< HEAD
+
     org.hibernate.Query hQuery = session
         .createQuery("select a from AtomJpa a " + "where conceptId is not null "
             + "and conceptId != '' and terminology = :terminology "
             + "order by terminology, conceptId")
-        .setParameter("terminology", terminology).setReadOnly(true)
+        .setParameter("terminology", getTerminology()).setReadOnly(true)
         .setFetchSize(1000);
-=======
-    org.hibernate.Query hQuery =
-        session
-            .createQuery(
-                "select a from AtomJpa a "
-                    + "where conceptId is not null "
-                    + "and conceptId != '' and terminology = :terminology "
-                    + "order by terminology, conceptId")
-            .setParameter("terminology", getTerminology())
-            .setReadOnly(true).setFetchSize(1000);
->>>>>>> 464e8f5d8abdce5cb0cb71afb02bcdf6ebd5fd92
+
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     String prevCui = null;
     String prefName = null;
@@ -1121,17 +1110,10 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
         if (conceptIdMap.get(fields[4]) == null) {
 
-<<<<<<< HEAD
           Logger.getLogger(getClass()).warn(
               "Association reference member connected to nonexistent refset with terminology id "
                   + fields[4]);
-=======
-          Logger
-              .getLogger(getClass())
-              .warn(
-                  "Association reference member connected to nonexistent refset with getTerminology() id "
-                      + fields[4]);
->>>>>>> 464e8f5d8abdce5cb0cb71afb02bcdf6ebd5fd92
+
           logWarn("  Line: " + line);
           continue;
           /*
@@ -1141,17 +1123,10 @@ public class Rf2SnapshotLoaderAlgorithm extends
         }
 
         if (conceptIdMap.get(fields[5]) == null) {
-<<<<<<< HEAD
           Logger.getLogger(getClass()).warn(
               "Association reference member connected to nonexistent source object with terminology id "
                   + fields[5]);
-=======
-          Logger
-              .getLogger(getClass())
-              .warn(
-                  "Association reference member connected to nonexistent source object with getTerminology() id "
-                      + fields[5]);
->>>>>>> 464e8f5d8abdce5cb0cb71afb02bcdf6ebd5fd92
+
           logWarn("  Line: " + line);
           continue;
           /*
@@ -1161,17 +1136,9 @@ public class Rf2SnapshotLoaderAlgorithm extends
         }
 
         if (conceptIdMap.get(fields[6]) == null) {
-<<<<<<< HEAD
           Logger.getLogger(getClass()).warn(
               "Association reference member connected to nonexistent target object with terminology id "
                   + fields[5]);
-=======
-          Logger
-              .getLogger(getClass())
-              .warn(
-                  "Association reference member connected to nonexistent target object with getTerminology() id "
-                      + fields[5]);
->>>>>>> 464e8f5d8abdce5cb0cb71afb02bcdf6ebd5fd92
           logWarn("  Line: " + line);
           continue;
           /*
@@ -2046,15 +2013,9 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
     // Root Terminology
     RootTerminology root = new RootTerminologyJpa();
-<<<<<<< HEAD
-    root.setFamily(terminology);
+    root.setFamily(getTerminology());
     root.setHierarchicalName(
         getConcept(conceptIdMap.get(rootConceptId)).getName());
-=======
-    root.setFamily(getTerminology());
-    root.setHierarchicalName(getConcept(conceptIdMap.get(rootConceptId))
-        .getName());
->>>>>>> 464e8f5d8abdce5cb0cb71afb02bcdf6ebd5fd92
     root.setLanguage(rootLanguage);
     root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
