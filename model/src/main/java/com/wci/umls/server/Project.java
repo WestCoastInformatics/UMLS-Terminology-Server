@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
@@ -8,13 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.HasId;
+import com.wci.umls.server.helpers.PrecedenceList;
 
 /**
  * Generically represents an editing project.
  */
 public interface Project extends HasId {
-
-
 
   /**
    * Returns the name.
@@ -141,6 +140,20 @@ public interface Project extends HasId {
    * @param feedbackEmail the new feedback email
    */
   public void setFeedbackEmail(String feedbackEmail);
+
+  /**
+   * Returns the precedence list.
+   *
+   * @return the precedence list
+   */
+  public PrecedenceList getPrecedenceList();
+
+  /**
+   * Sets the precedence list.
+   *
+   * @param precedenceList the precedence list
+   */
+  public void setPrecedenceList(PrecedenceList precedenceList);
 
   /**
    * Gets the validation checks.

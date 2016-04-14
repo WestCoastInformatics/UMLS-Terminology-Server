@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -17,8 +17,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -67,6 +69,7 @@ import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
@@ -643,17 +646,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "retrieve the concept",
-          UserRole.VIEWER);
+      String userName =
+          authorizeApp(securityService, authToken, "retrieve the concept",
+              UserRole.VIEWER);
 
       final Concept concept =
           contentService.getConcept(terminologyId, terminology, version,
               Branch.ROOT);
 
       if (concept != null) {
+        final PrecedenceList list =
+            getPrecedenceList(securityService, contentService, userName,
+                concept);
         contentService.getGraphResolutionHandler(terminology).resolve(concept);
         concept.setAtoms(contentService.getComputePreferredNameHandler(
-            concept.getTerminology()).sortByPreference(concept.getAtoms()));
+            concept.getTerminology())
+            .sortByPreference(concept.getAtoms(), list));
       }
       return concept;
     } catch (Exception e) {
@@ -902,19 +910,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "retrieve the descriptor",
-          UserRole.VIEWER);
+      String userName =
+          authorizeApp(securityService, authToken, "retrieve the descriptor",
+              UserRole.VIEWER);
 
       final Descriptor descriptor =
           contentService.getDescriptor(terminologyId, terminology, version,
               Branch.ROOT);
 
       if (descriptor != null) {
+        final PrecedenceList list =
+            getPrecedenceList(securityService, contentService, userName,
+                descriptor);
         contentService.getGraphResolutionHandler(terminology).resolve(
             descriptor);
         descriptor.setAtoms(contentService.getComputePreferredNameHandler(
-            descriptor.getTerminology())
-            .sortByPreference(descriptor.getAtoms()));
+            descriptor.getTerminology()).sortByPreference(
+            descriptor.getAtoms(), list));
 
       }
       return descriptor;
@@ -1055,17 +1067,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "retrieve the code",
-          UserRole.VIEWER);
+      String userName =
+          authorizeApp(securityService, authToken, "retrieve the code",
+              UserRole.VIEWER);
 
       final Code code =
           contentService.getCode(terminologyId, terminology, version,
               Branch.ROOT);
 
       if (code != null) {
+        final PrecedenceList list =
+            getPrecedenceList(securityService, contentService, userName, code);
+
         contentService.getGraphResolutionHandler(terminology).resolve(code);
         code.setAtoms(contentService.getComputePreferredNameHandler(
-            code.getTerminology()).sortByPreference(code.getAtoms()));
+            code.getTerminology()).sortByPreference(code.getAtoms(), list));
 
       }
       return code;
@@ -1165,19 +1181,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "retrieve the lexical class",
-          UserRole.VIEWER);
+      String userName =
+          authorizeApp(securityService, authToken,
+              "retrieve the lexical class", UserRole.VIEWER);
 
       final LexicalClass lexicalClass =
           contentService.getLexicalClass(terminologyId, terminology, version,
               Branch.ROOT);
 
       if (lexicalClass != null) {
+        final PrecedenceList list =
+            getPrecedenceList(securityService, contentService, userName,
+                lexicalClass);
         contentService.getGraphResolutionHandler(terminology).resolve(
             lexicalClass);
         lexicalClass.setAtoms(contentService.getComputePreferredNameHandler(
             lexicalClass.getTerminology()).sortByPreference(
-            lexicalClass.getAtoms()));
+            lexicalClass.getAtoms(), list));
 
       }
       return lexicalClass;
@@ -1208,19 +1228,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "retrieve the string class",
-          UserRole.VIEWER);
+      String userName =
+          authorizeApp(securityService, authToken, "retrieve the string class",
+              UserRole.VIEWER);
 
       final StringClass stringClass =
           contentService.getStringClass(terminologyId, terminology, version,
               Branch.ROOT);
 
       if (stringClass != null) {
+        final PrecedenceList list =
+            getPrecedenceList(securityService, contentService, userName,
+                stringClass);
         contentService.getGraphResolutionHandler(terminology).resolve(
             stringClass);
         stringClass.setAtoms(contentService.getComputePreferredNameHandler(
             stringClass.getTerminology()).sortByPreference(
-            stringClass.getAtoms()));
+            stringClass.getAtoms(), list));
       }
       return stringClass;
     } catch (Exception e) {
@@ -2845,5 +2869,27 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       contentService.close();
       securityService.close();
     }
+  }
+
+  /**
+   * Returns the precedence list.
+   *
+   * @param service the service
+   * @param metadataService the metadata service
+   * @param userName the user name
+   * @param obj the obj
+   * @return the precedence list
+   * @throws Exception
+   */
+  @SuppressWarnings("static-method")
+  private PrecedenceList getPrecedenceList(SecurityService service,
+    MetadataService metadataService, String userName, AtomClass obj)
+    throws Exception {
+    final User user = service.getUser(userName);
+    if (user.getUserPreferences().getPrecedenceList() != null) {
+      return user.getUserPreferences().getPrecedenceList();
+    } else
+      return metadataService.getDefaultPrecedenceList(obj.getTerminology(),
+          obj.getVersion());
   }
 }

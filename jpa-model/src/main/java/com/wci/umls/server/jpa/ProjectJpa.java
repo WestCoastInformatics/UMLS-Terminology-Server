@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
@@ -21,6 +21,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MapKeyClass;
 import javax.persistence.MapKeyJoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -28,6 +29,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.hibernate.envers.Audited;
@@ -42,6 +44,8 @@ import org.hibernate.search.annotations.Store;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.UserMapUserNameBridge;
 import com.wci.umls.server.jpa.helpers.UserRoleBridge;
 import com.wci.umls.server.jpa.helpers.UserRoleMapAdapter;
@@ -92,8 +96,8 @@ public class ProjectJpa implements Project {
   /** The branch. */
   @Column(nullable = true)
   private String branch;
-  
-  /**  The module id. */
+
+  /** The module id. */
   @Column(nullable = true)
   private String feedbackEmail;
 
@@ -106,12 +110,16 @@ public class ProjectJpa implements Project {
   @CollectionTable(name = "project_user_role_map")
   private Map<User, UserRole> userRoleMap;
 
-  /**  The validation checks. */
+  /** The validation checks. */
   @Column(nullable = true)
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "project_validation_checks")
   private List<String> validationChecks = new ArrayList<>();
-  
+
+  /** The prec list. */
+  @OneToOne(targetEntity = PrecedenceListJpa.class, optional = true)
+  private PrecedenceList precedenceList;
+
   /**
    * Instantiates an empty {@link ProjectJpa}.
    */
@@ -136,6 +144,7 @@ public class ProjectJpa implements Project {
     branch = project.getBranch();
     userRoleMap = project.getUserRoleMap();
     feedbackEmail = project.getFeedbackEmail();
+    precedenceList = project.getPrecedenceList();
   }
 
   /* see superclass */
@@ -264,12 +273,12 @@ public class ProjectJpa implements Project {
   public String getFeedbackEmail() {
     return feedbackEmail;
   }
-  
+
   @Override
   public void setFeedbackEmail(String feedbackEmail) {
     this.feedbackEmail = feedbackEmail;
   }
-  
+
   /* see superclass */
   @XmlElement
   @Override
@@ -284,7 +293,41 @@ public class ProjectJpa implements Project {
   public void setValidationChecks(List<String> validationChecks) {
     this.validationChecks = validationChecks;
   }
-  
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public PrecedenceList getPrecedenceList() {
+    return precedenceList;
+  }
+
+  /* see superclass */
+  @Override
+  public void setPrecedenceList(PrecedenceList precedenceList) {
+    this.precedenceList = precedenceList;
+  }
+
+  /**
+   * Returns the precedence list id.
+   *
+   * @return the precedence list id
+   */
+  public Long getPrecedenceListId() {
+    return precedenceList != null ? precedenceList.getId() : null;
+  }
+
+  /**
+   * Sets the precedence list id.
+   *
+   * @param id the precedence list id
+   */
+  public void setPrecedenceListId(Long id) {
+    if (precedenceList == null) {
+      precedenceList = new PrecedenceListJpa();
+    }
+    precedenceList.setId(id);
+  }
+
   /* see superclass */
   @Override
   public int hashCode() {
@@ -294,13 +337,19 @@ public class ProjectJpa implements Project {
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + (isPublic ? 1231 : 1237);
-    result = prime * result + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
+    result =
+        prime * result
+            + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result =
         prime * result + ((userRoleMap == null) ? 0 : userRoleMap.hashCode());
-    // result = prime * result + ((validationChecks == null) ? 0 : validationChecks.hashCode()); 
+    // result = prime * result + ((validationChecks == null) ? 0 :
+    // validationChecks.hashCode());
+    // result =
+    // prime * result
+    // + ((precedenceList == null) ? 0 : precedenceList.hashCode());
     return result;
   }
 
@@ -346,6 +395,11 @@ public class ProjectJpa implements Project {
         return false;
     } else if (!feedbackEmail.equals(other.feedbackEmail))
       return false;
+    // if (precedenceList == null) {
+    // if (other.precedenceList != null)
+    // return false;
+    // } else if (!precedenceList.equals(other.precedenceList))
+    // return false;
     return true;
   }
 
@@ -355,8 +409,8 @@ public class ProjectJpa implements Project {
         + ", lastModifiedBy=" + lastModifiedBy + ", name=" + name
         + ", description=" + description + ", isPublic=" + isPublic
         + ", terminology=" + terminology + ", branch=" + branch
-        + ", userRoleMap=" + userRoleMap 
-        + ", feedbackEmail=" + feedbackEmail + ", validationChecks=" + validationChecks + "]";
+        + ", userRoleMap=" + userRoleMap + ", feedbackEmail=" + feedbackEmail
+        + ", precedenceList=" + precedenceList + ", validationChecks="
+        + validationChecks + "]";
   }
-
 }

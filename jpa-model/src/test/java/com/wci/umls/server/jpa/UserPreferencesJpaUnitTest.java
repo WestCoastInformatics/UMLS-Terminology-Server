@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
@@ -66,6 +66,7 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("userName");
     tester.exclude("userId");
+    tester.exclude("precedenceList");
     tester.test();
   }
 
@@ -152,7 +153,7 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
   @Test
   public void testModelNotNullField030() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-    //NullableFieldTester tester = new NullableFieldTester(object);
+    // NullableFieldTester tester = new NullableFieldTester(object);
     // no not nullable fields
     // assertTrue(tester.testNotNullFields());
   }

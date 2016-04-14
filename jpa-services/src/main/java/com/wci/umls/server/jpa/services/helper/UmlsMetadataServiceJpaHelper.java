@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.helper;
 
@@ -33,7 +33,7 @@ import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.services.MetadataService;
 
 /**
- * Default implementation of {@link MetadataService}.
+ * Implementation of {@link MetadataService} for metathesaurus sub-sources.
  */
 public class UmlsMetadataServiceJpaHelper extends
     StandardMetadataServiceJpaHelper {
@@ -198,7 +198,10 @@ public class UmlsMetadataServiceJpaHelper extends
       // a UMLS loader)
       javax.persistence.Query query =
           manager.createQuery("SELECT p from PrecedenceListJpa p"
-              + " where defaultList = 1 ");
+              + " where defaultList = 1 " + " and terminology = :terminology "
+              + "   and version = :version");
+      query.setParameter("terminology", umlsTerminology);
+      query.setParameter("version", umlsVersion);
 
       PrecedenceList defaultList = (PrecedenceList) query.getSingleResult();
       // copy and prune to this terminology/version

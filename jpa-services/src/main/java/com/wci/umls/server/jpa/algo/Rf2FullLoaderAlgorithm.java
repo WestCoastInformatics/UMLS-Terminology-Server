@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -73,6 +73,13 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @SuppressWarnings("resource")
   @Override
   public void compute() throws Exception {
+
+    logInfo("Start loading full");
+    logInfo("  terminology = " + getTerminology());
+    logInfo("  version = " + getVersion());
+    logInfo("  inputPath = " + getInputPath());
+
+    long startTimeOrig = System.nanoTime();
 
     // check prerequisites
     if (getTerminology() == null) {
@@ -209,6 +216,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Refresh caches for metadata handlers
       new MetadataServiceJpa().refreshCaches();
+      logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
 
     } catch (Exception e) {
       throw e;

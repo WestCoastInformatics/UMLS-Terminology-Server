@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -21,6 +21,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.algo.Rf2Readers.Keys;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -190,6 +191,13 @@ public class Rf2DeltaLoaderAlgorithm
   @Override
   public void compute() throws Exception {
 
+    logInfo("Start loading delta");
+    logInfo("  terminology = " + getTerminology());
+    logInfo("  version = " + getVersion());
+    logInfo("  inputPath = " + getInputPath());
+
+    long startTimeOrig = System.nanoTime();
+
     // check prerequisites
     if (getTerminology() == null) {
       throw new Exception("Terminology name must be specified");
@@ -201,26 +209,29 @@ public class Rf2DeltaLoaderAlgorithm
       throw new Exception("Input directory must be specified");
     }
 
+    // File preparation
+    // Check the input directory
+    File inputPathFile = new File(getInputPath());
+    if (!inputPathFile.exists()) {
+      throw new Exception("Specified input directory does not exist");
+    }
+
     try {
 
-      long startTimeOrig = System.nanoTime();
+      // control transaction scope
+      setTransactionPerOperation(false);
+      // Turn of ID computation when loading a terminology
+      setAssignIdentifiersFlag(false);
+      // Let loader set last modified flags.
+      setLastModifiedFlag(false);
 
-      logInfo("Start loading delta");
-      logInfo("  terminology = " + getTerminology());
-      logInfo("  version = " + getVersion());
-      logInfo("  inputPath = " + getInputPath());
-
-      // File preparation
-      // Check the input directory
-      File inputPathFile = new File(getInputPath());
-      if (!inputPathFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
-      }
+      // faster performance.
+      beginTransaction();
 
       // Sort files
-      Logger.getLogger(getClass()).info("  Sort RF2 Files");
-      Logger.getLogger(getClass()).info("    sort by effective time: false");
-      Logger.getLogger(getClass()).info("    require all files     : false");
+      logInfo("  Sort RF2 Files");
+      logInfo("    sort by effective time: false");
+      logInfo("    require all files     : false");
 
       File outputDir = new File(inputPathFile, "/RF2-sorted-temp/");
 
@@ -239,16 +250,6 @@ public class Rf2DeltaLoaderAlgorithm
       // Open readers
       readers = new Rf2Readers(outputDir);
       readers.openReaders();
-
-      // control transaction scope
-      setTransactionPerOperation(false);
-      // Turn of ID computation when loading a terminology
-      setAssignIdentifiersFlag(false);
-      // Let loader set last modified flags.
-      setLastModifiedFlag(false);
-
-      // faster performance.
-      beginTransaction();
 
       //
       // Load concepts
@@ -278,11 +279,13 @@ public class Rf2DeltaLoaderAlgorithm
       loadLanguageRefsetMembers();
 
       // Compute preferred names
+      final PrecedenceList list =
+          this.getDefaultPrecedenceList(getTerminology(), getVersion());
       logInfo("  Compute preferred names for modified concepts");
       int ct = 0;
       for (Long id : this.pnRecomputeIds) {
         Concept concept = getConcept(id);
-        String pn = getComputedPreferredName(concept);
+        String pn = getComputedPreferredName(concept, list);
         if (!pn.equals(concept.getName())) {
           ct++;
           concept.setName(pn);
@@ -401,16 +404,14 @@ public class Rf2DeltaLoaderAlgorithm
         addReleaseInfo(info);
       }
 
-      // Commit and clear resources
-      commit();
-      clear();
-
       logInfo(getComponentStats(getTerminology(), getVersion(), Branch.ROOT)
           .toString());
-
       logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-
       logInfo("Done ...");
+
+      // Commit and clear resources
+      commit();
+      close();
 
     } catch (Exception e) {
       throw e;
@@ -455,7 +456,7 @@ public class Rf2DeltaLoaderAlgorithm
   public void computeTreePositions() throws Exception {
 
     try {
-      Logger.getLogger(getClass()).info("Computing tree positions");
+      logInfo("Computing tree positions");
       treePosAlgorithm.setCycleTolerant(false);
       treePosAlgorithm.setIdType(IdType.CONCEPT);
       // some terminologies may have cycles, allow these for now.
@@ -467,7 +468,7 @@ public class Rf2DeltaLoaderAlgorithm
       treePosAlgorithm.compute();
       treePosAlgorithm.close();
     } catch (CancelException e) {
-      Logger.getLogger(getClass()).info("Cancel request detected");
+      logInfo("Cancel request detected");
       throw new CancelException("Tree position computation cancelled");
     }
 
@@ -502,7 +503,7 @@ public class Rf2DeltaLoaderAlgorithm
         }
       }
     } catch (CancelException e) {
-      Logger.getLogger(getClass()).info("Cancel request detected");
+      logInfo("Cancel request detected");
       throw new CancelException("Tree position computation cancelled");
     }
   }

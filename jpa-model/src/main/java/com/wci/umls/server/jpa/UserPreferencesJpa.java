@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
@@ -19,6 +19,8 @@ import org.hibernate.envers.Audited;
 
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
+import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 
 /**
  * JPA enabled implementation of {@link UserPreferences}.
@@ -55,6 +57,10 @@ public class UserPreferencesJpa implements UserPreferences {
   @Column(nullable = true)
   private String lastTerminology;
 
+  /** The prec list */
+  @OneToOne(targetEntity = PrecedenceListJpa.class, optional = true)
+  private PrecedenceList precedenceList;
+
   /**
    * The default constructor.
    */
@@ -74,6 +80,7 @@ public class UserPreferencesJpa implements UserPreferences {
     lastTab = userPreferences.getLastTab();
     lastProjectId = userPreferences.getLastProjectId();
     lastTerminology = userPreferences.getLastTerminology();
+    precedenceList = userPreferences.getPrecedenceList();
   }
 
   /**
@@ -200,11 +207,13 @@ public class UserPreferencesJpa implements UserPreferences {
     this.lastTab = lastTab;
   }
 
+  /* see superclass */
   @Override
   public String getLastTerminology() {
     return lastTerminology;
   }
 
+  /* see superclass */
   @Override
   public void setLastTerminology(String lastTerminology) {
     this.lastTerminology = lastTerminology;
@@ -230,14 +239,50 @@ public class UserPreferencesJpa implements UserPreferences {
     this.lastProjectId = lastProjectId;
   }
 
+  /* see superclass */
   @Override
   public String getFeedbackEmail() {
     return feedbackEmail;
   }
 
+  /* see superclass */
   @Override
   public void setFeedbackEmail(String feedbackEmail) {
     this.feedbackEmail = feedbackEmail;
+  }
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public PrecedenceList getPrecedenceList() {
+    return precedenceList;
+  }
+
+  /* see superclass */
+  @Override
+  public void setPrecedenceList(PrecedenceList precedenceList) {
+    this.precedenceList = precedenceList;
+  }
+
+  /**
+   * Returns the precedence list id.
+   *
+   * @return the precedence list id
+   */
+  public Long getPrecedenceListId() {
+    return precedenceList != null ? precedenceList.getId() : null;
+  }
+
+  /**
+   * Sets the precedence list id.
+   *
+   * @param id the precedence list id
+   */
+  public void setPrecedenceListId(Long id) {
+    if (precedenceList == null) {
+      precedenceList = new PrecedenceListJpa();
+    }
+    precedenceList.setId(id);
   }
 
   /* see superclass */
@@ -252,6 +297,9 @@ public class UserPreferencesJpa implements UserPreferences {
     result =
         prime * result
             + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
+    // result =
+    // prime * result
+    // + ((precedenceList == null) ? 0 : precedenceList.hashCode());
     result =
         prime * result
             + ((lastProjectId == null) ? 0 : lastProjectId.hashCode());
@@ -295,6 +343,11 @@ public class UserPreferencesJpa implements UserPreferences {
         return false;
     } else if (!feedbackEmail.equals(other.feedbackEmail))
       return false;
+    // if (precedenceList == null) {
+    // if (other.precedenceList != null)
+    // return false;
+    // } else if (!precedenceList.equals(other.precedenceList))
+    // return false;
     return true;
   }
 
@@ -304,7 +357,7 @@ public class UserPreferencesJpa implements UserPreferences {
     return "UserPreferencesJpa [id=" + id + ", user=" + user
         + ", lastTerminology=" + lastTerminology + ", lastProjectId="
         + lastProjectId + ", lastTab=" + lastTab + ", feedbackEmail="
-        + feedbackEmail + "]";
+        + feedbackEmail + ", precedenceList=" + precedenceList + "]";
   }
 
 }
