@@ -24,6 +24,8 @@ import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.hibernate.envers.Audited;
+
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
@@ -37,6 +39,7 @@ import com.wci.umls.server.helpers.PrecedenceList;
  * atoms represent preferred names.
  */
 @Entity
+@Audited
 @Table(name = "precedence_lists")
 @XmlRootElement(name = "precedenceList")
 public class PrecedenceListJpa implements PrecedenceList {
