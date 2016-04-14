@@ -16,6 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -34,7 +35,7 @@ import com.wci.umls.server.SourceDataFile;
 @Entity
 @Table(name = "source_data_files", uniqueConstraints = @UniqueConstraint(columnNames = {
     "path", "name", "directory"
-}) )
+}))
 @Audited
 @Indexed
 @XmlRootElement(name = "file")
@@ -212,8 +213,9 @@ public class SourceDataFileJpa implements SourceDataFile {
     result = prime * result + (directory ? 1231 : 1237);
     result =
         prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
+    result =
+        prime * result
+            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((path == null) ? 0 : path.hashCode());
     result = prime * result + ((size == null) ? 0 : size.hashCode());
@@ -274,13 +276,15 @@ public class SourceDataFileJpa implements SourceDataFile {
 
   @Override
   public String toString() {
-    return "SourceDataFileJpa [id=" + id + ", sourceData=" + sourceData
-        + ", name=" + name + ", directory=" + directory + ", size=" + size
-        + ", path=" + path + ", timestamp=" + timestamp + ", lastModified="
-        + lastModified + ", lastModifiedBy=" + lastModifiedBy + "]";
+    return "SourceDataFileJpa [id=" + id + ", sourceData="
+        + (sourceData != null ? sourceData.getId() : null) + ", name=" + name
+        + ", directory=" + directory + ", size=" + size + ", path=" + path
+        + ", timestamp=" + timestamp + ", lastModified=" + lastModified
+        + ", lastModifiedBy=" + lastModifiedBy + "]";
   }
 
   @Override
+  @XmlTransient
   public SourceData getSourceData() {
     return this.sourceData;
   }
@@ -288,7 +292,7 @@ public class SourceDataFileJpa implements SourceDataFile {
   @Override
   public void setSourceData(SourceData sourceData) {
     this.sourceData = sourceData;
-    
+
   }
 
 }

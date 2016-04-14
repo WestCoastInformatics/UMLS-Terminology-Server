@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.algo;
 
 import gnu.trove.strategy.HashingStrategy;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -20,7 +21,8 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
 import com.wci.umls.server.ReleaseInfo;
-import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePair;
@@ -57,6 +59,7 @@ import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -95,6 +98,7 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.TermTypeStyle;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
@@ -104,8 +108,7 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm implements
-    Algorithm {
+public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /** The prefix. */
   private String prefix = "MR";
@@ -241,6 +244,17 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm implements
     latCodeMap.put("GRE", "el");
   }
 
+  /** The tree pos algorithm. */
+  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
+
+  /** The trans closure algorithm. */
+  final TransitiveClosureAlgorithm transClosureAlgorithm =
+      new TransitiveClosureAlgorithm();
+
+  /** The label set algorithm. */
+  final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
+      new LabelSetMarkedParentAlgorithm();
+
   /**
    * Instantiates an empty {@link RrfLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -254,6 +268,7 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm implements
    *
    * @param terminology the terminology
    */
+  @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
@@ -269,6 +284,7 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm implements
    *
    * @param version the terminology version
    */
+  @Override
   public void setVersion(String version) {
     this.version = version;
   }
@@ -307,21 +323,17 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm implements
   }
 
   /**
-   * Sets the readers.
-   *
-   * @param readers the readers
-   */
-  public void setReaders(RrfReaders readers) {
-    this.readers = readers;
-  }
-
-  /**
    * Sets the prefix.
    *
    * @param prefix the prefix
    */
   public void setPrefix(String prefix) {
     this.prefix = prefix;
+  }
+
+  @Override
+  public String getFileVersion() throws Exception {
+    return new RrfFileSorter().getFileVersion(new File(getInputPath()));
   }
 
   /**
@@ -332,18 +344,20 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm implements
   /* see superclass */
   @Override
   public void compute() throws Exception {
+
+    // Track system level information
+    long startTimeOrig = System.nanoTime();
+    final ContentService contentService = new ContentServiceJpa();
     try {
+
       logInfo("Start loading RRF");
       logInfo("  terminology = " + terminology);
       logInfo("  version = " + version);
       logInfo("  single mode = " + singleMode);
-      logInfo("  releaseVersion = " + releaseVersion);
-      releaseVersionDate =
-          ConfigUtility.DATE_FORMAT.parse(releaseVersion.substring(0, 4)
-              + "0101");
+      logInfo("  inputDir = " + getInputPath());
 
       // Track system level information
-      long startTimeOrig = System.nanoTime();
+      startTimeOrig = System.nanoTime();
 
       // control transaction scope
       setTransactionPerOperation(false);
@@ -351,6 +365,34 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm implements
       setAssignIdentifiersFlag(false);
       // Let loader set last modified flags.
       setLastModifiedFlag(false);
+
+      // Check the input directory
+      File inputDirFile = new File(getInputPath());
+      if (!inputDirFile.exists()) {
+        throw new Exception("Specified input directory does not exist");
+      }
+
+      // Sort files - not really needed because files are already sorted
+      Logger.getLogger(getClass()).info("  Sort RRF Files");
+      final RrfFileSorter sorter = new RrfFileSorter();
+      // Be flexible about missing files for RXNORM
+      sorter
+          .setRequireAllFiles(!(prefix == null ? "MR" : prefix).equals("RXN"));
+      // File outputDir = new File(inputDirFile, "/RRF-sorted-temp/");
+      // sorter.sortFiles(inputDirFile, outputDir);
+      releaseVersion = sorter.getFileVersion(inputDirFile);
+      if (releaseVersion == null) {
+        releaseVersion = version;
+      }
+      releaseVersionDate =
+          ConfigUtility.DATE_FORMAT.parse(releaseVersion.substring(0, 4)
+              + "0101");
+      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
+
+      // Open readers - just open original RRF, no need to sort
+      readers = new RrfReaders(inputDirFile);
+      // Use default prefix if not specified
+      readers.openOriginalReaders(prefix == null ? "MR" : prefix);
 
       // faster performance.
       beginTransaction();
@@ -468,10 +510,83 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm implements
       commit();
       clear();
 
+      // Compute transitive closure
+      // Obtain each terminology and run transitive closure on it with the
+      // correct id type
+      // Refresh caches after metadata has changed in loader
+      contentService.refreshCaches();
+      for (final Terminology t : contentService.getTerminologyLatestVersions()
+          .getObjects()) {
+        // Only compute for organizing class types
+        if (t.getOrganizingClassType() != null) {
+          TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+          algo.setTerminology(t.getTerminology());
+          algo.setVersion(t.getVersion());
+          algo.setIdType(t.getOrganizingClassType());
+          // some terminologies may have cycles, allow these for now.
+          algo.setCycleTolerant(true);
+          algo.compute();
+          algo.close();
+        }
+      }
+
+      // Compute tree positions
+      // Refresh caches after metadata has changed in loader
+      for (final Terminology t : contentService.getTerminologyLatestVersions()
+          .getObjects()) {
+        // Only compute for organizing class types
+        if (t.getOrganizingClassType() != null) {
+          TreePositionAlgorithm algo = new TreePositionAlgorithm();
+          algo.setTerminology(t.getTerminology());
+          algo.setVersion(t.getVersion());
+          algo.setIdType(t.getOrganizingClassType());
+          // some terminologies may have cycles, allow these for now.
+          algo.setCycleTolerant(true);
+          // compute "semantic types" for concept hierarchies
+          if (t.getOrganizingClassType() == IdType.CONCEPT) {
+            algo.setComputeSemanticType(true);
+          }
+          algo.compute();
+          algo.close();
+        }
+      }
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      for (final Terminology t : contentService.getTerminologyLatestVersions()
+          .getObjects()) {
+        for (final Subset subset : contentService.getConceptSubsets(
+            t.getTerminology(), t.getVersion(), Branch.ROOT).getObjects()) {
+          final ConceptSubset conceptSubset = (ConceptSubset) subset;
+          if (conceptSubset.isLabelSubset()) {
+            Logger.getLogger(getClass()).info(
+                "  Create label set for subset = " + subset);
+            LabelSetMarkedParentAlgorithm algo3 =
+                new LabelSetMarkedParentAlgorithm();
+            algo3.setSubset(conceptSubset);
+            algo3.compute();
+            algo3.close();
+          }
+        }
+      }
+      // Clean-up
+
+      ConfigUtility
+          .deleteDirectory(new File(inputDirFile, "/RRF-sorted-temp/"));
+
+      // Final logging messages
+      Logger.getLogger(getClass()).info(
+          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+      Logger.getLogger(getClass()).info("done ...");
+
     } catch (Exception e) {
+      e.printStackTrace();
       logError(e.getMessage());
       throw e;
+    } finally {
+      contentService.close();
     }
+
   }
 
   /**
@@ -2819,15 +2934,6 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm implements
   }
 
   /**
-   * Cancel.
-   */
-  /* see superclass */
-  @Override
-  public void cancel() {
-    throw new UnsupportedOperationException("cannot cancel.");
-  }
-
-  /**
    * Returns the elapsed time.
    *
    * @param time the time
@@ -2838,23 +2944,6 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm implements
   })
   private static Long getElapsedTime(long time) {
     return (System.nanoTime() - time) / 1000000000;
-  }
-
-  /**
-   * Returns the total elapsed time str.
-   *
-   * @param time the time
-   * @return the total elapsed time str
-   */
-  @SuppressWarnings("boxing")
-  private static String getTotalElapsedTimeStr(long time) {
-    Long resultnum = (System.nanoTime() - time) / 1000000000;
-    String result = resultnum.toString() + "s";
-    resultnum = resultnum / 60;
-    result = result + " / " + resultnum.toString() + "m";
-    resultnum = resultnum / 60;
-    result = result + " / " + resultnum.toString() + "h";
-    return result;
   }
 
   /**
@@ -2905,6 +2994,75 @@ public class RrfLoaderAlgorithm extends AbstractLoaderAlgorithm implements
   @SuppressWarnings("static-method")
   private boolean isExtensionModule(String moduleId) {
     return !moduleId.equals(coreModuleId) && !moduleId.equals(metadataModuleId);
+  }
+
+  /* see superclass */
+  @Override
+  public void computeTreePositions() throws Exception {
+
+    try {
+      Logger.getLogger(getClass()).info("Computing tree positions");
+      treePosAlgorithm.setCycleTolerant(false);
+      treePosAlgorithm.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      treePosAlgorithm.setCycleTolerant(true);
+      treePosAlgorithm.setComputeSemanticType(true);
+      treePosAlgorithm.setTerminology(terminology);
+      treePosAlgorithm.setVersion(version);
+      treePosAlgorithm.reset();
+      treePosAlgorithm.compute();
+      treePosAlgorithm.close();
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Tree position computation cancelled");
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public void computeTransitiveClosures() throws Exception {
+    Logger.getLogger(getClass()).info(
+        "  Compute transitive closure from  " + terminology + "/" + version);
+    try {
+      transClosureAlgorithm.setCycleTolerant(false);
+      transClosureAlgorithm.setIdType(IdType.CONCEPT);
+      transClosureAlgorithm.setTerminology(terminology);
+      transClosureAlgorithm.setVersion(version);
+      transClosureAlgorithm.reset();
+      transClosureAlgorithm.compute();
+      transClosureAlgorithm.close();
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      for (final Subset subset : getConceptSubsets(terminology, version,
+          Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isLabelSubset()) {
+          Logger.getLogger(getClass()).info(
+              "  Create label set for subset = " + subset);
+
+          labelSetAlgorithm.setSubset(conceptSubset);
+          labelSetAlgorithm.compute();
+          labelSetAlgorithm.close();
+        }
+      }
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Tree position computation cancelled");
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public void cancel() throws Exception {
+    // cancel any currently running local algorithms
+    treePosAlgorithm.cancel();
+    transClosureAlgorithm.cancel();
+    labelSetAlgorithm.cancel();
+
+    // invoke superclass cancel
+    super.cancel();
   }
 
 }

@@ -1,34 +1,12 @@
-// Route
-tsApp.config(function config($routeProvider) {
-  // TODO Remove this when landing has been reenabled
-  $routeProvider.when('/', {
-    templateUrl : 'app/page/login/login.html',
-    controller : 'LoginCtrl',
-    reloadOnSearch : false
-  });
 
-  $routeProvider.when('/login', {
-    templateUrl : 'app/page/login/login.html',
-    controller : 'LoginCtrl',
-    reloadOnSearch : false
-  });
-});
 
 // Login controller
 tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService', 'gpService',
-  'utilService', 'projectService',
-  function($scope, $http, $location, securityService, gpService, utilService, projectService) {
+  'utilService', 'projectService', 'configureService',
+  function($scope, $http, $location, securityService, gpService, utilService, projectService, configureService) {
     console.debug('configure LoginCtrl');
 
-    // Clear user info
-    securityService.clearUser();
-
-    // Declare the user
-    $scope.user = securityService.getUser();
-
-    // TODO Check status and either revert to #/content or #/landing depending
-    // locationChange
-
+    
     // Login function
     $scope.login = function(name, password) {
       if (!name) {
@@ -82,5 +60,27 @@ tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService
     $scope.logout = function() {
       securityService.logout();
     };
+    
+    //
+    // Initialization: Check that application is configured
+    //
+    
+    $scope.initialize = function() {
+      // Clear user info
+      securityService.clearUser();
+
+      // Declare the user
+      $scope.user = securityService.getUser();
+
+    }
+    configureService.isConfigured().then(function(isConfigured) {
+      console.debug('login configured check: ', isConfigured);
+      if (!isConfigured) {
+        console.debug('routing to configure');
+        $location.path('/configure');
+      } else {
+        //$scope.initialize();
+      }
+    });
 
   } ]);

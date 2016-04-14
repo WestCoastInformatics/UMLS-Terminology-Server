@@ -70,8 +70,8 @@ public class ConfigUtility {
 
   /** The Constant DEFAULT. */
   public final static String DEFAULT = "DEFAULT";
-  
-  /** The Constant ATOMCLASS (search handler for atoms) */
+
+  /** The Constant ATOMCLASS (search handler for atoms). */
   public final static String ATOMCLASS = "ATOMCLASS";
 
   /** The date format. */
@@ -86,10 +86,10 @@ public class ConfigUtility {
   public final static FastDateFormat DATE_FORMAT3 =
       FastDateFormat.getInstance("yyyy");
 
-  /**  The Constant DATE_FORMAT4. */
-  public final static FastDateFormat DATE_FORMAT4 = FastDateFormat
-      .getInstance("yyyy-MM-dd hh:mm:ss");
-  
+  /** The Constant DATE_FORMAT4. */
+  public final static FastDateFormat DATE_FORMAT4 =
+      FastDateFormat.getInstance("yyyy-MM-dd hh:mm:ss");
+
   /** The Constant PUNCTUATION. */
   public final static String PUNCTUATION =
       " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^";
@@ -177,6 +177,64 @@ public class ConfigUtility {
   }
 
   /**
+   * Get the config label.
+   *
+   * @return the label
+   * @throws Exception the exception
+   */
+  public static String getConfigLabel() throws Exception {
+    // Need to determine the label (default "umls")
+    String label = "umls";
+    Properties labelProp = new Properties();
+
+    // If no resource is available, go with the default
+    // ONLY setups that explicitly intend to override the setting
+    // cause it to be something other than the default.
+    InputStream input = ConfigUtility.class.getResourceAsStream("/label.prop");
+    if (input != null) {
+      labelProp.load(input);
+      // If a run.config.label override can be found, use it
+      String candidateLabel = labelProp.getProperty("run.config.label");
+      // If the default, uninterpolated value is used, stick again with the
+      // default
+      if (candidateLabel != null
+          && !candidateLabel.equals("${run.config.label}")) {
+        label = candidateLabel;
+      }
+    } else {
+      Logger.getLogger(ConfigUtility.class.getName())
+          .info("  label.prop resource cannot be found, using default");
+
+    }
+    Logger.getLogger(ConfigUtility.class.getName())
+        .info("  run.config.label = " + label);
+
+    return label;
+  }
+  
+  /**
+   *  The get local config file.
+   *
+   * @return the local config file
+   * @throws Exception the exception
+   */
+  public static String getLocalConfigFile() throws Exception {
+    return getLocalConfigFolder() + "config.properties";
+  }
+  
+  /**
+   * Gets the local config folder.
+   *
+   * @return the local config folder
+   * @throws Exception the exception
+   */
+  public static String getLocalConfigFolder() throws Exception {
+    return System.getProperty("user.home") + "/.term-server/" + getConfigLabel() + "/";
+  }
+
+  
+
+  /**
    * Returns the config properties.
    * @return the config properties
    *
@@ -184,44 +242,41 @@ public class ConfigUtility {
    */
   public static Properties getConfigProperties() throws Exception {
     if (isNull(config)) {
-      // Need to determine the label (default "umls")
-      String label = "umls";
-      Properties labelProp = new Properties();
 
-      // If no resource is available, go with the default
-      // ONLY setups that explicitly intend to override the setting
-      // cause it to be something other than the default.
-      InputStream input =
-          ConfigUtility.class.getResourceAsStream("/label.prop");
-      if (input != null) {
-        labelProp.load(input);
-        // If a run.config.label override can be found, use it
-        String candidateLabel = labelProp.getProperty("run.config.label");
-        // If the default, uninterpolated value is used, stick again with the
-        // default
-        if (candidateLabel != null
-            && !candidateLabel.equals("${run.config.label}")) {
-          label = candidateLabel;
-        }
-      } else {
-        Logger.getLogger(ConfigUtility.class.getName())
-            .info("  label.prop resource cannot be found, using default");
-
-      }
-      Logger.getLogger(ConfigUtility.class.getName())
-          .info("  run.config.label = " + label);
+      String label = getConfigLabel();
 
       // Now get the properties from the corresponding setting
-      // This is a complicated mechanism to support multiple simulataneous
+      // This is a complicated mechanism to support multiple simultaneous
       // installations within the same container (e.g. tomcat).
       // Default setups do not require this.
       String configFileName = System.getProperty("run.config." + label);
-      Logger.getLogger(ConfigUtility.class.getName())
-          .info("  run.config." + label + " = " + configFileName);
-      config = new Properties();
-      FileReader in = new FileReader(new File(configFileName));
-      config.load(in);
-      in.close();
+      if (configFileName != null) {
+        Logger.getLogger(ConfigUtility.class.getName())
+            .info("  run.config." + label + " = " + configFileName);
+        config = new Properties();
+        FileReader in = new FileReader(new File(configFileName));
+        config.load(in);
+        in.close();
+      } else {
+        InputStream is =
+            ConfigUtility.class.getResourceAsStream("/config.properties");
+        Logger.getLogger(ConfigUtility.class.getName())
+            .info("Cannot find run.config." + label
+                + ", looking for config.properties in the classpath");
+        if (is != null) {
+          config = new Properties();
+          config.load(is);
+        }
+
+        // retrieve locally stored config file from user configuration (if available)
+        else if (new File(getLocalConfigFile()).exists()) {
+          config = new Properties();
+          FileReader in = new FileReader(new File(getLocalConfigFile()));
+          config.load(in);
+          in.close();
+        }
+      }
+
       Logger.getLogger(ConfigUtility.class).info("  properties = " + config);
     }
     return config;
@@ -657,6 +712,11 @@ public class ConfigUtility {
       // do nothing
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.mail.Authenticator#getPasswordAuthentication()
+     */
     /* see superclass */
     @Override
     public PasswordAuthentication getPasswordAuthentication() {

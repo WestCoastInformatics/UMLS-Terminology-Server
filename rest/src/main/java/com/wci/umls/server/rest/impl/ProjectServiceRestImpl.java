@@ -53,7 +53,7 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-@Api(value = "/project", description = "Operations to retrieve project info")
+@Api(value = "/project", description = "Operations to get project info")
 public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     ProjectServiceRest {
 
@@ -206,14 +206,14 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "retrieve the project",
+      authorizeApp(securityService, authToken, "get the project",
           UserRole.VIEWER);
 
       Project project = projectService.getProject(id);
 
       return project;
     } catch (Exception e) {
-      handleException(e, "trying to retrieve a project");
+      handleException(e, "trying to get a project");
       return null;
     } finally {
       projectService.close();
@@ -225,23 +225,23 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @GET
-  @Path("/projects")
+  @Path("/all")
   @ApiOperation(value = "Get all projects", notes = "Gets all projects", response = ProjectListJpa.class)
   public ProjectList getProjects(
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Project): /projects");
+    Logger.getLogger(getClass()).info("RESTful call (Project): /all");
 
     ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "retrieve projects",
+      authorizeApp(securityService, authToken, "get projects",
           UserRole.VIEWER);
 
       ProjectList projects = projectService.getProjects();
 
       return projects;
     } catch (Exception e) {
-      handleException(e, "trying to retrieve the projects");
+      handleException(e, "trying to get the projects");
       return null;
     } finally {
       projectService.close();
@@ -531,7 +531,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
 
       return projectService.findProjectsForQuery(query, pfs);
     } catch (Exception e) {
-      handleException(e, "trying to retrieve projects ");
+      handleException(e, "trying to get projects ");
       return null;
     } finally {
       projectService.close();
@@ -555,7 +555,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful POST call (Project): /log/" + projectId + ", " + objectId);
+        "RESTful POST call (Project): /log/" + projectId + ", " + objectId + ", " + terminology + ", " + version + ", " + activity + ", " + lines);
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -595,8 +595,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl implements
       }
 
       final List<LogEntry> entries =
-          projectService.findLogEntriesForQuery("projectId:" + projectId
-              + (objectId == null ? "" : " AND objectId:" + objectId), pfs);
+          projectService.findLogEntriesForQuery(query, pfs);
 
       StringBuilder log = new StringBuilder();
       for (int i = entries.size() - 1; i >= 0; i--) {

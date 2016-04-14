@@ -1,18 +1,3 @@
-// Route
-tsApp.config(function config($routeProvider) {
-  $routeProvider.when('/content', {
-    templateUrl : 'app/page/content/content.html',
-    controller : 'ContentCtrl',
-    reloadOnSearch : false
-  }).when('/content/:mode/:terminology/:version/:terminologyId', {
-    templateUrl : function(urlAttr) {
-      return 'app/page/content/' + urlAttr.mode + '.html';
-    },
-    controller : 'ContentCtrl',
-    reloadOnSearch : false
-  })
-});
-
 // Content controller
 tsApp.controller('ContentCtrl', [
   '$scope',
@@ -29,15 +14,17 @@ tsApp.controller('ContentCtrl', [
   'securityService',
   'metadataService',
   'contentService',
+  'configureService',
   function($scope, $routeParams, $http, $uibModal, $location, $q, $anchorScroll, $sce, gpService,
-    utilService, tabService, securityService, metadataService, contentService) {
+    utilService, tabService, securityService, metadataService, contentService, configureService) {
     console.debug('configure ContentCtrl');
 
     // Clear error
     utilService.clearError();
 
-    // Handle resetting tabs on "back" button
-    if (tabService.selectedTab.label != 'Content') {
+    // Handle resetting tabs on "back" button, but also handles non-standard
+    // content modes which may not have tabs
+    if (tabService.selectedTab.label != 'Content' && !$routeParams.mode) {
       tabService.setSelectedTabByLabel('Content');
     }
 
@@ -99,9 +86,6 @@ tsApp.controller('ContentCtrl', [
       if ($scope.metadata.terminology == null) {
         return;
       }
-
-      console.log('Terminology changed', $scope.metadata.terminology);
-      tabService.setTabEnabledByLabel('content', false);
 
       // set the autocomplete url, with pattern:
       // /type/{terminology}/{version}/autocomplete/{searchTerm}
@@ -224,11 +208,11 @@ tsApp.controller('ContentCtrl', [
       $scope.queryForList = true;
 
       // ensure query string has minimum length
-      /*
-             * if ($scope.searchParams.query == null || $scope.searchParams.query.length < 3) {
-             * alert("You must use at least one character to search"); return; }
-             */
-
+      // ensure query string has minimum length
+      if (!$scope.searchParams.query || $scope.searchParams.query.length < 1) {
+        alert("You must use at least one character to search");
+        return;
+      }
       contentService.findComponentsAsList($scope.searchParams.query,
         $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
         $scope.searchParams.page, $scope.searchParams).then(
@@ -260,19 +244,13 @@ tsApp.controller('ContentCtrl', [
         $scope.searchParams.page, $scope.searchParams).then(function(data) {
 
         // for ease and consistency of use of the ui tree
-        // directive
-        // force the single tree into a ui-tree structure
-        // with count
-        // variables
+        // directive force the single tree into a ui-tree structure
+        // with count variables
         $scope.searchResults.tree = [];
         $scope.searchResults.tree.push(data); // treeList
-        // array
-        // of
-        // size
-        // 1
+        // array of size 1
         $scope.searchResults.tree.totalCount = data.totalCount;
         $scope.searchResults.tree.count = data.count;
-
         // Load first functionality is not obvious here
         // so leave it alone for now.
 
@@ -371,47 +349,6 @@ tsApp.controller('ContentCtrl', [
         }
       }
     };
-
-    //
-    // Component Report Callbacks
-    //
-
-    // if in simple mode, disable navigation functionality
-    if ($routeParams.mode === 'simple') {
-      console.debug('Enabling component report callbacks for mode: ' + $routeParams.mode);
-      $scope.componentReportCallbacks = {
-        getTerminologyVersion : metadataService.getTerminologyVersion,
-        getRelationshipTypeName : metadataService.getRelationshipTypeName,
-        getAttributeNameName : metadataService.getAttributeNameName,
-        getTermTypeName : metadataService.getTermTypeName,
-        getGeneralEntryValue : metadataService.getGeneralEntryValue,
-        getLabelSetName : metadataService.getLabelSetName,
-        countLabels : metadataService.countLabels
-
-      // TODO Add relationship functions here, remove from
-      // relationships/relationships-deep
-      };
-    }
-
-    // otherwise, enable full functionality
-    else {
-      console.debug('Enabling component report callbacks for mode: FULL');
-      $scope.componentReportCallbacks = {
-        getComponent : $scope.getComponent,
-        getComponentFromType : $scope.getComponentFromType,
-        getComponentFromTree : $scope.getComponentFromTree,
-        getTerminologyVersion : metadataService.getTerminologyVersion,
-        getRelationshipTypeName : metadataService.getRelationshipTypeName,
-        getAttributeNameName : metadataService.getAttributeNameName,
-        getTermTypeName : metadataService.getTermTypeName,
-        getGeneralEntryValue : metadataService.getGeneralEntryValue,
-        getLabelSetName : metadataService.getLabelSetName,
-        countLabels : metadataService.countLabels
-
-      // TODO Add relationship functions here, remove from
-      // relationships/relationships-deep
-      };
-    }
 
     //
     // METADATA related functions
@@ -518,87 +455,141 @@ tsApp.controller('ContentCtrl', [
     // Initialize
     //
 
-    // Load all terminologies upon controller load (unless already
-    // loaded)
-    if (!$scope.metadata.terminologies) {
-      metadataService.initTerminologies().then(
-        // success
-        function(data) {
+    $scope.initialize = function() {
+      
+      $scope.configureTab();
 
-          // if route parameters are specified, set the terminology and retrieve
-          // the specified concept
-          if ($routeParams.terminology && $routeParams.version) {
-            console.debug('Route parameters set', $routeParams);
+      //
+      // Component Report Callbacks
+      //
+      // if in simple mode, disable navigation functionality
+      if ($routeParams.mode === 'simple') {
+        console.debug('Enabling component report callbacks for mode: ' + $routeParams.mode);
+        $scope.componentReportCallbacks = {
+          getTerminologyVersion : metadataService.getTerminologyVersion,
+          getRelationshipTypeName : metadataService.getRelationshipTypeName,
+          getAttributeNameName : metadataService.getAttributeNameName,
+          getTermTypeName : metadataService.getTermTypeName,
+          getGeneralEntryValue : metadataService.getGeneralEntryValue,
+          getLabelSetName : metadataService.getLabelSetName,
+          countLabels : metadataService.countLabels
 
-            var termToSet = null;
-            for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-              var terminology = $scope.metadata.terminologies[i];
-              // Determine whether to set as default
-              if (terminology.terminology === $routeParams.terminology
-                && terminology.version === $routeParams.version) {
+        // TODO Add relationship functions here, remove from
+        // relationships/relationships-deep
+        };
+      }
 
-                termToSet = terminology;
-                break;
-              }
-            }
+      // otherwise, enable full functionality
+      else {
+        console.debug('Enabling component report callbacks for mode: FULL');
+        $scope.componentReportCallbacks = {
+          getComponent : $scope.getComponent,
+          getComponentFromType : $scope.getComponentFromType,
+          getComponentFromTree : $scope.getComponentFromTree,
+          getTerminologyVersion : metadataService.getTerminologyVersion,
+          getRelationshipTypeName : metadataService.getRelationshipTypeName,
+          getAttributeNameName : metadataService.getAttributeNameName,
+          getTermTypeName : metadataService.getTermTypeName,
+          getGeneralEntryValue : metadataService.getGeneralEntryValue,
+          getLabelSetName : metadataService.getLabelSetName,
+          countLabels : metadataService.countLabels
 
-            if (!termToSet) {
-              utilService.setError('Terminology specified in URL not found');
-            } else {
+        // TODO Add relationship functions here, remove from
+        // relationships/relationships-deep
+        };
+      }
 
-              // set the terminology
-              metadataService.setTerminology(termToSet).then(
-                function() {
+      // Load all terminologies upon controller load (unless already
+      // loaded)
+      if (!$scope.metadata.terminologies || !$scope.metadata.terminology) {
+        metadataService.initTerminologies().then(
+          // success
+          function(data) {
 
-                  // get the component
-                  $scope.getComponent($routeParams.terminologyId, $routeParams.terminology,
-                    $routeParams.version);
-                });
-            }
-          }
+            // if route parameters are specified, set the terminology and retrieve
+            // the specified concept
+            if ($routeParams.terminology && $routeParams.version) {
+              console.debug('Route parameters set', $routeParams);
 
-          // otherwise, specify the default terminology
-          else {
-            console.debug('No route parameters');
-
-            var found = false;
-            for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-              var terminology = $scope.metadata.terminologies[i];
-              // Determine whether to set as default
-              if (terminology.metathesaurus) {
-                metadataService.setTerminology(terminology);
-                found = true;
-                break;
-              }
-            }
-
-            // if no metathesaurus found, default to ICD10CM
-            // TODO: Used for ICD10 server, unhardcode this
-            if (!found) {
+              var termToSet = null;
               for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
                 var terminology = $scope.metadata.terminologies[i];
-                console.debug(terminology.terminology, terminology.terminology === 'ICD10CM');
-                if (terminology.terminology === 'ICD10CM') {
+                // Determine whether to set as default
+                if (terminology.terminology === $routeParams.terminology
+                  && terminology.version === $routeParams.version) {
+                  termToSet = terminology;
+                  break;
+                }
+              }
+
+              if (!termToSet) {
+                utilService.setError('Terminology specified in URL not found');
+              } else {
+
+                // set the terminology
+                metadataService.setTerminology(termToSet).then(
+                  function() {
+
+                    // get the component
+                    $scope.getComponent($routeParams.terminologyId, $routeParams.terminology,
+                      $routeParams.version);
+                  });
+              }
+            }
+
+            // otherwise, specify the default terminology
+            else {
+              console.debug('No route parameters');
+
+              var found = false;
+              for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+                var terminology = $scope.metadata.terminologies[i];
+                // Determine whether to set as default
+                if (terminology.metathesaurus) {
                   metadataService.setTerminology(terminology);
                   found = true;
                   break;
                 }
               }
-            }
 
-            // If nothing set, pick the first one
-            if (!found) {
-              if (!$scope.metadata.terminologies) {
-                window.alert('No terminologies found, database may not be properly loaded.');
-              } else {
-                metadataService.setTerminology($scope.metadata.terminologies[0]);
+              // if no metathesaurus found, default to ICD10CM
+              // TODO: Used for ICD10 server, unhardcode this
+              if (!found) {
+                for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+                  var terminology = $scope.metadata.terminologies[i];
+                  console.debug(terminology.terminology, terminology.terminology === 'ICD10CM');
+                  if (terminology.terminology === 'ICD10CM') {
+                    metadataService.setTerminology(terminology);
+                    found = true;
+                    break;
+                  }
+                }
+              }
+
+              // If nothing set, pick the first one
+              if (!found) {
+                if (!$scope.metadata.terminologies) {
+                  window.alert('No terminologies found, database may not be properly loaded.');
+                } else {
+                  metadataService.setTerminology($scope.metadata.terminologies[0]);
+                }
               }
             }
-          }
-        });
+          });
+      }
     }
 
-    $scope.configureTab();
+    //
+    // Initialization: Check that application is configured
+    //
+    configureService.isConfigured().then(function(isConfigured) {
+      if (!isConfigured) {
+        $location.path('/configure');
+      } else {
+        $scope.initialize();
+      }
+    });
+
   }
 
 ]);

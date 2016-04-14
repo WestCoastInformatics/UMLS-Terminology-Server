@@ -1,6 +1,7 @@
 // Content controller
 tsApp.directive('relationshipsDeep', [
-  'utilService', 'contentService',
+  'utilService',
+  'contentService',
   function(utilService, contentService) {
     console.debug('configure deep relationships directive');
     return {
@@ -19,11 +20,10 @@ tsApp.directive('relationshipsDeep', [
         scope.paging = utilService.getPaging();
         scope.pageCallback = {
           getPagedList : getPagedList
-        }
+        };
 
         scope.paging.sortField = 'group';
         scope.paging.sortAscending = true;
-        scope.paging.showInferred = true;
 
         // Default is Group/Type, where in getpagedData
         // relationshipType is automatically appended as a multi-
@@ -43,24 +43,25 @@ tsApp.directive('relationshipsDeep', [
         } ];
 
         function getPagedList() {
-       
+
           // compute the sort order
-          // always sort intelligently around relationship type and additional relationship type
-          var sortFields = [];
+          // always sort intelligently around relationship type and additional
+          // relationship type
+          var sortFields = new Array();
           if (scope.paging.sortField === 'group') {
-            sortFields = [ 'group', 'relationshipType', 'additionalRelationshipType']
+            sortFields = [ 'group', 'relationshipType', 'additionalRelationshipType' ];
           } else if (scope.paging.sortField === 'relationshipType') {
-            sortFields = ['relationshipType', 'additionalRelationshipType', 'group'];
-          } else if (scope.paging.sortFied === 'additionalRelationshipType'){
-            sortFields = ['additionalRelationshipType', 'relationshipType', 'group'];
+            sortFields = [ 'relationshipType', 'additionalRelationshipType', 'group' ];
+          } else if (scope.paging.sortFied === 'additionalRelationshipType') {
+            sortFields = [ 'additionalRelationshipType', 'relationshipType', 'group' ];
           } else {
-            sortFields = [ scope.paging.sortField, 'group', 'relationshipType', 'additionalRelationshipType' ];
+            sortFields = [ scope.paging.sortField, 'group', 'relationshipType',
+              'additionalRelationshipType' ];
           }
 
           var parameters = {
             showSuppressible : scope.showHidden,
             showObsolete : scope.showHidden,
-            showInferred : scope.paging.showInferred,
             text : scope.paging.filter,
             sortFields : sortFields,
             sortAscending : scope.paging.sortAscending
@@ -68,15 +69,14 @@ tsApp.directive('relationshipsDeep', [
 
           // Request from service
           contentService.findDeepRelationships(scope.component.object.terminologyId,
-            scope.component.object.terminology, scope.component.object.version,
-            scope.paging.page, parameters).then(function(data) {
+            scope.component.object.terminology, scope.component.object.version, scope.paging.page,
+            parameters).then(function(data) {
 
             scope.pagedData.data = data.relationships;
             scope.pagedData.totalCount = data.totalCount;
 
           });
         }
-        ;
 
         // watch show hidden flag
         scope.$watch('showHidden', function() {

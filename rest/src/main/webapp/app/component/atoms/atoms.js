@@ -25,16 +25,14 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
       };
 
       scope.test = function() {
-        console.debug('CALLBACKS', scope.callbacks)
         scope.callbacks.getComponentFromType(1, 2, 3, 4);
 
-      }
+      };
       console.debug('atom callbacks', scope.callbacks);
-      
-      
+
       // watch show hidden flag
       scope.$watch('showHidden', function() {
-        console.debug('showHidden changed', scope.showHidden)
+        console.debug('showHidden changed', scope.showHidden);
         if (scope.showHidden != undefined && scope.showHidden != null) {
           scope.paging.showHidden = scope.showHidden;
         } else {

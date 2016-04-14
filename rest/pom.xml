@@ -22,7 +22,7 @@
     <config.artifactId>term-server-config-dev-windows</config.artifactId>
     <config.version>${project.version}</config.version>
     <!-- Defaults for Eclipse dev -->
-    <deploy.title>Development Term Server Deployment</deploy.title>
+    <deploy.title>Dev Term Server</deploy.title>
     <site.tracking.code></site.tracking.code>
     <deploy.footer.copyright>(c)2015</deploy.footer.copyright>
     <deploy.presented.by></deploy.presented.by>
@@ -231,8 +231,8 @@
               <filtering>true</filtering>
               <includes>
                 <include>app/page/login/login.html</include>
-                <include>app/page/general/footer.html</include>
-                <include>app/page/general/header.html</include>
+                <include>app/page/footer/footer.html</include>
+                <include>app/page/header/header.html</include>
                 <include>index.html</include>
                 <include>swagger.html</include>
                 <include>WEB-INF/web.xml</include>
@@ -243,8 +243,8 @@
               <filtering>false</filtering>
               <excludes>
                 <exclude>app/page/login/login.html</exclude>
-                <exclude>app/page/general/footer.html</exclude>
-                <exclude>app/page/general/header.html</exclude>
+                <exclude>app/page/footer/footer.html</exclude>
+                <exclude>app/page/header/header.html</exclude>
                 <exclude>index.html</exclude>
                 <exclude>swagger.html</exclude>
                 <exclude>WEB-INF/web.xml</exclude>

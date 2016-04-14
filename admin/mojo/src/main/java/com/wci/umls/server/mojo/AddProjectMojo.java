@@ -40,7 +40,7 @@ import com.wci.umls.server.services.SecurityService;
  * @goal add-project
  * @phase package
  */
-public class ProjectLoaderMojo extends AbstractMojo {
+public class AddProjectMojo extends AbstractMojo {
 
   /**
    * The name.
@@ -111,9 +111,9 @@ public class ProjectLoaderMojo extends AbstractMojo {
   private boolean server = false;
 
   /**
-   * Instantiates a {@link ProjectLoaderMojo} from the specified parameters.
+   * Instantiates a {@link AddProjectMojo} from the specified parameters.
    */
-  public ProjectLoaderMojo() {
+  public AddProjectMojo() {
     // do nothing
   }
 

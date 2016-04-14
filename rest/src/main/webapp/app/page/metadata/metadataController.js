@@ -1,12 +1,3 @@
-// Route
-tsApp.config(function config($routeProvider) {
-  $routeProvider.when('/metadata', {
-    templateUrl : 'app/page/metadata/metadata.html',
-    controller : 'MetadataCtrl',
-    reloadOnSearch : false
-  });
-});
-
 // Metadata controller
 tsApp.controller('MetadataCtrl', [
   '$scope',
@@ -17,8 +8,9 @@ tsApp.controller('MetadataCtrl', [
   'tabService',
   'securityService',
   'metadataService',
+  'configureService',
   function($scope, $http, $location, gpService, utilService, tabService, securityService,
-    metadataService) {
+    metadataService, configureService) {
     console.debug("configure MetadataCtrl", tabService.selectedTab.label);
 
     // Clear error
@@ -47,14 +39,28 @@ tsApp.controller('MetadataCtrl', [
     // Initialize
     //
 
-    // If terminology is blank, then redirect to /content to set a terminology
-    if (!$scope.metadata.terminologies) {
-      $location.path("/content");
+    $scope.initialize = function() {
+
+      // If terminology is blank, then redirect to /content to set a terminology
+      if (!$scope.metadata.terminologies) {
+        $location.path("/content");
+      }
+
+      // Handle users with user preferences
+      else if ($scope.user.userPreferences) {
+        $scope.configureTab();
+      }
     }
 
-    // Handle users with user preferences
-    else if ($scope.user.userPreferences) {
-      $scope.configureTab();
-    }
+    //
+    // Initialization: Check that application is configured
+    //
+    configureService.isConfigured().then(function(isConfigured) {
+      if (!isConfigured) {
+        $location.path('/configure');
+      } else {
+        $scope.initialize();
+      }
+    });
 
   } ]);

@@ -7,12 +7,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -55,19 +53,19 @@ public class SourceDataJpa implements SourceData {
   private Long id;
 
   /** The file name. */
-  @Column(nullable = false, unique = true, length = 250)
+  @Column(nullable = false, unique = true)
   private String name;
 
   /** The source data description */
-  @Column(nullable = true, unique = false, length = 4000)
+  @Column(nullable = true, unique = false)
   private String terminology;
 
   /** The source data description */
-  @Column(nullable = true, unique = false, length = 4000)
+  @Column(nullable = true, unique = false)
   private String version;
 
   /** The source data description */
-  @Column(nullable = true, unique = false, length = 4000)
+  @Column(nullable = true, unique = false)
   private String releaseVersion;
 
   /** The source data description */
@@ -75,19 +73,19 @@ public class SourceDataJpa implements SourceData {
   private String description;
 
   /** The timestamp. */
-  @Column(nullable = false, unique = false, length = 250)
+  @Column(nullable = false, unique = false)
   private Date timestamp = new Date();
 
   /** The last modified. */
-  @Column(nullable = false, unique = false, length = 250)
+  @Column(nullable = false, unique = false)
   private Date lastModified;
 
   /** The last modified by. */
-  @Column(nullable = false, unique = false, length = 250)
+  @Column(nullable = false, unique = false)
   private String lastModifiedBy;
 
   /** The data files. */
-  @OneToMany(targetEntity = SourceDataFileJpa.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(targetEntity = SourceDataFileJpa.class, orphanRemoval = true)
   private List<SourceDataFile> sourceDataFiles = new ArrayList<>();
 
   /** The status */

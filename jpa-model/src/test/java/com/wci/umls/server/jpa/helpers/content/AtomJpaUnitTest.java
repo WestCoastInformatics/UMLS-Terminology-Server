@@ -208,6 +208,8 @@ public class AtomJpaUnitTest {
     tester.include("version");
     tester.include("conceptTerminologyIds");
     tester.include("codeId");
+    tester.include("conceptId");
+    tester.include("descriptorId");
     tester.include("language");
     tester.include("lexicalClassId");
     tester.include("stringClassId");

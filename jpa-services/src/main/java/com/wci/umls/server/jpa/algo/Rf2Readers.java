@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.algo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -139,7 +140,8 @@ public class Rf2Readers {
     if (file != null && file.exists()) {
       return new PushBackReader(new BufferedReader(new FileReader(file)));
     } else {
-      return null;
+      // if no file, return an empty stream
+      return new PushBackReader(new StringReader(""));
     }
   }
 

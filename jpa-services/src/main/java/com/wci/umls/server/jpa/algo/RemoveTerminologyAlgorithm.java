@@ -49,20 +49,15 @@ import com.wci.umls.server.services.helpers.ProgressListener;
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
  */
-public class RemoveTerminologyAlgorithm extends AbstractLoaderAlgorithm
-    implements Algorithm {
+@SuppressWarnings("unused")
+public class RemoveTerminologyAlgorithm extends
+    AbstractTerminologyLoaderAlgorithm implements Algorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The request cancel flag. */
   boolean requestCancel = false;
-
-  /** The terminology. */
-  private String terminology;
-
-  /** The version. */
-  private String version;
 
   /** The id type. */
   private IdType idType;
@@ -79,24 +74,6 @@ public class RemoveTerminologyAlgorithm extends AbstractLoaderAlgorithm
    */
   public RemoveTerminologyAlgorithm() throws Exception {
     super();
-  }
-
-  /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /**
-   * Sets the version.
-   *
-   * @param version the version
-   */
-  public void setVersion(String version) {
-    this.version = version;
   }
 
   /**
@@ -135,13 +112,19 @@ public class RemoveTerminologyAlgorithm extends AbstractLoaderAlgorithm
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    removeTerminology(terminology, version, idType);
+    removeTerminology(getTerminology(), getVersion(), idType);
   }
 
   /* see superclass */
   @Override
   public void reset() throws Exception {
     // n/a
+  }
+
+  @Override
+  public String getFileVersion() throws Exception {
+    // do nothing, irrelevant for removal
+    return null;
   }
 
   /**
@@ -761,13 +744,13 @@ public class RemoveTerminologyAlgorithm extends AbstractLoaderAlgorithm
   }
 
   @Override
-  public String getTerminology() {
-    return terminology;
+  public void computeTransitiveClosures() throws Exception {
+    // n/a - this is just a remover
   }
 
   @Override
-  public String getVersion() {
-    return version;
+  public void computeTreePositions() throws Exception {
+    // n/a - this is just a remover
   }
 
 }

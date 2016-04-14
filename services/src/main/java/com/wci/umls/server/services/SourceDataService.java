@@ -3,9 +3,12 @@
  */
 package com.wci.umls.server.services;
 
+import java.util.Map;
+
 import com.wci.umls.server.Project;
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
+import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SourceDataFileList;
@@ -122,8 +125,37 @@ public interface SourceDataService extends RootService {
    * Gets the handler names.
    *
    * @return the handler names
-   * @throws Exception 
+   * @throws Exception the exception
    */
   public KeyValuePairList getSourceDataHandlerNames() throws Exception;
 
+  /**
+   * Register source data loader.
+   *
+   * @param id the id
+   * @param algorithm the algorithm
+   */
+  public void registerSourceDataAlgorithm(Long id, Algorithm algorithm);
+
+  /**
+   * Unregister source data loader.
+   *
+   * @param id the id
+   */
+  public void unregisterSourceDataAlgorithm(Long id);
+
+  /**
+   * Gets the running processes.
+   *
+   * @return the running processes
+   */
+  public Map<Long, Algorithm> getRunningProcesses();
+
+  /**
+   * Gets the running process for id.
+   *
+   * @param id the id
+   * @return the running process for id
+   */
+  public Algorithm getRunningProcessForId(Long id);
 }

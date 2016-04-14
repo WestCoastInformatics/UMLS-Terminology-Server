@@ -1,0 +1,193 @@
+
+#
+# Database Connection Parameters
+#
+hibernate.dialect=org.hibernate.dialect.MySQLDialect
+hibernate.connection.useUnicode=true
+hibernate.connection.characterEncoding=UTF-8
+hibernate.connection.charSet=UTF-8
+javax.persistence.jdbc.driver=com.mysql.jdbc.Driver
+javax.persistence.jdbc.url=jdbc:mysql://127.0.0.1:3306/${db.name}?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&useLocalSessionState=true
+javax.persistence.jdbc.user=${db.user}
+javax.persistence.jdbc.password=${db.password}
+
+
+#
+# JPA settings
+#
+hibernate.show_sql=false
+hibernate.format_sql=true
+hibernate.use_sql_comments=false
+hibernate.jdbc.batch_size=500
+hibernate.jdbc.default_batch_fetch_size=32
+hibernate.order_inserts=true
+hibernate.order_updates=true
+hibernate.jdbc.batch_versioned_data=true
+
+#
+# Envers auditing setting (disable for read-only or test environments)
+#
+hibernate.listeners.envers.autoRegister=false
+
+# c3p0 config - http://www.mchange.com/projects/c3p0/
+hibernate.connection.provider_class=org.hibernate.connection.C3P0ConnectionProvider
+hibernate.c3p0.acquireIncrement=1
+hibernate.c3p0.maxPoolSize=64
+hibernate.c3p0.minPoolSize=5
+hibernate.c3p0.maxIdleTime=3600
+hibernate.c3p0.idleConnectionTestPeriod=1800
+hibernate.c3p0.testConnectionOnCheckin=true
+hibernate.c3p0.maxConnectionAge=3600
+hibernate.c3p0.preferredTestQuery=select 1;
+
+#
+# Lucene index base
+#
+hibernate.search.default.indexBase=${app.dir}/indexes/
+hibernate.search.default.directory_provider=filesystem
+index.packages=com.wci.umls.server
+
+#
+# Search handler
+#
+search.handler=DEFAULT,ATOMCLASS
+search.handler.DEFAULT.class=com.wci.umls.server.jpa.services.handlers.DefaultSearchHandler
+search.handler.ATOMCLASS.class=com.wci.umls.server.jpa.services.handlers.AtomClassSearchHandler
+search.handler.ATOMCLASS.acronymsFile=c:/umlsserver/data/acronyms.txt
+search.handler.ATOMCLASS.spellingFile=c:/umlsserver/data/spelling.txt
+search.handler.ATOMCLASS.spellingIndex=c:/umlsserver/data/indexes/spelling
+
+#
+# Metadata Service Settings (one for each "terminology")
+# DEFAULT is used for any terminologies not found
+#
+metadata.service.handler=DEFAULT,UMLS
+metadata.service.handler.DEFAULT.class=com.wci.umls.server.jpa.services.helper.UmlsMetadataServiceJpaHelper
+metadata.service.handler.DEFAULT.terminology=UMLS
+metadata.service.handler.DEFAULT.version=latest
+metadata.service.handler.UMLS.class=com.wci.umls.server.jpa.services.helper.StandardMetadataServiceJpaHelper
+
+#
+# Compute preferred name handlers
+# DEFAULT is used for any terminologies not found
+#
+compute.preferred.name.handler=DEFAULT
+compute.preferred.name.handler.DEFAULT.class=com.wci.umls.server.jpa.services.handlers.RrfComputePreferredNameHandler
+compute.preferred.name.handler.DEFAULT.terminology=UMLS
+compute.preferred.name.handler.DEFAULT.version=latest
+
+#
+# Normalized string handler
+#
+normalized.string.handler=DEFAULT
+normalized.string.handler.DEFAULT.class=com.wci.umls.server.jpa.services.handlers.LuceneNormalizedStringHandler
+# currently not used
+normalized.string.handler.LVG.class=com.wci.umls.server.custom.LvgNormalizedStringHandler
+normalized.string.handler.LVG.lvg.dir=C:/umlsserver/lvg2015
+
+#
+# Validation Service Settings
+# 
+validation.service.handler=DEFAULT
+validation.service.handler.DEFAULT.class=com.wci.umls.server.jpa.services.validation.DefaultValidationCheck
+
+#
+# Workflow listener handler
+#
+workflow.listener.handler=DEFAULT
+workflow.listener.handler.DEFAULT.class=com.wci.umls.server.jpa.services.handlers.DefaultWorkflowListener
+
+#
+# Classifier - TBD
+#
+#classifier.handler=SNOROCKET
+#classifier.handler.SNOROCKET.class=com.wci.umls.server.jpa.services.handlers.SnorocketClassifier;
+
+#
+# Graph resolution handler
+#
+graph.resolution.handler=DEFAULT,UMLS
+graph.resolution.handler.DEFAULT.class=com.wci.umls.server.jpa.services.handlers.DefaultGraphResolutionHandler
+graph.resolution.handler.UMLS.class=com.wci.umls.server.jpa.services.handlers.UmlsGraphResolutionHandler
+
+#
+# Identifier assignment handler
+#
+identifier.assignment.handler=DEFAULT
+identifier.assignment.handler.DEFAULT.class=com.wci.umls.server.jpa.services.handlers.DefaultIdentifierAssignmentHandler
+
+#
+# Identifier release handler
+#
+identifier.release.handler=DEFAULT
+identifier.release.handler.DEFAULT.class=com.wci.umls.server.jpa.services.handlers.DefaultIdentifierAssignmentHandler
+
+#
+# Source data upload directory and handlers
+#
+source.data.dir=${app.dir}/uploads
+source.data.handler=RF2SNAPSHOT,RF2DELTA
+source.data.handler.RF2SNAPSHOT.class=com.wci.umls.server.jpa.services.handlers.Rf2SnapshotSourceDataHandler
+source.data.handler.RF2DELTA.class=com.wci.umls.server.jpa.services.handlers.Rf2DeltaSourceDataHandler
+
+#
+# Service configuration
+#
+action.service.timeout=7200000
+
+#
+# Webapp base URL (currently unused)
+#
+base.url=http://localhost:8080/umls-server-rest
+# Used to determine the -Drun.config.XXX label for execution environment, default is "umls"
+run.config.label=umls
+deploy.link=http://www.westcoastinformatics.com
+deploy.footer.copyright=Copyright @2016
+deploy.title=Term Server Demo
+deploy.password.reset=http://passwordreset.example.com
+deploy.presented.by=Presented by \
+ <a href="http://www.westcoastinformatics.com">West Coast \
+ Informatics, LLC</a>
+site.verification.file=google3aef83c7ba606df3.html
+site.tracking.code=<!-- sample tracking \
+  code -->
+  
+#
+# URL for security service
+#
+security.timeout=7200000
+security.handler=DEFAULT
+security.handler.DEFAULT.class=com.wci.umls.server.jpa.services.handlers.DefaultSecurityServiceHandler
+security.handler.DEFAULT.users.admin=admin
+security.handler.DEFAULT.users.viewer=guest
+security.handler.UTS.class=com.wci.umls.server.jpa.services.handlers.UtsSecurityServiceHandler
+security.handler.UTS.license.code=NLM-XXX
+security.handler.UTS.url=https://uts-ws.nlm.nih.gov/restful/isValidUMLSUser
+
+#
+# Admin user for running mojos
+#
+admin.user=admin
+admin.password=admin
+
+#
+# Integration test parameters
+# viewer.user must validate with your security setup using viewer.password
+# bad.user must not validate with your security setup
+#
+viewer.user=guest
+viewer.password=guest
+bad.user=i_am_a_bad_user
+bad.password=i_am_a_bad_password
+
+#
+# Exception processing emails
+#
+mail.enabled=true
+mail.smtp.user=EDIT_THIS
+mail.smtp.password=
+mail.smtp.host=localhost
+mail.smtp.port=587
+mail.smtp.starttls.enable=false
+mail.smtp.auth=false
+mail.smtp.to=EDIT_THIS

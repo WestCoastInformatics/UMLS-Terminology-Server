@@ -13,25 +13,36 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import com.google.common.io.Files;
+import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
  * File sorter for RF2 files. This creates files with standard file names in the
  * specified output directory. See the source code for details.
  */
-public class Rf2FileSorter {
+public class Rf2FileSorter implements Algorithm {
 
   /** The sort by effective time. */
   private boolean sortByEffectiveTime = false;
 
-  /** The file version. */
-  private String fileVersion;
+
 
   /** The require all files. */
   private boolean requireAllFiles = false;
 
-  /** Whether the files are in flat structure instead of directory structure */
-  private boolean flatFileStructure = false;
+  /** The input dir */
+  private String inputDir = null;
+
+  /** The output dir */
+  private String outputDir = null;
+
+  /** The cancel flag */
+  private boolean requestCancel = false;
+
+  /** The directory map */
+  Map<String, String> dirMap = new HashMap<>();
 
   /**
    * Instantiates an empty {@link Rf2FileSorter}.
@@ -39,7 +50,37 @@ public class Rf2FileSorter {
    * @throws Exception if anything goes wrong
    */
   public Rf2FileSorter() throws Exception {
-    // do nothing
+    dirMap = new HashMap<>();
+
+    dirMap.put("sct2_Concept_", "/Terminology");
+    dirMap.put("sct2_Relationship_", "/Terminology");
+    dirMap.put("sct2_StatedRelationship_", "/Terminology");
+    dirMap.put("sct2_Description_", "/Terminology");
+    dirMap.put("sct2_TextDefinition_", "/Terminology");
+    dirMap.put("Refset_Simple", "/Refset/Content");
+    dirMap.put("AttributeValue", "/Refset/Content");
+    dirMap.put("AssociationReference", "/Refset/Content");
+    dirMap.put("ComplexMap", "/Refset/Map");
+    dirMap.put("ExtendedMap", "/Refset/Map");
+    dirMap.put("SimpleMap", "/Refset/Map");
+    dirMap.put("Language", "/Refset/Language");
+    dirMap.put("RefsetDescriptor", "/Refset/Metadata");
+    dirMap.put("ModuleDependency", "/Refset/Metadata");
+    dirMap.put("DescriptionType", "/Refset/Metadata");
+  }
+
+  /**
+   * @param inputDir
+   */
+  public void setInputDir(String inputDir) {
+    this.inputDir = inputDir;
+  }
+
+  /**
+   * @param outputDir
+   */
+  public void setOutputDir(String outputDir) {
+    this.outputDir = outputDir;
   }
 
   /**
@@ -64,74 +105,56 @@ public class Rf2FileSorter {
    * Returns the file version.
    *
    * @return the file version
+   * @throws Exception
    */
-  public String getFileVersion() {
-    return fileVersion;
-  }
+  public String getFileVersion() throws Exception {
+    
+    String fileVersion = null;
 
-  /**
-   * Sets the flat file structure flag
-   * @param flatFileStructure
-   */
-  public void setFlatFileStructure(boolean flatFileStructure) {
-    this.flatFileStructure = flatFileStructure;
+    for (String dirName : dirMap.values()) {
+      for (String fileName : new File(inputDir + dirName).list()) {
+        // match last _dddddd
+        try {
+          Matcher matcher = Pattern.compile("\\d+")
+              .matcher(fileName.substring(fileName.lastIndexOf('_')));
+          matcher.find();
+          fileVersion = matcher.group();
+        } catch (Exception e) {
+          // do nothing
+        }
+
+      }
+    }
+
+    if (fileVersion == null) {
+      throw new Exception(
+          "Unable to determine file version from input directory " + inputDir);
+    }
+    return fileVersion;
   }
 
   /**
    * Sort files.
    *
-   * @param inputDir the input dir
-   * @param outputDir the output dir
    * @throws Exception the exception
    */
-  public void sortFiles(File inputDir, File outputDir) throws Exception {
+  @Override
+  public void compute() throws Exception {
     Logger.getLogger(getClass()).info("Start sorting files");
+
+    File inputDirFile = new File(inputDir);
+    File outputDirFile = new File(outputDir);
 
     // Remove and remake output dir
     Logger.getLogger(getClass()).info("  Remove and remake output dir");
-    ConfigUtility.deleteDirectory(outputDir);
-    if (!outputDir.mkdirs()) {
+    ConfigUtility.deleteDirectory(outputDirFile);
+    if (!outputDirFile.mkdirs()) {
       throw new Exception("Problem making output dir: " + outputDir);
     }
 
     // Check preconditions
-    if (!inputDir.exists()) {
+    if (!inputDirFile.exists()) {
       throw new Exception("Input dir does not exist: " + inputDir);
-    }
-
-    Map<String, String> dirMap = new HashMap<>();
-    if (flatFileStructure) {
-      dirMap.put("sct2_Concept_", "/");
-      dirMap.put("sct2_Relationship_", "/");
-      dirMap.put("sct2_StatedRelationship_", "/");
-      dirMap.put("sct2_Description_", "/");
-      dirMap.put("sct2_TextDefinition_", "/");
-      dirMap.put("Refset_Simple", "/");
-      dirMap.put("AttributeValue", "/");
-      dirMap.put("AssociationReference", "/");
-      dirMap.put("ComplexMap", "/");
-      dirMap.put("ExtendedMap", "/");
-      dirMap.put("SimpleMap", "/");
-      dirMap.put("Language", "/");
-      dirMap.put("RefsetDescriptor", "/");
-      dirMap.put("ModuleDependency", "/");
-      dirMap.put("DescriptionType", "/");
-    } else {
-      dirMap.put("sct2_Concept_", "/Terminology");
-      dirMap.put("sct2_Relationship_", "/Terminology");
-      dirMap.put("sct2_StatedRelationship_", "/Terminology");
-      dirMap.put("sct2_Description_", "/Terminology");
-      dirMap.put("sct2_TextDefinition_", "/Terminology");
-      dirMap.put("Refset_Simple", "/Refset/Content");
-      dirMap.put("AttributeValue", "/Refset/Content");
-      dirMap.put("AssociationReference", "/Refset/Content");
-      dirMap.put("ComplexMap", "/Refset/Map");
-      dirMap.put("ExtendedMap", "/Refset/Map");
-      dirMap.put("SimpleMap", "/Refset/Map");
-      dirMap.put("Language", "/Refset/Language");
-      dirMap.put("RefsetDescriptor", "/Refset/Metadata");
-      dirMap.put("ModuleDependency", "/Refset/Metadata");
-      dirMap.put("DescriptionType", "/Refset/Metadata");
     }
 
     Map<String, Integer> sortByMap = new HashMap<>();
@@ -175,21 +198,14 @@ public class Rf2FileSorter {
     // Sort files
     int[] fields = null;
     for (String key : dirMap.keySet()) {
+
+      if (requestCancel) {
+        throw new CancelException("Cancel requested");
+      }
+
       Logger.getLogger(getClass()).info("  Sorting for " + key);
       final File file = findFile(new File(inputDir + dirMap.get(key)), key);
       Logger.getLogger(getClass()).info("    file = " + file);
-
-      // Determine file version from filename
-      if (fileVersion == null) {
-        Matcher matcher = Pattern.compile("\\d+")
-            .matcher(file.getName().substring(file.getName().lastIndexOf('_')));
-        matcher.find();
-        fileVersion = matcher.group();
-        if (fileVersion == null) {
-          throw new Exception(
-              "Unable to determine file version from " + file.getName());
-        }
-      }
 
       // Determine fields to sort by
       if (sortByEffectiveTime) {
@@ -206,7 +222,7 @@ public class Rf2FileSorter {
         sortRf2File(file, new File(outputDir + "/" + fileMap.get(key)), fields);
       } else {
         // otherwise just create an empty "sort" file
-        new File(inputDir + dirMap.get(key) + "/" + fileMap.get(key))
+        new File(outputDir + dirMap.get(key) + "/" + fileMap.get(key))
             .createNewFile();
       }
     }
@@ -229,7 +245,7 @@ public class Rf2FileSorter {
     }
 
     File mergedRel = ConfigUtility.mergeSortedFiles(relationshipsFile,
-        statedRelationshipsFile, getComparator(fields), outputDir, "");
+        statedRelationshipsFile, getComparator(fields), outputDirFile, "");
 
     // rename the temporary file
     Files.move(mergedRel,
@@ -321,5 +337,35 @@ public class Rf2FileSorter {
         return 0;
       }
     };
+  }
+
+  @Override
+  public void addProgressListener(ProgressListener l) {
+    // do nothing
+
+  }
+
+  @Override
+  public void removeProgressListener(ProgressListener l) {
+    // do nothing
+
+  }
+
+  @Override
+  public void reset() throws Exception {
+    // do nothing
+
+  }
+
+  @Override
+  public void cancel() throws Exception {
+    requestCancel = true;
+
+  }
+
+  @Override
+  public void close() throws Exception {
+    // do nothing
+
   }
 }

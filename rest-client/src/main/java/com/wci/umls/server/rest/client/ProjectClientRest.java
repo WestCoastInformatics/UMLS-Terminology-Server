@@ -151,7 +151,7 @@ public class ProjectClientRest extends RootClientRest implements
     Logger.getLogger(getClass()).debug("Project Client - get projects");
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/projects");
+        client.target(config.getProperty("base.url") + "/project/all");
     Response response =
         target.request(MediaType.APPLICATION_XML)
             .header("Authorization", authToken).get();

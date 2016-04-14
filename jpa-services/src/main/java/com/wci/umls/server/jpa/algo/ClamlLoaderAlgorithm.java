@@ -32,7 +32,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.wci.umls.server.ReleaseInfo;
-import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
@@ -79,8 +79,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * Implementation of an algorithm to import ClaML data.
  */
-public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
-    Algorithm {
+public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -91,7 +90,7 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
   /** The version. */
   String version;
 
-  /** release version. */
+  /** The release version. */
   String releaseVersion;
 
   /** The release version date. */
@@ -118,6 +117,13 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
   /** The loader. */
   final String loader = "loader";
 
+  /** The tree pos algorithm. */
+  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
+
+  /** The trans closure algorithm. */
+  final TransitiveClosureAlgorithm transClosureAlgorithm =
+      new TransitiveClosureAlgorithm();
+
   /**
    * Instantiates an empty {@link ClamlLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -126,11 +132,32 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
     super();
   }
 
+  @Override
+  public String getFileVersion() throws Exception {
+    BufferedReader br = new BufferedReader(new FileReader(inputFile));
+    String line = null;
+    String releaseVersion = null;
+    while ((line = br.readLine()) != null) {
+      if (line.contains("<Title")) {
+        int versionIndex = line.indexOf("version=");
+        if (line.contains("></Title>"))
+          releaseVersion =
+              line.substring(versionIndex + 9, line.indexOf("></Title>") - 1);
+        else
+          releaseVersion = line.substring(versionIndex + 9, versionIndex + 13);
+        break;
+      }
+    }
+    br.close();
+    return releaseVersion;
+  }
+
   /**
    * Sets the terminology.
    *
    * @param terminology the terminology
    */
+  @Override
   public void setTerminology(String terminology) {
     this.terminology = terminology;
   }
@@ -140,6 +167,7 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
    *
    * @param version the version
    */
+  @Override
   public void setVersion(String version) {
     this.version = version;
   }
@@ -162,7 +190,9 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
     this.inputFile = inputFile;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.algo.Algorithm#compute()
    */
   /* see superclass */
@@ -187,7 +217,8 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
       }
 
       // open input file and get effective time and version and language
-      findVersion(inputFile);
+      releaseVersion = getFileVersion();
+      releaseVersionDate = ConfigUtility.DATE_FORMAT3.parse(releaseVersion);
       findLanguage(inputFile);
 
       // Prep SAX parser
@@ -262,7 +293,9 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
 
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.algo.Algorithm#reset()
    */
   /* see superclass */
@@ -286,8 +319,12 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
     logInfo("    " + pct + "% " + note);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.helpers.ProgressReporter#addProgressListener(com.wci.umls.server.services.helpers.ProgressListener)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.helpers.ProgressReporter#addProgressListener(
+   * com.wci.umls.server.services.helpers.ProgressListener)
    */
   /* see superclass */
   @Override
@@ -295,8 +332,12 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
     listeners.add(l);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.helpers.ProgressReporter#removeProgressListener(com.wci.umls.server.services.helpers.ProgressListener)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.wci.umls.server.services.helpers.ProgressReporter#
+   * removeProgressListener(com.wci.umls.server.services.helpers.
+   * ProgressListener)
    */
   /* see superclass */
   @Override
@@ -304,13 +345,58 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
     listeners.remove(l);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.algo.Algorithm#cancel()
-   */
   /* see superclass */
   @Override
-  public void cancel() {
-    throw new UnsupportedOperationException("cannot cancel.");
+  public void computeTreePositions() throws Exception {
+
+    try {
+      Logger.getLogger(getClass()).info("Computing tree positions");
+      treePosAlgorithm.setCycleTolerant(false);
+      treePosAlgorithm.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      treePosAlgorithm.setCycleTolerant(true);
+      treePosAlgorithm.setComputeSemanticType(true);
+      treePosAlgorithm.setTerminology(terminology);
+      treePosAlgorithm.setVersion(version);
+      treePosAlgorithm.reset();
+      treePosAlgorithm.compute();
+      treePosAlgorithm.close();
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Tree position computation cancelled");
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public void computeTransitiveClosures() throws Exception {
+    Logger.getLogger(getClass()).info(
+        "  Compute transitive closure from  " + terminology + "/" + version);
+    try {
+      transClosureAlgorithm.setCycleTolerant(false);
+      transClosureAlgorithm.setIdType(IdType.CONCEPT);
+      transClosureAlgorithm.setTerminology(terminology);
+      transClosureAlgorithm.setVersion(version);
+      transClosureAlgorithm.reset();
+      transClosureAlgorithm.compute();
+      transClosureAlgorithm.close();
+
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Tree position computation cancelled");
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public void cancel() throws Exception {
+    // cancel any currently running local algorithms
+    treePosAlgorithm.cancel();
+    transClosureAlgorithm.cancel();
+
+    // invoke superclass cancel
+    super.cancel();
   }
 
   /**
@@ -454,8 +540,11 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
       super();
     }
 
-    /* (non-Javadoc)
-     * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String, java.lang.String, java.lang.String, org.xml.sax.Attributes)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+     * java.lang.String, java.lang.String, org.xml.sax.Attributes)
      */
     /* see superclass */
     @Override
@@ -667,8 +756,11 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
 
     }
 
-    /* (non-Javadoc)
-     * @see org.xml.sax.helpers.DefaultHandler#endElement(java.lang.String, java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xml.sax.helpers.DefaultHandler#endElement(java.lang.String,
+     * java.lang.String, java.lang.String)
      */
     /* see superclass */
     @Override
@@ -918,7 +1010,9 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
 
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.xml.sax.helpers.DefaultHandler#characters(char[], int, int)
      */
     /* see superclass */
@@ -927,7 +1021,9 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
       chars.append(new String(ch, start, length));
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.xml.sax.helpers.DefaultHandler#endDocument()
      */
     /* see superclass */
@@ -1833,32 +1929,6 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
   }
 
   /**
-   * Find version.
-   *
-   * @param inputFile the input file
-   * @throws Exception the exception
-   */
-  public void findVersion(String inputFile) throws Exception {
-    BufferedReader br = new BufferedReader(new FileReader(inputFile));
-    String line = null;
-    while ((line = br.readLine()) != null) {
-      if (line.contains("<Title")) {
-        int versionIndex = line.indexOf("version=");
-        if (line.contains("></Title>"))
-          releaseVersion =
-              line.substring(versionIndex + 9, line.indexOf("></Title>") - 1);
-        else
-          releaseVersion = line.substring(versionIndex + 9, versionIndex + 13);
-        break;
-      }
-    }
-    br.close();
-    // Override version with parameter
-    releaseVersionDate = ConfigUtility.DATE_FORMAT3.parse(releaseVersion);
-    logInfo("version: " + releaseVersion);
-  }
-
-  /**
    * Find language.
    *
    * @param inputFile the input file
@@ -2123,7 +2193,9 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
     }
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.jpa.algo.AbstractLoaderAlgorithm#getTerminology()
    */
   /* see superclass */
@@ -2132,7 +2204,9 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
     return terminology;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.jpa.algo.AbstractLoaderAlgorithm#getVersion()
    */
   /* see superclass */
@@ -2140,4 +2214,5 @@ public class ClamlLoaderAlgorithm extends AbstractLoaderAlgorithm implements
   public String getVersion() {
     return version;
   }
+
 }

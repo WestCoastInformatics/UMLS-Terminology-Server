@@ -12,6 +12,6 @@ tsApp.directive('pager', [ function() {
     link : function(scope, element, attrs) {
       console.debug('PAGER', scope.paging);
     }
-  }
+  };
 } ]);
   

@@ -26,14 +26,12 @@ tsApp.directive('treeSearchResult', [
 
         // page sizes
         scope.pageSizeSibling = 10;
-        
 
         // computed tooltip html for derived labels
         // NOTE: Must not be null or empty string, or uib-tooltip-html
         // will not properly register the first mouseover event
         scope.labelTooltipHtml = "&nbsp;";
 
-        
         //
         // Extension highlighting: derived label sets
         //
@@ -43,35 +41,36 @@ tsApp.directive('treeSearchResult', [
         scope.getDerivedLabelSetsValueFromTree = function(nodeScope) {
           scope.labelTooltipHtml = $sce.trustAsHtml('<div style="text-align:left;">'
             + metadataService.getDerivedLabelSetsValue(nodeScope.$modelValue) + '</div>');
-          console.debug('derived label html', metadataService.getDerivedLabelSetsValue(nodeScope.$modelValue));
-        }
+          console.debug('derived label html', metadataService
+            .getDerivedLabelSetsValue(nodeScope.$modelValue));
+        };
 
         scope.isDerivedLabelSetFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
           return metadataService.isDerivedLabelSet(tree);
-        }
+        };
 
         //
         // Extension highlighting: label sets
         //
-        
+
         // function called on mouseovers to set computed tooltip html
         // workaround used to get around $sce.trustAsHtml infinite digest loops
         scope.getLabelSetsValueFromTree = function(nodeScope) {
           scope.labelTooltipHtml = $sce.trustAsHtml('<div style="text-align:left;">'
             + metadataService.getLabelSetsValue(nodeScope.$modelValue) + '</div>');
           console.debug('label html', metadataService.getLabelSetsValue(nodeScope.$modelValue));
-        }
+        };
 
         scope.isLabelSetFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
           return metadataService.isLabelSet(tree);
-        }
+        };
 
         //
         // Tree Operations
         //
-        
+
         // retrieves the children for a node (from DOM)
         scope.getTreeChildrenFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
@@ -79,7 +78,7 @@ tsApp.directive('treeSearchResult', [
             console.debug('adding children', children);
             tree.children = tree.children.concat(children);
           });
-        }
+        };
 
         // retrieves children for a node (not from DOM)
         scope.getTreeChildren = function(tree) {
@@ -91,7 +90,8 @@ tsApp.directive('treeSearchResult', [
             deferred.resolve([]);
           }
 
-          // get the next page of children based on start index of current children length
+          // get the next page of children based on start index of current
+          // children length
           contentService.getChildTrees(tree, tree.children.length).then(function(data) {
             console.debug('retrieved children', data);
             deferred.resolve(data.trees);
@@ -101,7 +101,7 @@ tsApp.directive('treeSearchResult', [
           });
 
           return deferred.promise;
-        }
+        };
 
         // toggles a node (from DOM)
         scope.toggleTree = function(nodeScope) {
@@ -114,10 +114,11 @@ tsApp.directive('treeSearchResult', [
             nodeScope.toggle();
           }
 
-          // otherwise if a full page of siblings not already loaded, get first page
+          // otherwise if a full page of siblings not already loaded, get first
+          // page
           else if (tree.children.length != tree.childCt
             && tree.children.length < scope.pageSizeSibling) {
-            console.debug('getting children')
+            console.debug('getting children');
             scope.getTreeChildren(tree).then(function(children) {
               console.debug('adding children', children);
               tree.children = tree.children.concat(children);
@@ -129,7 +130,7 @@ tsApp.directive('treeSearchResult', [
             console.debug('collapsing');
             nodeScope.toggle();
           }
-        }
+        };
 
         // returns the display icon for a node (from DOM)
         scope.getTreeNodeIcon = function(nodeScope) {
@@ -140,15 +141,16 @@ tsApp.directive('treeSearchResult', [
             return 'glyphicon-leaf';
           }
 
-          // if formally collapsed or less than sibling page size retrieved children, return plus sign
+          // if collapsed or unloaded
+          else if (nodeScope.collapsed || (tree.childCt > 0 && tree.children.length == 0)) {
+            return 'glyphicon-chevron-right';
+          }
+
+          // if formally collapsed or less than sibling page size retrieved
+          // children, return plus sign
           else if (tree.children.length != tree.childCt
             && tree.children.length < scope.pageSizeSibling) {
             return 'glyphicon-plus';
-          }
-
-          // if collapsed or unloaded
-          else if (nodeScope.collapsed || (tree.childCt > 0 && tree.children.length == 0)) {
-            return 'glyphicon-chevron-right'
           }
 
           // otherwise, return minus sign

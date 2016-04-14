@@ -18,6 +18,12 @@ public interface SourceDataHandler extends Algorithm, Configurable {
    * @param sourceData the source data
    */
   public void setSourceData(SourceData sourceData);
+  
+  /**
+   * Removes the loaded data
+   * @throws Exception 
+   */
+  public void remove() throws Exception;
 
   
   

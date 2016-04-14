@@ -24,6 +24,9 @@ public interface SourceData extends HasTerminology, HasLastModified, HasName {
 
     /** The new. */
     NEW,
+    
+    /** The cancelled. */
+    CANCELLED,
 
     /** The loading. */
     LOADING,
@@ -38,10 +41,10 @@ public interface SourceData extends HasTerminology, HasLastModified, HasName {
     LOADING_COMPLETE,
 
     /** The REMOVING failed. */
-    REMOVING_FAILED,
+    REMOVAL_FAILED,
 
     /** The REMOVING complete. */
-    REMOVING_COMPLETE
+    REMOVAL_COMPLETE
 
   }
 

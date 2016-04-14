@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.algo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,8 +18,8 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
 import com.wci.umls.server.ReleaseInfo;
-import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
@@ -76,8 +77,8 @@ import com.wci.umls.server.services.helpers.PushBackReader;
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
-    implements Algorithm {
+public class Rf2SnapshotLoaderAlgorithm extends
+    AbstractTerminologyLoaderAlgorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
@@ -113,17 +114,11 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
   /** The preferred atoms set. */
   private Set<String> prefAtoms = new HashSet<>();
 
-  /** The terminology. */
-  private String terminology;
+  /** The release getVersion(). */
+  private String releaseVersion = null;
 
-  /** The version. */
-  private String version;
-
-  /** The release version. */
-  private String releaseVersion;
-
-  /** The release version date. */
-  private Date releaseVersionDate;
+  /** The release getVersion() date. */
+  private Date releaseVersionDate = null;
 
   /** The readers. */
   private Rf2Readers readers;
@@ -182,6 +177,20 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
   /** The published. */
   final String published = "PUBLISHED";
 
+  /** The tree pos algorithm. */
+  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
+
+  /** The trans closure algorithm. */
+  final TransitiveClosureAlgorithm transClosureAlgorithm =
+      new TransitiveClosureAlgorithm();
+
+  /** The label set algorithm. */
+  final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
+      new LabelSetMarkedParentAlgorithm();
+
+  /** The RF2 File sorting algorithm. */
+  final Rf2FileSorter sorter = new Rf2FileSorter();
+
   /**
    * Instantiates an empty {@link Rf2SnapshotLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -190,55 +199,81 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     super();
   }
 
-  /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /**
-   * Sets the version.
-   *
-   * @param version the version
-   */
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  /**
-   * Sets the release version.
-   *
-   * @param releaseVersion the rlease version
-   */
-  public void setReleaseVersion(String releaseVersion) {
-    this.releaseVersion = releaseVersion;
-  }
-
-  /**
-   * Sets the readers.
-   *
-   * @param readers the readers
-   */
-  public void setReaders(Rf2Readers readers) {
-    this.readers = readers;
+  /* see superclass */
+  @Override
+  public String getFileVersion() throws Exception {
+    Rf2FileSorter sorter = new Rf2FileSorter();
+    sorter.setInputDir(getInputPath());
+    return sorter.getFileVersion();
   }
 
   /* see superclass */
   @Override
   public void compute() throws Exception {
+
+    // check prerequisites
+    if (getTerminology() == null) {
+      throw new Exception("Terminology name must be specified");
+    }
+    if (getVersion() == null) {
+      throw new Exception("Terminology getVersion() must be specified");
+    }
+    if (getInputPath() == null) {
+      throw new Exception("Input directory must be specified");
+    }
+
     try {
+
+      long startTimeOrig = System.nanoTime();
+
       logInfo("Start loading snapshot");
-      logInfo("  terminology = " + terminology);
-      logInfo("  version = " + version);
-      logInfo("  releaseVersion = " + releaseVersion);
+      logInfo("  terminology = " + getTerminology());
+      logInfo("  version = " + getVersion());
+      logInfo("  inputDir = " + getInputPath());
+      logInfo("  sorting files = " + isSortFiles());
+
+      // Check the input directory
+      File inputFile = new File(getInputPath());
+      if (!inputFile.exists()) {
+        throw new Exception("Specified input directory does not exist");
+      }
+
+      // prepare the sorting algorithm
+      sorter.setInputDir(getInputPath());
+
+      // get the release getVersion()
+      releaseVersion = sorter.getFileVersion();
       releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
+      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
+
+      // check output dir exists if no sort specified
+      if (!isSortFiles()
+          && !new File(getInputPath() + "/RF2-sorted-temp/").exists()) {
+        throw new Exception(
+            "No sort specified, but previously sorted files do not exist.");
+      }
+
+      // Sort files
+      else {
+
+        Logger.getLogger(getClass()).info("  Sort RF2 Files");
+        Logger.getLogger(getClass()).info("    sort by effective time: false");
+        Logger.getLogger(getClass()).info("    require all files     : false");
+
+        sorter.setOutputDir(getInputPath() + "/RF2-sorted-temp/");
+        sorter.setSortByEffectiveTime(false);
+        sorter.setRequireAllFiles(true);
+        sorter.compute();
+
+      }
+
+      // Open readers
+      readers = new Rf2Readers(new File(getInputPath() + "/RF2-sorted-temp/"));
+      readers.openReaders();
 
       // control transaction scope
       setTransactionPerOperation(false);
-      // Turn of ID computation when loading a terminology
+      // Turn of ID computation when loading a getTerminology()
       setAssignIdentifiersFlag(false);
       // Let loader set last modified flags.
       setLastModifiedFlag(false);
@@ -342,17 +377,18 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       //
       // Create ReleaseInfo for this release if it does not already exist
       //
-      ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
+      ReleaseInfo info = getReleaseInfo(getTerminology(), releaseVersion);
       if (info == null) {
         info = new ReleaseInfoJpa();
         info.setName(releaseVersion);
-        info.setDescription(terminology + " " + releaseVersion + " release");
+        info.setDescription(getTerminology() + " " + releaseVersion
+            + " release");
         info.setPlanned(false);
         info.setPublished(true);
         info.setReleaseBeginDate(releaseVersionDate);
         info.setReleaseFinishDate(releaseVersionDate);
-        info.setTerminology(terminology);
-        info.setVersion(version);
+        info.setTerminology(getTerminology());
+        info.setVersion(getVersion());
         info.setLastModified(releaseVersionDate);
         info.setLastModifiedBy(loader);
         addReleaseInfo(info);
@@ -362,12 +398,88 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       // clear and commit
       commitClearBegin();
 
-      logInfo(getComponentStats(terminology, version, Branch.ROOT).toString());
+      // Clean-up
+      readers.closeReaders();
+
+      // if sorted files were created, delete them
+      if (isSortFiles()) {
+        ConfigUtility.deleteDirectory(new File(getInputPath(),
+            "/RF2-sorted-temp/"));
+      }
+
+      // Final logging messages
+      Logger.getLogger(getClass()).info(
+          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+      Logger.getLogger(getClass()).info("done ...");
+
+      logInfo(getComponentStats(getTerminology(), getVersion(), Branch.ROOT)
+          .toString());
 
       logInfo("Done ...");
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Compute cancelled");
 
     } catch (Exception e) {
       throw e;
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public void computeTreePositions() throws Exception {
+
+    try {
+      Logger.getLogger(getClass()).info("Computing tree positions");
+      treePosAlgorithm.setCycleTolerant(false);
+      treePosAlgorithm.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      treePosAlgorithm.setCycleTolerant(true);
+      treePosAlgorithm.setComputeSemanticType(true);
+      treePosAlgorithm.setTerminology(getTerminology());
+      treePosAlgorithm.setVersion(getVersion());
+      treePosAlgorithm.reset();
+      treePosAlgorithm.compute();
+      treePosAlgorithm.close();
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Tree position computation cancelled");
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public void computeTransitiveClosures() throws Exception {
+    Logger.getLogger(getClass()).info(
+        "  Compute transitive closure from  " + getTerminology() + "/"
+            + getVersion());
+    try {
+      transClosureAlgorithm.setCycleTolerant(false);
+      transClosureAlgorithm.setIdType(IdType.CONCEPT);
+      transClosureAlgorithm.setTerminology(getTerminology());
+      transClosureAlgorithm.setVersion(getVersion());
+      transClosureAlgorithm.reset();
+      transClosureAlgorithm.compute();
+      transClosureAlgorithm.close();
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      for (final Subset subset : getConceptSubsets(getTerminology(),
+          getVersion(), Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isLabelSubset()) {
+          Logger.getLogger(getClass()).info(
+              "  Create label set for subset = " + subset);
+
+          labelSetAlgorithm.setSubset(conceptSubset);
+          labelSetAlgorithm.compute();
+          labelSetAlgorithm.close();
+        }
+      }
+    } catch (CancelException e) {
+      Logger.getLogger(getClass()).info("Cancel request detected");
+      throw new CancelException("Tree position computation cancelled");
     }
   }
 
@@ -406,8 +518,15 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
   /* see superclass */
   @Override
-  public void cancel() {
-    throw new UnsupportedOperationException("cannot cancel.");
+  public void cancel() throws Exception {
+    // cancel any currently running local algorithms
+    sorter.cancel();
+    treePosAlgorithm.cancel();
+    transClosureAlgorithm.cancel();
+    labelSetAlgorithm.cancel();
+
+    // invoke superclass cancel
+    super.cancel();
   }
 
   /**
@@ -428,7 +547,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
       if (!fields[0].equals(id)) { // header
 
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
           break;
@@ -440,8 +559,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
         concept.setObsolete(fields[2].equals("0"));
         concept.setSuppressible(concept.isObsolete());
         concept.setFullyDefined(fields[4].equals("900000000000073002"));
-        concept.setTerminology(terminology);
-        concept.setVersion(version);
+        concept.setTerminology(getTerminology());
+        concept.setVersion(getVersion());
         concept.setName(initPrefName);
         concept.setLastModified(date);
         concept.setLastModifiedBy(loader);
@@ -505,7 +624,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       // Skip header
       if (!fields[0].equals(id)) {
 
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
           break;
@@ -529,8 +648,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
         additionalRelTypes.add(relationship.getAdditionalRelationshipType());
         relationship.setStated(fields[8].equals("900000000000010007"));
         relationship.setInferred(fields[8].equals("900000000000011006"));
-        relationship.setTerminology(terminology);
-        relationship.setVersion(version);
+        relationship.setTerminology(getTerminology());
+        relationship.setVersion(getVersion());
         relationship.setLastModified(releaseVersionDate);
         relationship.setLastModifiedBy(loader);
         relationship.setPublished(true);
@@ -606,7 +725,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
       if (!fields[0].equals(id)) {
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
           break;
@@ -631,8 +750,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
         generalEntryValues.add(atom.getTermType());
         termTypes.add(atom.getTermType());
         atom.setName(fields[7]);
-        atom.setTerminology(terminology);
-        atom.setVersion(version);
+        atom.setTerminology(getTerminology());
+        atom.setVersion(getVersion());
         atom.setPublished(true);
         atom.setPublishable(true);
         atom.setWorkflowStatus(published);
@@ -690,7 +809,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
       if (!fields[0].equals(id)) {
 
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
           break;
@@ -715,8 +834,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
         generalEntryValues.add(def.getTermType());
         termTypes.add(def.getTermType());
         def.setName(fields[7]);
-        def.setTerminology(terminology);
-        def.setVersion(version);
+        def.setTerminology(getTerminology());
+        def.setVersion(getVersion());
         def.setPublished(true);
         def.setPublishable(true);
         def.setWorkflowStatus(published);
@@ -767,12 +886,24 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     objectCt = 0;
     // NOTE: Hibernate-specific to support iterating
     Session session = manager.unwrap(Session.class);
+<<<<<<< HEAD
     org.hibernate.Query hQuery = session
         .createQuery("select a from AtomJpa a " + "where conceptId is not null "
             + "and conceptId != '' and terminology = :terminology "
             + "order by terminology, conceptId")
         .setParameter("terminology", terminology).setReadOnly(true)
         .setFetchSize(1000);
+=======
+    org.hibernate.Query hQuery =
+        session
+            .createQuery(
+                "select a from AtomJpa a "
+                    + "where conceptId is not null "
+                    + "and conceptId != '' and terminology = :terminology "
+                    + "order by terminology, conceptId")
+            .setParameter("terminology", getTerminology())
+            .setReadOnly(true).setFetchSize(1000);
+>>>>>>> 464e8f5d8abdce5cb0cb71afb02bcdf6ebd5fd92
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     String prevCui = null;
     String prefName = null;
@@ -869,7 +1000,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
       if (!fields[0].equals(id)) { // header
 
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
           return;
@@ -921,7 +1052,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
       if (!fields[0].equals(id)) { // header
 
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
           break;
@@ -980,19 +1111,27 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
       if (!fields[0].equals(id)) { // header
 
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           Logger.getLogger(getClass()).debug(
-              "Found effective time past release version at line " + line);
+              "Found effective time past release getVersion() at line " + line);
           reader.push(line);
           break;
         }
 
         if (conceptIdMap.get(fields[4]) == null) {
 
+<<<<<<< HEAD
           Logger.getLogger(getClass()).warn(
               "Association reference member connected to nonexistent refset with terminology id "
                   + fields[4]);
+=======
+          Logger
+              .getLogger(getClass())
+              .warn(
+                  "Association reference member connected to nonexistent refset with getTerminology() id "
+                      + fields[4]);
+>>>>>>> 464e8f5d8abdce5cb0cb71afb02bcdf6ebd5fd92
           logWarn("  Line: " + line);
           continue;
           /*
@@ -1002,9 +1141,17 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
         }
 
         if (conceptIdMap.get(fields[5]) == null) {
+<<<<<<< HEAD
           Logger.getLogger(getClass()).warn(
               "Association reference member connected to nonexistent source object with terminology id "
                   + fields[5]);
+=======
+          Logger
+              .getLogger(getClass())
+              .warn(
+                  "Association reference member connected to nonexistent source object with getTerminology() id "
+                      + fields[5]);
+>>>>>>> 464e8f5d8abdce5cb0cb71afb02bcdf6ebd5fd92
           logWarn("  Line: " + line);
           continue;
           /*
@@ -1014,9 +1161,17 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
         }
 
         if (conceptIdMap.get(fields[6]) == null) {
+<<<<<<< HEAD
           Logger.getLogger(getClass()).warn(
               "Association reference member connected to nonexistent target object with terminology id "
                   + fields[5]);
+=======
+          Logger
+              .getLogger(getClass())
+              .warn(
+                  "Association reference member connected to nonexistent target object with getTerminology() id "
+                      + fields[5]);
+>>>>>>> 464e8f5d8abdce5cb0cb71afb02bcdf6ebd5fd92
           logWarn("  Line: " + line);
           continue;
           /*
@@ -1041,8 +1196,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
         relationship.setAdditionalRelationshipType(fields[4]);
         relationship.setStated(false);
         relationship.setInferred(true);
-        relationship.setTerminology(terminology);
-        relationship.setVersion(version);
+        relationship.setTerminology(getTerminology());
+        relationship.setVersion(getVersion());
         relationship.setLastModified(releaseVersionDate);
         relationship.setLastModifiedBy(loader);
         relationship.setPublished(true);
@@ -1114,7 +1269,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
       if (!fields[0].equals(id)) { // header
 
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
           break;
@@ -1147,10 +1302,10 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
       line = line.replace("\r", "");
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
-
+      System.out.println("line=" + line);
       if (!fields[0].equals(id)) { // header
 
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
           break;
@@ -1196,7 +1351,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       // Skip header
       if (!fields[0].equals(id)) {
 
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
           break;
@@ -1216,8 +1371,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
         generalEntryValues.add(mapping.getAdditionalRelationshipType());
         additionalRelTypes.add(mapping.getAdditionalRelationshipType());
-        mapping.setTerminology(terminology);
-        mapping.setVersion(version);
+        mapping.setTerminology(getTerminology());
+        mapping.setVersion(getVersion());
         mapping.setLastModified(releaseVersionDate);
         mapping.setLastModifiedBy(loader);
         mapping.setPublished(true);
@@ -1285,7 +1440,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       // Skip header
       if (!fields[0].equals(id)) {
 
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
           break;
@@ -1305,8 +1460,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
         generalEntryValues.add(mapping.getAdditionalRelationshipType());
         additionalRelTypes.add(mapping.getAdditionalRelationshipType());
-        mapping.setTerminology(terminology);
-        mapping.setVersion(version);
+        mapping.setTerminology(getTerminology());
+        mapping.setVersion(getVersion());
         mapping.setLastModified(releaseVersionDate);
         mapping.setLastModifiedBy(loader);
         mapping.setPublished(true);
@@ -1374,7 +1529,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
       if (!fields[0].equals(id)) { // header
 
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
           break;
@@ -1437,7 +1592,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
       if (!fields[0].equals(id)) { // header
 
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
           break;
@@ -1491,7 +1646,7 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
       if (!fields[0].equals(id)) { // header
 
-        // Stop if the effective time is past the release version
+        // Stop if the effective time is past the release getVersion()
         if (fields[1].compareTo(releaseVersion) > 0) {
           reader.push(line);
           break;
@@ -1552,8 +1707,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
     // Universal RefSet attributes
     final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
-    member.setTerminology(terminology);
-    member.setVersion(version);
+    member.setTerminology(getTerminology());
+    member.setVersion(getVersion());
     member.setTerminologyId(fields[0]);
     member.setTimestamp(date);
     member.setLastModified(date);
@@ -1659,8 +1814,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
     // Universal RefSet attributes
     final Date date = ConfigUtility.DATE_FORMAT.parse(fields[1]);
-    mapping.setTerminology(terminology);
-    mapping.setVersion(version);
+    mapping.setTerminology(getTerminology());
+    mapping.setVersion(getVersion());
     mapping.setTerminologyId(fields[0]);
     mapping.setTimestamp(date);
     mapping.setLastModified(date);
@@ -1680,11 +1835,11 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       setCommonFields(mapSet, date);
       mapSet.setTerminologyId(fields[4].intern());
       mapSet.setName(getConcept(conceptIdMap.get(fields[4])).getName());
-      mapSet.setFromTerminology(terminology);
+      mapSet.setFromTerminology(getTerminology());
       mapSet.setToTerminology(null); // no way to get this
-      mapSet.setFromVersion(version);
+      mapSet.setFromVersion(getVersion());
       mapSet.setToVersion(null);
-      mapSet.setMapVersion(version);
+      mapSet.setMapVersion(getVersion());
 
       final Attribute attribute2 = new AttributeJpa();
       setCommonFields(attribute2, date);
@@ -1723,8 +1878,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     // Term types - each description type
     for (String tty : termTypes) {
       TermType termType = new TermTypeJpa();
-      termType.setTerminology(terminology);
-      termType.setVersion(version);
+      termType.setTerminology(getTerminology());
+      termType.setVersion(getVersion());
       termType.setAbbreviation(tty);
       termType.setCodeVariantType(CodeVariantType.SY);
       termType.setExpandedForm(getConcept(conceptIdMap.get(tty)).getName());
@@ -1745,8 +1900,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     Language rootLanguage = null;
     for (String lat : languages) {
       Language language = new LanguageJpa();
-      language.setTerminology(terminology);
-      language.setVersion(version);
+      language.setTerminology(getTerminology());
+      language.setVersion(getVersion());
       language.setTimestamp(releaseVersionDate);
       language.setLastModified(releaseVersionDate);
       language.setLastModifiedBy(loader);
@@ -1765,8 +1920,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     // attribute name
     for (String atn : attributeNames) {
       AttributeName name = new AttributeNameJpa();
-      name.setTerminology(terminology);
-      name.setVersion(version);
+      name.setTerminology(getTerminology());
+      name.setVersion(getVersion());
       name.setLastModified(releaseVersionDate);
       name.setLastModifiedBy(loader);
       name.setPublishable(true);
@@ -1785,8 +1940,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     RelationshipType ro = null;
     for (String rel : relTypes) {
       RelationshipType type = new RelationshipTypeJpa();
-      type.setTerminology(terminology);
-      type.setVersion(version);
+      type.setTerminology(getTerminology());
+      type.setVersion(getVersion());
       type.setLastModified(releaseVersionDate);
       type.setLastModifiedBy(loader);
       type.setPublishable(true);
@@ -1822,8 +1977,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     for (String rela : additionalRelTypes) {
       System.out.println("rela : " + rela);
       AdditionalRelationshipType type = new AdditionalRelationshipTypeJpa();
-      type.setTerminology(terminology);
-      type.setVersion(version);
+      type.setTerminology(getTerminology());
+      type.setVersion(getVersion());
       type.setLastModified(releaseVersionDate);
       type.setLastModifiedBy(loader);
       type.setPublishable(true);
@@ -1868,8 +2023,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     // $rightid{"363701004"} = "127489000"; # direct-substance o
     // has-active-ingredient -> direct-substance
     PropertyChain chain = new PropertyChainJpa();
-    chain.setTerminology(terminology);
-    chain.setVersion(version);
+    chain.setTerminology(getTerminology());
+    chain.setVersion(getVersion());
     chain.setLastModified(releaseVersionDate);
     chain.setLastModifiedBy(loader);
     chain.setPublishable(true);
@@ -1891,9 +2046,15 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
 
     // Root Terminology
     RootTerminology root = new RootTerminologyJpa();
+<<<<<<< HEAD
     root.setFamily(terminology);
     root.setHierarchicalName(
         getConcept(conceptIdMap.get(rootConceptId)).getName());
+=======
+    root.setFamily(getTerminology());
+    root.setHierarchicalName(getConcept(conceptIdMap.get(rootConceptId))
+        .getName());
+>>>>>>> 464e8f5d8abdce5cb0cb71afb02bcdf6ebd5fd92
     root.setLanguage(rootLanguage);
     root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
@@ -1901,13 +2062,13 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     root.setPolyhierarchy(true);
     root.setPreferredName(root.getHierarchicalName());
     root.setRestrictionLevel(-1);
-    root.setTerminology(terminology);
+    root.setTerminology(getTerminology());
     addRootTerminology(root);
 
     // Terminology
     Terminology term = new TerminologyJpa();
-    term.setTerminology(terminology);
-    term.setVersion(version);
+    term.setTerminology(getTerminology());
+    term.setVersion(getVersion());
     term.setTimestamp(releaseVersionDate);
     term.setLastModified(releaseVersionDate);
     term.setLastModifiedBy(loader);
@@ -1930,8 +2091,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       String name = getConcept(conceptIdMap.get(conceptId)).getName();
       logInfo("  Genral Metadata Entry = " + conceptId + ", " + name);
       GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
-      entry.setTerminology(terminology);
-      entry.setVersion(version);
+      entry.setTerminology(getTerminology());
+      entry.setVersion(getVersion());
       entry.setLastModified(releaseVersionDate);
       entry.setLastModifiedBy(loader);
       entry.setPublishable(true);
@@ -1954,8 +2115,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     int i = 0;
     for (String label : labels) {
       GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
-      entry.setTerminology(terminology);
-      entry.setVersion(version);
+      entry.setTerminology(getTerminology());
+      entry.setVersion(getVersion());
       entry.setLastModified(releaseVersionDate);
       entry.setLastModifiedBy(loader);
       entry.setPublishable(true);
@@ -1994,9 +2155,9 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
       subset.setSuppressible(false);
       subset.setPublishable(false);
       subset.setPublished(false);
-      subset.setTerminology(terminology);
+      subset.setTerminology(getTerminology());
       subset.setTerminologyId(moduleId);
-      subset.setVersion(version);
+      subset.setVersion(getVersion());
       addSubset(subset);
       subsets.add(subset);
       commitClearBegin();
@@ -2017,8 +2178,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
         member.setPublishable(false);
         member.setPublishable(false);
         member.setTerminologyId("");
-        member.setTerminology(terminology);
-        member.setVersion(version);
+        member.setTerminology(getTerminology());
+        member.setVersion(getVersion());
         member.setSubset(subset);
         addSubsetMember(member);
         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
@@ -2036,8 +2197,8 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
   private void setCommonFields(Component component, Date date) {
     component.setTimestamp(date);
     component.setTerminologyId("");
-    component.setTerminology(terminology);
-    component.setVersion(version);
+    component.setTerminology(getTerminology());
+    component.setVersion(getVersion());
     component.setLastModified(date);
     component.setLastModifiedBy(loader);
     component.setObsolete(false);
@@ -2076,15 +2237,4 @@ public class Rf2SnapshotLoaderAlgorithm extends AbstractLoaderAlgorithm
     readers = null;
   }
 
-  /* see superclass */
-  @Override
-  public String getTerminology() {
-    return terminology;
-  }
-
-  /* see superclass */
-  @Override
-  public String getVersion() {
-    return version;
-  }
 }

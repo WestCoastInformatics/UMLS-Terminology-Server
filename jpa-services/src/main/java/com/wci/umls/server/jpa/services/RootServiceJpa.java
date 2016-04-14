@@ -967,4 +967,5 @@ public abstract class RootServiceJpa implements RootService {
     return newLogEntry;
 
   }
+  
 }

@@ -116,16 +116,6 @@ public interface SourceDataServiceRest {
     throws Exception;
 
   /**
-   * Load from source data.
-   *
-   * @param sourceData the source data
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
-  public void loadFromSourceData(SourceDataJpa sourceData, String authToken)
-    throws Exception;
-
-  /**
    * Gets the source data.
    *
    * @param id the id
@@ -145,8 +135,56 @@ public interface SourceDataServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  
+
   public void uploadSourceDataFile(InputStream fileInputStream,
     FormDataContentDisposition contentDispositionHeader, boolean unzip,
     Long sourceDataId, String authToken) throws Exception;
+
+  /**
+   * Gets the log.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param activity the activity
+   * @param lines the lines
+   * @param authToken the auth token
+   * @return the log
+   * @throws Exception the exception
+   */
+  public String getLog(String terminology, String version, String activity,
+    int lines, String authToken) throws Exception;
+
+  /**
+   * Load from source data.
+   *
+   * @param background the background
+   * @param sourceData the source data
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadFromSourceData(Boolean background, SourceDataJpa sourceData,
+    String authToken) throws Exception;
+
+  /**
+   * Remove from source data.
+   *
+   * @param background the background
+   * @param sourceData the source data
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeFromSourceData(Boolean background, SourceDataJpa sourceData,
+    String authToken) throws Exception;
+
+  /**
+   * Cancel running process from source data id.
+   *        
+   * @param sourceData the source data
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+
+  public void cancelFromSourceData(SourceDataJpa sourceData, String authToken)
+    throws Exception;
+
 }

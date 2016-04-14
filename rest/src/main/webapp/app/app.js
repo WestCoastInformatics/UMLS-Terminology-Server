@@ -18,21 +18,17 @@ var contentUrl = "content/";
 var adminUrl = "admin/";
 var projectUrl = "project/";
 var validationUrl = "validation/";
-var fileUrl = 'file/';
+var sourceDataUrl = 'file/';
+var configureUrl = 'configure/';
 
-// Initialization of tsApp
-tsApp.run(function($rootScope, $http, $location) {
-  // nothing yet -- may want to put metadata retrieval here
+tsApp.run(function checkConfig($rootScope, $http) {
+   $http.get(configureUrl + 'configured').then(function(response) {
+     $rootScope.isConfigured = response.data;
+   }, function() {
+     console.error('Could not determine configuration status');
+     $rootScope.isConfigured = false;
+   })
 });
-
-// Route provider configuration
-tsApp.config([ '$routeProvider', function($routeProvider) {
-  console.debug('configure $routeProvider');
-
-  $routeProvider.otherwise({
-    redirectTo : '/content'
-  })
-} ]);
 
 // Simple glass pane controller
 tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService', function($scope, gpService) {
@@ -55,16 +51,16 @@ tsApp.controller('ErrorCtrl', [ '$scope', 'utilService', function($scope, utilSe
   $scope.setError = function(message) {
     utilService.setError(message);
   };
-  
+
   $scope.success = utilService.success;
-  
+
   $scope.clearSuccess = function() {
     utilService.clearSuccess();
   };
-  
+
   $scope.setSuccess = function(message) {
     utilService.setSuccess(message);
-  }
+  };
 
 } ]);
 

@@ -3436,9 +3436,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
       List<Object[]> results = new ArrayList<>();
       String queryStr =
           "select a.id, a.terminologyId, a.terminology, a.version, "
-              + "a.relationshipType, a.additionalRelationshipType, a.to.terminologyId, "
-              + "a.obsolete, a.suppressible, a.published, a.publishable, "
-              + (inverseFlag ? "a.to.name " : "a.from.name ")
+              + "a.relationshipType, a.additionalRelationshipType, "
+              + (inverseFlag ? "a.from.terminologyId" : "a.to.terminologyId")
+              + ", a.obsolete, a.suppressible, a.published, a.publishable, "
+              + (inverseFlag ? "a.from.name " : "a.to.name ")
               + "from ConceptRelationshipJpa a " + "where "
               + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId ";
       javax.persistence.Query query = manager.createQuery(queryStr);
@@ -3449,8 +3450,10 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           "select a.id, a.terminologyId, a.terminology, a.version, "
               + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
               + "a.obsolete, a.suppressible, a.published, a.publishable, "
-              + (inverseFlag ? "a.to.name " : "a.from.name ")
-              + "from AtomRelationshipJpa a join a.to.conceptTerminologyIds cui2 "
+              + (inverseFlag ? "a.from.name " : "a.to.name ")
+              + "from AtomRelationshipJpa a join "
+              + (inverseFlag ? "a.from.conceptTerminologyIds"
+                  : "a.to.conceptTerminologyIds") + " cui2 "
               + "where key(cui2) = '" + concept.getTerminology() + "' and "
               + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds) ";
       query = manager.createQuery(queryStr);
@@ -3465,7 +3468,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           "select a.id, a.terminologyId, a.terminology, a.version, "
               + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
               + "a.obsolete, a.suppressible, a.published, a.publishable, "
-              + (inverseFlag ? "a.to.name " : "a.from.name ")
+              + (inverseFlag ? "a.from.name " : "a.to.name ")
               + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
               + "DescriptorJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
               + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -3485,7 +3488,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           "select a.id, a.terminologyId, a.terminology, a.version, "
               + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
               + "a.obsolete, a.suppressible, a.published, a.publishable, "
-              + (inverseFlag ? "a.to.name " : "a.from.name ")
+              + (inverseFlag ? "a.from.name " : "a.to.name ")
               + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
               + "ConceptJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
               + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -3505,7 +3508,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
           "select a.id, a.terminologyId, a.terminology, a.version, "
               + "a.relationshipType, a.additionalRelationshipType, value(cui2), "
               + "a.obsolete, a.suppressible, a.published, a.publishable, "
-              + (inverseFlag ? "a.to.name " : "a.from.name ")
+              + (inverseFlag ? "a.from.name " : "a.to.name ")
               + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
               + "CodeJpa d, AtomJpa e join e.conceptTerminologyIds cui2 "
               + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4358,7 +4361,7 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
    */
   @SuppressWarnings("static-method")
   private boolean isLuceneQueryInfo(String query, PfscParameter pfsc) {
-    if (!pfsc.getSearchCriteria().isEmpty()) {
+    if (pfsc != null && !pfsc.getSearchCriteria().isEmpty()) {
       return pfsc.getQueryRestriction() != null || pfsc.getActiveOnly()
           || pfsc.getInactiveOnly() || (query != null && !query.isEmpty());
     } else {

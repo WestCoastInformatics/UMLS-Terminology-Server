@@ -3,15 +3,6 @@
  */
 package com.wci.umls.server.rest.impl;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -26,11 +17,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
-import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -45,17 +33,13 @@ import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
-import com.wci.umls.server.jpa.algo.LabelSetMarkedParentAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.OwlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
-import com.wci.umls.server.jpa.algo.Rf2FileSorter;
-import com.wci.umls.server.jpa.algo.Rf2Readers;
+import com.wci.umls.server.jpa.algo.Rf2FullLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2SnapshotLoaderAlgorithm;
-import com.wci.umls.server.jpa.algo.RrfFileSorter;
 import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
-import com.wci.umls.server.jpa.algo.RrfReaders;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -80,7 +64,6 @@ import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
@@ -89,7 +72,6 @@ import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
@@ -101,9 +83,7 @@ import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.LogActivity;
-import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.HistoryService;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
 import com.wordnik.swagger.annotations.Api;
@@ -296,120 +276,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                 + inputDir);
 
     // Track system level information
-    long startTimeOrig = System.nanoTime();
     final ContentService contentService = new ContentServiceJpa();
+
     try {
-      authorizeApp(securityService, authToken, "load RRF",
+      authorizeApp(securityService, authToken, "load rrf",
           UserRole.ADMINISTRATOR);
 
-      // Check the input directory
-      File inputDirFile = new File(inputDir);
-      if (!inputDirFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
-      }
-
-      // Sort files - not really needed because files are already sorted
-      Logger.getLogger(getClass()).info("  Sort RRF Files");
-      final RrfFileSorter sorter = new RrfFileSorter();
-      // Be flexible about missing files for RXNORM
-      sorter
-          .setRequireAllFiles(!(prefix == null ? "MR" : prefix).equals("RXN"));
-      // File outputDir = new File(inputDirFile, "/RRF-sorted-temp/");
-      // sorter.sortFiles(inputDirFile, outputDir);
-      String releaseVersion = sorter.getFileVersion(inputDirFile);
-      if (releaseVersion == null) {
-        releaseVersion = version;
-      }
-      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
-
-      // Open readers - just open original RRF
-      final RrfReaders readers = new RrfReaders(inputDirFile);
-      // Use default prefix if not specified
-      readers.openOriginalReaders(prefix == null ? "MR" : prefix);
-
-      // Load RRF
-      final RrfLoaderAlgorithm algorithm = new RrfLoaderAlgorithm();
-      algorithm.setTerminology(terminology);
-      algorithm.setVersion(version);
-      if (codeFlag == null || codeFlag) {
-        algorithm.setCodesFlag(true);
-      } else {
-        algorithm.setCodesFlag(false);
-      }
-      algorithm.setSingleMode(singleMode);
-      algorithm.setReleaseVersion(releaseVersion);
-      algorithm.setReaders(readers);
-      algorithm.compute();
-      algorithm.close();
-
-      // Compute transitive closure
-      // Obtain each terminology and run transitive closure on it with the
-      // correct id type
-      // Refresh caches after metadata has changed in loader
-      contentService.refreshCaches();
-      for (final Terminology t : contentService.getTerminologyLatestVersions()
-          .getObjects()) {
-        // Only compute for organizing class types
-        if (t.getOrganizingClassType() != null) {
-          TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-          algo.setTerminology(t.getTerminology());
-          algo.setVersion(t.getVersion());
-          algo.setIdType(t.getOrganizingClassType());
-          // some terminologies may have cycles, allow these for now.
-          algo.setCycleTolerant(true);
-          algo.compute();
-          algo.close();
-        }
-      }
-
-      // Compute tree positions
-      // Refresh caches after metadata has changed in loader
-      for (final Terminology t : contentService.getTerminologyLatestVersions()
-          .getObjects()) {
-        // Only compute for organizing class types
-        if (t.getOrganizingClassType() != null) {
-          TreePositionAlgorithm algo = new TreePositionAlgorithm();
-          algo.setTerminology(t.getTerminology());
-          algo.setVersion(t.getVersion());
-          algo.setIdType(t.getOrganizingClassType());
-          // some terminologies may have cycles, allow these for now.
-          algo.setCycleTolerant(true);
-          // compute "semantic types" for concept hierarchies
-          if (t.getOrganizingClassType() == IdType.CONCEPT) {
-            algo.setComputeSemanticType(true);
-          }
-          algo.compute();
-          algo.close();
-        }
-      }
-
-      // Compute label sets - after transitive closure
-      // for each subset, compute the label set
-      for (final Terminology t : contentService.getTerminologyLatestVersions()
-          .getObjects()) {
-        for (final Subset subset : contentService.getConceptSubsets(
-            t.getTerminology(), t.getVersion(), Branch.ROOT).getObjects()) {
-          final ConceptSubset conceptSubset = (ConceptSubset) subset;
-          if (conceptSubset.isLabelSubset()) {
-            Logger.getLogger(getClass()).info(
-                "  Create label set for subset = " + subset);
-            LabelSetMarkedParentAlgorithm algo3 =
-                new LabelSetMarkedParentAlgorithm();
-            algo3.setSubset(conceptSubset);
-            algo3.compute();
-            algo3.close();
-          }
-        }
-      }
-      // Clean-up
-
-      ConfigUtility
-          .deleteDirectory(new File(inputDirFile, "/RRF-sorted-temp/"));
-
-      // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
+      RrfLoaderAlgorithm algo = new RrfLoaderAlgorithm();
+      algo.setSingleMode(singleMode);
+      algo.setCodesFlag(codeFlag);
+      algo.setPrefix(prefix);
+      algo.setTerminology(terminology);
+      algo.setVersion(version);
+      algo.setInputPath(inputDir);
+      algo.compute();
+      algo.computeTransitiveClosures();
+      algo.computeTreePositions();
 
     } catch (Exception e) {
       handleException(e, "trying to load terminology from RRF directory");
@@ -436,75 +318,29 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
             + terminology + " from input directory " + inputDir);
 
     // Track system level information
-    long startTimeOrig = System.nanoTime();
+    final ContentService contentService = new ContentServiceJpa();
 
-    final MetadataService metadataService = new MetadataServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "start editing cycle",
+      authorizeApp(securityService, authToken, "load delta",
           UserRole.ADMINISTRATOR);
 
-      Logger.getLogger(getClass()).info("Starting RF2 delta loader");
-      Logger.getLogger(getClass()).info("  terminology = " + terminology);
-      Logger.getLogger(getClass()).info("  inputDir = " + inputDir);
-
-      // Check the input directory
-      final File inputDirFile = new File(inputDir);
-      if (!inputDirFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
-      }
-
-      // Previous computation of version is based on file name
-      // but for delta/daily build files, this is not the current version
-      // look up the current version instead
-      final String version = metadataService.getLatestVersion(terminology);
+      // get the latest verison for this terminology
+      MetadataService metadataService = new MetadataServiceJpa();
+      String version = metadataService.getLatestVersion(terminology);
       metadataService.close();
-      if (version == null) {
-        throw new Exception("Unable to determine version.");
-      }
 
-      // Sort files
-      Logger.getLogger(getClass()).info("  Sort RF2 Files");
-      final Rf2FileSorter sorter = new Rf2FileSorter();
-      sorter.setSortByEffectiveTime(false);
-      sorter.setRequireAllFiles(false);
-      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
-      sorter.sortFiles(inputDirFile, outputDir);
-
-      // Open readers
-      final Rf2Readers readers = new Rf2Readers(outputDir);
-      readers.openReaders();
-
-      // Load delta
-      final Rf2DeltaLoaderAlgorithm algorithm = new Rf2DeltaLoaderAlgorithm();
-      algorithm.setTerminology(terminology);
-      algorithm.setVersion(version);
-      algorithm.setReleaseVersion(sorter.getFileVersion());
-      algorithm.setReaders(readers);
-      algorithm.compute();
-      algorithm.close();
-
-      // Compute transitive closure
-      Logger.getLogger(getClass()).info(
-          "  Compute transitive closure from  " + terminology + "/" + version);
-      final TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+      Rf2DeltaLoaderAlgorithm algo = new Rf2DeltaLoaderAlgorithm();
       algo.setTerminology(terminology);
       algo.setVersion(version);
-      algo.setIdType(IdType.CONCEPT);
-      algo.reset();
+      algo.setInputPath(inputDir);
       algo.compute();
-
-      // Clean-up
-      readers.closeReaders();
-      Logger.getLogger(getClass()).info("...done");
-
-      // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
+      algo.computeTransitiveClosures();
+      algo.computeTreePositions();
 
     } catch (Exception e) {
       handleException(e, "trying to load terminology delta from RF2 directory");
     } finally {
+      contentService.close();
       securityService.close();
     }
   }
@@ -531,96 +367,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                 + inputDir);
 
     // Track system level information
-    long startTimeOrig = System.nanoTime();
     final ContentService contentService = new ContentServiceJpa();
 
     try {
       authorizeApp(securityService, authToken, "load snapshot",
           UserRole.ADMINISTRATOR);
 
-      // Check the input directory
-      File inputDirFile = new File(inputDir);
-      if (!inputDirFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
-      }
-
-      // Sort files
-      Logger.getLogger(getClass()).info("  Sort RF2 Files");
-      Logger.getLogger(getClass()).info("    sort by effective time: false");
-      Logger.getLogger(getClass()).info("    require all files     : false");
-      Logger.getLogger(getClass()).info("    flat file structure   : false");
-      final Rf2FileSorter sorter = new Rf2FileSorter();
-      sorter.setSortByEffectiveTime(false);
-      sorter.setRequireAllFiles(true);
-      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
-      sorter.sortFiles(inputDirFile, outputDir);
-      final String releaseVersion = sorter.getFileVersion();
-      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
-
-      // Open readers
-      final Rf2Readers readers = new Rf2Readers(outputDir);
-      readers.openReaders();
-
-      // Load snapshot
-      final Rf2SnapshotLoaderAlgorithm algorithm =
-          new Rf2SnapshotLoaderAlgorithm();
-      algorithm.setTerminology(terminology);
-      algorithm.setVersion(version);
-      algorithm.setReleaseVersion(releaseVersion);
-      algorithm.setReaders(readers);
-      algorithm.compute();
-      algorithm.close();
-
-      // Compute transitive closure
-      Logger.getLogger(getClass()).info(
-          "  Compute transitive closure from  " + terminology + "/" + version);
-      TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-      algo.setCycleTolerant(false);
-      algo.setIdType(IdType.CONCEPT);
+      Rf2SnapshotLoaderAlgorithm algo = new Rf2SnapshotLoaderAlgorithm();
       algo.setTerminology(terminology);
       algo.setVersion(version);
-      algo.reset();
+      algo.setInputPath(inputDir);
       algo.compute();
-      algo.close();
-
-      // compute tree positions
-      final TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
-      algo2.setCycleTolerant(false);
-      algo2.setIdType(IdType.CONCEPT);
-      // some terminologies may have cycles, allow these for now.
-      algo2.setCycleTolerant(true);
-      algo2.setComputeSemanticType(true);
-      algo2.setTerminology(terminology);
-      algo2.setVersion(version);
-      algo2.reset();
-      algo2.compute();
-      algo2.close();
-
-      // Compute label sets - after transitive closure
-      // for each subset, compute the label set
-      for (final Subset subset : contentService.getConceptSubsets(terminology,
-          version, Branch.ROOT).getObjects()) {
-        final ConceptSubset conceptSubset = (ConceptSubset) subset;
-        if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass()).info(
-              "  Create label set for subset = " + subset);
-          LabelSetMarkedParentAlgorithm algo3 =
-              new LabelSetMarkedParentAlgorithm();
-          algo3.setSubset(conceptSubset);
-          algo3.compute();
-          algo3.close();
-        }
-      }
-
-      // Clean-up
-      readers.closeReaders();
-      ConfigUtility
-          .deleteDirectory(new File(inputDirFile, "/RF2-sorted-temp/"));
-
-      // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
+      algo.computeTransitiveClosures();
+      algo.computeTreePositions();
 
     } catch (Exception e) {
       handleException(e,
@@ -633,7 +392,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
   }
 
   /* see superclass */
-  @SuppressWarnings("resource")
   @Override
   @PUT
   @Path("/terminology/load/rf2/full/{terminology}/{version}")
@@ -655,189 +413,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
                 + inputDir);
 
     // Track system level information
-    long startTimeOrig = System.nanoTime();
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
 
     try {
       authorizeApp(securityService, authToken, "load full",
           UserRole.ADMINISTRATOR);
 
-      // Check the input directory
-      File inputDirFile = new File(inputDir);
-      if (!inputDirFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
-      }
-
-      // Get the release versions (need to look in complex map too for October
-      // releases)
-      Logger.getLogger(getClass()).info("  Get release versions");
-      Rf2FileSorter sorter = new Rf2FileSorter();
-      final File conceptsFile =
-          sorter.findFile(new File(inputDir, "Terminology"), "sct2_Concept");
-      final Set<String> releaseSet = new HashSet<>();
-      BufferedReader reader = new BufferedReader(new FileReader(conceptsFile));
-      String line;
-      while ((line = reader.readLine()) != null) {
-        final String fields[] = FieldedStringTokenizer.split(line, "\t");
-        if (!fields[1].equals("effectiveTime")) {
-          try {
-            ConfigUtility.DATE_FORMAT.parse(fields[1]);
-          } catch (Exception e) {
-            throw new Exception("Improperly formatted date found: " + fields[1]);
-          }
-          releaseSet.add(fields[1]);
-        }
-      }
-      reader.close();
-      final File complexMapFile =
-          sorter.findFile(new File(inputDir, "Refset/Map"),
-              "der2_iissscRefset_ComplexMap");
-      reader = new BufferedReader(new FileReader(complexMapFile));
-      while ((line = reader.readLine()) != null) {
-        final String fields[] = FieldedStringTokenizer.split(line, "\t");
-        if (!fields[1].equals("effectiveTime")) {
-          try {
-            ConfigUtility.DATE_FORMAT.parse(fields[1]);
-          } catch (Exception e) {
-            throw new Exception("Improperly formatted date found: " + fields[1]);
-          }
-          releaseSet.add(fields[1]);
-        }
-      }
-      File extendedMapFile =
-          sorter.findFile(new File(inputDir, "Refset/Map"),
-              "der2_iisssccRefset_ExtendedMap");
-      reader = new BufferedReader(new FileReader(extendedMapFile));
-      while ((line = reader.readLine()) != null) {
-        final String fields[] = FieldedStringTokenizer.split(line, "\t");
-        if (!fields[1].equals("effectiveTime")) {
-          try {
-            ConfigUtility.DATE_FORMAT.parse(fields[1]);
-          } catch (Exception e) {
-            throw new Exception("Improperly formatted date found: " + fields[1]);
-          }
-          releaseSet.add(fields[1]);
-        }
-      }
-
-      reader.close();
-      final List<String> releases = new ArrayList<>(releaseSet);
-      Collections.sort(releases);
-
-      // check that release info does not already exist
-      final HistoryService historyService = new HistoryServiceJpa();
-      Logger.getLogger(getClass()).info("  Releases to process");
-      for (final String release : releases) {
-        Logger.getLogger(getClass()).info("    release = " + release);
-        ReleaseInfo releaseInfo =
-            historyService.getReleaseInfo(terminology, release);
-        if (releaseInfo != null) {
-          throw new Exception("A release info already exists for " + release);
-        }
-      }
-      historyService.close();
-
-      // Sort files
-      Logger.getLogger(getClass()).info("  Sort RF2 Files");
-      sorter = new Rf2FileSorter();
-      sorter.setSortByEffectiveTime(true);
-      sorter.setRequireAllFiles(true);
-      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
-      sorter.sortFiles(inputDirFile, outputDir);
-
-      // Open readers
-      final Rf2Readers readers = new Rf2Readers(outputDir);
-      readers.openReaders();
-
-      // Load initial snapshot - first release version
-      final Rf2SnapshotLoaderAlgorithm algorithm =
-          new Rf2SnapshotLoaderAlgorithm();
-      algorithm.setTerminology(terminology);
-      algorithm.setVersion(version);
-      algorithm.setReleaseVersion(releases.get(0));
-      algorithm.setReaders(readers);
-      algorithm.compute();
-      algorithm.close();
-
-      // Load deltas
-      for (final String release : releases) {
-        // Refresh caches for metadata handlers
-        new MetadataServiceJpa().refreshCaches();
-
-        if (release.equals(releases.get(0))) {
-          continue;
-        }
-
-        Rf2DeltaLoaderAlgorithm algorithm2 = new Rf2DeltaLoaderAlgorithm();
-        algorithm2.setTerminology(terminology);
-        algorithm2.setVersion(version);
-        algorithm2.setReleaseVersion(release);
-        algorithm2.setReaders(readers);
-        algorithm2.compute();
-        algorithm2.close();
-        algorithm2.closeFactory();
-        algorithm2 = null;
-
-      }
-
-      // Refresh caches for metadata handlers
-      new MetadataServiceJpa().refreshCaches();
-
-      // Compute transitive closure
-      Logger.getLogger(getClass()).info(
-          "  Compute transitive closure from  " + terminology + "/" + version);
-      final TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-      algo.setCycleTolerant(false);
-      algo.setIdType(IdType.CONCEPT);
+      Rf2FullLoaderAlgorithm algo = new Rf2FullLoaderAlgorithm();
       algo.setTerminology(terminology);
       algo.setVersion(version);
-      algo.reset();
+      algo.setInputPath(inputDir);
       algo.compute();
-      algo.close();
-
-      // compute tree positions
-      final TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
-      algo2.setCycleTolerant(false);
-      algo2.setComputeSemanticType(true);
-      algo2.setIdType(IdType.CONCEPT);
-      algo2.setTerminology(terminology);
-      algo2.setVersion(version);
-      algo2.reset();
-      algo2.compute();
-      algo2.close();
-
-      // RE-open content service
-      contentService = new ContentServiceJpa();
-
-      // Compute label sets - after transitive closure
-      // for each subset, compute the label set
-      for (final Subset subset : contentService.getConceptSubsets(terminology,
-          version, Branch.ROOT).getObjects()) {
-        final ConceptSubset conceptSubset = (ConceptSubset) subset;
-        if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass()).info(
-              "  Create label set for subset = " + subset);
-          LabelSetMarkedParentAlgorithm algo3 =
-              new LabelSetMarkedParentAlgorithm();
-          algo3.setSubset(conceptSubset);
-          algo3.compute();
-          algo3.close();
-        }
-      }
-
-      // Clean-up
-      readers.closeReaders();
-      ConfigUtility
-          .deleteDirectory(new File(inputDirFile, "/RF2-sorted-temp/"));
-
-      // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
+      algo.computeTransitiveClosures();
+      algo.computeTreePositions();
 
     } catch (Exception e) {
-      handleException(e,
-          "trying to load terminology snapshot from RF2 directory");
+      handleException(e, "trying to load terminology full from RF2 directory");
     } finally {
       contentService.close();
       securityService.close();
@@ -874,7 +465,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl implements
       authorizeApp(securityService, authToken, "loading claml",
           UserRole.ADMINISTRATOR);
 
-      // Load snapshot
+      // Load data
       Logger.getLogger(getClass()).info("Load ClaML data from " + inputFile);
       algo.setTerminology(terminology);
       algo.setVersion(version);

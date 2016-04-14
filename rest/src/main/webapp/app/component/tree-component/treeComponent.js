@@ -1,5 +1,7 @@
 // Content controller
-tsApp.directive('treeComponent', [ '$q', 'contentService',
+tsApp.directive('treeComponent', [
+  '$q',
+  'contentService',
   'utilService',
   function($q, contentService, utilService) {
     console.debug('configure trees directive');
@@ -12,20 +14,21 @@ tsApp.directive('treeComponent', [ '$q', 'contentService',
       },
       templateUrl : 'app/component/tree-component/treeComponent.html',
       link : function(scope, element, attrs) {
-        
+
         // total trees for this component
         scope.treeCount = null;
-        
+
         // the currently viewed tree index
         scope.treeViewed = null;
-        
+
         // the currently viewed tree data
         scope.componentTree = null;
-        
+
         // the cutoff length for siblings
         scope.pageSizeSibling = 10;
 
-        // retrieves the specified tree position by index (top-level, scope-indifferent)
+        // retrieves the specified tree position by index (top-level,
+        // scope-indifferent)
         // displayed
         scope.getTree = function(startIndex) {
           // Call content service to retrieve the tree
@@ -68,34 +71,34 @@ tsApp.directive('treeComponent', [ '$q', 'contentService',
                   // do not re-add the already-shown component for this tree
                   return scope.component.object.terminologyId !== child.nodeTerminologyId;
                 }));
-              })
+              });
 
             });
 
         };
-        
+
         // on load, get the first tree
         scope.getTree(0);
 
         scope.isDerivedLabelSetFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
           return scope.isDerivedLabelSet(tree);
-        }
+        };
 
         scope.getDerivedLabelSetsValueFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
           return scope.getDerivedLabelSetsValue(tree);
-        }
+        };
 
         scope.isLabelSetFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
           return scope.isLabelSet(tree);
-        }
+        };
 
         scope.getLabelSetsValueFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
           return scope.getLabelSetsValue(tree);
-        }
+        };
 
         // retrieves the children for a node (from DOM)
         scope.getTreeChildrenFromTree = function(nodeScope) {
@@ -104,7 +107,7 @@ tsApp.directive('treeComponent', [ '$q', 'contentService',
             console.debug('adding children', children);
             tree.children = tree.children.concat(children);
           });
-        }
+        };
 
         // retrieves children for a node (not from DOM)
         scope.getTreeChildren = function(tree) {
@@ -116,7 +119,8 @@ tsApp.directive('treeComponent', [ '$q', 'contentService',
             deferred.resolve([]);
           }
 
-          // get the next page of children based on start index of current children length
+          // get the next page of children based on start index of current
+          // children length
           contentService.getChildTrees(tree, tree.children.length).then(function(data) {
             console.debug('retrieved children', data);
             deferred.resolve(data.trees);
@@ -126,7 +130,7 @@ tsApp.directive('treeComponent', [ '$q', 'contentService',
           });
 
           return deferred.promise;
-        }
+        };
 
         // toggles a node (from DOM)
         scope.toggleTree = function(nodeScope) {
@@ -139,10 +143,11 @@ tsApp.directive('treeComponent', [ '$q', 'contentService',
             nodeScope.toggle();
           }
 
-          // otherwise if a full page of siblings not already loaded, get first page
+          // otherwise if a full page of siblings not already loaded, get first
+          // page
           else if (tree.children.length != tree.childCt
             && tree.children.length < scope.pageSizeSibling) {
-            console.debug('getting children')
+            console.debug('getting children');
             scope.getTreeChildren(tree).then(function(children) {
               console.debug('adding children', children);
               tree.children = tree.children.concat(children);
@@ -154,7 +159,7 @@ tsApp.directive('treeComponent', [ '$q', 'contentService',
             console.debug('collapsing');
             nodeScope.toggle();
           }
-        }
+        };
 
         // returns the display icon for a node (from DOM)
         scope.getTreeNodeIcon = function(nodeScope) {
@@ -165,15 +170,16 @@ tsApp.directive('treeComponent', [ '$q', 'contentService',
             return 'glyphicon-leaf';
           }
 
-          // if formally collapsed or less than sibling page size retrieved children, return plus sign
+          // if collapsed or unloaded
+          else if (nodeScope.collapsed || (tree.childCt > 0 && tree.children.length == 0)) {
+            return 'glyphicon-chevron-right';
+          }
+
+          // if formally collapsed or less than sibling page size retrieved
+          // children, return plus sign
           else if (tree.children.length != tree.childCt
             && tree.children.length < scope.pageSizeSibling) {
             return 'glyphicon-plus';
-          }
-
-          // if collapsed or unloaded
-          else if (nodeScope.collapsed || (tree.childCt > 0 && tree.children.length == 0)) {
-            return 'glyphicon-chevron-right'
           }
 
           // otherwise, return minus sign

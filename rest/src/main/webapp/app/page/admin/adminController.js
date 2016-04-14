@@ -1,12 +1,3 @@
-// Route
-tsApp.config(function config($routeProvider) {
-  $routeProvider.when('/admin', {
-    templateUrl : 'app/page/admin/admin.html',
-    controller : 'AdminCtrl',
-    reloadOnSearch : false
-  });
-});
-
 // Administration controller
 tsApp
   .controller(
@@ -23,8 +14,9 @@ tsApp
       'validationService',
       'metadataService',
       'projectService',
+      'configureService',
       function($scope, $http, $location, $uibModal, gpService, utilService, tabService,
-        securityService, validationService, metadataService, projectService) {
+        securityService, validationService, metadataService, projectService, configureService) {
         console.debug('configure AdminCtrl');
 
         // Clear error
@@ -39,13 +31,11 @@ tsApp
         // Scope Variables
         //
         $scope.user = securityService.getUser();
-        // If not logged in, redirect
+        // If logged in as guest, redirect
         if ($http.defaults.headers.common.Authorization == 'guest') {
           $location.path('/');
           return;
         }
-
-        projectService.getUserHasAnyRole();
 
         $scope.selectedProject = null;
         $scope.projectRoles = [];
@@ -58,9 +48,7 @@ tsApp
         $scope.unassignedUsers = null;
 
         // Metadata for refsets, projects, etc.
-        $scope.metadata = {
-          terminologies : []
-        };
+        $scope.metadata = metadataService.getModel();
 
         $scope.userPreferences = {
           feedbackEmail : $scope.user.userPreferences.feedbackEmail
@@ -233,11 +221,13 @@ tsApp
           });
         };
 
-        // Get $scope.metadata.terminologies
+        // Get $scope.metadata.terminologies (unless already set)
         $scope.getTerminologies = function() {
-          metadataService.initTerminologies().then(function(data) {
-            $scope.metadata.terminologies = data.terminologies;
-          });
+          if (!$scope.metadata.terminologies) {
+            metadataService.initTerminologies().then(function(data) {
+              $scope.metadata.terminologies = data.terminologies;
+            });
+          }
         };
 
         // Sets the selected project
@@ -397,7 +387,7 @@ tsApp
           validationService.getValidationCheckNames().then(
           // Success
           function(data) {
-            $scope.validationChecks = data.keyValuePair;
+            $scope.validationChecks = data.keyValuePairs;
           });
         };
 
@@ -457,7 +447,7 @@ tsApp
 
           // Wire default validation check 'on' by default
           for (var i = 0; i < $scope.validationChecks.length; i++) {
-            if ($scope.validationChecks[i].value == 'Default validation check') {
+            if ($scope.validationChecks[i].value.startsWith('Default')) {
               $scope.selectedChecks.push($scope.validationChecks[i].value);
             } else {
               $scope.availableChecks.push($scope.validationChecks[i].value);
@@ -788,28 +778,39 @@ tsApp
           $scope.user.userPreferences.lastTab = '/admin';
           securityService.updateUserPreferences($scope.user.userPreferences);
         };
-        
-
 
         //
         // Initialize
         //
-        $scope.getProjects();
-        $scope.getUsers();
-        $scope.getCandidateProjects();
-        $scope.getApplicationRoles();
-        $scope.getProjectRoles();
-        $scope.getTerminologies();
-        $scope.getValidationChecks();
+        $scope.initialize = function() {
+          projectService.getUserHasAnyRole();
+          $scope.getProjects();
+          $scope.getUsers();
+          $scope.getCandidateProjects();
+          $scope.getApplicationRoles();
+          $scope.getProjectRoles();
+          $scope.getTerminologies();
+          $scope.getValidationChecks();
 
-        // Handle users with user preferences
-        if ($scope.user.userPreferences) {
-          $scope.configureTab();
+          // Handle users with user preferences
+          if ($scope.user.userPreferences) {
+            $scope.configureTab();
+          }
         }
+
+        //
+        // Initialization: Check that application is configured
+        //
+        configureService.isConfigured().then(function(isConfigured) {
+          if (!isConfigured) {
+            $location.path('/configure');
+          } else {
+            $scope.initialize();
+          }
+        });
 
         // end
 
       }
 
-      
     ]);
