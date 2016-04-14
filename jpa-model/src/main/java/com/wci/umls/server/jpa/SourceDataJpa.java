@@ -90,7 +90,7 @@ public class SourceDataJpa implements SourceData {
 
   /** The status */
   @Column(nullable = true, unique = false)
-  private SourceData.Status status;
+  private SourceData.Status status = SourceData.Status.NEW;
 
   /** The status text */
   @Column(nullable = true, unique = false, length = 4000)

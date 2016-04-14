@@ -240,6 +240,9 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
       // prepare the sorting algorithm
       sorter.setInputDir(getInputPath());
+      sorter.setOutputDir(getInputPath() + "/RF2-sorted-temp/");
+      sorter.setSortByEffectiveTime(false);
+      sorter.setRequireAllFiles(true);
 
       // get the release getVersion()
       releaseVersion = sorter.getFileVersion();
@@ -260,9 +263,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
         Logger.getLogger(getClass()).info("    sort by effective time: false");
         Logger.getLogger(getClass()).info("    require all files     : false");
 
-        sorter.setOutputDir(getInputPath() + "/RF2-sorted-temp/");
-        sorter.setSortByEffectiveTime(false);
-        sorter.setRequireAllFiles(true);
         sorter.compute();
 
       }

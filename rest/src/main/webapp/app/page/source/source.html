@@ -3,13 +3,11 @@
 <div class="row">
   <div class="col-md-12 col-xs-12">
     <h4>Source Data</h4>
-
     <!-- Actions header template for source data ng-table -->
     <script type="text/ng-template" id="headerActions.html">
       <button class="btn btn-xs btn-primary" 
         ng-click="createSourceData()">Add</button>  
   	</script>
-
     <!--  Source data ng-table -->
     <table ng-table="tpSourceDatas" class="table">
       <tr ng-repeat="item in $data">
@@ -25,11 +23,11 @@
           ng-click="viewSourceData(item)">{{item.sourceDataFiles ?
           item.sourceDataFiles.length : 0}}</td>
         <td header="'headerActions.html'" sortable="''">
-          <i class="glyphicon glyphicon-trash noul" ng-click="removeSourceData(item)"></i>
+          <i class="glyphicon glyphicon-trash noul"
+            ng-click="removeSourceData(item)"></i>
         </td>
       </tr>
     </table>
-
     <!-- Source Data details -->
     <div class="row" ng-show="currentSourceData" style="margin-top: 75px;">
       <div class="col-md-4">
@@ -42,7 +40,6 @@
                 placeholder="Unique name for source data"></textarea>
             </td>
           </tr>
-
           <tr>
             <td>Description</td>
             <td class="col-md-9">
@@ -51,7 +48,6 @@
                 placeholder="Optional description"></textarea>
             </td>
           </tr>
-
           <tr>
             <td>Terminology</td>
             <td>
@@ -59,7 +55,6 @@
                 placeholder="e.g. SNOMEDCT">
             </td>
           </tr>
-
           <tr>
             <td>Version</td>
             <td>
@@ -67,7 +62,6 @@
                 placeholder="e.g. latest">
             </td>
           </tr>
-
           <tr>
             <td>Loader</td>
             <td>
@@ -76,7 +70,6 @@
               </select>
             </td>
           </tr>
-
           <tr>
             <td>Actions</td>
             <td class="col-md-9">
@@ -86,34 +79,33 @@
               <button class="btn btn-xs btn-warning"
                 ng-click="cancelSourceDataModifications()"
                 ng-show="isSourceDataModified">Cancel</button>
-           
               <button class="btn btn-success btn-sm"
                 ng-click="loadFromSourceData(currentSourceData)"
                 ng-show="!isSourceDataModified && currentSourceData.status === 'NEW' && currentSourceData.sourceDataFiles.length > 0">
                 <span class="glyphicon glyphicon-play"></span>
                 &nbsp;Load Data
               </button>
-            <button class="btn btn-success btn-sm"
-              ng-click="loadFromSourceData(currentSourceData)"
-              ng-show="!isSourceDataModified && currentSourceData.status === 'REMOVAL_COMPLETE'">
-              <span class="glyphicon glyphicon-play"></span>
-              &nbsp;Reload Terminology
-            </button>
-            <button class="btn btn-danger btn-sm"
-              ng-click="removeFromSourceData(currentSourceData)"
-              ng-show="!isSourceDataModified && (currentSourceData.status === 'LOADING_FAILED' || currentSourceData.status === 'LOADING_COMPLETE')">
-              <span class="glyphicon glyphicon-trash"></span>
-              &nbsp;Remove Terminology
-            </button>
-            <button class="btn btn-warning btn--sm"
-            ng-click="cancelSourceDataProcess(currentSourceData)"
-            ng-show="currentSourceData.status === 'LOADING' || currentSourceData.status === 'REMOVING'"><span class="glyphicon glyphicon-ban">Stop</span></button>
-        </td>
-        </tr>
+              <!--   ng-show="!isSourceDataModified && currentSourceData.status === 'REMOVAL_COMPLETE'" -->
+              <button class="btn btn-success btn-sm"
+                ng-click="loadFromSourceData(currentSourceData)">
+                <span class="glyphicon glyphicon-play"></span>
+                &nbsp;Reload Terminology
+              </button>
+              <button class="btn btn-danger btn-sm"
+                ng-click="removeFromSourceData(currentSourceData)"
+                ng-show="!isSourceDataModified && (currentSourceData.status === 'LOADING_FAILED' || currentSourceData.status === 'LOADING_COMPLETE')">
+                <span class="glyphicon glyphicon-trash"></span>
+                &nbsp;Remove Terminology
+              </button>
+              <button class="btn btn-warning btn--sm"
+                ng-click="cancelSourceDataProcess(currentSourceData)"
+                ng-show="currentSourceData.status === 'LOADING' || currentSourceData.status === 'REMOVING'">
+                <span class="glyphicon glyphicon-ban">Stop</span>
+              </button>
+            </td>
+          </tr>
         </table>
-        
       </div>
-
       <!-- Upload File -->
       <div class="col-md-8" ng-show="!currentSourceData.id">
         <div class="row">
@@ -125,8 +117,7 @@
       <div class="col-md-8" ng-show="polls[currentSourceData.id]">
         <h4>Activity Log:
           {{getHumanText(polls[currentSourceData.id].status)}}</h4>
-        <div class="well well-md" style="overflow-y: auto; max-height:350px;">
-          
+        <div class="well well-md" style="overflow-y: auto; max-height: 350px;">
           <span ng-show="!polls[currentSourceData.id].logEntries">
             Retrieving activity log.... </span>
           <pre>{{polls[currentSourceData.id].logEntries}}</pre>
@@ -215,7 +206,6 @@
                 ng-style="{ 'width': uploader.progress + '%' }"></div>
             </div>
           </div>
-          
           <!-- Removed as unnecessary but may want to add in later
           button type="button" class="btn btn-success btn-s"
             ng-click="uploader.uploadAll()"

@@ -684,6 +684,36 @@ public class RemoveTerminologyAlgorithm extends
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
+    
+ // remove the mappings
+    logInfo("  Remove mappings ");
+    query =
+        manager
+            .createQuery("SELECT a.id FROM MappingJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    ct = 0;
+    for (Long id : (List<Long>) query.getResultList()) {
+      removeMapping(id);
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+    }
+    commitClearBegin();
+    
+ // remove the mappings
+    logInfo("  Remove mapsets ");
+    query =
+        manager
+            .createQuery("SELECT a.id FROM MapSetJpa a WHERE terminology = :terminology "
+                + " AND version = :version");
+    query.setParameter("terminology", terminology);
+    query.setParameter("version", version);
+    ct = 0;
+    for (Long id : (List<Long>) query.getResultList()) {
+      removeMapSet(id);
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+    }
+    commitClearBegin();
 
     // remove the attributes
     logInfo("  Remove attributes");

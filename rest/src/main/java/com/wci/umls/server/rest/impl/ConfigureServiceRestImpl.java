@@ -4,9 +4,7 @@
 package com.wci.umls.server.rest.impl;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.util.HashMap;
@@ -24,7 +22,6 @@ import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
 
-import com.ibm.icu.impl.ICUService.Factory;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
