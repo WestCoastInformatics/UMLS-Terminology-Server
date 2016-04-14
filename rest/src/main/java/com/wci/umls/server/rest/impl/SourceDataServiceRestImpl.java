@@ -39,6 +39,7 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.jpa.SourceDataFileJpa;
 import com.wci.umls.server.jpa.SourceDataJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.SourceDataListJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
@@ -427,7 +428,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       String sdDir =
           ConfigUtility.getConfigProperties().getProperty("source.data.dir")
               + File.separator + id.toString();
-      
+
       ConfigUtility.deleteDirectory(new File(sdDir));
 
       // remove the source data
@@ -540,6 +541,33 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       // lazy initialize source data files
       sourceData.getSourceDataFiles().size();
       return sourceData;
+    } catch (Exception e) {
+      handleException(e, "retrieving uploaded file list");
+      return null;
+    } finally {
+      service.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/data/all")
+  @ApiOperation(value = "Get source datas", notes = "Gets all source datas", response = SourceDataListJpa.class)
+  public SourceDataList getSourceData(
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Source Data): /data/loaders");
+
+    final SourceDataService service = new SourceDataServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get source datas",
+          UserRole.USER);
+      SourceDataList sourceDataList = service.getSourceDatas();
+      // lazy initialize source data files
+      return sourceDataList;
     } catch (Exception e) {
       handleException(e, "retrieving uploaded file list");
       return null;

@@ -314,6 +314,18 @@ tsApp.service('sourceDataService', [
       return deferred.promise;
     };
 
+    this.getSourceDatas = function() {
+      var deferred = $q.defer();
+      $http.get(sourceDataUrl + 'data/all').then(function(response) {
+        deferred.resolve(response.data);
+      }, function(error) {
+        utilService.handleError(error);
+
+        deferred.reject('Error retrieving source datas');
+      });
+      return deferred.promise;
+    }
+
     // end.
 
   } ]);

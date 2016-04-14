@@ -187,4 +187,13 @@ public interface SourceDataServiceRest {
   public void cancelFromSourceData(SourceDataJpa sourceData, String authToken)
     throws Exception;
 
+  /**
+   * Gets the source data.
+   *
+   * @param authToken the auth token
+   * @return the source data
+   * @throws Exception the exception
+   */
+  public SourceDataList getSourceData(String authToken) throws Exception;
+
 }

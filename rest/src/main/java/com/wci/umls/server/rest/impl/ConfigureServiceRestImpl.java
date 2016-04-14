@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -212,7 +215,14 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
 
       // TODO Test database connection with supplied parameters
       // Check (1) existence, (2) credentials
-
+      try {
+        EntityManagerFactory factory =
+            Persistence.createEntityManagerFactory("TermServiceDS", properties);
+        EntityManager manager = factory.createEntityManager();
+        manager.getTransaction();
+      } catch (Exception e) {
+        throw e;
+      }
       // create the local application folder
       File localFolder = new File(ConfigUtility.getLocalConfigFolder());
       if (!localFolder.exists()) {

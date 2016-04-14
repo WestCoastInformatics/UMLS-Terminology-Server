@@ -1,6 +1,10 @@
 <div>
   <h4>Application Configuration</h4>
-  <div ng-show="requiresConfiguration == true">
+  <div class="row" ng-show="requiresConfiguration == true">
+    <p>The SNOMEDCT Starter Kit requires a few pieces of information before
+      running.</p>
+    <p>Enter your configuration parameters and click "Configure". On most
+      machines, configuration will take about a minute.
     <div class="row" style="padding: 10px;">
       <div class="col-md-2">Database Name</div>
       <div class="col-md-10">
@@ -36,9 +40,8 @@
   </div>
   <div ng-show="requiresConfiguration == false">
     <div class="row" style="padding: 10px;">
-      <div class="col-md-3 col-xs-12">Configuration successfully
-        completed!</div>
-      <div class="col-md-9 col-xs-12">
+      <div class="col-md-3 col-xs-12">
+        Configuration successfully completed!<br><br>
         <button ng-click="enterApp()" class="btn btn-md btn-primary">Enter
           Application</button>
       </div>
