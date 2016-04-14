@@ -156,6 +156,7 @@ site.tracking.code=<!-- sample tracking \
 # URL for security service
 #
 security.timeout=7200000
+security.guest.disabled=false
 security.handler=DEFAULT
 security.handler.DEFAULT.class=com.wci.umls.server.jpa.services.handlers.DefaultSecurityServiceHandler
 security.handler.DEFAULT.users.admin=admin

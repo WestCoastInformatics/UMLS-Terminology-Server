@@ -7,8 +7,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.Writer;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 
 import javax.persistence.EntityManager;
@@ -25,12 +28,15 @@ import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.SourceData;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
+import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ConfigureServiceRest;
 import com.wci.umls.server.jpa.services.rest.HistoryServiceRest;
 import com.wci.umls.server.services.MetadataService;
+import com.wci.umls.server.services.SourceDataService;
 import com.wci.umls.server.services.handlers.ExceptionHandler;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -277,6 +283,79 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
     } catch (Exception e) {
       handleException(e, "checking if application is configured");
     } finally {
+    }
+  }
+
+  /* see superclass */
+  @POST
+  @Override
+  @Path("/destroy")
+  @ApiOperation(value = "Destroys and rebuilds the database", notes = "Resets database to clean state and deletes any uploaded files", response = Boolean.class)
+  public void destroy() throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (History): /configure/destroy");
+
+    // NOTE: Configure calls do not require authorization
+
+    SourceDataService sourceDataService = null;
+    try {
+
+      sourceDataService = new SourceDataServiceJpa();
+
+      // Check precondition: last source data object must have failed process
+      List<SourceData> sourceDatas =
+          sourceDataService.getSourceDatas().getObjects();
+
+      if (sourceDatas.size() == 0) {
+        throw new Exception(
+            "Cannot destroy database: fail condition not detected");
+      }
+
+      // sort source datas by descending last modified
+      Collections.sort(sourceDatas, new Comparator<SourceData>() {
+        @Override
+        public int compare(SourceData sd1, SourceData sd2) {
+          return sd2.getLastModified().compareTo(sd1.getLastModified());
+        }
+      });
+
+      switch (sourceDatas.get(0).getStatus()) {
+        case CANCELLED:
+        case LOADING_FAILED:
+        case REMOVAL_FAILED:
+          // do nothing
+          break;
+        default:
+          throw new Exception(
+              "Cannot destroy database: fail condition not detected");
+
+      }
+
+      //
+      // Create the database
+      //
+      MetadataService metadataService = null;
+      ConfigUtility.getConfigProperties().setProperty("hibernate.hbm2ddl.auto",
+          "create");
+      try {
+        metadataService = new MetadataServiceJpa();
+      } catch (Exception e) {
+        throw e;
+      } finally {
+        if (metadataService != null) {
+          metadataService.close();
+        }
+        ConfigUtility.getConfigProperties()
+            .setProperty("hibernate.hbm2ddl.auto", "update");
+
+      }
+
+    } catch (Exception e) {
+      handleException(e, "resetting the database");
+    } finally {
+      if (sourceDataService != null) {
+        sourceDataService.close();
+      }
     }
   }
 }

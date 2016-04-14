@@ -494,6 +494,8 @@ tsApp.service('securityService', [
             this.setUser(cookieUser);
             $http.defaults.headers.common.Authorization = user.authToken;
           }
+        } else {
+          this.setGuestUser();
         }
       }
       // return user (blank if not found)
