@@ -125,11 +125,6 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
           ConfigUtility.getConfigProperties().getProperty("source.data.dir")
               + File.separator + sourceDataId.toString();
 
-      // create the destination folder if it does not already exist
-      if (!(new File(destinationFolder).exists())) {
-        new File(destinationFolder).mkdir();
-      }
-
       final List<File> files = new ArrayList<>();
       // if unzipping requested and file is valid, extract compressed file to
       // destination folder

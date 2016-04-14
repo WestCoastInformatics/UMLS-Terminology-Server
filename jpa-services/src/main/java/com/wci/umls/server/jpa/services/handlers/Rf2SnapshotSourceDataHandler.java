@@ -98,7 +98,7 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
     while (!filesToCheck.isEmpty()) {
       File f = filesToCheck.get(0);
       if (f.isDirectory()) {
-        if (f.getName().equals("Snapshot")) {
+        if (f.getName().toLowerCase().equals("snapshot")) {
           revisedInputDir = f.getAbsolutePath();
           break;
         } else {

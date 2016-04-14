@@ -185,9 +185,9 @@ tsApp.service('sourceDataService', [
         // Success
         function(response) {
           console.debug("  data =", response.data);
-          sourceDataHandlers = response.data.keyValuePais;
+          sourceDataHandlers = response.data.keyValuePairs;
           gpService.decrement();
-          deferred.resolve(response.data.keyValuePair);
+          deferred.resolve(response.data.keyValuePairs);
         },
         // Error
         function(response) {
