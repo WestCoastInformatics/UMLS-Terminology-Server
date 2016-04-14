@@ -1,4 +1,3 @@
-
 // Administration controller
 tsApp
   .controller(
@@ -22,8 +21,6 @@ tsApp
 
         // Clear error
         utilService.clearError();
-        
-        
 
         // Handle resetting tabs on 'back' button
         if (tabService.selectedTab.label != 'Admin') {
@@ -34,13 +31,11 @@ tsApp
         // Scope Variables
         //
         $scope.user = securityService.getUser();
-        // If not logged in, redirect
+        // If logged in as guest, redirect
         if ($http.defaults.headers.common.Authorization == 'guest') {
           $location.path('/');
           return;
         }
-
-        projectService.getUserHasAnyRole();
 
         $scope.selectedProject = null;
         $scope.projectRoles = [];
@@ -787,25 +782,30 @@ tsApp
         //
         // Initialize
         //
-        $scope.getProjects();
-        $scope.getUsers();
-        $scope.getCandidateProjects();
-        $scope.getApplicationRoles();
-        $scope.getProjectRoles();
-        $scope.getTerminologies();
-        $scope.getValidationChecks();
+        $scope.initialize = function() {
+          projectService.getUserHasAnyRole();
+          $scope.getProjects();
+          $scope.getUsers();
+          $scope.getCandidateProjects();
+          $scope.getApplicationRoles();
+          $scope.getProjectRoles();
+          $scope.getTerminologies();
+          $scope.getValidationChecks();
 
-        // Handle users with user preferences
-        if ($scope.user.userPreferences) {
-          $scope.configureTab();
+          // Handle users with user preferences
+          if ($scope.user.userPreferences) {
+            $scope.configureTab();
+          }
         }
-        
+
         //
         // Initialization: Check that application is configured
         //
         configureService.isConfigured().then(function(isConfigured) {
           if (!isConfigured) {
             $location.path('/configure');
+          } else {
+            $scope.initialize();
           }
         });
 

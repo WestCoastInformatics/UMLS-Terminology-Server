@@ -5,7 +5,7 @@ function($scope, $http, $location, configureService) {
   console.debug('configure ConfigureCtrl');
   
   // flag for whether to show configuration contents
-  $scope.requiresConfiguration = false;
+  $scope.requiresConfiguration = null;
 
   // user-configurable fields
   $scope.dbName = null;
@@ -15,8 +15,14 @@ function($scope, $http, $location, configureService) {
 
   // configures the application
   $scope.configure = function() {
-    console.log('Configuring: ' + $scope.dbName, $scope.dbUser, $scope.dbPassword, $scope.appDir);
-    configureService.configure($scope.dbName, $scope.dbUser, $scope.dbPassword, $scope.appDir);
+    console.log('Configuring database');
+    configureService.configure($scope.dbName, $scope.dbUser, $scope.dbPassword, $scope.appDir).then(function() {
+      $scope.requiresConfiguration = false;
+    });
+  }
+  
+  $scope.enterApp = function() {
+    $location.path('/login');
   }
 
   //

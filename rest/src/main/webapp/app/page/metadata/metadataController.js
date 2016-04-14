@@ -1,4 +1,3 @@
-
 // Metadata controller
 tsApp.controller('MetadataCtrl', [
   '$scope',
@@ -40,22 +39,27 @@ tsApp.controller('MetadataCtrl', [
     // Initialize
     //
 
-    // If terminology is blank, then redirect to /content to set a terminology
-    if (!$scope.metadata.terminologies) {
-      $location.path("/content");
+    $scope.initialize = function() {
+
+      // If terminology is blank, then redirect to /content to set a terminology
+      if (!$scope.metadata.terminologies) {
+        $location.path("/content");
+      }
+
+      // Handle users with user preferences
+      else if ($scope.user.userPreferences) {
+        $scope.configureTab();
+      }
     }
 
-    // Handle users with user preferences
-    else if ($scope.user.userPreferences) {
-      $scope.configureTab();
-    }
-    
     //
     // Initialization: Check that application is configured
     //
     configureService.isConfigured().then(function(isConfigured) {
       if (!isConfigured) {
         $location.path('/configure');
+      } else {
+        $scope.initialize();
       }
     });
 

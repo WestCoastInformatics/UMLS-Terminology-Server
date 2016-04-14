@@ -211,7 +211,7 @@ public class ConfigUtility {
 
     return label;
   }
-
+  
   /**
    *  The get local config file.
    *
@@ -229,8 +229,10 @@ public class ConfigUtility {
    * @throws Exception the exception
    */
   public static String getLocalConfigFolder() throws Exception {
-    return System.getProperty("user.home") + "/.term-server/";
+    return System.getProperty("user.home") + "/.term-server/" + getConfigLabel() + "/";
   }
+
+  
 
   /**
    * Returns the config properties.
@@ -267,7 +269,7 @@ public class ConfigUtility {
         }
 
         // retrieve locally stored config file from user configuration (if available)
-        if (new File(getLocalConfigFile()).exists()) {
+        else if (new File(getLocalConfigFile()).exists()) {
           config = new Properties();
           FileReader in = new FileReader(new File(getLocalConfigFile()));
           config.load(in);

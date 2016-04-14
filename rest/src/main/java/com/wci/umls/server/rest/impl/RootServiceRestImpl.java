@@ -7,6 +7,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
@@ -80,7 +81,15 @@ public class RootServiceRestImpl {
   public static String authorizeApp(SecurityService securityService,
     String authToken, String perform, UserRole authRole) throws Exception {
     // authorize call
-    UserRole role = securityService.getApplicationRoleForToken(authToken);
+    UserRole role = null;
+    
+    // handle no application security
+    String securityDisabled = ConfigUtility.getConfigProperties().getProperty("security.disabled");
+    if (securityDisabled == null || securityDisabled.equals("true")) {
+      role = UserRole.ADMINISTRATOR;
+    } else {   
+      role = securityService.getApplicationRoleForToken(authToken);
+    }
     UserRole cmpRole = authRole;
     if (cmpRole == null) {
       cmpRole = UserRole.VIEWER;

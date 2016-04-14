@@ -428,14 +428,12 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken,
           "delete source data with id " + id, UserRole.USER);
 
-      // remove the directory containing this source data's files
-      // TODO This is not working, revisit
-      /*
-       * File sdDir = new
-       * File(ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-       * + File.separator + id.toString()); for (File f : sdDir.listFiles()) {
-       * f.delete(); }
-       */
+      // delete the source data files
+      String sdDir =
+          ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+              + File.separator + id.toString();
+      
+      ConfigUtility.deleteDirectory(new File(sdDir));
 
       // remove the source data
       service.removeSourceData(id);
@@ -669,8 +667,8 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Source data running process", required = true) SourceDataJpa sourceData,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Source Data): /data/cancel " + sourceData.toString());
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Source Data): /data/cancel " + sourceData.toString());
 
     try {
       authorizeApp(securityService, authToken, "cancel from source data",
