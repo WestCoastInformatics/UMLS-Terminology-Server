@@ -1,11 +1,13 @@
 /**
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.helpers;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -333,6 +335,23 @@ public class PrecedenceListJpa implements PrecedenceList {
     } else if (!terminologies.equals(other.terminologies))
       return false;
     return true;
+  }
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public Map<String, String> getTermTypeRankMap() {
+    // Otherwise, build the TTY map
+    Map<String, String> ttyRankMap = new HashMap<>();
+    List<KeyValuePair> list2 = getPrecedence().getKeyValuePairs();
+    int ct = 1;
+    for (int i = list2.size() - 1; i >= 0; i--) {
+      String padded = "0000" + ct++;
+      padded = padded.substring(padded.length() - 4);
+      final KeyValuePair pair = list2.get(i);
+      ttyRankMap.put(pair.getKey() + "/" + pair.getValue(), padded);
+    }
+    return ttyRankMap;
   }
 
 }

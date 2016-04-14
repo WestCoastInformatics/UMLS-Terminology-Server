@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
 
@@ -283,6 +283,7 @@ public interface MetadataService extends RootService, Configurable {
    */
   public PrecedenceList getDefaultPrecedenceList(String terminology,
     String version) throws Exception;
+
 
   /**
    * Indicates whether or not to assign last modified when changing terminology

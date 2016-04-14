@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.jpa;
 
@@ -70,14 +70,21 @@ public class Handler007Test {
             Branch.ROOT);
 
     // test compute preferred name
-    String pn = handlerService.computePreferredName(icdConcept.getAtoms());
+    String pn =
+        handlerService.computePreferredName(icdConcept.getAtoms(),
+            contentService
+                .getDefaultPrecedenceList("SNOMEDCT_US", "2014_09_01"));
+
     Logger.getLogger(getClass()).info(pn);
     assertEquals(pn, "Dementia associated with AIDS");
 
     // Test that the first one is the preferred one
     pn =
-        handlerService.sortByPreference(icdConcept.getAtoms()).iterator()
-            .next().getName();
+        handlerService
+            .sortByPreference(
+                icdConcept.getAtoms(),
+                contentService.getDefaultPrecedenceList("SNOMEDCT_US",
+                    "2014_09_01")).iterator().next().getName();
     Logger.getLogger(getClass()).info(pn);
     assertEquals(pn, "Dementia associated with AIDS");
   }
@@ -97,7 +104,7 @@ public class Handler007Test {
     // Call computePreferredName(null)
     // TEST: exception
     try {
-      handlerService.computePreferredName(null);
+      handlerService.computePreferredName(null, null);
       fail("Calling computePreferredName(null) should have thrown an exception.");
     } catch (Exception e) {
       // do nothing
@@ -106,7 +113,7 @@ public class Handler007Test {
     // Call isPreferredName(null)
     // TEST: exception
     try {
-      handlerService.sortByPreference(null);
+      handlerService.sortByPreference(null, null);
       fail("Calling sortByPreference(null) should have thrown an exception.");
     } catch (Exception e) {
       // do nothing
@@ -122,11 +129,12 @@ public class Handler007Test {
   public void testHandlerEdgeCases007() throws Exception {
     // Call computePreferredName(new ConceptJpa())
     // TEST: returns null
-    assertEquals(handlerService.computePreferredName(new HashSet<Atom>()), null);
+    assertEquals(
+        handlerService.computePreferredName(new HashSet<Atom>(), null), null);
 
     // Call computePreferredName(new HashSet<Description>())
     // TEST: returns null
-    assertEquals(handlerService.sortByPreference(new HashSet<Atom>()),
+    assertEquals(handlerService.sortByPreference(new HashSet<Atom>(), null),
         new ArrayList<Atom>());
 
   }

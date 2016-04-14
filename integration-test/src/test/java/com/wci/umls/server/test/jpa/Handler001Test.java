@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.jpa;
 
@@ -17,6 +17,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultComputePreferredNameHandler;
 import com.wci.umls.server.model.content.Atom;
@@ -69,15 +70,21 @@ public class Handler001Test {
             Branch.ROOT);
 
     // test compute preferred name
-    String pn = handlerService.computePreferredName(icdConcept.getAtoms());
+    String pn =
+        handlerService.computePreferredName(icdConcept.getAtoms(),
+            contentService
+                .getDefaultPrecedenceList("SNOMEDCT_US", "2014_09_01"));
     Logger.getLogger(getClass()).info(pn);
     assertEquals(pn,
         "ADC - Acquired immune deficiency syndrome dementia complex");
 
     // Test that the first one is the preferred one
     pn =
-        handlerService.sortByPreference(icdConcept.getAtoms()).iterator()
-            .next().getName();
+        handlerService
+            .sortByPreference(
+                icdConcept.getAtoms(),
+                contentService.getDefaultPrecedenceList("SNOMEDCT_US",
+                    "2014_09_01")).iterator().next().getName();
     Logger.getLogger(getClass()).info(pn);
     assertEquals(pn,
         "ADC - Acquired immune deficiency syndrome dementia complex");
@@ -98,7 +105,7 @@ public class Handler001Test {
     // Call computePreferredName(null)
     // TEST: exception
     try {
-      handlerService.computePreferredName(null);
+      handlerService.computePreferredName(null, null);
       fail("Calling computePreferredName(null) should have thrown an exception.");
     } catch (Exception e) {
       // do nothing
@@ -107,7 +114,7 @@ public class Handler001Test {
     // Call isPreferredName(null)
     // TEST: exception
     try {
-      handlerService.sortByPreference(null);
+      handlerService.sortByPreference(null, null);
       fail("Calling sortByPreference(null) should have thrown an exception.");
     } catch (Exception e) {
       // do nothing
@@ -123,12 +130,13 @@ public class Handler001Test {
   public void testHandlerEdgeCases001() throws Exception {
     // Call computePreferredName(new ConceptJpa())
     // TEST: returns null
-    assertEquals(handlerService.computePreferredName(new HashSet<Atom>()), null);
+    assertEquals(handlerService.computePreferredName(new HashSet<Atom>(),
+        (PrecedenceList) null), null);
 
     // Call computePreferredName(new HashSet<Description>())
     // TEST: returns null
-    assertEquals(handlerService.sortByPreference(new HashSet<Atom>()),
-        new ArrayList<Atom>());
+    assertEquals(handlerService.sortByPreference(new HashSet<Atom>(),
+        (PrecedenceList) null), new ArrayList<Atom>());
 
   }
 

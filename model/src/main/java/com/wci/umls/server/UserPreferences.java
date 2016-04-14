@@ -1,8 +1,9 @@
 /**
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
+import com.wci.umls.server.helpers.PrecedenceList;
 
 /**
  * Represents a user.
@@ -36,7 +37,6 @@ public interface UserPreferences {
    * @param user the user
    */
   public void setUser(User user);
-
 
   /**
    * Gets the last tab.
@@ -79,20 +79,33 @@ public interface UserPreferences {
    * @param lastProjectId the new last project id
    */
   public void setLastProjectId(Long lastProjectId);
-  
+
   /**
    * Returns the feedback email.
    *
    * @return the feedback email
    */
   public String getFeedbackEmail();
-  
+
   /**
    * Sets the feedback email.
    *
    * @param feedbackEmail the feedback email
    */
   public void setFeedbackEmail(String feedbackEmail);
-  
+
+  /**
+   * Returns the precedence list.
+   *
+   * @return the precedence list
+   */
+  public PrecedenceList getPrecedenceList();
+
+  /**
+   * Sets the precedence list.
+   *
+   * @param precedenceList the precedence list
+   */
+  public void setPrecedenceList(PrecedenceList precedenceList);
 
 }

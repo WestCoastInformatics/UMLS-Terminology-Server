@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -270,16 +270,18 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     logInfo("  terminology = " + terminology);
     logInfo("  version = " + version);
 
+    long startTimeOrig = System.nanoTime();
+
+    if (!new File(inputFile).exists()) {
+      throw new Exception("Specified input file does not exist");
+    }
+
     try {
 
       setAssignIdentifiersFlag(false);
       setLastModifiedFlag(false);
       setTransactionPerOperation(false);
       beginTransaction();
-
-      if (!new File(inputFile).exists()) {
-        throw new Exception("Specified input file does not exist");
-      }
 
       //
       // Load ontology into memory
@@ -314,6 +316,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         releaseVersion = version;
         releaseVersionDate = currentDate;
       }
+      logInfo("  release version = " + releaseVersion);
 
       //
       // Set "load as inferred" flag
@@ -362,10 +365,11 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       //
       loadReleaseInfo();
 
-      close();
-
+      logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
       logInfo("Done ...");
 
+      commit();
+      close();
     } catch (Exception e) {
       e.printStackTrace();
       throw new Exception("Owl loader failed", e);

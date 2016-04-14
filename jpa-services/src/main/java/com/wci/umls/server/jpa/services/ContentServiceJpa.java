@@ -36,6 +36,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PfscParameter;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.SearchCriteria;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -3099,7 +3100,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
 
   /* see superclass */
   @Override
-  public String getComputedPreferredName(AtomClass atomClass) throws Exception {
+  public String getComputedPreferredName(AtomClass atomClass,
+    PrecedenceList list) throws Exception {
     try {
       ComputePreferredNameHandler handler =
           pnHandlerMap.get(atomClass.getTerminology());
@@ -3112,7 +3114,8 @@ public class ContentServiceJpa extends MetadataServiceJpa implements
             "Compute preferred name handler is not configured for DEFAULT or for "
                 + atomClass.getTerminology());
       }
-      final String pn = handler.computePreferredName(atomClass.getAtoms());
+      final String pn =
+          handler.computePreferredName(atomClass.getAtoms(), list);
       return pn;
     } catch (Exception e) {
       if (tx.isActive()) {

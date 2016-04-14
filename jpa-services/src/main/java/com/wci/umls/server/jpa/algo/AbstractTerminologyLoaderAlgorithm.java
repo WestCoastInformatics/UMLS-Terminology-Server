@@ -148,7 +148,7 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
     addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
         "WARNING: " + message);
     Logger.getLogger(getClass()).warn(message);
-    commit();
+    commitClearBegin();
   }
 
   /**
@@ -162,7 +162,7 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
     addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
         "ERROR: " + message);
     Logger.getLogger(getClass()).error(message);
-    commit();
+    commitClearBegin();
   }
 
   /**

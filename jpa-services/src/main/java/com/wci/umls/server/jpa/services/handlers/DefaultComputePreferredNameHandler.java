@@ -8,14 +8,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
- * Default implementation of {@link ComputePreferredNameHandler}.
+ * Default implementation of {@link ComputePreferredNameHandler}. This is a
+ * dummy implelmentation just to ensure an example exists.
  */
-public class DefaultComputePreferredNameHandler
-    implements ComputePreferredNameHandler {
+public class DefaultComputePreferredNameHandler implements
+    ComputePreferredNameHandler {
 
   /* see superclass */
   @Override
@@ -25,18 +27,18 @@ public class DefaultComputePreferredNameHandler
 
   /* see superclass */
   @Override
-  public String computePreferredName(Collection<Atom> atoms) throws Exception {
-    // Use ranking algorithm from MetamorphoSys
-    // [termgroupRank][lrr][inverse SUI][inverse AUI]
-    // LRR isn't available here so just don't worry about it.
+  public String computePreferredName(Collection<Atom> atoms, PrecedenceList list)
+    throws Exception {
+    // For default implementation, pick first atom.
     return atoms.size() > 0 ? atoms.iterator().next().getName() : null;
 
   }
 
   /* see superclass */
   @Override
-  public List<Atom> sortByPreference(Collection<Atom> atoms) throws Exception {
-    // n/a
+  public List<Atom> sortByPreference(Collection<Atom> atoms, PrecedenceList list)
+    throws Exception {
+    // simply return the list
     return new ArrayList<>(atoms);
   }
 

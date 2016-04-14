@@ -25,6 +25,7 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService;
 
 /**
@@ -81,8 +82,8 @@ public class TerminologyUtility {
    * @param concept the concept
    * @return true, if successful
    */
-  public static boolean hasAtomWithTerminologyAndTty(Concept concept, String terminology,
-    String tty) {
+  public static boolean hasAtomWithTerminologyAndTty(Concept concept,
+    String terminology, String tty) {
     for (final Atom atom : concept.getAtoms()) {
       if (atom.getTerminology().equals(terminology)
           && atom.getTermType().equals(tty)) {
@@ -100,8 +101,8 @@ public class TerminologyUtility {
    * @param concept the concept
    * @return the atom with terminology and tty
    */
-  public static Atom getAtomWithTerminologyAndTty(Concept concept, String terminology,
-    String tty) {
+  public static Atom getAtomWithTerminologyAndTty(Concept concept,
+    String terminology, String tty) {
     for (final Atom atom : concept.getAtoms()) {
       if (atom.getTerminology().equals(terminology)
           && atom.getTermType().equals(tty)) {
@@ -168,27 +169,57 @@ public class TerminologyUtility {
     String terminology, String version) throws Exception {
     if (additionalTypeHierarchy.isEmpty()) {
       MetadataService service = new MetadataServiceJpa();
-      for (AdditionalRelationshipType type : service
-          .getAdditionalRelationshipTypes(terminology, version).getObjects()) {
-        additionalTypeHierarchy.put(
-            terminology + version + type.getAbbreviation(),
-            new HashSet<String>());
-      }
-      for (AdditionalRelationshipType type : service
-          .getAdditionalRelationshipTypes(terminology, version).getObjects()) {
-        while (type.getSuperType() != null) {
-          additionalTypeHierarchy
-              .get(
-                  terminology + version + type.getSuperType().getAbbreviation())
-              .add(type.getAbbreviation());
-          type = type.getSuperType();
+      try {
+        for (AdditionalRelationshipType type : service
+            .getAdditionalRelationshipTypes(terminology, version).getObjects()) {
+          additionalTypeHierarchy.put(
+              terminology + version + type.getAbbreviation(),
+              new HashSet<String>());
         }
+        for (AdditionalRelationshipType type : service
+            .getAdditionalRelationshipTypes(terminology, version).getObjects()) {
+          while (type.getSuperType() != null) {
+            additionalTypeHierarchy.get(
+                terminology + version + type.getSuperType().getAbbreviation())
+                .add(type.getAbbreviation());
+            type = type.getSuperType();
+          }
+        }
+      } catch (Exception e) {
+        throw e;
+      } finally {
+        service.close();
       }
-      service.close();
       Logger.getLogger(TerminologyUtility.class).info(
           "  Additional descendant type map - " + additionalTypeHierarchy);
     }
     return additionalTypeHierarchy.get(terminology + version + typeValue);
+  }
+
+  /**
+   * Returns the current version.
+   *
+   * @param terminology the terminology
+   * @return the current version
+   * @throws Exception the exception
+   */
+  public static String getCurrentVersion(String terminology) throws Exception {
+    Logger.getLogger(TerminologyUtility.class).info(
+        "  Get current version - " + terminology);
+    MetadataService service = new MetadataServiceJpa();
+    try {
+      for (final Terminology t : service.getTerminologyLatestVersions()
+          .getObjects()) {
+        if (t.getTerminology().equals(terminology)) {
+          return t.getVersion();
+        }
+      }
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      service.close();
+    }
+    return null;
   }
 
   /**
@@ -220,8 +251,8 @@ public class TerminologyUtility {
    * @throws NoSuchAlgorithmException the no such algorithm exception
    * @throws UnsupportedEncodingException the unsupported encoding exception
    */
-  public static UUID getUuid(String value)
-    throws NoSuchAlgorithmException, UnsupportedEncodingException {
+  public static UUID getUuid(String value) throws NoSuchAlgorithmException,
+    UnsupportedEncodingException {
 
     MessageDigest sha1Algorithm = MessageDigest.getInstance("SHA-1");
 

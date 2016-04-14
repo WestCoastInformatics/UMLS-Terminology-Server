@@ -1,7 +1,9 @@
 /**
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
+
+import java.util.Map;
 
 import com.wci.umls.server.model.meta.TermType;
 
@@ -82,4 +84,11 @@ public interface PrecedenceList extends HasTerminology, HasLastModified {
    * @param branch the branch
    */
   public void setBranch(String branch);
+
+  /**
+   * Returns the term type rank map.
+   *
+   * @return the term type rank map
+   */
+  public Map<String, String> getTermTypeRankMap();
 }

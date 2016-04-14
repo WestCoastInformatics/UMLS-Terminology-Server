@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -211,6 +211,13 @@ public class Rf2SnapshotLoaderAlgorithm extends
   @Override
   public void compute() throws Exception {
 
+    logInfo("Start loading snapshot");
+    logInfo("  terminology = " + getTerminology());
+    logInfo("  version = " + getVersion());
+    logInfo("  inputDir = " + getInputPath());
+    logInfo("  sorting files = " + isSortFiles());
+    long startTimeOrig = System.nanoTime();
+
     // check prerequisites
     if (getTerminology() == null) {
       throw new Exception("Terminology name must be specified");
@@ -221,22 +228,23 @@ public class Rf2SnapshotLoaderAlgorithm extends
     if (getInputPath() == null) {
       throw new Exception("Input directory must be specified");
     }
+    // Check the input directory
+    File inputFile = new File(getInputPath());
+    if (!inputFile.exists()) {
+      throw new Exception("Specified input directory does not exist");
+    }
 
     try {
 
-      long startTimeOrig = System.nanoTime();
+      // control transaction scope
+      setTransactionPerOperation(false);
+      // Turn of ID computation when loading a getTerminology()
+      setAssignIdentifiersFlag(false);
+      // Let loader set last modified flags.
+      setLastModifiedFlag(false);
 
-      logInfo("Start loading snapshot");
-      logInfo("  terminology = " + getTerminology());
-      logInfo("  version = " + getVersion());
-      logInfo("  inputDir = " + getInputPath());
-      logInfo("  sorting files = " + isSortFiles());
-
-      // Check the input directory
-      File inputFile = new File(getInputPath());
-      if (!inputFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
-      }
+      // faster performance.
+      beginTransaction();
 
       // prepare the sorting algorithm
       sorter.setInputDir(getInputPath());
@@ -270,16 +278,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
       // Open readers
       readers = new Rf2Readers(new File(getInputPath() + "/RF2-sorted-temp/"));
       readers.openReaders();
-
-      // control transaction scope
-      setTransactionPerOperation(false);
-      // Turn of ID computation when loading a getTerminology()
-      setAssignIdentifiersFlag(false);
-      // Let loader set last modified flags.
-      setLastModifiedFlag(false);
-
-      // faster performance.
-      beginTransaction();
 
       //
       // Load concepts
@@ -408,14 +406,14 @@ public class Rf2SnapshotLoaderAlgorithm extends
       }
 
       // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
+      logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
 
       logInfo(getComponentStats(getTerminology(), getVersion(), Branch.ROOT)
           .toString());
-
       logInfo("Done ...");
+
+      commit();
+      close();
     } catch (CancelException e) {
       Logger.getLogger(getClass()).info("Cancel request detected");
       throw new CancelException("Compute cancelled");
@@ -890,12 +888,11 @@ public class Rf2SnapshotLoaderAlgorithm extends
     org.hibernate.Query hQuery =
         session
             .createQuery(
-                "select a from AtomJpa a "
-                    + "where conceptId is not null "
+                "select a from AtomJpa a " + "where conceptId is not null "
                     + "and conceptId != '' and terminology = :terminology "
                     + "order by terminology, conceptId")
-            .setParameter("terminology", getTerminology())
-            .setReadOnly(true).setFetchSize(1000);
+            .setParameter("terminology", getTerminology()).setReadOnly(true)
+            .setFetchSize(1000);
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     String prevCui = null;
     String prefName = null;

@@ -203,6 +203,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     logInfo("  terminology = " + terminology);
     logInfo("  version = " + version);
 
+    long startTimeOrig = System.nanoTime();
+
     FileInputStream fis = null;
     InputStream inputStream = null;
     Reader reader = null;
@@ -218,6 +220,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // open input file and get effective time and version and language
       releaseVersion = getFileVersion();
+      logInfo("  release version = " + releaseVersion);
       releaseVersionDate = ConfigUtility.DATE_FORMAT3.parse(releaseVersion);
       findLanguage(inputFile);
 
@@ -258,11 +261,12 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         addReleaseInfo(info);
       }
 
+      logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+      logInfo("Done ...");
+
       commit();
       clear();
       close();
-
-      logInfo("Done ...");
 
     } catch (Exception e) {
       e.printStackTrace();

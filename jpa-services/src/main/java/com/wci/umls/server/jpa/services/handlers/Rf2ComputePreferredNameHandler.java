@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 West Coast Informatics, LLC
+ * Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
@@ -18,7 +19,7 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
  * A ClaML based implementation of {@link ComputePreferredNameHandler}.
  */
 public class Rf2ComputePreferredNameHandler extends
-    DefaultComputePreferredNameHandler {
+    RrfComputePreferredNameHandler {
 
   /** the defaultPreferredNames values. */
   private String dpnTypeId = "900000000000013009";
@@ -65,7 +66,8 @@ public class Rf2ComputePreferredNameHandler extends
    * @param atom the atom
    * @return the rank
    */
-  protected String getRank(Atom atom) {
+  @Override
+  protected String getRank(Atom atom, PrecedenceList list) {
 
     // [active][LangPreferred][SyOrFn]
     // active = 2, obsolete = 1

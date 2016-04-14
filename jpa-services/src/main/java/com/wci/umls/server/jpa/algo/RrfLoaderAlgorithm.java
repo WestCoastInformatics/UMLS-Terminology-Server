@@ -199,11 +199,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   private Map<String, ConceptSubset> idTerminologyConceptSubsetMap =
       new HashMap<>();
 
-  /** The Constant coreModuleId. */
-  private final static String coreModuleId = "900000000000207008";
-
-  /** The Constant metadataModuleId. */
-  private final static String metadataModuleId = "900000000000012004";
+  /** The list. */
+  private PrecedenceList list;
 
   /** non-core modules map. */
   private Map<String, Set<Long>> moduleConceptIdMap = new HashMap<>();
@@ -345,20 +342,16 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @Override
   public void compute() throws Exception {
 
+    logInfo("Start loading RRF");
+    logInfo("  terminology = " + terminology);
+    logInfo("  version = " + version);
+    logInfo("  single mode = " + singleMode);
+    logInfo("  inputDir = " + getInputPath());
+
     // Track system level information
     long startTimeOrig = System.nanoTime();
     final ContentService contentService = new ContentServiceJpa();
     try {
-
-      logInfo("Start loading RRF");
-      logInfo("  terminology = " + terminology);
-      logInfo("  version = " + version);
-      logInfo("  single mode = " + singleMode);
-      logInfo("  inputDir = " + getInputPath());
-
-      // Track system level information
-      startTimeOrig = System.nanoTime();
-
       // control transaction scope
       setTransactionPerOperation(false);
       // Turn of ID computation when loading a terminology
@@ -419,6 +412,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       commitClearBegin();
 
       // Load the content
+      list = getDefaultPrecedenceList(getTerminology(), getVersion());
       loadMrconso();
 
       // Definitions
@@ -2532,7 +2526,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // Add concept
         if (prevCui == null || !fields[0].equals(prevCui)) {
           if (prevCui != null) {
-            cui.setName(getComputedPreferredName(cui));
+            cui.setName(getComputedPreferredName(cui, list));
             addConcept(cui);
             conceptIdMap.put(cui.getTerminology() + cui.getTerminologyId(),
                 cui.getId());
@@ -2574,7 +2568,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     }
     // Add last concept
     if (prevCui != null) {
-      cui.setName(getComputedPreferredName(cui));
+      cui.setName(getComputedPreferredName(cui, list));
       addConcept(cui);
       conceptIdMap.put(cui.getTerminology() + cui.getTerminologyId(),
           cui.getId());
@@ -2614,7 +2608,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (prevCui == null || !prevCui.equals(atom.getConceptId())) {
         if (cui != null) {
           // compute preferred name
-          cui.setName(getComputedPreferredName(cui));
+          cui.setName(getComputedPreferredName(cui, list));
           addConcept(cui);
           conceptIdMap.put(cui.getTerminology() + cui.getTerminologyId(),
               cui.getId());
@@ -2635,7 +2629,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       prevCui = atom.getConceptId();
     }
     if (cui != null) {
-      cui.setName(getComputedPreferredName(cui));
+      cui.setName(getComputedPreferredName(cui, list));
       addConcept(cui);
       conceptIdMap.put(cui.getTerminology() + cui.getTerminologyId(),
           cui.getId());
@@ -2664,7 +2658,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (prevDui == null || !prevDui.equals(atom.getDescriptorId())) {
         if (dui != null) {
           // compute preferred name
-          dui.setName(getComputedPreferredName(dui));
+          dui.setName(getComputedPreferredName(dui, list));
           addDescriptor(dui);
           descriptorIdMap.put(dui.getTerminology() + dui.getTerminologyId(),
               dui.getId());
@@ -2685,7 +2679,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       prevDui = atom.getDescriptorId();
     }
     if (dui != null) {
-      dui.setName(getComputedPreferredName(dui));
+      dui.setName(getComputedPreferredName(dui, list));
       addDescriptor(dui);
       descriptorIdMap.put(dui.getTerminology() + dui.getTerminologyId(),
           dui.getId());
@@ -2725,7 +2719,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (prevCode == null || !prevCode.equals(atom.getCodeId())) {
           if (code != null) {
             // compute preferred name
-            code.setName(getComputedPreferredName(code));
+            code.setName(getComputedPreferredName(code, list));
             addCode(code);
             codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
                 code.getId());
@@ -2746,7 +2740,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         prevCode = atom.getCodeId();
       }
       if (code != null) {
-        code.setName(getComputedPreferredName(code));
+        code.setName(getComputedPreferredName(code, list));
         addCode(code);
         codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
             code.getId());
@@ -2852,13 +2846,14 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @throws Exception the exception
    */
   @Override
-  public String getComputedPreferredName(AtomClass atomClass) throws Exception {
+  public String getComputedPreferredName(AtomClass atomClass,
+    PrecedenceList list) throws Exception {
     final List<Atom> atoms = new ArrayList<>();
     for (final Atom atom : atomClass.getAtoms()) {
       atoms.add(getAtom(atom.getId()));
     }
     atomClass.setAtoms(atoms);
-    return super.getComputedPreferredName(atomClass);
+    return super.getComputedPreferredName(atomClass, list);
   }
 
   /**
@@ -2993,7 +2988,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   @SuppressWarnings("static-method")
   private boolean isExtensionModule(String moduleId) {
-    return !moduleId.equals(coreModuleId) && !moduleId.equals(metadataModuleId);
+    return !moduleId.equals("900000000000207008")
+        && !moduleId.equals("900000000000012004");
   }
 
   /* see superclass */
