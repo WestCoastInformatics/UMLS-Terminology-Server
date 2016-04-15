@@ -19,12 +19,10 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.meta.IdType;
-import com.wci.umls.server.services.HistoryService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
 
@@ -81,7 +79,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     long startTimeOrig = System.nanoTime();
 
-    // check prerequisites
+    // check preconditions
     if (getTerminology() == null) {
       throw new Exception("Terminology name must be specified");
     }
@@ -92,137 +90,133 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       throw new Exception("Input directory must be specified");
     }
 
-    final HistoryService historyService = new HistoryServiceJpa();
-    try {
+    // Check the input directory
+    File inputDirFile = new File(getInputPath());
+    if (!inputDirFile.exists()) {
+      throw new Exception("Specified input directory does not exist");
+    }
 
-      // Check the input directory
-      File inputDirFile = new File(getInputPath());
-      if (!inputDirFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
-      }
-
-      // Get the release getVersion()s (need to look in complex map too for
-      // October
-      // releases)
-      Logger.getLogger(getClass()).info("  Get release getVersion()s");
-      Rf2FileSorter sorter = new Rf2FileSorter();
-      final File conceptsFile =
-          sorter.findFile(new File(getInputPath(), "Terminology"),
-              "sct2_Concept");
-      final Set<String> releaseSet = new HashSet<>();
-      BufferedReader reader = new BufferedReader(new FileReader(conceptsFile));
-      String line;
-      while ((line = reader.readLine()) != null) {
-        final String fields[] = FieldedStringTokenizer.split(line, "\t");
-        if (!fields[1].equals("effectiveTime")) {
-          try {
-            ConfigUtility.DATE_FORMAT.parse(fields[1]);
-          } catch (Exception e) {
-            throw new Exception("Improperly formatted date found: " + fields[1]);
-          }
-          releaseSet.add(fields[1]);
+    //
+    // Look through files to obtain ALL release versions
+    // TODO: could move this functionality to the file sorter
+    //
+    Logger.getLogger(getClass()).info("  Get release getVersion()s");
+    Rf2FileSorter sorter = new Rf2FileSorter();
+    final File conceptsFile =
+        sorter
+            .findFile(new File(getInputPath(), "Terminology"), "sct2_Concept");
+    final Set<String> releaseSet = new HashSet<>();
+    BufferedReader reader = new BufferedReader(new FileReader(conceptsFile));
+    String line;
+    while ((line = reader.readLine()) != null) {
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
+      if (!fields[1].equals("effectiveTime")) {
+        try {
+          ConfigUtility.DATE_FORMAT.parse(fields[1]);
+        } catch (Exception e) {
+          throw new Exception("Improperly formatted date found: " + fields[1]);
         }
+        releaseSet.add(fields[1]);
       }
-      reader.close();
-      final File complexMapFile =
-          sorter.findFile(new File(getInputPath(), "Refset/Map"),
-              "der2_iissscRefset_ComplexMap");
-      reader = new BufferedReader(new FileReader(complexMapFile));
-      while ((line = reader.readLine()) != null) {
-        final String fields[] = FieldedStringTokenizer.split(line, "\t");
-        if (!fields[1].equals("effectiveTime")) {
-          try {
-            ConfigUtility.DATE_FORMAT.parse(fields[1]);
-          } catch (Exception e) {
-            throw new Exception("Improperly formatted date found: " + fields[1]);
-          }
-          releaseSet.add(fields[1]);
+    }
+    reader.close();
+    final File complexMapFile =
+        sorter.findFile(new File(getInputPath(), "Refset/Map"),
+            "der2_iissscRefset_ComplexMap");
+    reader = new BufferedReader(new FileReader(complexMapFile));
+    while ((line = reader.readLine()) != null) {
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
+      if (!fields[1].equals("effectiveTime")) {
+        try {
+          ConfigUtility.DATE_FORMAT.parse(fields[1]);
+        } catch (Exception e) {
+          throw new Exception("Improperly formatted date found: " + fields[1]);
         }
+        releaseSet.add(fields[1]);
       }
-      File extendedMapFile =
-          sorter.findFile(new File(getInputPath(), "Refset/Map"),
-              "der2_iisssccRefset_ExtendedMap");
-      reader = new BufferedReader(new FileReader(extendedMapFile));
-      while ((line = reader.readLine()) != null) {
-        final String fields[] = FieldedStringTokenizer.split(line, "\t");
-        if (!fields[1].equals("effectiveTime")) {
-          try {
-            ConfigUtility.DATE_FORMAT.parse(fields[1]);
-          } catch (Exception e) {
-            throw new Exception("Improperly formatted date found: " + fields[1]);
-          }
-          releaseSet.add(fields[1]);
+    }
+    File extendedMapFile =
+        sorter.findFile(new File(getInputPath(), "Refset/Map"),
+            "der2_iisssccRefset_ExtendedMap");
+    reader = new BufferedReader(new FileReader(extendedMapFile));
+    while ((line = reader.readLine()) != null) {
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
+      if (!fields[1].equals("effectiveTime")) {
+        try {
+          ConfigUtility.DATE_FORMAT.parse(fields[1]);
+        } catch (Exception e) {
+          throw new Exception("Improperly formatted date found: " + fields[1]);
         }
+        releaseSet.add(fields[1]);
       }
+    }
+    reader.close();
+    final List<String> releases = new ArrayList<>(releaseSet);
+    Collections.sort(releases);
 
-      reader.close();
-      final List<String> releases = new ArrayList<>(releaseSet);
-      Collections.sort(releases);
-
-      // check that release info does not already exist
-      Logger.getLogger(getClass()).info("  Releases to process");
-      for (final String release : releases) {
-        Logger.getLogger(getClass()).info("    release = " + release);
-        ReleaseInfo releaseInfo =
-            historyService.getReleaseInfo(getTerminology(), release);
-        if (releaseInfo != null) {
-          throw new Exception("A release info already exists for " + release);
-        }
+    // check that release info does not already exist
+    Logger.getLogger(getClass()).info("  Releases to process");
+    for (final String release : releases) {
+      Logger.getLogger(getClass()).info("    release = " + release);
+      ReleaseInfo releaseInfo = getReleaseInfo(getTerminology(), release);
+      if (releaseInfo != null) {
+        throw new Exception("A release info already exists for " + release);
       }
-      historyService.close();
+    }
 
-      // Sort files
-      Logger.getLogger(getClass()).info("  Sort RF2 Files");
-      sorter = new Rf2FileSorter();
-      sorter.setSortByEffectiveTime(true);
-      sorter.setRequireAllFiles(true);
-      sorter.setInputDir(getInputPath());
-      sorter.setOutputDir("/RF2-sorted-temp/");
-      sorter.compute();
+    // Sort files
+    Logger.getLogger(getClass()).info("  Sort RF2 Files");
+    sorter = new Rf2FileSorter();
+    sorter.setSortByEffectiveTime(true);
+    sorter.setRequireAllFiles(true);
+    sorter.setInputDir(getInputPath());
+    sorter.setOutputDir("/RF2-sorted-temp/");
+    sorter.compute();
 
-      // Open readers
-      File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
-      final Rf2Readers readers = new Rf2Readers(outputDir);
-      readers.openReaders();
+    // Readers will be opened here
+    File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
+    final Rf2Readers readers = new Rf2Readers(outputDir);
+    readers.openReaders();
 
-      // Load initial snapshot - first release getVersion()
-      final Rf2SnapshotLoaderAlgorithm algorithm =
-          new Rf2SnapshotLoaderAlgorithm();
-      algorithm.setTerminology(getTerminology());
-      algorithm.setVersion(getVersion());
-      algorithm.compute();
-      algorithm.close();
+    // Load initial snapshot, pass in initial release version
+    // and readers and indicate to avoid sorting files
+    final Rf2SnapshotLoaderAlgorithm algorithm =
+        new Rf2SnapshotLoaderAlgorithm();
+    algorithm.setTerminology(getTerminology());
+    algorithm.setVersion(getVersion());
+    algorithm.setReleaseVersion(releases.get(0));
+    algorithm.setReaders(readers);
+    algorithm.setSortFiles(false);
+    algorithm.compute();
+    algorithm.close();
 
-      // Load deltas
-      for (final String release : releases) {
-        // Refresh caches for metadata handlers
-        new MetadataServiceJpa().refreshCaches();
-
-        if (release.equals(releases.get(0))) {
-          continue;
-        }
-
-        Rf2DeltaLoaderAlgorithm algorithm2 = new Rf2DeltaLoaderAlgorithm();
-        algorithm2.setTerminology(getTerminology());
-        algorithm2.setVersion(getVersion());
-        algorithm2.setReleaseVersion(release);
-        algorithm2.setReaders(readers);
-        algorithm2.compute();
-        algorithm2.close();
-        algorithm2.closeFactory();
-        algorithm2 = null;
-
-      }
-
+    // Load deltas
+    for (final String release : releases) {
       // Refresh caches for metadata handlers
       new MetadataServiceJpa().refreshCaches();
-      logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
 
-    } catch (Exception e) {
-      throw e;
-    } finally {
-      historyService.close();
+      if (release.equals(releases.get(0))) {
+        continue;
+      }
+
+      // Run loader on each subsequent release
+      // Pass in the release version and the readers
+      Rf2DeltaLoaderAlgorithm algorithm2 = new Rf2DeltaLoaderAlgorithm();
+      algorithm2.setTerminology(getTerminology());
+      algorithm2.setVersion(getVersion());
+      algorithm2.setReleaseVersion(release);
+      algorithm2.setReaders(readers);
+      algorithm2.setSortFiles(false);
+      algorithm2.compute();
+      algorithm2.close();
+      algorithm2.closeFactory();
+      algorithm2 = null;
+
     }
+
+    // Refresh caches for metadata handlers
+    new MetadataServiceJpa().refreshCaches();
+    logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
 
   }
 

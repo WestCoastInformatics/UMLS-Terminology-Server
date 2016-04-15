@@ -59,8 +59,6 @@ import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -98,11 +96,7 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.TermTypeStyle;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
-import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.RootService;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
 
 /**
@@ -112,9 +106,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /** The prefix. */
   private String prefix = "MR";
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The terminology. */
   private String terminology;
@@ -350,236 +341,220 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
-    final ContentService contentService = new ContentServiceJpa();
-    try {
-      // control transaction scope
-      setTransactionPerOperation(false);
-      // Turn of ID computation when loading a terminology
-      setAssignIdentifiersFlag(false);
-      // Let loader set last modified flags.
-      setLastModifiedFlag(false);
+    // control transaction scope
+    setTransactionPerOperation(false);
+    // Turn of ID computation when loading a terminology
+    setAssignIdentifiersFlag(false);
+    // Let loader set last modified flags.
+    setLastModifiedFlag(false);
 
-      // Check the input directory
-      File inputDirFile = new File(getInputPath());
-      if (!inputDirFile.exists()) {
-        throw new Exception("Specified input directory does not exist");
-      }
+    // Check the input directory
+    File inputDirFile = new File(getInputPath());
+    if (!inputDirFile.exists()) {
+      throw new Exception("Specified input directory does not exist");
+    }
 
-      // Sort files - not really needed because files are already sorted
-      Logger.getLogger(getClass()).info("  Sort RRF Files");
-      final RrfFileSorter sorter = new RrfFileSorter();
-      // Be flexible about missing files for RXNORM
-      sorter
-          .setRequireAllFiles(!(prefix == null ? "MR" : prefix).equals("RXN"));
-      // File outputDir = new File(inputDirFile, "/RRF-sorted-temp/");
-      // sorter.sortFiles(inputDirFile, outputDir);
-      releaseVersion = sorter.getFileVersion(inputDirFile);
-      if (releaseVersion == null) {
-        releaseVersion = version;
-      }
-      releaseVersionDate =
-          ConfigUtility.DATE_FORMAT.parse(releaseVersion.substring(0, 4)
-              + "0101");
-      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
+    // Sort files - not really needed because files are already sorted
+    Logger.getLogger(getClass()).info("  Sort RRF Files");
+    final RrfFileSorter sorter = new RrfFileSorter();
+    // Be flexible about missing files for RXNORM
+    sorter.setRequireAllFiles(!(prefix == null ? "MR" : prefix).equals("RXN"));
+    // File outputDir = new File(inputDirFile, "/RRF-sorted-temp/");
+    // sorter.sortFiles(inputDirFile, outputDir);
+    releaseVersion = sorter.getFileVersion(inputDirFile);
+    if (releaseVersion == null) {
+      releaseVersion = version;
+    }
+    releaseVersionDate =
+        ConfigUtility.DATE_FORMAT
+            .parse(releaseVersion.substring(0, 4) + "0101");
+    Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
 
-      // Open readers - just open original RRF, no need to sort
-      readers = new RrfReaders(inputDirFile);
-      // Use default prefix if not specified
-      readers.openOriginalReaders(prefix == null ? "MR" : prefix);
+    // Open readers - just open original RRF, no need to sort
+    readers = new RrfReaders(inputDirFile);
+    // Use default prefix if not specified
+    readers.openOriginalReaders(prefix == null ? "MR" : prefix);
 
-      // faster performance.
-      beginTransaction();
+    // faster performance.
+    beginTransaction();
 
-      //
-      // Load the metadata
-      //
+    //
+    // Load the metadata
+    //
 
-      // Load semantic types
-      if (!singleMode)
-        loadSrdef();
+    // Load semantic types
+    if (!singleMode)
+      loadSrdef();
 
-      // Load MRDOC data
-      loadMrdoc();
+    // Load MRDOC data
+    loadMrdoc();
 
-      // Load MRSAB data
-      cacheExistingTerminologies();
-      loadMrsab();
+    // Load MRSAB data
+    cacheExistingTerminologies();
+    loadMrsab();
 
-      // Load precedence info
-      loadMrrank();
+    // Load precedence info
+    loadMrrank();
 
-      // Commit
-      commitClearBegin();
+    // Commit
+    commitClearBegin();
 
-      // Load the content
-      list = getDefaultPrecedenceList(getTerminology(), getVersion());
-      loadMrconso();
+    // Load the content
+    list = getDefaultPrecedenceList(getTerminology(), getVersion());
+    loadMrconso();
 
-      // Definitions
-      loadMrdef();
+    // Definitions
+    loadMrdef();
 
-      // Semantic Types (skip in single mode)
-      if (!singleMode) {
-        loadMrsty();
-      }
+    // Semantic Types (skip in single mode)
+    if (!singleMode) {
+      loadMrsty();
+    }
 
-      // Relationships
-      loadMrrel();
+    // Relationships
+    loadMrrel();
 
-      // Attributes
-      loadMrsat();
+    // Attributes
+    loadMrsat();
 
-      // Mappings
-      loadMrmap();
+    // Mappings
+    loadMrmap();
 
-      // Need to reset MRSAT reader
-      readers.closeReaders();
-      readers.openOriginalReaders(prefix);
+    // Need to reset MRSAT reader
+    readers.closeReaders();
+    readers.openOriginalReaders(prefix);
 
-      // Subsets/members
-      loadMrsatSubsets();
+    // Subsets/members
+    loadMrsatSubsets();
 
-      // Make subsets and label sets
-      loadExtensionLabelSets();
+    // Make subsets and label sets
+    loadExtensionLabelSets();
 
-      // Commit
-      commitClearBegin();
+    // Commit
+    commitClearBegin();
 
-      // Add release info for individual terminology
-      for (final Terminology terminology : getTerminologyLatestVersions()
-          .getObjects()) {
-        final String version = terminology.getVersion();
-        ReleaseInfo info =
-            getReleaseInfo(terminology.getTerminology(), version);
-        if (info == null) {
-          info = new ReleaseInfoJpa();
-          info.setName(version);
-          info.setDescription(terminology.getTerminology() + " " + version
-              + " release");
-          info.setPlanned(false);
-          info.setPublished(true);
-          info.setReleaseBeginDate(null);
-          info.setReleaseFinishDate(releaseVersionDate);
-          info.setTerminology(terminology.getTerminology());
-          info.setVersion(version);
-          info.setLastModified(releaseVersionDate);
-          info.setLastModifiedBy(loader);
-          addReleaseInfo(info);
-        }
-      }
-
-      //
-      // Create ReleaseInfo for this release if it does not already exist
-      //
-      ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
+    // Add release info for individual terminology
+    for (final Terminology terminology : getTerminologyLatestVersions()
+        .getObjects()) {
+      final String version = terminology.getVersion();
+      ReleaseInfo info = getReleaseInfo(terminology.getTerminology(), version);
       if (info == null) {
         info = new ReleaseInfoJpa();
-        info.setName(releaseVersion);
-        info.setDescription(terminology + " " + releaseVersion + " release");
+        info.setName(version);
+        info.setDescription(terminology.getTerminology() + " " + version
+            + " release");
         info.setPlanned(false);
         info.setPublished(true);
         info.setReleaseBeginDate(null);
         info.setReleaseFinishDate(releaseVersionDate);
-        info.setTerminology(terminology);
+        info.setTerminology(terminology.getTerminology());
         info.setVersion(version);
         info.setLastModified(releaseVersionDate);
         info.setLastModifiedBy(loader);
         addReleaseInfo(info);
       }
-
-      // Clear concept cache
-
-      logInfo("Log component stats");
-      final Map<String, Integer> stats = getComponentStats(null, null, null);
-      final List<String> statsList = new ArrayList<>(stats.keySet());
-      Collections.sort(statsList);
-      for (final String key : statsList) {
-        logInfo("  " + key + " = " + stats.get(key));
-      }
-      // Final logging messages
-      logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      logInfo("Done ...");
-
-      // clear and commit
-      commit();
-      clear();
-
-      // Compute transitive closure
-      // Obtain each terminology and run transitive closure on it with the
-      // correct id type
-      // Refresh caches after metadata has changed in loader
-      contentService.refreshCaches();
-      for (final Terminology t : contentService.getTerminologyLatestVersions()
-          .getObjects()) {
-        // Only compute for organizing class types
-        if (t.getOrganizingClassType() != null) {
-          TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
-          algo.setTerminology(t.getTerminology());
-          algo.setVersion(t.getVersion());
-          algo.setIdType(t.getOrganizingClassType());
-          // some terminologies may have cycles, allow these for now.
-          algo.setCycleTolerant(true);
-          algo.compute();
-          algo.close();
-        }
-      }
-
-      // Compute tree positions
-      // Refresh caches after metadata has changed in loader
-      for (final Terminology t : contentService.getTerminologyLatestVersions()
-          .getObjects()) {
-        // Only compute for organizing class types
-        if (t.getOrganizingClassType() != null) {
-          TreePositionAlgorithm algo = new TreePositionAlgorithm();
-          algo.setTerminology(t.getTerminology());
-          algo.setVersion(t.getVersion());
-          algo.setIdType(t.getOrganizingClassType());
-          // some terminologies may have cycles, allow these for now.
-          algo.setCycleTolerant(true);
-          // compute "semantic types" for concept hierarchies
-          if (t.getOrganizingClassType() == IdType.CONCEPT) {
-            algo.setComputeSemanticType(true);
-          }
-          algo.compute();
-          algo.close();
-        }
-      }
-
-      // Compute label sets - after transitive closure
-      // for each subset, compute the label set
-      for (final Terminology t : contentService.getTerminologyLatestVersions()
-          .getObjects()) {
-        for (final Subset subset : contentService.getConceptSubsets(
-            t.getTerminology(), t.getVersion(), Branch.ROOT).getObjects()) {
-          final ConceptSubset conceptSubset = (ConceptSubset) subset;
-          if (conceptSubset.isLabelSubset()) {
-            Logger.getLogger(getClass()).info(
-                "  Create label set for subset = " + subset);
-            LabelSetMarkedParentAlgorithm algo3 =
-                new LabelSetMarkedParentAlgorithm();
-            algo3.setSubset(conceptSubset);
-            algo3.compute();
-            algo3.close();
-          }
-        }
-      }
-      // Clean-up
-
-      ConfigUtility
-          .deleteDirectory(new File(inputDirFile, "/RRF-sorted-temp/"));
-
-      // Final logging messages
-      Logger.getLogger(getClass()).info(
-          "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      Logger.getLogger(getClass()).info("done ...");
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      logError(e.getMessage());
-      throw e;
-    } finally {
-      contentService.close();
     }
+
+    //
+    // Create ReleaseInfo for this release if it does not already exist
+    //
+    ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
+    if (info == null) {
+      info = new ReleaseInfoJpa();
+      info.setName(releaseVersion);
+      info.setDescription(terminology + " " + releaseVersion + " release");
+      info.setPlanned(false);
+      info.setPublished(true);
+      info.setReleaseBeginDate(null);
+      info.setReleaseFinishDate(releaseVersionDate);
+      info.setTerminology(terminology);
+      info.setVersion(version);
+      info.setLastModified(releaseVersionDate);
+      info.setLastModifiedBy(loader);
+      addReleaseInfo(info);
+    }
+
+    // Clear concept cache
+
+    logInfo("Log component stats");
+    final Map<String, Integer> stats = getComponentStats(null, null, null);
+    final List<String> statsList = new ArrayList<>(stats.keySet());
+    Collections.sort(statsList);
+    for (final String key : statsList) {
+      logInfo("  " + key + " = " + stats.get(key));
+    }
+    // Final logging messages
+    logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+    logInfo("Done ...");
+
+    // clear and commit
+    commit();
+    clear();
+
+    // Compute transitive closure
+    // Obtain each terminology and run transitive closure on it with the
+    // correct id type
+    // Refresh caches after metadata has changed in loader
+    refreshCaches();
+    for (final Terminology t : getTerminologyLatestVersions().getObjects()) {
+      // Only compute for organizing class types
+      if (t.getOrganizingClassType() != null) {
+        TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
+        algo.setTerminology(t.getTerminology());
+        algo.setVersion(t.getVersion());
+        algo.setIdType(t.getOrganizingClassType());
+        // some terminologies may have cycles, allow these for now.
+        algo.setCycleTolerant(true);
+        algo.compute();
+        algo.close();
+      }
+    }
+
+    // Compute tree positions
+    // Refresh caches after metadata has changed in loader
+    for (final Terminology t : getTerminologyLatestVersions().getObjects()) {
+      // Only compute for organizing class types
+      if (t.getOrganizingClassType() != null) {
+        TreePositionAlgorithm algo = new TreePositionAlgorithm();
+        algo.setTerminology(t.getTerminology());
+        algo.setVersion(t.getVersion());
+        algo.setIdType(t.getOrganizingClassType());
+        // some terminologies may have cycles, allow these for now.
+        algo.setCycleTolerant(true);
+        // compute "semantic types" for concept hierarchies
+        if (t.getOrganizingClassType() == IdType.CONCEPT) {
+          algo.setComputeSemanticType(true);
+        }
+        algo.compute();
+        algo.close();
+      }
+    }
+
+    // Compute label sets - after transitive closure
+    // for each subset, compute the label set
+    for (final Terminology t : getTerminologyLatestVersions().getObjects()) {
+      for (final Subset subset : getConceptSubsets(t.getTerminology(),
+          t.getVersion(), Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isLabelSubset()) {
+          Logger.getLogger(getClass()).info(
+              "  Create label set for subset = " + subset);
+          LabelSetMarkedParentAlgorithm algo3 =
+              new LabelSetMarkedParentAlgorithm();
+          algo3.setSubset(conceptSubset);
+          algo3.compute();
+          algo3.close();
+        }
+      }
+    }
+    // Clean-up
+
+    ConfigUtility.deleteDirectory(new File(inputDirFile, "/RRF-sorted-temp/"));
+
+    // Final logging messages
+    Logger.getLogger(getClass()).info(
+        "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+    Logger.getLogger(getClass()).info("done ...");
 
   }
 
@@ -873,29 +848,23 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @throws Exception the exception
    */
   private void cacheExistingTerminologies() throws Exception {
-    final MetadataService service = new MetadataServiceJpa();
-    try {
-      for (final RootTerminology root : service.getRootTerminologies()
-          .getObjects()) {
-        // lazy init
-        root.getSynonymousNames().size();
-        final Language lang = root.getLanguage();
-        if (lang != null) {
-          lang.getAbbreviation();
-        }
-        loadedRootTerminologies.put(root.getTerminology(), root);
+
+    for (final RootTerminology root : getRootTerminologies().getObjects()) {
+      // lazy init
+      root.getSynonymousNames().size();
+      final Language lang = root.getLanguage();
+      if (lang != null) {
+        lang.getAbbreviation();
       }
-      for (final Terminology term : service.getTerminologies().getObjects()) {
-        // lazy init
-        term.getSynonymousNames().size();
-        term.getRootTerminology().getTerminology();
-        loadedTerminologies.put(term.getTerminology(), term);
-      }
-    } catch (Exception e) {
-      throw e;
-    } finally {
-      service.close();
+      loadedRootTerminologies.put(root.getTerminology(), root);
     }
+    for (final Terminology term : getTerminologies().getObjects()) {
+      // lazy init
+      term.getSynonymousNames().size();
+      term.getRootTerminology().getTerminology();
+      loadedTerminologies.put(term.getTerminology(), term);
+    }
+
   }
 
   /**
@@ -2889,43 +2858,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @Override
   public void reset() throws Exception {
     // do nothing
-  }
-
-  /**
-   * Fires a {@link ProgressEvent}.
-   *
-   * @param pct percent done
-   * @param note progress note
-   * @throws Exception the exception
-   */
-  public void fireProgressEvent(int pct, String note) throws Exception {
-    final ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    logInfo("    " + pct + "% " + note);
-  }
-
-  /**
-   * Adds the progress listener.
-   *
-   * @param l the l
-   */
-  /* see superclass */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /**
-   * Removes the progress listener.
-   *
-   * @param l the l
-   */
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
   }
 
   /**

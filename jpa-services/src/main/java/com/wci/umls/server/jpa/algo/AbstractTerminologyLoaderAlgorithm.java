@@ -1,17 +1,25 @@
 package com.wci.umls.server.jpa.algo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.algo.TerminologyLoaderAlgorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
 import com.wci.umls.server.model.meta.LogActivity;
+import com.wci.umls.server.services.helpers.ProgressEvent;
+import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
  * Abstract support for loader algorithms.
  */
 public abstract class AbstractTerminologyLoaderAlgorithm extends
     HistoryServiceJpa implements TerminologyLoaderAlgorithm {
+
+  /** Listeners. */
+  private List<ProgressListener> listeners = new ArrayList<>();
 
   /** LOADER constant for use as userName. */
   public final static String LOADER = "loader";
@@ -27,6 +35,9 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
 
   /** The version. */
   private String version = null;
+
+  /** The release version. */
+  private String releaseVersion;
 
   /** By default, sort and delete temporary files. */
   private boolean sortFiles = true;
@@ -76,10 +87,34 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
     return this.version;
   }
 
+  /**
+   * Indicates whether or not sort files is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isSortFiles() {
+    return sortFiles;
+  }
+
   /* see superclass */
   @Override
   public void setSortFiles(boolean sortFiles) {
     this.sortFiles = sortFiles;
+  }
+
+  /**
+   * Returns the release version.
+   *
+   * @return the release version
+   */
+  public String getReleaseVersion() {
+    return releaseVersion;
+  }
+
+  /* see superclass */
+  @Override
+  public void setReleaseVersion(String releaseVersion) {
+    this.releaseVersion = releaseVersion;
   }
 
   /* see superclass */
@@ -195,12 +230,30 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
   }
 
   /**
-   * Indicates whether or not sort files is the case.
+   * Fires a {@link ProgressEvent}.
    *
-   * @return <code>true</code> if so, <code>false</code> otherwise
+   * @param pct percent done
+   * @param note progress note
+   * @throws Exception the exception
    */
-  public boolean isSortFiles() {
-    return sortFiles;
+  public void fireProgressEvent(int pct, String note) throws Exception {
+    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
+    for (int i = 0; i < listeners.size(); i++) {
+      listeners.get(i).updateProgress(pe);
+    }
+    logInfo("    " + pct + "% " + note);
+  }
+
+  /* see superclass */
+  @Override
+  public void addProgressListener(ProgressListener l) {
+    listeners.add(l);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeProgressListener(ProgressListener l) {
+    listeners.remove(l);
   }
 
 }

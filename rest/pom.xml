@@ -24,7 +24,7 @@
     <!-- Defaults for Eclipse dev -->
     <deploy.title>Dev Term Server</deploy.title>
     <site.tracking.code></site.tracking.code>
-    <deploy.footer.copyright>(c)2015</deploy.footer.copyright>
+    <deploy.footer.copyright>(c)2016</deploy.footer.copyright>
     <deploy.presented.by></deploy.presented.by>
 
   </properties>

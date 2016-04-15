@@ -23,6 +23,7 @@ import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
+import com.wci.umls.server.jpa.algo.Rf2Readers.Keys;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
@@ -70,18 +71,13 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
 import com.wci.umls.server.services.RootService;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
 
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class Rf2SnapshotLoaderAlgorithm
-    extends AbstractTerminologyLoaderAlgorithm {
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
+public class Rf2SnapshotLoaderAlgorithm extends
+    AbstractTerminologyLoaderAlgorithm {
 
   /** The isa type rel. */
   private final static String isaTypeRel = "116680003";
@@ -114,10 +110,7 @@ public class Rf2SnapshotLoaderAlgorithm
   /** The preferred atoms set. */
   private Set<String> prefAtoms = new HashSet<>();
 
-  /** The release getVersion(). */
-  private String releaseVersion = null;
-
-  /** The release getVersion() date. */
+  /** The release version date. */
   private Date releaseVersionDate = null;
 
   /** The readers. */
@@ -188,23 +181,12 @@ public class Rf2SnapshotLoaderAlgorithm
   final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
       new LabelSetMarkedParentAlgorithm();
 
-  /** The RF2 File sorting algorithm. */
-  final Rf2FileSorter sorter = new Rf2FileSorter();
-
   /**
    * Instantiates an empty {@link Rf2SnapshotLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
    */
   public Rf2SnapshotLoaderAlgorithm() throws Exception {
     super();
-  }
-
-  /* see superclass */
-  @Override
-  public String getFileVersion() throws Exception {
-    Rf2FileSorter sorter = new Rf2FileSorter();
-    sorter.setInputDir(getInputPath());
-    return sorter.getFileVersion();
   }
 
   /* see superclass */
@@ -216,6 +198,10 @@ public class Rf2SnapshotLoaderAlgorithm
     logInfo("  version = " + getVersion());
     logInfo("  inputDir = " + getInputPath());
     logInfo("  sorting files = " + isSortFiles());
+    logInfo("  releaseVersion = "
+        + (getReleaseVersion() == null ? "COMPUTE FROM FILES"
+            : getReleaseVersion()));
+    logInfo("  readers = " + (readers == null ? null : "PASSED IN"));
     long startTimeOrig = System.nanoTime();
 
     // check prerequisites
@@ -246,38 +232,41 @@ public class Rf2SnapshotLoaderAlgorithm
       // faster performance.
       beginTransaction();
 
-      // prepare the sorting algorithm
-      sorter.setInputDir(getInputPath());
-      sorter.setOutputDir(getInputPath() + "/RF2-sorted-temp/");
-      sorter.setSortByEffectiveTime(false);
-      sorter.setRequireAllFiles(true);
+      // Sort files if indicated (otherwise sorted externally, e.g. by "full"
+      // loader)
+      if (isSortFiles()) {
 
-      // get the release getVersion()
-      releaseVersion = sorter.getFileVersion();
-      releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
-      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
+        // prepare the sorting algorithm
+        Rf2FileSorter sorter = new Rf2FileSorter();
+        sorter.setInputDir(getInputPath());
+        sorter.setOutputDir(getInputPath() + "/RF2-sorted-temp/");
+        sorter.setSortByEffectiveTime(false);
+        sorter.setRequireAllFiles(true);
+        Logger.getLogger(getClass()).info("  Sort RF2 Files");
+        Logger.getLogger(getClass()).info("    sort by effective time: false");
+        Logger.getLogger(getClass()).info("    require all files     : false");
+        sorter.compute();
 
-      // check output dir exists if no sort specified
-      if (!isSortFiles()
-          && !new File(getInputPath() + "/RF2-sorted-temp/").exists()) {
+      } else if (!new File(getInputPath() + "/RF2-sorted-temp/").exists()) {
         throw new Exception(
             "No sort specified, but previously sorted files do not exist.");
       }
 
-      // Sort files
-      else {
-
-        Logger.getLogger(getClass()).info("  Sort RF2 Files");
-        Logger.getLogger(getClass()).info("    sort by effective time: false");
-        Logger.getLogger(getClass()).info("    require all files     : false");
-
-        sorter.compute();
-
+      // Get release version if not set externally
+      if (getReleaseVersion() == null) {
+        setReleaseVersion(getFileVersion());
       }
+      releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(getReleaseVersion());
+      Logger.getLogger(getClass()).info(
+          "  releaseVersion = " + getReleaseVersion());
 
-      // Open readers
-      readers = new Rf2Readers(new File(getInputPath() + "/RF2-sorted-temp/"));
-      readers.openReaders();
+      // Open readers if not opened externally
+      boolean leaveReadersOpen = readers != null;
+      if (!leaveReadersOpen) {
+        readers =
+            new Rf2Readers(new File(getInputPath() + "/RF2-sorted-temp/"));
+        readers.openReaders();
+      }
 
       //
       // Load concepts
@@ -375,12 +364,12 @@ public class Rf2SnapshotLoaderAlgorithm
       //
       // Create ReleaseInfo for this release if it does not already exist
       //
-      ReleaseInfo info = getReleaseInfo(getTerminology(), releaseVersion);
+      ReleaseInfo info = getReleaseInfo(getTerminology(), getReleaseVersion());
       if (info == null) {
         info = new ReleaseInfoJpa();
-        info.setName(releaseVersion);
-        info.setDescription(
-            getTerminology() + " " + releaseVersion + " release");
+        info.setName(getReleaseVersion());
+        info.setDescription(getTerminology() + " " + getReleaseVersion()
+            + " release");
         info.setPlanned(false);
         info.setPublished(true);
         info.setReleaseBeginDate(releaseVersionDate);
@@ -396,13 +385,15 @@ public class Rf2SnapshotLoaderAlgorithm
       // clear and commit
       commitClearBegin();
 
-      // Clean-up
-      readers.closeReaders();
+      // Close readers only if not externally passed in
+      if (!leaveReadersOpen) {
+        readers.closeReaders();
+      }
 
-      // if sorted files were created, delete them
+      // Remove sort directory if sorting was done locally
       if (isSortFiles()) {
-        ConfigUtility
-            .deleteDirectory(new File(getInputPath(), "/RF2-sorted-temp/"));
+        ConfigUtility.deleteDirectory(new File(getInputPath(),
+            "/RF2-sorted-temp/"));
       }
 
       // Final logging messages
@@ -449,8 +440,9 @@ public class Rf2SnapshotLoaderAlgorithm
   /* see superclass */
   @Override
   public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass()).info("  Compute transitive closure from  "
-        + getTerminology() + "/" + getVersion());
+    Logger.getLogger(getClass()).info(
+        "  Compute transitive closure from  " + getTerminology() + "/"
+            + getVersion());
     try {
       transClosureAlgorithm.setCycleTolerant(false);
       transClosureAlgorithm.setIdType(IdType.CONCEPT);
@@ -466,8 +458,8 @@ public class Rf2SnapshotLoaderAlgorithm
           getVersion(), Branch.ROOT).getObjects()) {
         final ConceptSubset conceptSubset = (ConceptSubset) subset;
         if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass())
-              .info("  Create label set for subset = " + subset);
+          Logger.getLogger(getClass()).info(
+              "  Create label set for subset = " + subset);
 
           labelSetAlgorithm.setSubset(conceptSubset);
           labelSetAlgorithm.compute();
@@ -487,44 +479,34 @@ public class Rf2SnapshotLoaderAlgorithm
     // do nothing
   }
 
-  /**
-   * Fires a {@link ProgressEvent}.
-   *
-   * @param pct percent done
-   * @param note progress note
-   * @throws Exception the exception
-   */
-  public void fireProgressEvent(int pct, String note) throws Exception {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    logInfo("    " + pct + "% " + note);
-  }
-
-  /* see superclass */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
-
   /* see superclass */
   @Override
   public void cancel() throws Exception {
     // cancel any currently running local algorithms
-    sorter.cancel();
     treePosAlgorithm.cancel();
     transClosureAlgorithm.cancel();
     labelSetAlgorithm.cancel();
 
     // invoke superclass cancel
     super.cancel();
+  }
+
+  /**
+   * Sets the readers.
+   *
+   * @param readers the readers
+   */
+  public void setReaders(Rf2Readers readers) {
+    this.readers = readers;
+    readers.getReader(Keys.ASSOCIATION_REFERENCE);
+  }
+
+  /* see superclass */
+  @Override
+  public String getFileVersion() throws Exception {
+    Rf2FileSorter sorter = new Rf2FileSorter();
+    sorter.setInputDir(getInputPath());
+    return sorter.getFileVersion();
   }
 
   /**
@@ -546,7 +528,7 @@ public class Rf2SnapshotLoaderAlgorithm
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -623,7 +605,7 @@ public class Rf2SnapshotLoaderAlgorithm
       if (!fields[0].equals(id)) {
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -637,11 +619,11 @@ public class Rf2SnapshotLoaderAlgorithm
         relationship.setObsolete(fields[2].equals("0")); // active
         relationship.setSuppressible(relationship.isObsolete());
         relationship.setGroup(fields[6].intern()); // relationshipGroup
-        relationship.setRelationshipType(
-            fields[7].equals(isaTypeRel) ? "Is a" : "other"); // typeId
+        relationship.setRelationshipType(fields[7].equals(isaTypeRel) ? "Is a"
+            : "other"); // typeId
         relationship.setAdditionalRelationshipType(fields[7]); // typeId
-        relationship
-            .setHierarchical(relationship.getRelationshipType().equals("Is a"));
+        relationship.setHierarchical(relationship.getRelationshipType().equals(
+            "Is a"));
         generalEntryValues.add(relationship.getAdditionalRelationshipType());
         additionalRelTypes.add(relationship.getAdditionalRelationshipType());
         relationship.setStated(fields[8].equals("900000000000010007"));
@@ -690,12 +672,13 @@ public class Rf2SnapshotLoaderAlgorithm
 
         } else {
           if (fromConcept == null) {
-            throw new Exception(
-                "Relationship " + relationship.getTerminologyId()
+            throw new Exception("Relationship "
+                + relationship.getTerminologyId()
                 + " -existent source concept " + fields[4]);
           }
           if (toConcept == null) {
-            throw new Exception("Relationship" + relationship.getTerminologyId()
+            throw new Exception("Relationship"
+                + relationship.getTerminologyId()
                 + " references non-existent destination concept " + fields[5]);
           }
         }
@@ -724,7 +707,7 @@ public class Rf2SnapshotLoaderAlgorithm
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
       if (!fields[0].equals(id)) {
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -808,7 +791,7 @@ public class Rf2SnapshotLoaderAlgorithm
       if (!fields[0].equals(id)) {
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -989,7 +972,7 @@ public class Rf2SnapshotLoaderAlgorithm
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           return;
         }
@@ -1041,7 +1024,7 @@ public class Rf2SnapshotLoaderAlgorithm
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1100,7 +1083,7 @@ public class Rf2SnapshotLoaderAlgorithm
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           Logger.getLogger(getClass()).debug(
               "Found effective time past release getVersion() at line " + line);
           reader.push(line);
@@ -1109,8 +1092,10 @@ public class Rf2SnapshotLoaderAlgorithm
 
         if (conceptIdMap.get(fields[4]) == null) {
 
-          Logger.getLogger(getClass()).warn(
-              "Association reference member connected to nonexistent refset with terminology id "
+          Logger
+              .getLogger(getClass())
+              .warn(
+                  "Association reference member connected to nonexistent refset with terminology id "
                       + fields[4]);
 
           logWarn("  Line: " + line);
@@ -1122,8 +1107,10 @@ public class Rf2SnapshotLoaderAlgorithm
         }
 
         if (conceptIdMap.get(fields[5]) == null) {
-          Logger.getLogger(getClass()).warn(
-              "Association reference member connected to nonexistent source object with terminology id "
+          Logger
+              .getLogger(getClass())
+              .warn(
+                  "Association reference member connected to nonexistent source object with terminology id "
                       + fields[5]);
 
           logWarn("  Line: " + line);
@@ -1135,8 +1122,10 @@ public class Rf2SnapshotLoaderAlgorithm
         }
 
         if (conceptIdMap.get(fields[6]) == null) {
-          Logger.getLogger(getClass()).warn(
-              "Association reference member connected to nonexistent target object with terminology id "
+          Logger
+              .getLogger(getClass())
+              .warn(
+                  "Association reference member connected to nonexistent target object with terminology id "
                       + fields[5]);
           logWarn("  Line: " + line);
           continue;
@@ -1191,22 +1180,27 @@ public class Rf2SnapshotLoaderAlgorithm
           relationship.setTo(toConcept);
           addRelationship(relationship);
 
-          Logger.getLogger(getClass())
-              .debug("adding RO rel " + (objectCt + 1) + ", "
-                  + relationship.getTerminologyId() + ", "
-                  + relationship.getFrom().getName() + ", "
-                  + getConcept(conceptIdMap
-                      .get(relationship.getAdditionalRelationshipType()))
-                  + ", " + relationship.getTo().getName());
+          Logger.getLogger(getClass()).debug(
+              "adding RO rel "
+                  + (objectCt + 1)
+                  + ", "
+                  + relationship.getTerminologyId()
+                  + ", "
+                  + relationship.getFrom().getName()
+                  + ", "
+                  + getConcept(conceptIdMap.get(relationship
+                      .getAdditionalRelationshipType())) + ", "
+                  + relationship.getTo().getName());
 
         } else {
           if (fromConcept == null) {
-            throw new Exception(
-                "Relationship " + relationship.getTerminologyId()
+            throw new Exception("Relationship "
+                + relationship.getTerminologyId()
                 + " references non-existent source concept " + fields[5]);
           }
           if (toConcept == null) {
-            throw new Exception("Relationship" + relationship.getTerminologyId()
+            throw new Exception("Relationship"
+                + relationship.getTerminologyId()
                 + " references non-existent destination concept " + fields[6]);
           }
         }
@@ -1236,7 +1230,7 @@ public class Rf2SnapshotLoaderAlgorithm
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1271,7 +1265,7 @@ public class Rf2SnapshotLoaderAlgorithm
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1317,7 +1311,7 @@ public class Rf2SnapshotLoaderAlgorithm
       if (!fields[0].equals(id)) {
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1406,7 +1400,7 @@ public class Rf2SnapshotLoaderAlgorithm
       if (!fields[0].equals(id)) {
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1495,7 +1489,7 @@ public class Rf2SnapshotLoaderAlgorithm
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1558,7 +1552,7 @@ public class Rf2SnapshotLoaderAlgorithm
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1612,7 +1606,7 @@ public class Rf2SnapshotLoaderAlgorithm
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1666,8 +1660,8 @@ public class Rf2SnapshotLoaderAlgorithm
       final Atom description = getAtom(atomIdMap.get(fields[5]));
       ((AtomSubsetMember) member).setMember(description);
     } else {
-      throw new Exception(
-          "Refset member connected to nonexistent object - " + fields[5]);
+      throw new Exception("Refset member connected to nonexistent object - "
+          + fields[5]);
     }
 
     // Universal RefSet attributes
@@ -1994,8 +1988,8 @@ public class Rf2SnapshotLoaderAlgorithm
     chain.setLastModifiedBy(loader);
     chain.setPublishable(true);
     chain.setPublished(true);
-    chain.setAbbreviation(
-        "direct-substance o has-active-ingredient -> direct-substance");
+    chain
+        .setAbbreviation("direct-substance o has-active-ingredient -> direct-substance");
     chain.setExpandedForm(chain.getAbbreviation());
     List<AdditionalRelationshipType> list = new ArrayList<>();
     list.add(directSubstance);
@@ -2012,8 +2006,8 @@ public class Rf2SnapshotLoaderAlgorithm
     // Root Terminology
     RootTerminology root = new RootTerminologyJpa();
     root.setFamily(getTerminology());
-    root.setHierarchicalName(
-        getConcept(conceptIdMap.get(rootConceptId)).getName());
+    root.setHierarchicalName(getConcept(conceptIdMap.get(rootConceptId))
+        .getName());
     root.setLanguage(rootLanguage);
     root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
@@ -2062,13 +2056,15 @@ public class Rf2SnapshotLoaderAlgorithm
       addGeneralMetadataEntry(entry);
     }
 
-    String[] labels = new String[] {
+    String[] labels =
+        new String[] {
             "Atoms_Label", "Subsets_Label", "Attributes_Label",
             "Semantic_Types_Label", "Obsolete_Label", "Obsolete_Indicator",
         };
-    String[] labelValues = new String[] {
-        "Descriptions", "Refsets", "Properties", "Semantic Tags", "Retired",
-        "Retired"
+    String[] labelValues =
+        new String[] {
+            "Descriptions", "Refsets", "Properties", "Semantic Tags",
+            "Retired", "Retired"
         };
     int i = 0;
     for (String label : labels) {
