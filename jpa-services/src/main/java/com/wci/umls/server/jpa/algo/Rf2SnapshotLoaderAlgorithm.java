@@ -410,7 +410,7 @@ public class Rf2SnapshotLoaderAlgorithm
 
       logInfo(getComponentStats(getTerminology(), getVersion(), Branch.ROOT)
           .toString());
-      logInfo("Done ...");
+      logInfo("Loading objects done.");
 
       commit();
       close();
