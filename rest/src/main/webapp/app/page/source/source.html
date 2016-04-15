@@ -85,8 +85,9 @@
                 <span class="glyphicon glyphicon-play"></span>
                 &nbsp;Load Data
               </button>
-              <!--   ng-show="!isSourceDataModified && currentSourceData.status === 'REMOVAL_COMPLETE'" -->
               <button class="btn btn-success btn-sm"
+               ng-show="!isSourceDataModified && currentSourceData.status === 'REMOVAL_COMPLETE'"
+              
                 ng-click="loadFromSourceData(currentSourceData)">
                 <span class="glyphicon glyphicon-play"></span>
                 &nbsp;Reload Terminology

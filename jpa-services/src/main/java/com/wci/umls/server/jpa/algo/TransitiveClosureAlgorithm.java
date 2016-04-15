@@ -47,12 +47,6 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorit
   /** The request cancel flag. */
   boolean requestCancel = false;
 
-  /** The terminology. */
-  private String terminology;
-
-  /** The version. */
-  private String version;
-
   /** The descendants map. */
   private Map<Long, Set<Long>> descendantsMap = new HashMap<>();
 
@@ -73,23 +67,7 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorit
     super();
   }
 
-  /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /**
-   * Sets the version.
-   *
-   * @param version the version
-   */
-  public void setVersion(String version) {
-    this.version = version;
-  }
+ 
 
   /**
    * Returns the id type.
@@ -135,13 +113,13 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorit
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    computeTransitiveClosure(terminology, version, idType);
+    computeTransitiveClosure(getTerminology(), getVersion(), idType);
   }
 
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    clearTransitiveClosure(terminology, version);
+    clearTransitiveClosure(getTerminology(), getVersion());
   }
 
   /**
@@ -158,7 +136,7 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorit
     // Check assumptions/prerequisites
     Logger.getLogger(getClass()).info(
         "Start computing transitive closure - " + terminology);
-    fireProgressEvent(0, "Start computing transitive closure for " + terminology);
+    logInfo("Start computing transitive closure for " + terminology);
 
     // Disable transaction per operation
     setTransactionPerOperation(false);
@@ -207,14 +185,11 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorit
         throw new CancelException("Transitive closure computation cancelled.");
       }
     }
-    Logger.getLogger(getClass()).info("    ct = " + ct);
     fireProgressEvent(8, "Start creating transitive closure relationships");
 
     //
     // Create transitive closure rels
     //
-    logInfo(
-        "  Create transitive closure relationships...");
 
     // Create "self" entries
     ct = 0;
@@ -342,23 +317,24 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorit
         addTransitiveRelationship(tr);
       }
       if (ct % commitCt == 0) {
-        Logger.getLogger(getClass()).debug(
-            "      " + ct + " codes processed ..." + new Date());
+        /*Logger.getLogger(getClass()).debug(
+            "      " + ct + " codes processed ..." + new Date());*/
         commit();
         clear();
         beginTransaction();
       }
     }
+    
+    // set the transaction strategy based on status starting this routine
+    // setTransactionPerOperation(currentTransactionStrategy);
+    fireProgressEvent(100, "Finished computing transitive closures.");
+    
     // release memory
     descendantsMap = new HashMap<>();
     commit();
     clear();
 
-    Logger.getLogger(getClass()).info(
-        "Finished computing transitive closure ... " + new Date());
-    // set the transaction strategy based on status starting this routine
-    // setTransactionPerOperation(currentTransactionStrategy);
-    fireProgressEvent(100, "Finished computing transitive closures.");
+   
   }
 
   /**

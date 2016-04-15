@@ -49,12 +49,6 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The request cancel flag. */
   boolean requestCancel = false;
 
-  /** The terminology. */
-  private String terminology;
-
-  /** The version. */
-  private String version;
-
   /** The id type. */
   private IdType idType;
 
@@ -78,24 +72,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     super();
   }
 
-  /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /**
-   * Sets the version.
-   *
-   * @param version the version
-   */
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
+ 
   /**
    * Returns the id type.
    *
@@ -147,7 +124,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Get hierarchcial rels
     Logger.getLogger(getClass())
-        .info("  Get hierarchical rel for " + terminology + ", " + version);
+        .info("  Get hierarchical rel for " + getTerminology() + ", " + getVersion());
     fireProgressEvent(0, "Starting...");
 
     // Get all relationships
@@ -169,8 +146,8 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
             + "and r.from in (select o from " + tableName2
             + " o where obsolete = 0)")
-        .setParameter("terminology", terminology)
-        .setParameter("version", version).getResultList();
+        .setParameter("terminology", getTerminology())
+        .setParameter("version", getVersion()).getResultList();
 
     int ct = 0;
     Map<Long, Set<Long>> parChd = new HashMap<>();
@@ -192,7 +169,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       Set<Long> parents = chdPar.get(fromId);
       parents.add(toId);
     }
-    Logger.getLogger(this.getClass()).info("    count = " + ct);
+    //Logger.getLogger(this.getClass()).info("    count = " + ct);
 
     if (ct == 0) {
       Logger.getLogger(this.getClass()).info("    NO TREE POSITIONS");
@@ -243,8 +220,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // Handle "semantic types"
       if (computeSemanticTypes) {
         objectCt = 0;
-        Logger.getLogger(getClass())
-            .info("Compute semantic types based on tree");
+        logInfo("Compute semantic types based on tree");
         for (Long conceptId : semanticTypeMap.keySet()) {
           Concept concept = getConcept(conceptId);
           for (Long styId : semanticTypeMap.get(conceptId)) {
@@ -259,8 +235,8 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             sty.setPublishable(false);
             sty.setPublished(false);
             sty.setSemanticType(idValueMap.get(styId));
-            sty.setTerminology(terminology);
-            sty.setVersion(version);
+            sty.setTerminology(getTerminology());
+            sty.setVersion(getVersion());
             sty.setTimestamp(startDate);
             sty.setLastModified(startDate);
             addSemanticTypeComponent(sty, concept);
@@ -288,7 +264,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     Set<String> seen = new HashSet<>();
     // Add STYs already existing
-    for (final SemanticType sty : getSemanticTypes(terminology, version)
+    for (final SemanticType sty : getSemanticTypes(getTerminology(), getVersion())
         .getObjects()) {
       seen.add(sty.getValue());
     }
@@ -305,8 +281,8 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       sty.setExample("");
       sty.setExpandedForm(semanticType);
       sty.setNonHuman(false);
-      sty.setTerminology(terminology);
-      sty.setVersion(version);
+      sty.setTerminology(getTerminology());
+      sty.setVersion(getVersion());
       sty.setTreeNumber("");
       sty.setTypeId("");
       sty.setUsageNote("");
@@ -393,8 +369,8 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     tp.setPublishable(true);
     tp.setPublished(false);
     tp.setAncestorPath(ancestorPath);
-    tp.setTerminology(terminology);
-    tp.setVersion(version);
+    tp.setTerminology(getTerminology());
+    tp.setVersion(getVersion());
     // No ids if computing - only if loading
     tp.setTerminologyId("");
 
@@ -488,19 +464,21 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   @Override
   public void reset() throws Exception {
-    clearTreePositions(terminology, version);
+    clearTreePositions(getTerminology(), getVersion());
   }
 
   /**
    * Fires a {@link ProgressEvent}.
    * @param pct percent done
    * @param note progress note
+   * @throws Exception 
    */
-  public void fireProgressEvent(int pct, String note) {
+  public void fireProgressEvent(int pct, String note) throws Exception {
     ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
     for (int i = 0; i < listeners.size(); i++) {
       listeners.get(i).updateProgress(pe);
     }
+    logInfo("Computing tree positions: " + pct + "% " + note);
     Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 

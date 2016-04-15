@@ -413,7 +413,7 @@ public class Rf2SnapshotLoaderAlgorithm
       logInfo("Loading objects done.");
 
       commit();
-      close();
+
     } catch (CancelException e) {
       Logger.getLogger(getClass()).info("Cancel request detected");
       throw new CancelException("Compute cancelled");
@@ -458,7 +458,7 @@ public class Rf2SnapshotLoaderAlgorithm
       transClosureAlgorithm.setVersion(getVersion());
       transClosureAlgorithm.reset();
       transClosureAlgorithm.compute();
-      transClosureAlgorithm.close();
+      
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
@@ -471,12 +471,13 @@ public class Rf2SnapshotLoaderAlgorithm
 
           labelSetAlgorithm.setSubset(conceptSubset);
           labelSetAlgorithm.compute();
-          labelSetAlgorithm.close();
         }
       }
     } catch (CancelException e) {
       Logger.getLogger(getClass()).info("Cancel request detected");
       throw new CancelException("Tree position computation cancelled");
+    } finally {
+
     }
   }
 
@@ -1267,7 +1268,6 @@ public class Rf2SnapshotLoaderAlgorithm
 
       line = line.replace("\r", "");
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
-      System.out.println("line=" + line);
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
@@ -1940,7 +1940,7 @@ public class Rf2SnapshotLoaderAlgorithm
     Map<AdditionalRelationshipType, AdditionalRelationshipType> inverses =
         new HashMap<>();
     for (String rela : additionalRelTypes) {
-      System.out.println("rela : " + rela);
+
       AdditionalRelationshipType type = new AdditionalRelationshipTypeJpa();
       type.setTerminology(getTerminology());
       type.setVersion(getVersion());
@@ -2048,7 +2048,6 @@ public class Rf2SnapshotLoaderAlgorithm
         continue;
       }
       String name = getConcept(conceptIdMap.get(conceptId)).getName();
-      logInfo("  Genral Metadata Entry = " + conceptId + ", " + name);
       GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
       entry.setTerminology(getTerminology());
       entry.setVersion(getVersion());
@@ -2192,6 +2191,10 @@ public class Rf2SnapshotLoaderAlgorithm
   /* see superclass */
   @Override
   public void close() throws Exception {
+    sorter.close();
+    treePosAlgorithm.close();
+    transClosureAlgorithm.close();
+    labelSetAlgorithm.close();
     super.close();
     readers = null;
   }

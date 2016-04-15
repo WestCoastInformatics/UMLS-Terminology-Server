@@ -136,6 +136,7 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
 
       // perform main load
       algo.compute();
+    
 
       // compute transitive closures and tree positions
       algo.computeTreePositions();
@@ -149,6 +150,7 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
       sourceDataService.unregisterSourceDataAlgorithm(sourceData.getId());
       sourceDataService.updateSourceData(sourceData);
       sourceDataService.close();
+      algo.close();
     }
   }
 
