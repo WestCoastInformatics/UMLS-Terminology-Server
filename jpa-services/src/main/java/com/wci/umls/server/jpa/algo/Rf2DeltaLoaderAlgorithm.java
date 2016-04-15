@@ -407,7 +407,7 @@ public class Rf2DeltaLoaderAlgorithm
       logInfo(getComponentStats(getTerminology(), getVersion(), Branch.ROOT)
           .toString());
       logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      logInfo("Done ...");
+      logInfo("Loading objects done ...");
 
       // Commit and clear resources
       commit();
