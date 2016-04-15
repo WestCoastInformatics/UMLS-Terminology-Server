@@ -24,8 +24,6 @@ import com.wci.umls.server.jpa.SourceDataFileJpa;
 import com.wci.umls.server.jpa.SourceDataJpa;
 import com.wci.umls.server.jpa.helpers.SourceDataFileListJpa;
 import com.wci.umls.server.jpa.helpers.SourceDataListJpa;
-import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
-import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.SourceDataService;
 import com.wci.umls.server.services.handlers.SourceDataHandler;

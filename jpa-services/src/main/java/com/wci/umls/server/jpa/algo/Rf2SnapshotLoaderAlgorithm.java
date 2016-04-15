@@ -2187,7 +2187,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
   /* see superclass */
   @Override
   public void close() throws Exception {
-    sorter.close();
     treePosAlgorithm.close();
     transClosureAlgorithm.close();
     labelSetAlgorithm.close();
