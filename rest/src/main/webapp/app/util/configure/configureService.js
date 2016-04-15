@@ -49,7 +49,7 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
       }, function(response) {
         gpService.decrement();
         utilService.handleError(response);
-        deferred.resolve();
+        deferred.reject();
       });
       return deferred.promise;
     };

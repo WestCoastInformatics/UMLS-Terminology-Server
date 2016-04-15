@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.Writer;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -219,17 +220,19 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       validateProperty("javax.persistence.jdbc.password", properties);
 
       // TODO Test database connection with supplied parameters
+      // Current (commented) code throws SQL Exceptions regarding no driver found
+      // e.g. No suitable driver found for jdbc:mysql://127.0.0.1:3306/sskdb?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&useLocalSessionState=true
       // Check (1) existence, (2) credentials
-      try {
+    /*  try {
         java.sql.Connection con = DriverManager.getConnection(
             properties.getProperty("javax.persistence.jdbc.url"),
             properties.getProperty("javax.persistence.jdbc.user"),
             properties.getProperty("javax.persistence.jdbc.password"));
         con.getMetaData();
         
-      } catch (Exception e) {
-        throw e;
-      }
+      } catch (SQLException e) {
+        throw new LocalException("Could not establish connection to database. Please check database name and credentials.");
+      }*/
       // create the local application folder
       File localFolder = new File(ConfigUtility.getLocalConfigFolder());
       if (!localFolder.exists()) {
