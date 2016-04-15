@@ -11,7 +11,6 @@ import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 
-import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
@@ -50,7 +49,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
  * {@link ContentService}.
  */
 public class RemoveTerminologyAlgorithm extends
-    AbstractTerminologyLoaderAlgorithm implements Algorithm {
+    AbstractTerminologyLoaderAlgorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();

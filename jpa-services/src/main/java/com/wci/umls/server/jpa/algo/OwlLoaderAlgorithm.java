@@ -276,106 +276,97 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       throw new Exception("Specified input file does not exist");
     }
 
-    try {
+    setAssignIdentifiersFlag(false);
+    setLastModifiedFlag(false);
+    setTransactionPerOperation(false);
+    beginTransaction();
 
-      setAssignIdentifiersFlag(false);
-      setLastModifiedFlag(false);
-      setTransactionPerOperation(false);
-      beginTransaction();
+    //
+    // Load ontology into memory
+    final FileInputStream in = new FileInputStream(new File(inputFile));
+    OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+    OWLOntology directOntology = manager.loadOntologyFromOntologyDocument(in);
 
-      //
-      // Load ontology into memory
-      final FileInputStream in = new FileInputStream(new File(inputFile));
-      OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-      OWLOntology directOntology = manager.loadOntologyFromOntologyDocument(in);
-
-      //
-      // Check compliance
-      //
-      logInfo("Testing compliance ");
-      logInfo("  profile = " + getConfigurableValue(terminology, "profile"));
-      if ("EL".equals(getConfigurableValue(terminology, "profile"))) {
-        OwlUtility.checkOWL2ELProfile(directOntology);
-      } else if ("DL".equals(getConfigurableValue(terminology, "profile"))) {
-        OwlUtility.checkOWL2DLProfile(directOntology);
-      } else {
-        // no profile checking - other assumptions will be tested
-      }
-
-      //
-      // Determine version
-      //
-      releaseVersion = getReleaseVersion(directOntology);
-      if (releaseVersion != null) {
-        try {
-          releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
-        } catch (Exception e) {
-          releaseVersionDate = new Date();
-        }
-      } else {
-        releaseVersion = version;
-        releaseVersionDate = currentDate;
-      }
-      logInfo("  release version = " + releaseVersion);
-
-      //
-      // Set "load as inferred" flag
-      //
-      loadInferred =
-          "true".equals(getConfigurableValue(terminology, "loadInferred"));
-
-      //
-      // Add the root concept, if configured to do so
-      //
-      if ("true".equals(getConfigurableValue(terminology, "top"))) {
-        loadTopConcept(directOntology);
-      }
-
-      //
-      // Initialize root class checker
-      //
-      rootClassChecker =
-          new SimpleRootClassChecker(directOntology.getImportsClosure());
-
-      //
-      // Load ontology import closure
-      //
-      for (OWLOntology ontology : directOntology.getImportsClosure()) {
-        logInfo("Processing ontology - " + ontology);
-        loadOntology(ontology);
-      }
-
-      //
-      // Handle metadata (after all ontology processing is done)
-      //
-      loadMetadata(directOntology);
-
-      //
-      // Handle reasoner and inferences
-      //
-      if ("true".equals(getConfigurableValue(terminology, "computeInferred"))) {
-        for (OWLOntology ontology : directOntology.getImportsClosure()) {
-          logInfo("Processing inferred ontology - " + ontology);
-          loadInferred(ontology);
-        }
-      }
-
-      //
-      // Create ReleaseInfo for this release if it does not already exist
-      //
-      loadReleaseInfo();
-
-      logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      logInfo("Done ...");
-
-      commit();
-      close();
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new Exception("Owl loader failed", e);
-    } finally {
-      // tbd
+    //
+    // Check compliance
+    //
+    logInfo("Testing compliance ");
+    logInfo("  profile = " + getConfigurableValue(terminology, "profile"));
+    if ("EL".equals(getConfigurableValue(terminology, "profile"))) {
+      OwlUtility.checkOWL2ELProfile(directOntology);
+    } else if ("DL".equals(getConfigurableValue(terminology, "profile"))) {
+      OwlUtility.checkOWL2DLProfile(directOntology);
+    } else {
+      // no profile checking - other assumptions will be tested
     }
+
+    //
+    // Determine version
+    //
+    releaseVersion = getReleaseVersion(directOntology);
+    if (releaseVersion != null) {
+      try {
+        releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
+      } catch (Exception e) {
+        releaseVersionDate = new Date();
+      }
+    } else {
+      releaseVersion = version;
+      releaseVersionDate = currentDate;
+    }
+    logInfo("  release version = " + releaseVersion);
+
+    //
+    // Set "load as inferred" flag
+    //
+    loadInferred =
+        "true".equals(getConfigurableValue(terminology, "loadInferred"));
+
+    //
+    // Add the root concept, if configured to do so
+    //
+    if ("true".equals(getConfigurableValue(terminology, "top"))) {
+      loadTopConcept(directOntology);
+    }
+
+    //
+    // Initialize root class checker
+    //
+    rootClassChecker =
+        new SimpleRootClassChecker(directOntology.getImportsClosure());
+
+    //
+    // Load ontology import closure
+    //
+    for (OWLOntology ontology : directOntology.getImportsClosure()) {
+      logInfo("Processing ontology - " + ontology);
+      loadOntology(ontology);
+    }
+
+    //
+    // Handle metadata (after all ontology processing is done)
+    //
+    loadMetadata(directOntology);
+
+    //
+    // Handle reasoner and inferences
+    //
+    if ("true".equals(getConfigurableValue(terminology, "computeInferred"))) {
+      for (OWLOntology ontology : directOntology.getImportsClosure()) {
+        logInfo("Processing inferred ontology - " + ontology);
+        loadInferred(ontology);
+      }
+    }
+
+    //
+    // Create ReleaseInfo for this release if it does not already exist
+    //
+    loadReleaseInfo();
+
+    logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+    logInfo("Done ...");
+
+    commit();
 
   }
 

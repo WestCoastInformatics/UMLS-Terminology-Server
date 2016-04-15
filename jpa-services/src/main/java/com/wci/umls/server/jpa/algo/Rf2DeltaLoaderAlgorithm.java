@@ -212,201 +212,194 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       throw new Exception("Specified input directory does not exist");
     }
 
-    try {
+    // control transaction scope
+    setTransactionPerOperation(false);
+    // Turn of ID computation when loading a terminology
+    setAssignIdentifiersFlag(false);
+    // Let loader set last modified flags.
+    setLastModifiedFlag(false);
 
-      // control transaction scope
-      setTransactionPerOperation(false);
-      // Turn of ID computation when loading a terminology
-      setAssignIdentifiersFlag(false);
-      // Let loader set last modified flags.
-      setLastModifiedFlag(false);
+    // faster performance.
+    beginTransaction();
 
-      // faster performance.
-      beginTransaction();
+    // Sort files
+    logInfo("  Sort RF2 Files");
+    logInfo("    sort by effective time: false");
+    logInfo("    require all files     : false");
+    final Rf2FileSorter sorter = new Rf2FileSorter();
+    sorter.setSortByEffectiveTime(false);
+    sorter.setRequireAllFiles(true);
+    File outputDir = new File(inputPathFile, "/RF2-sorted-temp/");
+    // sorter.sortFiles(inputPathFile, outputDir);
+    // releaseVersion = sorter.getFileVersion();
+    logInfo("  releaseVersion = " + releaseVersion);
 
-      // Sort files
-      logInfo("  Sort RF2 Files");
-      logInfo("    sort by effective time: false");
-      logInfo("    require all files     : false");
-      final Rf2FileSorter sorter = new Rf2FileSorter();
-      sorter.setSortByEffectiveTime(false);
-      sorter.setRequireAllFiles(true);
-      File outputDir = new File(inputPathFile, "/RF2-sorted-temp/");
-      // sorter.sortFiles(inputPathFile, outputDir);
-      // releaseVersion = sorter.getFileVersion();
-      logInfo("  releaseVersion = " + releaseVersion);
+    releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
 
-      releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
+    // Open readers
+    readers = new Rf2Readers(outputDir);
+    readers.openReaders();
 
-      // Open readers
-      readers = new Rf2Readers(outputDir);
-      readers.openReaders();
+    //
+    // Load concepts
+    //
+    logInfo("    Loading Concepts ...");
+    loadConcepts();
 
-      //
-      // Load concepts
-      //
-      logInfo("    Loading Concepts ...");
-      loadConcepts();
+    //
+    // Load atoms and definitions
+    //
+    logInfo("    Loading Atoms ...");
+    loadAtoms();
 
-      //
-      // Load atoms and definitions
-      //
-      logInfo("    Loading Atoms ...");
-      loadAtoms();
+    logInfo("    Loading Definitions ...");
+    loadDefinitions();
 
-      logInfo("    Loading Definitions ...");
-      loadDefinitions();
+    //
+    // Cache subsets and members
+    //
+    cacheSubsetsAndMembers();
 
-      //
-      // Cache subsets and members
-      //
-      cacheSubsetsAndMembers();
+    //
+    // Load language refset members
+    // This also caches all atom subset members
+    //
+    logInfo("    Loading Language Ref Sets...");
+    loadLanguageRefsetMembers();
 
-      //
-      // Load language refset members
-      // This also caches all atom subset members
-      //
-      logInfo("    Loading Language Ref Sets...");
-      loadLanguageRefsetMembers();
-
-      // Compute preferred names
-      final PrecedenceList list =
-          this.getDefaultPrecedenceList(getTerminology(), getVersion());
-      logInfo("  Compute preferred names for modified concepts");
-      int ct = 0;
-      for (Long id : this.pnRecomputeIds) {
-        Concept concept = getConcept(id);
-        String pn = getComputedPreferredName(concept, list);
-        if (!pn.equals(concept.getName())) {
-          ct++;
-          concept.setName(pn);
-          Logger.getLogger(getClass()).debug(
-              "      compute concept pn = " + concept);
-          updateConcept(concept);
-        }
-        if (ct > 0 && ct % logCt == 0) {
-          logAndCommit(ct, RootService.logCt, RootService.commitCt);
-        }
+    // Compute preferred names
+    final PrecedenceList list =
+        this.getDefaultPrecedenceList(getTerminology(), getVersion());
+    logInfo("  Compute preferred names for modified concepts");
+    int ct = 0;
+    for (Long id : this.pnRecomputeIds) {
+      Concept concept = getConcept(id);
+      String pn = getComputedPreferredName(concept, list);
+      if (!pn.equals(concept.getName())) {
+        ct++;
+        concept.setName(pn);
+        Logger.getLogger(getClass()).debug(
+            "      compute concept pn = " + concept);
+        updateConcept(concept);
       }
-
-      commitClearBegin();
-
-      //
-      // Load relationships - stated and inferred
-      //
-      logInfo("    Loading Relationships ...");
-      loadRelationships();
-
-      commitClearBegin();
-
-      //
-      // Load simple refset members
-      // This also caches all concept subset members
-      //
-      logInfo("    Loading Simple Ref Sets...");
-      loadSimpleRefSetMembers();
-
-      commitClearBegin();
-
-      //
-      // Load simple map refset members
-      //
-      logInfo("    Loading Simple Map Ref Sets...");
-      loadSimpleMapRefSetMembers();
-
-      commitClearBegin();
-
-      //
-      // Load complex map refset members
-      //
-      logInfo("    Loading Complex Map Ref Sets...");
-      loadComplexMapRefSetMembers();
-
-      //
-      // Load extended map refset members
-      //
-      logInfo("    Loading Extended Map Ref Sets...");
-      loadExtendedMapRefSetMembers();
-
-      //
-      // Load atom type refset members
-      //
-      logInfo("    Loading Atom Type Ref Sets...");
-      loadAtomTypeRefSetMembers();
-
-      //
-      // Load refset descriptor refset members
-      //
-      logInfo("    Loading Refset Descriptor Ref Sets...");
-      loadRefsetDescriptorRefSetMembers();
-
-      //
-      // Load module dependency refset members
-      //
-      logInfo("    Loading Module Dependency Ref Sets...");
-      loadModuleDependencyRefSetMembers();
-
-      commitClearBegin();
-
-      //
-      // Load module dependency refset members
-      //
-      logInfo("    Loading Attribute Value Ref Sets...");
-      loadAttributeValueRefSetMembers();
-
-      commitClearBegin();
-
-      //
-      // Load association reference refset members
-      //
-      logInfo("    Loading Association Reference Ref Sets...");
-      loadAssociationReferenceRefSetMembers();
-
-      commitClearBegin();
-
-      //
-      // Load metadata
-      //
-      logInfo("    Loading Metadata...");
-      loadMetadata();
-
-      //
-      // Commit the content changes
-      //
-      logInfo("    changed = " + ct);
-      logInfo("  Committing");
-      commitClearBegin();
-
-      //
-      // Create ReleaseInfo for this release if it does not already exist
-      //
-      ReleaseInfo info = getReleaseInfo(getTerminology(), releaseVersion);
-      if (info == null) {
-        info = new ReleaseInfoJpa();
-        info.setName(releaseVersion);
-        info.setDescription(getTerminology() + " " + releaseVersion
-            + " release");
-        info.setPlanned(false);
-        info.setPublished(true);
-        info.setTerminology(getTerminology());
-        info.setVersion(getVersion());
-        info.setLastModified(releaseVersionDate);
-        info.setLastModifiedBy(loader);
-        addReleaseInfo(info);
+      if (ct > 0 && ct % logCt == 0) {
+        logAndCommit(ct, RootService.logCt, RootService.commitCt);
       }
-
-      logInfo(getComponentStats(getTerminology(), getVersion(), Branch.ROOT)
-          .toString());
-      logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-      logInfo("Done ...");
-
-      // Commit and clear resources
-      commit();
-      close();
-
-    } catch (Exception e) {
-      throw e;
     }
+
+    commitClearBegin();
+
+    //
+    // Load relationships - stated and inferred
+    //
+    logInfo("    Loading Relationships ...");
+    loadRelationships();
+
+    commitClearBegin();
+
+    //
+    // Load simple refset members
+    // This also caches all concept subset members
+    //
+    logInfo("    Loading Simple Ref Sets...");
+    loadSimpleRefSetMembers();
+
+    commitClearBegin();
+
+    //
+    // Load simple map refset members
+    //
+    logInfo("    Loading Simple Map Ref Sets...");
+    loadSimpleMapRefSetMembers();
+
+    commitClearBegin();
+
+    //
+    // Load complex map refset members
+    //
+    logInfo("    Loading Complex Map Ref Sets...");
+    loadComplexMapRefSetMembers();
+
+    //
+    // Load extended map refset members
+    //
+    logInfo("    Loading Extended Map Ref Sets...");
+    loadExtendedMapRefSetMembers();
+
+    //
+    // Load atom type refset members
+    //
+    logInfo("    Loading Atom Type Ref Sets...");
+    loadAtomTypeRefSetMembers();
+
+    //
+    // Load refset descriptor refset members
+    //
+    logInfo("    Loading Refset Descriptor Ref Sets...");
+    loadRefsetDescriptorRefSetMembers();
+
+    //
+    // Load module dependency refset members
+    //
+    logInfo("    Loading Module Dependency Ref Sets...");
+    loadModuleDependencyRefSetMembers();
+
+    commitClearBegin();
+
+    //
+    // Load module dependency refset members
+    //
+    logInfo("    Loading Attribute Value Ref Sets...");
+    loadAttributeValueRefSetMembers();
+
+    commitClearBegin();
+
+    //
+    // Load association reference refset members
+    //
+    logInfo("    Loading Association Reference Ref Sets...");
+    loadAssociationReferenceRefSetMembers();
+
+    commitClearBegin();
+
+    //
+    // Load metadata
+    //
+    logInfo("    Loading Metadata...");
+    loadMetadata();
+
+    //
+    // Commit the content changes
+    //
+    logInfo("    changed = " + ct);
+    logInfo("  Committing");
+    commitClearBegin();
+
+    //
+    // Create ReleaseInfo for this release if it does not already exist
+    //
+    ReleaseInfo info = getReleaseInfo(getTerminology(), releaseVersion);
+    if (info == null) {
+      info = new ReleaseInfoJpa();
+      info.setName(releaseVersion);
+      info.setDescription(getTerminology() + " " + releaseVersion + " release");
+      info.setPlanned(false);
+      info.setPublished(true);
+      info.setTerminology(getTerminology());
+      info.setVersion(getVersion());
+      info.setLastModified(releaseVersionDate);
+      info.setLastModifiedBy(loader);
+      addReleaseInfo(info);
+    }
+
+    logInfo(getComponentStats(getTerminology(), getVersion(), Branch.ROOT)
+        .toString());
+    logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
+    logInfo("Done ...");
+
+    // Commit and clear resources
+    commit();
+
   }
 
   /* see superclass */

@@ -266,7 +266,6 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       commit();
       clear();
-      close();
 
     } catch (Exception e) {
       e.printStackTrace();
