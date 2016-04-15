@@ -79,7 +79,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     long startTimeOrig = System.nanoTime();
 
-    // check prerequisites
+    // check preconditions
     if (getTerminology() == null) {
       throw new Exception("Terminology name must be specified");
     }
@@ -96,9 +96,10 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       throw new Exception("Specified input directory does not exist");
     }
 
-    // Get the release getVersion()s (need to look in complex map too for
-    // October
-    // releases)
+    //
+    // Look through files to obtain ALL release versions
+    // TODO: could move this functionality to the file sorter
+    //
     Logger.getLogger(getClass()).info("  Get release getVersion()s");
     Rf2FileSorter sorter = new Rf2FileSorter();
     final File conceptsFile =
@@ -149,7 +150,6 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         releaseSet.add(fields[1]);
       }
     }
-
     reader.close();
     final List<String> releases = new ArrayList<>(releaseSet);
     Collections.sort(releases);
@@ -173,16 +173,20 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     sorter.setOutputDir("/RF2-sorted-temp/");
     sorter.compute();
 
-    // Open readers
+    // Readers will be opened here
     File outputDir = new File(inputDirFile, "/RF2-sorted-temp/");
     final Rf2Readers readers = new Rf2Readers(outputDir);
     readers.openReaders();
 
-    // Load initial snapshot - first release getVersion()
+    // Load initial snapshot, pass in initial release version
+    // and readers and indicate to avoid sorting files
     final Rf2SnapshotLoaderAlgorithm algorithm =
         new Rf2SnapshotLoaderAlgorithm();
     algorithm.setTerminology(getTerminology());
     algorithm.setVersion(getVersion());
+    algorithm.setReleaseVersion(releases.get(0));
+    algorithm.setReaders(readers);
+    algorithm.setSortFiles(false);
     algorithm.compute();
     algorithm.close();
 
@@ -195,11 +199,14 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         continue;
       }
 
+      // Run loader on each subsequent release
+      // Pass in the release version and the readers
       Rf2DeltaLoaderAlgorithm algorithm2 = new Rf2DeltaLoaderAlgorithm();
       algorithm2.setTerminology(getTerminology());
       algorithm2.setVersion(getVersion());
       algorithm2.setReleaseVersion(release);
       algorithm2.setReaders(readers);
+      algorithm2.setSortFiles(false);
       algorithm2.compute();
       algorithm2.close();
       algorithm2.closeFactory();

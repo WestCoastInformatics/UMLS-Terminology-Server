@@ -23,6 +23,7 @@ import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
+import com.wci.umls.server.jpa.algo.Rf2Readers.Keys;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
@@ -70,8 +71,6 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
 import com.wci.umls.server.services.RootService;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
 
 /**
@@ -79,9 +78,6 @@ import com.wci.umls.server.services.helpers.PushBackReader;
  */
 public class Rf2SnapshotLoaderAlgorithm extends
     AbstractTerminologyLoaderAlgorithm {
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The isa type rel. */
   private final static String isaTypeRel = "116680003";
@@ -114,10 +110,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
   /** The preferred atoms set. */
   private Set<String> prefAtoms = new HashSet<>();
 
-  /** The release getVersion(). */
-  private String releaseVersion = null;
-
-  /** The release getVersion() date. */
+  /** The release version date. */
   private Date releaseVersionDate = null;
 
   /** The readers. */
@@ -188,23 +181,12 @@ public class Rf2SnapshotLoaderAlgorithm extends
   final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
       new LabelSetMarkedParentAlgorithm();
 
-  /** The RF2 File sorting algorithm. */
-  final Rf2FileSorter sorter = new Rf2FileSorter();
-
   /**
    * Instantiates an empty {@link Rf2SnapshotLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
    */
   public Rf2SnapshotLoaderAlgorithm() throws Exception {
     super();
-  }
-
-  /* see superclass */
-  @Override
-  public String getFileVersion() throws Exception {
-    Rf2FileSorter sorter = new Rf2FileSorter();
-    sorter.setInputDir(getInputPath());
-    return sorter.getFileVersion();
   }
 
   /* see superclass */
@@ -216,6 +198,10 @@ public class Rf2SnapshotLoaderAlgorithm extends
     logInfo("  version = " + getVersion());
     logInfo("  inputDir = " + getInputPath());
     logInfo("  sorting files = " + isSortFiles());
+    logInfo("  releaseVersion = "
+        + (getReleaseVersion() == null ? "COMPUTE FROM FILES"
+            : getReleaseVersion()));
+    logInfo("  readers = " + (readers == null ? null : "PASSED IN"));
     long startTimeOrig = System.nanoTime();
 
     // check prerequisites
@@ -246,38 +232,41 @@ public class Rf2SnapshotLoaderAlgorithm extends
       // faster performance.
       beginTransaction();
 
-      // prepare the sorting algorithm
-      sorter.setInputDir(getInputPath());
-      sorter.setOutputDir(getInputPath() + "/RF2-sorted-temp/");
-      sorter.setSortByEffectiveTime(false);
-      sorter.setRequireAllFiles(true);
+      // Sort files if indicated (otherwise sorted externally, e.g. by "full"
+      // loader)
+      if (isSortFiles()) {
 
-      // get the release getVersion()
-      releaseVersion = sorter.getFileVersion();
-      releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(releaseVersion);
-      Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
+        // prepare the sorting algorithm
+        Rf2FileSorter sorter = new Rf2FileSorter();
+        sorter.setInputDir(getInputPath());
+        sorter.setOutputDir(getInputPath() + "/RF2-sorted-temp/");
+        sorter.setSortByEffectiveTime(false);
+        sorter.setRequireAllFiles(true);
+        Logger.getLogger(getClass()).info("  Sort RF2 Files");
+        Logger.getLogger(getClass()).info("    sort by effective time: false");
+        Logger.getLogger(getClass()).info("    require all files     : false");
+        sorter.compute();
 
-      // check output dir exists if no sort specified
-      if (!isSortFiles()
-          && !new File(getInputPath() + "/RF2-sorted-temp/").exists()) {
+      } else if (!new File(getInputPath() + "/RF2-sorted-temp/").exists()) {
         throw new Exception(
             "No sort specified, but previously sorted files do not exist.");
       }
 
-      // Sort files
-      else {
-
-        Logger.getLogger(getClass()).info("  Sort RF2 Files");
-        Logger.getLogger(getClass()).info("    sort by effective time: false");
-        Logger.getLogger(getClass()).info("    require all files     : false");
-
-        sorter.compute();
-
+      // Get release version if not set externally
+      if (getReleaseVersion() == null) {
+        setReleaseVersion(getFileVersion());
       }
+      releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(getReleaseVersion());
+      Logger.getLogger(getClass()).info(
+          "  releaseVersion = " + getReleaseVersion());
 
-      // Open readers
-      readers = new Rf2Readers(new File(getInputPath() + "/RF2-sorted-temp/"));
-      readers.openReaders();
+      // Open readers if not opened externally
+      boolean leaveReadersOpen = readers != null;
+      if (!leaveReadersOpen) {
+        readers =
+            new Rf2Readers(new File(getInputPath() + "/RF2-sorted-temp/"));
+        readers.openReaders();
+      }
 
       //
       // Load concepts
@@ -375,11 +364,11 @@ public class Rf2SnapshotLoaderAlgorithm extends
       //
       // Create ReleaseInfo for this release if it does not already exist
       //
-      ReleaseInfo info = getReleaseInfo(getTerminology(), releaseVersion);
+      ReleaseInfo info = getReleaseInfo(getTerminology(), getReleaseVersion());
       if (info == null) {
         info = new ReleaseInfoJpa();
-        info.setName(releaseVersion);
-        info.setDescription(getTerminology() + " " + releaseVersion
+        info.setName(getReleaseVersion());
+        info.setDescription(getTerminology() + " " + getReleaseVersion()
             + " release");
         info.setPlanned(false);
         info.setPublished(true);
@@ -396,10 +385,12 @@ public class Rf2SnapshotLoaderAlgorithm extends
       // clear and commit
       commitClearBegin();
 
-      // Clean-up
-      readers.closeReaders();
+      // Close readers only if not externally passed in
+      if (!leaveReadersOpen) {
+        readers.closeReaders();
+      }
 
-      // if sorted files were created, delete them
+      // Remove sort directory if sorting was done locally
       if (isSortFiles()) {
         ConfigUtility.deleteDirectory(new File(getInputPath(),
             "/RF2-sorted-temp/"));
@@ -486,44 +477,34 @@ public class Rf2SnapshotLoaderAlgorithm extends
     // do nothing
   }
 
-  /**
-   * Fires a {@link ProgressEvent}.
-   *
-   * @param pct percent done
-   * @param note progress note
-   * @throws Exception the exception
-   */
-  public void fireProgressEvent(int pct, String note) throws Exception {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    logInfo("    " + pct + "% " + note);
-  }
-
-  /* see superclass */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
-
   /* see superclass */
   @Override
   public void cancel() throws Exception {
     // cancel any currently running local algorithms
-    sorter.cancel();
     treePosAlgorithm.cancel();
     transClosureAlgorithm.cancel();
     labelSetAlgorithm.cancel();
 
     // invoke superclass cancel
     super.cancel();
+  }
+
+  /**
+   * Sets the readers.
+   *
+   * @param readers the readers
+   */
+  public void setReaders(Rf2Readers readers) {
+    this.readers = readers;
+    readers.getReader(Keys.ASSOCIATION_REFERENCE);
+  }
+
+  /* see superclass */
+  @Override
+  public String getFileVersion() throws Exception {
+    Rf2FileSorter sorter = new Rf2FileSorter();
+    sorter.setInputDir(getInputPath());
+    return sorter.getFileVersion();
   }
 
   /**
@@ -545,7 +526,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -622,7 +603,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (!fields[0].equals(id)) {
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -724,7 +705,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
       if (!fields[0].equals(id)) {
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -808,7 +789,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (!fields[0].equals(id)) {
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -989,7 +970,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           return;
         }
@@ -1041,7 +1022,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1100,7 +1081,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           Logger.getLogger(getClass()).debug(
               "Found effective time past release getVersion() at line " + line);
           reader.push(line);
@@ -1247,7 +1228,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1282,7 +1263,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1328,7 +1309,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (!fields[0].equals(id)) {
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1417,7 +1398,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (!fields[0].equals(id)) {
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1506,7 +1487,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1569,7 +1550,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
@@ -1623,7 +1604,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       if (!fields[0].equals(id)) { // header
 
         // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(releaseVersion) > 0) {
+        if (fields[1].compareTo(getReleaseVersion()) > 0) {
           reader.push(line);
           break;
         }
