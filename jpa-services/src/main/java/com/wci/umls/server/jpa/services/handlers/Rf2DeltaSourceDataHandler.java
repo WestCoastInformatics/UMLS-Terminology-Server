@@ -90,7 +90,7 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
 
     // find the DELTA file
     for (File f : new File(inputDir).listFiles()) {
-      if (f.getName().equals("Delta")) {
+      if (f.getName().toLowerCase().equals("delta")) {
         revisedInputDir = f.getAbsolutePath();
       }
     }

@@ -38,18 +38,17 @@ public class SourceDataFileUtility {
   public static File writeSourceDataFile(InputStream fileInputStream,
     String destinationFolder, String fileName) throws Exception {
 
-    Logger.getLogger(SourceDataFileUtility.class).info(
-        "Writing file " + destinationFolder + File.separator + fileName);
+    Logger.getLogger(SourceDataFileUtility.class)
+        .info("Writing file " + destinationFolder + File.separator + fileName);
 
     if (fileExists(destinationFolder, fileName)) {
-      throw new LocalException("File " + fileName
-          + " already exists. Write aborted.");
+      throw new LocalException(
+          "File " + fileName + " already exists. Write aborted.");
 
     }
 
-    BufferedOutputStream bos =
-        new BufferedOutputStream(new FileOutputStream(destinationFolder
-            + File.separator + fileName));
+    BufferedOutputStream bos = new BufferedOutputStream(
+        new FileOutputStream(destinationFolder + File.separator + fileName));
     byte[] bytesIn = new byte[BUFFER_SIZE];
     int read = 0;
     while ((read = fileInputStream.read(bytesIn)) != -1) {
@@ -71,14 +70,26 @@ public class SourceDataFileUtility {
    */
   public static List<File> extractCompressedSourceDataFile(
     InputStream fileInputStream, String destinationFolder, String fileName)
-    throws Exception {
+      throws Exception {
 
-    Logger.getLogger(SourceDataFileUtility.class).info(
-        "Extracting zip file to " + destinationFolder);
+    Logger.getLogger(SourceDataFileUtility.class)
+        .info("Extracting zip file to " + destinationFolder);
 
-    File destDir = new File(destinationFolder);
-    if (!destDir.exists()) {
-      destDir.mkdir();
+    // normalize destination folder path separators
+    String dest = destinationFolder.replace("\\", "/");
+    
+    String cumPath = "";
+    for (String destPart : dest.split("/")) {
+      cumPath += destPart + "/";
+      File f = new File(cumPath);
+      if (f.exists() && !f.isDirectory()) {
+        throw new Exception("Folder path segment " + destPart
+            + " exists and is not a directory");
+      } else if (!f.exists()) {
+        Logger.getLogger(SourceDataFileUtility.class).info("Creating folder " + cumPath);
+        f.mkdir();
+      }
+
     }
 
     List<File> files = new ArrayList<>();
@@ -88,8 +99,8 @@ public class SourceDataFileUtility {
     ZipEntry entry = zipIn.getNextEntry();
 
     if (entry == null) {
-      throw new LocalException("Could not unzip file " + fileName
-          + ": not a ZIP file");
+      throw new LocalException(
+          "Could not unzip file " + fileName + ": not a ZIP file");
     }
 
     Logger.getLogger(SourceDataFileUtility.class)
@@ -114,14 +125,14 @@ public class SourceDataFileUtility {
 
         String shortName = entry.getName().substring(index + 1);
 
-        Logger.getLogger(SourceDataFileUtility.class).info(
-            "  Processing " + shortName);
+        Logger.getLogger(SourceDataFileUtility.class)
+            .info("  Processing " + shortName);
 
         // construct local directory to match file structure
         if (entry.isDirectory()) {
 
-          Logger.getLogger(SourceDataFileUtility.class).info(
-              "    Directory detected, creating folder");
+          Logger.getLogger(SourceDataFileUtility.class)
+              .info("    Directory detected, creating folder");
           if (fileExists(destinationFolder, shortName)) {
             throw new LocalException("Unzipped folder " + shortName
                 + " already exists. Write aborted");
@@ -135,8 +146,8 @@ public class SourceDataFileUtility {
         // if not a directory, simply extract the file
         else {
 
-          Logger.getLogger(SourceDataFileUtility.class).info(
-              "    File detected, extracting");
+          Logger.getLogger(SourceDataFileUtility.class)
+              .info("    File detected, extracting");
 
           if (fileExists(destinationFolder, entry.getName())) {
             throw new LocalException("Unzipped file " + shortName
@@ -144,9 +155,8 @@ public class SourceDataFileUtility {
           }
 
           // preserve archive name by replacing file separator with underscore
-          File f =
-              extractZipEntry(zipIn, destinationFolder + File.separator
-                  + shortName);
+          File f = extractZipEntry(zipIn,
+              destinationFolder + File.separator + shortName);
 
           files.add(f);
         }
@@ -186,8 +196,8 @@ public class SourceDataFileUtility {
   private static File extractZipEntry(ZipInputStream zipIn, String filePath)
     throws IOException {
 
-    Logger.getLogger(SourceDataFileUtility.class).info(
-        "Extracting file " + filePath);
+    Logger.getLogger(SourceDataFileUtility.class)
+        .info("Extracting file " + filePath);
 
     BufferedOutputStream bos =
         new BufferedOutputStream(new FileOutputStream(filePath));

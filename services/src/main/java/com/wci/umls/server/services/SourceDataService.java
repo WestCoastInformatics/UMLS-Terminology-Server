@@ -158,4 +158,11 @@ public interface SourceDataService extends RootService {
    * @return the running process for id
    */
   public Algorithm getRunningProcessForId(Long id);
+
+  /**
+   * Gets the source datas.
+   *
+   * @return the source datas
+   */
+  public SourceDataList getSourceDatas();
 }

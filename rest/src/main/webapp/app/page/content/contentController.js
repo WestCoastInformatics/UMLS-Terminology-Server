@@ -33,6 +33,7 @@ tsApp.controller('ContentCtrl', [
     //
 
     // Scope variables initialized from services
+    // TODO Add this to other controllers where preferences are modified
     $scope.user = securityService.getUser();
     $scope.metadata = metadataService.getModel();
     $scope.component = contentService.getModel();

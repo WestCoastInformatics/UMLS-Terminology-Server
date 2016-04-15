@@ -25,5 +25,11 @@ public interface ConfigureServiceRest {
 
 
   public void configure(HashMap<String, String> parameters) throws Exception;
+
+  /**
+   * Destroy and rebuild the database. Can only be invoked after a failed process.
+   * @throws Exception 
+   */
+  public void destroy() throws Exception;
   
 }

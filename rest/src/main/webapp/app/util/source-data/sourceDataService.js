@@ -185,9 +185,9 @@ tsApp.service('sourceDataService', [
         // Success
         function(response) {
           console.debug("  data =", response.data);
-          sourceDataHandlers = response.data.keyValuePais;
+          sourceDataHandlers = response.data.keyValuePairs;
           gpService.decrement();
-          deferred.resolve(response.data.keyValuePair);
+          deferred.resolve(response.data.keyValuePairs);
         },
         // Error
         function(response) {
@@ -313,6 +313,18 @@ tsApp.service('sourceDataService', [
       }
       return deferred.promise;
     };
+
+    this.getSourceDatas = function() {
+      var deferred = $q.defer();
+      $http.get(sourceDataUrl + 'data/all').then(function(response) {
+        deferred.resolve(response.data);
+      }, function(error) {
+        utilService.handleError(error);
+
+        deferred.reject('Error retrieving source datas');
+      });
+      return deferred.promise;
+    }
 
     // end.
 

@@ -24,6 +24,8 @@ import com.wci.umls.server.jpa.SourceDataFileJpa;
 import com.wci.umls.server.jpa.SourceDataJpa;
 import com.wci.umls.server.jpa.helpers.SourceDataFileListJpa;
 import com.wci.umls.server.jpa.helpers.SourceDataListJpa;
+import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
+import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.SourceDataService;
 import com.wci.umls.server.services.handlers.SourceDataHandler;
@@ -286,5 +288,32 @@ public class SourceDataServiceJpa extends RootServiceJpa
   @Override
   public Algorithm getRunningProcessForId(Long id) {
     return SourceDataServiceJpa.algorithmsRuning.get(id);
+  }
+
+  @Override
+  public SourceDataList getSourceDatas() {
+    Logger.getLogger(getClass()).debug(
+        "Source Data Service - get all source datas");
+    javax.persistence.Query query =
+        manager.createQuery("select a from SourceDataJpa a");
+
+    // Try to retrieve the single expected result If zero or more than one
+    // result are returned, log error and set result to null
+    try {
+      
+      @SuppressWarnings("unchecked")
+      List<SourceData> sds = query.getResultList();
+      // lazy initialization
+      for (SourceData sd : sds) {
+        sd.getSourceDataFiles().size();
+      }
+      SourceDataListJpa sourceDataList = new SourceDataListJpa();
+      sourceDataList.setObjects(sds);
+      sourceDataList.setTotalCount(sds.size());
+      return sourceDataList;
+
+    } catch (NoResultException e) {
+      return null;
+    }
   }
 }
