@@ -236,6 +236,15 @@ tsApp
 
         });
       }
+      
+      // TODO REMOVE
+      $scope.destroy = function() {
+        configureService.destroy().then(function() {
+          $scope.isSnomedLoaded = false;
+          $scope.previousSourceData = false;
+          $scope.currentSourceData = false;
+        });
+      }
 
       // currently active polls, array of objects {id, {poll: ..., log: ...}}
       $scope.polls = {};

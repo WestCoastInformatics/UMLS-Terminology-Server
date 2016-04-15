@@ -49,10 +49,26 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
       }, function(response) {
         gpService.decrement();
         utilService.handleError(response);
-        deferred.resolve();
+        deferred.reject();
       });
       return deferred.promise;
-    }
+    };
+    
+    this.destroy = function() {
+      var deferred = $q.defer();
+      gpService.increment();
+      $http['delete'](configureUrl + 'destroy').then(function(response) {
+        gpService.decrement();
+        deferred.resolve();
+      }, function(error) {
+        gpService.decrement();
+        utilService.handleError();
+
+        deferred.reject('Error destroying database');
+      });
+      return deferred.promise;
+    };
+
 
     // end
 

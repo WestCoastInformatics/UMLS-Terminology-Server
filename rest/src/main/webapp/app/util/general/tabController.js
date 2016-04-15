@@ -42,6 +42,8 @@ tsApp.controller('TabCtrl', [ '$scope', '$routeParams', 'securityService', 'tabS
     $scope.isShowing = function() {
       var route = $location.path();
       
+      //console.debug('isShowing', securityService.isLoggedIn(), route.indexOf('configure') == -1, securityService.isLoggedIn() && route && route.indexOf('configure') == -1)
+      
       return securityService.isLoggedIn() && route && route.indexOf('configure') == -1;
     };
 

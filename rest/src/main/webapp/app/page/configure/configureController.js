@@ -1,4 +1,4 @@
-// Administration controller
+// Configuration controller
 tsApp.controller('ConfigureCtrl', [ '$scope', '$http', '$location', 'configureService',
 
 function($scope, $http, $location, configureService) {
