@@ -59,7 +59,7 @@ public class UserPreferencesJpa implements UserPreferences {
 
   /** The prec list */
   @OneToOne(targetEntity = PrecedenceListJpa.class, optional = true)
-  private PrecedenceList precedenceList;
+  private PrecedenceList precedenceList = null;
 
   /**
    * The default constructor.
@@ -279,10 +279,12 @@ public class UserPreferencesJpa implements UserPreferences {
    * @param id the precedence list id
    */
   public void setPrecedenceListId(Long id) {
-    if (precedenceList == null) {
-      precedenceList = new PrecedenceListJpa();
+    if (id != null) {
+      if (precedenceList == null) {
+        precedenceList = new PrecedenceListJpa();
+      }
+      precedenceList.setId(id);
     }
-    precedenceList.setId(id);
   }
 
   /* see superclass */
@@ -291,18 +293,15 @@ public class UserPreferencesJpa implements UserPreferences {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((lastTab == null) ? 0 : lastTab.hashCode());
-    result =
-        prime * result
-            + ((lastTerminology == null) ? 0 : lastTerminology.hashCode());
-    result =
-        prime * result
-            + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
+    result = prime * result
+        + ((lastTerminology == null) ? 0 : lastTerminology.hashCode());
+    result = prime * result
+        + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
     // result =
     // prime * result
     // + ((precedenceList == null) ? 0 : precedenceList.hashCode());
-    result =
-        prime * result
-            + ((lastProjectId == null) ? 0 : lastProjectId.hashCode());
+    result = prime * result
+        + ((lastProjectId == null) ? 0 : lastProjectId.hashCode());
     result = prime * result + ((user == null) ? 0 : user.hashCode());
     return result;
   }

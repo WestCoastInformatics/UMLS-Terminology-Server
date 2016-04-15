@@ -29,9 +29,7 @@ tsApp.controller('TabCtrl', [ '$scope', '$routeParams', 'securityService', 'tabS
 
     // Set 'active' or not
     $scope.tabClass = function(tab) {
-      if (!tab.enabled) {
-        return 'tab-disabled';
-      } else if (tabService.selectedTab == tab) {
+      if (tabService.selectedTab == tab) {
         return 'active';
       } else {
         return '';

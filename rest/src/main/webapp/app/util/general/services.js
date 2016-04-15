@@ -495,7 +495,8 @@ tsApp.service('securityService', [
             $http.defaults.headers.common.Authorization = user.authToken;
           }
         } else {
-          setGuestUser();
+          // TODO Reintroduce this once config authentication is correctly working
+          //setGuestUser();
         }
       }
       // return user (blank if not found)
@@ -520,6 +521,19 @@ tsApp.service('securityService', [
       user.name = 'Guest';
       user.authToken = 'guest';
       user.password = 'guest';
+      user.applicationRole = 'VIEWER';
+      user.userPreferences = {};
+
+      // Whenever set user is called, we should save a cookie
+      $cookies.put('user', JSON.stringify(user));
+
+    };
+    
+    this.setAdminUser = function() {
+      user.userName = 'admin';
+      user.name = 'Administrator';
+      user.authToken = 'admin';
+      user.password = 'admin';
       user.applicationRole = 'VIEWER';
       user.userPreferences = {};
 

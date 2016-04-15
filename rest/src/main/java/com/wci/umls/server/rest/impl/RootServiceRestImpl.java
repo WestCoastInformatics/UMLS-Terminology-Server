@@ -81,15 +81,7 @@ public class RootServiceRestImpl {
   public static String authorizeApp(SecurityService securityService,
     String authToken, String perform, UserRole authRole) throws Exception {
     // authorize call
-    UserRole role = null;
-    
-    // handle no application security
-    String securityDisabled = ConfigUtility.getConfigProperties().getProperty("security.disabled");
-    if (securityDisabled == null || securityDisabled.equals("true")) {
-      role = UserRole.ADMINISTRATOR;
-    } else {   
-      role = securityService.getApplicationRoleForToken(authToken);
-    }
+    UserRole role = securityService.getApplicationRoleForToken(authToken);
     UserRole cmpRole = authRole;
     if (cmpRole == null) {
       cmpRole = UserRole.VIEWER;
@@ -127,18 +119,18 @@ public class RootServiceRestImpl {
     }
 
     // Verify that user project role has privileges of required role
-    UserRole role =
-        projectService.getProject(projectId).getUserRoleMap()
-            .get(securityService.getUser(userName));
+    UserRole role = projectService.getProject(projectId).getUserRoleMap()
+        .get(securityService.getUser(userName));
     UserRole projectRole = (role == null) ? UserRole.VIEWER : role;
     if (!projectRole.hasPrivilegesOf(requiredProjectRole))
       throw new WebApplicationException(Response.status(401)
-          .entity("User does not have permissions to " + perform + ".").build());
+          .entity("User does not have permissions to " + perform + ".")
+          .build());
 
     // return username
     return userName;
   }
-  
+
   /**
    * Returns the total elapsed time str.
    *
@@ -176,6 +168,5 @@ public class RootServiceRestImpl {
     NotificationWebsocket websocket2) {
     websocket = websocket2;
   }
-
 
 }
