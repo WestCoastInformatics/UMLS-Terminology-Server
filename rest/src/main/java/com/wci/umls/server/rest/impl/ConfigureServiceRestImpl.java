@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.Writer;
+import java.sql.DriverManager;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -14,10 +15,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -222,10 +221,12 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       // TODO Test database connection with supplied parameters
       // Check (1) existence, (2) credentials
       try {
-        EntityManagerFactory factory =
-            Persistence.createEntityManagerFactory("TermServiceDS", properties);
-        EntityManager manager = factory.createEntityManager();
-        manager.getTransaction();
+        java.sql.Connection con = DriverManager.getConnection(
+            properties.getProperty("javax.persistence.jdbc.url"),
+            properties.getProperty("javax.persistence.jdbc.user"),
+            properties.getProperty("javax.persistence.jdbc.password"));
+        con.getMetaData();
+        
       } catch (Exception e) {
         throw e;
       }
@@ -287,7 +288,7 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
   }
 
   /* see superclass */
-  @POST
+  @DELETE
   @Override
   @Path("/destroy")
   @ApiOperation(value = "Destroys and rebuilds the database", notes = "Resets database to clean state and deletes any uploaded files", response = Boolean.class)
@@ -326,7 +327,7 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
           // do nothing
           break;
         default:
-          throw new Exception(
+          throw new LocalException(
               "Cannot destroy database: fail condition not detected");
 
       }
@@ -339,12 +340,18 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
           "create");
       try {
         metadataService = new MetadataServiceJpa();
+        
+        // close and re-open factory to trigger creation
+        metadataService.closeFactory();
+        metadataService.openFactory();
       } catch (Exception e) {
         throw e;
       } finally {
         if (metadataService != null) {
           metadataService.close();
         }
+        
+        // return mode to update
         ConfigUtility.getConfigProperties()
             .setProperty("hibernate.hbm2ddl.auto", "update");
 

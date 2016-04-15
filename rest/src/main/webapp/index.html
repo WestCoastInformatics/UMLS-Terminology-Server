@@ -119,6 +119,9 @@
             ng-repeat="tab in tabs"><a ng-click="setSelectedTab(tab)">
               {{tab.label}} </a></li>
         </ul>
+        isShowing: {{isShowing() ? 'true' : 'false'}}
+        <hr>
+        {{user}}
 
         <!-- Application content -->
         <div ng-view=""></div>
