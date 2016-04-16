@@ -429,7 +429,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       treePosAlgorithm.setVersion(getVersion());
       treePosAlgorithm.reset();
       treePosAlgorithm.compute();
-      treePosAlgorithm.close();
+
     } catch (CancelException e) {
       Logger.getLogger(getClass()).info("Cancel request detected");
       throw new CancelException("Tree position computation cancelled");
