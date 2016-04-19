@@ -530,8 +530,10 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Source data id, e.g. 1", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
+    
+    // NOTE: Debug as used for polling
     Logger.getLogger(getClass())
-        .info("RESTful call (Source Data): /data/loaders");
+        .debug("RESTful call (Source Data): /data/loaders");
 
     final SourceDataService service = new SourceDataServiceJpa();
     try {
@@ -725,7 +727,8 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Lines, e.g. 5", required = false) @QueryParam("lines") int lines,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
-    Logger.getLogger(getClass()).info("RESTful POST call (Project): /log/"
+    // NOTE: Debug as used for polling
+    Logger.getLogger(getClass()).debug("RESTful POST call (Project): /log/"
         + terminology + ", " + version + ", " + activity + ", " + lines);
 
     final ProjectService projectService = new ProjectServiceJpa();

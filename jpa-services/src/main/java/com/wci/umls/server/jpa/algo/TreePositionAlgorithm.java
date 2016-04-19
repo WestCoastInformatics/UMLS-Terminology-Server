@@ -14,7 +14,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -23,7 +22,6 @@ import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTreePosition;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
@@ -43,20 +41,13 @@ import com.wci.umls.server.services.helpers.ProgressListener;
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
  */
-public class TreePositionAlgorithm extends ContentServiceJpa implements
-    Algorithm {
+public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The request cancel flag. */
   boolean requestCancel = false;
-
-  /** The terminology. */
-  private String terminology;
-
-  /** The version. */
-  private String version;
 
   /** The id type. */
   private IdType idType;
@@ -81,24 +72,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     super();
   }
 
-  /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /**
-   * Sets the version.
-   *
-   * @param version the version
-   */
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
+ 
   /**
    * Returns the id type.
    *
@@ -149,8 +123,8 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
   public void compute() throws Exception {
 
     // Get hierarchcial rels
-    Logger.getLogger(getClass()).info(
-        "  Get hierarchical rel for " + terminology + ", " + version);
+    Logger.getLogger(getClass())
+        .info("  Get hierarchical rel for " + getTerminology() + ", " + getVersion());
     fireProgressEvent(0, "Starting...");
 
     // Get all relationships
@@ -166,16 +140,14 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
       tableName2 = "CodeJpa";
     }
     @SuppressWarnings("unchecked")
-    List<Object[]> relationships =
-        manager
-            .createQuery(
-                "select r.from.id, r.to.id from " + tableName + " r where "
-                    + "version = :version and terminology = :terminology "
-                    + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
-                    + "and r.from in (select o from " + tableName2
-                    + " o where obsolete = 0)")
-            .setParameter("terminology", terminology)
-            .setParameter("version", version).getResultList();
+    List<Object[]> relationships = manager
+        .createQuery("select r.from.id, r.to.id from " + tableName + " r where "
+            + "version = :version and terminology = :terminology "
+            + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
+            + "and r.from in (select o from " + tableName2
+            + " o where obsolete = 0)")
+        .setParameter("terminology", getTerminology())
+        .setParameter("version", getVersion()).getResultList();
 
     int ct = 0;
     Map<Long, Set<Long>> parChd = new HashMap<>();
@@ -197,7 +169,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
       Set<Long> parents = chdPar.get(fromId);
       parents.add(toId);
     }
-    Logger.getLogger(this.getClass()).info("    count = " + ct);
+    //Logger.getLogger(this.getClass()).info("    count = " + ct);
 
     if (ct == 0) {
       Logger.getLogger(this.getClass()).info("    NO TREE POSITIONS");
@@ -225,8 +197,8 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     Date startDate = new Date();
     for (Long rootId : rootIds) {
       i++;
-      Logger.getLogger(getClass()).debug(
-          "  Compute tree positions for root " + rootId);
+      Logger.getLogger(getClass())
+          .debug("  Compute tree positions for root " + rootId);
       fireProgressEvent((int) (10 + (i * 90.0 / rootIds.size())),
           "Compute tree positions for root " + rootId);
       ValidationResult result = new ValidationResultJpa();
@@ -248,8 +220,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
       // Handle "semantic types"
       if (computeSemanticTypes) {
         objectCt = 0;
-        Logger.getLogger(getClass()).info(
-            "Compute semantic types based on tree");
+        logInfo("Compute semantic types based on tree");
         for (Long conceptId : semanticTypeMap.keySet()) {
           Concept concept = getConcept(conceptId);
           for (Long styId : semanticTypeMap.get(conceptId)) {
@@ -264,8 +235,8 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
             sty.setPublishable(false);
             sty.setPublished(false);
             sty.setSemanticType(idValueMap.get(styId));
-            sty.setTerminology(terminology);
-            sty.setVersion(version);
+            sty.setTerminology(getTerminology());
+            sty.setVersion(getVersion());
             sty.setTimestamp(startDate);
             sty.setLastModified(startDate);
             addSemanticTypeComponent(sty, concept);
@@ -290,10 +261,11 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     }
     // needed for dev UMLS because SNOMED has "multiple roots" that contain dup
     // strings
-    
+
     Set<String> seen = new HashSet<>();
     // Add STYs already existing
-    for (final SemanticType sty : getSemanticTypes(terminology,version).getObjects()){
+    for (final SemanticType sty : getSemanticTypes(getTerminology(), getVersion())
+        .getObjects()) {
       seen.add(sty.getValue());
     }
     for (Map.Entry<Long, String> entry : idValueMap.entrySet()) {
@@ -309,8 +281,8 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
       sty.setExample("");
       sty.setExpandedForm(semanticType);
       sty.setNonHuman(false);
-      sty.setTerminology(terminology);
-      sty.setVersion(version);
+      sty.setTerminology(getTerminology());
+      sty.setVersion(getVersion());
       sty.setTreeNumber("");
       sty.setTypeId("");
       sty.setUsageNote("");
@@ -344,10 +316,10 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
   public Set<Long> computeTreePositions(Long id, String ancestorPath,
     Map<Long, Set<Long>> parChd, ValidationResult validationResult,
     Date startDate, Map<Long, Set<Long>> semanticTypeMap, boolean multipleRoots)
-    throws Exception {
+      throws Exception {
 
-    Logger.getLogger(getClass()).debug(
-        "    compute for " + id + ", " + ancestorPath);
+    Logger.getLogger(getClass())
+        .debug("    compute for " + id + ", " + ancestorPath);
     final Set<Long> descConceptIds = new HashSet<>();
 
     // Check for cycles
@@ -397,8 +369,8 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
     tp.setPublishable(true);
     tp.setPublished(false);
     tp.setAncestorPath(ancestorPath);
-    tp.setTerminology(terminology);
-    tp.setVersion(version);
+    tp.setTerminology(getTerminology());
+    tp.setVersion(getVersion());
     // No ids if computing - only if loading
     tp.setTerminologyId("");
 
@@ -451,7 +423,7 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
 
     // In case manager was cleared here, get it back onto changed list
     manager.merge(tp);
-    
+
     // check for cancel request
     if (requestCancel) {
       rollback();
@@ -492,19 +464,21 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
    */
   @Override
   public void reset() throws Exception {
-    clearTreePositions(terminology, version);
+    clearTreePositions(getTerminology(), getVersion());
   }
 
   /**
    * Fires a {@link ProgressEvent}.
    * @param pct percent done
    * @param note progress note
+   * @throws Exception 
    */
-  public void fireProgressEvent(int pct, String note) {
+  public void fireProgressEvent(int pct, String note) throws Exception {
     ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
     for (int i = 0; i < listeners.size(); i++) {
       listeners.get(i).updateProgress(pe);
     }
+    logInfo("Computing tree positions: " + pct + "% " + note);
     Logger.getLogger(getClass()).info("    " + pct + "% " + note);
   }
 
@@ -552,6 +526,26 @@ public class TreePositionAlgorithm extends ContentServiceJpa implements
    */
   public void setComputeSemanticType(boolean computeSemanticTypes) {
     this.computeSemanticTypes = computeSemanticTypes;
+  }
+
+  @Override
+  public String getFileVersion() throws Exception {
+    Logger.getLogger(getClass())
+        .warn("Tree position algorithm does not use file version");
+    return null;
+  }
+
+  @Override
+  public void computeTransitiveClosures() throws Exception {
+    Logger.getLogger(getClass())
+        .warn("Tree position algorithm does not use transitive closures");
+
+  }
+
+  @Override
+  public void computeTreePositions() throws Exception {
+    compute();
+
   }
 
 }

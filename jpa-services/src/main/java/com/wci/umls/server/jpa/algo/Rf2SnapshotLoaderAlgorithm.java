@@ -401,9 +401,10 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
       logInfo(getComponentStats(getTerminology(), getVersion(), Branch.ROOT)
           .toString());
-      logInfo("Done ...");
+      logInfo("Loading objects done.");
 
       commit();
+
     } catch (CancelException e) {
       Logger.getLogger(getClass()).info("Cancel request detected");
       throw new CancelException("Compute cancelled");
@@ -449,7 +450,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       transClosureAlgorithm.setVersion(getVersion());
       transClosureAlgorithm.reset();
       transClosureAlgorithm.compute();
-      transClosureAlgorithm.close();
+      
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
@@ -462,12 +463,13 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
           labelSetAlgorithm.setSubset(conceptSubset);
           labelSetAlgorithm.compute();
-          labelSetAlgorithm.close();
         }
       }
     } catch (CancelException e) {
       Logger.getLogger(getClass()).info("Cancel request detected");
       throw new CancelException("Tree position computation cancelled");
+    } finally {
+
     }
   }
 
@@ -1932,6 +1934,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
     Map<AdditionalRelationshipType, AdditionalRelationshipType> inverses =
         new HashMap<>();
     for (String rela : additionalRelTypes) {
+
       AdditionalRelationshipType type = new AdditionalRelationshipTypeJpa();
       type.setTerminology(getTerminology());
       type.setVersion(getVersion());
@@ -2039,7 +2042,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
         continue;
       }
       String name = getConcept(conceptIdMap.get(conceptId)).getName();
-      logInfo("  Genral Metadata Entry = " + conceptId + ", " + name);
       GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
       entry.setTerminology(getTerminology());
       entry.setVersion(getVersion());
@@ -2185,6 +2187,9 @@ public class Rf2SnapshotLoaderAlgorithm extends
   /* see superclass */
   @Override
   public void close() throws Exception {
+    treePosAlgorithm.close();
+    transClosureAlgorithm.close();
+    labelSetAlgorithm.close();
     super.close();
     readers = null;
   }

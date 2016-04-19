@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
@@ -21,7 +20,6 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTransitiveRelationship;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
@@ -39,20 +37,13 @@ import com.wci.umls.server.services.helpers.ProgressListener;
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
  */
-public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
-    Algorithm {
+public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The request cancel flag. */
   boolean requestCancel = false;
-
-  /** The terminology. */
-  private String terminology;
-
-  /** The version. */
-  private String version;
 
   /** The descendants map. */
   private Map<Long, Set<Long>> descendantsMap = new HashMap<>();
@@ -74,23 +65,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     super();
   }
 
-  /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /**
-   * Sets the version.
-   *
-   * @param version the version
-   */
-  public void setVersion(String version) {
-    this.version = version;
-  }
+ 
 
   /**
    * Returns the id type.
@@ -136,13 +111,13 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    computeTransitiveClosure(terminology, version, idType);
+    computeTransitiveClosure(getTerminology(), getVersion(), idType);
   }
 
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    clearTransitiveClosure(terminology, version);
+    clearTransitiveClosure(getTerminology(), getVersion());
   }
 
   /**
@@ -159,7 +134,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
     // Check assumptions/prerequisites
     Logger.getLogger(getClass()).info(
         "Start computing transitive closure - " + terminology);
-    fireProgressEvent(0, "Starting...");
+    logInfo("Start computing transitive closure for " + terminology);
 
     // Disable transaction per operation
     setTransactionPerOperation(false);
@@ -208,14 +183,11 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
         throw new CancelException("Transitive closure computation cancelled.");
       }
     }
-    Logger.getLogger(getClass()).info("    ct = " + ct);
     fireProgressEvent(8, "Start creating transitive closure relationships");
 
     //
     // Create transitive closure rels
     //
-    Logger.getLogger(getClass()).info(
-        "  Create transitive closure rels... " + new Date());
 
     // Create "self" entries
     ct = 0;
@@ -283,7 +255,7 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
       if (ctProgress > progress) {
         progress = ctProgress;
         fireProgressEvent((int) ((progress * .92) + 8),
-            "Creating transitive closure relationships");
+            "creating transitive closure relationships");
       }
 
       List<Long> ancPath = new ArrayList<>();
@@ -343,23 +315,24 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
         addTransitiveRelationship(tr);
       }
       if (ct % commitCt == 0) {
-        Logger.getLogger(getClass()).info(
-            "      " + ct + " codes processed ..." + new Date());
+        /*Logger.getLogger(getClass()).debug(
+            "      " + ct + " codes processed ..." + new Date());*/
         commit();
         clear();
         beginTransaction();
       }
     }
+    
+    // set the transaction strategy based on status starting this routine
+    // setTransactionPerOperation(currentTransactionStrategy);
+    fireProgressEvent(100, "Finished computing transitive closures.");
+    
     // release memory
     descendantsMap = new HashMap<>();
     commit();
     clear();
 
-    Logger.getLogger(getClass()).info(
-        "Finished computing transitive closure ... " + new Date());
-    // set the transaction strategy based on status starting this routine
-    // setTransactionPerOperation(currentTransactionStrategy);
-    fireProgressEvent(100, "Finished...");
+   
   }
 
   /**
@@ -422,13 +395,14 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
    * Fires a {@link ProgressEvent}.
    * @param pct percent done
    * @param note progress note
+   * @throws Exception 
    */
-  public void fireProgressEvent(int pct, String note) {
+  public void fireProgressEvent(int pct, String note) throws Exception {
     ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
     for (int i = 0; i < listeners.size(); i++) {
       listeners.get(i).updateProgress(pe);
     }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
+    logInfo("    " + pct + "% " + note);
   }
 
   /* see superclass */
@@ -447,6 +421,24 @@ public class TransitiveClosureAlgorithm extends ContentServiceJpa implements
   @Override
   public void cancel() {
     requestCancel = true;
+  }
+
+  @Override
+  public String getFileVersion() throws Exception {
+    Logger.getLogger(getClass()).warn("Transitive closure algorithm does not use file version");
+    return null;
+  }
+
+  @Override
+  public void computeTransitiveClosures() throws Exception {
+    compute();
+    
+  }
+
+  @Override
+  public void computeTreePositions() throws Exception {
+  Logger.getLogger(getClass()).warn("Transitive closure algorithm does not support tree position computation ");
+    
   }
 
 }

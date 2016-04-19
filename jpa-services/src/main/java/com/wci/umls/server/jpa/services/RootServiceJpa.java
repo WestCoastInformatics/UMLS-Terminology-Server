@@ -886,8 +886,6 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public List<LogEntry> findLogEntriesForQuery(String query, PfsParameter pfs)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Root Service - find log entries " + "/" + query);
 
     final StringBuilder sb = new StringBuilder();
     if (query != null && !query.equals("")) {
