@@ -1766,7 +1766,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       mapping.setTerminologyId(fields[5]);
     } else {
       throw new Exception(
-          "Attribute value member connected to nonexistent object");
+          "Attribute value member connected to nonexistent object - " + fields[5]);
     }
 
     // Universal RefSet attributes
@@ -1932,7 +1932,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
     Map<AdditionalRelationshipType, AdditionalRelationshipType> inverses =
         new HashMap<>();
     for (String rela : additionalRelTypes) {
-      System.out.println("rela : " + rela);
       AdditionalRelationshipType type = new AdditionalRelationshipTypeJpa();
       type.setTerminology(getTerminology());
       type.setVersion(getVersion());
