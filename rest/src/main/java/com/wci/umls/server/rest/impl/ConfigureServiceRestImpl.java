@@ -244,7 +244,7 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       File f = new File(parameters.get("app.dir").toString());
       if (!f.exists()) {
         throw new LocalException("Application directory does not exist: "
-            + parameters.get("source.data.dir"));
+            + parameters.get("app.dir"));
       }
 
       Logger.getLogger(getClass())
