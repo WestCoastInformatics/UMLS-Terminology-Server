@@ -127,11 +127,11 @@ tsApp.service('sourceDataService', [
     };
 
     // Remove the source data
-    this.removeSourceData = function(data) {
-      console.debug('remove source data', data);
+    this.removeSourceData = function(id) {
+      console.debug('remove source data', id);
       var deferred = $q.defer();
       gpService.increment();
-      $http['delete'](sourceDataUrl + 'data/remove/' + data.id).then(
+      $http['delete'](sourceDataUrl + 'data/remove/' + id).then(
       // Success
       function(response) {
         gpService.decrement();

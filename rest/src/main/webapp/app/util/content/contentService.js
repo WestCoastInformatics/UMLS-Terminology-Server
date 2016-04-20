@@ -454,7 +454,7 @@ tsApp
           };
 
           // check parameters for advanced mode
-          if (searchParams.advancedMode) {
+          if (searchParams && searchParams.advancedMode) {
             if (searchParams.semanticType) {
               pfs.queryRestriction += " AND semanticTypes.semanticType:\""
                 + searchParams.semanticType + "\"";
