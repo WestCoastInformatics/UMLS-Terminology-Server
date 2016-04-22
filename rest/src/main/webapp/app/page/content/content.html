@@ -23,9 +23,12 @@
       <div class="row m10">
         <div class="col-lg-1 col-md-2 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Query <i class="glyphicon glyphicon-cog noul pull-right"
-            ng-click="searchParams.advancedMode = !searchParams.advancedMode"
-            uib-tooltip="Advanced Search Options"></i>
+          Query
+          <span class="pull-right">
+            <i class="glyphicon glyphicon-cog noul"
+              ng-click="searchParams.advancedMode = !searchParams.advancedMode"
+              uib-tooltip="Advanced Search Options"></i>
+          </span>
         </div>
         <div class="col-lg-6 col-md-7 col-xs-9">
           <div class="row">
@@ -173,13 +176,12 @@
           <i class="glyphicon glyphicon-star"
             ng-show="showExtension&& !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
             ng-click="toggleExtension()"
-            uib-tooltip="Click to hide extension highlights in tree">
-          </i> <i class="glyphicon glyphicon-star-empty"
+            uib-tooltip="Click to hide extension highlights in tree"> </i> <i
+            class="glyphicon glyphicon-star-empty"
             ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
             ng-click="toggleExtension()"
-                        uib-tooltip="Click to show extension highlights in tree"
-            > </i> &nbsp; <i
-            class="pull-right glyphicon glyphicon-th-list"
+            uib-tooltip="Click to show extension highlights in tree">
+          </i> &nbsp; <i class="pull-right glyphicon glyphicon-th-list"
             ng-click="setListView()" uib-tooltip="Switch to list view"
             tooltip-placement="bottom"></i>
         </span>
