@@ -28,8 +28,10 @@ public interface ConfigureServiceRest {
 
   /**
    * Destroy and rebuild the database. Can only be invoked after a failed process.
+   *
+   * @param authToken the auth token
    * @throws Exception 
    */
-  public void destroy() throws Exception;
+  public void destroy(String authToken) throws Exception;
   
 }

@@ -182,6 +182,7 @@
                   <type>zip</type>
                   <outputDirectory>${project.build.directory}/config/resources</outputDirectory>
                 </artifactItem>
+                <!--  TODO Add spelling and acronyms file to unpacked resources -->
               </artifactItems>
             </configuration>
           </execution>
