@@ -1768,7 +1768,7 @@ public class Rf2SnapshotLoaderAlgorithm extends
       mapping.setTerminologyId(fields[5]);
     } else {
       throw new Exception(
-          "Attribute value member connected to nonexistent object");
+          "Attribute value member connected to nonexistent object - " + fields[5]);
     }
 
     // Universal RefSet attributes

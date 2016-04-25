@@ -47,8 +47,8 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
   @Override
   public void compute() throws Exception {
 
-    Logger.getLogger(getClass()).info(
-        "Loading RF2 Snapshot for " + sourceData.getName());
+    Logger.getLogger(getClass())
+        .info("Loading RF2 Snapshot for " + sourceData.getName());
 
     // check pre-requisites
     if (sourceData == null) {
@@ -82,17 +82,18 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + sourceData.getId().toString();
 
-    Logger.getLogger(getClass()).info(
-        "  Source data base directory: " + inputDir);
+    Logger.getLogger(getClass())
+        .info("  Source data base directory: " + inputDir);
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException("Source data directory is not a directory: "
-          + inputDir);
+      throw new LocalException(
+          "Source data directory is not a directory: " + inputDir);
     }
 
     // find the SNAPSHOT directory
     String revisedInputDir = null;
-
+    boolean terminologyFound = false;
+    boolean refsetFound = false;
     List<File> filesToCheck =
         new ArrayList<>(Arrays.asList(new File(inputDir).listFiles()));
     while (!filesToCheck.isEmpty()) {
@@ -101,6 +102,10 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
         if (f.getName().toLowerCase().equals("snapshot")) {
           revisedInputDir = f.getAbsolutePath();
           break;
+        } else if (f.getName().toLowerCase().equals("terminology")) {
+          terminologyFound = true;
+        } else if (f.getName().toLowerCase().equals("refset")) {
+          refsetFound = true;
         } else {
           filesToCheck.addAll(new ArrayList<>(Arrays.asList(f.listFiles())));
         }
@@ -108,13 +113,18 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
       filesToCheck.remove(0);
     }
 
-    if (revisedInputDir == null) {
-      throw new LocalException(
-          "Uploaded files must contain SNAPSHOT folder containing snapshot release");
+    // Check for top level Refset/Terminology
+    if (terminologyFound && refsetFound) {
+      revisedInputDir = new File(inputDir).getAbsolutePath();
     }
 
-    Logger.getLogger(getClass()).info(
-        "  Source data SNAPSHOT directory: " + revisedInputDir);
+    if (revisedInputDir == null) {
+      throw new LocalException(
+          "Uploaded files must contain 'Snapshot' folder containing snapshot release");
+    }
+
+    Logger.getLogger(getClass())
+        .info("  Source data 'Snapshot' directory: " + revisedInputDir);
 
     // instantiate service
     SourceDataService sourceDataService = new SourceDataServiceJpa();

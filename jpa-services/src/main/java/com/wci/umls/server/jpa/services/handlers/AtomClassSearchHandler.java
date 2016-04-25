@@ -420,9 +420,10 @@ public class AtomClassSearchHandler implements SearchHandler {
 
       // cap the score to a maximum of 1.0
       Float normScore = Math.min(1, Float.valueOf(score.toString()));
-      
+
       // bump up relevance of exact match on terminology id
-      if (((AbstractComponent) t).getTerminologyId().equals(literalQuery)) {
+      if (literalQuery != null
+          && literalQuery.equals(((AbstractComponent) t).getTerminologyId())) {
         normScore = 1.0f;
       }
 

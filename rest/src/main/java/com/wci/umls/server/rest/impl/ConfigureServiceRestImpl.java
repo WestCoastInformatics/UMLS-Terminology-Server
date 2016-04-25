@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -101,7 +101,7 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
         Response
             .status(500).entity("\"Unexpected error trying to "
                 + whatIsHappening + ". Please contact the administrator.\"")
-        .build());
+            .build());
 
   }
 
@@ -121,9 +121,8 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
   }
 
   /**
-   * Checks if application is configured
+   * Checks if application is configured.
    *
-   * @param authToken the auth token
    * @return the release history
    * @throws Exception the exception
    */
@@ -154,9 +153,10 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
   }
 
   /**
-   * @param parameters
-   * @param authToken
-   * @throws Exception
+   * Configure.
+   *
+   * @param parameters the parameters
+   * @throws Exception the exception
    */
   /* see superclass */
   @POST
@@ -165,7 +165,7 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
   @ApiOperation(value = "Checks if application is configured", notes = "Returns true if application is configured, false if not", response = Boolean.class)
   public void configure(
     @ApiParam(value = "Configuration parameters as JSON string", required = true) HashMap<String, String> parameters)
-      throws Exception {
+    throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call (History): /configure/configure with parameters "
             + parameters.toString());
@@ -259,6 +259,10 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
 
       File configFile = new File(configFileName);
 
+      // Make directories
+      if (!configFile.getParentFile().exists()) {
+        configFile.getParentFile().mkdirs();
+      }
       Writer writer = new FileWriter(configFile);
       properties.store(writer, "User-configured settings");
       writer.close();
@@ -378,7 +382,7 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
           "create");
       try {
         metadataService = new MetadataServiceJpa();
-        
+
         // close and re-open factory to trigger creation
         metadataService.closeFactory();
         metadataService.openFactory();
@@ -388,7 +392,7 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
         if (metadataService != null) {
           metadataService.close();
         }
-        
+
         // return mode to update
         ConfigUtility.getConfigProperties()
             .setProperty("hibernate.hbm2ddl.auto", "update");
