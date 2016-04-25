@@ -561,6 +561,69 @@ tsApp
 
           return deferred.promise;
         };
+        
+        // Explicitly find concepts (cui)
+        this.findConceptsAsList = function(queryStr, terminology, version, page, semanticType) {
+            console.debug("findConceptsAsList", queryStr, terminology, version, page, semanticType);
+         // Setup deferred
+            var deferred = $q.defer();
+
+            // PFS
+            var pfs = {
+              startIndex : (page - 1) * pageSizes.general,
+              maxResults : pageSizes.general,
+              sortField : null,
+              queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
+            };
+
+            // check parameters for advanced mode
+            if (searchParams && searchParams.advancedMode) {
+              if (searchParams.semanticType) {
+                pfs.queryRestriction += " AND semanticTypes.semanticType:\""
+                  + searchParams.semanticType + "\"";
+              }
+
+              if (searchParams.matchTerminology) {
+                pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
+                  + "\"";
+              }
+              if (searchParams.termType) {
+                pfs.queryRestriction += " AND atoms.termType:\"" + searchParams.termType + "\"";
+              }
+              if (searchParams.language) {
+                pfs.queryRestriction += " AND atoms.language:\"" + searchParams.language + "\"";
+              }
+            }
+
+            // Get prefix
+            var prefix = 'cui';
+            
+            // Add anonymous condition for concepts
+            if (prefix == "cui") {
+              pfs.queryRestriction += " AND anonymous:false";
+            }
+
+            // Make POST call
+            gpService.increment();
+            $http.post(
+              contentUrl + prefix + "/"
+                + terminology + "/" + version + "?query="
+                + encodeURIComponent(utilService.cleanQuery(queryStr)), pfs).then(
+            // success
+            function(response) {
+              console.debug("  output = ", response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+
+            return deferred.promise;
+        }
 
         // Handle paging of relationships (requires content service
         // call).

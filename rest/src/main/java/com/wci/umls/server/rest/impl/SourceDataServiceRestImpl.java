@@ -530,7 +530,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Source data id, e.g. 1", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
       throws Exception {
-    
+
     // NOTE: Debug as used for polling
     Logger.getLogger(getClass())
         .debug("RESTful call (Source Data): /data/loaders");
@@ -541,7 +541,9 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
           UserRole.USER);
       SourceData sourceData = service.getSourceData(id);
       // lazy initialize source data files
-      sourceData.getSourceDataFiles().size();
+      if (sourceData != null) {
+        sourceData.getSourceDataFiles().size();
+      }
       return sourceData;
     } catch (Exception e) {
       handleException(e, "retrieving uploaded file list");
