@@ -4,8 +4,11 @@
 package com.wci.umls.server.jpa.services;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.persistence.NoResultException;
 
@@ -33,9 +36,49 @@ import com.wci.umls.server.services.handlers.SourceDataHandler;
  */
 public class SourceDataServiceJpa extends RootServiceJpa
     implements SourceDataService {
-  
-  
-  /**  The active process map. */
+
+  /** The map of handler names to handler class names. */
+  private static Map<String, String> sourceDataHandlers = null;
+
+  static {
+
+    sourceDataHandlers = new HashMap<>();
+    try {
+      Properties config = ConfigUtility.getConfigProperties();
+      if (config == null)
+        config = ConfigUtility.getConfigProperties();
+      String handlerNames = ConfigUtility.getConfigProperties()
+          .getProperty("source.data.handler");
+
+      for (String handlerName : handlerNames.split(",")) {
+        String handlerClassName = ConfigUtility.getConfigProperties()
+            .getProperty("source.data.handler." + handlerName + ".class");
+        if (handlerClassName == null) {
+          throw new Exception("Source data handler " + handlerName
+              + " has no class specified in config file");
+        } else {
+
+          SourceDataHandler handler = null;
+          try {
+            Class<?> handlerClass = Class.forName(handlerClassName);
+            handler = (SourceDataHandler) handlerClass.newInstance();
+
+            sourceDataHandlers.put(handlerName, handlerClassName);
+
+          } catch (Exception e) {
+            throw new Exception(
+                handlerClassName + " could not be instantiated");
+          }
+
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      sourceDataHandlers = null;
+    }
+  }
+
+  /** The active process map. */
   private static Map<Long, Algorithm> algorithmsRuning = new HashMap<>();
 
   /**
@@ -47,8 +90,12 @@ public class SourceDataServiceJpa extends RootServiceJpa
     super();
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.SourceDataService#getSourceData(java.lang.Long)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.SourceDataService#getSourceData(java.lang.
+   * Long)
    */
   /* see superclass */
   @Override
@@ -58,8 +105,12 @@ public class SourceDataServiceJpa extends RootServiceJpa
     return getHasLastModified(sourceDataId, SourceDataJpa.class);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.SourceDataService#addSourceData(com.wci.umls.server.SourceData)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.SourceDataService#addSourceData(com.wci.umls.
+   * server.SourceData)
    */
   /* see superclass */
   @Override
@@ -71,8 +122,12 @@ public class SourceDataServiceJpa extends RootServiceJpa
     return sourceData;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.SourceDataService#updateSourceData(com.wci.umls.server.SourceData)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.SourceDataService#updateSourceData(com.wci.
+   * umls.server.SourceData)
    */
   /* see superclass */
   @Override
@@ -82,8 +137,12 @@ public class SourceDataServiceJpa extends RootServiceJpa
     updateHasLastModified(sourceData);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.SourceDataService#removeSourceData(java.lang.Long)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.SourceDataService#removeSourceData(java.lang.
+   * Long)
    */
   /* see superclass */
   @Override
@@ -93,8 +152,12 @@ public class SourceDataServiceJpa extends RootServiceJpa
     removeHasLastModified(sourceDataId, SourceDataJpa.class);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.SourceDataService#findSourceDatasForQuery(java.lang.String, com.wci.umls.server.helpers.PfsParameter)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.SourceDataService#findSourceDatasForQuery(java
+   * .lang.String, com.wci.umls.server.helpers.PfsParameter)
    */
   /* see superclass */
   @Override
@@ -111,11 +174,13 @@ public class SourceDataServiceJpa extends RootServiceJpa
     SourceDataList result = new SourceDataListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);
-  
+
     return result;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.wci.umls.server.services.SourceDataService#getSourceDataFiles()
    */
   /* see superclass */
@@ -131,15 +196,19 @@ public class SourceDataServiceJpa extends RootServiceJpa
       SourceDataFileList sourceDataFileList = new SourceDataFileListJpa();
       sourceDataFileList.setObjects(sourceDataFiles);
       sourceDataFileList.setTotalCount(sourceDataFileList.getCount());
-     
+
       return sourceDataFileList;
     } catch (NoResultException e) {
       return null;
     }
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.SourceDataService#getSourceDataFile(java.lang.Long)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.SourceDataService#getSourceDataFile(java.lang.
+   * Long)
    */
   /* see superclass */
   @Override
@@ -150,8 +219,12 @@ public class SourceDataServiceJpa extends RootServiceJpa
     return getHasLastModified(sourceDataFileId, SourceDataFileJpa.class);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.SourceDataService#addSourceDataFile(com.wci.umls.server.SourceDataFile)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.SourceDataService#addSourceDataFile(com.wci.
+   * umls.server.SourceDataFile)
    */
   /* see superclass */
   @Override
@@ -163,8 +236,12 @@ public class SourceDataServiceJpa extends RootServiceJpa
     return addHasLastModified(sourceDataFile);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.SourceDataService#updateSourceDataFile(com.wci.umls.server.SourceDataFile)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.SourceDataService#updateSourceDataFile(com.wci
+   * .umls.server.SourceDataFile)
    */
   /* see superclass */
   @Override
@@ -177,8 +254,12 @@ public class SourceDataServiceJpa extends RootServiceJpa
 
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.SourceDataService#removeSourceDataFile(java.lang.Long)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.SourceDataService#removeSourceDataFile(java.
+   * lang.Long)
    */
   /* see superclass */
   @Override
@@ -211,78 +292,65 @@ public class SourceDataServiceJpa extends RootServiceJpa
     SourceDataFileList result = new SourceDataFileListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);
-   
+
     return result;
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.SourceDataService#getSourceDataHandlerNames()
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.SourceDataService#getSourceDataHandlerNames()
    */
   @Override
-  // TODO Make this a static array initialized on name
-  // TODO Change method name to reflect what it actually does
-  public KeyValuePairList getSourceDataHandlerNames() throws Exception {
+  public KeyValuePairList getSourceDataHandlerNameAndClassPairs()
+    throws Exception {
     KeyValuePairList keyValuePairList = new KeyValuePairList();
 
-    String handlerNames =
-        ConfigUtility.getConfigProperties().getProperty("source.data.handler");
-
-    if (handlerNames == null || handlerNames.split(",").length == 0) {
-      Logger.getLogger(getClass()).warn(
-          "No source data handlers specified in config file (source.data.handler = "
-              + handlerNames + ")");
-      return keyValuePairList;
+    if (sourceDataHandlers == null) {
+      return null;
     }
 
-    for (String handlerName : handlerNames.split(",")) {
-      String handlerClassName = ConfigUtility.getConfigProperties()
-          .getProperty("source.data.handler." + handlerName + ".class");
-      if (handlerClassName == null) {
-        Logger.getLogger(getClass()).warn("Source data handler " + handlerName
-            + " has no class specified in config file");
-      } else {
-
-        SourceDataHandler handler = null;
-        try {
-          Class<?> handlerClass = Class.forName(handlerClassName);
-          handler = (SourceDataHandler) handlerClass.newInstance();
-
-        } catch (Exception e) {
-          throw new Exception(handlerClassName + " could not be instantiated");
-        }
-        if (handler != null) {
-          KeyValuePair keyValuePair = new KeyValuePair();
-          keyValuePair.setKey(handler.getName());
-          keyValuePair.setValue(handlerClassName);
-          keyValuePairList.addKeyValuePair(keyValuePair);
-        }
-      }
+    for (String s : sourceDataHandlers.keySet()) {
+      KeyValuePair keyValuePair = new KeyValuePair();
+      keyValuePair.setKey(s);
+      keyValuePair.setValue(sourceDataHandlers.get(s));
+      keyValuePairList.addKeyValuePair(keyValuePair);
     }
+
     return keyValuePairList;
-  }
-  
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.SourceDataService#registerSourceDataLoader(java.lang.Long, com.wci.umls.server.algo.Algorithm)
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.SourceDataService#registerSourceDataLoader(
+   * java.lang.Long, com.wci.umls.server.algo.Algorithm)
    */
   @Override
   public void registerSourceDataAlgorithm(Long id, Algorithm algorithm) {
-    SourceDataServiceJpa.algorithmsRuning.put(id,  algorithm);
+    SourceDataServiceJpa.algorithmsRuning.put(id, algorithm);
   }
 
-  /* (non-Javadoc)
-   * @see com.wci.umls.server.services.SourceDataService#unregisterSourceDataLoader(java.lang.Long)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.wci.umls.server.services.SourceDataService#unregisterSourceDataLoader(
+   * java.lang.Long)
    */
   @Override
   public void unregisterSourceDataAlgorithm(Long id) {
     SourceDataServiceJpa.algorithmsRuning.remove(id);
   }
-  
+
   @Override
   public Map<Long, Algorithm> getRunningProcesses() {
     return SourceDataServiceJpa.algorithmsRuning;
   }
-  
+
   @Override
   public Algorithm getRunningProcessForId(Long id) {
     return SourceDataServiceJpa.algorithmsRuning.get(id);
@@ -290,15 +358,15 @@ public class SourceDataServiceJpa extends RootServiceJpa
 
   @Override
   public SourceDataList getSourceDatas() {
-    Logger.getLogger(getClass()).debug(
-        "Source Data Service - get all source datas");
+    Logger.getLogger(getClass())
+        .debug("Source Data Service - get all source datas");
     javax.persistence.Query query =
         manager.createQuery("select a from SourceDataJpa a");
 
     // Try to retrieve the single expected result If zero or more than one
     // result are returned, log error and set result to null
     try {
-      
+
       @SuppressWarnings("unchecked")
       List<SourceData> sds = query.getResultList();
       // lazy initialization

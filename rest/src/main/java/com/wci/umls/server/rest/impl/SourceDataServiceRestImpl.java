@@ -510,7 +510,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "get source datas",
           UserRole.USER);
 
-      return service.getSourceDataHandlerNames();
+      return service.getSourceDataHandlerNameAndClassPairs();
 
     } catch (Exception e) {
       handleException(e, "retrieving uploaded file list");

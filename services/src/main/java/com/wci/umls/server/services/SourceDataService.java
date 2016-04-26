@@ -127,7 +127,7 @@ public interface SourceDataService extends RootService {
    * @return the handler names
    * @throws Exception the exception
    */
-  public KeyValuePairList getSourceDataHandlerNames() throws Exception;
+  public KeyValuePairList getSourceDataHandlerNameAndClassPairs() throws Exception;
 
   /**
    * Register source data loader.
