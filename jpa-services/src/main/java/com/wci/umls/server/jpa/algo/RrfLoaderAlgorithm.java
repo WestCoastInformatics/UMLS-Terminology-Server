@@ -1382,12 +1382,12 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (isExtensionModule(fields[10])) {
           // terminology + module concept id
           final String key = fields[9] + fields[10];
-          Logger.getLogger(getClass()).info(
+          Logger.getLogger(getClass()).debug(
               "  extension module = " + fields[10] + ", " + key);
           if (!moduleConceptIdMap.containsKey(key)) {
             moduleConceptIdMap.put(key, new HashSet<Long>());
           }
-          Logger.getLogger(getClass()).info(
+          Logger.getLogger(getClass()).debug(
               "    concept = " + atomConceptIdMap.get(fields[3]));
           moduleConceptIdMap.get(key).add(
               conceptIdMap.get(atomTerminologyMap.get(fields[3])
