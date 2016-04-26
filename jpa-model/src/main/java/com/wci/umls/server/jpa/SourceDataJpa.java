@@ -35,11 +35,12 @@ import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
 
 /**
- * JPA enabled implementation of {@link SourceDataFile}.
+ * JPA
  */
+// TODO Add check on terminology/version before persisting a new source data
 @Entity
 @Table(name = "source_data", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "name"
+    "name", "terminology", "version"
 }) )
 @Audited
 @Indexed
