@@ -18,7 +18,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * The Class AbstractSourceDataHandler.
  */
-public class AbstractSourceDataHandler implements SourceDataHandler {
+public abstract class AbstractSourceDataHandler implements SourceDataHandler {
 
   /** Listeners. */
   protected List<ProgressListener> listeners = new ArrayList<>();
@@ -27,16 +27,10 @@ public class AbstractSourceDataHandler implements SourceDataHandler {
   protected SourceData sourceData;
 
   @Override
-  public void reset() throws Exception {
-    throw new Exception(
-        "Reset method must be overriden by source data handler");
-  }
+  public abstract void reset() throws Exception;
 
   @Override
-  public void compute() throws Exception {
-    throw new Exception(
-        "Compute method must be overriden by source data handler");
-  }
+  public abstract void compute() throws Exception;
 
   /**
    * Fires a {@link ProgressEvent}.
@@ -148,8 +142,9 @@ public class AbstractSourceDataHandler implements SourceDataHandler {
   }
 
   @Override
-  public String getName() {
-    return null;
-  }
+  public abstract String getName();
+  
+  @Override
+  public abstract boolean isLoadable() throws Exception;
 
 }

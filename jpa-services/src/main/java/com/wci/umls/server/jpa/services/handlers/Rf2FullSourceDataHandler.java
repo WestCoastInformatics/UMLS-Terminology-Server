@@ -8,10 +8,14 @@ import java.io.File;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.algo.Rf2FullLoaderAlgorithm;
+import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
+import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SourceDataService;
 
 /**
@@ -133,6 +137,34 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler {
       sourceDataService.updateSourceData(sourceData);
       sourceDataService.close();
     }
+  }
+
+  @Override
+  public boolean isLoadable() throws Exception {
+    ContentService contentService = null;
+    try {
+      contentService = new ContentServiceJpa();
+      
+      // concepts must not exist with this terminology/version
+      if (contentService.findConceptsForQuery(sourceData.getTerminology(),
+          sourceData.getVersion(), Branch.ROOT, null, new PfscParameterJpa())
+          .getTotalCount() == 0) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      if (contentService != null)
+        contentService.close();
+    }
+  }
+
+  @Override
+  public void reset() throws Exception {
+    // do nothing
+    
   }
 
 }

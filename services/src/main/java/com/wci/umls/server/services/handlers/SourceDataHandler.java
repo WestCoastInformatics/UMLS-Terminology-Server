@@ -25,6 +25,14 @@ public interface SourceDataHandler extends Algorithm, Configurable {
    */
   public void remove() throws Exception;
 
+  /**
+   * Checks if is loadable.
+   *
+   * @return true, if is loadable
+   * @throws Exception 
+   */
+  public  boolean isLoadable() throws Exception;
+
   
   
 }

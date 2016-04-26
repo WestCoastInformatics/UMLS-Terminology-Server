@@ -4,10 +4,8 @@
 package com.wci.umls.server.rest.impl;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.Comparator;

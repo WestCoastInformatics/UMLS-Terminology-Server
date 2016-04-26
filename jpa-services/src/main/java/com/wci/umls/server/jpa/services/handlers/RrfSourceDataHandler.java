@@ -11,9 +11,13 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
+import com.wci.umls.server.jpa.helpers.PfscParameterJpa;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
+import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SourceDataService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
@@ -312,6 +316,28 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
    */
   public String getInputDir(String inputDir) {
     return this.inputDir;
+  }
+
+  @Override
+  public boolean isLoadable() throws Exception {
+    ContentService contentService = null;
+    try {
+      contentService = new ContentServiceJpa();
+      
+      // concepts must not exist with this terminology/version
+      if (contentService.findConceptsForQuery(sourceData.getTerminology(),
+          sourceData.getVersion(), Branch.ROOT, null, new PfscParameterJpa())
+          .getTotalCount() == 0) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      if (contentService != null)
+        contentService.close();
+    }
   }
 
 }
