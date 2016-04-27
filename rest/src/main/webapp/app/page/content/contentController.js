@@ -112,13 +112,15 @@ tsApp.controller('ContentCtrl', [
 
     // Sets the terminololgy
     $scope.setTerminology = function(terminology) {
-      
-      if (terminology.metathesaurus) {
-        $scope.setListView();
-      }
 
       metadataService.setTerminology(terminology).then(function() {
-        // do nothing
+        if (terminology.metathesaurus) {
+          $scope.setListView();
+        } else {
+          if ($scope.searchParams.query) {
+            $scope.findComponents(false);
+          }
+        }
       });
     };
 
@@ -327,7 +329,8 @@ tsApp.controller('ContentCtrl', [
 
     // Function to toggle showing of extension info
     $scope.toggleExtension = function() {
-      if ($scope.searchParams.showExtension == null || $scope.searchParams.showExtension == undefined) {
+      if ($scope.searchParams.showExtension == null
+        || $scope.searchParams.showExtension == undefined) {
         $scope.searchParams.showExtension = false;
       } else {
         $scope.searchParams.showExtension = !$scope.searchParams.showExtension;
@@ -457,7 +460,7 @@ tsApp.controller('ContentCtrl', [
     //
 
     $scope.initialize = function() {
-      
+
       $scope.configureTab();
 
       //
