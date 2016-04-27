@@ -112,6 +112,10 @@ tsApp.controller('ContentCtrl', [
 
     // Sets the terminololgy
     $scope.setTerminology = function(terminology) {
+      
+      if (terminology.metathesaurus) {
+        $scope.setListView();
+      }
 
       metadataService.setTerminology(terminology).then(function() {
         // do nothing
