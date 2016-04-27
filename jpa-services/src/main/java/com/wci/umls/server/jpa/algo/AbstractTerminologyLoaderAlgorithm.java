@@ -197,7 +197,13 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
     addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
         "ERROR: " + message);
     Logger.getLogger(getClass()).error(message);
+    // Attempt to commit the error -though sometimes this doesn't work
+    // because of a rollback or other reason why the transaction doesn't exist
+    try {
     commitClearBegin();
+    } catch (Exception e) {
+      // do nothihg
+    }
   }
 
   /**
