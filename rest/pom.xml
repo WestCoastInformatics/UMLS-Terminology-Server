@@ -26,6 +26,7 @@
     <site.tracking.code></site.tracking.code>
     <deploy.footer.copyright>(c)2016</deploy.footer.copyright>
     <deploy.presented.by></deploy.presented.by>
+    <!-- TODO: Add defaults for landing/license/login -->
 
   </properties>
 

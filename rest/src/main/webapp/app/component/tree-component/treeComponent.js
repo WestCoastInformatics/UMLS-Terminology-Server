@@ -15,6 +15,8 @@ tsApp.directive('treeComponent', [
       templateUrl : 'app/component/tree-component/treeComponent.html',
       link : function(scope, element, attrs) {
 
+        console.debug(', COMPONENT', scope.component)
+
         // total trees for this component
         scope.treeCount = null;
 
@@ -26,6 +28,31 @@ tsApp.directive('treeComponent', [
 
         // the cutoff length for siblings
         scope.pageSizeSibling = 10;
+
+        function concatSiblings(tree, siblings) {
+
+          var existingIds = tree.map(function(item) {
+            return item.nodeTerminologyId;
+          });
+
+          newSiblings = tree.concat(siblings.filter(function(sibling) {
+            return existingIds.indexOf(sibling.nodeTerminologyId) == -1;
+          }));
+
+          newSiblings.sort(function(a, b) {
+            if (a.nodeTerminologyId === scope.component.object.terminologyId) {
+              return -1;
+            }
+            if (a.nodeName < b.nodeName) {
+              return -1
+            } else {
+              return 1
+            }
+            ;
+          });
+
+          return newSiblings;
+        }
 
         // retrieves the specified tree position by index (top-level,
         // scope-indifferent)
@@ -67,10 +94,7 @@ tsApp.directive('treeComponent', [
               // replace the parent tree of the lowest level with
               // first page of siblings computed
               scope.getTreeChildren(parentTree, 0).then(function(children) {
-                parentTree.children = parentTree.children.concat(children.filter(function(child) {
-                  // do not re-add the already-shown component for this tree
-                  return scope.component.object.terminologyId !== child.nodeTerminologyId;
-                }));
+                parentTree.children = concatSiblings(parentTree.children, children);
               });
 
             });
@@ -105,7 +129,7 @@ tsApp.directive('treeComponent', [
           var tree = nodeScope.$modelValue;
           scope.getTreeChildren(tree).then(function(children) {
             console.debug('adding children', children);
-            tree.children = tree.children.concat(children);
+            tree.children = concatSiblings(tree.children, children);
           });
         };
 
@@ -121,7 +145,8 @@ tsApp.directive('treeComponent', [
 
           // get the next page of children based on start index of current
           // children length
-          contentService.getChildTrees(tree, tree.children.length).then(function(data) {
+          // NOTE: Offset by 1 to incorporate the (possibly) already loaded item
+          contentService.getChildTrees(tree, tree.children.length - 1).then(function(data) {
             console.debug('retrieved children', data);
             deferred.resolve(data.trees);
           }, function(error) {
@@ -150,7 +175,7 @@ tsApp.directive('treeComponent', [
             console.debug('getting children');
             scope.getTreeChildren(tree).then(function(children) {
               console.debug('adding children', children);
-              tree.children = tree.children.concat(children);
+              tree.children = concatSiblings(tree.children, children);
             });
           }
 

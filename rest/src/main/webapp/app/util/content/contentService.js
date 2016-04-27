@@ -371,7 +371,7 @@ tsApp
           var pfs = {
             startIndex : startIndex,
             maxResults : pageSizes.general,
-            sortField : null,
+            sortField : 'nodeName',
             queryRestriction : null
           };
 

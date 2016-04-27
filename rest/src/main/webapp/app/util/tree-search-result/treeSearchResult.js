@@ -32,6 +32,29 @@ tsApp.directive('treeSearchResult', [
         // will not properly register the first mouseover event
         scope.labelTooltipHtml = "&nbsp;";
 
+        function concatSiblings(tree, siblings) {
+
+          var existingIds = tree.map(function(item) {
+            return item.nodeTerminologyId;
+          });
+
+          newSiblings = tree.concat(siblings.filter(function(sibling) {
+            return existingIds.indexOf(sibling.nodeTerminologyId) == -1;
+          }));
+
+          newSiblings.sort(function(a, b) {
+
+            if (a.nodeName < b.nodeName) {
+              return -1
+            } else {
+              return 1
+            }
+            ;
+          });
+
+          return newSiblings;
+        }
+
         //
         // Extension highlighting: derived label sets
         //
@@ -76,7 +99,7 @@ tsApp.directive('treeSearchResult', [
           var tree = nodeScope.$modelValue;
           scope.getTreeChildren(tree).then(function(children) {
             console.debug('adding children', children);
-            tree.children = tree.children.concat(children);
+            tree.children = concatSiblings(tree.children, children);
           });
         };
 
@@ -92,7 +115,9 @@ tsApp.directive('treeSearchResult', [
 
           // get the next page of children based on start index of current
           // children length
-          contentService.getChildTrees(tree, tree.children.length).then(function(data) {
+          // NOTE: Offset by 1 to incorporate the (possibly) already loaded item
+
+          contentService.getChildTrees(tree, tree.children.length - 1).then(function(data) {
             console.debug('retrieved children', data);
             deferred.resolve(data.trees);
           }, function(error) {
@@ -121,7 +146,8 @@ tsApp.directive('treeSearchResult', [
             console.debug('getting children');
             scope.getTreeChildren(tree).then(function(children) {
               console.debug('adding children', children);
-              tree.children = tree.children.concat(children);
+              tree.children = concatSiblings(tree.children, children);
+
             });
           }
 
