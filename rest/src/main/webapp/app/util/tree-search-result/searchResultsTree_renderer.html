@@ -5,8 +5,7 @@
     ng-click="toggleTree(this)">
     <span class="glyphicon" ng-class="getTreeNodeIcon(this)"></span>
   </a>
-
-
+  
   <!-- if this node has no children reported by child count -->
   <i class="glyphicon glyphicon-leaf" ng-show="tree.childCt == 0"></i>
   
@@ -14,7 +13,7 @@
   <a ng-click="callbacks.getComponentFromTree(this)">
     <span
       ng-show="!parameters.showExtension || !isDerivedLabelSetFromTree(this)"
-      ng-bind-html="tree.nodeTerminologyId | highlight:searchParams.query"></span>
+      ng-bind-html="tree.nodeTerminologyId | highlight:.query"></span>
     <span ng-show="parameters.showExtension && isDerivedLabelSetFromTree(this)"
       ng-bind-html="tree.nodeTerminologyId | highlightLabelFor:tree.nodeTerminologyId"
       ng-mouseover="getDerivedLabelSetsValueFromTree(this)"
@@ -24,7 +23,7 @@
   
   <!-- Label Set highlighting on component name-->
   <span ng-show="!parameters.showExtension || !isLabelSetFromTree(this)"
-    ng-bind-html="tree.nodeName | highlight:searchParams.query"></span>
+    ng-bind-html="tree.nodeName | highlight:parameters.query"></span>
   <span ng-show="parameters.showExtension && isLabelSetFromTree(this)"
     ng-bind-html="tree.nodeName | highlightLabel:tree.nodeName"
     ng-mouseover="getLabelSetsValueFromTree(this)"

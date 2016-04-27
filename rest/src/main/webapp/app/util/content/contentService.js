@@ -42,7 +42,8 @@ tsApp
           semanticType : null,
           termType : null,
           matchTerminology : null,
-          language : null
+          language : null,
+          showExtension : false
         };
 
         // Search results

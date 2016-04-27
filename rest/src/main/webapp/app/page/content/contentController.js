@@ -312,14 +312,10 @@ tsApp.controller('ContentCtrl', [
 
     // //////////////////////////////////////////
     // Supporting search result trees
-    // //////////////////////////////////////////
-
-    // Search Result Tree Parameters
-    $scope.srtParams = {
-      showExtension : false
-    };
+    // /////////////////////////////////////////
 
     // search result tree callbacks
+    // NOTE Search Result Tree uses list search parameters
     $scope.srtCallbacks = {
       // set top level component from tree node
       getComponentFromTree : $scope.getComponentFromTree
@@ -327,10 +323,10 @@ tsApp.controller('ContentCtrl', [
 
     // Function to toggle showing of extension info
     $scope.toggleExtension = function() {
-      if ($scope.srtParams.showExtension == null || $scope.srtParams.showExtension == undefined) {
-        $scope.srtParams.showExtension = false;
+      if ($scope.searchParams.showExtension == null || $scope.searchParams.showExtension == undefined) {
+        $scope.searchParams.showExtension = false;
       } else {
-        $scope.srtParams.showExtension = !$scope.srtParams.showExtension;
+        $scope.searchParams.showExtension = !$scope.searchParams.showExtension;
       }
     };
 
