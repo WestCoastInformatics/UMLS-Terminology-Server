@@ -21,12 +21,16 @@
     <config.groupId>com.wcinformatics.umls.server</config.groupId>
     <config.artifactId>term-server-config-dev-windows</config.artifactId>
     <config.version>${project.version}</config.version>
-    <!-- Defaults for Eclipse dev -->
-    <deploy.title>Dev Term Server</deploy.title>
+    <!-- Defaults for Eclipse dev -->   
     <site.tracking.code></site.tracking.code>
+    <deploy.title>Dev Term Server</deploy.title>
+    <deploy.link>http://www.westcoastinformatics.com</deploy.link>
+    <deploy.password.reset></deploy.password.reset>
     <deploy.footer.copyright>(c)2016</deploy.footer.copyright>
-    <deploy.presented.by></deploy.presented.by>
-    <!-- TODO: Add defaults for landing/license/login -->
+    <deploy.presented.by>Presented by West Coast Informatics, LLC</deploy.presented.by>
+    <deploy.landing.enabled>true</deploy.landing.enabled>
+    <deploy.login.enabled>true</deploy.login.enabled>
+    <deploy.license.enabled>true</deploy.license.enabled>
 
   </properties>
 
@@ -183,7 +187,7 @@
                   <type>zip</type>
                   <outputDirectory>${project.build.directory}/config/resources</outputDirectory>
                 </artifactItem>
-                <!--  TODO Add spelling and acronyms file to unpacked resources -->
+                <!-- TODO Add spelling and acronyms file to unpacked resources -->
               </artifactItems>
             </configuration>
           </execution>
@@ -228,14 +232,16 @@
                 <exclude>config*.properties</exclude>
               </excludes>
             </resource>
+
             <resource>
               <directory>src/main/webapp</directory>
               <filtering>true</filtering>
               <includes>
-                <include>app/page/login/login.html</include>
-                <include>app/page/footer/footer.html</include>
-                <include>app/page/header/header.html</include>
-                <include>index.html</include>
+              
+                <!-- Webapp config --> -->
+                <include>app/appConfig.js</include>
+
+                <!-- Non-webapp config-->
                 <include>swagger.html</include>
                 <include>WEB-INF/web.xml</include>
               </includes>
@@ -244,14 +250,24 @@
               <directory>src/main/webapp</directory>
               <filtering>false</filtering>
               <excludes>
-                <exclude>app/page/login/login.html</exclude>
-                <exclude>app/page/footer/footer.html</exclude>
-                <exclude>app/page/header/header.html</exclude>
-                <exclude>index.html</exclude>
+              
+                <!-- Webapp config --> -->
+                <exclude>app/appConfig.js</exclude>
+
+                <!-- Non-webapp config-->
                 <exclude>swagger.html</exclude>
                 <exclude>WEB-INF/web.xml</exclude>
               </excludes>
             </resource>
+
+            <!-- Original filtering <resource> <directory>src/main/webapp</directory> 
+              <filtering>true</filtering> <includes> <include>app/page/login/login.html</include> 
+              <include>app/page/footer/footer.html</include> <include>app/page/header/header.html</include> 
+              <include>index.html</include> <include>swagger.html</include> <include>WEB-INF/web.xml</include> 
+              </includes> </resource> <resource> <directory>src/main/webapp</directory> <filtering>false</filtering> 
+              <excludes> <exclude>app/page/login/login.html</exclude> <exclude>app/page/footer/footer.html</exclude> 
+              <exclude>app/page/header/header.html</exclude> <exclude>index.html</exclude> <exclude>swagger.html</exclude> 
+              <exclude>WEB-INF/web.xml</exclude> </excludes> </resource> -->
             <resource>
               <directory>src/main/config</directory>
               <targetPath>/WEB-INF/classes</targetPath>

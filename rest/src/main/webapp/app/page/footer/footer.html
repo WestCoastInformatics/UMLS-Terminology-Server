@@ -1,5 +1,5 @@
 <!-- Footer -->
-<div ng-if="isShowing()">
+<div ng-show="isShowing()">
   <div>
     <!--  Show logout button at the bottom in XS mode -->
     <div id="mobileFooter" class="visible-xs hidden-md col-xs-12">
@@ -16,7 +16,7 @@
       <div class="navbar-header">
         <ul class="nav navbar-nav navbar-left">
           <li><p class="navbar-text">
-              <a class="navbar-link" href="${deploy.link}">${deploy.footer.copyright}</a>
+              <a class="navbar-link" href="{{appConfig.deployLink}}">{{appConfig.deployCopyright}}</a>
             </p></li>
           <li><p class="navbar-text">{{user.name}}</p></li>
           <li>
@@ -25,7 +25,7 @@
               ng-show="user.authToken != null">Logout</button>
           </li>
           <li>&nbsp;
-            <p class="navbar-text">${project.version}</p>
+            <p class="navbar-text">{{appConfig.projectVersion}}</p>
           </li>
           <li>
             <div style="text-align: center; padding: 5px; margin: 0 0 0 0;"
@@ -40,7 +40,7 @@
       <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav navbar-right">
           <li>
-            <p class="navbar-text">${deploy.presented.by}</p>
+            <p class="navbar-text">{{appConfig.deployPresentedBy}}</p>
           </li>
         </ul>
       </div>

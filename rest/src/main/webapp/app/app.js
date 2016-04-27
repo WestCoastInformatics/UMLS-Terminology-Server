@@ -21,13 +21,24 @@ var validationUrl = "validation/";
 var sourceDataUrl = 'file/';
 var configureUrl = 'configure/';
 
-tsApp.run(function checkConfig($rootScope, $http) {
-   $http.get(configureUrl + 'configured').then(function(response) {
-     $rootScope.isConfigured = response.data;
-   }, function() {
-     console.error('Could not determine configuration status');
-     $rootScope.isConfigured = false;
-   })
+tsApp.run(function checkConfig($rootScope, $http, appConfig) {
+
+  // set application configuration variables in the root scope
+  $rootScope.appConfig = appConfig;
+  console.debug('Application configuration variables set:');
+  for (var key in $rootScope.appConfig) {
+    if ($rootScope.appConfig.hasOwnProperty(key)) {
+      console.debug('  ' + key + ': ' + $rootScope.appConfig[key]);
+    };
+  }
+
+  // check configuration
+  $http.get(configureUrl + 'configured').then(function(response) {
+    $rootScope.isConfigured = response.data;
+  }, function() {
+    console.error('Could not determine configuration status');
+    $rootScope.isConfigured = false;
+  })
 });
 
 // Simple glass pane controller

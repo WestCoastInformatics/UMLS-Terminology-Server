@@ -1,11 +1,17 @@
 
 
 // Login controller
-tsApp.controller('LoginCtrl', [ '$scope', '$http', '$location', 'securityService', 'gpService',
-  'utilService', 'projectService', 'configureService',
-  function($scope, $http, $location, securityService, gpService, utilService, projectService, configureService) {
+tsApp.controller('LoginCtrl', [ '$rootScope','$scope', '$http', '$location', 'securityService', 'gpService',
+  'utilService', 'projectService', 'configureService', 'appConfig',
+  function($rootScope, $scope, $http, $location, securityService, gpService, utilService, projectService, configureService, appConfig
+   ) {
     console.debug('configure LoginCtrl');
 
+    console.debug('appConfig', appConfig, 
+      $rootScope.appConfig);
+    
+    // pass config to scope
+    $scope.appConfig = appConfig;
     
     // Login function
     $scope.login = function(name, password) {

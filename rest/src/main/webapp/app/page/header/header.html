@@ -9,7 +9,7 @@
       <table>
         <tr>
           <td>
-            <a href="${deploy.link}">
+            <a href="{{appConfig.deployLink}}">
               <img class="hidden-xs" height="72px"
                 style="background-color: white; padding: 5px; margin: 5px; border-radius: 5px;"
                 src="images/logo65x72.jpg"> <img class="visible-xs"
@@ -19,7 +19,7 @@
             </a>
           </td>
           <td style="vertical-align: middle">
-            <b style="color: white;"> ${deploy.title} (and <a
+            <b style="color: white;"> {{appConfig.deployTitle}} (and <a
                 href="swagger.html"
                 style="color: white; text-decoration: underline" target="_blank">API)</a>
             </b>
@@ -28,12 +28,12 @@
             <button ng-show="isLanding()" class="btn btn-md btn-warning"
               style="margin-left: 50px;" ng-click="gotoTool()">Enter
               Tool</button>
-
           </td>
         </tr>
       </table>
     </div>
   </div>
+
 </nav>
 <!--  Make room for content with fixed navbar-top -->
 <div ng-if="isShowing()">

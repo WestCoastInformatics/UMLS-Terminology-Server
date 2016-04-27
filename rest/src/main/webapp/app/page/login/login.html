@@ -1,8 +1,6 @@
 
 <!-- Login form -->
-
 <div class="row">
-
   <div class="col-md-12 col-xs-12">
     <strong>Enter User and Password</strong><br>
     <form>
@@ -14,13 +12,11 @@
         ng-click="login(user.userName, user.password)">Login</button>
       <p>
         <br />
-        <a href="${deploy.password.reset}">Forgot Password?</a>
+        <a href="{{appConfig.deployPasswordReset}}">Forgot Password?</a>
         <br /> <br />
       </p>
       <div ng-include src="'app/page/general/intro.html'"></div>
     </form>
   </div>
-
 </div>
-
 <!-- Done login form -->

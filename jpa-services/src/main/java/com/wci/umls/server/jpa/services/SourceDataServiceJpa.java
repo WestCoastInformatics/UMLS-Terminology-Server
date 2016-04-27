@@ -4,11 +4,9 @@
 package com.wci.umls.server.jpa.services;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.persistence.NoResultException;
 
@@ -29,7 +27,6 @@ import com.wci.umls.server.jpa.helpers.SourceDataFileListJpa;
 import com.wci.umls.server.jpa.helpers.SourceDataListJpa;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.SourceDataService;
-import com.wci.umls.server.services.handlers.SourceDataHandler;
 
 /**
  * Reference implementation of the {@link SecurityService}.
@@ -58,10 +55,10 @@ public class SourceDataServiceJpa extends RootServiceJpa
               + " has no class specified in config file");
         } else {
 
-          SourceDataHandler handler = null;
+          
           try {
             Class<?> handlerClass = Class.forName(handlerClassName);
-            handler = (SourceDataHandler) handlerClass.newInstance();
+            handlerClass.newInstance();
 
             sourceDataHandlers.put(handlerName, handlerClassName);
 

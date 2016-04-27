@@ -1,12 +1,15 @@
 // Content controller
-tsApp.directive('tsHeader', [ '$rootScope', '$routeParams', 'securityService', '$location',
-  function($rootScope, $routeParams, securityService, $location) {
+tsApp.directive('tsHeader', [ '$rootScope', '$routeParams', 'securityService', '$location', 'appConfig',
+  function($rootScope, $routeParams, securityService, $location, appConfig) {
     console.debug('configure header directive');
     return {
       restrict : 'A',
       scope : {},
       templateUrl : 'app/page/header/header.html',
       link : function(scope, element, attrs) {
+        
+        // pass values to scope
+        scope.appConfig = appConfig;
 
         scope.isShowing = function() {
           switch ($routeParams.mode) {
