@@ -31,6 +31,7 @@
     <deploy.landing.enabled>true</deploy.landing.enabled>
     <deploy.login.enabled>true</deploy.login.enabled>
     <deploy.license.enabled>true</deploy.license.enabled>
+    <deploy.license.text>Dev License Agreement Text</deploy.license.text>
 
   </properties>
 
@@ -154,11 +155,6 @@
     <dependency>
       <groupId>com.wordnik</groupId>
       <artifactId>swagger-jersey2-jaxrs_2.10</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
     </dependency>
 
   </dependencies>

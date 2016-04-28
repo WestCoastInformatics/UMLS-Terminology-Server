@@ -8,6 +8,10 @@ tsApp
       '$cookies',
       function($location, $anchorScroll, $cookies) {
         console.debug('configure utilService');
+        
+        // flag for configuration status, set by app.js and configureController.js
+        this.isConfigured = null;
+        
         // declare the error
         this.error = {
           message : null,
@@ -29,6 +33,16 @@ tsApp
           toolbar : 'undo redo | styleselect lists | bold italic underline strikethrough | charmap link image',
           forced_root_block : ''
         };
+        
+        // set the configured flag
+        this.setConfigured = function(isConfigured) {
+          this.isConfigured = isConfigured;
+        }
+        
+        // return the configured flag
+        this.isConfigured = function() {
+          return this.isConfigured;
+        }
 
         // Prep query
         this.prepQuery = function(query) {

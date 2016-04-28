@@ -21,7 +21,7 @@ var validationUrl = "validation/";
 var sourceDataUrl = 'file/';
 var configureUrl = 'configure/';
 
-tsApp.run(function checkConfig($rootScope, $http, appConfig) {
+tsApp.run(function checkConfig($rootScope, $http, $route, appConfig, configureService) {
 
   // debug content: output application configuration values
   console.debug('Application configuration variables set:');
@@ -30,8 +30,14 @@ tsApp.run(function checkConfig($rootScope, $http, appConfig) {
       console.debug('  ' + key + ': ' + appConfig[key]);
     };
   }
+  
+  // debug content: check routes
+  console.debug('Routes:')
+  for ( var route in $route.routes) {
+    console.debug('  ' + route);
+  }
 
-  // check configuration
+  // check and set whether application is configured
   $http.get(configureUrl + 'configured').then(function(response) {
     $rootScope.isConfigured = response.data;
   }, function() {
