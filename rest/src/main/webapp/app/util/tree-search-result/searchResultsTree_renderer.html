@@ -10,7 +10,7 @@
   <i class="glyphicon glyphicon-leaf" ng-show="tree.childCt == 0"></i>
   
   <!-- Component link and Derived Label Set highlighting on component id -->
-  <a ng-click="callbacks.getComponentFromTree(this)">
+  <a ng-click="callbacks.getComponentFromTree(this)" ng-show="tree.nodeTerminologyId !== 'dummy id'">
     <span
       ng-show="!parameters.showExtension || !isDerivedLabelSetFromTree(this)"
       ng-bind-html="tree.nodeTerminologyId | highlight:parameters.query"></span>

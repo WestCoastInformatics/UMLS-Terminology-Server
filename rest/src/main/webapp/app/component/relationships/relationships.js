@@ -24,7 +24,7 @@ tsApp.directive('relationships', [
 
         scope.paging.sortField = 'group';
         scope.paging.sortAscending = true;
-        scope.paging.showInferred = true;
+        scope.paging.showInferred = false;
 
         // Default is Group/Type, where in getpagedData
         // relationshipType is automatically appended as a multi-
@@ -53,14 +53,14 @@ tsApp.directive('relationships', [
           // relationship type
           var sortFields = new Array();
           if (scope.paging.sortField === 'group') {
-            sortFields = [ 'group', 'relationshipType', 'additionalRelationshipType' ];
+            sortFields = [ 'group', 'relationshipType', 'additionalRelationshipType', 'toName' ];
           } else if (scope.paging.sortField === 'relationshipType') {
-            sortFields = [ 'relationshipType', 'additionalRelationshipType', 'group' ];
+            sortFields = [ 'relationshipType', 'additionalRelationshipType', 'group', 'toName' ];
           } else if (scope.paging.sortFied === 'additionalRelationshipType') {
-            sortFields = [ 'additionalRelationshipType', 'relationshipType', 'group' ];
+            sortFields = [ 'additionalRelationshipType', 'relationshipType', 'group', 'toName' ];
           } else {
             sortFields = [ scope.paging.sortField, 'group', 'relationshipType',
-              'additionalRelationshipType' ];
+              'additionalRelationshipType', 'toName' ];
           }
 
           var parameters = {
@@ -92,6 +92,16 @@ tsApp.directive('relationships', [
           }
           getPagedList();
         });
+        
+        // Function to toggle inferred flag and apply paging
+        scope.toggleInferred = function() {
+          if (scope.paging.showInferred == null || scope.paging.showInferred == undefined) {
+            scope.paging.showInferred = false;
+          } else {
+            scope.paging.showInferred = !scope.paging.showInferred;
+          }
+          getPagedList();
+        };
 
       }
     };

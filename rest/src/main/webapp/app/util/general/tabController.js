@@ -1,7 +1,14 @@
 // Tab controller
-tsApp.controller('TabCtrl', [ '$scope', '$routeParams', 'securityService', 'tabService',
-  'projectService', 'configureService', '$location',
-  function($scope, $routeParams, securityService, tabService, projectService, configureService, $location) {
+tsApp.controller('TabCtrl', [
+  '$scope',
+  '$routeParams',
+  'securityService',
+  'tabService',
+  'projectService',
+  'configureService',
+  '$location',
+  function($scope, $routeParams, securityService, tabService, projectService, configureService,
+    $location) {
     console.debug('configure TabCtrl');
 
     // Setup tabs
@@ -38,19 +45,20 @@ tsApp.controller('TabCtrl', [ '$scope', '$routeParams', 'securityService', 'tabS
     };
 
     // for ng-show on the tabs themselves
+    // TODO Add setShowing function invoked by individual views
     $scope.isShowing = function() {
       var route = $location.path();
-      
-      //console.debug('isShowing', securityService.isLoggedIn(), route.indexOf('configure') == -1, securityService.isLoggedIn() && route && route.indexOf('configure') == -1)
-      
-      return securityService.isLoggedIn() && route && route.indexOf('configure') == -1;
+
+      return securityService.isLoggedIn() && route && route.indexOf('configure') == -1
+        && route.indexOf('landing') == -1 && route.indexOf('license') == -1
+        && route.indexOf('login') == -1;
     };
 
     // for ng-show on an individual tab
     $scope.isTabShowing = function(tab) {
 
       // Don't show tabs on the "simple" view
-      // TODO: probably pack this into a parameter of tabs
+      // TODO: see set showing note above
       if ($routeParams.mode == 'simple') {
         return false;
       }

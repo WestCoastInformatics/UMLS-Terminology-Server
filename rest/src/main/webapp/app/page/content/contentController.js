@@ -302,17 +302,7 @@ tsApp.controller('ContentCtrl', [
 
     };
 
-    // Function to toggle inferred flag and apply paging
-    // TODO This should only be used by relationships directive
-    $scope.toggleInferred = function() {
-      if ($scope.showInferred == null || $scope.showInferred == undefined) {
-        $scope.showInferred = false;
-      } else {
-        $scope.showInferred = !$scope.showInferred;
-      }
-      // apply paging just to rels
-      $scope.getPagedRelationships();
-    };
+   
 
     // //////////////////////////////////////////
     // Supporting search result trees
