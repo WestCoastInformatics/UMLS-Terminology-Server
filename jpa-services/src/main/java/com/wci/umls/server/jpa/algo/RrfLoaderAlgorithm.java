@@ -119,9 +119,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The codes flag. */
   private boolean codesFlag = true;
 
-  /** The release version. */
-  private String releaseVersion;
-
   /** The release version date. */
   private Date releaseVersionDate;
 
@@ -283,14 +280,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     return version;
   }
 
-  /**
-   * Sets the release version.
-   *
-   * @param releaseVersion the rlease version
-   */
-  public void setReleaseVersion(String releaseVersion) {
-    this.releaseVersion = releaseVersion;
-  }
 
   /**
    * Sets the single mode.
@@ -361,14 +350,14 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     sorter.setRequireAllFiles(!(prefix == null ? "MR" : prefix).equals("RXN"));
     // File outputDir = new File(inputDirFile, "/RRF-sorted-temp/");
     // sorter.sortFiles(inputDirFile, outputDir);
-    releaseVersion = sorter.getFileVersion(inputDirFile);
-    if (releaseVersion == null) {
-      releaseVersion = version;
+    setReleaseVersion(sorter.getFileVersion(inputDirFile));
+    if (getReleaseVersion() == null) {
+      setReleaseVersion(version);
     }
     releaseVersionDate =
         ConfigUtility.DATE_FORMAT
-            .parse(releaseVersion.substring(0, 4) + "0101");
-    Logger.getLogger(getClass()).info("  releaseVersion = " + releaseVersion);
+            .parse(getReleaseVersion().substring(0, 4) + "0101");
+    Logger.getLogger(getClass()).info("  releaseVersion = " + getReleaseVersion());
 
     // Open readers - just open original RRF, no need to sort
     readers = new RrfReaders(inputDirFile);
@@ -458,11 +447,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     //
     // Create ReleaseInfo for this release if it does not already exist
     //
-    ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
+    ReleaseInfo info = getReleaseInfo(terminology, getReleaseVersion());
     if (info == null) {
       info = new ReleaseInfoJpa();
-      info.setName(releaseVersion);
-      info.setDescription(terminology + " " + releaseVersion + " release");
+      info.setName(getReleaseVersion());
+      info.setDescription(terminology + " " + getReleaseVersion() + " release");
       info.setPlanned(false);
       info.setPublished(true);
       info.setReleaseBeginDate(null);

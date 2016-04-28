@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.algo;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,20 +33,12 @@ import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
  */
 public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
-
-  /** The request cancel flag. */
-  boolean requestCancel = false;
 
   /** The id type. */
   private IdType idType;
@@ -72,7 +63,6 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     super();
   }
 
- 
   /**
    * Returns the id type.
    *
@@ -123,8 +113,8 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   public void compute() throws Exception {
 
     // Get hierarchcial rels
-    Logger.getLogger(getClass())
-        .info("  Get hierarchical rel for " + getTerminology() + ", " + getVersion());
+    Logger.getLogger(getClass()).info(
+        "  Get hierarchical rel for " + getTerminology() + ", " + getVersion());
     fireProgressEvent(0, "Starting...");
 
     // Get all relationships
@@ -140,14 +130,16 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       tableName2 = "CodeJpa";
     }
     @SuppressWarnings("unchecked")
-    List<Object[]> relationships = manager
-        .createQuery("select r.from.id, r.to.id from " + tableName + " r where "
-            + "version = :version and terminology = :terminology "
-            + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
-            + "and r.from in (select o from " + tableName2
-            + " o where obsolete = 0)")
-        .setParameter("terminology", getTerminology())
-        .setParameter("version", getVersion()).getResultList();
+    List<Object[]> relationships =
+        manager
+            .createQuery(
+                "select r.from.id, r.to.id from " + tableName + " r where "
+                    + "version = :version and terminology = :terminology "
+                    + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
+                    + "and r.from in (select o from " + tableName2
+                    + " o where obsolete = 0)")
+            .setParameter("terminology", getTerminology())
+            .setParameter("version", getVersion()).getResultList();
 
     int ct = 0;
     Map<Long, Set<Long>> parChd = new HashMap<>();
@@ -169,7 +161,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       Set<Long> parents = chdPar.get(fromId);
       parents.add(toId);
     }
-    //Logger.getLogger(this.getClass()).info("    count = " + ct);
+    // Logger.getLogger(this.getClass()).info("    count = " + ct);
 
     if (ct == 0) {
       Logger.getLogger(this.getClass()).info("    NO TREE POSITIONS");
@@ -197,8 +189,8 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     Date startDate = new Date();
     for (Long rootId : rootIds) {
       i++;
-      Logger.getLogger(getClass())
-          .debug("  Compute tree positions for root " + rootId);
+      Logger.getLogger(getClass()).debug(
+          "  Compute tree positions for root " + rootId);
       fireProgressEvent((int) (10 + (i * 90.0 / rootIds.size())),
           "Compute tree positions for root " + rootId);
       ValidationResult result = new ValidationResultJpa();
@@ -264,8 +256,8 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     Set<String> seen = new HashSet<>();
     // Add STYs already existing
-    for (final SemanticType sty : getSemanticTypes(getTerminology(), getVersion())
-        .getObjects()) {
+    for (final SemanticType sty : getSemanticTypes(getTerminology(),
+        getVersion()).getObjects()) {
       seen.add(sty.getValue());
     }
     for (Map.Entry<Long, String> entry : idValueMap.entrySet()) {
@@ -316,10 +308,10 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   public Set<Long> computeTreePositions(Long id, String ancestorPath,
     Map<Long, Set<Long>> parChd, ValidationResult validationResult,
     Date startDate, Map<Long, Set<Long>> semanticTypeMap, boolean multipleRoots)
-      throws Exception {
+    throws Exception {
 
-    Logger.getLogger(getClass())
-        .debug("    compute for " + id + ", " + ancestorPath);
+    Logger.getLogger(getClass()).debug(
+        "    compute for " + id + ", " + ancestorPath);
     final Set<Long> descConceptIds = new HashSet<>();
 
     // Check for cycles
@@ -425,7 +417,7 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     manager.merge(tp);
 
     // check for cancel request
-    if (requestCancel) {
+    if (isCancelled()) {
       rollback();
       throw new CancelException("Tree Position computation cancelled");
     }
@@ -468,49 +460,6 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /**
-   * Fires a {@link ProgressEvent}.
-   * @param pct percent done
-   * @param note progress note
-   * @throws Exception 
-   */
-  public void fireProgressEvent(int pct, String note) throws Exception {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    logInfo("Computing tree positions: " + pct + "% " + note);
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
-  }
-
-  /**
-   * Adds the progress listener.
-   *
-   * @param l the l
-   */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /**
-   * Removes the progress listener.
-   *
-   * @param l the l
-   */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
-
-  /**
-   * Cancel.
-   */
-  @Override
-  public void cancel() {
-    requestCancel = true;
-  }
-
-  /**
    * Indicates whether or not semantic type flag is the case.
    *
    * @return <code>true</code> if so, <code>false</code> otherwise
@@ -530,15 +479,15 @@ public class TreePositionAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   @Override
   public String getFileVersion() throws Exception {
-    Logger.getLogger(getClass())
-        .warn("Tree position algorithm does not use file version");
+    Logger.getLogger(getClass()).warn(
+        "Tree position algorithm does not use file version");
     return null;
   }
 
   @Override
   public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass())
-        .warn("Tree position algorithm does not use transitive closures");
+    Logger.getLogger(getClass()).warn(
+        "Tree position algorithm does not use transitive closures");
 
   }
 

@@ -41,8 +41,6 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.RootService;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
  * Implementation of an algorithm to compute transitive closure using the
@@ -50,12 +48,6 @@ import com.wci.umls.server.services.helpers.ProgressListener;
  */
 public class RemoveTerminologyAlgorithm extends
     AbstractTerminologyLoaderAlgorithm {
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
-
-  /** The request cancel flag. */
-  boolean requestCancel = false;
 
   /** The id type. */
   private IdType idType;
@@ -682,8 +674,8 @@ public class RemoveTerminologyAlgorithm extends
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
-    
- // remove the mappings
+
+    // remove the mappings
     logInfo("  Remove mappings ");
     query =
         manager
@@ -697,8 +689,8 @@ public class RemoveTerminologyAlgorithm extends
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
-    
- // remove the mappings
+
+    // remove the mappings
     logInfo("  Remove mapsets ");
     query =
         manager
@@ -736,39 +728,6 @@ public class RemoveTerminologyAlgorithm extends
     // set the transaction strategy based on status starting this routine
     // setTransactionPerOperation(currentTransactionStrategy);
     fireProgressEvent(100, "Finished...");
-  }
-
-  /**
-   * Fires a {@link ProgressEvent}.
-   *
-   * @param pct percent done
-   * @param note progress note
-   * @throws Exception the exception
-   */
-  public void fireProgressEvent(int pct, String note) throws Exception {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    logInfo("    " + pct + "% " + note);
-  }
-
-  /* see superclass */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() {
-    requestCancel = true;
   }
 
   @Override

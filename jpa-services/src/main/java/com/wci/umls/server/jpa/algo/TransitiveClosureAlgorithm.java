@@ -30,20 +30,13 @@ import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
  */
-public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorithm {
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
-
-  /** The request cancel flag. */
-  boolean requestCancel = false;
+public class TransitiveClosureAlgorithm extends
+    AbstractTerminologyLoaderAlgorithm {
 
   /** The descendants map. */
   private Map<Long, Set<Long>> descendantsMap = new HashMap<>();
@@ -64,8 +57,6 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorit
   public TransitiveClosureAlgorithm() throws Exception {
     super();
   }
-
- 
 
   /**
    * Returns the id type.
@@ -157,8 +148,7 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorit
                 "select r.from.id, r.to.id from " + tableName
                     + " r where obsolete = 0 and inferred = 1 "
                     + "and terminology = :terminology "
-                    + "and version = :version "
-                    + "and hierarchical = 1")
+                    + "and version = :version " + "and hierarchical = 1")
             .setParameter("terminology", terminology)
             .setParameter("version", version);
 
@@ -178,7 +168,7 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorit
       final Set<Long> children = parChd.get(par);
       children.add(chd);
       ct++;
-      if (requestCancel) {
+      if (isCancelled()) {
         rollback();
         throw new CancelException("Transitive closure computation cancelled.");
       }
@@ -244,7 +234,7 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorit
     int progressMax = parChd.keySet().size();
     int progress = 0;
     for (Long code : parChd.keySet()) {
-      if (requestCancel) {
+      if (isCancelled()) {
         rollback();
         throw new CancelException("Transitive closure computation cancelled.");
       }
@@ -315,24 +305,25 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorit
         addTransitiveRelationship(tr);
       }
       if (ct % commitCt == 0) {
-        /*Logger.getLogger(getClass()).debug(
-            "      " + ct + " codes processed ..." + new Date());*/
+        /*
+         * Logger.getLogger(getClass()).debug( "      " + ct +
+         * " codes processed ..." + new Date());
+         */
         commit();
         clear();
         beginTransaction();
       }
     }
-    
+
     // set the transaction strategy based on status starting this routine
     // setTransactionPerOperation(currentTransactionStrategy);
     fireProgressEvent(100, "Finished computing transitive closures.");
-    
+
     // release memory
     descendantsMap = new HashMap<>();
     commit();
     clear();
 
-   
   }
 
   /**
@@ -349,7 +340,7 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorit
     Logger.getLogger(getClass()).debug(
         "  Get descendants for " + par + ", " + ancPath);
 
-    if (requestCancel) {
+    if (isCancelled()) {
       rollback();
       throw new CancelException("Transitive closure computation cancelled.");
     }
@@ -391,54 +382,26 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyLoaderAlgorit
     return descendants;
   }
 
-  /**
-   * Fires a {@link ProgressEvent}.
-   * @param pct percent done
-   * @param note progress note
-   * @throws Exception 
-   */
-  public void fireProgressEvent(int pct, String note) throws Exception {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    logInfo("    " + pct + "% " + note);
-  }
-
-  /* see superclass */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() {
-    requestCancel = true;
-  }
-
   @Override
   public String getFileVersion() throws Exception {
-    Logger.getLogger(getClass()).warn("Transitive closure algorithm does not use file version");
+    Logger.getLogger(getClass()).warn(
+        "Transitive closure algorithm does not use file version");
     return null;
   }
 
   @Override
   public void computeTransitiveClosures() throws Exception {
     compute();
-    
+
   }
 
   @Override
   public void computeTreePositions() throws Exception {
-  Logger.getLogger(getClass()).warn("Transitive closure algorithm does not support tree position computation ");
-    
+    Logger
+        .getLogger(getClass())
+        .warn(
+            "Transitive closure algorithm does not support tree position computation ");
+
   }
 
 }

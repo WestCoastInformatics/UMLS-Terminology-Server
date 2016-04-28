@@ -450,7 +450,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
       transClosureAlgorithm.setVersion(getVersion());
       transClosureAlgorithm.reset();
       transClosureAlgorithm.compute();
-      
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
@@ -468,8 +467,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
     } catch (CancelException e) {
       Logger.getLogger(getClass()).info("Cancel request detected");
       throw new CancelException("Tree position computation cancelled");
-    } finally {
-
+    } catch (Exception e) {
+      throw e;
     }
   }
 
@@ -1768,7 +1767,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
       mapping.setTerminologyId(fields[5]);
     } else {
       throw new Exception(
-          "Attribute value member connected to nonexistent object - " + fields[5]);
+          "Attribute value member connected to nonexistent object - "
+              + fields[5]);
     }
 
     // Universal RefSet attributes
