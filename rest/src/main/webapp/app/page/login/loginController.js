@@ -97,7 +97,7 @@ tsApp.controller('LoginCtrl', [
       if (!isConfigured) {
         $location.path('/configure');
       } else {
-        //$scope.initialize();
+        $scope.initialize();
       }
     });
 

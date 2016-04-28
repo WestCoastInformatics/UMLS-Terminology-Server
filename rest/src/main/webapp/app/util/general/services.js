@@ -464,8 +464,6 @@ tsApp.service('securityService', [
   function($http, $location, $q, $cookies, utilService, gpService, appConfig) {
     console.debug('configure securityService');
 
-    var license = null;
-
     // Declare the user
     var user = {
       userName : null,
@@ -491,7 +489,7 @@ tsApp.service('securityService', [
         expires : expireDate
       });
       var cookie = $cookies.get('WCI ' + appConfig.deployTitle);
-      console.debug('Set cookie:', cookie);
+      //console.debug('Set cookie:', cookie);
       deferred.resolve();
       return deferred.promise;
     }
@@ -505,7 +503,7 @@ tsApp.service('securityService', [
       } else {
 
         var cookie = $cookies.get('WCI ' + appConfig.deployTitle);
-        console.debug('License cookie', cookie);
+        //console.debug('License cookie', cookie);
         if (!cookie) {
           deferred.reject();
         } else {

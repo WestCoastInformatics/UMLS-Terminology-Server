@@ -15,12 +15,17 @@ tsApp.controller('ContentCtrl', [
   'metadataService',
   'contentService',
   'configureService',
+  'appConfig',
   function($scope, $routeParams, $http, $uibModal, $location, $q, $anchorScroll, $sce, gpService,
-    utilService, tabService, securityService, metadataService, contentService, configureService) {
+    utilService, tabService, securityService, metadataService, contentService, configureService,
+    appConfig) {
     console.debug('configure ContentCtrl');
 
     // Clear error
     utilService.clearError();
+    
+    // pass app configuration constants to scope (for email link)
+    $scope.appConfig = appConfig;
 
     // Handle resetting tabs on "back" button, but also handles non-standard
     // content modes which may not have tabs
@@ -301,8 +306,6 @@ tsApp.controller('ContentCtrl', [
       }
 
     };
-
-   
 
     // //////////////////////////////////////////
     // Supporting search result trees

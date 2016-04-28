@@ -8,7 +8,6 @@
         ng-show="user.authToken != null">Logout</button>
     </div>
   </div>
-
   <!-- Footer -->
   <nav style="background-color: #ffffff"
     class="hidden-xs navbar navbar-default navbar-fixed-bottom">
@@ -42,6 +41,11 @@
           <li>
             <p class="navbar-text">{{appConfig.deployPresentedBy}}</p>
           </li>
+          <li style="margin-right:15px;">
+          <a style="padding: 0px;" ng-href="mailto:{{appConfig.deployFeedbackEmail}}">
+              <button class="btn btn-sm btn-primary btn-structure" 
+                style="margin-top: 10px;" ng-show="appConfig.deployFeedbackEmail">Feedback</button>
+           </a> </li>
         </ul>
       </div>
     </div>

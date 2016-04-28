@@ -1,7 +1,7 @@
 // Route
 tsApp.config(function configureRoutes($routeProvider, appConfig) {
 
-  console.debug('Configure routes', appConfig);
+  console.debug('Configure routes');
 
   $routeProvider.when('/configure', {
     templateUrl : 'app/page/configure/configure.html',

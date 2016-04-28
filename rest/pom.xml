@@ -27,6 +27,7 @@
     <deploy.link>http://www.westcoastinformatics.com</deploy.link>
     <deploy.password.reset></deploy.password.reset>
     <deploy.footer.copyright>(c)2016</deploy.footer.copyright>
+    <deploy.feedback.email>info@westcoastinformatics.com</deploy.feedback.email>
     <deploy.presented.by>Presented by West Coast Informatics, LLC</deploy.presented.by>
     <deploy.landing.enabled>true</deploy.landing.enabled>
     <deploy.login.enabled>true</deploy.login.enabled>

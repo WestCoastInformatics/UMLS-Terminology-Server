@@ -1,20 +1,37 @@
 // Landingcontroller
-tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'appConfig',
-  function($scope, $location, utilService, appConfig) {
+tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securityService', 'appConfig',
+  function($scope, $location, utilService, securityService, appConfig) {
     console.debug('configure LandingCtrl');
-
-    // on return to landing page, clear any errors
-    utilService.clearError();
 
     // function to launch application
     $scope.launchApp = function() {
-       if (appConfig.loginEnabled) {
-         $location.path('/login');
-       } else if (appConfig.licenseEnabled) {
-         $location.path('/license');
-       } else {
-         $location.path('/content');
-       }
+      if (appConfig.loginEnabled) {
+        $location.path('/login');
+      } else if (appConfig.licenseEnabled) {
+        $location.path('/license');
+      } else {
+        $location.path('/content');
+      }
     }
+
+    $scope.initialize = function() {
+
+      // on return to landing page, clear any errors
+      utilService.clearError();
+
+      // Clear user info
+      securityService.clearUser();
+
+      // Declare the user
+      $scope.user = securityService.getUser();
+
+    }
+    configureService.isConfigured().then(function(isConfigured) {
+      if (!isConfigured) {
+        $location.path('/configure');
+      } else {
+        $scope.initialize();
+      }
+    });
 
   } ]);

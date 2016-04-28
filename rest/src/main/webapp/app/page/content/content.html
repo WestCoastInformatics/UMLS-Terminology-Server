@@ -60,7 +60,7 @@
   <!-- Advanced Search Controls -->
   <div class="col-md-4 col-xs-12">
     <div ng-show="searchParams.advancedMode">
-      <div ng-show="metadata.semanticTypes.length > 0" class="row m10">
+      <div ng-show="metadata.semanticTypes.length > 1" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
           Semantic Type <i class="glyphicon glyphicon-remove pull-right"
@@ -76,7 +76,8 @@
           </select>
         </div>
       </div>
-      <div ng-show="metadata.termTypes.length > 0" class="row m10">
+      <!-- As of 4/28/16, do not show term type select for non-metathesaurus terminologies -->
+      <div ng-show="metadata.terminology.metathesaurus && metadata.termTypes.length > 1" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
           Term Type <i class="glyphicon glyphicon-remove pull-right"
@@ -91,6 +92,7 @@
           </select>
         </div>
       </div>
+      <!-- Only show match terminology for metathesaurus -->
       <div ng-show="metadata.terminology.metathesaurus" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
@@ -106,7 +108,8 @@
           </select>
         </div>
       </div>
-      <div ng-show="metadata.languages.length > 0" class="row m10">
+      <!--  Show only if more than one language --> 
+      <div ng-show="metadata.languages.length > 1" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
           Language <i class="glyphicon glyphicon-remove pull-right"
@@ -119,6 +122,16 @@
             ng-model="searchParams.language">
             <option value="">--- All ---
           </select>
+        </div>
+      </div>
+      <!--  Feedback -->
+      <div class="row m10">
+        <div class="col-lg-3 col-md-6 col-xs-3"
+          style="margin-right: 0px; padding-right: 0px;">
+         
+        </div>
+        <div class=" col-lg-9 col-md-6 col-xs-9">
+          Want more functionality? <a href="mailto:{{appConfig.deployFeedbackEmail}}">Let us know!</a>
         </div>
       </div>
     </div>

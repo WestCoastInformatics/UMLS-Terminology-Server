@@ -10,6 +10,7 @@ tsApp.constant('appConfig', {
   deployPasswordReset : '${deploy.password.reset}',
   deployPresentedBy : '${deploy.presented.by}',
   deployCopyright : '${deploy.footer.copyright}',
+  deployFeedbackEmail : '${deploy.feedback.email}',
 
   // project variables
   projectVersion : '${project.version}',

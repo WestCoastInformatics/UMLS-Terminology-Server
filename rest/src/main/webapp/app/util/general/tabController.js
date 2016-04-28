@@ -43,17 +43,11 @@ tsApp.controller('TabCtrl', [
         return '';
       }
     };
-
-    // for ng-show on the tabs themselves
-    // TODO Add setShowing function invoked by individual views
+    
     $scope.isShowing = function() {
-      var route = $location.path();
-
-      return securityService.isLoggedIn() && route && route.indexOf('configure') == -1
-        && route.indexOf('landing') == -1 && route.indexOf('license') == -1
-        && route.indexOf('login') == -1;
-    };
-
+      return tabService.isShowing();
+    }
+    
     // for ng-show on an individual tab
     $scope.isTabShowing = function(tab) {
 
