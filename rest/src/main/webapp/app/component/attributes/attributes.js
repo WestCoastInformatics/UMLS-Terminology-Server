@@ -27,11 +27,8 @@ tsApp.directive('attributes', [
           getPagedList : getPagedList
         };
 
-        console.debug('attribute callbacks', scope.testCallback, scope.callbacks);
-
         // watch show hidden flag
         scope.$watch('showHidden', function() {
-          console.debug('showHidden changed', scope.showHidden);
           if (scope.showHidden != undefined && scope.showHidden != null) {
             scope.paging.showHidden = scope.showHidden;
           } else {

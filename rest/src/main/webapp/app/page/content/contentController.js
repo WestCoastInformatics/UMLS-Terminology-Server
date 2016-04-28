@@ -196,7 +196,6 @@ tsApp.controller('ContentCtrl', [
     // Find concepts based on current search
     // - loadFirst indicates whether to auto-load result[0]
     $scope.findComponents = function(loadFirst) {
-      console.debug('Finding components (list, loadFirst)', $scope.queryForList, loadFirst);
       $scope.searchOrBrowse = "SEARCH";
       if ($scope.queryForList) {
         $scope.findComponentsAsList(loadFirst);
@@ -272,7 +271,6 @@ tsApp.controller('ContentCtrl', [
 
     // Load hierarchy into tree view
     $scope.browseHierarchy = function() {
-      console.debug('Browsing request detected');
       $scope.searchOrBrowse = "BROWSE";
       $scope.queryForTree = true;
       $scope.queryForList = false;
@@ -468,7 +466,6 @@ tsApp.controller('ContentCtrl', [
       //
       // if in simple mode, disable navigation functionality
       if ($routeParams.mode === 'simple') {
-        console.debug('Enabling component report callbacks for mode: ' + $routeParams.mode);
         $scope.componentReportCallbacks = {
           getTerminologyVersion : metadataService.getTerminologyVersion,
           getRelationshipTypeName : metadataService.getRelationshipTypeName,
@@ -478,14 +475,11 @@ tsApp.controller('ContentCtrl', [
           getLabelSetName : metadataService.getLabelSetName,
           countLabels : metadataService.countLabels
 
-        // TODO Add relationship functions here, remove from
-        // relationships/relationships-deep
         };
       }
 
       // otherwise, enable full functionality
       else {
-        console.debug('Enabling component report callbacks for mode: FULL');
         $scope.componentReportCallbacks = {
           getComponent : $scope.getComponent,
           getComponentFromType : $scope.getComponentFromType,
@@ -496,10 +490,9 @@ tsApp.controller('ContentCtrl', [
           getTermTypeName : metadataService.getTermTypeName,
           getGeneralEntryValue : metadataService.getGeneralEntryValue,
           getLabelSetName : metadataService.getLabelSetName,
-          countLabels : metadataService.countLabels
+          countLabels : metadataService.countLabels,
+          findComponentsForQuery : $scope.findComponentsForQuery
 
-        // TODO Add relationship functions here, remove from
-        // relationships/relationships-deep
         };
       }
 
@@ -513,7 +506,6 @@ tsApp.controller('ContentCtrl', [
             // if route parameters are specified, set the terminology and retrieve
             // the specified concept
             if ($routeParams.terminology && $routeParams.version) {
-              console.debug('Route parameters set', $routeParams);
 
               var termToSet = null;
               for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
@@ -543,7 +535,6 @@ tsApp.controller('ContentCtrl', [
 
             // otherwise, specify the default terminology
             else {
-              console.debug('No route parameters');
 
               var found = false;
               for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
@@ -561,7 +552,6 @@ tsApp.controller('ContentCtrl', [
               if (!found) {
                 for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
                   var terminology = $scope.metadata.terminologies[i];
-                  console.debug(terminology.terminology, terminology.terminology === 'ICD10CM');
                   if (terminology.terminology === 'ICD10CM') {
                     metadataService.setTerminology(terminology);
                     found = true;

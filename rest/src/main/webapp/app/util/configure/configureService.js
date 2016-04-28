@@ -8,17 +8,13 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
     var configured = null;
 
     this.isConfigured = function() {
-      console.debug('isConfigured call')
       var deferred = $q.defer();
 
       if (configured != null) {
-        console.debug('  configuration previously detected', configured);
         deferred.resolve(configured);
       } else {
-        console.debug('  checking configuration');
 
         $http.get(configureUrl + 'configured').then(function(isConfigured) {
-          console.debug('    configured: ' + isConfigured.data);
           configured = isConfigured.data;
           deferred.resolve(isConfigured.data);
         }, // error
@@ -53,7 +49,7 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
       });
       return deferred.promise;
     };
-    
+
     this.destroy = function() {
       var deferred = $q.defer();
       gpService.increment();
@@ -68,7 +64,6 @@ tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'g
       });
       return deferred.promise;
     };
-
 
     // end
 

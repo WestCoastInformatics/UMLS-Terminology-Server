@@ -22,8 +22,6 @@ tsApp.directive('treeSearchResult', [
       templateUrl : 'app/util/tree-search-result/treeSearchResult.html',
       link : function(scope, element, attrs) {
 
-        console.debug('treeSearchResult', scope.searchResults, scope.parameters, scope.callbacks);
-
         // page sizes
         scope.pageSizeSibling = 10;
 
@@ -64,8 +62,7 @@ tsApp.directive('treeSearchResult', [
         scope.getDerivedLabelSetsValueFromTree = function(nodeScope) {
           scope.labelTooltipHtml = $sce.trustAsHtml('<div style="text-align:left;">'
             + metadataService.getDerivedLabelSetsValue(nodeScope.$modelValue) + '</div>');
-          console.debug('derived label html', metadataService
-            .getDerivedLabelSetsValue(nodeScope.$modelValue));
+
         };
 
         scope.isDerivedLabelSetFromTree = function(nodeScope) {
@@ -82,7 +79,6 @@ tsApp.directive('treeSearchResult', [
         scope.getLabelSetsValueFromTree = function(nodeScope) {
           scope.labelTooltipHtml = $sce.trustAsHtml('<div style="text-align:left;">'
             + metadataService.getLabelSetsValue(nodeScope.$modelValue) + '</div>');
-          console.debug('label html', metadataService.getLabelSetsValue(nodeScope.$modelValue));
         };
 
         scope.isLabelSetFromTree = function(nodeScope) {
@@ -98,7 +94,6 @@ tsApp.directive('treeSearchResult', [
         scope.getTreeChildrenFromTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
           scope.getTreeChildren(tree).then(function(children) {
-            console.debug('adding children', children);
             tree.children = concatSiblings(tree.children, children);
           });
         };
@@ -118,7 +113,6 @@ tsApp.directive('treeSearchResult', [
           // NOTE: Offset by 1 to incorporate the (possibly) already loaded item
 
           contentService.getChildTrees(tree, tree.children.length - 1).then(function(data) {
-            console.debug('retrieved children', data);
             deferred.resolve(data.trees);
           }, function(error) {
             console.error('Unexpected error retrieving children');
@@ -132,8 +126,6 @@ tsApp.directive('treeSearchResult', [
         scope.toggleTree = function(nodeScope) {
           var tree = nodeScope.$modelValue;
 
-          console.debug('toggling tree', tree, nodeScope.collapsed);
-
           // if not expanded, simply expand
           if (nodeScope.collapsed) {
             nodeScope.toggle();
@@ -143,17 +135,13 @@ tsApp.directive('treeSearchResult', [
           // page
           else if (tree.children.length != tree.childCt
             && tree.children.length < scope.pageSizeSibling) {
-            console.debug('getting children');
             scope.getTreeChildren(tree).then(function(children) {
-              console.debug('adding children', children);
               tree.children = concatSiblings(tree.children, children);
-
             });
           }
 
           // otherwise, collapse
           else {
-            console.debug('collapsing');
             nodeScope.toggle();
           }
         };

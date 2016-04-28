@@ -14,9 +14,7 @@ tsApp.directive('definitions', [
       templateUrl : 'app/component/definitions/definitions.html',
       link : function(scope, element, attrs) {
 
-        console.debug('definitions', scope.showHidden, scope.component.object.definitions,
-          scope.metadata);
-
+  
         function getPagedList() {
           scope.pagedData = utilService.getPagedArray(scope.component.object.definitions,
             scope.paging);

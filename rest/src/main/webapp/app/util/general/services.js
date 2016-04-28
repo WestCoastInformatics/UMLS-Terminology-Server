@@ -85,7 +85,6 @@ tsApp
         };
 
         this.handleSuccess = function(message) {
-          console.debug('Handle success: ', message);
           if (message && message.legth > 100) {
             this.success.message = 'Successful process reported, click the icon to view full message';
             this.success.longMessage = message;
@@ -100,7 +99,6 @@ tsApp
 
         // Handle error message
         this.handleError = function(response) {
-          console.debug('Handle error: ', response);
           if (response.data && response.data.length > 100) {
             this.error.message = "Unexpected error, click the icon to view attached full error";
             this.error.longMessage = response.data;
@@ -125,8 +123,7 @@ tsApp
 
         // Dialog error handler
         this.handleDialogError = function(errors, error) {
-          console.debug('Handle dialog error: ', errors, error);
-          // handle long error
+         // handle long error
           if (error && error.length > 100) {
             errors[0] = "Unexpected error, click the icon to view attached full error";
             errors[1] = error;
@@ -421,7 +418,6 @@ tsApp
           if (queryStr.indexOf(':') == -1) {
             cleanQuery = queryStr.replace(new RegExp('[^a-zA-Z0-9:\\.\\-\'\\*"]', 'g'), ' ');
           }
-          console.debug(queryStr, " => ", cleanQuery);
           return cleanQuery;
         };
 
@@ -528,7 +524,7 @@ tsApp.service('securityService', [
       $cookies.put('user', JSON.stringify(user));
 
     };
-    
+
     this.setAdminUser = function() {
       user.userName = 'admin';
       user.name = 'Administrator';
@@ -602,7 +598,6 @@ tsApp.service('securityService', [
 
     // get all users
     this.getUsers = function() {
-      console.debug('getUsers');
       var deferred = $q.defer();
 
       // Get users
@@ -610,7 +605,6 @@ tsApp.service('securityService', [
       $http.get(securityUrl + 'user/users').then(
       // success
       function(response) {
-        console.debug('  users = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -625,8 +619,7 @@ tsApp.service('securityService', [
 
     // get user for auth token
     this.getUserForAuthToken = function() {
-      console.debug('getUserforAuthToken');
-      var deferred = $q.defer();
+       var deferred = $q.defer();
 
       // Get users
       gpService.increment();
@@ -646,7 +639,6 @@ tsApp.service('securityService', [
     };
     // add user
     this.addUser = function(user) {
-      console.debug('addUser');
       var deferred = $q.defer();
 
       // Add user
@@ -654,7 +646,6 @@ tsApp.service('securityService', [
       $http.put(securityUrl + 'user/add', user).then(
       // success
       function(response) {
-        console.debug('  user = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -669,7 +660,6 @@ tsApp.service('securityService', [
 
     // update user
     this.updateUser = function(user) {
-      console.debug('updateUser');
       var deferred = $q.defer();
 
       // Add user
@@ -677,7 +667,6 @@ tsApp.service('securityService', [
       $http.post(securityUrl + 'user/update', user).then(
       // success
       function(response) {
-        console.debug('  user = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -692,7 +681,6 @@ tsApp.service('securityService', [
 
     // remove user
     this.removeUser = function(user) {
-      console.debug('removeUser');
       var deferred = $q.defer();
 
       // Add user
@@ -700,7 +688,6 @@ tsApp.service('securityService', [
       $http['delete'](securityUrl + 'user/remove/' + user.id).then(
       // success
       function(response) {
-        console.debug('  user = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -715,7 +702,6 @@ tsApp.service('securityService', [
 
     // get application roles
     this.getApplicationRoles = function() {
-      console.debug('getApplicationRoles');
       var deferred = $q.defer();
 
       // Get application roles
@@ -723,7 +709,6 @@ tsApp.service('securityService', [
       $http.get(securityUrl + 'roles').then(
       // success
       function(response) {
-        console.debug('  roles = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -738,7 +723,6 @@ tsApp.service('securityService', [
 
     // Finds users as a list
     this.findUsersAsList = function(query, pfs) {
-      console.debug('findUsersAsList', query, pfs);
       // Setup deferred
       var deferred = $q.defer();
 
@@ -748,7 +732,6 @@ tsApp.service('securityService', [
         utilService.prepPfs(pfs)).then(
       // success
       function(response) {
-        console.debug('  output = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -764,7 +747,6 @@ tsApp.service('securityService', [
 
     // update user preferences
     this.updateUserPreferences = function(userPreferences) {
-      console.debug('updateUserPreferences');
       // skip if user preferences is not set
       if (!userPreferences) {
         return;
@@ -779,7 +761,6 @@ tsApp.service('securityService', [
       $http.post(securityUrl + 'user/preferences/update', userPreferences).then(
       // success
       function(response) {
-        console.debug('  userPreferences = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -813,7 +794,6 @@ tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
       url = url.replace('index2.html', '');
       url = url.substring(0, url.indexOf('#'));
       url = url + "/websocket";
-      console.debug("url = " + url);
       return url;
 
     };
@@ -848,4 +828,3 @@ tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
     };
 
   } ]);
-

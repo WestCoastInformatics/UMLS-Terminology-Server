@@ -2,8 +2,8 @@
 tsApp
   .controller(
     'SourceCtrl',
-    function($scope, $location, $http, $q, $interval, NgTableParams, sourceDataService, utilService,
-      securityService, gpService, FileUploader, tabService, configureService) {
+    function($scope, $location, $http, $q, $interval, NgTableParams, sourceDataService,
+      utilService, securityService, gpService, FileUploader, tabService, configureService) {
       console.debug('configure SourceCtrl');
 
       // Handle resetting tabs on "back" button
@@ -39,7 +39,6 @@ tsApp
 
       // Instantiates new table params from sourceDatas array
       function refreshTables() {
-        console.debug('Refreshing table with values', sourceDatas);
         $scope.tpSourceDatas = new NgTableParams({}, {
           dataset : sourceDatas,
           counts : []
@@ -54,7 +53,6 @@ tsApp
 
       // view the source data and retrieve current source data file list
       $scope.viewSourceData = function(sourceData) {
-        console.debug('Viewing sourceData', sourceData);
 
         // set to null initially for currentSourceData watch condition
         $scope.isSourceDataModified = null;
@@ -179,9 +177,9 @@ tsApp
           })
         });
       };
-      
+
       // cancel a running process
-      $scope.cancelSourceDataProcess= function(sourceData) {
+      $scope.cancelSourceDataProcess = function(sourceData) {
         sourceDataService.cancelSourceDataProcess(sourceData).then(function() {
           getSourceDatas();
         });
@@ -231,13 +229,11 @@ tsApp
         sourceDataService.getSourceDataHandlers().then(
         // Success
         function(sourceDataHandlers) {
-          console.debug('source data handlers', sourceDataHandlers);
           $scope.sourceDataHandlers = sourceDataHandlers;
 
         });
       }
-      
-      // TODO REMOVE
+
       $scope.destroy = function() {
         configureService.destroy().then(function() {
           $scope.isSnomedLoaded = false;
@@ -280,8 +276,6 @@ tsApp
         };
 
         $scope.polls[sourceData.id].poll = $interval(function() {
-
-          console.debug('Polling', $scope.polls[sourceData.id]);
 
           // get the source data by id (suppress glass pane)
           sourceDataService.getSourceData(sourceData.id, true).then(function(polledSourceData) {
@@ -330,9 +324,9 @@ tsApp
             sourceData = polledSourceData;
             refreshTables();
           }
-         
+
         });
-        if ($scope.currentSourceData.id ===  polledSourceData.id) {
+        if ($scope.currentSourceData.id === polledSourceData.id) {
           $scope.currentSourceData = polledSourceData;
         }
         // update poll status from data
@@ -474,13 +468,10 @@ tsApp
           getSourceDataHandlers();
         }
       }
-      
-      console.debug('checking configuration');
       //
       // Initialization: Check that application is configured
       //
       configureService.isConfigured().then(function(isConfigured) {
-        console.debug('source configuration check', isConfigured);
         if (!isConfigured) {
           $location.path('/configure');
         } else {

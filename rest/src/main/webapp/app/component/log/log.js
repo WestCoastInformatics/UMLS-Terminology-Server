@@ -13,8 +13,7 @@ tsApp.directive('log', [ function() {
 
         // Log modal
         $scope.openLogModal = function() {
-          console.debug('openLogModal ');
-
+   
           var modalInstance = $uibModal.open({
             templateUrl : 'app/component/log/logModal.html',
             controller : LogModalCtrl,

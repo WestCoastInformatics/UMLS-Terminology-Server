@@ -1,6 +1,6 @@
 // Content controller
-tsApp.directive('tsFooter', [ '$rootScope', '$routeParams', 'gpService', 'securityService', 'appConfig',
-  function($rootScope, $routeParams, gpService, securityService, appConfig) {
+tsApp.directive('tsFooter', [ '$rootScope', '$routeParams', 'gpService', 'securityService',
+  'appConfig', function($rootScope, $routeParams, gpService, securityService, appConfig) {
     console.debug('configure footer directive');
     return {
       restrict : 'A',
@@ -16,18 +16,15 @@ tsApp.directive('tsFooter', [ '$rootScope', '$routeParams', 'gpService', 'securi
             return true;
           }
         };
-        
+
         // pass values to scope
         scope.appConfig = appConfig;
-        
-        console.debug($rootScope.appConfig);
 
         // Declare user
         scope.user = securityService.getUser();
 
         // Logout method
         scope.logout = function() {
-          console.debug('Footer logout request');
           securityService.logout();
         };
 

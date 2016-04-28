@@ -23,12 +23,11 @@ var configureUrl = 'configure/';
 
 tsApp.run(function checkConfig($rootScope, $http, appConfig) {
 
-  // set application configuration variables in the root scope
-  $rootScope.appConfig = appConfig;
+  // debug content: output application configuration values
   console.debug('Application configuration variables set:');
-  for (var key in $rootScope.appConfig) {
-    if ($rootScope.appConfig.hasOwnProperty(key)) {
-      console.debug('  ' + key + ': ' + $rootScope.appConfig[key]);
+  for (var key in appConfig) {
+    if (appConfig.hasOwnProperty(key)) {
+      console.debug('  ' + key + ': ' + appConfig[key]);
     };
   }
 

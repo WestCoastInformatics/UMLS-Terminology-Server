@@ -1,18 +1,23 @@
 
-
 // Login controller
-tsApp.controller('LoginCtrl', [ '$rootScope','$scope', '$http', '$location', 'securityService', 'gpService',
-  'utilService', 'projectService', 'configureService', 'appConfig',
-  function($rootScope, $scope, $http, $location, securityService, gpService, utilService, projectService, configureService, appConfig
-   ) {
+tsApp.controller('LoginCtrl', [
+  '$rootScope',
+  '$scope',
+  '$http',
+  '$location',
+  'securityService',
+  'gpService',
+  'utilService',
+  'projectService',
+  'configureService',
+  'appConfig',
+  function($rootScope, $scope, $http, $location, securityService, gpService, utilService,
+    projectService, configureService, appConfig) {
     console.debug('configure LoginCtrl');
 
-    console.debug('appConfig', appConfig, 
-      $rootScope.appConfig);
-    
     // pass config to scope
     $scope.appConfig = appConfig;
-    
+
     // Login function
     $scope.login = function(name, password) {
       if (!name) {
@@ -66,11 +71,11 @@ tsApp.controller('LoginCtrl', [ '$rootScope','$scope', '$http', '$location', 'se
     $scope.logout = function() {
       securityService.logout();
     };
-    
+
     //
     // Initialization: Check that application is configured
     //
-    
+
     $scope.initialize = function() {
       // Clear user info
       securityService.clearUser();
@@ -80,9 +85,7 @@ tsApp.controller('LoginCtrl', [ '$rootScope','$scope', '$http', '$location', 'se
 
     }
     configureService.isConfigured().then(function(isConfigured) {
-      console.debug('login configured check: ', isConfigured);
       if (!isConfigured) {
-        console.debug('routing to configure');
         $location.path('/configure');
       } else {
         //$scope.initialize();

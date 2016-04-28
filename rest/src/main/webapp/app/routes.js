@@ -1,6 +1,6 @@
 // Route
-tsApp.config(function config($routeProvider) {
-  
+tsApp.config(function configureRoutes($routeProvider, appConfig) {
+
   // TODO -- Change this to '/' once landing page complete
   $routeProvider.when('/configure', {
     templateUrl : 'app/page/configure/configure.html',
@@ -14,27 +14,14 @@ tsApp.config(function config($routeProvider) {
       }
     }
   });
-  
-  // TODO -- Change this to '/' once landing page complete
-  $routeProvider.when('/landing', {
-    templateUrl : 'app/page/landing/landing.html',
-    controller : 'LandingCtrl',
-    reloadOnSearch : false,
-    resolve : {
-      'configured' : function($rootScope, $location) {
-        if ($rootScope.isConfigured) {
-          $location.path('/configure');
-        }
-      }
-    }
-  });
-  
+
+
+
   // Source Data Configurations
   $routeProvider.when('/source', {
     controller : 'SourceCtrl',
     templateUrl : 'app/page/source/source.html'
   });
-  
 
   // Content -- Default Mode
   $routeProvider.when('/content', {
@@ -61,7 +48,7 @@ tsApp.config(function config($routeProvider) {
     controller : 'MetadataCtrl',
     reloadOnSearch : false
   });
-  
+
   // Administrative Page
   $routeProvider.when('/admin', {
     templateUrl : 'app/page/admin/admin.html',
@@ -69,22 +56,43 @@ tsApp.config(function config($routeProvider) {
     reloadOnSearch : false
   });
 
-  // TODO -- Change to landing once landing page complete
+  // TODO -- Make sensitive to l/l/l flags
   $routeProvider.when('/', {
     templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl',
     reloadOnSearch : false
   });
+  
+  // TODO -- Change this to '/' once landing page complete
+  if (appConfig.landingEnabled) {
+    $routeProvider.when('/landing', {
+      templateUrl : 'app/page/landing/landing.html',
+      controller : 'LandingCtrl',
+      reloadOnSearch : false,
+      resolve : {
+        'configured' : function($rootScope, $location) {
+          if ($rootScope.isConfigured) {
+            $location.path('/configure');
+          }
+        }
+      }
+    });
+  }
+  // TODO Otherwise set to:
+  // if landing -> landing
+  // if not landing & login -> login
+  // if not landing & not login -> license
+  // if not all -> content
 
-  // Login page
+  // TODO -- Make sensitive to l/l/l flags
   $routeProvider.when('/login', {
     templateUrl : 'app/page/login/login.html',
     controller : 'LoginCtrl',
     reloadOnSearch : false
   });
-  
+
   $routeProvider.otherwise({
-    redirectTo: '/content'
+    redirectTo : '/content'
   });
-  
+
 });
