@@ -21,30 +21,38 @@ var validationUrl = "validation/";
 var sourceDataUrl = 'file/';
 var configureUrl = 'configure/';
 
-tsApp.run(function checkConfig($rootScope, $http, $route, appConfig, configureService) {
+tsApp
+  .run(function checkConfig($rootScope, $http, $route, appConfig, configureService, utilService) {
 
-  // debug content: output application configuration values
-  console.debug('Application configuration variables set:');
-  for (var key in appConfig) {
-    if (appConfig.hasOwnProperty(key)) {
-      console.debug('  ' + key + ': ' + appConfig[key]);
-    };
-  }
-  
-  // debug content: check routes
-  console.debug('Routes:')
-  for ( var route in $route.routes) {
-    console.debug('  ' + route);
-  }
+    var errMsg = '';
 
-  // check and set whether application is configured
-  $http.get(configureUrl + 'configured').then(function(response) {
-    $rootScope.isConfigured = response.data;
-  }, function() {
-    console.error('Could not determine configuration status');
-    $rootScope.isConfigured = false;
-  })
-});
+    // if appConfig not set or contains nonsensical values, throw error
+    if (!appConfig) {
+      errMsg += 'Application configuration (appConfig.js) could not be found';
+    }
+
+    console.debug('Application configuration variables set:');
+
+    for ( var key in appConfig) {
+      if (appConfig.hasOwnProperty(key)) {
+        console.debug('  ' + key + ': ' + appConfig[key]);
+        if (appConfig[key].startsWith('${')) {
+          errMsg += 'Configuration property ' + key + ' not set in project or configuration file';
+        }
+      }
+    }
+    if (errMsg.length > 0) {
+      utilService.handleError('Configuration Error:\n' + errMsg);
+    }
+
+    // check and set whether application is configured
+    $http.get(configureUrl + 'configured').then(function(response) {
+      $rootScope.isConfigured = response.data;
+    }, function() {
+      console.error('Could not determine configuration status');
+      $rootScope.isConfigured = false;
+    })
+  });
 
 // Simple glass pane controller
 tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService', function($scope, gpService) {

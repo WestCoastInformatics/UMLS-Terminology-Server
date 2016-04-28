@@ -22,7 +22,7 @@ function($scope, $http, $location, configureService) {
   }
   
   $scope.enterApp = function() {
-    $location.path('/login');
+    $location.path('/');
   }
 
   //
@@ -30,7 +30,7 @@ function($scope, $http, $location, configureService) {
   //
   configureService.isConfigured().then(function(isConfigured) {
     if (isConfigured) {
-      $location.path('/login');
+      $location.path('/');
     } else {
       $scope.requiresConfiguration = true;
     }

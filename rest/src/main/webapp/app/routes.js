@@ -1,44 +1,26 @@
 // Route
 tsApp.config(function configureRoutes($routeProvider, appConfig) {
 
+  console.debug('Configure routes', appConfig);
+
   $routeProvider.when('/configure', {
     templateUrl : 'app/page/configure/configure.html',
     controller : 'ConfigureCtrl',
-    reloadOnSearch : false,
-    resolve : {
-      'configured' : function($rootScope, $location) {
-        if ($rootScope.isConfigured) {
-          $location.path('/');
-        }
-      }
-    }
+    reloadOnSearch : false
   });
 
   // Source Data Configurations
   $routeProvider.when('/source', {
     controller : 'SourceCtrl',
     templateUrl : 'app/page/source/source.html',
-    resolve : {
-      'configured' : function($rootScope, $location) {
-        if (!$rootScope.isConfigured) {
-          $location.path('/configure');
-        }
-      }
-    }
+    reloadOnSearch : false
   });
 
   // Content -- Default Mode
   $routeProvider.when('/content', {
     templateUrl : 'app/page/content/content.html',
     controller : 'ContentCtrl',
-    reloadOnSearch : false,
-    resolve : {
-      'configured' : function($rootScope, $location) {
-        if (!$rootScope.isConfigured) {
-          $location.path('/configure');
-        }
-      }
-    }
+    reloadOnSearch : false
   });
 
   // Content with mode set (e.g. 'simple' for component report)
@@ -47,14 +29,7 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
       return 'app/page/content/' + urlAttr.mode + '.html';
     },
     controller : 'ContentCtrl',
-    reloadOnSearch : false,
-    resolve : {
-      'configured' : function($rootScope, $location) {
-        if (!$rootScope.isConfigured) {
-          $location.path('/configure');
-        }
-      }
-    }
+    reloadOnSearch : false
   });
 
   // Metadata View
@@ -62,92 +37,63 @@ tsApp.config(function configureRoutes($routeProvider, appConfig) {
   $routeProvider.when('/metadata', {
     templateUrl : 'app/page/metadata/metadata.html',
     controller : 'MetadataCtrl',
-    reloadOnSearch : false,
-    resolve : {
-      'configured' : function($rootScope, $location) {
-        if (!$rootScope.isConfigured) {
-          $location.path('/configure');
-        }
-      }
-    }
+    reloadOnSearch : false
   });
 
   // Administrative Page
   $routeProvider.when('/admin', {
     templateUrl : 'app/page/admin/admin.html',
     controller : 'AdminCtrl',
-    reloadOnSearch : false,
-    resolve : {
-      'configured' : function($rootScope, $location) {
-        if (!$rootScope.isConfigured) {
-          $location.path('/configure');
-        }
-      }
-    }
+    reloadOnSearch : false
   });
 
-  if (appConfig.loginEnabled) {
-    $routeProvider.when('/login', {
-      templateUrl : 'app/page/login/login.html',
-      controller : 'LoginCtrl',
-      reloadOnSearch : false,
-      resolve : {
-        'configured' : function($rootScope, $location) {
-          if (!$rootScope.isConfigured) {
-            $location.path('/configure');
-          }
-        }
-      }
-    });
+  //
+  // Configurable routes
+  //
+
+  var loginRoute = {
+    templateUrl : 'app/page/login/login.html',
+    controller : 'LoginCtrl',
+    reloadOnSearch : false
+  };
+
+  var landingRoute = {
+    templateUrl : 'app/page/landing/landing.html',
+    controller : 'LandingCtrl',
+    reloadOnSearch : false
+  };
+
+  var licenseRoute = {
+    templateUrl : 'app/page/license/license.html',
+    controller : 'LicenseCtrl',
+    reloadOnSearch : false
+  };
+
+  // if landing enabled
+  if (appConfig && appConfig.landingEnabled === 'true') {
+    $routeProvider.when('/landing', landingRoute);
+    $routeProvider.when('/', landingRoute);
   }
 
-  if (appConfig.landingEnabled) {
-    $routeProvider.when('/landing', {
-      templateUrl : 'app/page/landing/landing.html',
-      controller : 'LandingCtrl',
-      reloadOnSearch : false,
-      resolve : {
-        'configured' : function($rootScope, $location) {
-          if (!$rootScope.isConfigured) {
-            $location.path('/configure');
-          }
-        }
-      }
-    });
-  }
-
+  // if login enabled
   if (appConfig && appConfig.loginEnabled) {
-    $routeProvider.when('/login', {
-      templateUrl : 'app/page/login/login.html',
-      controller : 'LoginCtrl',
-      reloadOnSearch : false,
-      resolve : {
-        'configured' : function($rootScope, $location) {
-          if (!$rootScope.isConfigured) {
-            $location.path('/configure');
-          }
-        }
-      }
-    });
+    $routeProvider.when('/login', loginRoute);
+    if (appConfig && appConfig.landingEnabled !== 'true') {
+      $routeProvider.when('/', loginRoute);
+    }
   }
 
-  // if landing -> landing
-  // if not landing & login -> login
-  // if not landing & not login -> license
-  // otherwise -> content
-  $routeProvider.otherwise({
-    redirectTo : function(appConfig) {
-      if (appConfig.landingEnabled) {
-        return '/landing';
-      } else if (appConfig.loginEnabled) {
-        return '/login';
-      } else if (appConfig.licenseEnabled) {
-        return '/license';
-      } else {
-        return '/content';
-      }
+  // if license enabled
+  if (appConfig && appConfig.licenseEnabled) {
+    $routeProvider.when('/license', licenseRoute);
+    if (appConfig && appConfig.landingEnabled !== 'true' && appConfig.loginEnabled !== 'true') {
+      $routeProvider.when('/', licenseRoute);
     }
-  });
+  }
 
+  // otherwise, redirect to content
+  $routeProvider.otherwise({
+    redirectTo : '/content'
+  });
 
 });

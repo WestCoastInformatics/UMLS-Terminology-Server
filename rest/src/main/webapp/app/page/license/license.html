@@ -1,0 +1,16 @@
+<div ng-show="licenseChecked">
+  <h2 style="text-align: center">License Agreement</h2>
+  <div class="row">
+    <!-- padding -->
+    <div class="col-md-3 col-xs-0"></div>
+    <!-- License agreement -->
+    <div class="col-md-6 col-xs-12">
+      <div class="well" style="height: 350px; overflow: scroll">
+        <div ng-include src="'app/page/general/licenseContent.html'"></div>
+      </div>
+      <button class="btn btn-md btn-primary pull-right" ng-click="acceptLicense()">Accept License</button>
+    </div>
+    <!-- Padding -->
+    <div class="col-md-3 col-xs-0"></div>
+  </div>
+</div>

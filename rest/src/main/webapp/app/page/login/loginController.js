@@ -1,4 +1,3 @@
-
 // Login controller
 tsApp.controller('LoginCtrl', [
   '$rootScope',
@@ -46,10 +45,20 @@ tsApp.controller('LoginCtrl', [
         // set request header authorization and reroute
         $http.defaults.headers.common.Authorization = response.data.authToken;
         projectService.getUserHasAnyRole();
-        if (response.data.userPreferences && response.data.userPreferences.lastTab) {
+
+        // if license required, go to license page
+        if (appConfig.licenseEnabled === 'true') {
+          $location.path('/license');
+        }
+
+        // otherwise, use previous tab in preferences (if it exists)
+        else if (response.data.userPreferences && response.data.userPreferences.lastTab) {
           $location.path(response.data.userPreferences.lastTab);
-        } else {
-          // if no previous preferences, go to source for initial file upload
+        }
+
+        // if no previous preferences (first visit), go to source for initial file upload or content based on role
+        else {
+
           if (response.data.applicationRole == 'VIEWER') {
             $location.path("/content");
           } else {

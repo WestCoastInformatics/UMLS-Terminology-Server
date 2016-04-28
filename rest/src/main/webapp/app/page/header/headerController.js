@@ -20,10 +20,6 @@ tsApp.directive('tsHeader', [ '$rootScope', '$routeParams', 'securityService', '
           }
         };
 
-        scope.isLanding = function() {
-          return ($location.url() === '/landing');
-        };
-
         scope.gotoTool = function() {
           if (securityService.isLoggedIn()) {
             $location.url('/content');

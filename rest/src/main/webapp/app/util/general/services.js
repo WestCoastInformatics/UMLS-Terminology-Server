@@ -8,10 +8,7 @@ tsApp
       '$cookies',
       function($location, $anchorScroll, $cookies) {
         console.debug('configure utilService');
-        
-        // flag for configuration status, set by app.js and configureController.js
-        this.isConfigured = null;
-        
+
         // declare the error
         this.error = {
           message : null,
@@ -33,16 +30,6 @@ tsApp
           toolbar : 'undo redo | styleselect lists | bold italic underline strikethrough | charmap link image',
           forced_root_block : ''
         };
-        
-        // set the configured flag
-        this.setConfigured = function(isConfigured) {
-          this.isConfigured = isConfigured;
-        }
-        
-        // return the configured flag
-        this.isConfigured = function() {
-          return this.isConfigured;
-        }
 
         // Prep query
         this.prepQuery = function(query) {
@@ -137,7 +124,7 @@ tsApp
 
         // Dialog error handler
         this.handleDialogError = function(errors, error) {
-         // handle long error
+          // handle long error
           if (error && error.length > 100) {
             errors[0] = "Unexpected error, click the icon to view attached full error";
             errors[1] = error;
@@ -473,8 +460,11 @@ tsApp.service('securityService', [
   '$cookies',
   'utilService',
   'gpService',
-  function($http, $location, $q, $cookies, utilService, gpService) {
+  'appConfig',
+  function($http, $location, $q, $cookies, utilService, gpService, appConfig) {
     console.debug('configure securityService');
+
+    var license = null;
 
     // Declare the user
     var user = {
@@ -492,10 +482,50 @@ tsApp.service('securityService', [
       query : null
     };
 
+    // accepts the license
+    this.acceptLicense = function() {
+      var deferred = $q.defer();
+      var expireDate = new Date();
+      expireDate.setDate(expireDate.getDate() + 30);
+      $cookies.put('WCI ' + appConfig.deployTitle, 'license_accepted', {
+        expires : expireDate
+      });
+      var cookie = $cookies.get('WCI ' + appConfig.deployTitle);
+      console.debug('Set cookie:', cookie);
+      deferred.resolve();
+      return deferred.promise;
+    }
+
+    // checks the license
+    this.checkLicense = function() {
+      var deferred = $q.defer();
+
+      if (appConfig.licenseEnabled !== 'true') {
+        deferred.resolve();
+      } else {
+
+        var cookie = $cookies.get('WCI ' + appConfig.deployTitle);
+        console.debug('License cookie', cookie);
+        if (!cookie) {
+          deferred.reject();
+        } else {
+          // refresh the cookie whenever license is checked
+          this.acceptLicense();
+          deferred.resolve();
+        }
+      }
+      return deferred.promise;
+    }
+
     // Gets the user
     this.getUser = function() {
-      // Determine if page has been reloaded
-      if (!$http.defaults.headers.common.Authorization) {
+
+      // if login is not enabled, set and return the admin user
+      if (appConfig.loginEnabled !== 'true') {
+        this.setAdminUser();
+      }
+      // otherwise, determine if user is already logged in
+      else if (!$http.defaults.headers.common.Authorization) {
         // Retrieve cookie
         if ($cookies.get('user')) {
           var cookieUser = JSON.parse($cookies.get('user'));
@@ -504,9 +534,6 @@ tsApp.service('securityService', [
             this.setUser(cookieUser);
             $http.defaults.headers.common.Authorization = user.authToken;
           }
-        } else {
-          // TODO Reintroduce this once config authentication is correctly working
-          //setGuestUser();
         }
       }
       // return user (blank if not found)
@@ -633,7 +660,7 @@ tsApp.service('securityService', [
 
     // get user for auth token
     this.getUserForAuthToken = function() {
-       var deferred = $q.defer();
+      var deferred = $q.defer();
 
       // Get users
       gpService.increment();

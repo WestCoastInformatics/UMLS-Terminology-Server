@@ -574,13 +574,22 @@ tsApp.controller('ContentCtrl', [
     }
 
     //
-    // Initialization: Check that application is configured
+    // Initialization: Check 
+    // (1) that application is configured, and
+    // (2) that the license has been accepted (if required)
     //
     configureService.isConfigured().then(function(isConfigured) {
       if (!isConfigured) {
         $location.path('/configure');
       } else {
-        $scope.initialize();
+        securityService.checkLicense().then(function() {
+          console.debug('License valid, initializing');
+          $scope.initialize();
+        }, function() {
+          console.debug('Invalid license');
+          utilService.setError('You must accept the license before viewing that content');
+          $location.path('/license');
+        })
       }
     });
 
