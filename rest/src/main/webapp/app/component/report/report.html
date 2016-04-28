@@ -18,10 +18,13 @@
       class="label label-info" uib-tooltip="Necessary and sufficient definition">D</span>
   </h3>
   <!-- Buttons for suppressible/obsolete -->
-  <button ng-show="!metadata.terminology.descriptionLogicTerminology"
+  <button 
     ng-click="showHidden = !showHidden" class="btn btn-xs btn-primary">
-    <span ng-show="showHidden">Hide Obsolete and Suppressible</span>
-    <span ng-show="!showHidden">Show Obsolete and Suppressible</span>
+    <span ng-show="showHidden">Hide</span>
+    <span ng-show="!showHidden">Show </span>
+    
+    <span ng-show="!metadata.terminology.descriptionLogicTerminology">Obsolete and Suppressible</span>
+    <span ng-show="metadata.terminology.descriptionLogicTerminology">Inactive</span>
   </button>
   <!-- Hierarchical tree -->
   <div tree-component component="component" metadata="metadata"

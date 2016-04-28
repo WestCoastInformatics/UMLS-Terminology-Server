@@ -389,14 +389,16 @@ public class AtomClassSearchHandler implements SearchHandler {
         String[] tokens = FieldedStringTokenizer.split(fixedQuery,
             " \t-({[)}]_!@#%&*\\:;\"',.?/~+=|<>$`^");
         StringBuilder newQuery = new StringBuilder();
+        newQuery.append("(");
         for (String token : tokens) {
-          if (newQuery.length() != 0) {
-            newQuery.append(" ");
+          if (newQuery.length() != 1) {
+            newQuery.append(" OR ");
           }
           if (token.length() > 0) {
             newQuery.append(token).append("*");
           }
         }
+        newQuery.append(")");
         // Try the query again
         fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
             newQuery.toString() + terminologyClause, pfs, manager);
