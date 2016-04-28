@@ -6,7 +6,6 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.ArrayList;
 
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -82,10 +81,13 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
         resolveDefinition(def, nullId);
       }
 
-      // for UMLS view don't read relationship sas these are teminology-specific
-      // rels
+      // for UMLS view dont read atom subset members
+      atom.setMembers(new ArrayList<>());
+      
+      // for UMLS view don't read relationship as 
+      // these are terminology-specific rels
       // they can show when browsing that terminology
-      atom.setRelationships(new ArrayList<AtomRelationship>());
+      atom.setRelationships(new ArrayList<>());
 
     } else if (atom == null) {
       throw new Exception("Cannot resolve a null atom.");

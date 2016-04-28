@@ -197,7 +197,13 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
     addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
         "ERROR: " + message);
     Logger.getLogger(getClass()).error(message);
-    commitClearBegin();
+    // Attempt to commit the error -though sometimes this doesn't work
+    // because of a rollback or other reason why the transaction doesn't exist
+    try {
+      commitClearBegin();
+    } catch (Exception e) {
+      // do nothihg
+    }
   }
 
   /**
@@ -208,6 +214,15 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
   @Override
   public void cancel() throws Exception {
     cancelFlag = true;
+  }
+
+  /**
+   * Indicates whether or not cancelled is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isCancelled() {
+    return cancelFlag;
   }
 
   /**

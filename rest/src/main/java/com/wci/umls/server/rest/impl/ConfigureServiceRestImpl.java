@@ -87,24 +87,31 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
     }
     // throw the local exception as a web application exception
     if (e instanceof LocalException) {
-      throw new WebApplicationException(
-          Response.status(500).entity(message).build());
+      throw new WebApplicationException(Response.status(500).entity(message)
+          .build());
     }
 
     // throw the web application exception as-is, e.g. for 401 errors
     if (e instanceof WebApplicationException) {
       throw new WebApplicationException(message, e);
     }
-    throw new WebApplicationException(
-        Response
-            .status(500).entity("\"Unexpected error trying to "
-                + whatIsHappening + ". Please contact the administrator.\"")
-            .build());
+    throw new WebApplicationException(Response
+        .status(500)
+        .entity(
+            "\"Unexpected error trying to " + whatIsHappening
+                + ". Please contact the administrator.\"").build());
 
   }
 
-  private void validateProperty(String name, Properties props)
-    throws Exception {
+  /**
+   * Validate property.
+   *
+   * @param name the name
+   * @param props the props
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void validateProperty(String name, Properties props) throws Exception {
     if (props == null) {
       throw new Exception("Properties are null");
     }
@@ -130,23 +137,19 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
   @Path("/configured")
   @ApiOperation(value = "Checks if application is configured", notes = "Returns true if application is configured, false if not", response = Boolean.class)
   public boolean isConfigured() throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (History): /configure/configured");
+    Logger.getLogger(getClass()).info(
+        "RESTful call (History): /configure/configured");
 
     try {
-
       String configFileName = ConfigUtility.getLocalConfigFile();
-
-      boolean configured = ConfigUtility.getConfigProperties() != null
-          || (new File(configFileName).exists());
-
+      boolean configured =
+          ConfigUtility.getConfigProperties() != null
+              || (new File(configFileName).exists());
       return configured;
 
     } catch (Exception e) {
       handleException(e, "checking if application is configured");
       return false;
-    } finally {
-
     }
   }
 
@@ -164,8 +167,8 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
   public void configure(
     @ApiParam(value = "Configuration parameters as JSON string", required = true) HashMap<String, String> parameters)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (History): /configure/configure with parameters "
+    Logger.getLogger(getClass()).info(
+        "RESTful call (History): /configure/configure with parameters "
             + parameters.toString());
 
     // NOTE: Configure calls do not require authorization
@@ -173,8 +176,9 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
     try {
 
       // get the starting configuration
-      InputStream in = ConfigureServiceRestImpl.class
-          .getResourceAsStream("/config.properties.start");
+      InputStream in =
+          ConfigureServiceRestImpl.class
+              .getResourceAsStream("/config.properties.start");
 
       if (in == null) {
         throw new Exception("Could not open starting configuration file");
@@ -184,8 +188,8 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       String configFileName = ConfigUtility.getLocalConfigFile();
 
       if (new File(configFileName).exists()) {
-        throw new LocalException(
-            "System is already configured from file: " + configFileName);
+        throw new LocalException("System is already configured from file: "
+            + configFileName);
       }
 
       // get the starting properties
@@ -203,11 +207,12 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       for (Object key : new HashSet<>(properties.keySet())) {
         for (String param : parameters.keySet()) {
 
-          if (properties.getProperty(key.toString())
-              .contains("${" + param + "}")) {
-            properties.setProperty(key.toString(),
-                properties.getProperty(key.toString())
-                    .replace("${" + param + "}", parameters.get(param)));
+          if (properties.getProperty(key.toString()).contains(
+              "${" + param + "}")) {
+            properties.setProperty(
+                key.toString(),
+                properties.getProperty(key.toString()).replace(
+                    "${" + param + "}", parameters.get(param)));
           }
         }
       }
@@ -252,8 +257,8 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
             + parameters.get("app.dir"));
       }
 
-      Logger.getLogger(getClass())
-          .info("Writing configuration file: " + configFileName);
+      Logger.getLogger(getClass()).info(
+          "Writing configuration file: " + configFileName);
 
       File configFile = new File(configFileName);
 
@@ -305,14 +310,12 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
         if (metadataService != null) {
           metadataService.close();
         }
-        ConfigUtility.getConfigProperties()
-            .setProperty("hibernate.hbm2ddl.auto", "update");
-
+        ConfigUtility.getConfigProperties().setProperty(
+            "hibernate.hbm2ddl.auto", "update");
       }
 
     } catch (Exception e) {
       handleException(e, "checking if application is configured");
-    } finally {
     }
   }
 
@@ -323,8 +326,8 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
   @ApiOperation(value = "Destroys and rebuilds the database", notes = "Resets database to clean state and deletes any uploaded files", response = Boolean.class)
   public void destroy(@ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
    throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (History): /configure/destroy");
+    Logger.getLogger(getClass()).info(
+        "RESTful call (History): /configure/destroy");
 
     // NOTE: Configure calls do not require authorization
 
@@ -392,8 +395,8 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
         }
 
         // return mode to update
-        ConfigUtility.getConfigProperties()
-            .setProperty("hibernate.hbm2ddl.auto", "update");
+        ConfigUtility.getConfigProperties().setProperty(
+            "hibernate.hbm2ddl.auto", "update");
 
       }
 

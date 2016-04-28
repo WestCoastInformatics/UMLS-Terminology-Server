@@ -23,16 +23,11 @@ import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.meta.IdType;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
 public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The loader. */
   final String loader = "loader";
@@ -184,6 +179,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         new Rf2SnapshotLoaderAlgorithm();
     algorithm.setTerminology(getTerminology());
     algorithm.setVersion(getVersion());
+    algorithm.setInputPath(getInputPath());
     algorithm.setReleaseVersion(releases.get(0));
     algorithm.setReaders(readers);
     algorithm.setSortFiles(false);
@@ -203,6 +199,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // Pass in the release version and the readers
       Rf2DeltaLoaderAlgorithm algorithm2 = new Rf2DeltaLoaderAlgorithm();
       algorithm2.setTerminology(getTerminology());
+      algorithm.setInputPath(getInputPath());
       algorithm2.setVersion(getVersion());
       algorithm2.setReleaseVersion(release);
       algorithm2.setReaders(readers);
@@ -282,33 +279,6 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @Override
   public void reset() throws Exception {
     // do nothing
-  }
-
-  /**
-   * Fires a {@link ProgressEvent}.
-   *
-   * @param pct percent done
-   * @param note progress note
-   * @throws Exception the exception
-   */
-  public void fireProgressEvent(int pct, String note) throws Exception {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    logInfo("    " + pct + "% " + note);
-  }
-
-  /* see superclass */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
   }
 
   /* see superclass */

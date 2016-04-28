@@ -450,7 +450,6 @@ public class Rf2SnapshotLoaderAlgorithm extends
       transClosureAlgorithm.setVersion(getVersion());
       transClosureAlgorithm.reset();
       transClosureAlgorithm.compute();
-      
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
@@ -468,8 +467,8 @@ public class Rf2SnapshotLoaderAlgorithm extends
     } catch (CancelException e) {
       Logger.getLogger(getClass()).info("Cancel request detected");
       throw new CancelException("Tree position computation cancelled");
-    } finally {
-
+    } catch (Exception e) {
+      throw e;
     }
   }
 
@@ -1766,9 +1765,12 @@ public class Rf2SnapshotLoaderAlgorithm extends
 
     if (conceptIdMap.get(fields[5]) != null) {
       mapping.setTerminologyId(fields[5]);
+    } else if (fields[5].equals("367491007")) {
+      // Continue - this is a known issue in SNOMED
+
     } else {
-      throw new Exception(
-          "Attribute value member connected to nonexistent object - " + fields[5]);
+      throw new Exception("Mapping member connected to nonexistent object - "
+          + fields[5]);
     }
 
     // Universal RefSet attributes
