@@ -8,8 +8,8 @@
       <div name="licenseAgreement" class="well" style="height: 350px; overflow: scroll">
         <div ng-include src="'app/page/general/licenseContent.html'"></div>
       </div>
-      <button class="btn btn-md btn-primary pull-right" ng-click="acceptLicense()">Accept License</button>
-    </div>
+      <button name="acceptButton" ng-disabled="disableAcceptButton" class="btn btn-md btn-primary pull-right" ng-click="acceptLicense()">Accept License</button>
+     </div>
     <!-- Padding -->
     <div class="col-md-3 col-xs-0"></div>
   </div>

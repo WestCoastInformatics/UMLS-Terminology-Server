@@ -1,6 +1,6 @@
 // Landingcontroller
-tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securityService', 'appConfig',
-  function($scope, $location, utilService, securityService, appConfig) {
+tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securityService',
+  'appConfig', function($scope, $location, utilService, securityService, appConfig) {
     console.debug('configure LandingCtrl');
 
     // function to launch application
@@ -25,13 +25,8 @@ tsApp.controller('LandingCtrl', [ '$scope', '$location', 'utilService', 'securit
       // Declare the user
       $scope.user = securityService.getUser();
 
-    }
-    configureService.isConfigured().then(function(isConfigured) {
-      if (!isConfigured) {
-        $location.path('/configure');
-      } else {
-        $scope.initialize();
-      }
-    });
+    };
+    
+    $scope.initialize();
 
   } ]);
