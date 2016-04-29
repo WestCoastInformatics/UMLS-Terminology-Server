@@ -1253,6 +1253,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Handle subset members and subset member attributes later
       else if (fields[8].equals("SUBSET_MEMBER")) {
+        // TODO:
         continue;
 
       } else if (fields[4].equals("AUI")) {
