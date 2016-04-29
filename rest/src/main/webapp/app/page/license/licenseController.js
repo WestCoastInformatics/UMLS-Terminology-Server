@@ -28,5 +28,17 @@ tsApp.controller('LicenseCtrl', [ '$scope', '$location', 'securityService', 'uti
       });
 
     };
+    
+    // force user to scroll to bottom before accepting
+    document.getElementsByName("licenseAgreement")[0].addEventListener("scroll", checkScrollHeight, false);
+
+    function checkScrollHeight(){
+        var agreementTextElement = document.getElementsByName("licenseAgreement")[0] 
+        if ((agreementTextElement.scrollTop + agreementTextElement.offsetHeight) >= agreementTextElement.scrollHeight){
+            document.getElementsByName("acceptButton")[0].disabled = false;
+        }
+    }
+    // check scroll height initially to catch short fragments
+    checkScrollHeight();
 
   } ]);
