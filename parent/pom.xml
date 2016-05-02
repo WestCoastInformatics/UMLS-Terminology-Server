@@ -338,6 +338,14 @@
         <artifactId>commons-vfs2</artifactId>
         <version>2.0</version>
       </dependency>
+
+      <!-- ANTLR Expression Parser -->
+      <dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-runtime</artifactId>
+        <version>4.5.1</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 

@@ -139,6 +139,12 @@
       <!-- <groupId>au.csiro</groupId> <artifactId>snorocket-owlapi</artifactId> -->
     </dependency>
 
+    <!-- ANTLR Expression Parser -->
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr4-runtime</artifactId>
+    </dependency>
+
   </dependencies>
 
 </project>
