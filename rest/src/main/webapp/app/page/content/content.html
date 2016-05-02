@@ -63,7 +63,8 @@
       <div ng-show="metadata.semanticTypes.length > 1" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Semantic Type <i class="glyphicon glyphicon-remove pull-right"
+          Semantic Type
+          <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.semanticType"
             ng-click="searchParams.semanticType = null;"></i>
         </div>
@@ -77,10 +78,13 @@
         </div>
       </div>
       <!-- As of 4/28/16, do not show term type select for non-metathesaurus terminologies -->
-      <div ng-show="metadata.terminology.metathesaurus && metadata.termTypes.length > 1" class="row m10">
+      <div
+        ng-show="metadata.terminology.metathesaurus && metadata.termTypes.length > 1"
+        class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Term Type <i class="glyphicon glyphicon-remove pull-right"
+          Term Type
+          <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.termType"
             ng-click="searchParams.termType = null;"></i>
         </div>
@@ -96,7 +100,8 @@
       <div ng-show="metadata.terminology.metathesaurus" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Match Terminology <i class="glyphicon glyphicon-remove pull-right"
+          Match Terminology
+          <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.matchTerminology"
             ng-click="searchParams.matchTerminology = null;"></i>
         </div>
@@ -108,11 +113,12 @@
           </select>
         </div>
       </div>
-      <!--  Show only if more than one language --> 
+      <!--  Show only if more than one language -->
       <div ng-show="metadata.languages.length > 1" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
-          Language <i class="glyphicon glyphicon-remove pull-right"
+          Language
+          <i class="glyphicon glyphicon-remove pull-right"
             ng-show="searchParams.language"
             ng-click="searchParams.language = null;"></i>
         </div>
@@ -127,11 +133,10 @@
       <!--  Feedback -->
       <div class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
-          style="margin-right: 0px; padding-right: 0px;">
-         
-        </div>
-        <div class=" col-lg-9 col-md-6 col-xs-9">
-          Want more functionality? <a href="mailto:{{appConfig.deployFeedbackEmail}}">Let us know!</a>
+          style="margin-right: 0px; padding-right: 0px;"></div>
+        <div class="col-lg-9 col-md-6 col-xs-9">
+          <small>Want more search features?<br> <a
+              href="mailto:{{appConfig.deployFeedbackEmail}}">Let us know!</a></small>
         </div>
       </div>
     </div>
@@ -142,7 +147,8 @@
         <span
           ng-show="searchParams.query && searchResults && searchResults.list.totalCount == 0">No</span>
         <span ng-show="searchResults.list.totalCount > 0">{{searchResults.list.totalCount}}</span>
-        Results <i ng-show="!metadata.terminology.metathesaurus"
+        Results
+        <i ng-show="!metadata.terminology.metathesaurus"
           class="pull-right glyphicon glyphicon-tree-conifer"
           ng-click="setTreeView()" uib-tooltip="Switch to tree view"
           tooltip-placement="right"></i>
@@ -161,14 +167,17 @@
           <tr ng-class="{active: searchResult.active}"
             ng-repeat="searchResult in searchResults.list"
             ng-click="getComponent(searchResult.terminologyId, searchResult.terminology, searchResult.version)">
-            <td><span class="nobreak">
+            <td>
+              <span class="nobreak">
                 <i ng-class="getColorForScore(searchResult.score)">&#9679;</i>
                 <span
                   ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>
                 <span class="breakword">{{searchResult.terminologyId}}</span>
-              </span></td>
-            <td><span class="breakword"> {{searchResult.value}}</span> <span
-                class="label label-default" ng-show="searchResult.obsolete"
+              </span>
+            </td>
+            <td>
+              <span class="breakword"> {{searchResult.value}}</span>
+              <span class="label label-default" ng-show="searchResult.obsolete"
                 uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
             </td>
           </tr>
@@ -190,12 +199,13 @@
           <i class="glyphicon glyphicon-star"
             ng-show="showExtension&& !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
             ng-click="toggleExtension()"
-            uib-tooltip="Click to hide extension highlights in tree"> </i> <i
-            class="glyphicon glyphicon-star-empty"
+            uib-tooltip="Click to hide extension highlights in tree"> </i>
+          <i class="glyphicon glyphicon-star-empty"
             ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
             ng-click="toggleExtension()"
-            uib-tooltip="Click to show extension highlights in tree">
-          </i> &nbsp; <i class="pull-right glyphicon glyphicon-th-list"
+            uib-tooltip="Click to show extension highlights in tree"> </i>
+          &nbsp;
+          <i class="pull-right glyphicon glyphicon-th-list"
             ng-click="setListView()" uib-tooltip="Switch to list view"
             tooltip-placement="bottom"></i>
         </span>
@@ -248,12 +258,13 @@
           uib-tooltip="{{getComponentStr(component.history[component.historyIndex - 1])}}"></i>
         <span
           ng-show="component.object.terminology != metadata.terminology.terminology">{{component.object.terminology}}</span>
-        {{component.type}} Report <i
-          class="glyphicon glyphicon-step-forward noul"
+        {{component.type}} Report
+        <i class="glyphicon glyphicon-step-forward noul"
           ng-click="getComponentFromHistory(component.historyIndex + 1)"
           ng-show="component.history.length > component.historyIndex + 1 && component.history.length > 0"
           uib-tooltip="{{getComponentStr(component.history[component.historyIndex + 1])}}"></i>
-        &nbsp;&nbsp; <i ng-click="popout()"
+        &nbsp;&nbsp;
+        <i ng-click="popout()"
           uib-tooltip="Open {{component.type}} in new window"
           class="glyphicon glyphicon-share noul"></i>
       </div>

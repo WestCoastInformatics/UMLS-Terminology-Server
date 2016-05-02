@@ -140,7 +140,7 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
   }
 
   @Override
-  public boolean isLoadable() throws Exception {
+  public boolean checkPreconditions() throws Exception {
 
     ContentService contentService = null;
     try {

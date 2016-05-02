@@ -7,9 +7,13 @@ tsApp
       '$q',
       'gpService',
       'utilService',
+      'tabService',
       'metadataService',
-      function($http, $q, gpService, utilService, metadataService) {
+      function($http, $q, gpService, utilService, tabService, metadataService) {
         console.debug("configure contentService");
+
+        // Show tabs
+        tabService.setShowing(true);
 
         // Initialize
         var metadata = metadataService.getModel();
@@ -496,7 +500,7 @@ tsApp
 
         // Finds components as a tree
         this.findComponentsAsTree = function(queryStr, terminology, version, page, semanticType) {
-   
+
           // Setup deferred
           var deferred = $q.defer();
 
@@ -514,9 +518,10 @@ tsApp
             if (semanticType) {
               pfs.queryRestriction = "ancestorPath:" + semanticType.replace("~", "\\~") + "*";
             }/*
-                           * if (searchParams.semanticType) { pfs.queryRestriction += " AND
-                           * semanticTypes.semanticType:\"" + searchParams.semanticType + "\""; }
-                           */
+               * if (searchParams.semanticType) { pfs.queryRestriction += " AND
+               * semanticTypes.semanticType:\"" + searchParams.semanticType +
+               * "\""; }
+               */
 
             if (searchParams.matchTerminology) {
               pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
@@ -554,7 +559,7 @@ tsApp
 
         // Explicitly find concepts (cui)
         this.findConceptsAsList = function(queryStr, terminology, version, page, semanticType) {
-         // Setup deferred
+          // Setup deferred
           var deferred = $q.defer();
 
           // PFS
@@ -599,7 +604,7 @@ tsApp
               + encodeURIComponent(utilService.cleanQuery(queryStr)), pfs).then(
           // success
           function(response) {
-             gpService.decrement();
+            gpService.decrement();
             deferred.resolve(response.data);
           },
           // error
@@ -660,7 +665,7 @@ tsApp
           var query = parameters.text;
 
           // Add wildcard to allow better matching from basic search
-          // NOTE: searching for "a"* is interpreted by lucene as a 
+          // NOTE: searching for "a"* is interpreted by lucene as a
           // leading wildcard search (i.e. "a" *)
           if (query && !query.endsWith('*') && !query.endsWith('"')) {
             query += '*';
@@ -685,7 +690,7 @@ tsApp
         // Handle paging of relationships (requires content service
         // call).
         this.findDeepRelationships = function(terminologyId, terminology, version, page, parameters) {
-          
+
           var deferred = $q.defer();
 
           var prefix = this.getPrefixForTerminologyAndVersion(terminology, version);
@@ -703,34 +708,37 @@ tsApp
                 'relationshipType' ],
               ascending : parameters.sortAscending,
 
-              // NOTE: Deep relationships do not support query restrictions, instead using
+              // NOTE: Deep relationships do not support query restrictions,
+              // instead using
               // text filter as only query parameter
               queryRestriction : null
             };
           }
 
-          // set filter/query; unlike relationships, does not require * for filtering
+          // set filter/query; unlike relationships, does not require * for
+          // filtering
           var query = parameters.text;
 
           // For description logic sources, simply read all rels.
           // That way we ensure all "groups" are represented.
           /*
-                     * if (metadata.terminology.descriptionLogicTerminology) { pfs.startIndex = -1;
-                     * pfs.maxResults = 1000000; } else { pfs.maxResults = pageSizes.general; }
-                     */
+           * if (metadata.terminology.descriptionLogicTerminology) {
+           * pfs.startIndex = -1; pfs.maxResults = 1000000; } else {
+           * pfs.maxResults = pageSizes.general; }
+           */
 
           // TODO Re-enable glass pane if no measurable delays are seen
-          //gpService.increment();
+          // gpService.increment();
           $http.post(
             contentUrl + prefix + "/" + component.object.terminology + "/"
               + component.object.version + "/" + component.object.terminologyId
               + "/relationships/deep?query=" + encodeURIComponent(utilService.cleanQuery(query)),
             pfs).then(function(response) {
-            //gpService.decrement();
+            // gpService.decrement();
             deferred.resolve(response.data);
           }, function(response) {
             utilService.handleError(response);
-            //gpService.decrement();
+            // gpService.decrement();
             deferred.reject(response.data);
           });
 

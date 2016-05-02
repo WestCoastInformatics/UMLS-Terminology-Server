@@ -23,7 +23,7 @@ tsApp.controller('ContentCtrl', [
 
     // Clear error
     utilService.clearError();
-    
+
     // pass app configuration constants to scope (for email link)
     $scope.appConfig = appConfig;
 
@@ -208,6 +208,7 @@ tsApp.controller('ContentCtrl', [
       if ($scope.queryForTree) {
         $scope.findComponentsAsTree(loadFirst);
       }
+
       $location.hash('top');
       $anchorScroll();
 
@@ -272,6 +273,10 @@ tsApp.controller('ContentCtrl', [
     $scope.getComponentFromTree = function(nodeScope) {
       var tree = nodeScope.$modelValue;
       $scope.getComponent(tree.nodeTerminologyId, tree.terminology, tree.version);
+
+      $location.hash('top');
+      $anchorScroll();
+
     };
 
     // Load hierarchy into tree view
@@ -496,7 +501,8 @@ tsApp.controller('ContentCtrl', [
           // success
           function(data) {
 
-            // if route parameters are specified, set the terminology and retrieve
+            // if route parameters are specified, set the terminology and
+            // retrieve
             // the specified concept
             if ($routeParams.terminology && $routeParams.version) {
 
@@ -567,7 +573,7 @@ tsApp.controller('ContentCtrl', [
     }
 
     //
-    // Initialization: Check 
+    // Initialization: Check
     // (1) that application is configured, and
     // (2) that the license has been accepted (if required)
     //

@@ -140,7 +140,7 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler {
   }
 
   @Override
-  public boolean isLoadable() throws Exception {
+  public boolean checkPreconditions() throws Exception {
     ContentService contentService = null;
     try {
       contentService = new ContentServiceJpa();

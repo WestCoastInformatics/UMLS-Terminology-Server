@@ -145,6 +145,6 @@ public abstract class AbstractSourceDataHandler implements SourceDataHandler {
   public abstract String getName();
   
   @Override
-  public abstract boolean isLoadable() throws Exception;
+  public abstract boolean checkPreconditions() throws Exception;
 
 }
