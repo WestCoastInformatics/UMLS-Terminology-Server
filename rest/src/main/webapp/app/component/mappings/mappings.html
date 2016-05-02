@@ -1,12 +1,13 @@
 
 <!-- Mappings -->
-<div> <!-- TODO RE-ENABLE ng-show="pagedData.totalCount > 0">--> 
-<button ng-click="pageCallback.getPagedList()">Test</button>
+<div>
+  <button ng-click="pageCallback.getPagedList()">Test</button>
   <h4>{{metadata.mappingsLabel}} ({{pagedMappings.totalCount}})</h4>
   <div pager paging="paging" count="pagedData.totalCount"
     callback="pageCallback"></div>
   <ul class="icon-list">
-    <li class="cr-list" ng-repeat="item in pagedData"><span ng-show="item.group > 0">
+    <li class="cr-list" ng-repeat="item in pagedData"><span
+        ng-show="item.group > 0">
         <span class="label label-success"
           uib-tooltip="Mapping group {{item.group}}">{{item.group}}</span>
         &nbsp;

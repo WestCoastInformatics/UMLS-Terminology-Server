@@ -35,14 +35,15 @@ if ($status != 0) then
     exit 1
 endif
 
-echo "    Load ICD10 ...`/bin/date`"
-cd $ICD10_CODE/admin/loader
-mvn install -PClaML -Drun.config.claml=$ICD10_CONFIG -Dserver=$SERVER -Dterminology=ICD10 -Dversion=latest -Dinput.file=$ICD10_DATA/icd10.xml >&! mvn.log
-if ($status != 0) then
-    echo "ERROR loading ICD10"
-    cat mvn.log
-    exit 1
-endif
+# Leave this out for now
+#echo "    Load ICD10 ...`/bin/date`"
+#cd $ICD10_CODE/admin/loader
+#mvn install -PClaML -Drun.config.claml=$ICD10_CONFIG -Dserver=$SERVER -Dterminology=ICD10 -Dversion=latest -Dinput.file=$ICD10_DATA/icd10.xml >&! mvn.log
+#if ($status != 0) then
+#    echo "ERROR loading ICD10"
+#    cat mvn.log
+#    exit 1
+#endif
 
 echo "    Add ICD10 project ...`/bin/date`"
 cd $ICD10_CODE/admin/loader

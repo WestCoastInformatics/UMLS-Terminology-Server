@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.model.content;
 
-
 /**
  * Represents a fuzzy conceptual meaning that is likely broader than a single
  * meaning but is useful in particular contexts (such as coding, or

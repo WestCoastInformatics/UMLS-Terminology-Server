@@ -77,8 +77,8 @@ public interface ProjectServiceRest {
    * @return the project
    * @throws Exception the exception
    */
-  public Project assignUserToProject(Long id, String userName, 
-    String role, String authToken) throws Exception;
+  public Project assignUserToProject(Long id, String userName, String role,
+    String authToken) throws Exception;
 
   /**
    * Find unassigned users for project.
@@ -163,6 +163,6 @@ public interface ProjectServiceRest {
    */
   public String getLog(Long projectId, Long objectId, String terminology,
     String version, String activity, int lines, String authToken)
-      throws Exception;
+    throws Exception;
 
 }

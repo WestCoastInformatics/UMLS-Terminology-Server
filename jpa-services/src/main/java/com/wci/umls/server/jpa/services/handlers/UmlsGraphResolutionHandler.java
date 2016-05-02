@@ -83,8 +83,8 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
 
       // for UMLS view dont read atom subset members
       atom.setMembers(new ArrayList<>());
-      
-      // for UMLS view don't read relationship as 
+
+      // for UMLS view don't read relationship as
       // these are terminology-specific rels
       // they can show when browsing that terminology
       atom.setRelationships(new ArrayList<>());

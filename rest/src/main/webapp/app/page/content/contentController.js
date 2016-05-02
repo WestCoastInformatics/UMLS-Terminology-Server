@@ -38,7 +38,6 @@ tsApp.controller('ContentCtrl', [
     //
 
     // Scope variables initialized from services
-    // TODO Add this to other controllers where preferences are modified
     $scope.user = securityService.getUser();
     $scope.metadata = metadataService.getModel();
     $scope.component = contentService.getModel();
@@ -354,8 +353,8 @@ tsApp.controller('ContentCtrl', [
     // METADATA related functions
     //
 
-    // Find a terminology version
-    $scope.getTerminologyVersion = function(terminology) {
+    // Find a version
+    $scope.getVersion = function(terminology) {
       for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
         if (terminology === $scope.metadata.terminologies[i].terminology) {
           return $scope.metadata.terminologies[i].version;
@@ -442,7 +441,6 @@ tsApp.controller('ContentCtrl', [
     $scope.popout = function() {
       var currentUrl = window.location.href;
       var baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-      // TODO; don't hardcode this - maybe "simple" should be a parameter
       var newUrl = baseUrl + '/content/simple/' + $scope.component.object.terminology + '/'
         + $scope.component.object.version + '/' + $scope.component.object.terminologyId;
       var myWindow = window.open(newUrl, $scope.component.object.terminology + '/'
@@ -465,7 +463,7 @@ tsApp.controller('ContentCtrl', [
       // if in simple mode, disable navigation functionality
       if ($routeParams.mode === 'simple') {
         $scope.componentReportCallbacks = {
-          getTerminologyVersion : metadataService.getTerminologyVersion,
+          getVersion : metadataService.getVersion,
           getRelationshipTypeName : metadataService.getRelationshipTypeName,
           getAttributeNameName : metadataService.getAttributeNameName,
           getTermTypeName : metadataService.getTermTypeName,
@@ -482,7 +480,7 @@ tsApp.controller('ContentCtrl', [
           getComponent : $scope.getComponent,
           getComponentFromType : $scope.getComponentFromType,
           getComponentFromTree : $scope.getComponentFromTree,
-          getTerminologyVersion : metadataService.getTerminologyVersion,
+          getVersion : metadataService.getVersion,
           getRelationshipTypeName : metadataService.getRelationshipTypeName,
           getAttributeNameName : metadataService.getAttributeNameName,
           getTermTypeName : metadataService.getTermTypeName,
@@ -543,19 +541,6 @@ tsApp.controller('ContentCtrl', [
                   metadataService.setTerminology(terminology);
                   found = true;
                   break;
-                }
-              }
-
-              // if no metathesaurus found, default to ICD10CM
-              // TODO: Used for ICD10 server, unhardcode this
-              if (!found) {
-                for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-                  var terminology = $scope.metadata.terminologies[i];
-                  if (terminology.terminology === 'ICD10CM') {
-                    metadataService.setTerminology(terminology);
-                    found = true;
-                    break;
-                  }
                 }
               }
 

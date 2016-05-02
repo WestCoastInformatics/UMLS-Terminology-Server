@@ -52,8 +52,9 @@ public class DefaultValidationCheck extends AbstractValidationCheck {
     }
 
     // Check for trailing whitespace
-    if (atom.getName().length() > 0 && Character
-        .isWhitespace(atom.getName().charAt(atom.getName().length() - 1))) {
+    if (atom.getName().length() > 0
+        && Character.isWhitespace(atom.getName().charAt(
+            atom.getName().length() - 1))) {
       result.addError("Atom name contains trailing whitespace.");
     }
 
@@ -65,7 +66,8 @@ public class DefaultValidationCheck extends AbstractValidationCheck {
     }
 
     // Check for disallowed whitespace
-    if (atom.getName().indexOf("\t") != -1 || atom.getName().indexOf("\r") != -1
+    if (atom.getName().indexOf("\t") != -1
+        || atom.getName().indexOf("\r") != -1
         || atom.getName().indexOf("\n") != -1
         // &nbsp;
         || atom.getName().indexOf("\u00A0") != -1

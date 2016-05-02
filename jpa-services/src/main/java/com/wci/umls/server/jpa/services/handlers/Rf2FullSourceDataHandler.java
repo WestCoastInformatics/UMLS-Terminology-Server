@@ -47,8 +47,8 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler {
    */
   @Override
   public void compute() throws Exception {
-    Logger.getLogger(getClass())
-        .info("Loading RF2 Full for " + sourceData.getName());
+    Logger.getLogger(getClass()).info(
+        "Loading RF2 Full for " + sourceData.getName());
 
     // check pre-requisites
     if (sourceData == null) {
@@ -83,8 +83,8 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler {
             + File.separator + sourceData.getId().toString();
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException(
-          "Source data directory is not a directory: " + inputDir);
+      throw new LocalException("Source data directory is not a directory: "
+          + inputDir);
     }
 
     // RF2 Loads require locating a base directory containing two folders
@@ -102,7 +102,6 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler {
       throw new LocalException(
           "Uploaded files must contain Full folder containing full release");
     }
-
 
     // instantiate service
     SourceDataService sourceDataService = new SourceDataServiceJpa();
@@ -144,7 +143,7 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler {
     ContentService contentService = null;
     try {
       contentService = new ContentServiceJpa();
-      
+
       // concepts must not exist with this terminology/version
       if (contentService.findConceptsForQuery(sourceData.getTerminology(),
           sourceData.getVersion(), Branch.ROOT, null, new PfscParameterJpa())
@@ -164,7 +163,7 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler {
   @Override
   public void reset() throws Exception {
     // do nothing
-    
+
   }
 
 }

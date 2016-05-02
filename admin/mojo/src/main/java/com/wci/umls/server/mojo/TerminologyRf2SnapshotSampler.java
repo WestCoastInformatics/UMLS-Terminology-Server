@@ -121,7 +121,7 @@ public class TerminologyRf2SnapshotSampler extends AbstractMojo {
       sorter.setSortByEffectiveTime(true);
       sorter.setRequireAllFiles(true);
       File sortDir = new File(inputDirFile, "/RF2-sorted-temp/");
-     // sorter.sortFiles(inputDirFile, sortDir);
+      // sorter.sortFiles(inputDirFile, sortDir);
 
       // Open readers
       getLog().info("  Open RF2 Readers");

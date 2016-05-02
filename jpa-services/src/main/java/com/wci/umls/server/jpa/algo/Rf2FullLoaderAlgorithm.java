@@ -93,7 +93,6 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     //
     // Look through files to obtain ALL release versions
-    // TODO: could move this functionality to the file sorter
     //
     Logger.getLogger(getClass()).info("  Get release getVersion()s");
     Rf2FileSorter sorter = new Rf2FileSorter();
@@ -165,7 +164,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     sorter.setSortByEffectiveTime(true);
     sorter.setRequireAllFiles(true);
     sorter.setInputDir(getInputPath());
-    sorter.setOutputDir("/RF2-sorted-temp/");
+    sorter.setOutputDir(getInputPath() + "/RF2-sorted-temp/");
     sorter.compute();
 
     // Readers will be opened here

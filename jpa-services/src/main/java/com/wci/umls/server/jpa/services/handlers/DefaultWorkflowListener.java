@@ -174,16 +174,16 @@ public class DefaultWorkflowListener implements WorkflowListener {
     return "Default Workflow Listener";
   }
 
-@Override
-public void mappingChanged(Mapping mapping, Action action) {
-	// n/a
-	
-}
+  @Override
+  public void mappingChanged(Mapping mapping, Action action) {
+    // n/a
 
-@Override
-public void mapSetChanged(MapSet mapSet, Action action) {
-	// n/a
-	
-}
+  }
+
+  @Override
+  public void mapSetChanged(MapSet mapSet, Action action) {
+    // n/a
+
+  }
 
 }

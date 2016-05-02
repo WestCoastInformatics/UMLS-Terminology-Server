@@ -5,7 +5,6 @@ package com.wci.umls.server.helpers;
 
 import java.util.Properties;
 
-
 /**
  * Represents something configurable.
  */

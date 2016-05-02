@@ -33,8 +33,8 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  * 
  * If a component already has an SCTID, it keeps it.
  */
-public class UuidHashIdentifierAssignmentHandler
-    implements IdentifierAssignmentHandler {
+public class UuidHashIdentifierAssignmentHandler implements
+    IdentifierAssignmentHandler {
 
   /* see superclass */
   @Override
@@ -100,8 +100,8 @@ public class UuidHashIdentifierAssignmentHandler
   /* see superclass */
   @Override
   public String getTerminologyId(LexicalClass lexicalClass) throws Exception {
-    return TerminologyUtility
-        .getUuid(lexicalClass.getNormalizedName().toString()).toString();
+    return TerminologyUtility.getUuid(
+        lexicalClass.getNormalizedName().toString()).toString();
   }
 
   /* see superclass */
@@ -145,7 +145,7 @@ public class UuidHashIdentifierAssignmentHandler
   @Override
   public String getTerminologyId(
     Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
-      throws Exception {
+    throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, relType, additionalRelType, group,
     // component.terminologyId
@@ -163,7 +163,7 @@ public class UuidHashIdentifierAssignmentHandler
   @Override
   public String getTerminologyId(
     TransitiveRelationship<? extends ComponentHasAttributes> relationship)
-      throws Exception {
+    throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, superType, subType
     hashKey.append(relationship.getTerminology())
@@ -187,7 +187,7 @@ public class UuidHashIdentifierAssignmentHandler
   @Override
   public String getTerminologyId(
     SubsetMember<? extends ComponentHasAttributes, ? extends Subset> member)
-      throws Exception {
+    throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, member, subset
     hashKey.append(member.getTerminology()).append(member.getTerminologyId())
@@ -202,8 +202,8 @@ public class UuidHashIdentifierAssignmentHandler
     Concept concept) throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // value, concept
-    hashKey.append(semanticTypeComponent.getSemanticType())
-        .append(concept.getTerminologyId());
+    hashKey.append(semanticTypeComponent.getSemanticType()).append(
+        concept.getTerminologyId());
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
@@ -211,7 +211,7 @@ public class UuidHashIdentifierAssignmentHandler
   @Override
   public String getTerminologyId(
     TreePosition<? extends ComponentHasAttributesAndName> treepos)
-      throws Exception {
+    throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, superType, subType
     hashKey.append(treepos.getTerminology()).append(treepos.getTerminologyId())
@@ -238,21 +238,22 @@ public class UuidHashIdentifierAssignmentHandler
     return "UUID Hash Identifier Assignment Handler";
   }
 
-@Override
-public String getTerminologyId(Mapping mapping) throws Exception {
+  @Override
+  public String getTerminologyId(Mapping mapping) throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, fromTerminologyId, toTerminologyId, name
-    hashKey.append(mapping.getFromTerminologyId()).append(mapping.getTerminologyId())
+    hashKey.append(mapping.getFromTerminologyId())
+        .append(mapping.getTerminologyId())
         .append(mapping.getToTerminologyId());
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
-}
+  }
 
-@Override
-public String getTerminologyId(MapSet mapSet) throws Exception {
+  @Override
+  public String getTerminologyId(MapSet mapSet) throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, name
     hashKey.append(mapSet.getTerminology()).append(mapSet.getTerminologyId())
         .append(mapSet.getName());
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
-}
+  }
 }

@@ -169,7 +169,6 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
     addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
         message);
     Logger.getLogger(getClass()).info(message);
-    // TODO: commit here?
   }
 
   /**

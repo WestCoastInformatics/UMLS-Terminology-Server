@@ -727,7 +727,6 @@ tsApp
            * pfs.maxResults = pageSizes.general; }
            */
 
-          // TODO Re-enable glass pane if no measurable delays are seen
           // gpService.increment();
           $http.post(
             contentUrl + prefix + "/" + component.object.terminology + "/"

@@ -47,8 +47,8 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
    */
   @Override
   public void compute() throws Exception {
-    Logger.getLogger(getClass())
-        .info("Loading RF2 Delta for " + sourceData.getName());
+    Logger.getLogger(getClass()).info(
+        "Loading RF2 Delta for " + sourceData.getName());
 
     // check pre-requisites
     if (sourceData == null) {
@@ -83,8 +83,8 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
             + File.separator + sourceData.getId().toString();
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException(
-          "Source data directory is not a directory: " + inputDir);
+      throw new LocalException("Source data directory is not a directory: "
+          + inputDir);
     }
 
     // RF2 Loads require locating a base directory containing two folders

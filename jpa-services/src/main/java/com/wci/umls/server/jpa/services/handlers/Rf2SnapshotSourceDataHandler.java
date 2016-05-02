@@ -51,8 +51,8 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
   @Override
   public void compute() throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("Loading RF2 Snapshot for " + sourceData.getName());
+    Logger.getLogger(getClass()).info(
+        "Loading RF2 Snapshot for " + sourceData.getName());
 
     // check pre-requisites
     if (sourceData == null) {
@@ -86,12 +86,12 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + sourceData.getId().toString();
 
-    Logger.getLogger(getClass())
-        .info("  Source data base directory: " + inputDir);
+    Logger.getLogger(getClass()).info(
+        "  Source data base directory: " + inputDir);
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException(
-          "Source data directory is not a directory: " + inputDir);
+      throw new LocalException("Source data directory is not a directory: "
+          + inputDir);
     }
 
     // find the SNAPSHOT directory
@@ -127,8 +127,8 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
           "Uploaded files must contain 'Snapshot' folder containing snapshot release");
     }
 
-    Logger.getLogger(getClass())
-        .info("  Source data 'Snapshot' directory: " + revisedInputDir);
+    Logger.getLogger(getClass()).info(
+        "  Source data 'Snapshot' directory: " + revisedInputDir);
 
     // instantiate service
     SourceDataService sourceDataService = new SourceDataServiceJpa();

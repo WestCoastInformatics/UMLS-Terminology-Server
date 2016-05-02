@@ -129,8 +129,8 @@ public interface SecurityServiceRest {
    * @return the user preferences
    * @throws Exception the exception
    */
-  public UserPreferences updateUserPreferences(UserPreferencesJpa userPreferences,
-    String authToken) throws Exception;
+  public UserPreferences updateUserPreferences(
+    UserPreferencesJpa userPreferences, String authToken) throws Exception;
 
   /**
    * Gets the application roles.

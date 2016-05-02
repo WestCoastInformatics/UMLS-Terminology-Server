@@ -115,8 +115,9 @@ public class Rf2FileSorter implements Algorithm {
         for (String fileName : file.list()) {
           // match last _dddddd
           try {
-            Matcher matcher = Pattern.compile("\\d+")
-                .matcher(fileName.substring(fileName.lastIndexOf('_')));
+            Matcher matcher =
+                Pattern.compile("\\d+").matcher(
+                    fileName.substring(fileName.lastIndexOf('_')));
             matcher.find();
             fileVersion = matcher.group();
           } catch (Exception e) {
@@ -215,7 +216,7 @@ public class Rf2FileSorter implements Algorithm {
         };
       } else {
         fields = new int[] {
-            sortByMap.get(key)
+          sortByMap.get(key)
         };
       }
       // Sort the file
@@ -241,16 +242,17 @@ public class Rf2FileSorter implements Algorithm {
       };
     } else {
       fields = new int[] {
-          sortByMap.get("merge_Relationship")
+        sortByMap.get("merge_Relationship")
       };
     }
 
-    File mergedRel = ConfigUtility.mergeSortedFiles(relationshipsFile,
-        statedRelationshipsFile, getComparator(fields), outputDirFile, "");
+    File mergedRel =
+        ConfigUtility.mergeSortedFiles(relationshipsFile,
+            statedRelationshipsFile, getComparator(fields), outputDirFile, "");
 
     // rename the temporary file
-    Files.move(mergedRel,
-        new File(outputDir + "/" + "relationshipsAllBySourceConcept.sort"));
+    Files.move(mergedRel, new File(outputDir + "/"
+        + "relationshipsAllBySourceConcept.sort"));
 
     Thread.sleep(1000);
     Logger.getLogger(getClass()).info("Done...");
@@ -310,8 +312,9 @@ public class Rf2FileSorter implements Algorithm {
       }
       columns.append(sortColumn);
     }
-    Logger.getLogger(getClass()).info("    Sorting " + fileIn.getName()
-        + "  into " + fileOut.toString() + " by columns " + columns);
+    Logger.getLogger(getClass()).info(
+        "    Sorting " + fileIn.getName() + "  into " + fileOut.toString()
+            + " by columns " + columns);
     FileSorter.sortFile(fileIn.toString(), fileOut.toString(), comp);
 
   }

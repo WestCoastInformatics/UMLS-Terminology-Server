@@ -58,8 +58,8 @@ public class SourceDataRemoverMojo extends SourceDataMojo {
       // Properties properties = ConfigUtility.getConfigProperties();
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog()
-          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog().info(
+          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -79,37 +79,25 @@ public class SourceDataRemoverMojo extends SourceDataMojo {
 
       if (!serverRunning) {
         getLog().info("Running directly");
-        
+
         // TODO Get this working again
 
-        /*final RemoveSourceDataAlgorithm algo = new RemoveSourceDataAlgorithm();
-        final SourceDataService sdService = new SourceDataServiceJpa();
-        try {
-
-          SourceData sourceData = null;
-          List<SourceData> data = sdService
-              .findSourceDatasForQuery(
-                  "nameSort:\"" + getName(terminology, version) + "\"", null)
-              .getObjects();
-          if (data.size() == 1) {
-            sourceData = data.get(0);
-          } else if (data.size() == 0) {
-            // no source data, proceed
-          } else {
-            throw new Exception(
-                "Unexpected number of results searching for source data: "
-                    + data.size());
-          }
-          algo.setTerminology(terminology);
-          algo.setVersion(version);
-          algo.setSourceData(sourceData);
-          algo.compute();
-        } catch (Exception e) {
-          throw e;
-        } finally {
-          sdService.close();
-          algo.close();
-        }*/
+        /*
+         * final RemoveSourceDataAlgorithm algo = new
+         * RemoveSourceDataAlgorithm(); final SourceDataService sdService = new
+         * SourceDataServiceJpa(); try {
+         * 
+         * SourceData sourceData = null; List<SourceData> data = sdService
+         * .findSourceDatasForQuery( "nameSort:\"" + getName(terminology,
+         * version) + "\"", null) .getObjects(); if (data.size() == 1) {
+         * sourceData = data.get(0); } else if (data.size() == 0) { // no source
+         * data, proceed } else { throw new Exception(
+         * "Unexpected number of results searching for source data: " +
+         * data.size()); } algo.setTerminology(terminology);
+         * algo.setVersion(version); algo.setSourceData(sourceData);
+         * algo.compute(); } catch (Exception e) { throw e; } finally {
+         * sdService.close(); algo.close(); }
+         */
 
       } else {
         getLog().info("Running against server");

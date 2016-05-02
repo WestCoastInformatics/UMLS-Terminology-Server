@@ -99,8 +99,8 @@ public class RrfReaders {
   public void openOriginalReaders(String prefix) throws Exception {
 
     for (Keys key : Keys.values()) {
-      readers.put(key,
-          getReader(key.toString().replace("MR", prefix) + ".RRF"));
+      readers
+          .put(key, getReader(key.toString().replace("MR", prefix) + ".RRF"));
     }
     readers.put(Keys.SRDEF, getReader("SRDEF"));
   }

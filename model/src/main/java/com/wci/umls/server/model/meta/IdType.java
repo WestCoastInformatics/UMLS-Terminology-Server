@@ -17,10 +17,10 @@ public enum IdType {
 
   /** The sdui. */
   DESCRIPTOR,
-  
+
   /** The other. */
   OTHER;
-  
+
   /**
    * Gets the id type.
    *

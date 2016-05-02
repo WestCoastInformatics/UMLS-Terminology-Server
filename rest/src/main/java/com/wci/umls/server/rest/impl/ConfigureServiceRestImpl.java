@@ -21,9 +21,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
 
@@ -37,7 +35,6 @@ import com.wci.umls.server.jpa.services.rest.HistoryServiceRest;
 import com.wci.umls.server.jpa.services.rest.SourceDataServiceRest;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SourceDataService;
-import com.wci.umls.server.services.handlers.ExceptionHandler;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -53,7 +50,8 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-public class ConfigureServiceRestImpl implements ConfigureServiceRest {
+public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
+    ConfigureServiceRest {
 
   /**
    * Instantiates an empty {@link ConfigureServiceRestImpl}.
@@ -61,46 +59,6 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
    * @throws Exception the exception
    */
   public ConfigureServiceRestImpl() throws Exception {
-  }
-
-  /**
-   * Handle exception. TODO This is duplicate content from RootServiceRestImpl
-   *
-   * @param e the e
-   * @param whatIsHappening the what is happening, consider
-   */
-  @SuppressWarnings("static-method")
-  public void handleException(Exception e, String whatIsHappening) {
-    try {
-      ExceptionHandler.handleException(e, whatIsHappening, "");
-    } catch (Exception e1) {
-      // do nothing
-    }
-
-    // Ensure message has quotes.
-    // When migrating from jersey 1 to jersey 2, messages no longer
-    // had quotes around them when returned to client and angular
-    // could not parse them as json.
-    String message = e.getMessage();
-    if (message != null && !message.startsWith("\"")) {
-      message = "\"" + message + "\"";
-    }
-    // throw the local exception as a web application exception
-    if (e instanceof LocalException) {
-      throw new WebApplicationException(Response.status(500).entity(message)
-          .build());
-    }
-
-    // throw the web application exception as-is, e.g. for 401 errors
-    if (e instanceof WebApplicationException) {
-      throw new WebApplicationException(message, e);
-    }
-    throw new WebApplicationException(Response
-        .status(500)
-        .entity(
-            "\"Unexpected error trying to " + whatIsHappening
-                + ". Please contact the administrator.\"").build());
-
   }
 
   /**
@@ -276,26 +234,18 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
       if (ConfigUtility.getConfigProperties() == null) {
         throw new LocalException("Failed to retrieve newly written properties");
       }
-      
-     /* byte[] buffer = new byte[1024];
-      OutputStream os = null;
-      InputStream is =
-          ConfigUtility.class.getResourceAsStream("/spelling.txt");
-     
-      if (is != null) {
-        os = new OutputStream(FILENAMEHERE)
-        int len = in.read(buffer);
-        while (len != -1) {
-            os.write(buffer, 0, len);
-            len = in.read(buffer);
-        }
-      } else {
-        Logger.getLogger(ConfigUtility.class.getName())
-        .error("Cannot find spelling file");
-        throw new LocalException("Spelling file required for configuration");
-      }
 
-*/
+      /*
+       * byte[] buffer = new byte[1024]; OutputStream os = null; InputStream is
+       * = ConfigUtility.class.getResourceAsStream("/spelling.txt");
+       * 
+       * if (is != null) { os = new OutputStream(FILENAMEHERE) int len =
+       * in.read(buffer); while (len != -1) { os.write(buffer, 0, len); len =
+       * in.read(buffer); } } else {
+       * Logger.getLogger(ConfigUtility.class.getName())
+       * .error("Cannot find spelling file"); throw new
+       * LocalException("Spelling file required for configuration"); }
+       */
       //
       // Create the database
       //
@@ -324,8 +274,9 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
   @Override
   @Path("/destroy")
   @ApiOperation(value = "Destroys and rebuilds the database", notes = "Resets database to clean state and deletes any uploaded files", response = Boolean.class)
-  public void destroy(@ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-   throws Exception {
+  public void destroy(
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
     Logger.getLogger(getClass()).info(
         "RESTful call (History): /configure/destroy");
 
@@ -365,16 +316,17 @@ public class ConfigureServiceRestImpl implements ConfigureServiceRest {
           throw new LocalException(
               "Cannot destroy database: fail condition not detected");
       }
-      
+
       //
       // Delete all uploaded files using SourceDataServiceRet
       // NOTE: REST service used for file deletion
       //
-      SourceDataServiceRest sourceDataServiceRest = new SourceDataServiceRestImpl();
+      SourceDataServiceRest sourceDataServiceRest =
+          new SourceDataServiceRestImpl();
       for (SourceData sd : sourceDatas) {
         sourceDataServiceRest.removeSourceData(sd.getId(), authToken);
       }
-      
+
       //
       // Recreate the database
       //

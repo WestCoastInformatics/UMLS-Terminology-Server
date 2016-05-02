@@ -74,7 +74,6 @@ public class Rf2SnapshotSourceDataLoaderMojo extends SourceDataMojo {
     getLog().info("  mode = " + mode);
     getLog().info("  inputDir = " + inputDir);
 
-    // TODO Make this work again!
     SourceDataService service = null;
     try {
 
@@ -120,7 +119,8 @@ public class Rf2SnapshotSourceDataLoaderMojo extends SourceDataMojo {
       getLog().info("    file = " + sdFile);
 
       // Create loader
-      final Rf2SnapshotSourceDataHandler loader = new Rf2SnapshotSourceDataHandler();
+      final Rf2SnapshotSourceDataHandler loader =
+          new Rf2SnapshotSourceDataHandler();
 
       // Create and add the source data
       final SourceData sourceData = new SourceDataJpa();
@@ -137,7 +137,6 @@ public class Rf2SnapshotSourceDataLoaderMojo extends SourceDataMojo {
 
       // Now, invoke the loader
       loader.setSourceData(sourceData);
-    
 
       loader.compute();
       loader.close();

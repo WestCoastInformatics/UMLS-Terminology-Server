@@ -37,11 +37,10 @@ import com.wci.umls.server.SourceDataFile;
 /**
  * JPA
  */
-// TODO Add check on terminology/version before persisting a new source data
 @Entity
 @Table(name = "source_data", uniqueConstraints = @UniqueConstraint(columnNames = {
     "name", "terminology", "version"
-}) )
+}))
 @Audited
 @Indexed
 @XmlRootElement(name = "data")
@@ -248,7 +247,7 @@ public class SourceDataJpa implements SourceData {
   }
 
   /* see superclass */
-  @Field(bridge = @FieldBridge(impl = EnumBridge.class) , index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(bridge = @FieldBridge(impl = EnumBridge.class), index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public SourceData.Status getStatus() {
     return handlerStatus;
@@ -317,15 +316,18 @@ public class SourceDataJpa implements SourceData {
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + ((handler == null) ? 0 : handler.hashCode());
-    result = prime * result
-        + ((handlerStatus == null) ? 0 : handlerStatus.hashCode());
+    result =
+        prime * result
+            + ((handlerStatus == null) ? 0 : handlerStatus.hashCode());
     result =
         prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
+    result =
+        prime * result
+            + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result
-        + ((sourceDataFiles == null) ? 0 : sourceDataFiles.hashCode());
+    result =
+        prime * result
+            + ((sourceDataFiles == null) ? 0 : sourceDataFiles.hashCode());
     result = prime * result + ((status == null) ? 0 : status.hashCode());
     result =
         prime * result + ((statusText == null) ? 0 : statusText.hashCode());
@@ -427,18 +429,6 @@ public class SourceDataJpa implements SourceData {
   @Override
   public void setReleaseVersion(String releaseVersion) {
     this.releaseVersion = releaseVersion;
-  }
-
-  @Override
-  public void load() {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void remove() {
-    // TODO Auto-generated method stub
-
   }
 
 }

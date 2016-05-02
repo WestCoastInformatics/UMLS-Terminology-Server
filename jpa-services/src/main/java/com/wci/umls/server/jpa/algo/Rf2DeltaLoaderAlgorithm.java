@@ -3124,10 +3124,8 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       mapSet.setName(getConcept(idMap.get(fields[4])).getName());
       mapSet.setFromTerminology(getTerminology());
       mapSet.setFromVersion(getVersion());
-      // TODO: need to be able to figure this out
-      // perhaps from the concept nmae
       mapSet.setToTerminology(null);
-      mapSet.setToVersion(getVersion());
+      mapSet.setToVersion(null);
 
       mapSet.setMapVersion(getVersion());
 

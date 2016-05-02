@@ -280,7 +280,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     return version;
   }
 
-
   /**
    * Sets the single mode.
    *
@@ -355,9 +354,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       setReleaseVersion(version);
     }
     releaseVersionDate =
-        ConfigUtility.DATE_FORMAT
-            .parse(getReleaseVersion().substring(0, 4) + "0101");
-    Logger.getLogger(getClass()).info("  releaseVersion = " + getReleaseVersion());
+        ConfigUtility.DATE_FORMAT.parse(getReleaseVersion().substring(0, 4)
+            + "0101");
+    Logger.getLogger(getClass()).info(
+        "  releaseVersion = " + getReleaseVersion());
 
     // Open readers - just open original RRF, no need to sort
     readers = new RrfReaders(inputDirFile);
@@ -1253,7 +1253,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Handle subset members and subset member attributes later
       else if (fields[8].equals("SUBSET_MEMBER")) {
-        // TODO:
+        // Subset members are handled in loadMrsatSubsets()
         continue;
 
       } else if (fields[4].equals("AUI")) {

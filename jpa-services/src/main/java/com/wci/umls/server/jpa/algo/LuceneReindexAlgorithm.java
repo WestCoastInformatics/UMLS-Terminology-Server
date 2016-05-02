@@ -25,8 +25,7 @@ import com.wci.umls.server.services.helpers.ProgressListener;
 /**
  * Implementation of an algorithm to reindex all classes annotated with @Indexed
  */
-public class LuceneReindexAlgorithm extends RootServiceJpa
-    implements Algorithm {
+public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm {
 
   /** Listeners. */
   private List<ProgressListener> listeners = new ArrayList<>();

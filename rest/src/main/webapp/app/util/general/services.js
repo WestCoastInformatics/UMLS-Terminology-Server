@@ -858,7 +858,6 @@ tsApp.service('websocketService', [ '$location', 'utilService', 'gpService',
     this.connection.onmessage = function(e) {
       var message = e.data;
       console.log("MESSAGE: " + message);
-      // TODO: what else to do?
     };
 
     // Send a message to the websocket server endpoint

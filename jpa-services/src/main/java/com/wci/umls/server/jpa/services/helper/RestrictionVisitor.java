@@ -56,7 +56,8 @@ public class RestrictionVisitor extends OWLClassExpressionVisitorAdapter {
       // get caught out by cycles in the taxonomy
       processedClasses.add(desc);
       for (OWLOntology ontology : ontologies) {
-        for (OWLSubClassOfAxiom ax : ontology.getSubClassAxiomsForSubClass(desc)) {
+        for (OWLSubClassOfAxiom ax : ontology
+            .getSubClassAxiomsForSubClass(desc)) {
           ax.getSuperClass().accept(this);
         }
       }

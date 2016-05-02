@@ -52,7 +52,6 @@ tsApp.controller('TabCtrl', [
     $scope.isTabShowing = function(tab) {
 
       // Don't show tabs on the "simple" view
-      // TODO: see set showing note above
       if ($routeParams.mode == 'simple') {
         return false;
       }

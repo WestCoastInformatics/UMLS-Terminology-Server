@@ -185,11 +185,6 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     this.inputFile = inputFile;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.algo.Algorithm#compute()
-   */
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -291,11 +286,6 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.algo.Algorithm#reset()
-   */
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -497,228 +487,209 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       super();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
-     * java.lang.String, java.lang.String, org.xml.sax.Attributes)
-     */
     /* see superclass */
     @Override
     public void startElement(String uri, String localName, String qName,
       Attributes attributes) throws SAXException {
+      try {
+        // add current tag to stack
+        tagStack.push(qName.toLowerCase());
 
-      // add current tag to stack
-      tagStack.push(qName.toLowerCase());
-
-      if (qName.equalsIgnoreCase("meta")) {
-        // e.g. <Meta name="TopLevelSort"
-        // value="- A B D F H K L N P R S T U W X Y Z"/>
-        String name = attributes.getValue("name");
-        if (name != null && name.equalsIgnoreCase("toplevelsort")) {
-          String value = attributes.getValue("value");
-          rootCodes = new ArrayList<>();
-          for (String code : value.split(" ")) {
-            try {
+        if (qName.equalsIgnoreCase("meta")) {
+          // e.g. <Meta name="TopLevelSort"
+          // value="- A B D F H K L N P R S T U W X Y Z"/>
+          String name = attributes.getValue("name");
+          if (name != null && name.equalsIgnoreCase("toplevelsort")) {
+            String value = attributes.getValue("value");
+            rootCodes = new ArrayList<>();
+            for (String code : value.split(" ")) {
               logInfo("  Adding root: " + code.trim());
-            } catch (Exception e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
+              rootCodes.add(code.trim());
             }
-            rootCodes.add(code.trim());
           }
+          if (rootCodes.size() == 0)
+            throw new IllegalStateException("No roots found");
         }
-        if (rootCodes.size() == 0)
-          throw new IllegalStateException("No roots found");
-      }
 
-      // Encountered Class tag, save code and class usage
-      if (qName.equalsIgnoreCase("class")) {
-        code = attributes.getValue("code");
-        classUsage = attributes.getValue("usage");
-        try {
+        // Encountered Class tag, save code and class usage
+        if (qName.equalsIgnoreCase("class")) {
+          code = attributes.getValue("code");
+          classUsage = attributes.getValue("usage");
           logInfo("  Encountered class " + code + " "
               + (classUsage == null ? "" : "(" + classUsage + ")"));
-        } catch (Exception e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
         }
-      }
 
-      // Encountered Modifier tag, save code and class usage
-      if (qName.equalsIgnoreCase("modifier")) {
-        code = attributes.getValue("code");
-        classUsage = attributes.getValue("usage");
-        try {
+        // Encountered Modifier tag, save code and class usage
+        if (qName.equalsIgnoreCase("modifier")) {
+          code = attributes.getValue("code");
+          classUsage = attributes.getValue("usage");
           logInfo("  Encountered modifier " + code + " "
               + (classUsage == null ? "" : "(" + classUsage + ")"));
-        } catch (Exception e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
         }
-      }
 
-      // Encountered ModifierClass, save modifier, modifierCode and class usage
-      if (qName.equalsIgnoreCase("modifierclass")) {
-        modifier = attributes.getValue("modifier");
-        modifierCode = attributes.getValue("code");
+        // Encountered ModifierClass, save modifier, modifierCode and class
+        // usage
+        if (qName.equalsIgnoreCase("modifierclass")) {
+          modifier = attributes.getValue("modifier");
+          modifierCode = attributes.getValue("code");
 
-        //
-        // CLAML FIXER - ICD10 is broken, fix it here
-        //
-        if (modifier.endsWith("_4") && !modifierCode.startsWith(".")) {
+          //
+          // CLAML FIXER - ICD10 is broken, fix it here
+          //
+          if (modifier.endsWith("_4") && !modifierCode.startsWith(".")) {
+            Logger.getLogger(getClass()).info(
+                "  FIXING broken code, adding . to _4 code");
+            modifierCode = "." + modifierCode;
+          }
+          if (modifier.endsWith("_5") && modifierCode.startsWith(".")) {
+            Logger.getLogger(getClass()).info(
+                "  FIXING broken code, removing . from _5 code");
+            modifierCode = modifierCode.substring(1);
+          }
+          classUsage = attributes.getValue("usage");
           Logger.getLogger(getClass()).info(
-              "  FIXING broken code, adding . to _4 code");
-          modifierCode = "." + modifierCode;
+              "  Encountered modifierClass " + modifierCode + " for "
+                  + modifier + " "
+                  + (classUsage == null ? "" : "(" + classUsage + ")"));
         }
-        if (modifier.endsWith("_5") && modifierCode.startsWith(".")) {
+
+        // Encountered Superclass, add parent information
+        // ASSUMPTION (tested): single inheritance
+        if (qName.equalsIgnoreCase("superclass")) {
+          if (parentCode != null)
+            throw new IllegalStateException("Multiple SuperClass entries for "
+                + code + " = " + parentCode + ", "
+                + attributes.getValue("code"));
+          parentCode = attributes.getValue("code");
+          isaRelNeeded = true;
           Logger.getLogger(getClass()).info(
-              "  FIXING broken code, removing . from _5 code");
-          modifierCode = modifierCode.substring(1);
+              "  Class "
+                  + (code != null ? code : (modifier + ":" + modifierCode))
+                  + " has parent " + parentCode);
+          parentCodeHasChildrenMap.put(parentCode, true);
         }
-        classUsage = attributes.getValue("usage");
-        Logger.getLogger(getClass()).info(
-            "  Encountered modifierClass " + modifierCode + " for " + modifier
-                + " " + (classUsage == null ? "" : "(" + classUsage + ")"));
-      }
 
-      // Encountered Superclass, add parent information
-      // ASSUMPTION (tested): single inheritance
-      if (qName.equalsIgnoreCase("superclass")) {
-        if (parentCode != null)
-          throw new IllegalStateException("Multiple SuperClass entries for "
-              + code + " = " + parentCode + ", " + attributes.getValue("code"));
-        parentCode = attributes.getValue("code");
-        isaRelNeeded = true;
-        Logger.getLogger(getClass()).info(
-            "  Class "
-                + (code != null ? code : (modifier + ":" + modifierCode))
-                + " has parent " + parentCode);
-        parentCodeHasChildrenMap.put(parentCode, true);
-      }
-
-      // Encountered "Subclass", save child information
-      if (qName.equalsIgnoreCase("subclass")) {
-        String childCode = attributes.getValue("code");
-        currentSubClasses.add(childCode);
-        Logger.getLogger(getClass()).info(
-            "  Class "
-                + (code != null ? code : (modifier + ":" + modifierCode))
-                + " has child " + childCode);
-        parentCodeHasChildrenMap.put(code, true);
-      }
-
-      // Encountered ModifiedBy, save modifier code information
-      if (qName.equalsIgnoreCase("modifiedby")) {
-        String modifiedByCode = attributes.getValue("code");
-        Logger.getLogger(getClass()).info(
-            "  Class " + code + " modified by " + modifiedByCode);
-        List<String> currentModifiers = new ArrayList<>();
-        if (classToModifierMap.containsKey(code)) {
-          currentModifiers = classToModifierMap.get(code);
+        // Encountered "Subclass", save child information
+        if (qName.equalsIgnoreCase("subclass")) {
+          String childCode = attributes.getValue("code");
+          currentSubClasses.add(childCode);
+          Logger.getLogger(getClass()).info(
+              "  Class "
+                  + (code != null ? code : (modifier + ":" + modifierCode))
+                  + " has child " + childCode);
+          parentCodeHasChildrenMap.put(code, true);
         }
-        currentModifiers.add(modifiedByCode);
-        classToModifierMap.put(code, currentModifiers);
-      }
 
-      // Encountered ExcludeModifier, save excluded modifier code information
-      if (qName.equalsIgnoreCase("excludemodifier")) {
-        String excludeModifierCode = attributes.getValue("code");
-        try {
-          logInfo("  Class and subclasses of " + code + " exclude modifier "
-              + excludeModifierCode);
-        } catch (Exception e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
+        // Encountered ModifiedBy, save modifier code information
+        if (qName.equalsIgnoreCase("modifiedby")) {
+          String modifiedByCode = attributes.getValue("code");
+          Logger.getLogger(getClass()).info(
+              "  Class " + code + " modified by " + modifiedByCode);
+          List<String> currentModifiers = new ArrayList<>();
+          if (classToModifierMap.containsKey(code)) {
+            currentModifiers = classToModifierMap.get(code);
+          }
+          currentModifiers.add(modifiedByCode);
+          classToModifierMap.put(code, currentModifiers);
         }
-        List<String> currentModifiers = new ArrayList<>();
-        if (classToExcludedModifierMap.containsKey(code)) {
-          currentModifiers = classToExcludedModifierMap.get(code);
-        }
-        currentModifiers.add(excludeModifierCode);
-        classToExcludedModifierMap.put(code, currentModifiers);
 
-        // If the code contains a dash (-) we need to generate
-        // all of the codes in the range
-        if (code.indexOf("-") != -1) {
-          String[] startEnd = code.split("-");
-          char letterStart = startEnd[0].charAt(0);
-          char letterEnd = startEnd[1].charAt(0);
-          int start = Integer.parseInt(startEnd[0].substring(1));
-          int end = Integer.parseInt(startEnd[1].substring(1));
-          for (char c = letterStart; c <= letterEnd; c++) {
-            for (int i = start; i <= end; i++) {
-              String padI = "0000000000" + i;
-              String code =
-                  c
-                      + padI.substring(
-                          padI.length() - startEnd[0].length() + 1,
-                          padI.length());
-              try {
-                logInfo("  Class and subclasses of " + code
-                    + " exclude modifier " + excludeModifierCode);
-              } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+        // Encountered ExcludeModifier, save excluded modifier code information
+        if (qName.equalsIgnoreCase("excludemodifier")) {
+          String excludeModifierCode = attributes.getValue("code");
+          try {
+            logInfo("  Class and subclasses of " + code + " exclude modifier "
+                + excludeModifierCode);
+          } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
+          List<String> currentModifiers = new ArrayList<>();
+          if (classToExcludedModifierMap.containsKey(code)) {
+            currentModifiers = classToExcludedModifierMap.get(code);
+          }
+          currentModifiers.add(excludeModifierCode);
+          classToExcludedModifierMap.put(code, currentModifiers);
+
+          // If the code contains a dash (-) we need to generate
+          // all of the codes in the range
+          if (code.indexOf("-") != -1) {
+            String[] startEnd = code.split("-");
+            char letterStart = startEnd[0].charAt(0);
+            char letterEnd = startEnd[1].charAt(0);
+            int start = Integer.parseInt(startEnd[0].substring(1));
+            int end = Integer.parseInt(startEnd[1].substring(1));
+            for (char c = letterStart; c <= letterEnd; c++) {
+              for (int i = start; i <= end; i++) {
+                String padI = "0000000000" + i;
+                String code =
+                    c
+                        + padI.substring(padI.length() - startEnd[0].length()
+                            + 1, padI.length());
+                try {
+                  logInfo("  Class and subclasses of " + code
+                      + " exclude modifier " + excludeModifierCode);
+                } catch (Exception e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+                }
+                currentModifiers = new ArrayList<>();
+                if (classToExcludedModifierMap.containsKey(code)) {
+                  currentModifiers = classToExcludedModifierMap.get(code);
+                }
+                currentModifiers.add(excludeModifierCode);
+                classToExcludedModifierMap.put(code, currentModifiers);
               }
-              currentModifiers = new ArrayList<>();
-              if (classToExcludedModifierMap.containsKey(code)) {
-                currentModifiers = classToExcludedModifierMap.get(code);
-              }
-              currentModifiers.add(excludeModifierCode);
-              classToExcludedModifierMap.put(code, currentModifiers);
             }
           }
+
         }
 
-      }
-
-      // Encountered Rubric, save kind (for description type) and the id
-      if (qName.equalsIgnoreCase("rubric")) {
-        rubricKind = attributes.getValue("kind");
-        rubricId = attributes.getValue("id");
-        try {
-          logInfo("  Class " + code + " has rubric " + rubricKind + ", "
-              + rubricId);
-        } catch (Exception e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-      }
-
-      // Encountered Reference, append label chars and save usage
-      if (qName.equalsIgnoreCase("reference")) {
-
-        // add label chars if within a label tag
-        if (tagStack.contains("label")) {
-          // Append a space if we've already seen earlier fragments
-          if (labelChars.length() != 0 && chars.toString().trim().length() > 0) {
-            labelChars.append(" ");
+        // Encountered Rubric, save kind (for description type) and the id
+        if (qName.equalsIgnoreCase("rubric")) {
+          rubricKind = attributes.getValue("kind");
+          rubricId = attributes.getValue("id");
+          try {
+            logInfo("  Class " + code + " has rubric " + rubricKind + ", "
+                + rubricId);
+          } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
           }
-          labelChars.append(chars.toString().trim());
-        } else {
-          throw new SAXException(
-              "Unexpected place to find reference -- not in label tag");
         }
-        // Clear "characters"
-        chars = new StringBuilder();
 
-        // Save reference usage
-        referenceUsage = attributes.getValue("usage");
-        // the referenceCode is used when the value in the Reference tag
-        // doesn't actually resolve to a code. We need this because it is
-        // what we will ACTUALLY connect the relationship to
-        referenceCode = attributes.getValue("code");
+        // Encountered Reference, append label chars and save usage
+        if (qName.equalsIgnoreCase("reference")) {
+
+          // add label chars if within a label tag
+          if (tagStack.contains("label")) {
+            // Append a space if we've already seen earlier fragments
+            if (labelChars.length() != 0
+                && chars.toString().trim().length() > 0) {
+              labelChars.append(" ");
+            }
+            labelChars.append(chars.toString().trim());
+          } else {
+            throw new SAXException(
+                "Unexpected place to find reference -- not in label tag");
+          }
+          // Clear "characters"
+          chars = new StringBuilder();
+
+          // Save reference usage
+          referenceUsage = attributes.getValue("usage");
+          // the referenceCode is used when the value in the Reference tag
+          // doesn't actually resolve to a code. We need this because it is
+          // what we will ACTUALLY connect the relationship to
+          referenceCode = attributes.getValue("code");
+        }
+      } catch (SAXException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new SAXException(e.getMessage(), e);
       }
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xml.sax.helpers.DefaultHandler#endElement(java.lang.String,
-     * java.lang.String, java.lang.String)
-     */
     /* see superclass */
     @Override
     public void endElement(String uri, String localName, String qName)
@@ -967,22 +938,12 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xml.sax.helpers.DefaultHandler#characters(char[], int, int)
-     */
     /* see superclass */
     @Override
     public void characters(char ch[], int start, int length) {
       chars.append(new String(ch, start, length));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xml.sax.helpers.DefaultHandler#endDocument()
-     */
     /* see superclass */
     @Override
     public void endDocument() throws SAXException {
@@ -2150,22 +2111,12 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.algo.AbstractLoaderAlgorithm#getTerminology()
-   */
   /* see superclass */
   @Override
   public String getTerminology() {
     return terminology;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.wci.umls.server.jpa.algo.AbstractLoaderAlgorithm#getVersion()
-   */
   /* see superclass */
   @Override
   public String getVersion() {

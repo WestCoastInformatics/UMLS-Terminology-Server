@@ -148,5 +148,5 @@ public interface PfsParameter {
    * @param sortFields the new sort fields
    */
   public void setSortFields(List<String> sortFields);
-  
+
 }

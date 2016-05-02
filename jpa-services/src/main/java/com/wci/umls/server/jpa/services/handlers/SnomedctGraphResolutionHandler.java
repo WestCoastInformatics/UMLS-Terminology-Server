@@ -33,7 +33,6 @@ public class SnomedctGraphResolutionHandler extends
   /** The atv prop. */
   private static Properties prop = null;
 
-
   /** The terminology. */
   private static String terminology = "SNOMEDCT";
 
@@ -159,7 +158,7 @@ public class SnomedctGraphResolutionHandler extends
       if (relationship.getAlternateTerminologyIds() != null) {
         relationship.getAlternateTerminologyIds().keySet();
       }
-     
+
       if (prop.getProperty(relationship.getAdditionalRelationshipType()) != null) {
         relationship.setAdditionalRelationshipType(prop
             .getProperty(relationship.getAdditionalRelationshipType()));

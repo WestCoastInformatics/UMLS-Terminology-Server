@@ -262,12 +262,10 @@ public class StandardMetadataServiceJpaHelper extends
     manager = factory.createEntityManager();
   }
 
-
   /* see superclass */
   @Override
   public String getName() {
     return "Standard Metadata Handler";
   }
 
-  
 }

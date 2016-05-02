@@ -323,7 +323,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
     ContentService contentService = null;
     try {
       contentService = new ContentServiceJpa();
-      
+
       // concepts must not exist with this terminology/version
       if (contentService.findConceptsForQuery(sourceData.getTerminology(),
           sourceData.getVersion(), Branch.ROOT, null, new PfscParameterJpa())

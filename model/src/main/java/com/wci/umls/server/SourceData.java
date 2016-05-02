@@ -24,7 +24,7 @@ public interface SourceData extends HasTerminology, HasLastModified, HasName {
 
     /** The new. */
     NEW,
-    
+
     /** The cancelled. */
     CANCELLED,
 
@@ -118,16 +118,6 @@ public interface SourceData extends HasTerminology, HasLastModified, HasName {
    * @param description the new description
    */
   public void setDescription(String description);
-
-  /**
-   * Load.
-   */
-  public void load();
-
-  /**
-   * Remove.
-   */
-  public void remove();
 
   /**
    * Gets the release version.
