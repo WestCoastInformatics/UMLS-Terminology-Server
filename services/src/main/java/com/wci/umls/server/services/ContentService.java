@@ -1749,4 +1749,16 @@ public interface ContentService extends MetadataService {
     String terminology, String version, String branch, String query,
     PfsParameter pfs) throws Exception;
 
+  /**
+   * Gets the hibernate id to terminology id map.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the terminology id map
+   * @throws Exception the exception
+   */
+  public Map<Long, String> getTerminologyIdMap(String terminology, String version,
+    String branch) throws Exception;
+
 }

@@ -19,6 +19,8 @@
     <!-- Indicate objects to index, leave blank for all objects -->
     <!-- Override this property setting on the command line -->
     <indexed.objects></indexed.objects>
+    <terminology></terminology>
+    <version></version>
     <server></server>
     <!-- Indicates whether to run against a server (true/false) -->
     <server>false</server>
@@ -45,6 +47,36 @@
                 <configuration>
                   <!-- Specify -DindexedObjects=... and -Dserver=[true/false] -->
                   <indexedObjects>${indexed.objects}</indexedObjects>
+                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <!-- Rebuild indexes, specify -Drun.config.umls=... and -Dindexed.objects=... -->
+    <profile>
+      <id>ReindexEcl</id>
+      <build>
+        <plugins>
+          <!-- Reindex -->
+          <plugin>
+            <groupId>com.wcinformatics.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>reindex-ecl</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>reindex-ecl</goal>
+                </goals>
+                <configuration>
+                  <!-- Specify -DindexedObjects=... and -Dserver=[true/false] -->
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
                   <server>${server}</server>
                 </configuration>
               </execution>

@@ -1157,8 +1157,8 @@ public class ContentClientRest extends RootClientRest
   /* see superclass */
   @Override
   public RelationshipList findDeepRelationshipsForConcept(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String filter, String authToken)
-      throws Exception {
+    String terminology, String version, PfsParameterJpa pfs, String filter,
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - find deep relationships for concept "
             + terminologyId + ", " + terminology + ", " + version + ", " + pfs);
@@ -1286,60 +1286,57 @@ public class ContentClientRest extends RootClientRest
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Client - find mappings for concept "
-            + terminologyId + ", " + terminology + ", " + version);
+        .debug("Content Client - find mappings for concept " + terminologyId
+            + ", " + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     Logger.getLogger(getClass())
-        .debug("Content Client - find mappings for concept "
-            + terminologyId + ", " + terminology + ", " + version + ", " + pfs
-            + ", " + query);
-    return findMappingsHelper("cui", terminologyId, terminology, version,
-        query, pfs, authToken);
+        .debug("Content Client - find mappings for concept " + terminologyId
+            + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
+    return findMappingsHelper("cui", terminologyId, terminology, version, query,
+        pfs, authToken);
   }
-  
+
   /* see superclass */
   @Override
   public MappingList findMappingsForCode(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Client - find mappings for code "
-            + terminologyId + ", " + terminology + ", " + version);
+        .debug("Content Client - find mappings for code " + terminologyId + ", "
+            + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     Logger.getLogger(getClass())
-        .debug("Content Client - find mappings for code "
-            + terminologyId + ", " + terminology + ", " + version + ", " + pfs
-            + ", " + query);
+        .debug("Content Client - find mappings for code " + terminologyId + ", "
+            + terminology + ", " + version + ", " + pfs + ", " + query);
     return findMappingsHelper("code", terminologyId, terminology, version,
         query, pfs, authToken);
   }
-  
+
   /* see superclass */
   @Override
   public MappingList findMappingsForDescriptor(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Content Client - find mappings for descriptor "
-            + terminologyId + ", " + terminology + ", " + version);
+        .debug("Content Client - find mappings for descriptor " + terminologyId
+            + ", " + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     Logger.getLogger(getClass())
-        .debug("Content Client - find mappings for descriptor "
-            + terminologyId + ", " + terminology + ", " + version + ", " + pfs
-            + ", " + query);
-    return findMappingsHelper("dui", terminologyId, terminology, version,
-        query, pfs, authToken);
+        .debug("Content Client - find mappings for descriptor " + terminologyId
+            + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
+    return findMappingsHelper("dui", terminologyId, terminology, version, query,
+        pfs, authToken);
   }
-  
+
   /**
    * Find mappings helper.
    *
@@ -1353,14 +1350,14 @@ public class ContentClientRest extends RootClientRest
    * @return the mapping list
    * @throws Exception the exception
    */
-  private MappingList findMappingsHelper(String type,
-    String terminologyId, String terminology, String version, String query,
-    PfsParameterJpa pfs, String authToken) throws Exception {
+  private MappingList findMappingsHelper(String type, String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(
-        config.getProperty("base.url") + "/content/" + type + "/" + terminologyId
-            + "/" + terminology + "/" + version + "/mappings" + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/content/" + type + "/"
+            + terminologyId + "/" + terminology + "/" + version + "/mappings"
+            + "?query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20"));
 
     String pfsString = ConfigUtility
@@ -1376,11 +1373,11 @@ public class ContentClientRest extends RootClientRest
     }
 
     // converting to object
-    MappingListJpa list = ConfigUtility.getGraphForString(resultString,
-        MappingListJpa.class);
+    MappingListJpa list =
+        ConfigUtility.getGraphForString(resultString, MappingListJpa.class);
     return list;
   }
-  
+
   /* see superclass */
   @Override
   public TreeList findConceptTrees(String terminologyId, String terminology,
@@ -1710,8 +1707,9 @@ public class ContentClientRest extends RootClientRest
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/content/mapset/" + terminology + "/" + version + "/" + terminologyId);
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/content/mapset/"
+            + terminology + "/" + version + "/" + terminologyId);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 
@@ -1731,8 +1729,8 @@ public class ContentClientRest extends RootClientRest
   @Override
   public MapSetList getMapSets(String terminology, String version,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get mapsets " + terminology + ", " + version);
+    Logger.getLogger(getClass())
+        .debug("Content Client - get mapsets " + terminology + ", " + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
@@ -1758,7 +1756,7 @@ public class ContentClientRest extends RootClientRest
   @Override
   public MappingList findMappingsForMapSet(String mapSetId, String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception {
+      throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - find mappings for mapset " + terminology + ", "
             + version);
@@ -1784,11 +1782,36 @@ public class ContentClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
     // converting to object
-    MappingListJpa list = ConfigUtility.getGraphForString(resultString,
-        MappingListJpa.class);
+    MappingListJpa list =
+        ConfigUtility.getGraphForString(resultString, MappingListJpa.class);
     return list;
   }
 
+  @Override
+  public void computeEclIndexes(String terminology, String version,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Client - reindex Ecl indexes for " + terminology + ", "
+            + version);
+   
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
 
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/content/reindex/ecl/"
+             + terminology + "/" + version);
+           
+   
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(null);
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+  }
 
 }

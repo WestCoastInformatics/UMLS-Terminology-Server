@@ -92,6 +92,9 @@ public abstract class RootServiceJpa implements RootService {
     // created on each instantiation
     manager = factory.createEntityManager();
     tx = manager.getTransaction();
+    
+    // TODO Put the ecl file check here
+    // Add a static flag (set once, then checked)
   }
 
   /* see superclass */
@@ -226,7 +229,7 @@ public abstract class RootServiceJpa implements RootService {
 
     // Query restriction assumes a driving table called "a"
     if (pfs != null) {
-      if (pfs.getQueryRestriction() == null) {
+      if (pfs.getQueryRestriction() != null) {
         throw new Exception("Query restriction not supported for JQL queries");
       }
 

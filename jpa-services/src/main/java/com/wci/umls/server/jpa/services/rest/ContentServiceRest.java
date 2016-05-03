@@ -841,6 +841,17 @@ public interface ContentServiceRest {
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
 
+  /**
+   * Compute ecl indexes.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public  void computeEclIndexes(String terminology, String version, String authToken)
+    throws Exception;
+
   
 
 }

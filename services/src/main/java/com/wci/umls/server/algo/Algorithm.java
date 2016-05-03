@@ -38,4 +38,6 @@ public interface Algorithm extends ProgressReporter {
    * @throws Exception the exception
    */
   public void close() throws Exception;
+  
+  
 }

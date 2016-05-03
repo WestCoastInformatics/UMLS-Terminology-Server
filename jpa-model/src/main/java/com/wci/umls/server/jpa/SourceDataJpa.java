@@ -429,16 +429,5 @@ public class SourceDataJpa implements SourceData {
     this.releaseVersion = releaseVersion;
   }
 
-  @Override
-  public void load() {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void remove() {
-    // TODO Auto-generated method stub
-
-  }
 
 }

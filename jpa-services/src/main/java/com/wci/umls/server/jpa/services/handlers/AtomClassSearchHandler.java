@@ -119,8 +119,9 @@ public class AtomClassSearchHandler implements SearchHandler {
     }
 
     // Build a quote-stripped query for use in literal and norm fields
-    String literalQuery = query;
-    if (query.startsWith("\"") && query.endsWith("\"")) {
+    String literalQuery = query == null ? "" : query;
+    
+    if (literalQuery.startsWith("\"") && query.endsWith("\"")) {
       literalQuery = query.substring(1, query.length() - 1);
     }
 
