@@ -24,6 +24,9 @@ public class PfsParameterJpa implements PfsParameter {
 
   /** The filter string. */
   private String queryRestriction = null;
+  
+  /** The expression constraint */
+  private String expression = null;
 
   /** The branch restriction. */
   private String branch = null;
@@ -155,6 +158,16 @@ public class PfsParameterJpa implements PfsParameter {
   @Override
   public List<String> getSortFields() {
     return this.sortFields;
+  }
+  
+  
+  @Override
+  public String getExpression() {
+    return expression;
+  }
+  @Override
+  public void setExpression(String expression) {
+    this.expression = expression;
   }
 
   @Override

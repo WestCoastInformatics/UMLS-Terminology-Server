@@ -38,12 +38,23 @@ tsApp
         var searchParams = {
           page : 1,
           query : null,
+          expression : null,
           advancedMode : false,
           semanticType : null,
           termType : null,
           matchTerminology : null,
           language : null,
-          showExtension : false
+          showExtension : false,
+          
+          // TODO Simple ECL Parameters (currently unused)
+          simpleEclComponents : {
+            descendantOf: null,
+            ancestorOf: null,
+            memberOf: null,
+            attributeType : null,
+            attributeTarget : null,
+            selfOf: null
+          }
         };
 
         // Search results
@@ -443,6 +454,7 @@ tsApp
             startIndex : (page - 1) * pageSizes.general,
             maxResults : pageSizes.general,
             sortField : null,
+            expression : searchParams.expression,
             queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
           };
 
@@ -792,6 +804,26 @@ tsApp
 
           return deferred.promise;
         };
+        
+        this.isExpressionConstraintLanguage = function(terminology, version, query) {
+          var deferred = $q.defer();
+          if (!query || query.length == 0) {
+            console.error('Cannot check empty query for expressions');
+            deferred.reject('Cannot check empty query for expressions');
+          }
+          gpService.increment();
+          $http.get(
+            contentUrl + '/ecl/isExpression/' + URIEncode(query)).then(function(response) {
+            gpService.decrement();
+            deferred.resolve(response.data);
+          }, function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+        }
+        
+        
         // end
 
       } ]);

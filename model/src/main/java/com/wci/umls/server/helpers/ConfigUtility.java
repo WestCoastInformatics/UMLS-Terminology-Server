@@ -211,9 +211,9 @@ public class ConfigUtility {
 
     return label;
   }
-  
+
   /**
-   *  The get local config file.
+   * The get local config file.
    *
    * @return the local config file
    * @throws Exception the exception
@@ -221,7 +221,7 @@ public class ConfigUtility {
   public static String getLocalConfigFile() throws Exception {
     return getLocalConfigFolder() + "config.properties";
   }
-  
+
   /**
    * Gets the local config folder.
    *
@@ -229,10 +229,9 @@ public class ConfigUtility {
    * @throws Exception the exception
    */
   public static String getLocalConfigFolder() throws Exception {
-    return System.getProperty("user.home") + "/.term-server/" + getConfigLabel() + "/";
+    return System.getProperty("user.home") + "/.term-server/" + getConfigLabel()
+        + "/";
   }
-
-  
 
   /**
    * Returns the config properties.
@@ -268,7 +267,8 @@ public class ConfigUtility {
           config.load(is);
         }
 
-        // retrieve locally stored config file from user configuration (if available)
+        // retrieve locally stored config file from user configuration (if
+        // available)
         else if (new File(getLocalConfigFile()).exists()) {
           config = new Properties();
           FileReader in = new FileReader(new File(getLocalConfigFile()));
@@ -872,4 +872,68 @@ public class ConfigUtility {
     final String[] splitStrs = value.toLowerCase().split(PUNCTUATION_REGEX);
     return String.join(" ", splitStrs).trim().replaceAll(" +", " ");
   }
+
+  /**
+   * Gets the base index directory.
+   *
+   * @return the base index directory
+   * @throws Exception
+   */
+  public static String getBaseIndexDirectory() throws Exception {
+    return getConfigProperties()
+        .getProperty("hibernate.search.default.indexBase");
+  }
+
+  /**
+   * Gets the ecl index directory for a terminology and version
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @return the ecl index directory
+   * @throws Exception
+   */
+  public static String getEclIndexDirectoryName(String terminology, String version)
+    throws Exception {
+    return getBaseIndexDirectory() + "/ecl/" + terminology + "/" + version + "/";
+  }
+  
+  
+  /**
+   * Create ecl index directory.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @throws Exception
+   */
+  public static void createEclIndexDirectory(String terminology, String version)
+    throws Exception {
+
+    // remove directory (if it exists)
+    removeEclIndexDirectory(terminology, version);
+    
+    // create the directory structure
+    File eclDir = new File(getEclIndexDirectoryName(terminology, version));
+    eclDir.mkdirs();
+  }
+
+  /**
+   * Remove ecl index directory.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @throws Exception
+   */
+  public static void removeEclIndexDirectory(String terminology, String version)
+    throws Exception {
+    File eclDir = new File(getEclIndexDirectoryName(terminology, version));
+    if (eclDir.exists()) {
+      if (!eclDir.isDirectory()) {
+        throw new Exception(
+            "Cannot delete ECL indexes: path is not a directory: "
+                + eclDir.getAbsolutePath());
+      }
+      deleteDirectory(eclDir);
+    }
+  }
+
 }

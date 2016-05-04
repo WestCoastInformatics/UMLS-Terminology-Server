@@ -1,4 +1,4 @@
-package com.wci.umls.server.jpa.services.ecl;
+package com.wci.umls.server.jpa.services.handlers.expr;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class ExpressionConstraintParser extends Parser {
         new PredictionContextCache();
     
     /** The Constant U_00F4. */
-    // TODO This was public, throws javadoc warnings
+    // NOTE This was public, changed to protected to avoid javadoc warnings
     protected static final int
         TAB=1, LF=2, CR=3, SPACE=4, EXCLAMATION=5, QUOTE=6, POUND=7, DOLLAR=8, 
         PERCENT=9, AMPERSAND=10, APOSTROPHE=11, LEFT_PAREN=12, RIGHT_PAREN=13, 
@@ -70,7 +70,7 @@ public class ExpressionConstraintParser extends Parser {
         U_00F4=213;
     
     /** The Constant RULE_utf8_tail. */
-    // TODO This was public, throws javadoc warnings
+    // NOTE This was public, changed to protected to avoid javadoc warnings
     protected static final int
         RULE_expressionconstraint = 0, RULE_simpleexpressionconstraint = 1, RULE_refinedexpressionconstraint = 2, 
         RULE_compoundexpressionconstraint = 3, RULE_conjunctionexpressionconstraint = 4, 
@@ -95,7 +95,7 @@ public class ExpressionConstraintParser extends Parser {
         RULE_utf8_tail = 65;
 
     /** The Constant ruleNames. */
-    // TODO This was public, throws javadoc warnings
+    // NOTE This was public, changed to protected to avoid javadoc warnings
     protected static final String[] ruleNames = {
         "expressionconstraint", "simpleexpressionconstraint", "refinedexpressionconstraint", 
         "compoundexpressionconstraint", "conjunctionexpressionconstraint", "disjunctionexpressionconstraint", 

@@ -4283,6 +4283,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
       return true;
     }
   }
+  
+  private boolean isEclQuery(String query, PfsParameter pfs) {
+    return (pfs != null && !pfs.getExpression().isEmpty());
+  }
 
   /**
    * Returns the search handler.

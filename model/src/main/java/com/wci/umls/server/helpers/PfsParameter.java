@@ -5,124 +5,119 @@ package com.wci.umls.server.helpers;
 
 import java.util.List;
 
-import com.wci.umls.server.model.content.Concept;
-
 /**
- * Represents a parameter container for paging, filtering and sorting. NOTE:
- * filtering is not currently imported or supported.
+ * The Interface PfsParameter.
  */
 public interface PfsParameter {
 
   /**
-   * Returns the maximum number of results.
+   * Gets the max results.
    *
-   * @return the maximum number of results
+   * @return the max results
    */
   public int getMaxResults();
 
   /**
-   * Sets the maximum number of results.
+   * Sets the max results.
    *
-   * @param maxResults the maximum number of results
+   * @param maxResults the new max results
    */
   public void setMaxResults(int maxResults);
 
   /**
-   * Returns the starting index of a query result subset.
+   * Gets the start index.
    *
    * @return the start index
    */
   public int getStartIndex();
 
   /**
-   * Sets the starting index of a query result subset.
+   * Sets the start index.
    *
-   * @param startIndex the start index
+   * @param startIndex the new start index
    */
   public void setStartIndex(int startIndex);
 
   /**
-   * Indicates whether to find only active content.
+   * Gets the active only.
    *
-   * @return the find active only
+   * @return the active only
    */
   public boolean getActiveOnly();
 
   /**
-   * Sets the find active only flag.
+   * Sets the active only.
    *
-   * @param activeOnly the find active only
+   * @param activeOnly the new active only
    */
   public void setActiveOnly(boolean activeOnly);
 
   /**
-   * Indicates whether to find only inactive content.
+   * Gets the inactive only.
    *
-   * @return the find inactive only
+   * @return the inactive only
    */
   public boolean getInactiveOnly();
 
   /**
-   * Sets the find inactive only flag.
+   * Sets the inactive only.
    *
-   * @param inactiveOnly the find inactive only
+   * @param inactiveOnly the new inactive only
    */
   public void setInactiveOnly(boolean inactiveOnly);
 
   /**
-   * Returns the filter string.
+   * Gets the query restriction.
    *
-   * @return the filter string
+   * @return the query restriction
    */
   public String getQueryRestriction();
 
   /**
-   * Sets a string that can be used as part of a query to restrict results. In
-   * practice, this is expressed in Lucene query syntax.
-   * @param queryRestriction the filter string
+   * Sets the query restriction.
+   *
+   * @param queryRestriction the new query restriction
    */
   public void setQueryRestriction(String queryRestriction);
 
   /**
-   * Returns the sort field name. Valid values for the sort field would include
-   * a bean-style property name for the underlying object. For example, for
-   * {@link Concept} retrieval, you could pass id or definitionStatusId, or
-   * defaultPrefereredName.
-   * @return the sort field name
+   * Gets the sort field.
+   *
+   * @return the sort field
    */
   public String getSortField();
 
   /**
-   * Sets the sort field name.
+   * Sets the sort field.
    *
-   * @param sortField the sort field name
+   * @param sortField the new sort field
    */
   public void setSortField(String sortField);
 
   /**
-   * Indicates whether the index is in range for the given start index and max
-   * results settings.
-   * @param i the index to check
-   * @return <code>true</code> if so, <code>false</code> otherwise
+   * Checks if is index in range.
+   *
+   * @param i the i
+   * @return true, if is index in range
    */
   public boolean isIndexInRange(int i);
 
   /**
-   * Indicates whether or not ascending is the case.
+   * Checks if is ascending.
    *
-   * @return <code>true</code> if so, <code>false</code> otherwise
+   * @return true, if is ascending
    */
   public boolean isAscending();
 
   /**
-   * Sets the ascending flag.
+   * Sets the ascending.
    *
-   * @param ascending the ascending
+   * @param ascending the new ascending
    */
   public void setAscending(boolean ascending);
 
   /**
-   * Returns the branch.
+   * Gets the branch.
    *
    * @return the branch
    */
@@ -131,7 +126,7 @@ public interface PfsParameter {
   /**
    * Sets the branch.
    *
-   * @param branch the branch
+   * @param branch the new branch
    */
   public void setBranch(String branch);
 
@@ -148,5 +143,19 @@ public interface PfsParameter {
    * @param sortFields the new sort fields
    */
   public void setSortFields(List<String> sortFields);
+
+  /**
+   * Gets the expression.
+   *
+   * @return the expression
+   */
+  public String getExpression();
+
+  /**
+   * Sets the expression.
+   *
+   * @param expression the new expression
+   */
+  public void setExpression(String expression);
   
 }

@@ -1793,22 +1793,43 @@ public class ContentClientRest extends RootClientRest
     Logger.getLogger(getClass())
         .debug("Content Client - reindex Ecl indexes for " + terminology + ", "
             + version);
-   
+
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/reindex/ecl/"
-             + terminology + "/" + version);
-           
-   
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/expression/index/" + terminology + "/" + version);
+
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(null);
 
-    String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+  }
+
+  @Override
+  public Integer getEclExpressionResultCount(String query, String terminology, String version, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Client - check if ECL expression for " + terminology + ", " + version + ", for query: " + query);
+
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    validateNotEmpty(query, "query");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/ecl/isExpression/" + terminology + "/" + version + "/" + query);
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    Integer result = response.readEntity(Integer.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      return result;
     } else {
       throw new Exception(response.toString());
     }

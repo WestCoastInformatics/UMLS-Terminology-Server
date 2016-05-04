@@ -454,8 +454,8 @@ public interface ContentServiceRest {
    * @throws Exception the exception
    */
   public void loadTerminologyRrf(String terminology, String version,
-    Boolean singleMode, Boolean codeFlag, String prefix, String inputDir, String authToken)
-      throws Exception;
+    Boolean singleMode, Boolean codeFlag, String prefix, String inputDir,
+    String authToken) throws Exception;
 
   /**
    * Load terminology snapshot from RF2 directory.
@@ -762,8 +762,8 @@ public interface ContentServiceRest {
    * @return the map set
    * @throws Exception the exception
    */
-  public MapSet getMapSet(String terminologyId, String terminology, String version,
-    String authToken) throws Exception;
+  public MapSet getMapSet(String terminologyId, String terminology,
+    String version, String authToken) throws Exception;
 
   /**
    * Gets the map sets.
@@ -774,8 +774,8 @@ public interface ContentServiceRest {
    * @return the map sets
    * @throws Exception the exception
    */
-  public MapSetList getMapSets(String terminology, String version, String authToken)
-    throws Exception;
+  public MapSetList getMapSets(String terminology, String version,
+    String authToken) throws Exception;
 
   /**
    * Find mappings for map set.
@@ -791,7 +791,7 @@ public interface ContentServiceRest {
    */
   public MappingList findMappingsForMapSet(String mapSetId, String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+      throws Exception;
 
   /**
    * Find mappings for concept.
@@ -807,7 +807,7 @@ public interface ContentServiceRest {
    */
   public MappingList findMappingsForConcept(String mapSetId, String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+      throws Exception;
 
   /**
    * Find mappings for code.
@@ -821,9 +821,9 @@ public interface ContentServiceRest {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForCode(String terminologyId, String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public MappingList findMappingsForCode(String terminologyId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Find mappings for descriptor.
@@ -849,9 +849,20 @@ public interface ContentServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public  void computeEclIndexes(String terminology, String version, String authToken)
-    throws Exception;
+  public void computeEclIndexes(String terminology, String version,
+    String authToken) throws Exception;
 
-  
+  /**
+   * Gets the ecl expression result count.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param authToken the auth token
+   * @return the ecl expression result count
+   * @throws Exception the exception
+   */
+  public Integer getEclExpressionResultCount(String terminology, String version,
+    String query, String authToken) throws Exception;
 
 }

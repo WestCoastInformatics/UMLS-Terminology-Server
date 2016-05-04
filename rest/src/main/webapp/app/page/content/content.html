@@ -1,7 +1,6 @@
 
 <!-- Full-function content page, with search and report  -->
 <div class="row">
-
   <div class="col-md-3 col-xs-3 alert alert-warning" style="margin-left: 25px;"
     ng-show="getViewableTerminologies().length === 0">No viewable
     terminologies loaded.</div>
@@ -60,6 +59,20 @@
   <!-- Advanced Search Controls -->
   <div class="col-md-4 col-xs-12">
     <div ng-show="searchParams.advancedMode">
+      <!-- Expression Constraints (ECL) -->
+      <div ng-show="metadata.terminology.descriptionLogicTerminology">
+        <div class="row m10">
+          <div class="col-lg-3 col-md-6 col-xs-3"
+            style="margin-right: 0px; padding-right: 0px;">
+            Expression <i class="glyphicon glyphicon-remove pull-right"
+              ng-show="searchParams.expression" ng-click="expression = null;"></i>
+          </div>
+          <div class="col-lg-9 col-md-6 col-xs-9">
+            <textarea style="margin-bottom: 5px; width: 100%;"
+              ng-model="searchParams.expression"></textarea>
+          </div>
+        </div>
+      </div>
       <div ng-show="metadata.semanticTypes.length > 1" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
@@ -77,7 +90,9 @@
         </div>
       </div>
       <!-- As of 4/28/16, do not show term type select for non-metathesaurus terminologies -->
-      <div ng-show="metadata.terminology.metathesaurus && metadata.termTypes.length > 1" class="row m10">
+      <div
+        ng-show="metadata.terminology.metathesaurus && metadata.termTypes.length > 1"
+        class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
           Term Type <i class="glyphicon glyphicon-remove pull-right"
@@ -108,7 +123,7 @@
           </select>
         </div>
       </div>
-      <!--  Show only if more than one language --> 
+      <!--  Show only if more than one language -->
       <div ng-show="metadata.languages.length > 1" class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
           style="margin-right: 0px; padding-right: 0px;">
@@ -127,11 +142,10 @@
       <!--  Feedback -->
       <div class="row m10">
         <div class="col-lg-3 col-md-6 col-xs-3"
-          style="margin-right: 0px; padding-right: 0px;">
-         
-        </div>
+          style="margin-right: 0px; padding-right: 0px;"></div>
         <div class=" col-lg-9 col-md-6 col-xs-9">
-          Want more functionality? <a href="mailto:{{appConfig.deployFeedbackEmail}}">Let us know!</a>
+          Want more functionality?
+          <a href="mailto:{{appConfig.deployFeedbackEmail}}">Let us know!</a>
         </div>
       </div>
     </div>
@@ -161,14 +175,17 @@
           <tr ng-class="{active: searchResult.active}"
             ng-repeat="searchResult in searchResults.list"
             ng-click="getComponent(searchResult.terminologyId, searchResult.terminology, searchResult.version)">
-            <td><span class="nobreak">
+            <td>
+              <span class="nobreak">
                 <i ng-class="getColorForScore(searchResult.score)">&#9679;</i>
                 <span
                   ng-show="searchResult.terminology != metadata.terminology.terminology">{{searchResult.terminology}}/</span>
                 <span class="breakword">{{searchResult.terminologyId}}</span>
-              </span></td>
-            <td><span class="breakword"> {{searchResult.value}}</span> <span
-                class="label label-default" ng-show="searchResult.obsolete"
+              </span>
+            </td>
+            <td>
+              <span class="breakword"> {{searchResult.value}}</span>
+              <span class="label label-default" ng-show="searchResult.obsolete"
                 uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
             </td>
           </tr>
@@ -194,8 +211,8 @@
             class="glyphicon glyphicon-star-empty"
             ng-show="!showExtension && !terminology.metathesaurus && metadata.labelSets.length > 0 && searchResults.tree.totalCount > 0"
             ng-click="toggleExtension()"
-            uib-tooltip="Click to show extension highlights in tree">
-          </i> &nbsp; <i class="pull-right glyphicon glyphicon-th-list"
+            uib-tooltip="Click to show extension highlights in tree"> </i>
+          &nbsp; <i class="pull-right glyphicon glyphicon-th-list"
             ng-click="setListView()" uib-tooltip="Switch to list view"
             tooltip-placement="bottom"></i>
         </span>

@@ -35,7 +35,7 @@ import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
-import com.wci.umls.server.jpa.algo.EclConceptWriterAlgorithm;
+import com.wci.umls.server.jpa.algo.EclConceptIndexingAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.OwlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
@@ -69,6 +69,7 @@ import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
@@ -158,8 +159,35 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   @Override
+  @GET
+  @Path("/expression/count/{terminology}/{version}/{query}")
+  @ApiOperation(value = "Returns count for a (presumably) valid EC query", notes = "Returns total count if the query can be parsed as an ECL expression, false if not")
+  public Integer getEclExpressionResultCount(
+    @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "The expression to be checked", required = true) @PathParam("query") String query,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful POST call (Content): /expression/count/" + terminology + "/version/" + query);
+
+    try {
+      authorizeApp(securityService, authToken, "create ECL indexes",
+          UserRole.ADMINISTRATOR);
+      EclExpressionHandler handler = new EclExpressionHandler(terminology, version);
+      return handler.resolve(query).getTotalCount();
+
+    } catch (Exception e) {
+      handleException(e, "checking query for expression syntax");
+      return -1;
+    } finally {
+      securityService.close();
+    }
+  }
+
+  @Override
   @POST
-  @Path("/reindex/ecl/{terminology}/{version}")
+  @Path("/expression/index/{terminology}/{version}")
   @ApiOperation(value = "Computes expression constraint indexes", notes = "Computes the indexes required for expression constraint searches for a given terminology and version")
   public void computeEclIndexes(
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -171,15 +199,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         .info("RESTful POST call (Content): /reindex/ecl/" + terminology + "/"
             + version);
 
-    final ContentService contentService = new ContentServiceJpa();
+    final ContentServiceJpa contentService = new ContentServiceJpa();
 
     // TODO Add support for code/descriptor
-    final EclConceptWriterAlgorithm algo =
-        new EclConceptWriterAlgorithm();
+    final EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
     algo.setTerminology(terminology);
     algo.setVersion(version);
     algo.setContentService(contentService);
-    
+
     try {
       authorizeApp(securityService, authToken, "create ECL indexes",
           UserRole.ADMINISTRATOR);
@@ -188,9 +215,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to create ECL indexes");
     } finally {
       algo.close();
+      contentService.close();
       securityService.close();
     }
-    
 
   }
 

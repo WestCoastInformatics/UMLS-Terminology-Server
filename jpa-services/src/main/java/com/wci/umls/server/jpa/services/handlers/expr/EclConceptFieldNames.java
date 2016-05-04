@@ -1,9 +1,9 @@
-package com.wci.umls.server.jpa.services.ecl;
+package com.wci.umls.server.jpa.services.handlers.expr;
 
 /**
  * The Interface ConceptFieldNames.
  */
-public interface ConceptFieldNames {
+public interface EclConceptFieldNames {
 
   /** The id. */
   String ID = "terminologyId";
