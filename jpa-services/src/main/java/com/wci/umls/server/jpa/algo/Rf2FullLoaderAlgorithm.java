@@ -158,6 +158,10 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
     }
 
+    // Remove any old sorting dir
+    ConfigUtility
+        .deleteDirectory(new File(getInputPath(), "/RF2-sorted-temp/"));
+
     // Sort files
     Logger.getLogger(getClass()).info("  Sort RF2 Files");
     sorter = new Rf2FileSorter();
@@ -203,12 +207,17 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       algorithm2.setReleaseVersion(release);
       algorithm2.setReaders(readers);
       algorithm2.setSortFiles(false);
+      algorithm2.setInputPath(getInputPath());
       algorithm2.compute();
       algorithm2.close();
       algorithm2.closeFactory();
       algorithm2 = null;
 
     }
+
+    // Remove sort directory if sorting was done locally
+    ConfigUtility
+        .deleteDirectory(new File(getInputPath(), "/RF2-sorted-temp/"));
 
     // Refresh caches for metadata handlers
     new MetadataServiceJpa().refreshCaches();

@@ -41,7 +41,7 @@ public class TerminologyRf2SnapshotSampler extends AbstractMojo {
    * @parameter
    * @required
    */
-  private String inputFile;
+  private String inputFile = null;
 
   /**
    * Output directory.

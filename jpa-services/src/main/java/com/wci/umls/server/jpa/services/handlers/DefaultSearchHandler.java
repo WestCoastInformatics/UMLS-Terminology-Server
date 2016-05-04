@@ -53,9 +53,11 @@ public class DefaultSearchHandler implements SearchHandler {
     // Build an escaped form of the query with wrapped quotes removed
     // This will be used for literal/exact searching
     String escapedQuery = query;
-    if (query.startsWith("\"") && query.endsWith("\"")) {
+    if (query != null && query.startsWith("\"") && query.endsWith("\"")) {
       escapedQuery = escapedQuery.substring(1);
       escapedQuery = escapedQuery.substring(0, query.length() - 2);
+    } else {
+      escapedQuery = query == null ? "" : escapedQuery;
     }
     escapedQuery = "\"" + QueryParserBase.escape(escapedQuery) + "\"";
 

@@ -67,7 +67,7 @@ public class MapSetJpaUnitTest {
     a2 = (AttributeJpa) tester.createObject(2);
     ProxyTester tester2 = new ProxyTester(new MappingJpa());
     m1 = (MappingJpa) tester2.createObject(1);
-    m1 = (MappingJpa) tester2.createObject(2);
+    m2 = (MappingJpa) tester2.createObject(2);
   }
 
   /**

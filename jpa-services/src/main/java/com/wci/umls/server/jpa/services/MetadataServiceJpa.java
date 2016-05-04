@@ -439,12 +439,12 @@ public class MetadataServiceJpa extends RootServiceJpa implements
   public Terminology getTerminologyLatestVersion(String terminology)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "Metadata service - get latest terminolog version - " + terminology);
-    javax.persistence.TypedQuery<Object[]> query =
+        "Metadata service - get latest terminology version - " + terminology);
+    javax.persistence.Query query =
         manager.createQuery("SELECT max(t.version) from TerminologyJpa t "
-            + "WHERE terminology = :terminology", Object[].class);
+            + "WHERE terminology = :terminology");
     query.setParameter("terminology", terminology);
-    final String version = query.getSingleResult()[0].toString();
+    final String version = query.getSingleResult().toString();
     return getTerminology(terminology, version);
   }
 

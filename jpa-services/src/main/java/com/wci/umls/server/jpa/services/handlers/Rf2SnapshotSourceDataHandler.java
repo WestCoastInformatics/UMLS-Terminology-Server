@@ -52,7 +52,8 @@ public class Rf2SnapshotSourceDataHandler extends AbstractSourceDataHandler {
   public void compute() throws Exception {
 
     Logger.getLogger(getClass()).info(
-        "Loading RF2 Snapshot for " + sourceData.getName());
+        "Loading RF2 Delta for "
+            + (sourceData == null ? "null" : sourceData.getName()));
 
     // check pre-requisites
     if (sourceData == null) {

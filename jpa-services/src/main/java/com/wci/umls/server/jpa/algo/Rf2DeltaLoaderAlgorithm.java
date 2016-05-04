@@ -1451,16 +1451,15 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
     // Cache mapsets
     query =
-        manager.createQuery("select a.terminologyId, a.id from MapSetJpa a "
+        manager.createQuery("select a from MapSetJpa a "
             + "where version = :version " + "and terminology = :terminology ");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
-    List<Object[]> mapSetResults = query.getResultList();
-    for (Object[] result : mapSetResults) {
-      idMap.put(result[0].toString(), Long.valueOf(result[1].toString()));
+    List<MapSet> mapSetResults = query.getResultList();
+    for (MapSet result : mapSetResults) {
+      conceptMapSetMap.put(result.getTerminologyId(), result);
     }
-
     Set<MapSet> modifiedMapSets = new HashSet<>();
 
     // Setup variables
@@ -1643,16 +1642,15 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
 
     // Cache mapsets
     query =
-        manager.createQuery("select a.terminologyId, a.id from MapSetJpa a "
+        manager.createQuery("select a from MapSetJpa a "
             + "where version = :version " + "and terminology = :terminology ");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")
-    List<Object[]> mapSetResults = query.getResultList();
-    for (Object[] result : mapSetResults) {
-      idMap.put(result[0].toString(), Long.valueOf(result[1].toString()));
+    List<MapSet> mapSetResults = query.getResultList();
+    for (MapSet result : mapSetResults) {
+      conceptMapSetMap.put(result.getTerminologyId(), result);
     }
-
     Set<MapSet> modifiedMapSets = new HashSet<>();
 
     // Setup variables
@@ -2993,16 +2991,22 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
     String[] fields) throws Exception {
 
     if (idMap.get(fields[5]) != null) {
-      // Retrieve concept -- firstToken is referencedComponentId
+      // Retrieve concept -- tokens[5] is referencedComponentId
       final Concept concept = getConcept(idMap.get(fields[5]));
-      if (concept != null)
+      if (concept != null) {
         ((ConceptSubsetMember) member).setMember(concept);
+      }
 
       final Atom description = getAtom(idMap.get(fields[5]));
-      if (description != null)
+      if (description != null) {
         ((AtomSubsetMember) member).setMember(description);
-    } else {
-      throw new Exception("Refset member connected to nonexistent object");
+      }
+
+    }
+
+    if (member.getMember() == null) {
+      throw new Exception("Refset member connected to nonexistent object - "
+          + fields[5]);
     }
 
     // Universal RefSet attributes
@@ -3056,13 +3060,15 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       final AtomSubset subset = new AtomSubsetJpa();
       setCommonFields(subset, date);
       subset.setTerminologyId(fields[4].intern());
-      subset.setName(getConcept(idMap.get(fields[4])).getName());
+      final Concept concept = getConcept(idMap.get(fields[4]));
+      subset.setName(concept.getName());
+      subset.setObsolete(concept.isObsolete());
       subset.setDescription(subset.getName());
 
       final Attribute attribute = new AttributeJpa();
       setCommonFields(attribute, date);
       attribute.setName("moduleId");
-      attribute.setValue(fields[3].intern());
+      attribute.setValue(concept.getAttributeByName("moduleId").getValue());
       subset.addAttribute(attribute);
       addAttribute(attribute, member);
       cacheAttributeMetadata(attribute);
@@ -3079,14 +3085,16 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       final ConceptSubset subset = new ConceptSubsetJpa();
       setCommonFields(subset, date);
       subset.setTerminologyId(fields[4].intern());
-      subset.setName(getConcept(idMap.get(fields[4])).getName());
+      final Concept concept = getConcept(idMap.get(fields[4]));
+      subset.setName(concept.getName());
+      subset.setObsolete(concept.isObsolete());
       subset.setDescription(subset.getName());
       subset.setDisjointSubset(false);
 
       final Attribute attribute = new AttributeJpa();
       setCommonFields(attribute, date);
       attribute.setName("moduleId");
-      attribute.setValue(fields[3].intern());
+      attribute.setValue(concept.getAttributeByName("moduleId").getValue());
       subset.addAttribute(attribute);
       addAttribute(attribute, member);
       cacheAttributeMetadata(attribute);
@@ -3121,7 +3129,9 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       final MapSet mapSet = new MapSetJpa();
       setCommonFields(mapSet, date);
       mapSet.setTerminologyId(fields[4].intern());
-      mapSet.setName(getConcept(idMap.get(fields[4])).getName());
+      final Concept concept = getConcept(idMap.get(fields[4]));
+      mapSet.setName(concept.getName());
+      mapSet.setObsolete(concept.isObsolete());
       mapSet.setFromTerminology(getTerminology());
       mapSet.setFromVersion(getVersion());
       mapSet.setToTerminology(null);
@@ -3132,7 +3142,7 @@ public class Rf2DeltaLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm 
       final Attribute attribute = new AttributeJpa();
       setCommonFields(attribute, date);
       attribute.setName("moduleId");
-      attribute.setValue(fields[3].intern());
+      attribute.setValue(concept.getAttributeByName("moduleId").getValue());
       mapSet.addAttribute(attribute);
       addAttribute(attribute, mapping);
       cacheAttributeMetadata(attribute);
